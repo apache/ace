@@ -1,0 +1,8 @@
+To update the initial Ace website:
+
+1. Edit content here and commit your changes.
+
+7. Run "svn up" in /www/incubator.apache.org/ace on people.apache.org
+   to activate the live copy of the website. Note that there is a 
+   delay (4 hours IIRC) for http://incubator.apache.org/ace
+   to be updated once that happens.
