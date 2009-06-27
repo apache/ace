@@ -22,6 +22,10 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
+/**
+ * An implementation of the OSGi LogService that directly outputs each log message 
+ * to <code>System.out</code>. It does not implement the LogReader or LogListeners.
+ */
 public class Logger implements LogService {
     private static String[] LEVEL = { "", "Error", "Warn ", "Info ", "Debug" };
 

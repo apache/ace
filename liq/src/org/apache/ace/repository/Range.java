@@ -25,6 +25,11 @@ public class Range {
     private long m_low;
     private long m_high;
     
+    /**
+     * Create a new range based on a string representation of that range.
+     * 
+     * @param representation the string representation
+     */
     public Range(String representation) {
         int i = representation.indexOf('-');
         if (i == -1) {
@@ -43,10 +48,21 @@ public class Range {
         }
     }
     
+    /**
+     * Create a range that consists of a single number.
+     * 
+     * @param number the number
+     */
     public Range(long number) {
         m_low = m_high = number;
     }
     
+    /**
+     * Creates a range from a lower to a higher bound.
+     * 
+     * @param low the lower bound
+     * @param high the higher bound
+     */
     public Range(long low, long high) {
         if (low <= high) {
             m_low = low;
@@ -57,10 +73,22 @@ public class Range {
         }
     }
     
+    /**
+     * Returns the lower bound.
+     * 
+     * @return the lower bound
+     */
     public long getLow() {
         return m_low;
     }
     
+    /**
+     * Sets a new lower bound. Will make sure the range stays valid, 
+     * so if the higher bound is smaller than the new lower bound, it will
+     * be made equal to this new lower bound.
+     * 
+     * @param low the new lower bound
+     */
     public void setLow(long low) {
         m_low = low;
         if (m_high < m_low) {
@@ -68,10 +96,22 @@ public class Range {
         }
     }
 
+    /**
+     * Returns the higher bound.
+     * 
+     * @return the higher bound
+     */
     public long getHigh() {
         return m_high;
     }
     
+    /**
+     * Sets a new higher bound. Will make sure the range stays valid,
+     * so if the lower bound is bigger than the new higher bound, it will
+     * be made equal to this new higher bound.
+     * 
+     * @param high the new higher bound
+     */
     public void setHigh(long high) {
         m_high = high;
         if (m_low > m_high) {
@@ -79,10 +119,21 @@ public class Range {
         }
     }
     
+    /**
+     * Checks if a number falls within this range.
+     * 
+     * @param number the number to check
+     * @return <code>true</code> if the number was inside the range
+     */
     public boolean contains(long number) {
         return (m_low <= number) && (m_high >= number);
     }
-    
+
+    /**
+     * Converts the range to a string representation that can be parsed
+     * back to a new <code>Range</code> object.
+     * @return
+     */
     public String toRepresentation() {
         if (m_low == m_high) {
             return Long.toString(m_low);

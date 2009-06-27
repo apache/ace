@@ -121,6 +121,12 @@ public class SortedRangeSet {
         return result;
     }
     
+    /**
+     * Checks if a number falls within any range in this set.
+     * 
+     * @param number the number to check
+     * @return <code>true</code> if the number was inside any range in this set
+     */
     public boolean contains(long number) {
         Iterator i = m_ranges.iterator();
         while (i.hasNext()) {
@@ -131,7 +137,12 @@ public class SortedRangeSet {
         }
         return false;
     }
-    
+
+    /**
+     * Adds a number to the set of ranges. Tries to be as smart as possible about it.
+     * 
+     * @param number the number to add
+     */
     private void add(long number) {
         ListIterator i = m_ranges.listIterator();
         while (i.hasNext()) {
@@ -169,6 +180,11 @@ public class SortedRangeSet {
         m_ranges.add(nr);
     }
     
+    /**
+     * Returns an iterator that iterates over all the ranges in this set.
+     * 
+     * @return a range iterator
+     */
     public RangeIterator iterator() {
         return new RangeIterator(m_ranges.iterator());
     }

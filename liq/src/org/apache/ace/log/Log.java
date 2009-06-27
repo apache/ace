@@ -21,7 +21,8 @@ package org.apache.ace.log;
 import java.util.Dictionary;
 
 /**
- * Log interface.
+ * Log interface for a fairly generic logging mechanism, where each log entry has a type
+ * and a dictionary of properties.
  */
 public interface Log {
     /**

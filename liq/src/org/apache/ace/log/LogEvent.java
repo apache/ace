@@ -27,7 +27,7 @@ import org.apache.ace.util.Codec;
 
 
 /**
- * Log event.
+ * Log event from a specific gateway and log.
  */
 public class LogEvent implements Comparable {
     
