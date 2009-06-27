@@ -1,0 +1,19 @@
+<project name="dev-tools" default="warning">
+    <property name="deploy-dir" value="deploy/target/${ant.project.name}" />
+
+    <target name="warning">
+        <echo message="Please run top level build." />
+    </target>
+    
+    <target name="deploy">
+        <mkdir dir="${deploy-dir}" />
+        <copy todir="${deploy-dir}">
+            <fileset dir="deploy/tools">
+                <include name="**" />
+            </fileset>
+            <fileset dir="../test/ext/commons">
+                <include name="*.jar" />
+            </fileset>
+        </copy>
+    </target>
+</project>

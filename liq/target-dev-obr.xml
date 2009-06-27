@@ -1,0 +1,75 @@
+<project name="dev-obr" default="warning">
+    <property name="deploy-dir" value="deploy/target/${ant.project.name}" />
+	<property name="app-name" value="L-iQ OBR" />
+
+    <target name="warning">
+        <echo message="Please run top level build." />
+    </target>
+    
+    <target name="deploy">
+        <mkdir dir="${deploy-dir}" />
+        <copy todir="${deploy-dir}">
+            <fileset dir="lib/felix/1.4.1">
+                <include name="**" />
+            </fileset>
+        </copy>
+        <copy todir="${deploy-dir}/bundle">
+            <fileset dir="deploy/bundle">
+            	<include name="net.luminis.liq.consolelogger-1.0.0.jar" />
+            	<include name="net.luminis.liq.http.listener-1.0.0.jar" />
+            	<include name="net.luminis.liq.configurator-1.0.0.jar" />
+            	<include name="net.luminis.liq.obr.servlet-1.0.0.jar" />
+            	<include name="net.luminis.liq.obr.storage-1.0.0.jar" />
+            	<include name="net.luminis.liq.obr.metadata-1.0.0.jar" />
+            </fileset>
+            <fileset dir="ext">
+            	<include name="org.osgi.compendium.jar" />
+                <include name="osgi.mobile.jar" />
+                <include name="javax.servlet.jar" />
+                <include name="org.apache.felix.dependencymanager.jar" />
+            </fileset>
+            <fileset dir="lib">
+                <include name="org.apache.felix.configadmin.jar" />
+                <include name="log_all-2.0.0.jar" />
+                <include name="http.jetty.jar" />
+            </fileset>
+        </copy>
+        <copy todir="${deploy-dir}/conf">
+            <fileset dir="conf/${ant.project.name}">
+                <include name="**/*.cfg" />
+            </fileset>
+        </copy>
+        <copy file="${deploy-dir}/conf/dev-config.properties" overwrite="true" tofile="${deploy-dir}/conf/config.properties" />
+        <delete file="${deploy-dir}/conf/test-config.properties" />
+        <replace file="${deploy-dir}/conf/config.properties" token="@bundles@" value="
+        	file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+        	file:bundle/log_all-2.0.0.jar
+            file:bundle/osgi.mobile.jar 
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/javax.servlet.jar 
+            file:bundle/org.apache.felix.shell-1.0.2.jar 
+            file:bundle/org.apache.felix.shell.tui-1.0.2.jar 
+            file:bundle/org.apache.felix.configadmin.jar
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/net.luminis.liq.http.listener-1.0.0.jar
+            file:bundle/net.luminis.liq.configurator-1.0.0.jar
+            file:bundle/net.luminis.liq.obr.servlet-1.0.0.jar
+            file:bundle/net.luminis.liq.obr.storage-1.0.0.jar
+            file:bundle/net.luminis.liq.obr.metadata-1.0.0.jar" />
+        <replace file="${deploy-dir}/conf/config.properties" token="@properties@" value="org.osgi.service.http.port=8082" />
+
+    	<property name="runCommand" value="java -jar bin/felix.jar"/>
+    	<property name="debugCommand" value="java -jar -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y -Dcom.sun.management.jmxremote.port=6666 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false bin/felix.jar"/>
+    	<echo file="${deploy-dir}/run.sh">#!/bin/sh
+${runCommand}
+        </echo>
+		<echo file="${deploy-dir}/run.bat">${runCommand}
+        </echo>
+        <echo file="${deploy-dir}/debug.sh">#!/bin/sh
+${debugCommand}
+        </echo>
+        <echo file="${deploy-dir}/debug.bat">${debugCommand}
+        </echo>
+    </target>
+</project>

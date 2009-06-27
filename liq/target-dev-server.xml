@@ -1,0 +1,172 @@
+<project name="dev-server" default="warning">
+    <property name="deploy-dir" value="deploy/target/${ant.project.name}" />
+	<property name="app-name" value="L-iQ PS server" />
+
+    <target name="warning">
+        <echo message="Please run top level build." />
+    </target>
+    
+    <target name="deploy">
+        <mkdir dir="${deploy-dir}" />
+        <mkdir dir="${deploy-dir}/store" />
+        <copy todir="${deploy-dir}">
+            <fileset dir="lib/felix/1.4.1">
+                <include name="**" />
+            </fileset>
+        </copy>
+        <copy todir="${deploy-dir}/bundle">
+            <fileset dir="deploy/bundle">
+            	<include name="net.luminis.liq.consolelogger-1.0.0.jar" />
+            	<include name="net.luminis.liq.configurator-1.0.0.jar" />
+            	<include name="net.luminis.liq.configurator.useradmin.task-1.0.0.jar" />
+            	<include name="net.luminis.liq.resourceprocessor.useradmin-1.0.0.jar" />
+            	<include name="net.luminis.liq.http.listener-1.0.0.jar" />
+            	<include name="net.luminis.liq.deployment.servlet-1.0.0.jar" />
+            	<include name="net.luminis.liq.deployment.provider.repositorybased-1.0.0.jar" />
+            	<include name="net.luminis.liq.deployment.streamgenerator-1.0.0.jar" />
+            	<include name="net.luminis.liq.discovery.property-1.0.0.jar" />
+            	<include name="net.luminis.liq.server.log.store-1.0.0.jar" />
+            	<include name="net.luminis.liq.server.log-1.0.0.jar" />
+            	<include name="net.luminis.liq.scheduler-1.0.0.jar" />
+            	<include name="net.luminis.liq.repository-1.0.0.jar" />
+            	<include name="net.luminis.liq.repository.servlet-1.0.0.jar" />
+                <include name="net.luminis.liq.client.repository.stateful-1.0.0.jar" />
+                <include name="net.luminis.liq.client.repository-1.0.0.jar" />
+                <include name="net.luminis.liq.client.repository.helper.base-1.0.0.jar" />
+                <include name="net.luminis.liq.client.repository.helper.bundle-1.0.0.jar" />
+                <include name="net.luminis.liq.activation.store-1.0.0.jar" />
+                <include name="net.luminis.liq.activationinfo.store-1.0.0.jar" />
+                <include name="net.luminis.liq.activation.matcher-1.0.0.jar" />
+                <include name="net.luminis.liq.activation.servlet-1.0.0.jar" />
+                <include name="net.luminis.liq.activation.service-1.0.0.jar" />
+                <include name="net.luminis.liq.client.repository.helper.license-1.0.0.jar" />
+                <!-- for testing -->
+                <!--
+                <include name="net.luminis.liq.http.echo.servlet-1.0.0.jar" />
+                -->
+            </fileset>
+            <fileset dir="ext">
+            	<include name="org.osgi.compendium.jar" />
+                <include name="osgi.mobile.jar" />
+                <include name="javax.servlet.jar" />
+                <include name="org.apache.felix.dependencymanager.jar" />
+                <include name="org.apache.felix.dependencymanager.shell.jar" />
+            </fileset>
+            <fileset dir="lib">
+                <include name="net.luminis.liq.xstream-1.3.jar" />
+                <include name="org.apache.felix.configadmin.jar" />
+                <include name="org.apache.felix.eventadmin.jar" />
+                <include name="log_all-2.0.0.jar" />
+                <include name="http.jetty.jar" />
+            	<include name="useradmin_all-2.0.0.jar" />
+            	<include name="org.apache.felix.prefs.jar" />
+            </fileset>
+        </copy>
+        <copy todir="${deploy-dir}/conf">
+            <fileset dir="conf/${ant.project.name}">
+                <include name="**/*.cfg" />
+            </fileset>
+        </copy>
+        <copy file="${deploy-dir}/conf/dev-config.properties" overwrite="true" tofile="${deploy-dir}/conf/config.properties" />
+        <delete file="${deploy-dir}/conf/test-config.properties" />
+        <property name="bundles-noshell" value="
+        	file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+        	file:bundle/log_all-2.0.0.jar
+            file:bundle/osgi.mobile.jar 
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/javax.servlet.jar
+        	file:bundle/useradmin_all-2.0.0.jar
+            file:bundle/net.luminis.liq.xstream-1.3.jar
+    	    file:bundle/org.apache.felix.eventadmin.jar
+        	file:bundle/org.apache.felix.configadmin.jar 
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.prefs.jar
+            file:bundle/net.luminis.liq.configurator-1.0.0.jar
+            file:bundle/net.luminis.liq.http.listener-1.0.0.jar
+            file:bundle/net.luminis.liq.deployment.servlet-1.0.0.jar
+            file:bundle/net.luminis.liq.deployment.provider.repositorybased-1.0.0.jar
+            file:bundle/net.luminis.liq.deployment.streamgenerator-1.0.0.jar
+        	file:bundle/net.luminis.liq.discovery.property-1.0.0.jar
+            file:bundle/net.luminis.liq.server.log.store-1.0.0.jar
+            file:bundle/net.luminis.liq.server.log-1.0.0.jar
+            file:bundle/net.luminis.liq.scheduler-1.0.0.jar
+            file:bundle/net.luminis.liq.repository-1.0.0.jar
+            file:bundle/net.luminis.liq.repository.servlet-1.0.0.jar
+    	    file:bundle/net.luminis.liq.client.repository.stateful-1.0.0.jar
+    	    file:bundle/net.luminis.liq.client.repository-1.0.0.jar
+            file:bundle/net.luminis.liq.client.repository.helper.base-1.0.0.jar
+            file:bundle/net.luminis.liq.client.repository.helper.bundle-1.0.0.jar
+            file:bundle/net.luminis.liq.configurator.useradmin.task-1.0.0.jar
+        	file:bundle/net.luminis.liq.resourceprocessor.useradmin-1.0.0.jar
+            file:bundle/net.luminis.liq.activation.store-1.0.0.jar
+            file:bundle/net.luminis.liq.activationinfo.store-1.0.0.jar
+            file:bundle/net.luminis.liq.activation.matcher-1.0.0.jar
+            file:bundle/net.luminis.liq.activation.servlet-1.0.0.jar
+            file:bundle/net.luminis.liq.activation.service-1.0.0.jar
+            file:bundle/net.luminis.liq.client.repository.helper.license-1.0.0.jar
+            " />
+        <property name="bundles-shell" value="${bundles-noshell}
+            file:bundle/org.apache.felix.shell-1.0.2.jar 
+            file:bundle/org.apache.felix.shell.tui-1.0.2.jar
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            " />
+        <replace file="${deploy-dir}/conf/config.properties" token="@bundles@" value="${bundles-shell}" />
+        <move file="${deploy-dir}/conf/dev-config.properties" tofile="${deploy-dir}/conf/config-noshell.properties" />
+        <replace file="${deploy-dir}/conf/config-noshell.properties" token="@bundles@" value="${bundles-noshell}" />
+        <replace file="${deploy-dir}/conf/config.properties" token="@properties@">
+            <replacevalue><![CDATA[
+org.apache.felix.http.nio=true
+org.apache.felix.http.enable=true
+org.osgi.service.http.port=8080
+org.apache.felix.https.enable=false
+org.osgi.service.http.port.secure=8443
+org.apache.felix.http.debug=false
+org.apache.felix.https.keystore=/tmp/node1Keystore
+org.apache.felix.https.keystore.password=secret
+org.apache.felix.https.keystore.key.password=secret
+org.apache.felix.https.truststore=/tmp/truststore
+org.apache.felix.https.truststore.password=secret
+org.apache.felix.https.clientcertificate=needs
+                ]]></replacevalue>
+        </replace>
+        <replace file="${deploy-dir}/conf/config-noshell.properties" token="@properties@">
+            <replacevalue><![CDATA[
+org.apache.felix.http.nio=true
+org.apache.felix.http.enable=true
+org.osgi.service.http.port=8080
+org.apache.felix.https.enable=false
+org.osgi.service.http.port.secure=8443
+org.apache.felix.http.debug=false
+org.apache.felix.https.keystore=/tmp/node1Keystore
+org.apache.felix.https.keystore.password=secret
+org.apache.felix.https.keystore.key.password=secret
+org.apache.felix.https.truststore=/tmp/truststore
+org.apache.felix.https.truststore.password=secret
+org.apache.felix.https.clientcertificate=needs
+            ]]></replacevalue>
+        </replace>
+
+        <property name="runCommand" value="java -Xms256m -Xmx256m -jar bin/felix.jar"/>
+    	<property name="runNoshellCommand" value="java -Xms256m -Xmx256m -Dfelix.config.properties=file:conf/config-noshell.properties -jar bin/felix.jar > output-felix.txt 2>&amp;1"/>
+    	<property name="debugCommand" value="java -Xms256m -Xmx256m -jar -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y -Dcom.sun.management.jmxremote.port=6666 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false bin/felix.jar"/>
+    	<echo file="${deploy-dir}/run.sh">#!/bin/sh
+${runCommand}
+        </echo>
+		<echo file="${deploy-dir}/run.bat">${runCommand}
+        </echo>
+    	<echo file="${deploy-dir}/run-noshell.sh">#!/bin/sh
+${runNoshellCommand}
+        </echo>
+		<echo file="${deploy-dir}/run-noshell.bat">${runNoshellCommand}
+        </echo>
+        <echo file="${deploy-dir}/debug.sh">#!/bin/sh
+${debugCommand}
+        </echo>
+        <echo file="${deploy-dir}/debug.bat">${debugCommand}
+        </echo>
+        <echo file="${deploy-dir}/run_secure.sh">#!/bin/sh
+${runSecureCommand}
+        </echo>
+    </target>
+</project>

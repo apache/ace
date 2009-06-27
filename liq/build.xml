@@ -1,0 +1,887 @@
+<project name="liq" default="build" basedir=".">
+    <property file="project.properties" />
+
+    <path id="cobertura.classpath">
+        <fileset dir="../test/ext/cobertura">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <path id="ext.classpath">
+        <fileset dir="ext">
+            <include name="**/*.jar" />
+        </fileset>
+    	<pathelement location="lib/felix/1.4.1/bundle/org.apache.felix.shell-1.0.2.jar" />
+    </path>
+
+    <path id="projects.classpath">
+        <pathelement path="classes"/>
+        <pathelement path="../gateway/classes"/>
+        <pathelement path="../server/classes"/>
+    </path>
+
+    <path id="bnd.classpath">
+        <path refid="projects.classpath" />
+        <path refid="ext.classpath" />
+    </path>
+
+    <path id="webstart.classpath">
+        <path refid="projects.classpath" />
+        <fileset dir="ext">
+            <include name="**/*.jar" />
+            <exclude name="org.osgi.compendium.jar" />
+            <exclude name="osgi.mobile.jar" />
+        </fileset>
+        <pathelement location="lib/org.apache.felix.deploymentadmin-0.9.0-SNAPSHOT.jar" />
+        <pathelement location="lib/org.apache.felix.eventadmin.jar" />
+        <pathelement location="lib/org.apache.felix.configadmin.jar" />
+        <pathelement location="lib/log_all-2.0.0.jar" />
+    </path>
+
+    <path id="test.classpath">
+        <path refid="projects.classpath" />
+        <pathelement location="../test/classes" />
+        <path refid="ext.classpath" />
+        <pathelement location="../test/ext/testng-5.5-jdk15.jar" />
+        <pathelement location="../test/ext/easymock.jar" />
+        <pathelement location="lib/felix/1.4.1/bin/felix.jar" />
+        <pathelement location="lib/xstream-build/1.3/xpp3_min-1.1.4c.jar" />
+    	<fileset dir="../test/ext/commons">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="lib/ant-contrib-1.0b3.jar" />
+
+    <taskdef resource="testngtasks" classpath="../test/ext/testng-5.5-jdk15.jar" />
+
+    <taskdef resource="tasks.properties" classpathref="cobertura.classpath" />
+
+    <taskdef name="bundle"
+        classname="net.luminis.build.plugin.bnd.BuildTask"
+        classpath="lib/net.luminis.build.plugin.jar" />
+
+    <presetdef name="project-bundle">
+        <bundle outputdir="deploy/bundle"
+            classpathrefid="bnd.classpath"
+            bundleversion="1.0.0"
+            bundlevendor="luminis" />
+    </presetdef>
+
+    <presetdef name="test-bundle">
+        <bundle outputdir="deploy/test"
+            importpackage="!org.apache.tools.ant, !org.apache.tools.ant.*, !org.apache.bsf, !org.apache.bsf.*, !junit.*, !com.sun.javadoc, !com.sun.javadoc.*, !com.sun.tools.javadoc, !com.sun.tools.javadoc.*, *"
+            classpathrefid="test.classpath"
+            bundleversion="1.0.0"
+            bundlevendor="luminis" />
+    </presetdef>
+
+    <!-- instruments a bundle for code coverage -->
+    <macrodef name="instrument-bundle">
+        <attribute name="fromfile" />
+        <attribute name="todir" />
+        <sequential>
+            <!-- To run instrumentation without actually instrumenting, uncomment the next line,
+        	     and comment the rest of the sequential
+        	     TODO create a property for this -->
+            <!--
+            <copy file="@{fromfile}" todir="@{todir}" />
+        	-->
+            <!-- -->
+            <dirname file="@{fromfile}" property="dir-@{fromfile}" />
+            <basename file="@{fromfile}" property="name-@{fromfile}" />
+            <cobertura-instrument todir="@{todir}">
+                <includeClasses regex="net.luminis.*" />
+                <instrumentationClasspath>
+                    <pathelement location="@{fromfile}" />
+                </instrumentationClasspath>
+            </cobertura-instrument>
+            <jar destfile="@{todir}/${name-@{fromfile}}" update="true">
+                <manifest>
+                    <attribute name="DynamicImport-Package" value="net.sourceforge.cobertura.*" />
+                </manifest>
+            </jar>
+            <!-- -->
+        </sequential>
+    </macrodef>
+
+    <!-- runs felix with code coverage support -->
+    <macrodef name="run-felix-coverage">
+        <attribute name="destdir" />
+        <attribute name="bundles" />
+        <attribute name="timeout" default="60000" />
+        <attribute name="datafile" default="cobertura.ser" />
+        <sequential>
+            <delete dir="@{destdir}/cache" failonerror="false" />
+            <java dir="@{destdir}" classname="org.apache.felix.main.Main" fork="true" taskname="felix" timeout="@{timeout}" failonerror="true">
+                <jvmarg value="-ea" />
+                <!--
+            	<jvmarg value="-Xdebug" />
+                <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y" />
+                -->
+                <jvmarg value="-Dorg.apache.felix.eventadmin.Timeout=0" />
+                <sysproperty key="net.sourceforge.cobertura.datafile" value="@{datafile}" />
+                <sysproperty key="test-bundles" value="@{bundles}" />
+                <classpath>
+                    <pathelement location="deploy/target/test/bin/felix.jar" />
+                    <pathelement location="../test/ext/testng-5.5-jdk15.jar" />
+                    <pathelement location="../test/ext/cobertura/cobertura.jar" />
+                    <pathelement location="../test/ext/cobertura/asm-2.2.1.jar" />
+                    <pathelement location="../test/ext/cobertura/jakarta-oro-2.0.8.jar" />
+                    <pathelement location="../test/ext/cobertura/log4j-1.2.9.jar" />
+                </classpath>
+            </java>
+        </sequential>
+    </macrodef>
+
+    <target name="init">
+        <mkdir dir="deploy" />
+        <mkdir dir="deploy/bundle" />
+        <mkdir dir="deploy/test" />
+        <mkdir dir="deploy/target" />
+        <mkdir dir="deploy/tools" />
+        <mkdir dir="deploy/lib" />
+        <mkdir dir="../liq/classes" />
+        <mkdir dir="../gateway/classes" />
+        <mkdir dir="../server/classes" />
+        <mkdir dir="../test/classes" />
+    </target>
+
+    <target name="clean" description="removes all generated artifacts">
+        <delete file="cobertura.ser" />
+        <delete dir="deploy" />
+        <delete dir="../gateway/classes" />
+        <delete dir="../server/classes" />
+        <delete dir="../test/classes" />
+        <delete dir="../liq/classes" />
+        <delete>
+            <fileset dir="." includes="*.build" />
+        </delete>
+    </target>
+
+    <target name="build" depends="init" description="builds all code and tests">
+        <java classname="org.apache.tools.ant.launch.Launcher" fork="true" failonerror="true">
+            <classpath>
+                <pathelement location="lib/ecj.jar"/>
+                <pathelement location="${ant.home}/lib/ant.jar"/>
+                <pathelement location="${ant.home}/lib/ant-launcher.jar"/>
+            </classpath>
+            <jvmarg line="-Dbuild.compiler=org.eclipse.jdt.core.JDTCompilerAdapter"/>
+            <jvmarg line="-Dfailonerror.property=true" />
+            <arg line="build-liq build-server build-gateway build-test"/>
+        </java>
+    </target>
+
+    <target name="build-liq" depends="init">
+        <javac srcdir="src" destdir="classes" debug="on" nowarn="on" source="1.3" target="1.1" failonerror="${failonerror.property}" bootclasspath="lib/org.osgi.foundation.jar" classpathref="bnd.classpath"/>
+        <uptodate property="liq.uptodate" targetfile="last.liq.build">
+            <srcfiles dir="src" includes="**/*.java"/>
+            <srcfiles dir=".">
+                <include name="build.xml" />
+            </srcfiles>
+        </uptodate>
+        <antcall target="package-liq" />
+        <touch file="last.liq.build" />
+    </target>
+
+    <target name="build-server" depends="init">
+        <javac srcdir="../server/src" destdir="../server/classes" debug="on" nowarn="on" source="1.5" target="1.5" failonerror="${failonerror.property}" classpathref="bnd.classpath"/>
+        <uptodate property="server.uptodate" targetfile="last.server.build">
+            <srcfiles dir="../server/src" includes="**/*.java"/>
+            <srcfiles dir="../liq/src" includes="**/*.java"/>
+            <srcfiles dir=".">
+                <include name="build.xml" />
+            </srcfiles>
+        </uptodate>
+        <antcall target="package-server" />
+        <touch file="last.server.build" />
+    </target>
+
+    <target name="build-gateway" depends="init">
+        <javac srcdir="../gateway/src" destdir="../gateway/classes" debug="on" nowarn="on" source="1.3" target="1.1" failonerror="${failonerror.property}" 
+            bootclasspath="lib/org.osgi.foundation.jar" classpathref="bnd.classpath"/>
+        <uptodate property="gateway.uptodate" targetfile="last.gateway.build">
+            <srcfiles dir="../gateway/src" includes="**/*.java"/>
+            <srcfiles dir="../liq/src" includes="**/*.java"/>
+            <srcfiles dir=".">
+                <include name="build.xml" />
+            </srcfiles>
+        </uptodate>
+        <antcall target="package-gateway" />
+        <touch file="last.gateway.build" />
+    </target>
+
+    <target name="build-test" depends="init">
+        <javac srcdir="../test/src" destdir="../test/classes" debug="on" nowarn="on" source="1.6" target="1.6" failonerror="${failonerror.property}" classpathref="test.classpath"/>
+        <uptodate property="test.uptodate" targetfile="last.test.build">
+            <srcfiles dir="../liq/src" includes="**/*.java"/>
+            <srcfiles dir="../gateway/src" includes="**/*.java"/>
+            <srcfiles dir="../server/src" includes="**/*.java"/>
+            <srcfiles dir="../test/src" includes="**/*.java"/>
+        </uptodate>
+        <antcall target="package-test" />
+        <touch file="last.test.build" />
+    </target>
+
+    <target name="package-liq" unless="liq.uptodate">
+        <project-bundle 
+            bundlename="Console Logger"                                                                                                                                          
+            bundlesymbolicname="net.luminis.liq.consolelogger" 
+            privatepackage="net.luminis.liq.consolelogger"
+            bundleactivator="net.luminis.liq.consolelogger.Activator" />
+        <project-bundle 
+            bundlename="Log Interfaces"                                                                                                                                            
+            bundlesymbolicname="net.luminis.liq.log"
+            exportpackage="net.luminis.liq.log, net.luminis.liq.repository"
+            privatepackage="net.luminis.liq.util" />
+    </target>
+
+    <target name="package-server" unless="server.uptodate">
+        <project-bundle 
+            bundlename="Deployment Servlet"                                                                                                                                                 
+            bundlesymbolicname="net.luminis.liq.deployment.servlet"                                                                                                                         
+            privatepackage="net.luminis.liq.deployment.servlet"
+            bundleactivator="net.luminis.liq.deployment.servlet.Activator" />
+        <project-bundle 
+            bundlename="HTTP Service Listener"                                                                                                                                                 
+            bundlesymbolicname="net.luminis.liq.http.listener"                                                                                                                         
+            privatepackage="net.luminis.liq.http.listener"                                                                                                                           
+            bundleactivator="net.luminis.liq.http.listener.Activator" />
+        <project-bundle 
+            bundlename="File Based Deployment Provider"                                                                                                                                                 
+            bundlesymbolicname="net.luminis.liq.deployment.provider.filebased"                                                                                                                         
+            exportpackage="net.luminis.liq.deployment.provider"                                                                                                                           
+            privatepackage="net.luminis.liq.deployment.provider.filebased, net.luminis.liq.deployment.provider.impl"
+            bundleactivator="net.luminis.liq.deployment.provider.filebased.Activator" />
+        <project-bundle 
+            bundlename="Repository Based Deployment Provider"                                                                                                                                                 
+            bundlesymbolicname="net.luminis.liq.deployment.provider.repositorybased"                                                                                                                         
+            exportpackage="net.luminis.liq.deployment.provider"                                                                                                                           
+            privatepackage="net.luminis.liq.deployment.provider.repositorybased, net.luminis.liq.deployment.provider.impl, net.luminis.liq.repository.ext, net.luminis.liq.repository.impl, net.luminis.liq.repository.impl"
+            bundleactivator="net.luminis.liq.deployment.provider.repositorybased.Activator" />
+        <project-bundle 
+            bundlename="Deployment Stream Generator"                                                                                                                                                 
+            bundlesymbolicname="net.luminis.liq.deployment.streamgenerator"                                                                                                                         
+            exportpackage="net.luminis.liq.deployment.streamgenerator"                                                                                                                           
+            privatepackage="net.luminis.liq.deployment.streamgenerator.impl"                                                                                                                           
+            bundleactivator="net.luminis.liq.deployment.streamgenerator.impl.Activator" />
+        <project-bundle
+            bundlename="Server Log Servlet"
+            bundlesymbolicname="net.luminis.liq.server.log"
+            privatepackage="net.luminis.liq.server.log"
+            bundleactivator="net.luminis.liq.server.log.Activator" />
+        <project-bundle
+            bundlename="Server Log Store"
+            bundlesymbolicname="net.luminis.liq.server.log.store"
+            exportpackage="net.luminis.liq.server.log.store, net.luminis.liq.log"
+            privatepackage="net.luminis.liq.server.log.store.impl, net.luminis.liq.util"
+            bundleactivator="net.luminis.liq.server.log.store.impl.Activator" />
+        <project-bundle
+            bundlename="Server Log Task"
+            bundlesymbolicname="net.luminis.liq.server.log.task"
+            privatepackage="net.luminis.liq.server.log.task"
+            bundleactivator="net.luminis.liq.server.log.task.Activator" />
+        <project-bundle 
+            bundlename="OBR Metadata Generator"
+            bundlesymbolicname="net.luminis.liq.obr.metadata"
+            exportpackage="net.luminis.liq.obr.metadata"
+            privatepackage="net.luminis.liq.obr.metadata.bindex, org.osgi.impl.bundle.bindex, org.osgi.impl.bundle.obr.resource, org.osgi.service.obr"
+    		includeresource="ext/kxml2-min.jar"
+    		bundleclasspath="kxml2-min.jar,."
+            bundleactivator="net.luminis.liq.obr.metadata.bindex.Activator" />
+        <project-bundle 
+            bundlename="OBR Storage"
+            bundlesymbolicname="net.luminis.liq.obr.storage"
+            exportpackage="net.luminis.liq.obr.storage"
+            privatepackage="net.luminis.liq.obr.storage.file"
+            bundleactivator="net.luminis.liq.obr.storage.file.Activator" />
+        <project-bundle 
+            bundlename="OBR Servlet"
+            bundlesymbolicname="net.luminis.liq.obr.servlet"
+            privatepackage="net.luminis.liq.obr.servlet"
+            bundleactivator="net.luminis.liq.obr.servlet.Activator" />
+        <project-bundle 
+            bundlename="Object Repository"
+            bundlesymbolicname="net.luminis.liq.repository"
+            exportpackage="net.luminis.liq.repository"
+            privatepackage="net.luminis.liq.repository.ext, net.luminis.liq.repository.impl, net.luminis.liq.util"
+            bundleactivator="net.luminis.liq.repository.impl.Activator" />
+        <project-bundle 
+            bundlename="Object Repository Servlet"
+            bundlesymbolicname="net.luminis.liq.repository.servlet"
+            privatepackage="net.luminis.liq.repository.servlet"
+            bundleactivator="net.luminis.liq.repository.servlet.Activator" />
+        <project-bundle 
+            bundlename="Object Repository Task"
+            bundlesymbolicname="net.luminis.liq.repository.task"
+            privatepackage="net.luminis.liq.repository.task"
+            bundleactivator="net.luminis.liq.repository.task.Activator" />
+        <project-bundle
+            bundlename="Repository Model"
+            bundlesymbolicname="net.luminis.liq.client.repository"
+            exportpackage="net.luminis.liq.client.repository, net.luminis.liq.client.repository.object, net.luminis.liq.client.repository.repository, net.luminis.liq.client.repository.helper"
+            privatepackage="net.luminis.liq.client.repository.impl, net.luminis.liq.util, net.luminis.liq.repository.ext, net.luminis.liq.repository.impl"
+            bundleactivator="net.luminis.liq.client.repository.impl.Activator"/>
+        <!-- note: the StatefulGatewayModel needs to export net.luminis.liq.server.log.store since it does
+        not require a log to be present, but does need the interface, which is not define in liq,
+        since it is not java 1.3 compatible. -->
+        <project-bundle
+            bundlename="Stateful Gateway Model"
+            bundlesymbolicname="net.luminis.liq.client.repository.stateful"
+            exportpackage="net.luminis.liq.client.repository.stateful, net.luminis.liq.server.log.store"
+            privatepackage="net.luminis.liq.client.repository.stateful.impl"
+            bundleactivator="net.luminis.liq.client.repository.stateful.impl.Activator"/>
+        <project-bundle
+            bundlename="Artifact Helper Resources"
+            bundlesymbolicname="net.luminis.liq.client.repository.helper.base"
+    		includeresource="ext/velocity-dep-1.5.jar"
+    		bundleclasspath="velocity-dep-1.5.jar,."
+    		importpackage="net.luminis.liq.client.repository, net.luminis.liq.client.repository.object, net.luminis.liq.client.repository.helper, *;resolution:=optional"
+            exportpackage="net.luminis.liq.client.repository, net.luminis.liq.client.repository.object, net.luminis.liq.client.repository.helper, net.luminis.liq.client.repository.helper.base"/>
+        <project-bundle
+            bundlename="Bundle Artifact Helper"
+            bundlesymbolicname="net.luminis.liq.client.repository.helper.bundle"
+            exportpackage="net.luminis.liq.client.repository.helper.bundle"
+            privatepackage="net.luminis.liq.client.repository.helper.bundle.impl, net.luminis.liq.util"
+            bundleactivator="net.luminis.liq.client.repository.helper.bundle.impl.Activator"/>
+        <project-bundle
+            bundlename="Configuration Artifact Helper"
+            bundlesymbolicname="net.luminis.liq.client.repository.helper.configuration"
+            exportpackage="net.luminis.liq.client.repository.helper.configuration"
+            privatepackage="net.luminis.liq.client.repository.helper.configuration.impl"
+            bundleactivator="net.luminis.liq.client.repository.helper.configuration.impl.Activator"/>
+        <project-bundle
+            bundlename="UserAdmin Artifact Helper"
+            bundlesymbolicname="net.luminis.liq.client.repository.helper.user"
+            exportpackage="net.luminis.liq.client.repository.helper.user"
+            privatepackage="net.luminis.liq.client.repository.helper.user.impl"
+            bundleactivator="net.luminis.liq.client.repository.helper.user.impl.Activator"/>
+        <project-bundle 
+            bundlename="Serverside UserAdmin Configurator"
+            bundlesymbolicname="net.luminis.liq.configurator.serveruseradmin"
+            privatepackage="net.luminis.liq.configurator.serveruseradmin"
+            bundleactivator="net.luminis.liq.configurator.serveruseradmin.Activator" />
+        <!-- Note that the privatepackage below is not exactly clean; for now, we don't have another way to this,
+    	but we might want to clean this up (i.e., everybody should be able to ask for a remote repository) -->
+        <project-bundle 
+            bundlename="Repository Based UserAdmin Configuration Task"
+            bundlesymbolicname="net.luminis.liq.configurator.useradmin.task"
+            privatepackage="net.luminis.liq.configurator.useradmin.task, net.luminis.liq.repository.impl, net.luminis.liq.repository.ext"
+            bundleactivator="net.luminis.liq.configurator.useradmin.task.Activator" />
+        <project-bundle 
+            bundlename="Repository UserAdmin Editor"
+            bundlesymbolicname="net.luminis.liq.client.repositoryuseradmin"
+            exportpackage="net.luminis.liq.client.repositoryuseradmin"
+            privatepackage="net.luminis.liq.client.repositoryuseradmin.impl, net.luminis.client.repository, net.luminis.liq.repository.impl, net.luminis.liq.repository.ext"
+            bundleactivator="net.luminis.liq.client.repositoryuseradmin.impl.Activator" />
+        <project-bundle 
+            bundlename="JavaMail MailService"
+            bundlesymbolicname="net.luminis.liq.mailservice.javamail"
+            exportpackage="net.luminis.liq.mailservice"
+            importpackage="net.luminis.liq.mailservice, *;resolution:=optional"
+            privatepackage="net.luminis.liq.mailservice.javamail"
+            bundleactivator="net.luminis.liq.mailservice.javamail.Activator"
+        	includeresource="ext/mail.jar, lib/activation.jar"
+        	bundleclasspath="mail.jar, activation.jar, ." />
+        <project-bundle 
+            bundlename="Server Action Interfaces"
+            bundlesymbolicname="net.luminis.liq.server.action"
+            exportpackage="net.luminis.liq.server.action" />
+        <project-bundle 
+            bundlename="Popup Action"
+            bundlesymbolicname="net.luminis.liq.server.action.popupmessage"
+            privatepackage="net.luminis.liq.server.action.popupmessage"
+            bundleactivator="net.luminis.liq.server.action.popupmessage.Activator" />
+        <project-bundle 
+            bundlename="Auto Gateway Operator"
+            bundlesymbolicname="net.luminis.liq.client.automation"
+            privatepackage="net.luminis.liq.client.automation"
+            bundleactivator="net.luminis.liq.client.automation.Activator" />
+        <project-bundle 
+            bundlename="UserAdmin Resource Processor"
+            bundlesymbolicname="net.luminis.liq.resourceprocessor.useradmin" 
+            exportpackage="net.luminis.liq.resourceprocessor.useradmin" 
+            privatepackage="net.luminis.liq.resourceprocessor.useradmin.impl"
+            bundleactivator="net.luminis.liq.resourceprocessor.useradmin.impl.Activator">
+            <manifest>
+                <attribute name="Deployment-ProvidesResourceProcessor" value="net.luminis.liq.resourceprocessor.useradmin" />
+            </manifest>
+        </project-bundle>
+        <project-bundle 
+            bundlename="Luminis Conf Resource Processor"
+            bundlesymbolicname="org.apache.felix.deployment.rp.autoconf" 
+            privatepackage="org.apache.felix.deployment.rp.autoconf.impl, org.apache.felix.metatype.*, org.kxml2.io;-split-package:=merge-first, org.xmlpull.v1;-split-package:=merge-first, org.osgi.service.metatype;-split-package:=merge-first"
+			exportpackage="org.apache.felix.deployment.rp.autoconf"
+    		bundleactivator="org.apache.felix.deployment.rp.autoconf.Activator">
+            <manifest>
+                <attribute name="Deployment-ProvidesResourceProcessor" value="org.osgi.deployment.rp.autoconf" />
+            </manifest>
+        </project-bundle>
+        <project-bundle 
+            bundlename="UPnP Based Location Service"
+            bundlesymbolicname="net.luminis.liq.location.upnp"
+            exportpackage="net.luminis.liq.location"
+            privatepackage="net.luminis.liq.location.upnp, net.luminis.liq.location.upnp.actions, net.luminis.liq.location.upnp.util"
+            bundleactivator="net.luminis.liq.location.upnp.Activator" />
+    </target>
+
+    <target name="package-gateway" unless="gateway.uptodate">
+        <project-bundle 
+            bundlename="Webstart Management Agent"
+            bundlesymbolicname="net.luminis.liq.ma.webstart"
+            classpathrefid="webstart.classpath"
+            exportpackage="org.osgi.service.deploymentadmin, org.osgi.service.deploymentadmin.spi, org.osgi.service.log, org.osgi.util.tracker, org.apache.felix.dependencymanager, org.osgi.service.event, org.osgi.service.cm"
+            privatepackage="net.luminis.liq.configurator, net.luminis.liq.gateway.constants, net.luminis.liq.scheduler, 
+            net.luminis.liq.deployment, net.luminis.liq.deployment.deploymentadmin, net.luminis.liq.deployment.task, 
+            net.luminis.liq.discovery, net.luminis.liq.identification, net.luminis.liq.ma.webstart,
+            net.luminis.liq.log.listener, net.luminis.liq.gateway.log, 
+            net.luminis.liq.gateway.log.task, net.luminis.liq.gateway.log.store, net.luminis.liq.gateway.log.store.impl, 
+            net.luminis.liq.log, net.luminis.liq.util, net.luminis.liq.repository,  
+            org.apache.felix.deploymentadmin, org.apache.felix.deploymentadmin.spi, org.apache.felix.eventadmin.impl, org.apache.felix.eventadmin.impl.*"
+            bundleactivator="net.luminis.liq.ma.webstart.Activator" />
+        <project-bundle 
+            bundlename="Configurator"
+            bundlesymbolicname="net.luminis.liq.configurator"
+            privatepackage="net.luminis.liq.configurator, net.luminis.liq.gateway.constants"
+            bundleactivator="net.luminis.liq.configurator.Activator" />
+        <project-bundle 
+            bundlename="Scheduler"
+            bundlesymbolicname="net.luminis.liq.scheduler"
+            privatepackage="net.luminis.liq.scheduler, net.luminis.liq.gateway.constants"
+            bundleactivator="net.luminis.liq.scheduler.Activator" />
+        <project-bundle 
+            bundlename="Deployment"
+            bundlesymbolicname="net.luminis.liq.deployment"
+            exportpackage="net.luminis.liq.deployment"
+            privatepackage="net.luminis.liq.deployment.deploymentadmin"
+            bundleactivator="net.luminis.liq.deployment.deploymentadmin.Activator" />
+        <project-bundle 
+            bundlename="Deployment Task"
+            bundlesymbolicname="net.luminis.liq.deployment.task"
+            exportpackage="net.luminis.liq.deployment"
+            privatepackage="net.luminis.liq.deployment.task"
+            bundleactivator="net.luminis.liq.deployment.task.Activator" />
+        <project-bundle 
+            bundlename="Property Based Discovery"
+            bundlesymbolicname="net.luminis.liq.discovery.property"
+            exportpackage="net.luminis.liq.discovery"
+            privatepackage="net.luminis.liq.discovery.property"
+            bundleactivator="net.luminis.liq.discovery.property.Activator" />
+        <project-bundle 
+            bundlename="Property Based Identification"
+            bundlesymbolicname="net.luminis.liq.identification.property"
+            exportpackage="net.luminis.liq.identification"
+            privatepackage="net.luminis.liq.identification.property"
+            bundleactivator="net.luminis.liq.identification.property.Activator" />
+        <project-bundle 
+            bundlename="Ifconfig/mac-address Based Identification"
+            bundlesymbolicname="net.luminis.liq.identification.ifconfig"
+            exportpackage="net.luminis.liq.identification"
+            privatepackage="net.luminis.liq.identification.ifconfig"
+            bundleactivator="net.luminis.liq.identification.ifconfig.Activator" />
+        <project-bundle 
+            bundlename="Log Listener"
+            bundlesymbolicname="net.luminis.liq.log.listener"
+            privatepackage="net.luminis.liq.log.listener"
+            bundleactivator="net.luminis.liq.log.listener.Activator" />
+        <project-bundle 
+            bundlename="Gateway Log"
+            bundlesymbolicname="net.luminis.liq.gateway.log"
+            privatepackage="net.luminis.liq.gateway.log, net.luminis.liq.gateway.log.task"
+            bundleactivator="net.luminis.liq.gateway.log.Activator" />
+        <project-bundle
+            bundlename="Gateway Log Store"
+            bundlesymbolicname="net.luminis.liq.gateway.log.store"
+            privatepackage="net.luminis.liq.gateway.log.store.impl, net.luminis.liq.util"
+            bundleactivator="net.luminis.liq.gateway.log.store.impl.Activator"
+            exportpackage="net.luminis.liq.gateway.log.store, net.luminis.liq.log"/>
+    	
+        <project-bundle 
+            bundlename="UPnP Based Discovery"
+            bundlesymbolicname="net.luminis.liq.discovery.upnp"
+            exportpackage="net.luminis.liq.discovery"
+            privatepackage="net.luminis.liq.discovery.upnp"
+            bundleactivator="net.luminis.liq.discovery.upnp.Activator" />
+
+        <mkdir dir="deploy/target/dev-multigateway"/>
+        <jar destfile="deploy/target/dev-multigateway/multigatewaybootstrap.jar" basedir="../gateway/classes" includes="net/luminis/liq/bootstrap/multigateway/**">
+            <manifest>
+                <attribute name="Main-Class" value="net.luminis.liq.bootstrap.multigateway.MultiFrameworkStarter"/>
+                <attribute name="Class-Path" value="bin/felix.jar"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="package-test" unless="test.uptodate">
+        <test-bundle 
+            bundlename="Test Deployment"                                                                                                                                          
+            bundlesymbolicname="net.luminis.liq.test.deployment" 
+            privatepackage="net.luminis.liq.test.deployment,net.luminis.test.osgi.dm,net.luminis.liq.deployment.provider.impl,net.luminis.liq.deployment.provider.filebased;-split-package:=merge-last,net.luminis.liq.test.utils, net.luminis.liq.test.utils.deployment"
+            bundleactivator="net.luminis.liq.test.deployment.Activator" />
+        <test-bundle 
+            bundlename="Test Log"                                                                                                                                          
+            bundlesymbolicname="net.luminis.liq.test.log" 
+            privatepackage="net.luminis.liq.test.log,net.luminis.test.osgi.dm"
+            bundleactivator="net.luminis.liq.test.log.Activator" />
+        <test-bundle 
+            bundlename="Test Http Servlet Listener"
+            bundlesymbolicname="net.luminis.liq.test.http.listener" 
+            privatepackage="net.luminis.liq.test.http.listener,net.luminis.test.osgi.dm"
+            bundleactivator="net.luminis.liq.test.http.listener.Activator" />
+        <test-bundle 
+            bundlename="Test Repository"
+            bundlesymbolicname="net.luminis.liq.test.repository" 
+            privatepackage="net.luminis.liq.test.repository, net.luminis.liq.test.utils, net.luminis.test.osgi.dm"
+            bundleactivator="net.luminis.liq.test.repository.Activator" />
+        <test-bundle 
+            bundlename="Test Repository Admin"
+            bundlesymbolicname="net.luminis.liq.test.repositoryadmin" 
+            privatepackage="net.luminis.liq.test.repositoryadmin, net.luminis.liq.test.utils, net.luminis.test.osgi.dm"
+            bundleactivator="net.luminis.liq.test.repositoryadmin.Activator" />
+        <test-bundle 
+            bundlename="Test UserAdmin Configurator"
+            bundlesymbolicname="net.luminis.liq.test.useradminconfigurator" 
+            privatepackage="net.luminis.liq.test.useradminconfigurator, net.luminis.liq.test.utils, net.luminis.test.osgi.dm"
+            bundleactivator="net.luminis.liq.test.useradminconfigurator.Activator" />
+        <test-bundle 
+    	    bundlename="Test SystemBundle Stopper"
+    	    bundlesymbolicname="net.luminis.liq.test.bundlestop" 
+    	    privatepackage="net.luminis.liq.test.bundlestop"
+    	    bundleactivator="net.luminis.liq.test.bundlestop.Activator" />
+        <test-bundle 
+    	    bundlename="Test Mock Autoconf"
+    	    bundlesymbolicname="net.luminis.liq.test.mockautoconf" 
+    	    privatepackage="net.luminis.liq.test.mockautoconf"
+    	    bundleactivator="net.luminis.liq.test.mockautoconf.Activator" >
+            <manifest>
+                <attribute name="Deployment-ProvidesResourceProcessor" value="org.osgi.deployment.rp.autoconf"/>
+            </manifest>
+        </test-bundle>
+        <copy file="deploy/test/net.luminis.liq.test.bundlestop-1.0.0.jar" todir="deploy/tools/"/>
+        <jar destfile="deploy/tools/BundleGenerator.jar" basedir="../test/classes" includes="net/luminis/test/tools/BundleGenerator*.class">
+            <manifest>
+                <attribute name="Main-Class" value="net.luminis.test.tools.BundleGenerator" />
+            </manifest>
+        </jar>
+        <jar destfile="deploy/tools/RepositoryTool.jar" basedir="../test/classes" includes="net/luminis/test/tools/RepositoryTool*.class">
+            <fileset dir="classes">
+                <include name="net/luminis/liq/repository/*.class" />
+                <exclude name="net/luminis/liq/repository/Repository*.class" />
+            </fileset>
+            <manifest>
+                <attribute name="Main-Class" value="net.luminis.test.tools.RepositoryTool" />
+                <attribute name="Class-Path" value="commons-cli-1.1.jar" />
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="test" depends="build" description="runs all tests">
+        <antcall target="coverage-test" />
+        <antcall target="integration-test" />
+    </target>
+
+    <target name="test-smoke" depends="build" description="runs smoke tests">
+        <run-tests groups="smoke" />
+    </target>
+
+    <target name="integration-test" depends="package" description="runs integration tests">
+        <!-- instrument the classes for code coverage -->
+        <mkdir dir="deploy/target/test/instrumented" />
+        <outofdate outputsources="instrumented.src">
+            <sourcefiles>
+                <fileset dir="deploy/bundle" />
+            </sourcefiles>
+            <targetfiles>
+                <fileset dir="deploy/target/test/instrumented" />
+            </targetfiles>
+            <mapper type="glob" from="deploy/bundle/*" to="deploy/target/test/instrumented/*" />
+            <sequential>
+                <for list="${instrumented.src}" delimiter=" " param="instrumented.file">
+                    <sequential>
+                        <instrument-bundle fromfile="@{instrumented.file}" todir="deploy/target/test/instrumented" />
+                    </sequential>
+                </for>
+            </sequential>
+        </outofdate>
+
+        <!-- runs the tests -->
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/osgi.mobile.jar 
+            file:bundle/org.apache.felix.shell-1.0.2.jar 
+            file:bundle/org.apache.felix.shell.tui-1.0.2.jar 
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+            file:bundle/org.apache.felix.configadmin.jar 
+            file:bundle/org.apache.felix.eventadmin.jar
+            file:bundle/org.apache.felix.deploymentadmin-0.9.0-SNAPSHOT.jar
+            file:instrumented/net.luminis.liq.scheduler-1.0.0.jar
+            file:instrumented/net.luminis.liq.deployment-1.0.0.jar
+            file:instrumented/net.luminis.liq.deployment.task-1.0.0.jar
+            file:instrumented/net.luminis.liq.discovery.property-1.0.0.jar
+            file:instrumented/net.luminis.liq.identification.property-1.0.0.jar
+            file:instrumented/net.luminis.liq.http.listener-1.0.0.jar
+            file:instrumented/net.luminis.liq.deployment.servlet-1.0.0.jar
+            file:instrumented/net.luminis.liq.deployment.provider.filebased-1.0.0.jar
+            file:instrumented/net.luminis.liq.deployment.streamgenerator-1.0.0.jar
+            file:bundle/net.luminis.liq.test.deployment-1.0.0.jar"
+            timeout="60000" datafile="${basedir}/cobertura.ser" />
+
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/org.apache.felix.shell-1.0.2.jar 
+            file:bundle/org.apache.felix.shell.tui-1.0.2.jar 
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/org.apache.felix.configadmin.jar 
+            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+            file:instrumented/net.luminis.liq.http.listener-1.0.0.jar
+            file:bundle/net.luminis.liq.test.http.listener-1.0.0.jar"
+        	timeout="30000" datafile="${basedir}/cobertura.ser" />
+
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/osgi.mobile.jar 
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.apache.felix.shell-1.0.2.jar 
+            file:bundle/org.apache.felix.shell.tui-1.0.2.jar 
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/org.apache.felix.configadmin.jar 
+            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+            file:instrumented/net.luminis.liq.log.listener-1.0.0.jar
+            file:instrumented/net.luminis.liq.log-1.0.0.jar
+            file:instrumented/net.luminis.liq.discovery.property-1.0.0.jar
+            file:instrumented/net.luminis.liq.identification.property-1.0.0.jar
+            file:instrumented/net.luminis.liq.gateway.log.store-1.0.0.jar
+            file:instrumented/net.luminis.liq.gateway.log-1.0.0.jar
+            file:instrumented/net.luminis.liq.http.listener-1.0.0.jar
+            file:instrumented/net.luminis.liq.server.log.store-1.0.0.jar
+            file:instrumented/net.luminis.liq.server.log.task-1.0.0.jar
+            file:instrumented/net.luminis.liq.server.log-1.0.0.jar
+            file:bundle/net.luminis.liq.test.log-1.0.0.jar"
+        	timeout="30000" datafile="${basedir}/cobertura.ser" />
+
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.apache.felix.shell-1.0.2.jar 
+            file:bundle/org.apache.felix.shell.tui-1.0.2.jar 
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/org.apache.felix.configadmin.jar
+        	file:bundle/org.apache.felix.prefs.jar
+            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+            file:instrumented/net.luminis.liq.http.listener-1.0.0.jar
+        	file:instrumented/net.luminis.liq.repository-1.0.0.jar
+        	file:instrumented/net.luminis.liq.repository.servlet-1.0.0.jar
+            file:bundle/net.luminis.liq.test.repository-1.0.0.jar"
+            timeout="30000" datafile="${basedir}/cobertura.ser" />
+
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.apache.felix.shell-1.0.2.jar 
+            file:bundle/org.apache.felix.shell.tui-1.0.2.jar 
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/org.apache.felix.configadmin.jar
+        	file:bundle/org.apache.felix.prefs.jar
+            file:bundle/org.apache.felix.eventadmin.jar
+        	file:bundle/useradmin_all-2.0.0.jar
+            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+            file:bundle/net.luminis.liq.xstream-1.3.jar 
+        	file:bundle/log_all-2.0.0.jar
+            file:instrumented/net.luminis.liq.log-1.0.0.jar
+            file:instrumented/net.luminis.liq.server.log.store-1.0.0.jar
+            file:instrumented/net.luminis.liq.http.listener-1.0.0.jar
+        	file:instrumented/net.luminis.liq.repository-1.0.0.jar
+        	file:instrumented/net.luminis.liq.repository.servlet-1.0.0.jar
+        	file:instrumented/net.luminis.liq.obr.metadata-1.0.0.jar
+        	file:instrumented/net.luminis.liq.obr.servlet-1.0.0.jar
+        	file:instrumented/net.luminis.liq.obr.storage-1.0.0.jar
+        	file:instrumented/net.luminis.liq.client.repository-1.0.0.jar
+            file:instrumented/net.luminis.liq.client.repository.stateful-1.0.0.jar
+            file:instrumented/net.luminis.liq.client.repository.helper.base-1.0.0.jar
+            file:instrumented/net.luminis.liq.client.repository.helper.bundle-1.0.0.jar
+            file:instrumented/net.luminis.liq.client.repository.helper.configuration-1.0.0.jar
+        	file:bundle/net.luminis.liq.configurator.serveruseradmin-1.0.0.jar
+            file:bundle/net.luminis.liq.configurator-1.0.0.jar
+        	file:instrumented/net.luminis.liq.client.automation-1.0.0.jar
+            file:bundle/net.luminis.liq.test.repositoryadmin-1.0.0.jar"
+            timeout="60000" datafile="${basedir}/cobertura.ser" />
+
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/osgi.mobile.jar 
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.apache.felix.shell-1.0.2.jar 
+            file:bundle/org.apache.felix.shell.tui-1.0.2.jar 
+        	file:bundle/org.apache.felix.prefs.jar
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/org.apache.felix.configadmin.jar
+            file:bundle/useradmin_all-2.0.0.jar
+            file:bundle/log_all-2.0.0.jar
+            file:bundle/net.luminis.liq.scheduler-1.0.0.jar
+            file:bundle/net.luminis.liq.http.listener-1.0.0.jar
+        	file:bundle/net.luminis.liq.repository-1.0.0.jar
+        	file:bundle/net.luminis.liq.repository.servlet-1.0.0.jar
+        	file:instrumented/net.luminis.liq.resourceprocessor.useradmin-1.0.0.jar
+        	file:instrumented/net.luminis.liq.configurator.useradmin.task-1.0.0.jar
+        	file:bundle/net.luminis.liq.test.useradminconfigurator-1.0.0.jar"
+            timeout="60000" datafile="${basedir}/cobertura.ser" />
+
+        <!-- create a report -->
+        <mkdir dir="deploy/target/test/coverage" />
+        <cobertura-report format="html" destdir="deploy/target/test/coverage/results" datafile="${basedir}/cobertura.ser">
+            <fileset dir="src">
+                <include name="../liq/**/*.java" />
+            </fileset>
+            <fileset dir="../server/src">
+                <include name="**/*.java" />
+            </fileset>
+            <fileset dir="../gateway/src">
+                <include name="**/*.java" />
+            </fileset>
+        </cobertura-report>
+        <cobertura-report format="xml" destdir="deploy/target/test/coverage/results-xml" datafile="${basedir}/cobertura.ser">
+            <fileset dir="src">
+                <include name="../liq/**/*.java" />
+            </fileset>
+            <fileset dir="../server/src">
+                <include name="**/*.java" />
+            </fileset>
+            <fileset dir="../gateway/src">
+                <include name="**/*.java" />
+            </fileset>
+        </cobertura-report>
+    </target>
+
+    <target name="coverage-test" depends="build" description="run tests with code coverage">
+        <delete dir="deploy/test/coverage" />
+        <mkdir dir="deploy/test/coverage" />
+        <cobertura-instrument todir="deploy/test/coverage">
+            <fileset dir="../gateway/classes">
+                <include name="**/*.class" />
+            </fileset>
+            <fileset dir="../server/classes">
+                <include name="**/*.class" />
+            </fileset>
+            <fileset dir="../liq/classes">
+                <include name="**/*.class" />
+            </fileset>
+        </cobertura-instrument>
+        <testng groups="unit" excludedgroups="broken" outputDir="deploy/test/coverage/test" haltOnFailure="true" verbose="2" listener="net.luminis.test.build.BrokenTestListener">
+            <!--
+            <jvmarg value="-Xdebug" />
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n" />
+            -->
+            <classpath>
+                <pathelement location="deploy/test/coverage" />
+                <fileset dir="ext">
+                    <include name="**/*.jar" />
+                </fileset>
+                <fileset dir="../test/ext">
+                    <include name="cobertura/*.jar" />
+                    <include name="commons/*.jar" />
+                </fileset>
+                <pathelement location="../liq/classes" />
+                <pathelement location="../test/classes" />
+                <pathelement location="../gateway/classes" />
+                <pathelement location="../server/classes" />
+                <pathelement location="lib/felix/1.4.1/bin/felix.jar" />
+                <pathelement location="lib/xstream-build/1.3/xpp3_min-1.1.4c.jar" />
+                <pathelement location="../test/ext/easymock.jar" />
+            </classpath>
+            <classfileset dir="../test/classes" includes="**/*.class" />
+        </testng>
+        <cobertura-report format="html" destdir="deploy/test/coverage/results" datafile="${basedir}/cobertura.ser">
+            <fileset dir="../liq/src">
+                <include name="**/*.java" />
+            </fileset>
+            <fileset dir="../server/src">
+                <include name="**/*.java" />
+            </fileset>
+            <fileset dir="../gateway/src">
+                <include name="**/*.java" />
+            </fileset>
+        </cobertura-report>
+    </target>
+
+    <target name="javadoc">
+        <javadoc destdir="deploy/docs/api" author="false" version="false" use="true" windowtitle="L-iQ API">
+            <classpath refid="test.classpath"/>
+            <fileset dir="../gateway/src" defaultexcludes="yes">
+                <include name="**" />
+            </fileset>
+            <fileset dir="../server/src" defaultexcludes="yes">
+                <include name="**" />
+            </fileset>
+            <doctitle>
+                <![CDATA[<h1>L-iQ</h1>]]>
+            </doctitle>
+        	<bottom>
+            <![CDATA[<i>Copyright &#169; 2009 luminis iQ products. All rights reserved.</i>]]>
+	        </bottom>
+		    <link href="http://java.sun.com/javase/6/docs/api/" />
+		    <link href="http://www2.osgi.org/javadoc/r4/" />
+		</javadoc>
+	</target>
+
+	<macrodef name="run-tests">
+		<attribute name="groups" />
+		<sequential>
+		    <testng classpathref="test.classpath" groups="@{groups}" excludedgroups="broken" outputDir="deploy/test" haltOnFailure="false" verbose="2">
+		        <classfileset dir="../test/classes" includes="**/*.class" />
+		    </testng>
+		</sequential>
+	</macrodef>
+
+	<target name="package" depends="build" description="packages all artifacts">
+		<mkdir dir="deploy/target" />
+		<subant target="deploy" inheritall="true">
+		    <fileset dir="." includes="target-*.xml" />
+		</subant>
+	</target>
+
+	<target name="zip" depends="package" description="zips all targets">
+	    <mkdir dir="deploy/releases" />
+	    <ziptarget target="dev-server" />
+	    <ziptarget target="dev-obr" />
+	    <ziptarget target="dev-gateway" />
+	    <ziptarget target="dev-client" />
+	    <ziptarget target="dev-multigateway" />
+	    <ziptarget target="dev-relay" />
+	    <ziptarget target="dev-customlicenseserver" />
+	    <ziptarget target="dev-customlicenseclient" />
+	    <ziptarget target="dev-obrdeployed-obr" />
+	    <ziptarget target="dev-obrdeployed-gateway" />
+	    <ziptarget target="dev-licensedgateway" />
+	    
+	    <zip basedir="deploy/target" includes="dev-tools/**" destfile="deploy/releases/dev-tools.zip" />
+	</target>
+        
+	<target name="release" depends="clean, coverage-test, integration-test, javadoc, package, zip" description="does a clean release">
+	</target>
+
+	<macrodef name="ziptarget">
+		<attribute name="target"/>
+		<sequential>
+		    <zip basedir="deploy/target" includes="@{target}/**" excludes="@{target}/*.app/**" destfile="deploy/releases/@{target}.zip" />
+		    <zip destfile="deploy/releases/@{target}.zip" update="true" >
+		        <zipfileset dir="deploy/target" includes="@{target}/*.app/**" filemode="777" />
+		    </zip>
+		</sequential>
+	</macrodef>
+</project>
