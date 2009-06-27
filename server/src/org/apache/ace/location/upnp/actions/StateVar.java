@@ -1,3 +1,7 @@
+package org.apache.ace.location.upnp.actions;
+
+import org.osgi.service.upnp.UPnPLocalStateVariable;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -16,37 +20,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.felix.deployment.rp.autoconf.impl;
-
-import java.util.Dictionary;
-
-public class AutoConfResource {
-
-	public String m_pid;
-	public String m_factoryPid;
-	public Dictionary m_oldProps;
-	public Dictionary m_newProps;
-
-	public AutoConfResource(String pid, String factoryPid, Dictionary oldProps, Dictionary newProps) {
-		m_pid = pid;
-		m_factoryPid = factoryPid;
-		m_newProps = oldProps;
-		m_newProps = newProps;
+public abstract class StateVar implements UPnPLocalStateVariable {
+	public String[] getAllowedValues() {
+		return null;
 	}
 
-	public String getPid() {
-		return m_pid;
+	public Object getDefaultValue() {
+		return null;
 	}
 
-	public String getFactoryPid() {
-		return m_factoryPid;
+	public Number getMinimum() {
+		return null;
 	}
 
-	public Dictionary getOldProps() {
-		return m_oldProps;
+	public Number getMaximum() {
+		return null;
 	}
 
-	public Dictionary getNewProps() {
-		return m_newProps;
+	public Number getStep() {
+		return null;
+	}
+
+	public boolean sendsEvents() {
+		return false;
 	}
 }

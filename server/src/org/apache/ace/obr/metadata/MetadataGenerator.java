@@ -16,37 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.felix.deployment.rp.autoconf.impl;
+package org.apache.ace.obr.metadata;
 
-import java.util.Dictionary;
+import java.io.File;
+import java.io.IOException;
 
-public class AutoConfResource {
+public interface MetadataGenerator {
 
-	public String m_pid;
-	public String m_factoryPid;
-	public Dictionary m_oldProps;
-	public Dictionary m_newProps;
-
-	public AutoConfResource(String pid, String factoryPid, Dictionary oldProps, Dictionary newProps) {
-		m_pid = pid;
-		m_factoryPid = factoryPid;
-		m_newProps = oldProps;
-		m_newProps = newProps;
-	}
-
-	public String getPid() {
-		return m_pid;
-	}
-
-	public String getFactoryPid() {
-		return m_factoryPid;
-	}
-
-	public Dictionary getOldProps() {
-		return m_oldProps;
-	}
-
-	public Dictionary getNewProps() {
-		return m_newProps;
-	}
+    /**
+     * Generates the repository.xml based upon the new set of Bundles in the given directory. The xml is created
+     * as result of this method in the given directory in a file called repository.xml.
+     * This methods creates the file in an atomic fashion (this includes retrying to overwrite an existing file until success).
+     *
+     * @param directory the location where to store the newly created repository.xml
+     *
+     * @throws IOException If I/O problems occur when generating the new meta data index file.
+     */
+    public void generateMetadata(File directory) throws IOException;
 }

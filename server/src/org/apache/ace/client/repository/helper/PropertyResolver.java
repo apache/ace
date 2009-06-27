@@ -16,37 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.felix.deployment.rp.autoconf.impl;
+package org.apache.ace.client.repository.helper;
 
-import java.util.Dictionary;
-
-public class AutoConfResource {
-
-	public String m_pid;
-	public String m_factoryPid;
-	public Dictionary m_oldProps;
-	public Dictionary m_newProps;
-
-	public AutoConfResource(String pid, String factoryPid, Dictionary oldProps, Dictionary newProps) {
-		m_pid = pid;
-		m_factoryPid = factoryPid;
-		m_newProps = oldProps;
-		m_newProps = newProps;
-	}
-
-	public String getPid() {
-		return m_pid;
-	}
-
-	public String getFactoryPid() {
-		return m_factoryPid;
-	}
-
-	public Dictionary getOldProps() {
-		return m_oldProps;
-	}
-
-	public Dictionary getNewProps() {
-		return m_newProps;
-	}
+/**
+ * Interface for resolving properties about the template's
+ * environment which are to be used by an ArtifactPreprocessor.
+ */
+public interface PropertyResolver {
+    /**
+     * Gets a property, based on the given key. If the key cannot be found, <code>null</code>
+     * can be used.
+     * @param key A key to some property. Cannot be null.
+     * @return The property identified by <code>key</code> if it can be found, <code>null</code> otherwise.
+     */
+    public String get(String key);
 }

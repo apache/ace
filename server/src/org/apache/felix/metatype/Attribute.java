@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,7 +17,6 @@
  * under the License.
  */
 package org.apache.felix.metatype;
-
 
 /**
  * The <code>Attribute</code> TODO
@@ -46,17 +45,17 @@ public class Attribute
 
     public String[] getContent()
     {
-        return ( String[] ) content.clone();
+        return content.clone();
     }
 
 
     public void addContent( String[] added )
     {
-        if ( added != null && added.length > 0 )
+        if ( (added != null) && (added.length > 0) )
         {
             if ( content == null )
             {
-                content = ( String[] ) added.clone();
+                content = added.clone();
             }
             else
             {

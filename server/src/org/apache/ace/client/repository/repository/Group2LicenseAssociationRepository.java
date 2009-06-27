@@ -16,37 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.felix.deployment.rp.autoconf.impl;
+package org.apache.ace.client.repository.repository;
 
-import java.util.Dictionary;
+import org.apache.ace.client.repository.AssociationRepository;
+import org.apache.ace.client.repository.object.Group2LicenseAssociation;
+import org.apache.ace.client.repository.object.GroupObject;
+import org.apache.ace.client.repository.object.LicenseObject;
 
-public class AutoConfResource {
-
-	public String m_pid;
-	public String m_factoryPid;
-	public Dictionary m_oldProps;
-	public Dictionary m_newProps;
-
-	public AutoConfResource(String pid, String factoryPid, Dictionary oldProps, Dictionary newProps) {
-		m_pid = pid;
-		m_factoryPid = factoryPid;
-		m_newProps = oldProps;
-		m_newProps = newProps;
-	}
-
-	public String getPid() {
-		return m_pid;
-	}
-
-	public String getFactoryPid() {
-		return m_factoryPid;
-	}
-
-	public Dictionary getOldProps() {
-		return m_oldProps;
-	}
-
-	public Dictionary getNewProps() {
-		return m_newProps;
-	}
+/**
+ * Interface to a Group2LicenseAssociationRepository. The functionality is defined by the generic AssociationRepository.
+ */
+public interface Group2LicenseAssociationRepository extends AssociationRepository<GroupObject, LicenseObject, Group2LicenseAssociation> {
 }

@@ -16,37 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.felix.deployment.rp.autoconf.impl;
+package org.apache.ace.client.repository;
 
-import java.util.Dictionary;
-
-public class AutoConfResource {
-
-	public String m_pid;
-	public String m_factoryPid;
-	public Dictionary m_oldProps;
-	public Dictionary m_newProps;
-
-	public AutoConfResource(String pid, String factoryPid, Dictionary oldProps, Dictionary newProps) {
-		m_pid = pid;
-		m_factoryPid = factoryPid;
-		m_newProps = oldProps;
-		m_newProps = newProps;
-	}
-
-	public String getPid() {
-		return m_pid;
-	}
-
-	public String getFactoryPid() {
-		return m_factoryPid;
-	}
-
-	public Dictionary getOldProps() {
-		return m_oldProps;
-	}
-
-	public Dictionary getNewProps() {
-		return m_newProps;
-	}
+public class RepositoryUtil {
+	/**
+	 * Before passing user input into an LDAP filter, some precautions need to be taken
+	 * (see section 3.2.6 of the OSGi core specification). This function escapes
+	 * illegal characters, and returns the resulting string.
+	 */
+    public static String escapeFilterValue(String value) {
+        return value.replaceAll("\\\\", "\\\\\\\\")
+            .replaceAll("\\(", "\\\\(")
+            .replaceAll("\\)", "\\\\)")
+            .replaceAll("\\*", "\\\\*");
+    }
 }

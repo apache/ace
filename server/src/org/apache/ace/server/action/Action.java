@@ -16,37 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.felix.deployment.rp.autoconf.impl;
+package org.apache.ace.server.action;
 
-import java.util.Dictionary;
+import org.osgi.service.event.Event;
 
-public class AutoConfResource {
+/**
+ * An Action is a rather general action which can be used to handle some event.
+ * Action services are to be published with a service property {@link Action#ACTION_NAME},
+ * which states the name of this action, so other services can find it.<br>
+ * <br>
+ * Implementers of Action should specify in their interface which properties should
+ * be available in the event, for the action to be able to do its job.
+ */
+public interface Action {
+    public static final String ACTION_NAME = Action.class.getName() + ".name";
 
-	public String m_pid;
-	public String m_factoryPid;
-	public Dictionary m_oldProps;
-	public Dictionary m_newProps;
-
-	public AutoConfResource(String pid, String factoryPid, Dictionary oldProps, Dictionary newProps) {
-		m_pid = pid;
-		m_factoryPid = factoryPid;
-		m_newProps = oldProps;
-		m_newProps = newProps;
-	}
-
-	public String getPid() {
-		return m_pid;
-	}
-
-	public String getFactoryPid() {
-		return m_factoryPid;
-	}
-
-	public Dictionary getOldProps() {
-		return m_oldProps;
-	}
-
-	public Dictionary getNewProps() {
-		return m_newProps;
-	}
+    /**
+     * Handles an event, performing the main action of this Action.
+     */
+    public void handle(Event event);
 }

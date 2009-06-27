@@ -18,19 +18,18 @@
  */
 package org.apache.felix.metatype;
 
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.felix.metatype.internal.Activator;
 import org.osgi.service.log.LogService;
 import org.osgi.service.metatype.AttributeDefinition;
 
-
 /**
  * The <code>AD</code> class represents the <code>AD</code> element of the
  * meta type descriptor.
- *
- * @author fmeschbe
  */
 public class AD
 {
@@ -166,7 +165,7 @@ public class AD
     public String validate( String valueString )
     {
         // no validation if no min and max
-        if ( getMin() == null && getMax() == null && getOptionValues() == null )
+        if ( (getMin() == null) && (getMax() == null) && (getOptionValues() == null) )
         {
             return null;
         }
@@ -313,7 +312,7 @@ public class AD
      */
     public void setDefaultValue( String[] defaultValue )
     {
-        this.defaultValue = ( String[] ) defaultValue.clone();
+        this.defaultValue = defaultValue.clone();
     }
 
 
@@ -425,7 +424,7 @@ public class AD
 
     protected Comparable convertToType( final String value )
     {
-        if ( value != null && value.length() > 0 )
+        if ( (value != null) && (value.length() > 0) )
         {
             try
             {

@@ -16,37 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.felix.deployment.rp.autoconf.impl;
+package org.apache.ace.client.repository.helper.configuration;
 
-import java.util.Dictionary;
+import org.apache.ace.client.repository.helper.ArtifactHelper;
 
-public class AutoConfResource {
-
-	public String m_pid;
-	public String m_factoryPid;
-	public Dictionary m_oldProps;
-	public Dictionary m_newProps;
-
-	public AutoConfResource(String pid, String factoryPid, Dictionary oldProps, Dictionary newProps) {
-		m_pid = pid;
-		m_factoryPid = factoryPid;
-		m_newProps = oldProps;
-		m_newProps = newProps;
-	}
-
-	public String getPid() {
-		return m_pid;
-	}
-
-	public String getFactoryPid() {
-		return m_factoryPid;
-	}
-
-	public Dictionary getOldProps() {
-		return m_oldProps;
-	}
-
-	public Dictionary getNewProps() {
-		return m_newProps;
-	}
+/**
+ * Definitions for ConfigurationHelper,used to treat an artifact as an AutoConf file.
+ */
+public interface ConfigurationHelper extends ArtifactHelper {
+    public static final String KEY_FILENAME = "filename";
+    public static final String MIMETYPE = "application/xml:osgi-autoconf";
+    public static final String PROCESSOR = "org.osgi.deployment.rp.autoconf";
 }

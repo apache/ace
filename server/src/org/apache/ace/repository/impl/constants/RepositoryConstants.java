@@ -16,37 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.felix.deployment.rp.autoconf.impl;
+package org.apache.ace.repository.impl.constants;
 
-import java.util.Dictionary;
-
-public class AutoConfResource {
-
-	public String m_pid;
-	public String m_factoryPid;
-	public Dictionary m_oldProps;
-	public Dictionary m_newProps;
-
-	public AutoConfResource(String pid, String factoryPid, Dictionary oldProps, Dictionary newProps) {
-		m_pid = pid;
-		m_factoryPid = factoryPid;
-		m_newProps = oldProps;
-		m_newProps = newProps;
-	}
-
-	public String getPid() {
-		return m_pid;
-	}
-
-	public String getFactoryPid() {
-		return m_factoryPid;
-	}
-
-	public Dictionary getOldProps() {
-		return m_oldProps;
-	}
-
-	public Dictionary getNewProps() {
-		return m_newProps;
-	}
+public interface RepositoryConstants {
+    public static final String REPOSITORY_NAME = "name";
+    public static final String REPOSITORY_CUSTOMER = "customer";
+    public static final String REPOSITORY_MASTER = "master";
+    public static final String REPOSITORY_INITIAL_CONTENT = "initial";
 }

@@ -16,37 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.felix.deployment.rp.autoconf.impl;
+package org.apache.ace.client.repository.helper.user;
 
-import java.util.Dictionary;
+import org.apache.ace.client.repository.helper.ArtifactHelper;
 
-public class AutoConfResource {
-
-	public String m_pid;
-	public String m_factoryPid;
-	public Dictionary m_oldProps;
-	public Dictionary m_newProps;
-
-	public AutoConfResource(String pid, String factoryPid, Dictionary oldProps, Dictionary newProps) {
-		m_pid = pid;
-		m_factoryPid = factoryPid;
-		m_newProps = oldProps;
-		m_newProps = newProps;
-	}
-
-	public String getPid() {
-		return m_pid;
-	}
-
-	public String getFactoryPid() {
-		return m_factoryPid;
-	}
-
-	public Dictionary getOldProps() {
-		return m_oldProps;
-	}
-
-	public Dictionary getNewProps() {
-		return m_newProps;
-	}
+/**
+ * Definitions for the UserAdminHelper artifact helper.
+ */
+public interface UserAdminHelper extends ArtifactHelper {
+    public static final String MIMETYPE = "application/vnd.apache.ace.useradmin";
+    public static final String PROCESSOR = "org.apache.ace.resourceprocessor.useradmin";
 }
