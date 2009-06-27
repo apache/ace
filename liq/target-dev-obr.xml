@@ -15,12 +15,12 @@
         </copy>
         <copy todir="${deploy-dir}/bundle">
             <fileset dir="deploy/bundle">
-            	<include name="net.luminis.liq.consolelogger-1.0.0.jar" />
-            	<include name="net.luminis.liq.http.listener-1.0.0.jar" />
-            	<include name="net.luminis.liq.configurator-1.0.0.jar" />
-            	<include name="net.luminis.liq.obr.servlet-1.0.0.jar" />
-            	<include name="net.luminis.liq.obr.storage-1.0.0.jar" />
-            	<include name="net.luminis.liq.obr.metadata-1.0.0.jar" />
+            	<include name="org.apache.ace.consolelogger-1.0.0.jar" />
+            	<include name="org.apache.ace.http.listener-1.0.0.jar" />
+            	<include name="org.apache.ace.configurator-1.0.0.jar" />
+            	<include name="org.apache.ace.obr.servlet-1.0.0.jar" />
+            	<include name="org.apache.ace.obr.storage-1.0.0.jar" />
+            	<include name="org.apache.ace.obr.metadata-1.0.0.jar" />
             </fileset>
             <fileset dir="ext">
             	<include name="org.osgi.compendium.jar" />
@@ -42,7 +42,7 @@
         <copy file="${deploy-dir}/conf/dev-config.properties" overwrite="true" tofile="${deploy-dir}/conf/config.properties" />
         <delete file="${deploy-dir}/conf/test-config.properties" />
         <replace file="${deploy-dir}/conf/config.properties" token="@bundles@" value="
-        	file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+        	file:bundle/org.apache.ace.consolelogger-1.0.0.jar
         	file:bundle/log_all-2.0.0.jar
             file:bundle/osgi.mobile.jar 
             file:bundle/org.osgi.compendium.jar 
@@ -52,11 +52,11 @@
             file:bundle/org.apache.felix.shell.tui-1.0.2.jar 
             file:bundle/org.apache.felix.configadmin.jar
             file:bundle/org.apache.felix.dependencymanager.jar 
-            file:bundle/net.luminis.liq.http.listener-1.0.0.jar
-            file:bundle/net.luminis.liq.configurator-1.0.0.jar
-            file:bundle/net.luminis.liq.obr.servlet-1.0.0.jar
-            file:bundle/net.luminis.liq.obr.storage-1.0.0.jar
-            file:bundle/net.luminis.liq.obr.metadata-1.0.0.jar" />
+            file:bundle/org.apache.ace.http.listener-1.0.0.jar
+            file:bundle/org.apache.ace.configurator-1.0.0.jar
+            file:bundle/org.apache.ace.obr.servlet-1.0.0.jar
+            file:bundle/org.apache.ace.obr.storage-1.0.0.jar
+            file:bundle/org.apache.ace.obr.metadata-1.0.0.jar" />
         <replace file="${deploy-dir}/conf/config.properties" token="@properties@" value="org.osgi.service.http.port=8082" />
 
     	<property name="runCommand" value="java -jar bin/felix.jar"/>

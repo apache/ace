@@ -15,17 +15,17 @@
         </copy>
         <copy todir="${deploy-dir}/bundle">
             <fileset dir="deploy/bundle">
-                <include name="net.luminis.liq.consolelogger-1.0.0.jar" />
-            	<include name="net.luminis.liq.log.listener-1.0.0.jar" />           
-            	<include name="net.luminis.liq.gateway.log.store-1.0.0.jar" />
-            	<include name="net.luminis.liq.gateway.log-1.0.0.jar" />
-            	<include name="net.luminis.liq.log-1.0.0.jar" />
-            	<include name="net.luminis.liq.configurator-1.0.0.jar" />
-            	<include name="net.luminis.liq.scheduler-1.0.0.jar" />
-            	<include name="net.luminis.liq.deployment-1.0.0.jar" />
-            	<include name="net.luminis.liq.deployment.task-1.0.0.jar" />
-            	<include name="net.luminis.liq.identification.property-1.0.0.jar" />
-            	<include name="net.luminis.liq.discovery.property-1.0.0.jar" />
+                <include name="org.apache.ace.consolelogger-1.0.0.jar" />
+            	<include name="org.apache.ace.log.listener-1.0.0.jar" />           
+            	<include name="org.apache.ace.gateway.log.store-1.0.0.jar" />
+            	<include name="org.apache.ace.gateway.log-1.0.0.jar" />
+            	<include name="org.apache.ace.log-1.0.0.jar" />
+            	<include name="org.apache.ace.configurator-1.0.0.jar" />
+            	<include name="org.apache.ace.scheduler-1.0.0.jar" />
+            	<include name="org.apache.ace.deployment-1.0.0.jar" />
+            	<include name="org.apache.ace.deployment.task-1.0.0.jar" />
+            	<include name="org.apache.ace.identification.property-1.0.0.jar" />
+            	<include name="org.apache.ace.discovery.property-1.0.0.jar" />
             </fileset>
             <fileset dir="ext">
             	<include name="org.osgi.compendium.jar" />
@@ -48,27 +48,27 @@
         <move file="${deploy-dir}/conf/dev-config.properties" tofile="${deploy-dir}/conf/config.properties" />
         <delete file="${deploy-dir}/conf/test-config.properties" />
         <replace file="${deploy-dir}/conf/config.properties" token="@bundles@" value="
-        	file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
-			file:bundle/net.luminis.liq.log.listener-1.0.0.jar           
+        	file:bundle/org.apache.ace.consolelogger-1.0.0.jar
+			file:bundle/org.apache.ace.log.listener-1.0.0.jar           
         	file:bundle/log_all-2.0.0.jar
             file:bundle/javax.servlet.jar
             file:bundle/org.osgi.compendium.jar 
             file:bundle/osgi.mobile.jar 
             file:bundle/org.apache.felix.dependencymanager.jar 
-            file:bundle/net.luminis.liq.gateway.log.store-1.0.0.jar
-            file:bundle/net.luminis.liq.gateway.log-1.0.0.jar
+            file:bundle/org.apache.ace.gateway.log.store-1.0.0.jar
+            file:bundle/org.apache.ace.gateway.log-1.0.0.jar
             file:bundle/org.apache.felix.eventadmin.jar
             file:bundle/org.apache.felix.shell-1.0.2.jar 
             file:bundle/org.apache.felix.shell.tui-1.0.2.jar 
             file:bundle/org.apache.felix.configadmin.jar 
-            file:bundle/net.luminis.liq.log-1.0.0.jar
-            file:bundle/net.luminis.liq.configurator-1.0.0.jar
-            file:bundle/net.luminis.liq.scheduler-1.0.0.jar
-            file:bundle/net.luminis.liq.deployment-1.0.0.jar
-            file:bundle/net.luminis.liq.deployment.task-1.0.0.jar
+            file:bundle/org.apache.ace.log-1.0.0.jar
+            file:bundle/org.apache.ace.configurator-1.0.0.jar
+            file:bundle/org.apache.ace.scheduler-1.0.0.jar
+            file:bundle/org.apache.ace.deployment-1.0.0.jar
+            file:bundle/org.apache.ace.deployment.task-1.0.0.jar
             file:bundle/org.apache.felix.deploymentadmin-0.9.0-SNAPSHOT.jar
-            file:bundle/net.luminis.liq.identification.property-1.0.0.jar
-            file:bundle/net.luminis.liq.discovery.property-1.0.0.jar" />
+            file:bundle/org.apache.ace.identification.property-1.0.0.jar
+            file:bundle/org.apache.ace.discovery.property-1.0.0.jar" />
         <replace file="${deploy-dir}/conf/config.properties" token="@properties@" value="" />
 
     	<property name="runCommand" value="java -jar bin/felix.jar"/>

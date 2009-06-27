@@ -16,19 +16,19 @@
         </copy>
         <copy todir="${deploy-dir}/bundle">
             <fileset dir="deploy/bundle">
-            	<include name="net.luminis.liq.configurator-1.0.0.jar" />
-            	<include name="net.luminis.liq.discovery.property-1.0.0.jar" />
-            	<include name="net.luminis.liq.scheduler-1.0.0.jar" />
-            	<include name="net.luminis.liq.http.listener-1.0.0.jar" />
-            	<include name="net.luminis.liq.deployment.servlet-1.0.0.jar" />
-            	<include name="net.luminis.liq.deployment.provider.filebased-1.0.0.jar" />
-            	<include name="net.luminis.liq.deployment.streamgenerator-1.0.0.jar" />
-            	<include name="net.luminis.liq.server.log.store-1.0.0.jar" />
-            	<include name="net.luminis.liq.server.log.task-1.0.0.jar" />
-            	<include name="net.luminis.liq.server.log-1.0.0.jar" />
-            	<include name="net.luminis.liq.repository-1.0.0.jar" />
-            	<include name="net.luminis.liq.repository.task-1.0.0.jar" />
-            	<include name="net.luminis.liq.repository.servlet-1.0.0.jar" />
+            	<include name="org.apache.ace.configurator-1.0.0.jar" />
+            	<include name="org.apache.ace.discovery.property-1.0.0.jar" />
+            	<include name="org.apache.ace.scheduler-1.0.0.jar" />
+            	<include name="org.apache.ace.http.listener-1.0.0.jar" />
+            	<include name="org.apache.ace.deployment.servlet-1.0.0.jar" />
+            	<include name="org.apache.ace.deployment.provider.filebased-1.0.0.jar" />
+            	<include name="org.apache.ace.deployment.streamgenerator-1.0.0.jar" />
+            	<include name="org.apache.ace.server.log.store-1.0.0.jar" />
+            	<include name="org.apache.ace.server.log.task-1.0.0.jar" />
+            	<include name="org.apache.ace.server.log-1.0.0.jar" />
+            	<include name="org.apache.ace.repository-1.0.0.jar" />
+            	<include name="org.apache.ace.repository.task-1.0.0.jar" />
+            	<include name="org.apache.ace.repository.servlet-1.0.0.jar" />
             </fileset>
             <fileset dir="ext">
             	<include name="org.osgi.compendium.jar" />
@@ -61,19 +61,19 @@
             file:bundle/org.apache.felix.configadmin.jar 
             file:bundle/org.apache.felix.dependencymanager.jar 
             file:bundle/org.apache.felix.prefs.jar
-            file:bundle/net.luminis.liq.configurator-1.0.0.jar
-            file:bundle/net.luminis.liq.discovery.property-1.0.0.jar
-            file:bundle/net.luminis.liq.scheduler-1.0.0.jar
-            file:bundle/net.luminis.liq.http.listener-1.0.0.jar
-            file:bundle/net.luminis.liq.deployment.servlet-1.0.0.jar
-            file:bundle/net.luminis.liq.deployment.provider.filebased-1.0.0.jar
-            file:bundle/net.luminis.liq.deployment.streamgenerator-1.0.0.jar
-            file:bundle/net.luminis.liq.server.log.store-1.0.0.jar
-            file:bundle/net.luminis.liq.server.log.task-1.0.0.jar
-            file:bundle/net.luminis.liq.server.log-1.0.0.jar
-            file:bundle/net.luminis.liq.repository-1.0.0.jar
-            file:bundle/net.luminis.liq.repository.task-1.0.0.jar
-            file:bundle/net.luminis.liq.repository.servlet-1.0.0.jar" />
+            file:bundle/org.apache.ace.configurator-1.0.0.jar
+            file:bundle/org.apache.ace.discovery.property-1.0.0.jar
+            file:bundle/org.apache.ace.scheduler-1.0.0.jar
+            file:bundle/org.apache.ace.http.listener-1.0.0.jar
+            file:bundle/org.apache.ace.deployment.servlet-1.0.0.jar
+            file:bundle/org.apache.ace.deployment.provider.filebased-1.0.0.jar
+            file:bundle/org.apache.ace.deployment.streamgenerator-1.0.0.jar
+            file:bundle/org.apache.ace.server.log.store-1.0.0.jar
+            file:bundle/org.apache.ace.server.log.task-1.0.0.jar
+            file:bundle/org.apache.ace.server.log-1.0.0.jar
+            file:bundle/org.apache.ace.repository-1.0.0.jar
+            file:bundle/org.apache.ace.repository.task-1.0.0.jar
+            file:bundle/org.apache.ace.repository.servlet-1.0.0.jar" />
         <replace file="${deploy-dir}/conf/config.properties" token="@properties@" value="org.osgi.service.http.port=8081" />
 
     	<property name="runCommand" value="java -jar bin/felix.jar"/>

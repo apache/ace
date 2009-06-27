@@ -65,7 +65,7 @@
         <bundle outputdir="deploy/bundle"
             classpathrefid="bnd.classpath"
             bundleversion="1.0.0"
-            bundlevendor="luminis" />
+            bundlevendor="Apache ACE" />
     </presetdef>
 
     <presetdef name="test-bundle">
@@ -73,7 +73,7 @@
             importpackage="!org.apache.tools.ant, !org.apache.tools.ant.*, !org.apache.bsf, !org.apache.bsf.*, !junit.*, !com.sun.javadoc, !com.sun.javadoc.*, !com.sun.tools.javadoc, !com.sun.tools.javadoc.*, *"
             classpathrefid="test.classpath"
             bundleversion="1.0.0"
-            bundlevendor="luminis" />
+            bundlevendor="Apache ACE" />
     </presetdef>
 
     <!-- instruments a bundle for code coverage -->
@@ -91,7 +91,7 @@
             <dirname file="@{fromfile}" property="dir-@{fromfile}" />
             <basename file="@{fromfile}" property="name-@{fromfile}" />
             <cobertura-instrument todir="@{todir}">
-                <includeClasses regex="net.luminis.*" />
+                <includeClasses regex="org.apache.ace.*" />
                 <instrumentationClasspath>
                     <pathelement location="@{fromfile}" />
                 </instrumentationClasspath>
@@ -239,172 +239,172 @@
     <target name="package-server" unless="server.uptodate">
         <project-bundle 
             bundlename="Deployment Servlet"                                                                                                                                                 
-            bundlesymbolicname="net.luminis.liq.deployment.servlet"                                                                                                                         
-            privatepackage="net.luminis.liq.deployment.servlet"
-            bundleactivator="net.luminis.liq.deployment.servlet.Activator" />
+            bundlesymbolicname="org.apache.ace.deployment.servlet"                                                                                                                         
+            privatepackage="org.apache.ace.deployment.servlet"
+            bundleactivator="org.apache.ace.deployment.servlet.Activator" />
         <project-bundle 
             bundlename="HTTP Service Listener"                                                                                                                                                 
-            bundlesymbolicname="net.luminis.liq.http.listener"                                                                                                                         
-            privatepackage="net.luminis.liq.http.listener"                                                                                                                           
-            bundleactivator="net.luminis.liq.http.listener.Activator" />
+            bundlesymbolicname="org.apache.ace.http.listener"                                                                                                                         
+            privatepackage="org.apache.ace.http.listener"                                                                                                                           
+            bundleactivator="org.apache.ace.http.listener.Activator" />
         <project-bundle 
             bundlename="File Based Deployment Provider"                                                                                                                                                 
-            bundlesymbolicname="net.luminis.liq.deployment.provider.filebased"                                                                                                                         
-            exportpackage="net.luminis.liq.deployment.provider"                                                                                                                           
-            privatepackage="net.luminis.liq.deployment.provider.filebased, net.luminis.liq.deployment.provider.impl"
-            bundleactivator="net.luminis.liq.deployment.provider.filebased.Activator" />
+            bundlesymbolicname="org.apache.ace.deployment.provider.filebased"                                                                                                                         
+            exportpackage="org.apache.ace.deployment.provider"                                                                                                                           
+            privatepackage="org.apache.ace.deployment.provider.filebased, org.apache.ace.deployment.provider.impl"
+            bundleactivator="org.apache.ace.deployment.provider.filebased.Activator" />
         <project-bundle 
             bundlename="Repository Based Deployment Provider"                                                                                                                                                 
-            bundlesymbolicname="net.luminis.liq.deployment.provider.repositorybased"                                                                                                                         
-            exportpackage="net.luminis.liq.deployment.provider"                                                                                                                           
-            privatepackage="net.luminis.liq.deployment.provider.repositorybased, net.luminis.liq.deployment.provider.impl, net.luminis.liq.repository.ext, net.luminis.liq.repository.impl, net.luminis.liq.repository.impl"
-            bundleactivator="net.luminis.liq.deployment.provider.repositorybased.Activator" />
+            bundlesymbolicname="org.apache.ace.deployment.provider.repositorybased"                                                                                                                         
+            exportpackage="org.apache.ace.deployment.provider"                                                                                                                           
+            privatepackage="org.apache.ace.deployment.provider.repositorybased, org.apache.ace.deployment.provider.impl, org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.repository.impl"
+            bundleactivator="org.apache.ace.deployment.provider.repositorybased.Activator" />
         <project-bundle 
             bundlename="Deployment Stream Generator"                                                                                                                                                 
-            bundlesymbolicname="net.luminis.liq.deployment.streamgenerator"                                                                                                                         
-            exportpackage="net.luminis.liq.deployment.streamgenerator"                                                                                                                           
-            privatepackage="net.luminis.liq.deployment.streamgenerator.impl"                                                                                                                           
-            bundleactivator="net.luminis.liq.deployment.streamgenerator.impl.Activator" />
+            bundlesymbolicname="org.apache.ace.deployment.streamgenerator"                                                                                                                         
+            exportpackage="org.apache.ace.deployment.streamgenerator"                                                                                                                           
+            privatepackage="org.apache.ace.deployment.streamgenerator.impl"                                                                                                                           
+            bundleactivator="org.apache.ace.deployment.streamgenerator.impl.Activator" />
         <project-bundle
             bundlename="Server Log Servlet"
-            bundlesymbolicname="net.luminis.liq.server.log"
-            privatepackage="net.luminis.liq.server.log"
-            bundleactivator="net.luminis.liq.server.log.Activator" />
+            bundlesymbolicname="org.apache.ace.server.log"
+            privatepackage="org.apache.ace.server.log"
+            bundleactivator="org.apache.ace.server.log.Activator" />
         <project-bundle
             bundlename="Server Log Store"
-            bundlesymbolicname="net.luminis.liq.server.log.store"
-            exportpackage="net.luminis.liq.server.log.store, net.luminis.liq.log"
-            privatepackage="net.luminis.liq.server.log.store.impl, net.luminis.liq.util"
-            bundleactivator="net.luminis.liq.server.log.store.impl.Activator" />
+            bundlesymbolicname="org.apache.ace.server.log.store"
+            exportpackage="org.apache.ace.server.log.store, org.apache.ace.log"
+            privatepackage="org.apache.ace.server.log.store.impl, org.apache.ace.util"
+            bundleactivator="org.apache.ace.server.log.store.impl.Activator" />
         <project-bundle
             bundlename="Server Log Task"
-            bundlesymbolicname="net.luminis.liq.server.log.task"
-            privatepackage="net.luminis.liq.server.log.task"
-            bundleactivator="net.luminis.liq.server.log.task.Activator" />
+            bundlesymbolicname="org.apache.ace.server.log.task"
+            privatepackage="org.apache.ace.server.log.task"
+            bundleactivator="org.apache.ace.server.log.task.Activator" />
         <project-bundle 
             bundlename="OBR Metadata Generator"
-            bundlesymbolicname="net.luminis.liq.obr.metadata"
-            exportpackage="net.luminis.liq.obr.metadata"
-            privatepackage="net.luminis.liq.obr.metadata.bindex, org.osgi.impl.bundle.bindex, org.osgi.impl.bundle.obr.resource, org.osgi.service.obr"
+            bundlesymbolicname="org.apache.ace.obr.metadata"
+            exportpackage="org.apache.ace.obr.metadata"
+            privatepackage="org.apache.ace.obr.metadata.bindex, org.osgi.impl.bundle.bindex, org.osgi.impl.bundle.obr.resource, org.osgi.service.obr"
     		includeresource="ext/kxml2-min.jar"
     		bundleclasspath="kxml2-min.jar,."
-            bundleactivator="net.luminis.liq.obr.metadata.bindex.Activator" />
+            bundleactivator="org.apache.ace.obr.metadata.bindex.Activator" />
         <project-bundle 
             bundlename="OBR Storage"
-            bundlesymbolicname="net.luminis.liq.obr.storage"
-            exportpackage="net.luminis.liq.obr.storage"
-            privatepackage="net.luminis.liq.obr.storage.file"
-            bundleactivator="net.luminis.liq.obr.storage.file.Activator" />
+            bundlesymbolicname="org.apache.ace.obr.storage"
+            exportpackage="org.apache.ace.obr.storage"
+            privatepackage="org.apache.ace.obr.storage.file"
+            bundleactivator="org.apache.ace.obr.storage.file.Activator" />
         <project-bundle 
             bundlename="OBR Servlet"
-            bundlesymbolicname="net.luminis.liq.obr.servlet"
-            privatepackage="net.luminis.liq.obr.servlet"
-            bundleactivator="net.luminis.liq.obr.servlet.Activator" />
+            bundlesymbolicname="org.apache.ace.obr.servlet"
+            privatepackage="org.apache.ace.obr.servlet"
+            bundleactivator="org.apache.ace.obr.servlet.Activator" />
         <project-bundle 
             bundlename="Object Repository"
-            bundlesymbolicname="net.luminis.liq.repository"
-            exportpackage="net.luminis.liq.repository"
-            privatepackage="net.luminis.liq.repository.ext, net.luminis.liq.repository.impl, net.luminis.liq.util"
-            bundleactivator="net.luminis.liq.repository.impl.Activator" />
+            bundlesymbolicname="org.apache.ace.repository"
+            exportpackage="org.apache.ace.repository"
+            privatepackage="org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.util"
+            bundleactivator="org.apache.ace.repository.impl.Activator" />
         <project-bundle 
             bundlename="Object Repository Servlet"
-            bundlesymbolicname="net.luminis.liq.repository.servlet"
-            privatepackage="net.luminis.liq.repository.servlet"
-            bundleactivator="net.luminis.liq.repository.servlet.Activator" />
+            bundlesymbolicname="org.apache.ace.repository.servlet"
+            privatepackage="org.apache.ace.repository.servlet"
+            bundleactivator="org.apache.ace.repository.servlet.Activator" />
         <project-bundle 
             bundlename="Object Repository Task"
-            bundlesymbolicname="net.luminis.liq.repository.task"
-            privatepackage="net.luminis.liq.repository.task"
-            bundleactivator="net.luminis.liq.repository.task.Activator" />
+            bundlesymbolicname="org.apache.ace.repository.task"
+            privatepackage="org.apache.ace.repository.task"
+            bundleactivator="org.apache.ace.repository.task.Activator" />
         <project-bundle
             bundlename="Repository Model"
-            bundlesymbolicname="net.luminis.liq.client.repository"
-            exportpackage="net.luminis.liq.client.repository, net.luminis.liq.client.repository.object, net.luminis.liq.client.repository.repository, net.luminis.liq.client.repository.helper"
-            privatepackage="net.luminis.liq.client.repository.impl, net.luminis.liq.util, net.luminis.liq.repository.ext, net.luminis.liq.repository.impl"
-            bundleactivator="net.luminis.liq.client.repository.impl.Activator"/>
-        <!-- note: the StatefulGatewayModel needs to export net.luminis.liq.server.log.store since it does
+            bundlesymbolicname="org.apache.ace.client.repository"
+            exportpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.repository, org.apache.ace.client.repository.helper"
+            privatepackage="org.apache.ace.client.repository.impl, org.apache.ace.util, org.apache.ace.repository.ext, org.apache.ace.repository.impl"
+            bundleactivator="org.apache.ace.client.repository.impl.Activator"/>
+        <!-- note: the StatefulGatewayModel needs to export org.apache.ace.server.log.store since it does
         not require a log to be present, but does need the interface, which is not define in liq,
         since it is not java 1.3 compatible. -->
         <project-bundle
             bundlename="Stateful Gateway Model"
-            bundlesymbolicname="net.luminis.liq.client.repository.stateful"
-            exportpackage="net.luminis.liq.client.repository.stateful, net.luminis.liq.server.log.store"
-            privatepackage="net.luminis.liq.client.repository.stateful.impl"
-            bundleactivator="net.luminis.liq.client.repository.stateful.impl.Activator"/>
+            bundlesymbolicname="org.apache.ace.client.repository.stateful"
+            exportpackage="org.apache.ace.client.repository.stateful, org.apache.ace.server.log.store"
+            privatepackage="org.apache.ace.client.repository.stateful.impl"
+            bundleactivator="org.apache.ace.client.repository.stateful.impl.Activator"/>
         <project-bundle
             bundlename="Artifact Helper Resources"
-            bundlesymbolicname="net.luminis.liq.client.repository.helper.base"
+            bundlesymbolicname="org.apache.ace.client.repository.helper.base"
     		includeresource="ext/velocity-dep-1.5.jar"
     		bundleclasspath="velocity-dep-1.5.jar,."
-    		importpackage="net.luminis.liq.client.repository, net.luminis.liq.client.repository.object, net.luminis.liq.client.repository.helper, *;resolution:=optional"
-            exportpackage="net.luminis.liq.client.repository, net.luminis.liq.client.repository.object, net.luminis.liq.client.repository.helper, net.luminis.liq.client.repository.helper.base"/>
+    		importpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.helper, *;resolution:=optional"
+            exportpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.helper, org.apache.ace.client.repository.helper.base"/>
         <project-bundle
             bundlename="Bundle Artifact Helper"
-            bundlesymbolicname="net.luminis.liq.client.repository.helper.bundle"
-            exportpackage="net.luminis.liq.client.repository.helper.bundle"
-            privatepackage="net.luminis.liq.client.repository.helper.bundle.impl, net.luminis.liq.util"
-            bundleactivator="net.luminis.liq.client.repository.helper.bundle.impl.Activator"/>
+            bundlesymbolicname="org.apache.ace.client.repository.helper.bundle"
+            exportpackage="org.apache.ace.client.repository.helper.bundle"
+            privatepackage="org.apache.ace.client.repository.helper.bundle.impl, org.apache.ace.util"
+            bundleactivator="org.apache.ace.client.repository.helper.bundle.impl.Activator"/>
         <project-bundle
             bundlename="Configuration Artifact Helper"
-            bundlesymbolicname="net.luminis.liq.client.repository.helper.configuration"
-            exportpackage="net.luminis.liq.client.repository.helper.configuration"
-            privatepackage="net.luminis.liq.client.repository.helper.configuration.impl"
-            bundleactivator="net.luminis.liq.client.repository.helper.configuration.impl.Activator"/>
+            bundlesymbolicname="org.apache.ace.client.repository.helper.configuration"
+            exportpackage="org.apache.ace.client.repository.helper.configuration"
+            privatepackage="org.apache.ace.client.repository.helper.configuration.impl"
+            bundleactivator="org.apache.ace.client.repository.helper.configuration.impl.Activator"/>
         <project-bundle
             bundlename="UserAdmin Artifact Helper"
-            bundlesymbolicname="net.luminis.liq.client.repository.helper.user"
-            exportpackage="net.luminis.liq.client.repository.helper.user"
-            privatepackage="net.luminis.liq.client.repository.helper.user.impl"
-            bundleactivator="net.luminis.liq.client.repository.helper.user.impl.Activator"/>
+            bundlesymbolicname="org.apache.ace.client.repository.helper.user"
+            exportpackage="org.apache.ace.client.repository.helper.user"
+            privatepackage="org.apache.ace.client.repository.helper.user.impl"
+            bundleactivator="org.apache.ace.client.repository.helper.user.impl.Activator"/>
         <project-bundle 
             bundlename="Serverside UserAdmin Configurator"
-            bundlesymbolicname="net.luminis.liq.configurator.serveruseradmin"
-            privatepackage="net.luminis.liq.configurator.serveruseradmin"
-            bundleactivator="net.luminis.liq.configurator.serveruseradmin.Activator" />
+            bundlesymbolicname="org.apache.ace.configurator.serveruseradmin"
+            privatepackage="org.apache.ace.configurator.serveruseradmin"
+            bundleactivator="org.apache.ace.configurator.serveruseradmin.Activator" />
         <!-- Note that the privatepackage below is not exactly clean; for now, we don't have another way to this,
     	but we might want to clean this up (i.e., everybody should be able to ask for a remote repository) -->
         <project-bundle 
             bundlename="Repository Based UserAdmin Configuration Task"
-            bundlesymbolicname="net.luminis.liq.configurator.useradmin.task"
-            privatepackage="net.luminis.liq.configurator.useradmin.task, net.luminis.liq.repository.impl, net.luminis.liq.repository.ext"
-            bundleactivator="net.luminis.liq.configurator.useradmin.task.Activator" />
+            bundlesymbolicname="org.apache.ace.configurator.useradmin.task"
+            privatepackage="org.apache.ace.configurator.useradmin.task, org.apache.ace.repository.impl, org.apache.ace.repository.ext"
+            bundleactivator="org.apache.ace.configurator.useradmin.task.Activator" />
         <project-bundle 
             bundlename="Repository UserAdmin Editor"
-            bundlesymbolicname="net.luminis.liq.client.repositoryuseradmin"
-            exportpackage="net.luminis.liq.client.repositoryuseradmin"
-            privatepackage="net.luminis.liq.client.repositoryuseradmin.impl, net.luminis.client.repository, net.luminis.liq.repository.impl, net.luminis.liq.repository.ext"
-            bundleactivator="net.luminis.liq.client.repositoryuseradmin.impl.Activator" />
+            bundlesymbolicname="org.apache.ace.client.repositoryuseradmin"
+            exportpackage="org.apache.ace.client.repositoryuseradmin"
+            privatepackage="org.apache.ace.client.repositoryuseradmin.impl, org.apache.ace.client.repository, org.apache.ace.repository.impl, org.apache.ace.repository.ext"
+            bundleactivator="org.apache.ace.client.repositoryuseradmin.impl.Activator" />
         <project-bundle 
             bundlename="JavaMail MailService"
-            bundlesymbolicname="net.luminis.liq.mailservice.javamail"
-            exportpackage="net.luminis.liq.mailservice"
-            importpackage="net.luminis.liq.mailservice, *;resolution:=optional"
-            privatepackage="net.luminis.liq.mailservice.javamail"
-            bundleactivator="net.luminis.liq.mailservice.javamail.Activator"
+            bundlesymbolicname="org.apache.ace.mailservice.javamail"
+            exportpackage="org.apache.ace.mailservice"
+            importpackage="org.apache.ace.mailservice, *;resolution:=optional"
+            privatepackage="org.apache.ace.mailservice.javamail"
+            bundleactivator="org.apache.ace.mailservice.javamail.Activator"
         	includeresource="ext/mail.jar, lib/activation.jar"
         	bundleclasspath="mail.jar, activation.jar, ." />
         <project-bundle 
             bundlename="Server Action Interfaces"
-            bundlesymbolicname="net.luminis.liq.server.action"
-            exportpackage="net.luminis.liq.server.action" />
+            bundlesymbolicname="org.apache.ace.server.action"
+            exportpackage="org.apache.ace.server.action" />
         <project-bundle 
             bundlename="Popup Action"
-            bundlesymbolicname="net.luminis.liq.server.action.popupmessage"
-            privatepackage="net.luminis.liq.server.action.popupmessage"
-            bundleactivator="net.luminis.liq.server.action.popupmessage.Activator" />
+            bundlesymbolicname="org.apache.ace.server.action.popupmessage"
+            privatepackage="org.apache.ace.server.action.popupmessage"
+            bundleactivator="org.apache.ace.server.action.popupmessage.Activator" />
         <project-bundle 
             bundlename="Auto Gateway Operator"
-            bundlesymbolicname="net.luminis.liq.client.automation"
-            privatepackage="net.luminis.liq.client.automation"
-            bundleactivator="net.luminis.liq.client.automation.Activator" />
+            bundlesymbolicname="org.apache.ace.client.automation"
+            privatepackage="org.apache.ace.client.automation"
+            bundleactivator="org.apache.ace.client.automation.Activator" />
         <project-bundle 
             bundlename="UserAdmin Resource Processor"
-            bundlesymbolicname="net.luminis.liq.resourceprocessor.useradmin" 
-            exportpackage="net.luminis.liq.resourceprocessor.useradmin" 
-            privatepackage="net.luminis.liq.resourceprocessor.useradmin.impl"
-            bundleactivator="net.luminis.liq.resourceprocessor.useradmin.impl.Activator">
+            bundlesymbolicname="org.apache.ace.resourceprocessor.useradmin" 
+            exportpackage="org.apache.ace.resourceprocessor.useradmin" 
+            privatepackage="org.apache.ace.resourceprocessor.useradmin.impl"
+            bundleactivator="org.apache.ace.resourceprocessor.useradmin.impl.Activator">
             <manifest>
-                <attribute name="Deployment-ProvidesResourceProcessor" value="net.luminis.liq.resourceprocessor.useradmin" />
+                <attribute name="Deployment-ProvidesResourceProcessor" value="org.apache.ace.resourceprocessor.useradmin" />
             </manifest>
         </project-bundle>
         <project-bundle 
@@ -419,94 +419,94 @@
         </project-bundle>
         <project-bundle 
             bundlename="UPnP Based Location Service"
-            bundlesymbolicname="net.luminis.liq.location.upnp"
-            exportpackage="net.luminis.liq.location"
-            privatepackage="net.luminis.liq.location.upnp, net.luminis.liq.location.upnp.actions, net.luminis.liq.location.upnp.util"
-            bundleactivator="net.luminis.liq.location.upnp.Activator" />
+            bundlesymbolicname="org.apache.ace.location.upnp"
+            exportpackage="org.apache.ace.location"
+            privatepackage="org.apache.ace.location.upnp, org.apache.ace.location.upnp.actions, org.apache.ace.location.upnp.util"
+            bundleactivator="org.apache.ace.location.upnp.Activator" />
     </target>
 
     <target name="package-gateway" unless="gateway.uptodate">
         <project-bundle 
             bundlename="Webstart Management Agent"
-            bundlesymbolicname="net.luminis.liq.ma.webstart"
+            bundlesymbolicname="org.apache.ace.ma.webstart"
             classpathrefid="webstart.classpath"
             exportpackage="org.osgi.service.deploymentadmin, org.osgi.service.deploymentadmin.spi, org.osgi.service.log, org.osgi.util.tracker, org.apache.felix.dependencymanager, org.osgi.service.event, org.osgi.service.cm"
-            privatepackage="net.luminis.liq.configurator, net.luminis.liq.gateway.constants, net.luminis.liq.scheduler, 
-            net.luminis.liq.deployment, net.luminis.liq.deployment.deploymentadmin, net.luminis.liq.deployment.task, 
-            net.luminis.liq.discovery, net.luminis.liq.identification, net.luminis.liq.ma.webstart,
-            net.luminis.liq.log.listener, net.luminis.liq.gateway.log, 
-            net.luminis.liq.gateway.log.task, net.luminis.liq.gateway.log.store, net.luminis.liq.gateway.log.store.impl, 
-            net.luminis.liq.log, net.luminis.liq.util, net.luminis.liq.repository,  
+            privatepackage="org.apache.ace.configurator, org.apache.ace.gateway.constants, org.apache.ace.scheduler, 
+            org.apache.ace.deployment, org.apache.ace.deployment.deploymentadmin, org.apache.ace.deployment.task, 
+            org.apache.ace.discovery, org.apache.ace.identification, org.apache.ace.ma.webstart,
+            org.apache.ace.log.listener, org.apache.ace.gateway.log, 
+            org.apache.ace.gateway.log.task, org.apache.ace.gateway.log.store, org.apache.ace.gateway.log.store.impl, 
+            org.apache.ace.log, org.apache.ace.util, org.apache.ace.repository,  
             org.apache.felix.deploymentadmin, org.apache.felix.deploymentadmin.spi, org.apache.felix.eventadmin.impl, org.apache.felix.eventadmin.impl.*"
-            bundleactivator="net.luminis.liq.ma.webstart.Activator" />
+            bundleactivator="org.apache.ace.ma.webstart.Activator" />
         <project-bundle 
             bundlename="Configurator"
-            bundlesymbolicname="net.luminis.liq.configurator"
-            privatepackage="net.luminis.liq.configurator, net.luminis.liq.gateway.constants"
-            bundleactivator="net.luminis.liq.configurator.Activator" />
+            bundlesymbolicname="org.apache.ace.configurator"
+            privatepackage="org.apache.ace.configurator, org.apache.ace.gateway.constants"
+            bundleactivator="org.apache.ace.configurator.Activator" />
         <project-bundle 
             bundlename="Scheduler"
-            bundlesymbolicname="net.luminis.liq.scheduler"
-            privatepackage="net.luminis.liq.scheduler, net.luminis.liq.gateway.constants"
-            bundleactivator="net.luminis.liq.scheduler.Activator" />
+            bundlesymbolicname="org.apache.ace.scheduler"
+            privatepackage="org.apache.ace.scheduler, org.apache.ace.gateway.constants"
+            bundleactivator="org.apache.ace.scheduler.Activator" />
         <project-bundle 
             bundlename="Deployment"
-            bundlesymbolicname="net.luminis.liq.deployment"
-            exportpackage="net.luminis.liq.deployment"
-            privatepackage="net.luminis.liq.deployment.deploymentadmin"
-            bundleactivator="net.luminis.liq.deployment.deploymentadmin.Activator" />
+            bundlesymbolicname="org.apache.ace.deployment"
+            exportpackage="org.apache.ace.deployment"
+            privatepackage="org.apache.ace.deployment.deploymentadmin"
+            bundleactivator="org.apache.ace.deployment.deploymentadmin.Activator" />
         <project-bundle 
             bundlename="Deployment Task"
-            bundlesymbolicname="net.luminis.liq.deployment.task"
-            exportpackage="net.luminis.liq.deployment"
-            privatepackage="net.luminis.liq.deployment.task"
-            bundleactivator="net.luminis.liq.deployment.task.Activator" />
+            bundlesymbolicname="org.apache.ace.deployment.task"
+            exportpackage="org.apache.ace.deployment"
+            privatepackage="org.apache.ace.deployment.task"
+            bundleactivator="org.apache.ace.deployment.task.Activator" />
         <project-bundle 
             bundlename="Property Based Discovery"
-            bundlesymbolicname="net.luminis.liq.discovery.property"
-            exportpackage="net.luminis.liq.discovery"
-            privatepackage="net.luminis.liq.discovery.property"
-            bundleactivator="net.luminis.liq.discovery.property.Activator" />
+            bundlesymbolicname="org.apache.ace.discovery.property"
+            exportpackage="org.apache.ace.discovery"
+            privatepackage="org.apache.ace.discovery.property"
+            bundleactivator="org.apache.ace.discovery.property.Activator" />
         <project-bundle 
             bundlename="Property Based Identification"
-            bundlesymbolicname="net.luminis.liq.identification.property"
-            exportpackage="net.luminis.liq.identification"
-            privatepackage="net.luminis.liq.identification.property"
-            bundleactivator="net.luminis.liq.identification.property.Activator" />
+            bundlesymbolicname="org.apache.ace.identification.property"
+            exportpackage="org.apache.ace.identification"
+            privatepackage="org.apache.ace.identification.property"
+            bundleactivator="org.apache.ace.identification.property.Activator" />
         <project-bundle 
             bundlename="Ifconfig/mac-address Based Identification"
-            bundlesymbolicname="net.luminis.liq.identification.ifconfig"
-            exportpackage="net.luminis.liq.identification"
-            privatepackage="net.luminis.liq.identification.ifconfig"
-            bundleactivator="net.luminis.liq.identification.ifconfig.Activator" />
+            bundlesymbolicname="org.apache.ace.identification.ifconfig"
+            exportpackage="org.apache.ace.identification"
+            privatepackage="org.apache.ace.identification.ifconfig"
+            bundleactivator="org.apache.ace.identification.ifconfig.Activator" />
         <project-bundle 
             bundlename="Log Listener"
-            bundlesymbolicname="net.luminis.liq.log.listener"
-            privatepackage="net.luminis.liq.log.listener"
-            bundleactivator="net.luminis.liq.log.listener.Activator" />
+            bundlesymbolicname="org.apache.ace.log.listener"
+            privatepackage="org.apache.ace.log.listener"
+            bundleactivator="org.apache.ace.log.listener.Activator" />
         <project-bundle 
             bundlename="Gateway Log"
-            bundlesymbolicname="net.luminis.liq.gateway.log"
-            privatepackage="net.luminis.liq.gateway.log, net.luminis.liq.gateway.log.task"
-            bundleactivator="net.luminis.liq.gateway.log.Activator" />
+            bundlesymbolicname="org.apache.ace.gateway.log"
+            privatepackage="org.apache.ace.gateway.log, org.apache.ace.gateway.log.task"
+            bundleactivator="org.apache.ace.gateway.log.Activator" />
         <project-bundle
             bundlename="Gateway Log Store"
-            bundlesymbolicname="net.luminis.liq.gateway.log.store"
-            privatepackage="net.luminis.liq.gateway.log.store.impl, net.luminis.liq.util"
-            bundleactivator="net.luminis.liq.gateway.log.store.impl.Activator"
-            exportpackage="net.luminis.liq.gateway.log.store, net.luminis.liq.log"/>
+            bundlesymbolicname="org.apache.ace.gateway.log.store"
+            privatepackage="org.apache.ace.gateway.log.store.impl, org.apache.ace.util"
+            bundleactivator="org.apache.ace.gateway.log.store.impl.Activator"
+            exportpackage="org.apache.ace.gateway.log.store, org.apache.ace.log"/>
     	
         <project-bundle 
             bundlename="UPnP Based Discovery"
-            bundlesymbolicname="net.luminis.liq.discovery.upnp"
-            exportpackage="net.luminis.liq.discovery"
-            privatepackage="net.luminis.liq.discovery.upnp"
-            bundleactivator="net.luminis.liq.discovery.upnp.Activator" />
+            bundlesymbolicname="org.apache.ace.discovery.upnp"
+            exportpackage="org.apache.ace.discovery"
+            privatepackage="org.apache.ace.discovery.upnp"
+            bundleactivator="org.apache.ace.discovery.upnp.Activator" />
 
         <mkdir dir="deploy/target/dev-multigateway"/>
-        <jar destfile="deploy/target/dev-multigateway/multigatewaybootstrap.jar" basedir="../gateway/classes" includes="net/luminis/liq/bootstrap/multigateway/**">
+        <jar destfile="deploy/target/dev-multigateway/multigatewaybootstrap.jar" basedir="../gateway/classes" includes="org/apache/ace/bootstrap/multigateway/**">
             <manifest>
-                <attribute name="Main-Class" value="net.luminis.liq.bootstrap.multigateway.MultiFrameworkStarter"/>
+                <attribute name="Main-Class" value="org.apache.ace.bootstrap.multigateway.MultiFrameworkStarter"/>
                 <attribute name="Class-Path" value="bin/felix.jar"/>
             </manifest>
         </jar>
@@ -515,61 +515,61 @@
     <target name="package-test" unless="test.uptodate">
         <test-bundle 
             bundlename="Test Deployment"                                                                                                                                          
-            bundlesymbolicname="net.luminis.liq.test.deployment" 
-            privatepackage="net.luminis.liq.test.deployment,net.luminis.test.osgi.dm,net.luminis.liq.deployment.provider.impl,net.luminis.liq.deployment.provider.filebased;-split-package:=merge-last,net.luminis.liq.test.utils, net.luminis.liq.test.utils.deployment"
-            bundleactivator="net.luminis.liq.test.deployment.Activator" />
+            bundlesymbolicname="org.apache.ace.test.deployment" 
+            privatepackage="org.apache.ace.test.deployment,org.apache.ace.test.osgi.dm,org.apache.ace.deployment.provider.impl,org.apache.ace.deployment.provider.filebased;-split-package:=merge-last,org.apache.ace.test.utils, org.apache.ace.test.utils.deployment"
+            bundleactivator="org.apache.ace.test.deployment.Activator" />
         <test-bundle 
             bundlename="Test Log"                                                                                                                                          
-            bundlesymbolicname="net.luminis.liq.test.log" 
-            privatepackage="net.luminis.liq.test.log,net.luminis.test.osgi.dm"
-            bundleactivator="net.luminis.liq.test.log.Activator" />
+            bundlesymbolicname="org.apache.ace.test.log" 
+            privatepackage="org.apache.ace.test.log,org.apache.ace.test.osgi.dm"
+            bundleactivator="org.apache.ace.test.log.Activator" />
         <test-bundle 
             bundlename="Test Http Servlet Listener"
-            bundlesymbolicname="net.luminis.liq.test.http.listener" 
-            privatepackage="net.luminis.liq.test.http.listener,net.luminis.test.osgi.dm"
-            bundleactivator="net.luminis.liq.test.http.listener.Activator" />
+            bundlesymbolicname="org.apache.ace.test.http.listener" 
+            privatepackage="org.apache.ace.test.http.listener,org.apache.ace.test.osgi.dm"
+            bundleactivator="org.apache.ace.test.http.listener.Activator" />
         <test-bundle 
             bundlename="Test Repository"
-            bundlesymbolicname="net.luminis.liq.test.repository" 
-            privatepackage="net.luminis.liq.test.repository, net.luminis.liq.test.utils, net.luminis.test.osgi.dm"
-            bundleactivator="net.luminis.liq.test.repository.Activator" />
+            bundlesymbolicname="org.apache.ace.test.repository" 
+            privatepackage="org.apache.ace.test.repository, org.apache.ace.test.utils, org.apache.ace.test.osgi.dm"
+            bundleactivator="org.apache.ace.test.repository.Activator" />
         <test-bundle 
             bundlename="Test Repository Admin"
-            bundlesymbolicname="net.luminis.liq.test.repositoryadmin" 
-            privatepackage="net.luminis.liq.test.repositoryadmin, net.luminis.liq.test.utils, net.luminis.test.osgi.dm"
-            bundleactivator="net.luminis.liq.test.repositoryadmin.Activator" />
+            bundlesymbolicname="org.apache.ace.test.repositoryadmin" 
+            privatepackage="org.apache.ace.test.repositoryadmin, org.apache.ace.test.utils, org.apache.ace.test.osgi.dm"
+            bundleactivator="org.apache.ace.test.repositoryadmin.Activator" />
         <test-bundle 
             bundlename="Test UserAdmin Configurator"
-            bundlesymbolicname="net.luminis.liq.test.useradminconfigurator" 
-            privatepackage="net.luminis.liq.test.useradminconfigurator, net.luminis.liq.test.utils, net.luminis.test.osgi.dm"
-            bundleactivator="net.luminis.liq.test.useradminconfigurator.Activator" />
+            bundlesymbolicname="org.apache.ace.test.useradminconfigurator" 
+            privatepackage="org.apache.ace.test.useradminconfigurator, org.apache.ace.test.utils, org.apache.ace.test.osgi.dm"
+            bundleactivator="org.apache.ace.test.useradminconfigurator.Activator" />
         <test-bundle 
     	    bundlename="Test SystemBundle Stopper"
-    	    bundlesymbolicname="net.luminis.liq.test.bundlestop" 
-    	    privatepackage="net.luminis.liq.test.bundlestop"
-    	    bundleactivator="net.luminis.liq.test.bundlestop.Activator" />
+    	    bundlesymbolicname="org.apache.ace.test.bundlestop" 
+    	    privatepackage="org.apache.ace.test.bundlestop"
+    	    bundleactivator="org.apache.ace.test.bundlestop.Activator" />
         <test-bundle 
     	    bundlename="Test Mock Autoconf"
-    	    bundlesymbolicname="net.luminis.liq.test.mockautoconf" 
-    	    privatepackage="net.luminis.liq.test.mockautoconf"
-    	    bundleactivator="net.luminis.liq.test.mockautoconf.Activator" >
+    	    bundlesymbolicname="org.apache.ace.test.mockautoconf" 
+    	    privatepackage="org.apache.ace.test.mockautoconf"
+    	    bundleactivator="org.apache.ace.test.mockautoconf.Activator" >
             <manifest>
                 <attribute name="Deployment-ProvidesResourceProcessor" value="org.osgi.deployment.rp.autoconf"/>
             </manifest>
         </test-bundle>
-        <copy file="deploy/test/net.luminis.liq.test.bundlestop-1.0.0.jar" todir="deploy/tools/"/>
-        <jar destfile="deploy/tools/BundleGenerator.jar" basedir="../test/classes" includes="net/luminis/test/tools/BundleGenerator*.class">
+        <copy file="deploy/test/org.apache.ace.test.bundlestop-1.0.0.jar" todir="deploy/tools/"/>
+        <jar destfile="deploy/tools/BundleGenerator.jar" basedir="../test/classes" includes="org/apache/ace/test/tools/BundleGenerator*.class">
             <manifest>
-                <attribute name="Main-Class" value="net.luminis.test.tools.BundleGenerator" />
+                <attribute name="Main-Class" value="org.apache.ace.test.tools.BundleGenerator" />
             </manifest>
         </jar>
-        <jar destfile="deploy/tools/RepositoryTool.jar" basedir="../test/classes" includes="net/luminis/test/tools/RepositoryTool*.class">
+        <jar destfile="deploy/tools/RepositoryTool.jar" basedir="../test/classes" includes="org/apache/ace/test/tools/RepositoryTool*.class">
             <fileset dir="classes">
-                <include name="net/luminis/liq/repository/*.class" />
-                <exclude name="net/luminis/liq/repository/Repository*.class" />
+                <include name="org/apache/ace/repository/*.class" />
+                <exclude name="org/apache/ace/repository/Repository*.class" />
             </fileset>
             <manifest>
-                <attribute name="Main-Class" value="net.luminis.test.tools.RepositoryTool" />
+                <attribute name="Main-Class" value="org.apache.ace.test.tools.RepositoryTool" />
                 <attribute name="Class-Path" value="commons-cli-1.1.jar" />
             </manifest>
         </jar>
@@ -614,20 +614,20 @@
             file:bundle/org.apache.felix.shell.tui-1.0.2.jar 
             file:bundle/org.apache.felix.dependencymanager.jar 
             file:bundle/org.apache.felix.dependencymanager.shell.jar 
-            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
             file:bundle/org.apache.felix.configadmin.jar 
             file:bundle/org.apache.felix.eventadmin.jar
             file:bundle/org.apache.felix.deploymentadmin-0.9.0-SNAPSHOT.jar
-            file:instrumented/net.luminis.liq.scheduler-1.0.0.jar
-            file:instrumented/net.luminis.liq.deployment-1.0.0.jar
-            file:instrumented/net.luminis.liq.deployment.task-1.0.0.jar
-            file:instrumented/net.luminis.liq.discovery.property-1.0.0.jar
-            file:instrumented/net.luminis.liq.identification.property-1.0.0.jar
-            file:instrumented/net.luminis.liq.http.listener-1.0.0.jar
-            file:instrumented/net.luminis.liq.deployment.servlet-1.0.0.jar
-            file:instrumented/net.luminis.liq.deployment.provider.filebased-1.0.0.jar
-            file:instrumented/net.luminis.liq.deployment.streamgenerator-1.0.0.jar
-            file:bundle/net.luminis.liq.test.deployment-1.0.0.jar"
+            file:instrumented/org.apache.ace.scheduler-1.0.0.jar
+            file:instrumented/org.apache.ace.deployment-1.0.0.jar
+            file:instrumented/org.apache.ace.deployment.task-1.0.0.jar
+            file:instrumented/org.apache.ace.discovery.property-1.0.0.jar
+            file:instrumented/org.apache.ace.identification.property-1.0.0.jar
+            file:instrumented/org.apache.ace.http.listener-1.0.0.jar
+            file:instrumented/org.apache.ace.deployment.servlet-1.0.0.jar
+            file:instrumented/org.apache.ace.deployment.provider.filebased-1.0.0.jar
+            file:instrumented/org.apache.ace.deployment.streamgenerator-1.0.0.jar
+            file:bundle/org.apache.ace.test.deployment-1.0.0.jar"
             timeout="60000" datafile="${basedir}/cobertura.ser" />
 
         <run-felix-coverage destdir="deploy/target/test" bundles="
@@ -639,9 +639,9 @@
             file:bundle/org.apache.felix.dependencymanager.jar 
             file:bundle/org.apache.felix.dependencymanager.shell.jar 
             file:bundle/org.apache.felix.configadmin.jar 
-            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
-            file:instrumented/net.luminis.liq.http.listener-1.0.0.jar
-            file:bundle/net.luminis.liq.test.http.listener-1.0.0.jar"
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
+            file:instrumented/org.apache.ace.http.listener-1.0.0.jar
+            file:bundle/org.apache.ace.test.http.listener-1.0.0.jar"
         	timeout="30000" datafile="${basedir}/cobertura.ser" />
 
         <run-felix-coverage destdir="deploy/target/test" bundles="
@@ -654,18 +654,18 @@
             file:bundle/org.apache.felix.dependencymanager.jar 
             file:bundle/org.apache.felix.dependencymanager.shell.jar 
             file:bundle/org.apache.felix.configadmin.jar 
-            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
-            file:instrumented/net.luminis.liq.log.listener-1.0.0.jar
-            file:instrumented/net.luminis.liq.log-1.0.0.jar
-            file:instrumented/net.luminis.liq.discovery.property-1.0.0.jar
-            file:instrumented/net.luminis.liq.identification.property-1.0.0.jar
-            file:instrumented/net.luminis.liq.gateway.log.store-1.0.0.jar
-            file:instrumented/net.luminis.liq.gateway.log-1.0.0.jar
-            file:instrumented/net.luminis.liq.http.listener-1.0.0.jar
-            file:instrumented/net.luminis.liq.server.log.store-1.0.0.jar
-            file:instrumented/net.luminis.liq.server.log.task-1.0.0.jar
-            file:instrumented/net.luminis.liq.server.log-1.0.0.jar
-            file:bundle/net.luminis.liq.test.log-1.0.0.jar"
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
+            file:instrumented/org.apache.ace.log.listener-1.0.0.jar
+            file:instrumented/org.apache.ace.log-1.0.0.jar
+            file:instrumented/org.apache.ace.discovery.property-1.0.0.jar
+            file:instrumented/org.apache.ace.identification.property-1.0.0.jar
+            file:instrumented/org.apache.ace.gateway.log.store-1.0.0.jar
+            file:instrumented/org.apache.ace.gateway.log-1.0.0.jar
+            file:instrumented/org.apache.ace.http.listener-1.0.0.jar
+            file:instrumented/org.apache.ace.server.log.store-1.0.0.jar
+            file:instrumented/org.apache.ace.server.log.task-1.0.0.jar
+            file:instrumented/org.apache.ace.server.log-1.0.0.jar
+            file:bundle/org.apache.ace.test.log-1.0.0.jar"
         	timeout="30000" datafile="${basedir}/cobertura.ser" />
 
         <run-felix-coverage destdir="deploy/target/test" bundles="
@@ -678,11 +678,11 @@
             file:bundle/org.apache.felix.dependencymanager.shell.jar 
             file:bundle/org.apache.felix.configadmin.jar
         	file:bundle/org.apache.felix.prefs.jar
-            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
-            file:instrumented/net.luminis.liq.http.listener-1.0.0.jar
-        	file:instrumented/net.luminis.liq.repository-1.0.0.jar
-        	file:instrumented/net.luminis.liq.repository.servlet-1.0.0.jar
-            file:bundle/net.luminis.liq.test.repository-1.0.0.jar"
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
+            file:instrumented/org.apache.ace.http.listener-1.0.0.jar
+        	file:instrumented/org.apache.ace.repository-1.0.0.jar
+        	file:instrumented/org.apache.ace.repository.servlet-1.0.0.jar
+            file:bundle/org.apache.ace.test.repository-1.0.0.jar"
             timeout="30000" datafile="${basedir}/cobertura.ser" />
 
         <run-felix-coverage destdir="deploy/target/test" bundles="
@@ -697,30 +697,30 @@
         	file:bundle/org.apache.felix.prefs.jar
             file:bundle/org.apache.felix.eventadmin.jar
         	file:bundle/useradmin_all-2.0.0.jar
-            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
-            file:bundle/net.luminis.liq.xstream-1.3.jar 
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
+            file:bundle/org.apache.ace.xstream-1.3.jar 
         	file:bundle/log_all-2.0.0.jar
-            file:instrumented/net.luminis.liq.log-1.0.0.jar
-            file:instrumented/net.luminis.liq.server.log.store-1.0.0.jar
-            file:instrumented/net.luminis.liq.http.listener-1.0.0.jar
-        	file:instrumented/net.luminis.liq.repository-1.0.0.jar
-        	file:instrumented/net.luminis.liq.repository.servlet-1.0.0.jar
-        	file:instrumented/net.luminis.liq.obr.metadata-1.0.0.jar
-        	file:instrumented/net.luminis.liq.obr.servlet-1.0.0.jar
-        	file:instrumented/net.luminis.liq.obr.storage-1.0.0.jar
-        	file:instrumented/net.luminis.liq.client.repository-1.0.0.jar
-            file:instrumented/net.luminis.liq.client.repository.stateful-1.0.0.jar
-            file:instrumented/net.luminis.liq.client.repository.helper.base-1.0.0.jar
-            file:instrumented/net.luminis.liq.client.repository.helper.bundle-1.0.0.jar
-            file:instrumented/net.luminis.liq.client.repository.helper.configuration-1.0.0.jar
-        	file:bundle/net.luminis.liq.configurator.serveruseradmin-1.0.0.jar
-            file:bundle/net.luminis.liq.configurator-1.0.0.jar
-        	file:instrumented/net.luminis.liq.client.automation-1.0.0.jar
-            file:bundle/net.luminis.liq.test.repositoryadmin-1.0.0.jar"
+            file:instrumented/org.apache.ace.log-1.0.0.jar
+            file:instrumented/org.apache.ace.server.log.store-1.0.0.jar
+            file:instrumented/org.apache.ace.http.listener-1.0.0.jar
+        	file:instrumented/org.apache.ace.repository-1.0.0.jar
+        	file:instrumented/org.apache.ace.repository.servlet-1.0.0.jar
+        	file:instrumented/org.apache.ace.obr.metadata-1.0.0.jar
+        	file:instrumented/org.apache.ace.obr.servlet-1.0.0.jar
+        	file:instrumented/org.apache.ace.obr.storage-1.0.0.jar
+        	file:instrumented/org.apache.ace.client.repository-1.0.0.jar
+            file:instrumented/org.apache.ace.client.repository.stateful-1.0.0.jar
+            file:instrumented/org.apache.ace.client.repository.helper.base-1.0.0.jar
+            file:instrumented/org.apache.ace.client.repository.helper.bundle-1.0.0.jar
+            file:instrumented/org.apache.ace.client.repository.helper.configuration-1.0.0.jar
+        	file:bundle/org.apache.ace.configurator.serveruseradmin-1.0.0.jar
+            file:bundle/org.apache.ace.configurator-1.0.0.jar
+        	file:instrumented/org.apache.ace.client.automation-1.0.0.jar
+            file:bundle/org.apache.ace.test.repositoryadmin-1.0.0.jar"
             timeout="60000" datafile="${basedir}/cobertura.ser" />
 
         <run-felix-coverage destdir="deploy/target/test" bundles="
-            file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
             file:bundle/org.osgi.compendium.jar 
             file:bundle/osgi.mobile.jar 
             file:bundle/javax.servlet.jar 
@@ -733,13 +733,13 @@
             file:bundle/org.apache.felix.configadmin.jar
             file:bundle/useradmin_all-2.0.0.jar
             file:bundle/log_all-2.0.0.jar
-            file:bundle/net.luminis.liq.scheduler-1.0.0.jar
-            file:bundle/net.luminis.liq.http.listener-1.0.0.jar
-        	file:bundle/net.luminis.liq.repository-1.0.0.jar
-        	file:bundle/net.luminis.liq.repository.servlet-1.0.0.jar
-        	file:instrumented/net.luminis.liq.resourceprocessor.useradmin-1.0.0.jar
-        	file:instrumented/net.luminis.liq.configurator.useradmin.task-1.0.0.jar
-        	file:bundle/net.luminis.liq.test.useradminconfigurator-1.0.0.jar"
+            file:bundle/org.apache.ace.scheduler-1.0.0.jar
+            file:bundle/org.apache.ace.http.listener-1.0.0.jar
+        	file:bundle/org.apache.ace.repository-1.0.0.jar
+        	file:bundle/org.apache.ace.repository.servlet-1.0.0.jar
+        	file:instrumented/org.apache.ace.resourceprocessor.useradmin-1.0.0.jar
+        	file:instrumented/org.apache.ace.configurator.useradmin.task-1.0.0.jar
+        	file:bundle/org.apache.ace.test.useradminconfigurator-1.0.0.jar"
             timeout="60000" datafile="${basedir}/cobertura.ser" />
 
         <!-- create a report -->
@@ -782,7 +782,7 @@
                 <include name="**/*.class" />
             </fileset>
         </cobertura-instrument>
-        <testng groups="unit" excludedgroups="broken" outputDir="deploy/test/coverage/test" haltOnFailure="true" verbose="2" listener="net.luminis.test.build.BrokenTestListener">
+        <testng groups="unit" excludedgroups="broken" outputDir="deploy/test/coverage/test" haltOnFailure="true" verbose="2" listener="org.apache.ace.test.build.BrokenTestListener">
             <!--
             <jvmarg value="-Xdebug" />
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n" />
@@ -832,7 +832,7 @@
                 <![CDATA[<h1>L-iQ</h1>]]>
             </doctitle>
         	<bottom>
-            <![CDATA[<i>Copyright &#169; 2009 luminis iQ products. All rights reserved.</i>]]>
+            <![CDATA[<i>Copyright &#169; 2009 Apache Software Foundation. All rights reserved.</i>]]>
 	        </bottom>
 		    <link href="http://java.sun.com/javase/6/docs/api/" />
 		    <link href="http://www2.osgi.org/javadoc/r4/" />

@@ -31,7 +31,7 @@
             	<include name="useradmin_all-2.0.0.jar" />
             	<include name="org.apache.felix.deploymentadmin-0.9.0-SNAPSHOT.jar" />
             	<!-- Temporarily added until we can use xstream in some other way -->
-				<include name="net.luminis.liq.xstream-1.3.jar" />
+				<include name="org.apache.ace.xstream-1.3.jar" />
             </fileset>
         </copy>
         <copy todir="${deploy-dir}/conf">

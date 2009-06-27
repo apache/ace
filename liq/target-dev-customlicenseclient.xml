@@ -15,32 +15,32 @@
         </copy>
         <copy todir="${deploy-dir}/bundle">
             <fileset dir="deploy/bundle">
-                <include name="net.luminis.liq.consolelogger-1.0.0.jar" />
-            	<include name="net.luminis.liq.scheduler-1.0.0.jar" />
-            	<include name="net.luminis.liq.configurator-1.0.0.jar" />
-            	<include name="net.luminis.liq.configurator.useradmin.task-1.0.0.jar" />
-            	<include name="net.luminis.liq.resourceprocessor.useradmin-1.0.0.jar" />
-            	<include name="net.luminis.liq.discovery.property-1.0.0.jar" />
-            	<include name="net.luminis.liq.server.log.store-1.0.0.jar" />
-            	<include name="net.luminis.liq.server.log.task-1.0.0.jar" />
-            	<include name="net.luminis.liq.repository-1.0.0.jar" />
-            	<include name="net.luminis.liq.client.repositoryuseradmin-1.0.0.jar" />
-            	<include name="net.luminis.liq.client.repository.stateful-1.0.0.jar" />
-            	<include name="net.luminis.liq.client.repository-1.0.0.jar" />
-            	<include name="net.luminis.liq.client.repository.helper.base-1.0.0.jar" />
-            	<include name="net.luminis.liq.client.repository.helper.bundle-1.0.0.jar" />
-            	<include name="net.luminis.liq.client.repository.helper.driverbundle-1.0.0.jar" />
-            	<include name="net.luminis.liq.client.repository.helper.configuration-1.0.0.jar" />
-            	<include name="net.luminis.liq.client.repository.helper.user-1.0.0.jar" />
-            	<include name="net.luminis.liq.client.repository.helper.license-1.0.0.jar" />
-                <include name="net.luminis.liq.activation.store-1.0.0.jar" />
-                <include name="net.luminis.liq.activationinfo.store-1.0.0.jar" />
-                <include name="net.luminis.liq.activation.matcher-1.0.0.jar" />
-            	<include name="net.luminis.liq.swingui.resources-1.0.0.jar" />
-            	<include name="net.luminis.liq.swingui.resources.en-1.0.0.jar" />
-            	<include name="net.luminis.liq.swingui.resources.nl-1.0.0.jar" />
-            	<include name="net.luminis.liq.swingui.skin-1.0.0.jar" />
-            	<include name="net.luminis.liq.swingui-1.0.0.jar" />
+                <include name="org.apache.ace.consolelogger-1.0.0.jar" />
+            	<include name="org.apache.ace.scheduler-1.0.0.jar" />
+            	<include name="org.apache.ace.configurator-1.0.0.jar" />
+            	<include name="org.apache.ace.configurator.useradmin.task-1.0.0.jar" />
+            	<include name="org.apache.ace.resourceprocessor.useradmin-1.0.0.jar" />
+            	<include name="org.apache.ace.discovery.property-1.0.0.jar" />
+            	<include name="org.apache.ace.server.log.store-1.0.0.jar" />
+            	<include name="org.apache.ace.server.log.task-1.0.0.jar" />
+            	<include name="org.apache.ace.repository-1.0.0.jar" />
+            	<include name="org.apache.ace.client.repositoryuseradmin-1.0.0.jar" />
+            	<include name="org.apache.ace.client.repository.stateful-1.0.0.jar" />
+            	<include name="org.apache.ace.client.repository-1.0.0.jar" />
+            	<include name="org.apache.ace.client.repository.helper.base-1.0.0.jar" />
+            	<include name="org.apache.ace.client.repository.helper.bundle-1.0.0.jar" />
+            	<include name="org.apache.ace.client.repository.helper.driverbundle-1.0.0.jar" />
+            	<include name="org.apache.ace.client.repository.helper.configuration-1.0.0.jar" />
+            	<include name="org.apache.ace.client.repository.helper.user-1.0.0.jar" />
+            	<include name="org.apache.ace.client.repository.helper.license-1.0.0.jar" />
+                <include name="org.apache.ace.activation.store-1.0.0.jar" />
+                <include name="org.apache.ace.activationinfo.store-1.0.0.jar" />
+                <include name="org.apache.ace.activation.matcher-1.0.0.jar" />
+            	<include name="org.apache.ace.swingui.resources-1.0.0.jar" />
+            	<include name="org.apache.ace.swingui.resources.en-1.0.0.jar" />
+            	<include name="org.apache.ace.swingui.resources.nl-1.0.0.jar" />
+            	<include name="org.apache.ace.swingui.skin-1.0.0.jar" />
+            	<include name="org.apache.ace.swingui-1.0.0.jar" />
             </fileset>
             <fileset dir="ext">
             	<include name="org.osgi.compendium.jar" />
@@ -58,7 +58,7 @@
                 <include name="org.apache.felix.configadmin.jar" />
                 <include name="log_all-2.0.0.jar" />
             	<include name="useradmin_all-2.0.0.jar" />
-            	<include name="net.luminis.liq.xstream-1.3.jar" />
+            	<include name="org.apache.ace.xstream-1.3.jar" />
                 <include name="org.apache.felix.eventadmin.jar" />
             	<include name="org.apache.felix.prefs.jar" />
             </fileset>
@@ -71,7 +71,7 @@
         <move file="${deploy-dir}/conf/dev-config.properties" tofile="${deploy-dir}/conf/config.properties" />
         <delete file="${deploy-dir}/conf/test-config.properties" />
         <replace file="${deploy-dir}/conf/config.properties" token="@bundles@" value="
-        	file:bundle/net.luminis.liq.consolelogger-1.0.0.jar
+        	file:bundle/org.apache.ace.consolelogger-1.0.0.jar
             file:bundle/javax.servlet.jar
             file:bundle/org.osgi.compendium.jar 
             file:bundle/osgi.mobile.jar 
@@ -84,32 +84,32 @@
             file:bundle/org.apache.felix.prefs.jar
         	file:bundle/useradmin_all-2.0.0.jar
         	file:bundle/log_all-2.0.0.jar
-            file:bundle/net.luminis.liq.scheduler-1.0.0.jar
-        	file:bundle/net.luminis.liq.configurator-1.0.0.jar
-        	file:bundle/net.luminis.liq.resourceprocessor.useradmin-1.0.0.jar
-        	file:bundle/net.luminis.liq.configurator.useradmin.task-1.0.0.jar
-        	file:bundle/net.luminis.liq.client.repositoryuseradmin-1.0.0.jar
-            file:bundle/net.luminis.liq.discovery.property-1.0.0.jar
-            file:bundle/net.luminis.liq.server.log.store-1.0.0.jar
-            file:bundle/net.luminis.liq.server.log.task-1.0.0.jar
-            file:bundle/net.luminis.liq.repository-1.0.0.jar
-            file:bundle/net.luminis.liq.client.repository.stateful-1.0.0.jar
-        	file:bundle/net.luminis.liq.client.repository-1.0.0.jar
-        	file:bundle/net.luminis.liq.client.repository.helper.base-1.0.0.jar
-        	file:bundle/net.luminis.liq.client.repository.helper.bundle-1.0.0.jar
-        	file:bundle/net.luminis.liq.client.repository.helper.driverbundle-1.0.0.jar
-        	file:bundle/net.luminis.liq.client.repository.helper.configuration-1.0.0.jar
-        	file:bundle/net.luminis.liq.client.repository.helper.user-1.0.0.jar
-            file:bundle/net.luminis.liq.client.repository.helper.license-1.0.0.jar
-            file:bundle/net.luminis.liq.activationinfo.store-1.0.0.jar
-        	file:bundle/net.luminis.liq.activation.store-1.0.0.jar
-        	file:bundle/net.luminis.liq.activation.matcher-1.0.0.jar
-        	file:bundle/net.luminis.liq.xstream-1.3.jar
-        	file:bundle/net.luminis.liq.swingui.resources-1.0.0.jar
-        	file:bundle/net.luminis.liq.swingui.resources.en-1.0.0.jar
-        	file:bundle/net.luminis.liq.swingui.resources.nl-1.0.0.jar
-        	file:bundle/net.luminis.liq.swingui.skin-1.0.0.jar
-        	file:bundle/net.luminis.liq.swingui-1.0.0.jar" />
+            file:bundle/org.apache.ace.scheduler-1.0.0.jar
+        	file:bundle/org.apache.ace.configurator-1.0.0.jar
+        	file:bundle/org.apache.ace.resourceprocessor.useradmin-1.0.0.jar
+        	file:bundle/org.apache.ace.configurator.useradmin.task-1.0.0.jar
+        	file:bundle/org.apache.ace.client.repositoryuseradmin-1.0.0.jar
+            file:bundle/org.apache.ace.discovery.property-1.0.0.jar
+            file:bundle/org.apache.ace.server.log.store-1.0.0.jar
+            file:bundle/org.apache.ace.server.log.task-1.0.0.jar
+            file:bundle/org.apache.ace.repository-1.0.0.jar
+            file:bundle/org.apache.ace.client.repository.stateful-1.0.0.jar
+        	file:bundle/org.apache.ace.client.repository-1.0.0.jar
+        	file:bundle/org.apache.ace.client.repository.helper.base-1.0.0.jar
+        	file:bundle/org.apache.ace.client.repository.helper.bundle-1.0.0.jar
+        	file:bundle/org.apache.ace.client.repository.helper.driverbundle-1.0.0.jar
+        	file:bundle/org.apache.ace.client.repository.helper.configuration-1.0.0.jar
+        	file:bundle/org.apache.ace.client.repository.helper.user-1.0.0.jar
+            file:bundle/org.apache.ace.client.repository.helper.license-1.0.0.jar
+            file:bundle/org.apache.ace.activationinfo.store-1.0.0.jar
+        	file:bundle/org.apache.ace.activation.store-1.0.0.jar
+        	file:bundle/org.apache.ace.activation.matcher-1.0.0.jar
+        	file:bundle/org.apache.ace.xstream-1.3.jar
+        	file:bundle/org.apache.ace.swingui.resources-1.0.0.jar
+        	file:bundle/org.apache.ace.swingui.resources.en-1.0.0.jar
+        	file:bundle/org.apache.ace.swingui.resources.nl-1.0.0.jar
+        	file:bundle/org.apache.ace.swingui.skin-1.0.0.jar
+        	file:bundle/org.apache.ace.swingui-1.0.0.jar" />
         <replace file="${deploy-dir}/conf/config.properties" token="@properties@" value="" />
     	
     	<property name="vmargs" value="-Dorg.knopflerfish.useradmin.dontsave=true -Dorg.apache.felix.eventadmin.Timeout=0" />
