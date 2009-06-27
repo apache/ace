@@ -16,94 +16,81 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package net.luminis.liq.util;
+package org.apache.ace.util;
 
 import org.osgi.framework.Version;
 
-public class VersionRange
-{
+public class VersionRange {
     private Version m_low = null;
     private boolean m_isLowInclusive = false;
     private Version m_high = null;
     private boolean m_isHighInclusive = false;
     private String m_toString = null;
-    public static final VersionRange infiniteRange = new VersionRange(Version.emptyVersion, true, null, true);
 
-    public VersionRange(Version low, boolean isLowInclusive,
-        Version high, boolean isHighInclusive)
-    {
+    public static final VersionRange infiniteRange = new VersionRange(
+        Version.emptyVersion, true, null, true);
+
+    public VersionRange(Version low, boolean isLowInclusive, Version high, boolean isHighInclusive) {
         m_low = low;
         m_isLowInclusive = isLowInclusive;
         m_high = high;
         m_isHighInclusive = isHighInclusive;
     }
 
-    public Version getLow()
-    {
+    public Version getLow() {
         return m_low;
     }
 
-    public boolean isLowInclusive()
-    {
+    public boolean isLowInclusive() {
         return m_isLowInclusive;
     }
 
-    public Version getHigh()
-    {
+    public Version getHigh() {
         return m_high;
     }
 
-    public boolean isHighInclusive()
-    {
+    public boolean isHighInclusive() {
         return m_isHighInclusive;
     }
 
-    public boolean isInRange(Version version)
-    {
+    public boolean isInRange(Version version) {
         // We might not have an upper end to the range.
-        if (m_high == null)
-        {
+        if (m_high == null) {
             return (version.compareTo(m_low) >= 0);
         }
-        else if (isLowInclusive() && isHighInclusive())
-        {
-            return (version.compareTo(m_low) >= 0) && (version.compareTo(m_high) <= 0);
+        else if (isLowInclusive() && isHighInclusive()) {
+            return (version.compareTo(m_low) >= 0) &&
+                (version.compareTo(m_high) <= 0);
         }
-        else if (isHighInclusive())
-        {
-            return (version.compareTo(m_low) > 0) && (version.compareTo(m_high) <= 0);
+        else if (isHighInclusive()) {
+            return (version.compareTo(m_low) > 0) &&
+                (version.compareTo(m_high) <= 0);
         }
-        else if (isLowInclusive())
-        {
-            return (version.compareTo(m_low) >= 0) && (version.compareTo(m_high) < 0);
+        else if (isLowInclusive()) {
+            return (version.compareTo(m_low) >= 0) &&
+                (version.compareTo(m_high) < 0);
         }
-        return (version.compareTo(m_low) > 0) && (version.compareTo(m_high) < 0);
+        return (version.compareTo(m_low) > 0) &&
+            (version.compareTo(m_high) < 0);
     }
 
-    public static VersionRange parse(String range)
-    {
+    public static VersionRange parse(String range) {
         // Check if the version is an interval.
-        if (range.indexOf(',') >= 0)
-        {
+        if (range.indexOf(',') >= 0) {
             String s = range.substring(1, range.length() - 1);
             String vlo = s.substring(0, s.indexOf(',')).trim();
             String vhi = s.substring(s.indexOf(',') + 1, s.length()).trim();
-            return new VersionRange (
-                new Version(vlo), (range.charAt(0) == '['),
+            return new VersionRange(new Version(vlo), (range.charAt(0) == '['),
                 new Version(vhi), (range.charAt(range.length() - 1) == ']'));
         }
-        else
-        {
+        else {
             return new VersionRange(new Version(range), true, null, false);
         }
     }
 
-    public String toString()
-    {
-        if (m_toString == null)
-        {
-            if (m_high != null)
-            {
+    public String toString() {
+        if (m_toString == null) {
+            if (m_high != null) {
                 StringBuffer sb = new StringBuffer();
                 sb.append(m_isLowInclusive ? '[' : '(');
                 sb.append(m_low.toString());
@@ -112,8 +99,7 @@ public class VersionRange
                 sb.append(m_isHighInclusive ? ']' : ')');
                 m_toString = sb.toString();
             }
-            else
-            {
+            else {
                 m_toString = m_low.toString();
             }
         }

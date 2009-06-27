@@ -225,15 +225,15 @@
 
     <target name="package-liq" unless="liq.uptodate">
         <project-bundle 
-            bundlename="Console Logger"                                                                                                                                          
-            bundlesymbolicname="net.luminis.liq.consolelogger" 
-            privatepackage="net.luminis.liq.consolelogger"
-            bundleactivator="net.luminis.liq.consolelogger.Activator" />
+            bundlename="Apache ACE Console Logger"                                                                                                                                          
+            bundlesymbolicname="org.apache.ace.consolelogger" 
+            privatepackage="org.apache.ace.consolelogger"
+            bundleactivator="org.apache.ace.consolelogger.Activator" />
         <project-bundle 
-            bundlename="Log Interfaces"                                                                                                                                            
-            bundlesymbolicname="net.luminis.liq.log"
-            exportpackage="net.luminis.liq.log, net.luminis.liq.repository"
-            privatepackage="net.luminis.liq.util" />
+            bundlename="Apache ACE Log Interfaces"                                                                                                                                            
+            bundlesymbolicname="org.apache.ace.log"
+            exportpackage="org.apache.ace.log, org.apache.ace.repository"
+            privatepackage="org.apache.ace.util" />
     </target>
 
     <target name="package-server" unless="server.uptodate">
