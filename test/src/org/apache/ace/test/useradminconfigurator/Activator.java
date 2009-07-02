@@ -42,7 +42,7 @@ public class Activator extends TestActivatorBase {
                 .setService(UserAdmin.class)
                 .setRequired(true))
             .add(createServiceDependency()
-                .setService(Repository.class, "(&(" + RepositoryConstants.REPOSITORY_NAME + "=users)(" + RepositoryConstants.REPOSITORY_CUSTOMER + "=luminis))")
+                .setService(Repository.class, "(&(" + RepositoryConstants.REPOSITORY_NAME + "=users)(" + RepositoryConstants.REPOSITORY_CUSTOMER + "=apache))")
                 .setRequired(true)));
 
         // We need to do some configuration for this test to run; therefore,
@@ -65,7 +65,7 @@ public class Activator extends TestActivatorBase {
 
         Properties props = new Properties();
         props.put(RepositoryConstants.REPOSITORY_NAME, "users");
-        props.put(RepositoryConstants.REPOSITORY_CUSTOMER, "luminis");
+        props.put(RepositoryConstants.REPOSITORY_CUSTOMER, "apache");
         props.put(RepositoryConstants.REPOSITORY_MASTER, "true");
 
         config.update(props);
@@ -83,7 +83,7 @@ public class Activator extends TestActivatorBase {
 
         props = new Properties();
         props.put("repositoryName", "users");
-        props.put("repositoryCustomer", "luminis");
+        props.put("repositoryCustomer", "apache");
         props.put("repositoryLocation", "http://localhost:8080/repository");
 
         config.update(props);

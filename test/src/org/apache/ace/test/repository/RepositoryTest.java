@@ -187,27 +187,27 @@ public class RepositoryTest {
 
     @Test(groups = { INTEGRATION })
     public void testCreation() throws Exception {
-        addRepository("testInstance", "luminis", "test", true);
+        addRepository("testInstance", "apache", "test", true);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int responseCode = query(HOST, "replication/query", null, null, out);
         assert responseCode == HttpURLConnection.HTTP_OK : "Expected responsecode " + HttpURLConnection.HTTP_OK + " instead of " + responseCode;
-        assert "luminis,test,\n".equals(out.toString()) : "Expected one repository without any versions as query result instead of : " + out.toString();
+        assert "apache,test,\n".equals(out.toString()) : "Expected one repository without any versions as query result instead of : " + out.toString();
 
-        addRepository("testInstance2", "luminis", "test2", true);
+        addRepository("testInstance2", "apache", "test2", true);
 
         out.reset();
         responseCode = query(HOST, "replication/query", null, null, out);
         assert responseCode == HttpURLConnection.HTTP_OK : "Expected responsecode " + HttpURLConnection.HTTP_OK + " instead of " + responseCode;
-        assert "luminis,test,\nluminis,test2,\n".equals(out.toString()) ||
-               "luminis,test2,\nluminis,test,\n".equals(out.toString()) : "Expected two repositories without any versions as query result instead of : " + out.toString();
+        assert "apache,test,\napache,test2,\n".equals(out.toString()) ||
+               "apache,test2,\napache,test,\n".equals(out.toString()) : "Expected two repositories without any versions as query result instead of : " + out.toString();
 
         removeRepository("testInstance2");
 
         out.reset();
         responseCode = query(HOST, "replication/query", null, null, out);
         assert responseCode == HttpURLConnection.HTTP_OK : "Expected responsecode " + HttpURLConnection.HTTP_OK + " instead of " + responseCode;
-        assert "luminis,test,\n".equals(out.toString()) : "Expected one repository without any versions as query result instead of : " + out.toString();
+        assert "apache,test,\n".equals(out.toString()) : "Expected one repository without any versions as query result instead of : " + out.toString();
 
         removeRepository("testInstance");
 
@@ -219,18 +219,18 @@ public class RepositoryTest {
 
     @Test(groups = { INTEGRATION })
     public void testGetAndPut() throws Exception {
-        addRepository("testInstance", "luminis", "test", true);
+        addRepository("testInstance", "apache", "test", true);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int responseCode = get(HOST, "replication/get", "luminis", "test", "1", out);
+        int responseCode = get(HOST, "replication/get", "apache", "test", "1", out);
         assert responseCode == HttpURLConnection.HTTP_NOT_FOUND : "Expected responsecode " + HttpURLConnection.HTTP_NOT_FOUND + " instead of " + responseCode;
 
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
-        responseCode = put("replication/put", HOST, "luminis", "test", "1", byteArrayInputStream);
+        responseCode = put("replication/put", HOST, "apache", "test", "1", byteArrayInputStream);
         assert responseCode == HttpURLConnection.HTTP_OK : "Expected responsecode " + HttpURLConnection.HTTP_OK + " instead of " + responseCode;
 
         out.reset();
-        responseCode = get(HOST, "replication/get", "luminis", "test", "1", out);
+        responseCode = get(HOST, "replication/get", "apache", "test", "1", out);
         assert responseCode == HttpURLConnection.HTTP_OK : "Expected responsecode " + HttpURLConnection.HTTP_OK + " instead of " + responseCode;
         assert "test".equals(out.toString()) : "Expected 'test' as a result of the get operation, not: " + out.toString();
 
@@ -239,22 +239,22 @@ public class RepositoryTest {
 
     @Test(groups = { INTEGRATION })
     public void testCheckoutAndCommit() throws Exception {
-        addRepository("testInstance", "luminis", "test", true);
+        addRepository("testInstance", "apache", "test", true);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int responseCode = get(HOST, "repository/checkout", "luminis", "test", "1", out);
+        int responseCode = get(HOST, "repository/checkout", "apache", "test", "1", out);
         assert responseCode == HttpURLConnection.HTTP_NOT_FOUND : "Expected responsecode " + HttpURLConnection.HTTP_NOT_FOUND + " instead of " + responseCode;
 
         ByteArrayInputStream input = new ByteArrayInputStream("test".getBytes());
-        responseCode = put("repository/commit", HOST, "luminis", "test", "1", input);
+        responseCode = put("repository/commit", HOST, "apache", "test", "1", input);
         assert responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR : "Expected responsecode " + HttpURLConnection.HTTP_INTERNAL_ERROR + " instead of " + responseCode;
 
         input.reset();
-        responseCode = put("repository/commit", HOST, "luminis", "test", "0", input);
+        responseCode = put("repository/commit", HOST, "apache", "test", "0", input);
         assert responseCode == HttpURLConnection.HTTP_OK : "Expected responsecode " + HttpURLConnection.HTTP_OK + " instead of " + responseCode;
 
         out.reset();
-        responseCode = get(HOST, "repository/checkout", "luminis", "test", "1", out);
+        responseCode = get(HOST, "repository/checkout", "apache", "test", "1", out);
         assert responseCode == HttpURLConnection.HTTP_OK : "Expected responsecode " + HttpURLConnection.HTTP_OK + " instead of " + responseCode;
 
         removeRepository("testInstance");
@@ -262,14 +262,14 @@ public class RepositoryTest {
 
     @Test(groups = { INTEGRATION })
     public void testMaster() throws Exception {
-        addRepository("testInstance", "luminis", "test", false);
+        addRepository("testInstance", "apache", "test", false);
 
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
-        int responseCode = put("replication/put", HOST, "luminis", "test", "1", byteArrayInputStream);
+        int responseCode = put("replication/put", HOST, "apache", "test", "1", byteArrayInputStream);
         assert responseCode == HttpURLConnection.HTTP_OK;
 
         byteArrayInputStream.reset();
-        responseCode = put("repository/commit", HOST, "luminis", "test", "0", byteArrayInputStream);
+        responseCode = put("repository/commit", HOST, "apache", "test", "0", byteArrayInputStream);
         assert responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR : "Expected responsecode " + HttpURLConnection.HTTP_OK + " instead of " + responseCode;
 
         removeRepository("testInstance");
@@ -277,14 +277,14 @@ public class RepositoryTest {
 
     @Test(groups = { INTEGRATION })
     public void testBadRequests() throws Exception {
-        addRepository("testInstance", "luminis", "test", false);
+        addRepository("testInstance", "apache", "test", false);
 
-        URL url = new URL(new URL(HOST), "replication/query?customer=luminis&name=test&filter=test");
+        URL url = new URL(new URL(HOST), "replication/query?customer=apache&name=test&filter=test");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         int responseCode = connection.getResponseCode();
         assert responseCode == HttpURLConnection.HTTP_BAD_REQUEST : "Expected responsecode " + HttpURLConnection.HTTP_BAD_REQUEST + " instead of " + responseCode;
 
-        url = new URL(new URL(HOST), "repository/query?customer=luminis&name=test&filter=test");
+        url = new URL(new URL(HOST), "repository/query?customer=apache&name=test&filter=test");
         connection = (HttpURLConnection) url.openConnection();
         responseCode = connection.getResponseCode();
         assert responseCode == HttpURLConnection.HTTP_BAD_REQUEST : "Expected responsecode " + HttpURLConnection.HTTP_BAD_REQUEST + " instead of " + responseCode;
@@ -294,10 +294,10 @@ public class RepositoryTest {
 
     @Test(groups = { INTEGRATION })
     public void testInitialContent() throws Exception {
-        addRepository("testInstance", "luminis", "test", "somecontent", true);
+        addRepository("testInstance", "apache", "test", "somecontent", true);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int responseCode = get(HOST, "repository/checkout", "luminis", "test", "1", out);
+        int responseCode = get(HOST, "repository/checkout", "apache", "test", "1", out);
         assert responseCode == HttpURLConnection.HTTP_OK : "Expected responsecode " + HttpURLConnection.HTTP_OK + " instead of " + responseCode;
 
         assert Arrays.equals(out.toByteArray(), "somecontent".getBytes());

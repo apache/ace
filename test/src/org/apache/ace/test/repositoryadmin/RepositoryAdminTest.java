@@ -304,8 +304,8 @@ public class RepositoryAdminTest implements EventHandler {
 
         startRepositoryService();
 
-        addRepository("storeInstance", "luminis", "store", true);
-        addRepository("gatewayInstance", "luminis", "gateway", true);
+        addRepository("storeInstance", "apache", "store", true);
+        addRepository("gatewayInstance", "apache", "gateway", true);
 
         try {
             m_repositoryAdmin.checkout();
@@ -316,8 +316,8 @@ public class RepositoryAdminTest implements EventHandler {
         }
 
         final RepositoryAdminLoginContext loginContext1 = m_repositoryAdmin.createLoginContext(user1);
-        loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "luminis", "store", true);
-        loginContext1.addGatewayRepository(new URL(HOST + ENDPOINT), "luminis", "gateway", true);
+        loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
+        loginContext1.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
         m_repositoryAdmin.login(loginContext1);
 
         assert !m_repositoryAdmin.isCurrent() : "When first logging in without checking out, the repository cannot be current.";
@@ -396,8 +396,8 @@ public class RepositoryAdminTest implements EventHandler {
         cleanUp();
 
         final RepositoryAdminLoginContext loginContext2 = m_repositoryAdmin.createLoginContext(user2);
-        loginContext2.addShopRepository(new URL(HOST + ENDPOINT), "luminis", "store", true);
-        loginContext2.addGatewayRepository(new URL(HOST + ENDPOINT), "luminis", "gateway", true);
+        loginContext2.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
+        loginContext2.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
 
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
@@ -492,14 +492,14 @@ public class RepositoryAdminTest implements EventHandler {
 
         startRepositoryService();
 
-        addRepository("storeInstance", "luminis", "store", true);
-        addRepository("gatewayInstance", "luminis", "gateway", true);
-        addRepository("deploymentInstance", "luminis", "deployment", true);
+        addRepository("storeInstance", "apache", "store", true);
+        addRepository("gatewayInstance", "apache", "gateway", true);
+        addRepository("deploymentInstance", "apache", "deployment", true);
 
         RepositoryAdminLoginContext loginContext = m_repositoryAdmin.createLoginContext(user);
-        loginContext.addShopRepository(new URL(HOST + ENDPOINT), "luminis", "store", true);
-        loginContext.addGatewayRepository(new URL(HOST + ENDPOINT), "luminis", "gateway", true);
-        loginContext.addDeploymentRepository(new URL(HOST + ENDPOINT), "luminis", "deployment", true);
+        loginContext.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
+        loginContext.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
+        loginContext.addDeploymentRepository(new URL(HOST + ENDPOINT), "apache", "deployment", true);
         m_repositoryAdmin.login(loginContext);
 
         runAndWaitForEvent(new Callable<Object>() {
@@ -574,14 +574,14 @@ public class RepositoryAdminTest implements EventHandler {
 
         startRepositoryService();
 
-        addRepository("storeInstance", "luminis", "store", true);
-        addRepository("gatewayInstance", "luminis", "gateway", true);
-        addRepository("deploymentInstance", "luminis", "deployment", true);
+        addRepository("storeInstance", "apache", "store", true);
+        addRepository("gatewayInstance", "apache", "gateway", true);
+        addRepository("deploymentInstance", "apache", "deployment", true);
 
         RepositoryAdminLoginContext loginContext = m_repositoryAdmin.createLoginContext(user);
-        loginContext.addShopRepository(new URL(HOST + ENDPOINT), "luminis", "store", true);
-        loginContext.addGatewayRepository(new URL(HOST + ENDPOINT), "luminis", "gateway", true);
-        loginContext.addDeploymentRepository(new URL(HOST + ENDPOINT), "luminis", "deployment", true);
+        loginContext.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
+        loginContext.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
+        loginContext.addDeploymentRepository(new URL(HOST + ENDPOINT), "apache", "deployment", true);
         m_repositoryAdmin.login(loginContext);
 
         /*
@@ -1100,9 +1100,9 @@ public class RepositoryAdminTest implements EventHandler {
     public void testAutoGatewayOperator() throws Exception {
         startRepositoryService();
 
-        addRepository("storeInstance", "luminis", "store", true);
-        addRepository("gatewayInstance", "luminis", "gateway", true);
-        addRepository("deploymentInstance", "luminis", "deployment", true);
+        addRepository("storeInstance", "apache", "store", true);
+        addRepository("gatewayInstance", "apache", "gateway", true);
+        addRepository("deploymentInstance", "apache", "deployment", true);
 
         // configure automation bundle; new configuration properties; bundle will start
         final Properties props = new Properties();
@@ -1113,7 +1113,7 @@ public class RepositoryAdminTest implements EventHandler {
         props.put("gatewayRepository","gateway");
         props.put("deploymentRepository","deployment");
         props.put("storeRepository","store");
-        props.put("customerName","luminis");
+        props.put("customerName","apache");
         props.put("hostName",HOST);
         props.put("endpoint",ENDPOINT);
 
@@ -1333,12 +1333,12 @@ public class RepositoryAdminTest implements EventHandler {
 
         startRepositoryService();
 
-        addRepository("storeInstance", "luminis", "store", true);
-        addRepository("gatewayInstance", "luminis", "gateway", true);
+        addRepository("storeInstance", "apache", "store", true);
+        addRepository("gatewayInstance", "apache", "gateway", true);
 
         final RepositoryAdminLoginContext loginContext1 = m_repositoryAdmin.createLoginContext(user1);
-        loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "luminis", "store", true);
-        loginContext1.addGatewayRepository(new URL(HOST + ENDPOINT), "luminis", "gateway", true);
+        loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
+        loginContext1.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
         m_repositoryAdmin.login(loginContext1);
 
         GroupObject g1 = createBasicGroupObject("group1");
@@ -1368,12 +1368,12 @@ public class RepositoryAdminTest implements EventHandler {
 
         startRepositoryService();
 
-        addRepository("storeInstance", "luminis", "store", true);
-        addRepository("gatewayInstance", "luminis", "gateway", true);
+        addRepository("storeInstance", "apache", "store", true);
+        addRepository("gatewayInstance", "apache", "gateway", true);
 
         final RepositoryAdminLoginContext loginContext1 = m_repositoryAdmin.createLoginContext(user1);
-        loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "luminis", "store", true);
-        loginContext1.addGatewayRepository(new URL(HOST + ENDPOINT), "luminis", "gateway", false);
+        loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
+        loginContext1.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", false);
         m_repositoryAdmin.login(loginContext1);
 
         m_repositoryAdmin.checkout();
@@ -1412,8 +1412,8 @@ public class RepositoryAdminTest implements EventHandler {
     @Test( groups = { TestUtils.INTEGRATION } )
     public void testRepostoryLoginDoubleRepository() throws Exception {
         RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(new MockUser("user"));
-        context.addRepositories(new URL("http://localhost:8080"), "luminis", "shop", true, ArtifactRepository.class, Artifact2GroupAssociationRepository.class, GroupRepository.class);
-        context.addRepositories(new URL("http://localhost:8080"), "luminis", "deployment", true, GroupRepository.class, Group2LicenseAssociationRepository.class, LicenseRepository.class);
+        context.addRepositories(new URL("http://localhost:8080"), "apache", "shop", true, ArtifactRepository.class, Artifact2GroupAssociationRepository.class, GroupRepository.class);
+        context.addRepositories(new URL("http://localhost:8080"), "apache", "deployment", true, GroupRepository.class, Group2LicenseAssociationRepository.class, LicenseRepository.class);
         try {
             m_repositoryAdmin.login(context);
             assert false : "We tried to log in with two repositories that try to access the same repository service; this should not be allowed.";
@@ -1429,8 +1429,8 @@ public class RepositoryAdminTest implements EventHandler {
     @Test( groups = { TestUtils.INTEGRATION } )
     public void testRepostoryLoginRepositoryWithoutImplementation() throws Exception {
         RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(new MockUser("user"));
-        context.addRepositories(new URL("http://localhost:8080"), "luminis", "shop", true, ArtifactRepository.class, Artifact2GroupAssociationRepository.class, GroupRepository.class);
-        context.addRepositories(new URL("http://localhost:8080"), "luminis", "deployment", true, GroupRepository.class, Group2LicenseAssociationRepository.class, newRepository.class);
+        context.addRepositories(new URL("http://localhost:8080"), "apache", "shop", true, ArtifactRepository.class, Artifact2GroupAssociationRepository.class, GroupRepository.class);
+        context.addRepositories(new URL("http://localhost:8080"), "apache", "deployment", true, GroupRepository.class, Group2LicenseAssociationRepository.class, newRepository.class);
         try {
             m_repositoryAdmin.login(context);
             assert false : "We tried to log in with a repository for which no implementation is available; this should not be allowed.";
