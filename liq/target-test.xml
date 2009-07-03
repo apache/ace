@@ -8,7 +8,7 @@
     <target name="deploy">
         <mkdir dir="${deploy-dir}" />
         <copy todir="${deploy-dir}">
-            <fileset dir="lib/felix/1.4.1">
+            <fileset dir="lib/felix/1.8.1">
                 <include name="**" />
             </fileset>
         </copy>

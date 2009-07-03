@@ -10,7 +10,7 @@
         <mkdir dir="${deploy-dir}" />
         <mkdir dir="${deploy-dir}/store" />
         <copy todir="${deploy-dir}">
-            <fileset dir="lib/felix/1.4.1">
+            <fileset dir="lib/felix/1.8.1">
                 <include name="**" />
             </fileset>
         </copy>
@@ -56,8 +56,8 @@
             file:bundle/org.osgi.compendium.jar 
             file:bundle/http.jetty.jar
             file:bundle/javax.servlet.jar 
-            file:bundle/org.apache.felix.shell-1.0.2.jar 
-            file:bundle/org.apache.felix.shell.tui-1.0.2.jar 
+            file:bundle/org.apache.felix.shell-1.2.0.jar 
+            file:bundle/org.apache.felix.shell.tui-1.2.0.jar 
             file:bundle/org.apache.felix.configadmin.jar 
             file:bundle/org.apache.felix.dependencymanager.jar 
             file:bundle/org.apache.felix.prefs.jar

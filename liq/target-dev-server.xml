@@ -10,7 +10,7 @@
         <mkdir dir="${deploy-dir}" />
         <mkdir dir="${deploy-dir}/store" />
         <copy todir="${deploy-dir}">
-            <fileset dir="lib/felix/1.4.1">
+            <fileset dir="lib/felix/1.8.1">
                 <include name="**" />
             </fileset>
         </copy>
@@ -107,8 +107,8 @@
             file:bundle/org.apache.ace.client.repository.helper.license-1.0.0.jar
             " />
         <property name="bundles-shell" value="${bundles-noshell}
-            file:bundle/org.apache.felix.shell-1.0.2.jar 
-            file:bundle/org.apache.felix.shell.tui-1.0.2.jar
+            file:bundle/org.apache.felix.shell-1.2.0.jar 
+            file:bundle/org.apache.felix.shell.tui-1.2.0.jar
             file:bundle/org.apache.felix.dependencymanager.shell.jar 
             " />
         <replace file="${deploy-dir}/conf/config.properties" token="@bundles@" value="${bundles-shell}" />
