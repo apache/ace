@@ -39,7 +39,7 @@
       </classpath>
       <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
       <jvmarg value="-Xmx256M"/>
-<jvmarg value="-XstartOnFirstThread"/>
+
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
       <arg value="org.apache.ace.webui"/>
     </java>
