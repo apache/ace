@@ -154,6 +154,8 @@
         <delete dir="../server/classes" />
         <delete dir="../test/classes" />
         <delete dir="../liq/classes" />
+        <delete dir="../webui/webui.war" />
+    	<subant buildpath="../webui" target="clean"/>
         <delete>
             <fileset dir="." includes="*.build" />
         </delete>
@@ -168,7 +170,7 @@
             </classpath>
             <jvmarg line="-Dbuild.compiler=org.eclipse.jdt.core.JDTCompilerAdapter"/>
             <jvmarg line="-Dfailonerror.property=true" />
-            <arg line="build-liq build-server build-gateway build-test"/>
+            <arg line="build-liq build-server build-gateway build-webui build-test"/>
         </java>
     </target>
 
@@ -221,6 +223,20 @@
         </uptodate>
         <antcall target="package-test" />
         <touch file="last.test.build" />
+    </target>
+    
+    <target name="build-webui">
+        <uptodate property="webui.uptodate" value="true" targetfile="last.webui.build">
+            <srcfiles dir="../webui/src" includes="**/*.java"/>
+        </uptodate>
+        <if>
+            <equals arg1="${webui.uptodate}" arg2="true"/>
+            <else>
+                <subant buildpath="../webui" antfile="build.xml" target="war"/>
+            </else>
+        </if>
+        <antcall target="package-webui" />
+        <touch file="last.webui.build" />
     </target>
 
     <target name="package-liq" unless="liq.uptodate">
@@ -501,6 +517,11 @@
                 <attribute name="Class-Path" value="bin/felix.jar"/>
             </manifest>
         </jar>
+    </target>
+    
+    <target name="package-webui" unless="webui.uptodate">
+    	<!-- TODO put this in a usable bundle -->
+        <copy file="../webui/webui.war" todir="deploy"/>
     </target>
 
     <target name="package-test" unless="test.uptodate">
