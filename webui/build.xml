@@ -52,7 +52,7 @@
         <path refid="project.class.path"/>
       </classpath>
       <jvmarg value="-Xmx256M"/>
-<jvmarg value="-XstartOnFirstThread"/>
+
       <arg value="-startupUrl"/>
       <arg value="webui.html"/>
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
