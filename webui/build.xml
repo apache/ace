@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project name="webui" default="build" basedir=".">
-    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="../liq/lib/ant-contrib-1.0b3.jar" />
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="../core/lib/ant-contrib-1.0b3.jar" />
   <!-- Configure path to GWT SDK -->
     <property name="gwt.sdk" location="../webui/lib/gwt" />
 
   <path id="project.class.path">
     <pathelement location="war/WEB-INF/classes"/>
     <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+    <path refid="bnd.classpath" />
     <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
     <!-- Add any additional non-server libs (such as JUnit) -->
     <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>

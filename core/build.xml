@@ -57,6 +57,10 @@
 
     <taskdef resource="tasks.properties" classpathref="cobertura.classpath" />
 
+    <taskdef name="bnd-wrap" 
+         classname="aQute.bnd.ant.WrapTask"
+         classpath="lib/bnd.jar"/>
+
     <taskdef name="bundle"
         classname="net.luminis.build.plugin.bnd.BuildTask"
         classpath="lib/net.luminis.build.plugin.jar" />
@@ -232,7 +236,9 @@
         <if>
             <equals arg1="${webui.uptodate}" arg2="true"/>
             <else>
-                <subant buildpath="../webui" antfile="build.xml" target="war"/>
+                <subant buildpath="../webui" target="war">
+                    <reference refid="bnd.classpath"/>
+                </subant>
             </else>
         </if>
         <antcall target="package-webui" />
@@ -520,8 +526,15 @@
     </target>
     
     <target name="package-webui" unless="webui.uptodate">
-    	<!-- TODO put this in a usable bundle -->
-        <copy file="../webui/webui.war" todir="deploy"/>
+    	<!-- TODO add an activator to bridge between OSGi and GWT -->
+        <copy file="../webui/webui.war" tofile="deploy/bundle/org.apache.ace.webui-1.0.0.jar"/>
+    	<echo file="org.apache.ace.webui-1.0.0.bnd">Import-Package: junit.framework;resolution:=optional, com.google.gwt.benchmarks;resolution:=optional, *
+Bundle-Name: Web UI
+Bundle-ClassPath: WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar
+Bundle-SymbolicName: org.apache.ace.webui"/>
+        </echo>
+        <bnd-wrap jars="deploy/bundle/org.apache.ace.webui-1.0.0.jar" output="deploy/bundle/org.apache.ace.webui-1.0.0.jar"/>
+    	<delete file="org.apache.ace.webui-1.0.0.bnd"/>
     </target>
 
     <target name="package-test" unless="test.uptodate">
