@@ -883,6 +883,7 @@ Bundle-SymbolicName: org.apache.ace.webui"/>
 	<target name="zip" depends="package" description="zips all targets">
 	    <mkdir dir="deploy/releases" />
 	    <ziptarget target="dev-server" />
+	    <ziptarget target="dev-server-filebased" />
 	    <ziptarget target="dev-obr" />
 	    <ziptarget target="dev-gateway" />
 	    <ziptarget target="dev-client" />
