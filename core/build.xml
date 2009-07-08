@@ -531,9 +531,16 @@
     	<echo file="org.apache.ace.webui-1.0.0.bnd">Import-Package: junit.framework;resolution:=optional, com.google.gwt.benchmarks;resolution:=optional, *
 Bundle-Name: Web UI
 Bundle-ClassPath: WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar
-Bundle-SymbolicName: org.apache.ace.webui"/>
+Bundle-SymbolicName: org.apache.ace.webui
+Webapp-Context: webui
+Bundle-Activator: org.apache.ace.server.Activator
         </echo>
         <bnd-wrap jars="deploy/bundle/org.apache.ace.webui-1.0.0.jar" output="deploy/bundle/org.apache.ace.webui-1.0.0.jar"/>
+    	<jar file="deploy/bundle/org.apache.ace.webui-1.0.0.jar" update="true">
+    	<manifest>
+            <attribute name="Bundle-ClassPath" value="WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar, ."/>
+    	</manifest>
+    	</jar>
     	<delete file="org.apache.ace.webui-1.0.0.bnd"/>
     </target>
 
