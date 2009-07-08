@@ -16,24 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.server;
+package org.apache.ace.client.services;
 
-import org.apache.ace.client.GreetingService;
-
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * The server side implementation of the RPC service.
+ * Asynchronous TargetService (GWT boiler plate)
  */
-@SuppressWarnings("serial")
-public class GreetingServiceImpl extends RemoteServiceServlet implements
-    GreetingService {
-
-  public String greetServer(String input) {
-    String serverInfo = getServletContext().getServerInfo();
-    String userAgent = getThreadLocalRequest().getHeader("User-Agent");
-    return "Hello, " + input + "!<br><br>I am running " + serverInfo
-        + ".<br><br>It looks like you are using:<br>" + userAgent
-        + ".<br><br>By the way, you are running " + Activator.getContext().getBundles().length + " bundles.";
-  }
+public interface TargetServiceAsync {
+    void getTargets(AsyncCallback<TargetDescriptor[]> callback);
 }

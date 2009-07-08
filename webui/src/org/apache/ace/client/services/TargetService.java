@@ -16,15 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.client;
+package org.apache.ace.client.services;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 /**
- * The client side stub for the RPC service.
+ * Service that can get us all targets.
  */
-@RemoteServiceRelativePath("greet")
-public interface GreetingService extends RemoteService {
-  String greetServer(String name);
+@RemoteServiceRelativePath("targets")
+public interface TargetService extends RemoteService {
+    /**
+     * Gets target descriptors for all available targets, including those that are not registered.
+     */
+    TargetDescriptor[] getTargets();
 }
