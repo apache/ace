@@ -891,6 +891,7 @@ Bundle-Activator: org.apache.ace.server.Activator
 	    <mkdir dir="deploy/releases" />
 	    <ziptarget target="dev-server" />
 	    <ziptarget target="dev-server-filebased" />
+        <ziptarget target="dev-server-webui" />
 	    <ziptarget target="dev-obr" />
 	    <ziptarget target="dev-gateway" />
 	    <ziptarget target="dev-client" />

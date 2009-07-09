@@ -23,7 +23,6 @@ import java.util.Map;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -34,6 +33,8 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 public class Main implements EntryPoint {
     private static final int REFRESH_INTERVAL = 2000;
     private StatusLabel m_statusLabel = new StatusLabel();
+    private GroupTable m_groupTable = new GroupTable(m_statusLabel);
+    private LicenseTable m_licenseTable = new LicenseTable(m_statusLabel);
     private TargetTable m_targetTable = new TargetTable(m_statusLabel);
     
     /**
@@ -49,8 +50,16 @@ public class Main implements EntryPoint {
      * This is the entry point method.
      */
     public void onModuleLoad() {
-        // Create a scrollpanel with our only table in it
-        ScrollPanel scrollPanel = new ScrollPanel(m_targetTable);
+        // Create some scrollpanels with our tables
+        ScrollPanel scrollPanel = new ScrollPanel(m_groupTable);
+        scrollPanel.setHeight("30em");
+        scrollPanel.setStyleName("objectTable");
+        RootPanel.get("groupColumnContainer").add(scrollPanel);
+        scrollPanel = new ScrollPanel(m_licenseTable);
+        scrollPanel.setHeight("30em");
+        scrollPanel.setStyleName("objectTable");
+        RootPanel.get("licenseColumnContainer").add(scrollPanel);
+        scrollPanel = new ScrollPanel(m_targetTable);
         scrollPanel.setHeight("30em");
         scrollPanel.setStyleName("objectTable");
         RootPanel.get("targetColumnContainer").add(scrollPanel);
@@ -75,6 +84,8 @@ public class Main implements EntryPoint {
      * Triggers an update of UI.
      */
     void updateUI() {
+        m_groupTable.updateTable();
+        m_licenseTable.updateTable();
         m_targetTable.updateTable();
     }
     

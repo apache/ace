@@ -57,7 +57,6 @@ public class TargetServiceImpl extends RemoteServiceServlet implements TargetSer
         
         for (StatefulGatewayObject sgo : sgr.get()) {
             result.add(new TargetDescriptor(sgo.getID(), from(sgo.getProvisioningState())));
-            System.err.println("Added " + sgo);
         }
         
         return result.toArray(new TargetDescriptor[result.size()]);

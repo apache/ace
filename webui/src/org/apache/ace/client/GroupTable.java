@@ -19,33 +19,32 @@
 package org.apache.ace.client;
 
 import org.apache.ace.client.Main.StatusHandler;
-import org.apache.ace.client.services.TargetDescriptor;
-import org.apache.ace.client.services.TargetService;
-import org.apache.ace.client.services.TargetServiceAsync;
+import org.apache.ace.client.services.GroupDescriptor;
+import org.apache.ace.client.services.GroupService;
+import org.apache.ace.client.services.GroupServiceAsync;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Table class for the targets.
+ * Table class for the groups.
  */
-public class TargetTable extends ObjectTable<TargetDescriptor> {
-    private TargetServiceAsync m_targetService = GWT.create(TargetService.class);
+public class GroupTable extends ObjectTable<GroupDescriptor> {
+    private GroupServiceAsync m_groupService = GWT.create(GroupService.class);
 
-    TargetTable(StatusHandler handler) {
-        super(handler, "Name", "Status");
+    GroupTable(StatusHandler handler) {
+        super(handler, "Name");
     }
 
     @Override
-    protected void callService(AsyncCallback<TargetDescriptor[]> callback) {
-        m_targetService.getTargets(callback);
+    protected void callService(AsyncCallback<GroupDescriptor[]> callback) {
+        m_groupService.getGroups(callback);
     }
 
     @Override
-    protected String getValue(TargetDescriptor td, int column) {
+    protected String getValue(GroupDescriptor gd, int column) {
         switch(column) {
-        case 0: return td.getName();
-        case 1: return td.getProvisioningState().toString();
+        case 0: return gd.getName();
         }
         return null;
     }

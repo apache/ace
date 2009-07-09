@@ -19,33 +19,32 @@
 package org.apache.ace.client;
 
 import org.apache.ace.client.Main.StatusHandler;
-import org.apache.ace.client.services.TargetDescriptor;
-import org.apache.ace.client.services.TargetService;
-import org.apache.ace.client.services.TargetServiceAsync;
+import org.apache.ace.client.services.LicenseDescriptor;
+import org.apache.ace.client.services.LicenseService;
+import org.apache.ace.client.services.LicenseServiceAsync;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Table class for the targets.
+ * Table class for the licenses.
  */
-public class TargetTable extends ObjectTable<TargetDescriptor> {
-    private TargetServiceAsync m_targetService = GWT.create(TargetService.class);
+public class LicenseTable extends ObjectTable<LicenseDescriptor> {
+    private LicenseServiceAsync m_licenseService = GWT.create(LicenseService.class);
 
-    TargetTable(StatusHandler handler) {
-        super(handler, "Name", "Status");
+    LicenseTable(StatusHandler handler) {
+        super(handler, "Name");
     }
 
     @Override
-    protected void callService(AsyncCallback<TargetDescriptor[]> callback) {
-        m_targetService.getTargets(callback);
+    protected void callService(AsyncCallback<LicenseDescriptor[]> callback) {
+        m_licenseService.getLicenses(callback);
     }
 
     @Override
-    protected String getValue(TargetDescriptor td, int column) {
+    protected String getValue(LicenseDescriptor ld, int column) {
         switch(column) {
-        case 0: return td.getName();
-        case 1: return td.getProvisioningState().toString();
+        case 0: return ld.getName();
         }
         return null;
     }

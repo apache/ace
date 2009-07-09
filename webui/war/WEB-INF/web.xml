@@ -12,6 +12,26 @@
   
   <!-- Servlets -->
   <servlet>
+    <servlet-name>groupServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.GroupServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>groupServlet</servlet-name>
+    <url-pattern>/webui/groups</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>licenseServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.LicenseServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>licenseServlet</servlet-name>
+    <url-pattern>/webui/licenses</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>targetServlet</servlet-name>
     <servlet-class>org.apache.ace.server.TargetServiceImpl</servlet-class>
   </servlet>
