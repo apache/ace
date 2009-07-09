@@ -25,8 +25,8 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -37,6 +37,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 public class Main implements EntryPoint {
     private static final int REFRESH_INTERVAL = 2000;
     private StatusLabel m_statusLabel = new StatusLabel();
+    private BundleTable m_bundleTable = new BundleTable(m_statusLabel);
     private GroupTable m_groupTable = new GroupTable(m_statusLabel);
     private LicenseTable m_licenseTable = new LicenseTable(m_statusLabel);
     private TargetTable m_targetTable = new TargetTable(m_statusLabel);
@@ -55,6 +56,16 @@ public class Main implements EntryPoint {
      */
     public void onModuleLoad() {
         // Add the header panels
+        Button addBundleButton = new Button("+");
+        addBundleButton.addStyleDependentName("add");
+        RootPanel.get("bundlesHeader").add(addBundleButton);
+        addBundleButton.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                // TODO show a file dialog, trigger an upload, and instruct the server to extract metadata.
+                Window.alert("Just wait for the next release...");
+            }
+        });
+
         Button addGroupButton = new Button("+");
         addGroupButton.addStyleDependentName("add");
         RootPanel.get("groupsHeader").add(addGroupButton);
@@ -74,7 +85,11 @@ public class Main implements EntryPoint {
         });
         
         // Create some scrollpanels with our tables
-        ScrollPanel scrollPanel = new ScrollPanel(m_groupTable);
+        ScrollPanel scrollPanel = new ScrollPanel(m_bundleTable);
+        scrollPanel.setHeight("30em");
+        scrollPanel.setStyleName("objectTable");
+        RootPanel.get("bundleColumnContainer").add(scrollPanel);
+        scrollPanel = new ScrollPanel(m_groupTable);
         scrollPanel.setHeight("30em");
         scrollPanel.setStyleName("objectTable");
         RootPanel.get("groupColumnContainer").add(scrollPanel);
@@ -107,6 +122,7 @@ public class Main implements EntryPoint {
      * Triggers an update of UI.
      */
     void updateUI() {
+        m_bundleTable.updateTable();
         m_groupTable.updateTable();
         m_licenseTable.updateTable();
         m_targetTable.updateTable();

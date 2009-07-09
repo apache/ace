@@ -19,52 +19,33 @@
 package org.apache.ace.client;
 
 import org.apache.ace.client.Main.StatusHandler;
-import org.apache.ace.client.services.GroupDescriptor;
-import org.apache.ace.client.services.GroupService;
-import org.apache.ace.client.services.GroupServiceAsync;
+import org.apache.ace.client.services.BundleDescriptor;
+import org.apache.ace.client.services.BundleService;
+import org.apache.ace.client.services.BundleServiceAsync;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Table class for the groups.
+ * Table class for the Bundles.
  */
-public class GroupTable extends ObjectTable<GroupDescriptor> {
-    private GroupServiceAsync m_groupService = GWT.create(GroupService.class);
+public class BundleTable extends ObjectTable<BundleDescriptor> {
+    private BundleServiceAsync m_bundleService = GWT.create(BundleService.class);
 
-    GroupTable(StatusHandler handler) {
+    BundleTable(StatusHandler handler) {
         super(handler, "Name");
     }
 
     @Override
-    protected void callService(AsyncCallback<GroupDescriptor[]> callback) {
-        m_groupService.getGroups(callback);
+    protected void callService(AsyncCallback<BundleDescriptor[]> callback) {
+        m_bundleService.getBundles(callback);
     }
 
     @Override
-    protected String getValue(GroupDescriptor gd, int column) {
+    protected String getValue(BundleDescriptor gd, int column) {
         switch(column) {
         case 0: return gd.getName();
         }
         return null;
     }
-    
-    void addNew() {
-        String result = Window.prompt("Add group", "New group");
-        if (result != null) {
-            m_groupService.addGroup(result, new AsyncCallback<Void>() {
-                public void onFailure(Throwable caught) {
-                    Window.alert("Error adding group.");
-                }
-
-                public void onSuccess(Void result) {
-                    // Hurrah!
-                }
-                
-            });
-        }
-    }
-
-
 }

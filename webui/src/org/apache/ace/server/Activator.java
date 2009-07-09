@@ -33,7 +33,7 @@ import org.osgi.util.tracker.ServiceTracker;
 public class Activator extends DependencyActivatorBase {
     private static volatile BundleContext m_context;
     
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     static BundleContext getContext() {
         return m_context;

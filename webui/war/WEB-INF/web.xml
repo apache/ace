@@ -12,6 +12,16 @@
   
   <!-- Servlets -->
   <servlet>
+    <servlet-name>bundleServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.BundleServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>bundleServlet</servlet-name>
+    <url-pattern>/webui/bundles</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>groupServlet</servlet-name>
     <servlet-class>org.apache.ace.server.GroupServiceImpl</servlet-class>
   </servlet>
