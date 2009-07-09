@@ -40,3 +40,8 @@ h1 {
 .serverStatusBad {
   color: red;
 }
+
+/* an 'add' button */
+.gwt-Button-add {
+  width: 2em;
+}

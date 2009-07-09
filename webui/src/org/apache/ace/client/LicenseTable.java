@@ -24,6 +24,7 @@ import org.apache.ace.client.services.LicenseService;
 import org.apache.ace.client.services.LicenseServiceAsync;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -49,4 +50,19 @@ public class LicenseTable extends ObjectTable<LicenseDescriptor> {
         return null;
     }
 
+    void addNew() {
+        String result = Window.prompt("Add license", "New license");
+        if (result != null) {
+            m_licenseService.addLicense(result, new AsyncCallback<Void>() {
+                public void onFailure(Throwable caught) {
+                    Window.alert("Error adding license.");
+                }
+
+                public void onSuccess(Void result) {
+                    // Hurrah!
+                }
+                
+            });
+        }
+    }
 }

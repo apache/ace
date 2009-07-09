@@ -24,7 +24,10 @@ import org.apache.ace.client.services.GroupService;
 import org.apache.ace.client.services.GroupServiceAsync;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.TextBox;
 
 /**
  * Table class for the groups.
@@ -48,5 +51,22 @@ public class GroupTable extends ObjectTable<GroupDescriptor> {
         }
         return null;
     }
+    
+    void addNew() {
+        String result = Window.prompt("Add group", "New group");
+        if (result != null) {
+            m_groupService.addGroup(result, new AsyncCallback<Void>() {
+                public void onFailure(Throwable caught) {
+                    Window.alert("Error adding group.");
+                }
+
+                public void onSuccess(Void result) {
+                    // Hurrah!
+                }
+                
+            });
+        }
+    }
+
 
 }

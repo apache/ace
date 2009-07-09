@@ -30,4 +30,9 @@ public interface GroupService extends RemoteService {
      * Gets group descriptors for all available groups.
      */
     GroupDescriptor[] getGroups() throws Exception;
+    
+    /**
+     * Adds a new group with the given name.
+     */
+    void addGroup(String name) throws Exception;
 }

@@ -19,7 +19,10 @@
 package org.apache.ace.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.ace.client.repository.object.GroupObject;
 import org.apache.ace.client.repository.repository.GroupRepository;
@@ -35,14 +38,22 @@ public class GroupServiceImpl extends RemoteServiceServlet implements GroupServi
     private static final long serialVersionUID = -5744202709461660202L;
 
     public GroupDescriptor[] getGroups() throws Exception {
-        GroupRepository lr = Activator.getService(getThreadLocalRequest(), GroupRepository.class);
+        GroupRepository gr = Activator.getService(getThreadLocalRequest(), GroupRepository.class);
         
         List<GroupDescriptor> result = new ArrayList<GroupDescriptor>();
         
-        for (GroupObject g : lr.get()) {
+        for (GroupObject g : gr.get()) {
             result.add(new GroupDescriptor(g.getName()));
         }
         
         return result.toArray(new GroupDescriptor[result.size()]);
+    }
+
+    public void addGroup(String name) throws Exception {
+        GroupRepository gr = Activator.getService(getThreadLocalRequest(), GroupRepository.class);
+        
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(GroupObject.KEY_NAME, name);
+        gr.create(props, null);
     }
 }

@@ -19,7 +19,9 @@
 package org.apache.ace.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ace.client.repository.object.LicenseObject;
 import org.apache.ace.client.repository.repository.LicenseRepository;
@@ -44,5 +46,13 @@ public class LicenseServiceImpl extends RemoteServiceServlet implements LicenseS
         }
         
         return result.toArray(new LicenseDescriptor[result.size()]);
+    }
+
+    public void addLicense(String name) throws Exception {
+        LicenseRepository gr = Activator.getService(getThreadLocalRequest(), LicenseRepository.class);
+        
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(LicenseObject.KEY_NAME, name);
+        gr.create(props, null);
     }
 }

@@ -30,4 +30,9 @@ public interface LicenseService extends RemoteService {
      * Gets license descriptors for all available licenses.
      */
     LicenseDescriptor[] getLicenses() throws Exception;
+
+    /**
+     * Adds a new license with the given name.
+     */
+    void addLicense(String name) throws Exception;
 }
