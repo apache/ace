@@ -232,6 +232,7 @@
     <target name="build-webui">
         <uptodate property="webui.uptodate" value="true" targetfile="last.webui.build">
             <srcfiles dir="../webui/src" includes="**/*.java"/>
+        	<srcfiles dir="../webui/war" includes="**/*" />
         </uptodate>
         <if>
             <equals arg1="${webui.uptodate}" arg2="true"/>
