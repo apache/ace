@@ -18,15 +18,68 @@
  */
 package org.apache.ace.server;
 
+import java.io.File;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.felix.dependencymanager.DependencyActivatorBase;
 import org.apache.felix.dependencymanager.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.log.LogService;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class Activator extends DependencyActivatorBase {
     private static volatile BundleContext m_context;
+    
+    private static final boolean DEBUG = true;
 
     static BundleContext getContext() {
         return m_context;
+    }
+    
+    /**
+     * Gets a base directory for this bundle's data; you can use this directory 
+     * to pass to {@link SessionFramework#getFramework(javax.servlet.http.HttpSession, File)}.
+     */
+    static File getBaseDir() {
+        return m_context.getDataFile("webui");
+    }
+    
+    /**
+     * Gets an instance of the given service, coming from the session-dependent
+     * framework. For debug purposes, it can return the service from the 'outer' framework.
+     * (set the {@link #DEBUG} flag to <code>true</code> to use this feature)
+     */
+    static <T> T getService(HttpServletRequest request, Class<T> clazz) throws Exception {
+        BundleContext bundleContext;
+        if (DEBUG) {
+            bundleContext = m_context;
+        }
+        else {
+            bundleContext = SessionFramework.getFramework(request.getSession(), Activator.getBaseDir()).getBundleContext();
+        }
+        
+        ServiceReference reference = bundleContext.getServiceReference(clazz.getName());
+        if (reference != null) {
+            @SuppressWarnings("unchecked")
+            T result = (T) bundleContext.getService(reference);
+            return result;
+        }
+        
+        // we were not able to find the reference immediately, try again for a few seconds...
+        ServiceTracker tracker = new ServiceTracker(bundleContext, "(" + Constants.OBJECTCLASS + "=" + clazz.getName() + ")", null);
+        tracker.open();
+        @SuppressWarnings("unchecked")
+        T result = (T) tracker.waitForService(5000);
+        if (result == null) {
+            ServiceReference logRef = bundleContext.getServiceReference(LogService.class.getName());
+            if (logRef != null) {
+                ((LogService) bundleContext.getService(logRef)).log(LogService.LOG_ERROR, "Error finding service " + clazz.getName());
+            }
+        }
+        return result;
     }
 
     @Override

@@ -21,4 +21,15 @@
     <url-pattern>/webui/targets</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>checkoutServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.CheckoutServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>checkoutServlet</servlet-name>
+    <url-pattern>/webui/checkout</url-pattern>
+  </servlet-mapping>
+
+
 </web-app>

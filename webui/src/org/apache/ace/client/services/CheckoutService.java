@@ -15,19 +15,17 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- */
-package org.apache.ace.client.services;
+ */package org.apache.ace.client.services;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 /**
- * Service that can get us all targets.
+ * Allows repository actions on the RepositoryAdmin's repositories.
  */
-@RemoteServiceRelativePath("targets")
-public interface TargetService extends RemoteService {
-    /**
-     * Gets target descriptors for all available targets, including those that are not registered.
-     */
-    TargetDescriptor[] getTargets() throws Exception;
+@RemoteServiceRelativePath("checkout")
+public interface CheckoutService extends RemoteService {
+    public void checkout() throws Exception;
+    public void commit() throws Exception;
+    public void revert() throws Exception;
 }

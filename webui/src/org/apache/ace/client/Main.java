@@ -23,6 +23,7 @@ import java.util.Map;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -65,12 +66,15 @@ public class Main implements EntryPoint {
         
         // Put our status label in the lower left corner
         RootPanel.get("serverStatusLabel").add(m_statusLabel);
+        
+        // Add our checkout panel
+        RootPanel.get("buttonPanel").add(new CheckoutPanel(this));
     }
     
     /**
      * Triggers an update of UI.
      */
-    private void updateUI() {
+    void updateUI() {
         m_targetTable.updateTable();
     }
     

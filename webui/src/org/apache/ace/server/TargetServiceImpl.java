@@ -25,7 +25,6 @@ import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
 import org.apache.ace.client.services.TargetDescriptor;
 import org.apache.ace.client.services.TargetService;
-import org.osgi.framework.ServiceReference;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -38,7 +37,7 @@ public class TargetServiceImpl extends RemoteServiceServlet implements TargetSer
     /**
      * Helper method to translate between server- and client lingo
      */
-    public static TargetDescriptor.ProvisioningState from(org.apache.ace.client.repository.stateful.StatefulGatewayObject.ProvisioningState state) {
+    private static TargetDescriptor.ProvisioningState from(org.apache.ace.client.repository.stateful.StatefulGatewayObject.ProvisioningState state) {
         if (state != null) {
             switch (state) {
             case Failed: return TargetDescriptor.ProvisioningState.FAILED;
@@ -50,18 +49,8 @@ public class TargetServiceImpl extends RemoteServiceServlet implements TargetSer
         return null;
     }
 
-    public TargetDescriptor[] getTargets() {
-        if (Activator.getContext() == null) {
-            // We could be running without our bundle being started.
-            return null;
-        }
-        
-        ServiceReference reference = Activator.getContext().getServiceReference(StatefulGatewayRepository.class.getName());
-        if (reference == null) {
-            return null;
-        }
-        
-        StatefulGatewayRepository sgr = (StatefulGatewayRepository) Activator.getContext().getService(reference);
+    public TargetDescriptor[] getTargets() throws Exception {
+        StatefulGatewayRepository sgr = Activator.getService(getThreadLocalRequest(), StatefulGatewayRepository.class);
         sgr.refresh();
         
         List<TargetDescriptor> result = new ArrayList<TargetDescriptor>();
