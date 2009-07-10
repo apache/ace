@@ -50,4 +50,9 @@ public class TargetTable extends ObjectTable<TargetDescriptor> {
         return null;
     }
 
+    @Override
+    protected String getTableID() {
+        return "targets";
+    }
+
 }

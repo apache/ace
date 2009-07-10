@@ -48,4 +48,9 @@ public class BundleTable extends ObjectTable<BundleDescriptor> {
         }
         return null;
     }
+
+    @Override
+    protected String getTableID() {
+        return "bundles";
+    }
 }

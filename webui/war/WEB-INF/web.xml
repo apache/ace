@@ -61,5 +61,14 @@
     <url-pattern>/webui/checkout</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>obrServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.OBRServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>obrServlet</servlet-name>
+    <url-pattern>/webui/obrService</url-pattern>
+  </servlet-mapping>
 
 </web-app>

@@ -65,4 +65,9 @@ public class LicenseTable extends ObjectTable<LicenseDescriptor> {
             });
         }
     }
+
+    @Override
+    protected String getTableID() {
+        return "licenses";
+    }
 }

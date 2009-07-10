@@ -22,10 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.impl.StringBuilderImpl;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -47,8 +47,8 @@ public class Main implements EntryPoint {
      * communication with the server.
      */
     interface StatusHandler {
-        void handleFail(Class<?> table);
-        void handleSuccess(Class<?> table);
+        void handleFail(String table);
+        void handleSuccess(String table);
     }
     
     /**
@@ -61,8 +61,7 @@ public class Main implements EntryPoint {
         RootPanel.get("bundlesHeader").add(addBundleButton);
         addBundleButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                // TODO show a file dialog, trigger an upload, and instruct the server to extract metadata.
-                Window.alert("Just wait for the next release...");
+                new AddBundleDialog().show();
             }
         });
 
@@ -133,18 +132,18 @@ public class Main implements EntryPoint {
      * a successful connection when all components are happy.
      */
     private static class StatusLabel extends Label implements StatusHandler {
-        private final Map<Class<?>, Boolean> m_statuses = new HashMap<Class<?>, Boolean>();
+        private final Map<String, Boolean> m_statuses = new HashMap<String, Boolean>();
         
         public StatusLabel() {
             setText("checking server status...");
         }
 
-        public void handleFail(Class<?> table) {
+        public void handleFail(String table) {
             m_statuses.put(table, false);
             updateStatus();
         }
 
-        public void handleSuccess(Class<?> table) {
+        public void handleSuccess(String table) {
             m_statuses.put(table, true);
             updateStatus();
         }
@@ -161,7 +160,14 @@ public class Main implements EntryPoint {
                 setStyleName("serverStatusGood");
             }
             else {
-                setText("Error communicating with server.");
+                StringBuilderImpl sb = new StringBuilderImpl();
+                sb.append("Error communicating with server.");
+                for (Map.Entry<String, Boolean> entry : m_statuses.entrySet()) {
+                    if (!entry.getValue()) {
+                        sb.append(" (" + entry.getKey() + ")");
+                    }
+                }
+                setText(sb.toString());
                 setStyleName("serverStatusBad");
             }
         }

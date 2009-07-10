@@ -66,5 +66,10 @@ public class GroupTable extends ObjectTable<GroupDescriptor> {
         }
     }
 
+    @Override
+    protected String getTableID() {
+        return "groups";
+    }
+
 
 }
