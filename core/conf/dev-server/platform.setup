@@ -1,0 +1,6 @@
+#Exchange with felix,knopflerfish, equinox
+--platform=felix
+#--platform=equinox
+
+#Exchange with any valid version of you selected platform
+--version=1.8.1

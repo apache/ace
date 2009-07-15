@@ -168,5 +168,44 @@ ${debugCommand}
         <echo file="${deploy-dir}/run_secure.sh">#!/bin/sh
 ${runSecureCommand}
         </echo>
+	    <!-- Include new targets from ACE-32 -->
+		 <antcall target="standalone" />
+		 <antcall target="paxrunner" />
     </target>
+
+	<!-- 
+		The following targets are standalone - proof of concept - examples for Jira ACE-32 
+		Those targets can, once "accepted" be integrated into the generic dev-* build loop.
+		
+		See Comments at https://issues.apache.org/jira/browse/ACE-32 for description.
+	-->
+
+	<property name="workdir" value="deploy/target/dev-server" />
+
+	<!-- Creates a dynamic deployment for Pax Runner. (1a Option in my mail) -->
+	<target name="paxrunner">
+		<mkdir dir="${workdir}/paxrunner" />
+
+		<echo file="${workdir}/paxrunner/run.sh">java -jar ../../../../lib/pax-runner-1.1.1.jar --vmo='-Dorg.apache.ace.configurator.CONFIG_DIR=../../conf' --clean --log=debug --args=file:../../../../conf/dev-server/platform.setup scan-file:file:../../../../conf/dev-server/platform.properties ../bundle</echo>
+			<echo file="${workdir}/paxrunner/run.bat">java -jar ../../../../lib/pax-runner-1.1.1.jar --vmo='-Dorg.apache.ace.configurator.CONFIG_DIR=../../conf' --clean --log=debug --args=file:../../../../conf/dev-server/platform.setup scan-file:file:../../../../conf/dev-server/platform.properties ../bundle</echo>
+	</target>
+
+	<!-- Creates a static deployment using Pax Runner. (1b Option in my mail) -->
+	<!-- This is routly the "same" output as the current setup but giving framework indepenence at build time -->
+	 <target name="standalone">
+		<mkdir dir="${workdir}/standalone" />
+
+		<java dir="." classname="org.ops4j.pax.runner.Run" fork="true" taskname="paxrunner" timeout="99999" failonerror="true">
+	        <arg value="--args=file:conf/dev-server/platform.setup"/>
+	 		<arg value="--executor=script"/>
+			<arg value="--vmo='-Dorg.apache.ace.configurator.CONFIG_DIR=../conf'"/>
+	 		<arg value="--clean"/>
+			<arg value="--workingDirectory=${workdir}/standalone"/>
+			<arg value="scan-file:file:conf/dev-server/platform.properties"/>
+			<arg value="${workdir}/bundle"/>
+			<classpath>
+	          <pathelement location="lib/pax-runner-1.1.1.jar"/>
+	        </classpath>
+	      </java>
+	  </target>
 </project>
