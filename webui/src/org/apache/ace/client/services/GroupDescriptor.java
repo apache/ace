@@ -40,4 +40,18 @@ public class GroupDescriptor implements Serializable {
     public String getName() {
         return m_name;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj.getClass().equals(getClass())) {
+            return m_name.equals(((GroupDescriptor) obj).m_name);
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return m_name.hashCode();
+    }
+
 }

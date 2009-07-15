@@ -18,51 +18,98 @@
  */
 package org.apache.ace.client;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.ace.client.Main.StatusHandler;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.ToggleButton;
 
 /**
- * Basic table for using a valueobject per row. Remember to call the constructor with 
- * the right colunm names.
+ * Basic table for using a valueobject per row.
  */
 public abstract class ObjectTable<T> extends FlexTable {
-    private final String[] m_columnNames;
     private final StatusHandler m_handler;
+    
+    private final Map<T, ToggleButton> m_widgets = new HashMap<T, ToggleButton>();
+    
+    /**
+     * This callback is used for all 'get*' calls.
+     */
     private AsyncCallback<T[]> m_asyncCallback = new AsyncCallback<T[]>() {
         public void onFailure(Throwable caught) {
             m_handler.handleFail(getTableID());
         }
         public void onSuccess(T[] result) {
             m_handler.handleSuccess(getTableID());
-            int row = 1;
+            int row = 0;
+            // Create a button for every element, and reuse buttons for the ones we already know.
             for (T t : result) {
-                for (int i = 0; i < m_columnNames.length; i++) {
-                    setText(row, i, getValue(t, i));
+                ToggleButton button = m_widgets.get(t);
+                if (button == null) {
+                    button = new ToggleButton();
+                    button.addClickHandler(m_buttonGroup);
+                    m_widgets.put(t, button);
+                }
+                button.setText(getText(t));
+                if (getRowCount() <= row || !getWidget(row, 0).equals(button)) {
+                    // Setting the widget again might screw up focus
+                    setWidget(row, 0, button);
                 }
                 row++;
             }
-            while (row <= getRowCount()) {
+            while (row < getRowCount()) {
                 // Looks like we removed something...
                 removeRow(row);
             }
         }
     };
+    
+    /**
+     * Pops up all other buttons in the same group when one gets clicked;
+     * this way, we end up with a single selected button.
+     */
+    private final ClickHandler m_buttonGroup = new ClickHandler() {
+        public void onClick(ClickEvent event) {
+            for (ToggleButton w : m_widgets.values()) {
+                if (!w.equals(event.getSource())) {
+                    w.setDown(false);
+                }
+            }
+        }
+    };
 
-    public ObjectTable(StatusHandler handler, String... columnNames) {
+    public ObjectTable(StatusHandler handler) {
         m_handler = handler;
-        m_columnNames = columnNames;
-        // We do not want column names for now
-//        for (int i = 0; i < m_columnNames.length; i++) {
-//            setText(0, i, m_columnNames[i]);
-//        }
+    }
+    
+    /**
+     * Finds the currently selected object, or <code>null</code> if none is found.
+     */
+    T getSelectedObject() {
+        for (Map.Entry<T, ToggleButton> entry : m_widgets.entrySet()) {
+            if (entry.getValue() instanceof ToggleButton && ((ToggleButton) entry.getValue()).isDown()) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     /**
+     * Updates the contents of this table
+     */
+    void updateTable() {
+        callService(m_asyncCallback);
+    }
+    
+    /**
      * Interprets the given value object for some column.
      */
-    protected abstract String getValue(T object, int column);
+    protected abstract String getText(T object);
     
     /**
      * Gets a unique ID for this table.
@@ -75,8 +122,4 @@ public abstract class ObjectTable<T> extends FlexTable {
      * set of value objects from the server, passing the given callback.
      */
     protected abstract void callService(AsyncCallback<T[]> callback);
-    
-    void updateTable() {
-        callService(m_asyncCallback);
-    }
 }

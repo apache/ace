@@ -33,7 +33,7 @@ public class BundleTable extends ObjectTable<BundleDescriptor> {
     private BundleServiceAsync m_bundleService = GWT.create(BundleService.class);
 
     BundleTable(StatusHandler handler) {
-        super(handler, "Name");
+        super(handler);
     }
 
     @Override
@@ -42,11 +42,8 @@ public class BundleTable extends ObjectTable<BundleDescriptor> {
     }
 
     @Override
-    protected String getValue(BundleDescriptor gd, int column) {
-        switch(column) {
-        case 0: return gd.getName();
-        }
-        return null;
+    protected String getText(BundleDescriptor gd) {
+        return gd.getName();
     }
 
     @Override

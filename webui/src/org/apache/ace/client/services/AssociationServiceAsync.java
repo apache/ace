@@ -18,39 +18,13 @@
  */
 package org.apache.ace.client.services;
 
-import java.io.Serializable;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Value object for communicating license status between the server and the client.
+ * Asynchronous AssociationService (GWT boiler plate)
  */
-public class LicenseDescriptor implements Serializable {
-    /**
-     * Generated serialVersionUID
-     */
-    private static final long serialVersionUID = 5386417593195995864L;
-
-    private String m_name;
-    
-    public LicenseDescriptor() {}
-
-    public LicenseDescriptor(String name) {
-        m_name = name;
-    }
-
-    public String getName() {
-        return m_name;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj.getClass().equals(getClass())) {
-            return m_name.equals(((LicenseDescriptor) obj).m_name);
-        }
-        return false;
-    }
-    
-    @Override
-    public int hashCode() {
-        return m_name.hashCode();
-    }
+public interface AssociationServiceAsync {
+    void link(BundleDescriptor bundle, GroupDescriptor group, AsyncCallback<Void> callback);
+    void link(GroupDescriptor group, LicenseDescriptor license, AsyncCallback<Void> callback);
+    void link(LicenseDescriptor license, TargetDescriptor target, AsyncCallback<Void> callback);
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE web-app
+<!-- <!DOCTYPE web-app
     PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-    "http://java.sun.com/dtd/web-app_2_3.dtd">
+    "http://java.sun.com/dtd/web-app_2_3.dtd"> -->
 
 <web-app>
 
@@ -59,6 +59,16 @@
   <servlet-mapping>
     <servlet-name>checkoutServlet</servlet-name>
     <url-pattern>/webui/checkout</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>associationServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.AssociationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>associationServlet</servlet-name>
+    <url-pattern>/webui/associations</url-pattern>
   </servlet-mapping>
 
   <servlet>

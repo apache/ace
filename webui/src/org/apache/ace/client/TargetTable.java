@@ -33,7 +33,7 @@ public class TargetTable extends ObjectTable<TargetDescriptor> {
     private TargetServiceAsync m_targetService = GWT.create(TargetService.class);
 
     TargetTable(StatusHandler handler) {
-        super(handler, "Name", "Status");
+        super(handler);
     }
 
     @Override
@@ -42,17 +42,12 @@ public class TargetTable extends ObjectTable<TargetDescriptor> {
     }
 
     @Override
-    protected String getValue(TargetDescriptor td, int column) {
-        switch(column) {
-        case 0: return td.getName();
-        case 1: return td.getProvisioningState().toString();
-        }
-        return null;
+    protected String getText(TargetDescriptor td) {
+        return td.getName() + " - " + td.getProvisioningState().toString();
     }
 
     @Override
     protected String getTableID() {
         return "targets";
     }
-
 }

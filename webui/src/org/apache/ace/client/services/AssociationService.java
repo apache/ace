@@ -18,39 +18,28 @@
  */
 package org.apache.ace.client.services;
 
-import java.io.Serializable;
+import com.google.gwt.user.client.rpc.RemoteService;
+import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 /**
- * Value object for communicating license status between the server and the client.
+ * Service that can create links between the various objects.
  */
-public class LicenseDescriptor implements Serializable {
+@RemoteServiceRelativePath("associations")
+public interface AssociationService extends RemoteService {
     /**
-     * Generated serialVersionUID
+     * Links a bundle and a group; note that this will create a link to a given bundle,
+     * not to its symbolic name.
      */
-    private static final long serialVersionUID = 5386417593195995864L;
-
-    private String m_name;
+    void link(BundleDescriptor bundle, GroupDescriptor group) throws Exception;
     
-    public LicenseDescriptor() {}
-
-    public LicenseDescriptor(String name) {
-        m_name = name;
-    }
-
-    public String getName() {
-        return m_name;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj.getClass().equals(getClass())) {
-            return m_name.equals(((LicenseDescriptor) obj).m_name);
-        }
-        return false;
-    }
+    /**
+     * Links a group and a license by name.
+     */
+    void link(GroupDescriptor group, LicenseDescriptor license) throws Exception;
     
-    @Override
-    public int hashCode() {
-        return m_name.hashCode();
-    }
+    /**
+     * Links a license and a target. If the target is not yet registered, it will be,
+     * and the 'auto approve' will be turned on.
+     */
+    void link(LicenseDescriptor license, TargetDescriptor target) throws Exception;
 }

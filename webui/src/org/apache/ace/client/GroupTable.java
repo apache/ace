@@ -34,7 +34,7 @@ public class GroupTable extends ObjectTable<GroupDescriptor> {
     private GroupServiceAsync m_groupService = GWT.create(GroupService.class);
 
     GroupTable(StatusHandler handler) {
-        super(handler, "Name");
+        super(handler);
     }
 
     @Override
@@ -43,11 +43,8 @@ public class GroupTable extends ObjectTable<GroupDescriptor> {
     }
 
     @Override
-    protected String getValue(GroupDescriptor gd, int column) {
-        switch(column) {
-        case 0: return gd.getName();
-        }
-        return null;
+    protected String getText(GroupDescriptor gd) {
+        return gd.getName();
     }
     
     void addNew() {

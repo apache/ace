@@ -43,8 +43,8 @@ public class BundleServiceImpl extends RemoteServiceServlet implements BundleSer
         
         List<BundleDescriptor> result = new ArrayList<BundleDescriptor>();
         
-        for (ArtifactObject g : ar.get(Activator.getContext().createFilter("(" + ArtifactObject.KEY_MIMETYPE + "=" + BundleHelper.MIMETYPE + ")"))) {
-            result.add(new BundleDescriptor(g.getName()));
+        for (ArtifactObject a : ar.get(Activator.getContext().createFilter("(" + ArtifactObject.KEY_MIMETYPE + "=" + BundleHelper.MIMETYPE + ")"))) {
+            result.add(new BundleDescriptor(a.getName()));
         }
         
         return result.toArray(new BundleDescriptor[result.size()]);

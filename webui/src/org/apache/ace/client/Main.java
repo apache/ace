@@ -21,11 +21,17 @@ package org.apache.ace.client;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.ace.client.services.AssociationService;
+import org.apache.ace.client.services.AssociationServiceAsync;
+
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.impl.StringBuilderImpl;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -41,6 +47,8 @@ public class Main implements EntryPoint {
     private GroupTable m_groupTable = new GroupTable(m_statusLabel);
     private LicenseTable m_licenseTable = new LicenseTable(m_statusLabel);
     private TargetTable m_targetTable = new TargetTable(m_statusLabel);
+    
+    AssociationServiceAsync m_assocationService = GWT.create(AssociationService.class);
     
     /**
      * Interface for the columns, that they can use to indicate their status of
@@ -101,7 +109,53 @@ public class Main implements EntryPoint {
         scrollPanel.setStyleName("objectTable");
         RootPanel.get("targetColumnContainer").add(scrollPanel);
         
-        // Set a time to regularly update the UI
+        // Create the association buttons
+        Button b2g = new Button("<->");
+        RootPanel.get("b2gButton").add(b2g);
+        
+        b2g.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                m_assocationService.link(m_bundleTable.getSelectedObject(), m_groupTable.getSelectedObject(), new AsyncCallback<Void>() {
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Error creating association");
+                    }
+                    public void onSuccess(Void result) {
+                        // Hurrah!
+                    }
+                });
+            }
+        });
+        
+        Button g2l = new Button("<->");
+        RootPanel.get("g2lButton").add(g2l);
+        g2l.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                m_assocationService.link(m_groupTable.getSelectedObject(), m_licenseTable.getSelectedObject(), new AsyncCallback<Void>() {
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Error creating association");
+                    }
+                    public void onSuccess(Void result) {
+                        // Hurrah!
+                    }
+                });
+            }
+        });
+        Button l2t = new Button("<->");
+        RootPanel.get("l2tButton").add(l2t);
+        l2t.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                m_assocationService.link(m_licenseTable.getSelectedObject(), m_targetTable.getSelectedObject(), new AsyncCallback<Void>() {
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Error creating association");
+                    }
+                    public void onSuccess(Void result) {
+                        // Hurrah!
+                    }
+                });
+            }
+        });
+        
+        // Set a timer to regularly update the UI
         Timer refreshTimer = new Timer() {
             @Override
             public void run() {

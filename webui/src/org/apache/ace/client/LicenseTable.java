@@ -34,7 +34,7 @@ public class LicenseTable extends ObjectTable<LicenseDescriptor> {
     private LicenseServiceAsync m_licenseService = GWT.create(LicenseService.class);
 
     LicenseTable(StatusHandler handler) {
-        super(handler, "Name");
+        super(handler);
     }
 
     @Override
@@ -43,11 +43,8 @@ public class LicenseTable extends ObjectTable<LicenseDescriptor> {
     }
 
     @Override
-    protected String getValue(LicenseDescriptor ld, int column) {
-        switch(column) {
-        case 0: return ld.getName();
-        }
-        return null;
+    protected String getText(LicenseDescriptor ld) {
+        return ld.getName();
     }
 
     void addNew() {

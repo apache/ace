@@ -56,4 +56,18 @@ public class TargetDescriptor implements Serializable {
     public ProvisioningState getProvisioningState() {
         return m_provisioningState;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj.getClass().equals(getClass())) {
+            return m_name.equals(((TargetDescriptor) obj).m_name);
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return m_name.hashCode();
+    }
+
 }
