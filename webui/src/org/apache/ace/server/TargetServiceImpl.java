@@ -21,19 +21,30 @@ package org.apache.ace.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.client.repository.object.GatewayObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
+import org.apache.ace.client.services.Descriptor;
 import org.apache.ace.client.services.TargetDescriptor;
 import org.apache.ace.client.services.TargetService;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-
-public class TargetServiceImpl extends RemoteServiceServlet implements TargetService {
+public class TargetServiceImpl extends ObjectServiceImpl<StatefulGatewayObject, TargetDescriptor> implements TargetService {
     /**
      * Generated serialVersionUID
      */
     private static final long serialVersionUID = 4501422339245927089L;
 
+    private static TargetServiceImpl m_instance;
+    
+    public TargetServiceImpl() {
+        m_instance = this;
+    }
+    
+    static TargetServiceImpl instance() {
+        return m_instance;
+    }
+    
     /**
      * Helper method to translate between server- and client lingo
      */
@@ -50,15 +61,57 @@ public class TargetServiceImpl extends RemoteServiceServlet implements TargetSer
     }
 
     public TargetDescriptor[] getTargets() throws Exception {
+        List<TargetDescriptor> descriptors = getDescriptors();
+        return getDescriptors().toArray(new TargetDescriptor[descriptors.size()]);
+    }
+
+    @Override
+    public List<StatefulGatewayObject> get() throws Exception {
         StatefulGatewayRepository sgr = Activator.getService(getThreadLocalRequest(), StatefulGatewayRepository.class);
         sgr.refresh();
-        
-        List<TargetDescriptor> result = new ArrayList<TargetDescriptor>();
-        
-        for (StatefulGatewayObject sgo : sgr.get()) {
-            result.add(new TargetDescriptor(sgo.getID(), from(sgo.getProvisioningState())));
+        return sgr.get();
+    }
+    
+    @Override
+    public void remove(StatefulGatewayObject object) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public TargetDescriptor wrap(RepositoryObject object) {
+        if (object instanceof StatefulGatewayObject) {
+            StatefulGatewayObject sgo = (StatefulGatewayObject) object;
+            return new TargetDescriptor(sgo.getID(), from(sgo.getProvisioningState()));
         }
-        
-        return result.toArray(new TargetDescriptor[result.size()]);
+        throw new IllegalArgumentException();
+    }
+    
+    @Override
+    public StatefulGatewayObject unwrap(Descriptor descriptor) throws Exception {
+        StatefulGatewayRepository gr = Activator.getService(getThreadLocalRequest(), StatefulGatewayRepository.class);
+        List<StatefulGatewayObject> list = gr.get(Activator.getContext().createFilter("(" + GatewayObject.KEY_ID + "=" + descriptor.getName() + ")"));
+        if (list.size() == 1) {
+            return list.get(0);
+        }
+        throw new IllegalArgumentException();
+    }
+    
+    /**
+     * Helper method to find the {@link StatefulGatewayObject} for a given {@link GatewayObject}.
+     */
+    public StatefulGatewayObject findSGO(GatewayObject go) throws Exception {
+        StatefulGatewayRepository sgr = Activator.getService(getThreadLocalRequest(), StatefulGatewayRepository.class);
+        return sgr.get(Activator.getContext().createFilter("(" + GatewayObject.KEY_ID + "=" + go.getID() + ")")).get(0);
+    }
+    
+    /**
+     * Helper method to find all {@link StatefulGatewayObject}s for some {@link GatewayObject}s.
+     */
+    public List<StatefulGatewayObject> findSGOs(List<GatewayObject> gos) throws Exception {
+        List<StatefulGatewayObject> result = new ArrayList<StatefulGatewayObject>();
+        for (GatewayObject go : gos) {
+            result.add(findSGO(go));
+        }
+        return result;
     }
 }

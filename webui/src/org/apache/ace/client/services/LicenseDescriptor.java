@@ -23,34 +23,15 @@ import java.io.Serializable;
 /**
  * Value object for communicating license status between the server and the client.
  */
-public class LicenseDescriptor implements Serializable {
+public class LicenseDescriptor extends Descriptor implements Serializable {
     /**
      * Generated serialVersionUID
      */
     private static final long serialVersionUID = 5386417593195995864L;
 
-    private String m_name;
-    
     public LicenseDescriptor() {}
 
     public LicenseDescriptor(String name) {
-        m_name = name;
-    }
-
-    public String getName() {
-        return m_name;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj.getClass().equals(getClass())) {
-            return m_name.equals(((LicenseDescriptor) obj).m_name);
-        }
-        return false;
-    }
-    
-    @Override
-    public int hashCode() {
-        return m_name.hashCode();
+        super(name);
     }
 }

@@ -23,34 +23,15 @@ import java.io.Serializable;
 /**
  * Value object for communicating bundle status between the server and the client.
  */
-public class BundleDescriptor implements Serializable {
+public class BundleDescriptor extends Descriptor implements Serializable {
     /**
      * Generated serialVersionUID
      */
     private static final long serialVersionUID = 6017517453464153123L;
     
-    private String m_name;
-    
     public BundleDescriptor() {}
 
     public BundleDescriptor(String name) {
-        m_name = name;
-    }
-
-    public String getName() {
-        return m_name;
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj.getClass().equals(getClass())) {
-            return m_name.equals(((BundleDescriptor) obj).m_name);
-        }
-        return false;
-    }
-    
-    @Override
-    public int hashCode() {
-        return m_name.hashCode();
+        super(name);
     }
 }

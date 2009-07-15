@@ -27,4 +27,6 @@ public interface AssociationServiceAsync {
     void link(BundleDescriptor bundle, GroupDescriptor group, AsyncCallback<Void> callback);
     void link(GroupDescriptor group, LicenseDescriptor license, AsyncCallback<Void> callback);
     void link(LicenseDescriptor license, TargetDescriptor target, AsyncCallback<Void> callback);
+    void unlink(Descriptor license, Descriptor target, AsyncCallback<Void> callback);
+    void getRelated(Descriptor o, AsyncCallback<Descriptor[]> callback);
 }

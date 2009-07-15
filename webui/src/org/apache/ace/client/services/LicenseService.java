@@ -35,4 +35,9 @@ public interface LicenseService extends RemoteService {
      * Adds a new license with the given name.
      */
     void addLicense(String name) throws Exception;
+    
+    /**
+     * Removes the given descriptor from the repository.
+     */
+    void remove(LicenseDescriptor descriptor) throws Exception;
 }

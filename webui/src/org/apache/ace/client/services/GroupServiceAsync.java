@@ -26,4 +26,5 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface GroupServiceAsync {
     void getGroups(AsyncCallback<GroupDescriptor[]> callback);
     void addGroup(String name, AsyncCallback<Void> callback);
+    void remove(GroupDescriptor descriptor, AsyncCallback<Void> callback);
 }

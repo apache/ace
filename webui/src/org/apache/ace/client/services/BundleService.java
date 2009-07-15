@@ -30,4 +30,9 @@ public interface BundleService extends RemoteService {
      * Gets Bundle descriptors for all available Bundles.
      */
     BundleDescriptor[] getBundles() throws Exception;
+    
+    /**
+     * Removes the given descriptor from the repository.
+     */
+    void remove(BundleDescriptor descriptor) throws Exception;
 }

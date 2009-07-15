@@ -42,4 +42,14 @@ public interface AssociationService extends RemoteService {
      * and the 'auto approve' will be turned on.
      */
     void link(LicenseDescriptor license, TargetDescriptor target) throws Exception;
+
+    /**
+     * Unlinks the two given descriptors.
+     */
+    void unlink(Descriptor one, Descriptor other) throws Exception;
+
+    /**
+     * Gets all the descriptors that are in some way related to the given one.
+     */
+    Descriptor[] getRelated(Descriptor o) throws Exception;
 }

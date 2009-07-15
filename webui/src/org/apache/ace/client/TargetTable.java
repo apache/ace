@@ -32,12 +32,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class TargetTable extends ObjectTable<TargetDescriptor> {
     private TargetServiceAsync m_targetService = GWT.create(TargetService.class);
 
-    TargetTable(StatusHandler handler) {
-        super(handler);
+    TargetTable(StatusHandler handler, Main main) {
+        super(handler, main);
     }
 
     @Override
-    protected void callService(AsyncCallback<TargetDescriptor[]> callback) {
+    protected void getDescriptors(AsyncCallback<TargetDescriptor[]> callback) {
         m_targetService.getTargets(callback);
     }
 
@@ -49,5 +49,15 @@ public class TargetTable extends ObjectTable<TargetDescriptor> {
     @Override
     protected String getTableID() {
         return "targets";
+    }
+
+    @Override
+    protected void remove(TargetDescriptor object, AsyncCallback<Void> callback) {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    protected boolean canDelete() {
+        return false;
     }
 }

@@ -41,6 +41,23 @@ h1 {
   color: red;
 }
 
+.objectpanel {
+  background-color: aliceblue;
+  margin: 4px 4px 4px 4px;
+}
+
+.objectpaneltext-selected {
+  color: white;
+}
+    
+.objectpanel-selected {
+  background-color: blue;
+}
+
+.objectpanel-related {
+  background-color: lightblue;
+}
+
 /* an 'add' button */
 .gwt-Button-add {
   width: 2em;

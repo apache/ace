@@ -26,4 +26,5 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface LicenseServiceAsync {
     void getLicenses(AsyncCallback<LicenseDescriptor[]> callback);
     void addLicense(String name, AsyncCallback<Void> callback);
+    void remove(LicenseDescriptor descriptor, AsyncCallback<Void> callback);
 }

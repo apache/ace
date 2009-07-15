@@ -25,4 +25,5 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface BundleServiceAsync {
     void getBundles(AsyncCallback<BundleDescriptor[]> callback);
+    void remove(BundleDescriptor descriptor, AsyncCallback<Void> callback);
 }

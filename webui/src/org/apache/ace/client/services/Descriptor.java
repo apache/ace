@@ -21,17 +21,43 @@ package org.apache.ace.client.services;
 import java.io.Serializable;
 
 /**
- * Value object for communicating group status between the server and the client.
+ * Base class for all descriptors
  */
-public class GroupDescriptor extends Descriptor implements Serializable {
+public class Descriptor implements Serializable {
     /**
      * Generated serialVersionUID
      */
-    private static final long serialVersionUID = 6703134869983034189L;
+    private static final long serialVersionUID = 4101795241648964869L;
+    
+    private String m_name;
 
-    public GroupDescriptor() {}
+    public Descriptor() {}
+    
+    public Descriptor(String name) {
+        m_name = name;
+    }
 
-    public GroupDescriptor(String name) {
-        super(name);
+    public String getName() {
+        return m_name;
+    }
+    
+
+    /**
+     * Remember to override this method in subclasses that rely on more than just the name.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Descriptor) {
+            return getName().equals(((Descriptor) obj).getName());
+        }
+        return false;
+    }
+    
+    /**
+     * Remember to override this method in subclasses that rely on more than just the name.
+     */
+    @Override
+    public int hashCode() {
+        return getName().hashCode();
     }
 }

@@ -35,4 +35,9 @@ public interface GroupService extends RemoteService {
      * Adds a new group with the given name.
      */
     void addGroup(String name) throws Exception;
+    
+    /**
+     * Removes the given descriptor from the repository.
+     */
+    void remove(GroupDescriptor descriptor) throws Exception;
 }

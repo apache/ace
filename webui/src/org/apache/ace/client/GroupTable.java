@@ -33,12 +33,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class GroupTable extends ObjectTable<GroupDescriptor> {
     private GroupServiceAsync m_groupService = GWT.create(GroupService.class);
 
-    GroupTable(StatusHandler handler) {
-        super(handler);
+    GroupTable(StatusHandler handler, Main main) {
+        super(handler, main);
     }
 
     @Override
-    protected void callService(AsyncCallback<GroupDescriptor[]> callback) {
+    protected void getDescriptors(AsyncCallback<GroupDescriptor[]> callback) {
         m_groupService.getGroups(callback);
     }
 
@@ -54,11 +54,9 @@ public class GroupTable extends ObjectTable<GroupDescriptor> {
                 public void onFailure(Throwable caught) {
                     Window.alert("Error adding group.");
                 }
-
                 public void onSuccess(Void result) {
                     // Hurrah!
                 }
-                
             });
         }
     }
@@ -68,5 +66,9 @@ public class GroupTable extends ObjectTable<GroupDescriptor> {
         return "groups";
     }
 
+    @Override
+    protected void remove(GroupDescriptor object, AsyncCallback<Void> callback) {
+        m_groupService.remove(object, callback);
+    }
 
 }

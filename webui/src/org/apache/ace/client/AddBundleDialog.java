@@ -49,7 +49,7 @@ public class AddBundleDialog extends DialogBox {
     
     OBRServiceAsync m_obrService = GWT.create(OBRService.class);
 
-    AddBundleDialog() {
+    AddBundleDialog(final Main main) {
         setText("Add bundle");
         
         final ObjectListBox<OBRBundleDescriptor> obrFiles = new ObjectListBox<OBRBundleDescriptor>();
@@ -82,7 +82,7 @@ public class AddBundleDialog extends DialogBox {
                         Window.alert("Error importing bundle " + obrFiles.getSelectedObject());
                     }
                     public void onSuccess(Void result) {
-                        // Hurrah!
+                        main.updateUI();
                     }
                     
                 });

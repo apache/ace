@@ -18,41 +18,73 @@
  */
 package org.apache.ace.server;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.GroupObject;
 import org.apache.ace.client.repository.repository.GroupRepository;
+import org.apache.ace.client.services.Descriptor;
 import org.apache.ace.client.services.GroupDescriptor;
 import org.apache.ace.client.services.GroupService;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-
-public class GroupServiceImpl extends RemoteServiceServlet implements GroupService {
+public class GroupServiceImpl extends ObjectServiceImpl<GroupObject, GroupDescriptor> implements GroupService {
     /**
      * Generated serialVersionUID
      */
-    private static final long serialVersionUID = -5744202709461660202L;
+    private static final long serialVersionUID = 4353842101585350694L;
 
+    private static GroupServiceImpl m_instance;
+    
+    public GroupServiceImpl() {
+        m_instance = this;
+    }
+    
+    static GroupServiceImpl instance() {
+        return m_instance;
+    }
+    
     public GroupDescriptor[] getGroups() throws Exception {
-        GroupRepository gr = Activator.getService(getThreadLocalRequest(), GroupRepository.class);
-        
-        List<GroupDescriptor> result = new ArrayList<GroupDescriptor>();
-        
-        for (GroupObject g : gr.get()) {
-            result.add(new GroupDescriptor(g.getName()));
-        }
-        
-        return result.toArray(new GroupDescriptor[result.size()]);
+        List<GroupDescriptor> descriptors = getDescriptors();
+        return getDescriptors().toArray(new GroupDescriptor[descriptors.size()]);
     }
 
+    @Override
+    public List<GroupObject> get() throws Exception {
+        GroupRepository gr = Activator.getService(getThreadLocalRequest(), GroupRepository.class);
+        return gr.get();
+    }
+    
     public void addGroup(String name) throws Exception {
         GroupRepository gr = Activator.getService(getThreadLocalRequest(), GroupRepository.class);
         
         Map<String, String> props = new HashMap<String, String>();
         props.put(GroupObject.KEY_NAME, name);
         gr.create(props, null);
+    }
+
+    @Override
+    public void remove(GroupObject object) throws Exception {
+        GroupRepository gr = Activator.getService(getThreadLocalRequest(), GroupRepository.class);
+        gr.remove(object);
+    }
+
+    @Override
+    public GroupDescriptor wrap(RepositoryObject object) {
+        if (object instanceof GroupObject) {
+            return new GroupDescriptor(((GroupObject) object).getName());
+        }
+        throw new IllegalArgumentException();
+    }
+    
+    @Override
+    public GroupObject unwrap(Descriptor descriptor) throws Exception {
+        GroupRepository gr = Activator.getService(getThreadLocalRequest(), GroupRepository.class);
+        List<GroupObject> list = gr.get(Activator.getContext().createFilter("(" + GroupObject.KEY_NAME + "=" + descriptor.getName() + ")"));
+        if (list.size() == 1) {
+            return list.get(0);
+        }
+        throw new IllegalArgumentException();
     }
 }

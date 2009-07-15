@@ -18,35 +18,66 @@
  */
 package org.apache.ace.server;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.services.BundleDescriptor;
 import org.apache.ace.client.services.BundleService;
-
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import org.apache.ace.client.services.Descriptor;
 
 /**
- * Returns all bundles the repository; other types of artifacts are ignored.
+ * This service only checks for bundles; all other artifacts are ignored.
  */
-public class BundleServiceImpl extends RemoteServiceServlet implements BundleService {
+public class BundleServiceImpl extends ObjectServiceImpl<ArtifactObject, BundleDescriptor> implements BundleService {
     /**
      * Generated serialVersionUID
      */
     private static final long serialVersionUID = -355941324100124904L;
+    
+    private static BundleServiceImpl m_instance;
+    
+    public BundleServiceImpl() {
+        m_instance = this;
+    }
+    
+    static BundleServiceImpl instance() {
+        return m_instance;
+    }
 
     public BundleDescriptor[] getBundles() throws Exception {
+        List<BundleDescriptor> descriptors = getDescriptors();
+        return getDescriptors().toArray(new BundleDescriptor[descriptors.size()]);
+    }
+    
+    public List<ArtifactObject> get() throws Exception {
         ArtifactRepository ar = Activator.getService(getThreadLocalRequest(), ArtifactRepository.class);
-        
-        List<BundleDescriptor> result = new ArrayList<BundleDescriptor>();
-        
-        for (ArtifactObject a : ar.get(Activator.getContext().createFilter("(" + ArtifactObject.KEY_MIMETYPE + "=" + BundleHelper.MIMETYPE + ")"))) {
-            result.add(new BundleDescriptor(a.getName()));
+        return ar.get(Activator.getContext().createFilter("(" + ArtifactObject.KEY_MIMETYPE + "=" + BundleHelper.MIMETYPE + ")"));
+    }
+    
+    @Override
+    public void remove(ArtifactObject object) throws Exception {
+        ArtifactRepository ar = Activator.getService(getThreadLocalRequest(), ArtifactRepository.class);
+        ar.remove(object);
+    }
+    
+    @Override
+    public BundleDescriptor wrap(RepositoryObject object) {
+        if (object instanceof ArtifactObject) {
+            return new BundleDescriptor(((ArtifactObject) object).getName());
         }
-        
-        return result.toArray(new BundleDescriptor[result.size()]);
+        throw new IllegalArgumentException();
+    }
+    
+    @Override
+    public ArtifactObject unwrap(Descriptor descriptor) throws Exception {
+        ArtifactRepository ar = Activator.getService(getThreadLocalRequest(), ArtifactRepository.class);
+        List<ArtifactObject> list = ar.get(Activator.getContext().createFilter("(" + ArtifactObject.KEY_ARTIFACT_NAME + "=" + descriptor.getName() + ")"));
+        if (list.size() == 1) {
+            return list.get(0);
+        }
+        throw new IllegalArgumentException();
     }
 }

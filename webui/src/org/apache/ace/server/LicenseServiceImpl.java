@@ -18,41 +18,72 @@
  */
 package org.apache.ace.server;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.LicenseObject;
 import org.apache.ace.client.repository.repository.LicenseRepository;
+import org.apache.ace.client.services.Descriptor;
 import org.apache.ace.client.services.LicenseDescriptor;
 import org.apache.ace.client.services.LicenseService;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-
-public class LicenseServiceImpl extends RemoteServiceServlet implements LicenseService {
+public class LicenseServiceImpl extends ObjectServiceImpl<LicenseObject, LicenseDescriptor> implements LicenseService {
     /**
      * Generated serialVersionUID
      */
     private static final long serialVersionUID = -8435568874637903362L;
 
-    public LicenseDescriptor[] getLicenses() throws Exception {
-        LicenseRepository lr = Activator.getService(getThreadLocalRequest(), LicenseRepository.class);
-        
-        List<LicenseDescriptor> result = new ArrayList<LicenseDescriptor>();
-        
-        for (LicenseObject l : lr.get()) {
-            result.add(new LicenseDescriptor(l.getName()));
-        }
-        
-        return result.toArray(new LicenseDescriptor[result.size()]);
+    private static LicenseServiceImpl m_instance;
+    
+    public LicenseServiceImpl() {
+        m_instance = this;
     }
-
+    
+    static LicenseServiceImpl instance() {
+        return m_instance;
+    }
+    
+    public LicenseDescriptor[] getLicenses() throws Exception {
+        List<LicenseDescriptor> descriptors = getDescriptors();
+        return getDescriptors().toArray(new LicenseDescriptor[descriptors.size()]);
+    }
+    
+    @Override
+    public List<LicenseObject> get() throws Exception {
+        return Activator.getService(getThreadLocalRequest(), LicenseRepository.class).get();
+    }
+    
     public void addLicense(String name) throws Exception {
         LicenseRepository gr = Activator.getService(getThreadLocalRequest(), LicenseRepository.class);
         
         Map<String, String> props = new HashMap<String, String>();
         props.put(LicenseObject.KEY_NAME, name);
         gr.create(props, null);
+    }
+    
+    @Override
+    public void remove(LicenseObject object) throws Exception {
+        LicenseRepository lr = Activator.getService(getThreadLocalRequest(), LicenseRepository.class);
+        lr.remove(object);
+    }
+    
+    @Override
+    public LicenseDescriptor wrap(RepositoryObject object) {
+        if (object instanceof LicenseObject) {
+            return new LicenseDescriptor(((LicenseObject) object).getName());
+        }
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public LicenseObject unwrap(Descriptor descriptor) throws Exception {
+        LicenseRepository lr = Activator.getService(getThreadLocalRequest(), LicenseRepository.class);
+        List<LicenseObject> list = lr.get(Activator.getContext().createFilter("(" + LicenseObject.KEY_NAME + "=" + descriptor.getName() + ")"));
+        if (list.size() == 1) {
+            return list.get(0);
+        }
+        throw new IllegalArgumentException();
     }
 }

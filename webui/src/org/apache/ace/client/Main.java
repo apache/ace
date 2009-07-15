@@ -18,11 +18,14 @@
  */
 package org.apache.ace.client;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.ace.client.services.AssociationService;
 import org.apache.ace.client.services.AssociationServiceAsync;
+import org.apache.ace.client.services.Descriptor;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -43,10 +46,10 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 public class Main implements EntryPoint {
     private static final int REFRESH_INTERVAL = 2000;
     private StatusLabel m_statusLabel = new StatusLabel();
-    private BundleTable m_bundleTable = new BundleTable(m_statusLabel);
-    private GroupTable m_groupTable = new GroupTable(m_statusLabel);
-    private LicenseTable m_licenseTable = new LicenseTable(m_statusLabel);
-    private TargetTable m_targetTable = new TargetTable(m_statusLabel);
+    private BundleTable m_bundleTable = new BundleTable(m_statusLabel, this);
+    private GroupTable m_groupTable = new GroupTable(m_statusLabel, this);
+    private LicenseTable m_licenseTable = new LicenseTable(m_statusLabel, this);
+    private TargetTable m_targetTable = new TargetTable(m_statusLabel, this);
     
     AssociationServiceAsync m_assocationService = GWT.create(AssociationService.class);
     
@@ -69,7 +72,7 @@ public class Main implements EntryPoint {
         RootPanel.get("bundlesHeader").add(addBundleButton);
         addBundleButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                new AddBundleDialog().show();
+                new AddBundleDialog(Main.this).show();
             }
         });
 
@@ -112,15 +115,14 @@ public class Main implements EntryPoint {
         // Create the association buttons
         Button b2g = new Button("<->");
         RootPanel.get("b2gButton").add(b2g);
-        
         b2g.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                m_assocationService.link(m_bundleTable.getSelectedObject(), m_groupTable.getSelectedObject(), new AsyncCallback<Void>() {
+                m_assocationService.link(m_bundleTable.getCheckedObject(), m_groupTable.getCheckedObject(), new AsyncCallback<Void>() {
                     public void onFailure(Throwable caught) {
                         Window.alert("Error creating association");
                     }
                     public void onSuccess(Void result) {
-                        // Hurrah!
+                        updateHighlight();
                     }
                 });
             }
@@ -130,12 +132,12 @@ public class Main implements EntryPoint {
         RootPanel.get("g2lButton").add(g2l);
         g2l.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                m_assocationService.link(m_groupTable.getSelectedObject(), m_licenseTable.getSelectedObject(), new AsyncCallback<Void>() {
+                m_assocationService.link(m_groupTable.getCheckedObject(), m_licenseTable.getCheckedObject(), new AsyncCallback<Void>() {
                     public void onFailure(Throwable caught) {
                         Window.alert("Error creating association");
                     }
                     public void onSuccess(Void result) {
-                        // Hurrah!
+                        updateHighlight();
                     }
                 });
             }
@@ -144,12 +146,12 @@ public class Main implements EntryPoint {
         RootPanel.get("l2tButton").add(l2t);
         l2t.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                m_assocationService.link(m_licenseTable.getSelectedObject(), m_targetTable.getSelectedObject(), new AsyncCallback<Void>() {
+                m_assocationService.link(m_licenseTable.getCheckedObject(), m_targetTable.getCheckedObject(), new AsyncCallback<Void>() {
                     public void onFailure(Throwable caught) {
                         Window.alert("Error creating association");
                     }
                     public void onSuccess(Void result) {
-                        // Hurrah!
+                        updateHighlight();
                     }
                 });
             }
@@ -182,11 +184,69 @@ public class Main implements EntryPoint {
     }
     
     /**
+     * Triggers the updating of the highlight
+     */
+    void updateHighlight() {
+        m_assocationService.getRelated(getSelectedObject(), new AsyncCallback<Descriptor[]>() {
+            public void onFailure(Throwable caught) {
+                // Too bad...
+            }
+            public void onSuccess(Descriptor[] result) {
+                highlight(Arrays.asList(result));
+            }
+        });
+    }
+    
+    /**
+     * Helper method to delegate the highlights to the tables.
+     */
+    private void highlight(List<Descriptor> descriptors) {
+        m_bundleTable.highlight(descriptors);
+        m_groupTable.highlight(descriptors);
+        m_licenseTable.highlight(descriptors);
+        m_targetTable.highlight(descriptors);
+    }
+    
+    /**
+     * Finds the currently selected object; if no object is selected, <code>null</code> will be returned.
+     */
+    Descriptor getSelectedObject() {
+        if (m_bundleTable.getSelectedObject() != null) {
+            return m_bundleTable.getSelectedObject();
+        }
+        else if (m_groupTable.getSelectedObject() != null) {
+            return m_groupTable.getSelectedObject();
+        }
+        else if (m_licenseTable.getSelectedObject() != null) {
+            return m_licenseTable.getSelectedObject();
+        }
+        else if (m_targetTable.getSelectedObject() != null) {
+            return m_targetTable.getSelectedObject();
+        }
+        return null;
+    }
+    
+    /**
+     * Makes sure there is only one selected item at a time.
+     */
+    void deselectOthers(Descriptor descriptor) {
+        m_bundleTable.deselectOthers(descriptor);
+        m_groupTable.deselectOthers(descriptor);
+        m_licenseTable.deselectOthers(descriptor);
+        m_targetTable.deselectOthers(descriptor);
+    }
+    
+    /**
      * Label that can be used a s {@link StatusHandler} for the tables. Will report
      * a successful connection when all components are happy.
      */
     private static class StatusLabel extends Label implements StatusHandler {
         private final Map<String, Boolean> m_statuses = new HashMap<String, Boolean>();
+        
+        /**
+         * Indicates whether there should be detailed information about a broken connection.
+         */
+        private static final boolean VERBOSE = true;
         
         public StatusLabel() {
             setText("checking server status...");
@@ -216,9 +276,11 @@ public class Main implements EntryPoint {
             else {
                 StringBuilderImpl sb = new StringBuilderImpl();
                 sb.append("Error communicating with server.");
-                for (Map.Entry<String, Boolean> entry : m_statuses.entrySet()) {
-                    if (!entry.getValue()) {
-                        sb.append(" (" + entry.getKey() + ")");
+                if (VERBOSE) {
+                    for (Map.Entry<String, Boolean> entry : m_statuses.entrySet()) {
+                        if (!entry.getValue()) {
+                            sb.append(" (" + entry.getKey() + ")");
+                        }
                     }
                 }
                 setText(sb.toString());
@@ -226,6 +288,4 @@ public class Main implements EntryPoint {
             }
         }
     }
-    
-    
 }

@@ -22,8 +22,10 @@ import java.io.Serializable;
 
 /**
  * Value object for communicating target status between the server and the client.
+ * 
+ * Note that we do not override hashcode and equals, since we only need the name for identity.
  */
-public class TargetDescriptor implements Serializable {
+public class TargetDescriptor extends Descriptor implements Serializable {
     /**
      * Generated serialVersionUID
      */
@@ -39,35 +41,16 @@ public class TargetDescriptor implements Serializable {
         OK
     }
     
-    private String m_name;
     private ProvisioningState m_provisioningState;
     
     public TargetDescriptor() {}
 
     public TargetDescriptor(String name, ProvisioningState provisioningState) {
-        m_name = name;
+        super(name);
         m_provisioningState = provisioningState;
-    }
-
-    public String getName() {
-        return m_name;
     }
 
     public ProvisioningState getProvisioningState() {
         return m_provisioningState;
     }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj.getClass().equals(getClass())) {
-            return m_name.equals(((TargetDescriptor) obj).m_name);
-        }
-        return false;
-    }
-    
-    @Override
-    public int hashCode() {
-        return m_name.hashCode();
-    }
-
 }

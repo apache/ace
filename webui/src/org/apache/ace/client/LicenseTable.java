@@ -33,12 +33,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class LicenseTable extends ObjectTable<LicenseDescriptor> {
     private LicenseServiceAsync m_licenseService = GWT.create(LicenseService.class);
 
-    LicenseTable(StatusHandler handler) {
-        super(handler);
+    LicenseTable(StatusHandler handler, Main main) {
+        super(handler, main);
     }
 
     @Override
-    protected void callService(AsyncCallback<LicenseDescriptor[]> callback) {
+    protected void getDescriptors(AsyncCallback<LicenseDescriptor[]> callback) {
         m_licenseService.getLicenses(callback);
     }
 
@@ -54,11 +54,9 @@ public class LicenseTable extends ObjectTable<LicenseDescriptor> {
                 public void onFailure(Throwable caught) {
                     Window.alert("Error adding license.");
                 }
-
                 public void onSuccess(Void result) {
                     // Hurrah!
                 }
-                
             });
         }
     }
@@ -66,5 +64,10 @@ public class LicenseTable extends ObjectTable<LicenseDescriptor> {
     @Override
     protected String getTableID() {
         return "licenses";
+    }
+
+    @Override
+    protected void remove(LicenseDescriptor object, AsyncCallback<Void> callback) {
+        m_licenseService.remove(object, callback);
     }
 }

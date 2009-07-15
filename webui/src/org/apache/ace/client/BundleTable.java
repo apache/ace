@@ -32,12 +32,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class BundleTable extends ObjectTable<BundleDescriptor> {
     private BundleServiceAsync m_bundleService = GWT.create(BundleService.class);
 
-    BundleTable(StatusHandler handler) {
-        super(handler);
+    BundleTable(StatusHandler handler, Main main) {
+        super(handler, main);
     }
 
     @Override
-    protected void callService(AsyncCallback<BundleDescriptor[]> callback) {
+    protected void getDescriptors(AsyncCallback<BundleDescriptor[]> callback) {
         m_bundleService.getBundles(callback);
     }
 
@@ -49,5 +49,10 @@ public class BundleTable extends ObjectTable<BundleDescriptor> {
     @Override
     protected String getTableID() {
         return "bundles";
+    }
+
+    @Override
+    protected void remove(BundleDescriptor object, AsyncCallback<Void> callback) {
+        m_bundleService.remove(object, callback);
     }
 }
