@@ -119,7 +119,7 @@ public class Main implements EntryPoint {
             public void onClick(ClickEvent event) {
                 m_assocationService.link(m_bundleTable.getCheckedObject(), m_groupTable.getCheckedObject(), new AsyncCallback<Void>() {
                     public void onFailure(Throwable caught) {
-                        Window.alert("Error creating association");
+                        Window.alert("Error creating association: " + caught);
                     }
                     public void onSuccess(Void result) {
                         updateHighlight();
@@ -134,7 +134,7 @@ public class Main implements EntryPoint {
             public void onClick(ClickEvent event) {
                 m_assocationService.link(m_groupTable.getCheckedObject(), m_licenseTable.getCheckedObject(), new AsyncCallback<Void>() {
                     public void onFailure(Throwable caught) {
-                        Window.alert("Error creating association");
+                        Window.alert("Error creating association: " + caught);
                     }
                     public void onSuccess(Void result) {
                         updateHighlight();
@@ -148,7 +148,7 @@ public class Main implements EntryPoint {
             public void onClick(ClickEvent event) {
                 m_assocationService.link(m_licenseTable.getCheckedObject(), m_targetTable.getCheckedObject(), new AsyncCallback<Void>() {
                     public void onFailure(Throwable caught) {
-                        Window.alert("Error creating association");
+                        Window.alert("Error creating association: " + caught);
                     }
                     public void onSuccess(Void result) {
                         updateHighlight();
