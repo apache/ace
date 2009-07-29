@@ -106,7 +106,7 @@ public class ModelTest {
         m_deploymentVersionRepository = new DeploymentVersionRepositoryImpl(notifier);
         TestUtils.configureObject(m_deploymentVersionRepository, BundleContext.class, bc);
 
-        m_repositoryAdmin = new RepositoryAdminImpl(null, TestUtils.createNullObject(ChangeNotifier.class));
+        m_repositoryAdmin = new RepositoryAdminImpl("testSessionID");
 
         Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> repos = new HashMap<Class<? extends ObjectRepository>, ObjectRepositoryImpl>();
         repos.put(ArtifactRepository.class, m_artifactRepository);

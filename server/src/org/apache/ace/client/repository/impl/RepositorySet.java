@@ -31,6 +31,7 @@ import java.util.Properties;
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.RepositoryObject.WorkingState;
 import org.apache.ace.repository.ext.CachedRepository;
 import org.osgi.framework.BundleContext;
@@ -256,12 +257,13 @@ class RepositorySet {
      * Event handling
      * ********/
 
-    void registerHandler(BundleContext context, String... topics) {
+    void registerHandler(BundleContext context, String sessionID, String... topics) {
         if (m_modifiedHandler != null) {
             throw new IllegalStateException("A handler is already registered; only one can be used at a time.");
         }
-        Dictionary<String, String[]> topic = new Hashtable<String, String[]>();
+        Dictionary topic = new Hashtable();
         topic.put(EventConstants.EVENT_TOPIC, topics);
+        topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + sessionID + ")");
         m_modifiedHandler = context.registerService(EventHandler.class.getName(), new ModifiedHandler(), topic);
     }
 

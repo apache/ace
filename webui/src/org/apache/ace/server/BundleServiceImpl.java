@@ -20,6 +20,8 @@ package org.apache.ace.server;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
@@ -40,6 +42,7 @@ public class BundleServiceImpl extends ObjectServiceImpl<ArtifactObject, BundleD
     private static BundleServiceImpl m_instance;
     
     public BundleServiceImpl() {
+        if (m_instance != null) { System.out.println("Warning, duplicate " + getClass().getSimpleName()); }
         m_instance = this;
     }
     
@@ -72,8 +75,8 @@ public class BundleServiceImpl extends ObjectServiceImpl<ArtifactObject, BundleD
     }
     
     @Override
-    public ArtifactObject unwrap(Descriptor descriptor) throws Exception {
-        ArtifactRepository ar = Activator.getService(getThreadLocalRequest(), ArtifactRepository.class);
+    public ArtifactObject unwrap(HttpServletRequest request, Descriptor descriptor) throws Exception {
+        ArtifactRepository ar = Activator.getService(request, ArtifactRepository.class);
         List<ArtifactObject> list = ar.get(Activator.getContext().createFilter("(" + ArtifactObject.KEY_ARTIFACT_NAME + "=" + descriptor.getName() + ")"));
         if (list.size() == 1) {
             return list.get(0);

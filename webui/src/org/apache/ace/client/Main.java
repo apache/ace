@@ -26,6 +26,11 @@ import java.util.Map;
 import org.apache.ace.client.services.AssociationService;
 import org.apache.ace.client.services.AssociationServiceAsync;
 import org.apache.ace.client.services.Descriptor;
+import org.apache.ace.client.services.GroupDescriptor;
+import org.apache.ace.client.services.LicenseDescriptor;
+import org.apache.ace.client.services.TargetDescriptor;
+import org.apache.ace.client.services.TargetService;
+import org.apache.ace.client.services.TargetServiceAsync;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -41,7 +46,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 
 /**
- * Entry point for the web ui.
+ * Entry point for the web UI.
  */
 public class Main implements EntryPoint {
     private static final int REFRESH_INTERVAL = 2000;
@@ -66,6 +71,33 @@ public class Main implements EntryPoint {
      * This is the entry point method.
      */
     public void onModuleLoad() {
+        // Session test, makes sure we trigger the creation of a single session
+        // before we continue asynchronously getting stuff from the server.
+        // This ensures we don't end up with 4 or 5 sessions per client. Still
+        // test code because we invoke an arbitrary service. ;)
+        TargetServiceAsync ts = GWT.create(TargetService.class);
+        ts.getTargets(new AsyncCallback<TargetDescriptor[]>() {
+
+            public void onFailure(Throwable caught) {
+                Window.alert("Callback failed, not creating UI...");
+            }
+
+            public void onSuccess(TargetDescriptor[] result) {
+                createUI();
+                // Set a timer to regularly update the UI
+                Timer refreshTimer = new Timer() {
+                    @Override
+                    public void run() {
+                        updateUI();
+                    }
+                };
+                refreshTimer.scheduleRepeating(REFRESH_INTERVAL);
+            }});
+        
+        
+    }
+
+    private void createUI() {
         // Add the header panels
         Button addBundleButton = new Button("+");
         addBundleButton.addStyleDependentName("add");
@@ -132,7 +164,9 @@ public class Main implements EntryPoint {
         RootPanel.get("g2lButton").add(g2l);
         g2l.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                m_assocationService.link(m_groupTable.getCheckedObject(), m_licenseTable.getCheckedObject(), new AsyncCallback<Void>() {
+                GroupDescriptor group = m_groupTable.getCheckedObject();
+                LicenseDescriptor license = m_licenseTable.getCheckedObject();
+                m_assocationService.link(group, license, new AsyncCallback<Void>() {
                     public void onFailure(Throwable caught) {
                         Window.alert("Error creating association: " + caught);
                     }
@@ -156,15 +190,6 @@ public class Main implements EntryPoint {
                 });
             }
         });
-        
-        // Set a timer to regularly update the UI
-        Timer refreshTimer = new Timer() {
-            @Override
-            public void run() {
-                updateUI();
-            }
-        };
-        refreshTimer.scheduleRepeating(REFRESH_INTERVAL);
         
         // Put our status label in the lower left corner
         RootPanel.get("serverStatusLabel").add(m_statusLabel);
@@ -190,6 +215,7 @@ public class Main implements EntryPoint {
         m_assocationService.getRelated(getSelectedObject(), new AsyncCallback<Descriptor[]>() {
             public void onFailure(Throwable caught) {
                 // Too bad...
+                Window.alert("Error updating highlights: " + caught);
             }
             public void onSuccess(Descriptor[] result) {
                 highlight(Arrays.asList(result));

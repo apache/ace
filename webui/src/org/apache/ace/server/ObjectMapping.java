@@ -21,6 +21,8 @@ package org.apache.ace.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.GroupObject;
@@ -56,9 +58,10 @@ public class ObjectMapping {
 
     /**
      * Unwraps a single {@link Descriptor}.
+     * @param request 
      */
-    public static RepositoryObject unwrap(Descriptor descriptor) throws Exception {
-        return findService(descriptor).unwrap(descriptor);
+    public static RepositoryObject unwrap(HttpServletRequest request, Descriptor descriptor) throws Exception {
+        return findService(descriptor).unwrap(request, descriptor);
     }
     
     /**

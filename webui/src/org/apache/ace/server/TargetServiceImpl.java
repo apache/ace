@@ -21,6 +21,8 @@ package org.apache.ace.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.GatewayObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
@@ -38,6 +40,7 @@ public class TargetServiceImpl extends ObjectServiceImpl<StatefulGatewayObject, 
     private static TargetServiceImpl m_instance;
     
     public TargetServiceImpl() {
+        if (m_instance != null) { System.out.println("Warning, duplicate " + getClass().getSimpleName()); }
         m_instance = this;
     }
     
@@ -87,8 +90,8 @@ public class TargetServiceImpl extends ObjectServiceImpl<StatefulGatewayObject, 
     }
     
     @Override
-    public StatefulGatewayObject unwrap(Descriptor descriptor) throws Exception {
-        StatefulGatewayRepository gr = Activator.getService(getThreadLocalRequest(), StatefulGatewayRepository.class);
+    public StatefulGatewayObject unwrap(HttpServletRequest request, Descriptor descriptor) throws Exception {
+        StatefulGatewayRepository gr = Activator.getService(request, StatefulGatewayRepository.class);
         List<StatefulGatewayObject> list = gr.get(Activator.getContext().createFilter("(" + GatewayObject.KEY_ID + "=" + descriptor.getName() + ")"));
         if (list.size() == 1) {
             return list.get(0);
@@ -98,19 +101,30 @@ public class TargetServiceImpl extends ObjectServiceImpl<StatefulGatewayObject, 
     
     /**
      * Helper method to find the {@link StatefulGatewayObject} for a given {@link GatewayObject}.
+     * @param request 
      */
-    public StatefulGatewayObject findSGO(GatewayObject go) throws Exception {
-        StatefulGatewayRepository sgr = Activator.getService(getThreadLocalRequest(), StatefulGatewayRepository.class);
+    public StatefulGatewayObject findSGO(HttpServletRequest request, GatewayObject go) throws Exception {
+        StatefulGatewayRepository sgr = Activator.getService(request, StatefulGatewayRepository.class);
+        
+        
+        // before we go on, let's refresh
+        // this is not the right moment probably, but the question is, WHAT IS? ;)
+        sgr.refresh();
+        
+        
+        
+        
         return sgr.get(Activator.getContext().createFilter("(" + GatewayObject.KEY_ID + "=" + go.getID() + ")")).get(0);
     }
     
     /**
      * Helper method to find all {@link StatefulGatewayObject}s for some {@link GatewayObject}s.
+     * @param request 
      */
-    public List<StatefulGatewayObject> findSGOs(List<GatewayObject> gos) throws Exception {
+    public List<StatefulGatewayObject> findSGOs(HttpServletRequest request, List<GatewayObject> gos) throws Exception {
         List<StatefulGatewayObject> result = new ArrayList<StatefulGatewayObject>();
         for (GatewayObject go : gos) {
-            result.add(findSGO(go));
+            result.add(findSGO(request, go));
         }
         return result;
     }

@@ -21,6 +21,8 @@ package org.apache.ace.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.ArtifactObject;
@@ -51,46 +53,51 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
     private static final long serialVersionUID = 2413722456179463935L;
 
     public void link(BundleDescriptor bundle, GroupDescriptor group) throws Exception {
-        Artifact2GroupAssociationRepository a2gr = Activator.getService(getThreadLocalRequest(), Artifact2GroupAssociationRepository.class);
+        HttpServletRequest request = getThreadLocalRequest();
+        Artifact2GroupAssociationRepository a2gr = Activator.getService(request, Artifact2GroupAssociationRepository.class);
         
-        ArtifactObject a = (ArtifactObject) ObjectMapping.unwrap(bundle);
-        GroupObject g = (GroupObject) ObjectMapping.unwrap(group);
+        ArtifactObject a = (ArtifactObject) ObjectMapping.unwrap(request, bundle);
+        GroupObject g = (GroupObject) ObjectMapping.unwrap(request, group);
         
         a2gr.create(a, g);
     }
 
     private void unlink(BundleDescriptor bundle, GroupDescriptor group) throws Exception {
-        Artifact2GroupAssociationRepository a2gr = Activator.getService(getThreadLocalRequest(), Artifact2GroupAssociationRepository.class);
+        HttpServletRequest request = getThreadLocalRequest();
+        Artifact2GroupAssociationRepository a2gr = Activator.getService(request, Artifact2GroupAssociationRepository.class);
         
-        ArtifactObject a = (ArtifactObject) ObjectMapping.unwrap(bundle);
-        GroupObject g = (GroupObject) ObjectMapping.unwrap(group);
+        ArtifactObject a = (ArtifactObject) ObjectMapping.unwrap(request, bundle);
+        GroupObject g = (GroupObject) ObjectMapping.unwrap(request, group);
         
         a2gr.remove(a.getAssociationsWith(g).get(0));
     }
 
     public void link(GroupDescriptor group, LicenseDescriptor license) throws Exception {
-        Group2LicenseAssociationRepository g2lr = Activator.getService(getThreadLocalRequest(), Group2LicenseAssociationRepository.class);
+        HttpServletRequest request = getThreadLocalRequest();
+        Group2LicenseAssociationRepository g2lr = Activator.getService(request, Group2LicenseAssociationRepository.class);
 
-        GroupObject g = (GroupObject) ObjectMapping.unwrap(group);
-        LicenseObject l = (LicenseObject) ObjectMapping.unwrap(license);
+        GroupObject g = (GroupObject) ObjectMapping.unwrap(request, group);
+        LicenseObject l = (LicenseObject) ObjectMapping.unwrap(request, license);
         
         g2lr.create(g, l);
     }
 
     private void unlink(GroupDescriptor group, LicenseDescriptor license) throws Exception {
-        Group2LicenseAssociationRepository g2lr = Activator.getService(getThreadLocalRequest(), Group2LicenseAssociationRepository.class);
+        HttpServletRequest request = getThreadLocalRequest();
+        Group2LicenseAssociationRepository g2lr = Activator.getService(request, Group2LicenseAssociationRepository.class);
 
-        GroupObject g = (GroupObject) ObjectMapping.unwrap(group);
-        LicenseObject l = (LicenseObject) ObjectMapping.unwrap(license);
+        GroupObject g = (GroupObject) ObjectMapping.unwrap(request, group);
+        LicenseObject l = (LicenseObject) ObjectMapping.unwrap(request, license);
         
         g2lr.remove(g.getAssociationsWith(l).get(0));
     }
 
     public void link(LicenseDescriptor license, TargetDescriptor target) throws Exception {
-        License2GatewayAssociationRepository l2tr = Activator.getService(getThreadLocalRequest(), License2GatewayAssociationRepository.class);
+        HttpServletRequest request = getThreadLocalRequest();
+        License2GatewayAssociationRepository l2tr = Activator.getService(request, License2GatewayAssociationRepository.class);
 
-        LicenseObject l = (LicenseObject) ObjectMapping.unwrap(license);
-        StatefulGatewayObject g = (StatefulGatewayObject) ObjectMapping.unwrap(target);
+        LicenseObject l = (LicenseObject) ObjectMapping.unwrap(request, license);
+        StatefulGatewayObject g = (StatefulGatewayObject) ObjectMapping.unwrap(request, target);
         
         if (!g.isRegistered()) {
             g.register();
@@ -101,10 +108,11 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
     }
 
     private void unlink(LicenseDescriptor license, TargetDescriptor target) throws Exception {
-        License2GatewayAssociationRepository l2tr = Activator.getService(getThreadLocalRequest(), License2GatewayAssociationRepository.class);
+        HttpServletRequest request = getThreadLocalRequest();
+        License2GatewayAssociationRepository l2tr = Activator.getService(request, License2GatewayAssociationRepository.class);
 
-        LicenseObject l = (LicenseObject) ObjectMapping.unwrap(license);
-        StatefulGatewayObject g = (StatefulGatewayObject) ObjectMapping.unwrap(target);
+        LicenseObject l = (LicenseObject) ObjectMapping.unwrap(request, license);
+        StatefulGatewayObject g = (StatefulGatewayObject) ObjectMapping.unwrap(request, target);
         
         l2tr.remove(l.getAssociationsWith(g.getGatewayObject()).get(0));
     }
@@ -130,8 +138,9 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
     }
 
     public Descriptor[] getRelated(Descriptor o) throws Exception {
-        RepositoryObject a = ObjectMapping.unwrap(o);
-        List<RepositoryObject> relatedObjects = getRelated(a);
+        HttpServletRequest request = getThreadLocalRequest();
+        RepositoryObject a = ObjectMapping.unwrap(request, o);
+        List<RepositoryObject> relatedObjects = getRelated(request, a);
         List<Descriptor> descriptors = ObjectMapping.wrap(relatedObjects);
         return descriptors.toArray(new Descriptor[descriptors.size()]);
     }
@@ -139,7 +148,7 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
     /**
      * Helper method that finds all related {@link RepositoryObject}s for a given one.
      */
-    private List<RepositoryObject> getRelated(RepositoryObject object) throws Exception {
+    private List<RepositoryObject> getRelated(HttpServletRequest request, RepositoryObject object) throws Exception {
         List<RepositoryObject> result = new ArrayList<RepositoryObject>();
         if (object instanceof ArtifactObject) {
             List<GroupObject> groups = getRelated(object, GroupObject.class);
@@ -147,7 +156,7 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
             List<GatewayObject> targets = getRelated(licenses, GatewayObject.class);
             result.addAll(groups);
             result.addAll(licenses);
-            result.addAll(TargetServiceImpl.instance().findSGOs(targets));
+            result.addAll(TargetServiceImpl.instance().findSGOs(request, targets));
         }
         else if (object instanceof GroupObject) {
             List<ArtifactObject> artifacts = getRelated(object, ArtifactObject.class);
@@ -155,7 +164,7 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
             List<GatewayObject> targets = getRelated(licenses, GatewayObject.class);
             result.addAll(artifacts);
             result.addAll(licenses);
-            result.addAll(TargetServiceImpl.instance().findSGOs(targets));
+            result.addAll(TargetServiceImpl.instance().findSGOs(request, targets));
         }
         else if (object instanceof LicenseObject) {
             List<GroupObject> groups = getRelated(object, GroupObject.class);
@@ -163,7 +172,7 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
             List<GatewayObject> targets = getRelated(object, GatewayObject.class);
             result.addAll(artifacts);
             result.addAll(groups);
-            result.addAll(TargetServiceImpl.instance().findSGOs(targets));
+            result.addAll(TargetServiceImpl.instance().findSGOs(request, targets));
         }
         else if (object instanceof StatefulGatewayObject) {
             List<LicenseObject> licenses = getRelated(object, LicenseObject.class);

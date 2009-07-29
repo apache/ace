@@ -38,9 +38,11 @@ class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginContext {
     private final User m_user;
     private final List<RepositorySetDescriptor> m_descriptors = new ArrayList<RepositorySetDescriptor>();
     private URL m_obrBase;
+    private final String m_sessionid;
 
-    RepositoryAdminLoginContextImpl(User user) {
+    RepositoryAdminLoginContextImpl(User user, String sessionid) {
         m_user = user;
+        m_sessionid = sessionid;
     }
 
     @SuppressWarnings("unchecked")

@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.GroupObject;
 import org.apache.ace.client.repository.repository.GroupRepository;
@@ -38,6 +40,7 @@ public class GroupServiceImpl extends ObjectServiceImpl<GroupObject, GroupDescri
     private static GroupServiceImpl m_instance;
     
     public GroupServiceImpl() {
+        if (m_instance != null) { System.out.println("Warning, duplicate " + getClass().getSimpleName()); }
         m_instance = this;
     }
     
@@ -79,8 +82,8 @@ public class GroupServiceImpl extends ObjectServiceImpl<GroupObject, GroupDescri
     }
     
     @Override
-    public GroupObject unwrap(Descriptor descriptor) throws Exception {
-        GroupRepository gr = Activator.getService(getThreadLocalRequest(), GroupRepository.class);
+    public GroupObject unwrap(HttpServletRequest request, Descriptor descriptor) throws Exception {
+        GroupRepository gr = Activator.getService(request, GroupRepository.class);
         List<GroupObject> list = gr.get(Activator.getContext().createFilter("(" + GroupObject.KEY_NAME + "=" + descriptor.getName() + ")"));
         if (list.size() == 1) {
             return list.get(0);

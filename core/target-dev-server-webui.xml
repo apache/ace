@@ -1,6 +1,6 @@
 <project name="dev-server-webui" default="warning">
     <property name="deploy-dir" value="deploy/target/${ant.project.name}" />
-	<property name="app-name" value="L-iQ PS server" />
+	<property name="app-name" value="Apache ACE Server WebUI" />
 
     <target name="warning">
         <echo message="Please run top level build." />
@@ -30,7 +30,6 @@
             	<include name="org.apache.ace.scheduler-1.0.0.jar" />
             	<include name="org.apache.ace.repository-1.0.0.jar" />
             	<include name="org.apache.ace.repository.servlet-1.0.0.jar" />
-                <include name="org.apache.ace.client.repository.stateful-1.0.0.jar" />
                 <include name="org.apache.ace.client.repository-1.0.0.jar" />
                 <include name="org.apache.ace.client.repository.helper.base-1.0.0.jar" />
                 <include name="org.apache.ace.client.repository.helper.bundle-1.0.0.jar" />
@@ -38,10 +37,6 @@
                 <include name="org.apache.ace.obr.storage-1.0.0.jar" />
                 <include name="org.apache.ace.obr.metadata-1.0.0.jar" />
                 <include name="org.apache.ace.webui-1.0.0.jar" />
-                <!-- for testing -->
-                <!--
-                <include name="org.apache.ace.http.echo.servlet-1.0.0.jar" />
-                -->
             </fileset>
             <fileset dir="ext">
             	<include name="org.osgi.compendium.jar" />
@@ -54,8 +49,8 @@
                 <include name="org.apache.ace.xstream-1.3.jar" />
                 <include name="org.apache.felix.configadmin.jar" />
                 <include name="org.apache.felix.eventadmin.jar" />
-                <include name="log_all-2.0.0.jar" />
             	<include name="useradmin_all-2.0.0.jar" />
+                <include name="log_all-2.0.0.jar" />
             	<include name="org.apache.felix.prefs.jar" />
             	<include name="pax-web-service-0.6.0.jar" />
                 <include name="pax-web-extender-war-0.7.0-SNAPSHOT.jar" />
@@ -66,6 +61,7 @@
                 <include name="**/*.cfg" />
             </fileset>
         </copy>
+    	
         <copy file="${deploy-dir}/conf/dev-config.properties" overwrite="true" tofile="${deploy-dir}/conf/config.properties" />
         <delete file="${deploy-dir}/conf/test-config.properties" />
         <property name="bundles-noshell" value="
@@ -91,7 +87,6 @@
             file:bundle/org.apache.ace.scheduler-1.0.0.jar
             file:bundle/org.apache.ace.repository-1.0.0.jar
             file:bundle/org.apache.ace.repository.servlet-1.0.0.jar
-    	    file:bundle/org.apache.ace.client.repository.stateful-1.0.0.jar
     	    file:bundle/org.apache.ace.client.repository-1.0.0.jar
             file:bundle/org.apache.ace.client.repository.helper.base-1.0.0.jar
             file:bundle/org.apache.ace.client.repository.helper.bundle-1.0.0.jar

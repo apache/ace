@@ -20,6 +20,7 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.Properties;
 
+import org.apache.ace.client.repository.SessionFactory;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
@@ -42,6 +43,7 @@ public class ChangeNotifierImpl implements ChangeNotifier {
     private final String m_privateTopicRoot;
     private final String m_publicTopicRoot;
     private final String m_entityRoot;
+    private final String m_sessionID;
 
     /**
      * Creates a new ChangeNotifierImpl.
@@ -50,14 +52,24 @@ public class ChangeNotifierImpl implements ChangeNotifier {
      * @param publicTopicRoot The root of all public topics; see TopicRoot in the description of this class.
      * @param entityRoot A class-specific root for the class which will use this ChangeNotifierImpl.
      */
-    ChangeNotifierImpl(EventAdmin eventAdmin, String privateTopicRoot, String publicTopicRoot, String entityRoot) {
+    ChangeNotifierImpl(EventAdmin eventAdmin, String privateTopicRoot, String publicTopicRoot, String entityRoot, String sessionID) {
         m_eventAdmin = eventAdmin;
         m_privateTopicRoot = privateTopicRoot;
         m_publicTopicRoot = publicTopicRoot;
         m_entityRoot = entityRoot;
+        m_sessionID = sessionID;
+    }
+
+    private Properties addSession(Properties props) {
+        if (props == null) {
+            props = new Properties();
+        }
+        props.put(SessionFactory.SERVICE_SID, m_sessionID);
+        return props;
     }
 
     public void notifyChanged(String topic, Properties props, boolean internalOnly) {
+        props = addSession(props);
         m_eventAdmin.sendEvent(new Event(m_privateTopicRoot + m_entityRoot + topic, props));
         if (!internalOnly) {
             m_eventAdmin.postEvent(new Event(m_publicTopicRoot + m_entityRoot + topic, props));

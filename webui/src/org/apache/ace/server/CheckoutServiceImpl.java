@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
+import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
 import org.apache.ace.client.services.CheckoutService;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -46,7 +47,7 @@ public class CheckoutServiceImpl extends RemoteServiceServlet implements Checkou
     private RepositoryAdmin getRepositoryAdmin() throws Exception {
         RepositoryAdmin admin = Activator.getService(getThreadLocalRequest(), RepositoryAdmin.class);
         if (!m_loggedIn.contains(admin)) {
-            UserAdmin userAdmin = Activator.getService(getThreadLocalRequest(), UserAdmin.class);
+            UserAdmin userAdmin = Activator.getService(UserAdmin.class);
             RepositoryAdminLoginContext context = admin.createLoginContext((User) userAdmin.getRole("d"));
             context.addShopRepository(new URL("http://localhost:8080/repository"), "apache", "shop", true);
             context.addGatewayRepository(new URL("http://localhost:8080/repository"), "apache", "gateway", true);

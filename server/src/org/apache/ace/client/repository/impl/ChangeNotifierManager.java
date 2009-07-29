@@ -37,8 +37,8 @@ public class ChangeNotifierManager implements EventAdmin {
      * @param entityRoot A class-specific root for the class which will use this ChangeNotifierImpl.
      * @return The newly configured ChangeNotifier.
      */
-    public ChangeNotifier getConfiguredNotifier(String privateTopicRoot, String publicTopicRoot, String entityRoot) {
-        return new ChangeNotifierImpl(this, privateTopicRoot, publicTopicRoot, entityRoot);
+    public ChangeNotifier getConfiguredNotifier(String privateTopicRoot, String publicTopicRoot, String entityRoot, String sessionID) {
+        return new ChangeNotifierImpl(this, privateTopicRoot, publicTopicRoot, entityRoot, sessionID);
     }
 
     public void postEvent(Event event) {

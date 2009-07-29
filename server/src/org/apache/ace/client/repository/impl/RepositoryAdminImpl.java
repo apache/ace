@@ -21,22 +21,53 @@ package org.apache.ace.client.repository.impl;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.RepositoryObject.WorkingState;
+import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.impl.RepositoryAdminLoginContextImpl.RepositorySetDescriptor;
+import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
+import org.apache.ace.client.repository.object.ArtifactObject;
+import org.apache.ace.client.repository.object.DeploymentVersionObject;
+import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.Group2LicenseAssociation;
+import org.apache.ace.client.repository.object.GroupObject;
+import org.apache.ace.client.repository.object.License2GatewayAssociation;
+import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
+import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
+import org.apache.ace.client.repository.repository.GatewayRepository;
+import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepository;
+import org.apache.ace.client.repository.repository.GroupRepository;
+import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
+import org.apache.ace.client.repository.repository.LicenseRepository;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.ext.BackupRepository;
 import org.apache.ace.repository.ext.CachedRepository;
 import org.apache.ace.repository.impl.CachedRepositoryImpl;
 import org.apache.ace.repository.impl.FilebasedBackupRepository;
 import org.apache.ace.repository.impl.RemoteRepository;
+import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dependencymanager.Logger;
+import org.apache.felix.dependencymanager.Service;
+import org.apache.felix.dependencymanager.ServiceDependency;
+import org.apache.felix.dependencymanager.ServiceImpl;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
 import org.osgi.service.prefs.Preferences;
 import org.osgi.service.prefs.PreferencesService;
@@ -69,11 +100,42 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     private final static String PREFS_LOCAL_FILE_BACKUP = "backup";
     private User m_user;
     private RepositorySet[] m_repositorySets;
-    private final Activator m_repositoryFactory;
 
-    RepositoryAdminImpl(Activator factory, ChangeNotifier changeNotifier) {
-        m_repositoryFactory = factory;
-        m_changeNotifier = changeNotifier;
+    private volatile DependencyManager m_manager;
+    List<Service[]> m_services;
+    private ArtifactRepositoryImpl m_artifactRepositoryImpl;
+    private GroupRepositoryImpl m_groupRepositoryImpl;
+    private Artifact2GroupAssociationRepositoryImpl m_artifact2GroupAssociationRepositoryImpl;
+    private LicenseRepositoryImpl m_licenseRepositoryImpl;
+    private Group2LicenseAssociationRepositoryImpl m_group2LicenseAssociationRepositoryImpl;
+    private GatewayRepositoryImpl m_gatewayRepositoryImpl;
+    private License2GatewayAssociationRepositoryImpl m_license2GatewayAssociationRepositoryImpl;
+    private DeploymentVersionRepositoryImpl m_deploymentVersionRepositoryImpl;
+    private Logger m_logger;
+    private ChangeNotifierManager m_changeNotifierManager;
+    private final String m_sessionID;
+    private final Properties m_sessionProps;
+
+    public RepositoryAdminImpl(String sessionID) {
+        m_sessionID = sessionID;
+        m_sessionProps = new Properties();
+        m_sessionProps.put(SessionFactory.SERVICE_SID, sessionID);
+        m_changeNotifierManager = new ChangeNotifierManager();
+        m_changeNotifier = m_changeNotifierManager.getConfiguredNotifier(RepositoryAdmin.PRIVATE_TOPIC_ROOT, RepositoryAdmin.PUBLIC_TOPIC_ROOT, RepositoryAdmin.TOPIC_ENTITY_ROOT, m_sessionID);
+    }
+
+    public Properties getSessionProps() {
+        return m_sessionProps;
+    }
+
+    /**
+     * Returns a list of instances that make up this composition. Instances are used to
+     * inject dependencies into.
+     *
+     * @return list of instances
+     */
+    public Object[] getInstances() {
+        return new Object[] { this, m_changeNotifierManager };
     }
 
     @SuppressWarnings("unchecked")
@@ -83,12 +145,130 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
 
     @SuppressWarnings("unchecked")
     public void start() {
-        initialize(m_repositoryFactory.publishRepositories());
+        initialize(publishRepositories());
     }
 
     public void stop() {
-        m_repositoryFactory.pullRepositories();
+        pullRepositories();
+        if (loggedIn()) {
+            try {
+                logout(true);
+            }
+            catch (IOException ioe) {
+                m_log.log(LogService.LOG_ERROR, "Failed to log out of the repositories.", ioe);
+            }
+        }
     }
+
+    @SuppressWarnings("unchecked")
+    synchronized Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> publishRepositories() {
+        // create the repository objects, if this is the first time this method is called.
+        if (m_artifactRepositoryImpl == null) {
+            m_artifactRepositoryImpl = new ArtifactRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, ArtifactObject.TOPIC_ENTITY_ROOT, m_sessionID));
+            m_groupRepositoryImpl = new GroupRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, GroupObject.TOPIC_ENTITY_ROOT, m_sessionID));
+            m_artifact2GroupAssociationRepositoryImpl = new Artifact2GroupAssociationRepositoryImpl(m_artifactRepositoryImpl, m_groupRepositoryImpl, m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, Artifact2GroupAssociation.TOPIC_ENTITY_ROOT, m_sessionID));
+            m_licenseRepositoryImpl = new LicenseRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, LicenseObject.TOPIC_ENTITY_ROOT, m_sessionID));
+            m_group2LicenseAssociationRepositoryImpl = new Group2LicenseAssociationRepositoryImpl(m_groupRepositoryImpl, m_licenseRepositoryImpl, m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, Group2LicenseAssociation.TOPIC_ENTITY_ROOT, m_sessionID));
+            m_gatewayRepositoryImpl = new GatewayRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, GatewayObject.TOPIC_ENTITY_ROOT, m_sessionID));
+            m_license2GatewayAssociationRepositoryImpl = new License2GatewayAssociationRepositoryImpl(m_licenseRepositoryImpl, m_gatewayRepositoryImpl, m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, License2GatewayAssociation.TOPIC_ENTITY_ROOT, m_sessionID));
+            m_deploymentVersionRepositoryImpl = new DeploymentVersionRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, DeploymentVersionObject.TOPIC_ENTITY_ROOT, m_sessionID));
+        }
+        // first, register the artifact repository manually; it needs some special care.
+        Service artifactRepoService = createService()
+            .setInterface(ArtifactRepository.class.getName(), m_sessionProps)
+            .setImplementation(m_artifactRepositoryImpl)
+            .add(createServiceDependency().setService(LogService.class).setRequired(false))
+            .add(createServiceDependency().setService(ArtifactHelper.class).setRequired(false).setAutoConfig(false).setCallbacks(this, "addArtifactHelper", "removeArtifactHelper"));
+        Dictionary topic = new Hashtable();
+        topic.put(EventConstants.EVENT_TOPIC, new String[] {});
+        topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
+        Service artifactHandlerService = createService()
+            .setInterface(EventHandler.class.getName(), topic)
+            .setImplementation(m_artifactRepositoryImpl);
+        m_manager.add(artifactRepoService);
+        m_manager.add(artifactHandlerService);
+
+        m_services = new ArrayList<Service[]>();
+        m_services.add(new Service[] {artifactRepoService, artifactHandlerService});
+
+        // register all repositories are services. Keep the service objects around, we need them to pull the services later.
+        m_services.add(registerRepository(Artifact2GroupAssociationRepository.class, m_artifact2GroupAssociationRepositoryImpl, new String[] {createPrivateObjectTopic(ArtifactObject.TOPIC_ENTITY_ROOT), createPrivateObjectTopic(GroupObject.TOPIC_ENTITY_ROOT)}));
+        m_services.add(registerRepository(GroupRepository.class, m_groupRepositoryImpl, new String[] {}));
+        m_services.add(registerRepository(Group2LicenseAssociationRepository.class, m_group2LicenseAssociationRepositoryImpl, new String[] {createPrivateObjectTopic(GroupObject.TOPIC_ENTITY_ROOT), createPrivateObjectTopic(LicenseObject.TOPIC_ENTITY_ROOT)}));
+        m_services.add(registerRepository(LicenseRepository.class, m_licenseRepositoryImpl, new String[] {}));
+        m_services.add(registerRepository(License2GatewayAssociationRepository.class, m_license2GatewayAssociationRepositoryImpl, new String[] {createPrivateObjectTopic(LicenseObject.TOPIC_ENTITY_ROOT), createPrivateObjectTopic(GatewayObject.TOPIC_ENTITY_ROOT)}));
+        m_services.add(registerRepository(GatewayRepository.class, m_gatewayRepositoryImpl, new String[] {}));
+        m_services.add(registerRepository(DeploymentVersionRepository.class, m_deploymentVersionRepositoryImpl, new String[] {}));
+
+        // prepare the results.
+        Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> result = new HashMap<Class<? extends ObjectRepository>, ObjectRepositoryImpl>();
+
+        result.put(ArtifactRepository.class, m_artifactRepositoryImpl);
+        result.put(Artifact2GroupAssociationRepository.class, m_artifact2GroupAssociationRepositoryImpl);
+        result.put(GroupRepository.class, m_groupRepositoryImpl);
+        result.put(Group2LicenseAssociationRepository.class, m_group2LicenseAssociationRepositoryImpl);
+        result.put(LicenseRepository.class, m_licenseRepositoryImpl);
+        result.put(License2GatewayAssociationRepository.class, m_license2GatewayAssociationRepositoryImpl);
+        result.put(GatewayRepository.class, m_gatewayRepositoryImpl);
+        result.put(DeploymentVersionRepository.class, m_deploymentVersionRepositoryImpl);
+
+        return result;
+    }
+    private ServiceDependency createServiceDependency() {
+        return new ServiceDependency(m_context, createLogger());
+    }
+
+    private synchronized Logger createLogger() {
+        if (m_logger == null) {
+            m_logger = new Logger(m_context);
+        }
+        return m_logger;
+    }
+
+    private Service createService() {
+        return new ServiceImpl(m_context, m_manager, createLogger());
+    }
+
+    /**
+     * Pulls all repository services; is used to make sure the repositories go away before the RepositoryAdmin does.
+     */
+    synchronized void pullRepositories() {
+        for (Service[] services : m_services) {
+            for (Service service : services) {
+                m_manager.remove(service);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends RepositoryObject> Service[] registerRepository(Class<? extends ObjectRepository<T>> iface, ObjectRepositoryImpl<?, T> imp, String[] topics) {
+        Service repositoryService = createService()
+            .setInterface(iface.getName(), m_sessionProps)
+            .setImplementation(imp)
+            .add(createServiceDependency().setService(LogService.class).setRequired(false));
+        Dictionary topic = new Hashtable();
+        topic.put(EventConstants.EVENT_TOPIC, topics);
+        topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
+        Service handlerService = createService()
+            .setInterface(EventHandler.class.getName(), topic)
+            .setImplementation(imp);
+
+        m_manager.add(repositoryService);
+        m_manager.add(handlerService);
+        return new Service[] {repositoryService, handlerService};
+    }
+
+    /**
+     * Helper method for use in publishRepositories
+     */
+    private static String createPrivateObjectTopic(String entityRoot) {
+        return RepositoryObject.PRIVATE_TOPIC_ROOT + entityRoot + RepositoryObject.TOPIC_ALL_SUFFIX;
+    }
+
+
+
+
+
 
     public void checkout() throws IOException {
         synchronized (m_lock) {
@@ -155,7 +335,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         if (user == null) {
             throw new IllegalArgumentException("User may not be null.");
         }
-        return new RepositoryAdminLoginContextImpl(user);
+        return new RepositoryAdminLoginContextImpl(user, m_sessionID);
     }
 
     public void login(RepositoryAdminLoginContext context) throws IOException {
@@ -277,7 +457,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
                 topics[nRepo] = impls[nRepo].getTopicAll(true);
             }
             result[nRsd] = loadRepositorySet(context.getUser(), rsd, impls);
-            result[nRsd].registerHandler(m_context, topics);
+            result[nRsd].registerHandler(m_context, m_sessionID, topics);
         }
 
         return result;
@@ -299,7 +479,8 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
      * @throws IOException
      */
     private File getFileFromPreferences(Preferences repositoryPrefs, String type) throws IOException {
-        String directory = repositoryPrefs.get(PREFS_LOCAL_FILE_LOCATION, "");
+        String sessionLocation = PREFS_LOCAL_FILE_LOCATION + m_sessionID;
+        String directory = repositoryPrefs.get(sessionLocation, "");
 
         if ((directory == "") || !m_context.getDataFile(PREFS_LOCAL_FILE_ROOT + "/" + directory).isDirectory()) {
             if (!m_context.getDataFile(PREFS_LOCAL_FILE_ROOT + "/" + directory).isDirectory() && (directory != "")) {
@@ -325,7 +506,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             if (!directoryFile.mkdir()) {
                 throw new IOException("Error creating the local repository storage directory.");
             }
-            repositoryPrefs.put(PREFS_LOCAL_FILE_LOCATION, directoryFile.getName());
+            repositoryPrefs.put(sessionLocation, directoryFile.getName());
             return new File(directoryFile, type);
         }
         else {
@@ -386,4 +567,18 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         }
         return WorkingState.Unchanged;
     }
+
+
+
+
+    public void addArtifactHelper(ServiceReference ref, ArtifactHelper helper) {
+        String mimetype = (String) ref.getProperty(ArtifactHelper.KEY_MIMETYPE);
+        m_artifactRepositoryImpl.addHelper(mimetype, helper);
+    }
+
+    public synchronized void removeArtifactHelper(ServiceReference ref, ArtifactHelper helper) {
+        String mimetype = (String) ref.getProperty(ArtifactHelper.KEY_MIMETYPE);
+        m_artifactRepositoryImpl.removeHelper(mimetype, helper);
+    }
+
 }

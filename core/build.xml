@@ -261,51 +261,51 @@
 
     <target name="package-server" unless="server.uptodate">
         <project-bundle 
-            bundlename="Deployment Servlet"                                                                                                                                                 
+            bundlename="Apache ACE Deployment Servlet"                                                                                                                                                 
             bundlesymbolicname="org.apache.ace.deployment.servlet"                                                                                                                         
             privatepackage="org.apache.ace.deployment.servlet"
             bundleactivator="org.apache.ace.deployment.servlet.Activator" />
         <project-bundle 
-            bundlename="HTTP Service Listener"                                                                                                                                                 
+            bundlename="Apache ACE HTTP Service Listener"                                                                                                                                                 
             bundlesymbolicname="org.apache.ace.http.listener"                                                                                                                         
             privatepackage="org.apache.ace.http.listener"                                                                                                                           
             bundleactivator="org.apache.ace.http.listener.Activator" />
         <project-bundle 
-            bundlename="File Based Deployment Provider"                                                                                                                                                 
+            bundlename="Apache ACE File Based Deployment Provider"                                                                                                                                                 
             bundlesymbolicname="org.apache.ace.deployment.provider.filebased"                                                                                                                         
             exportpackage="org.apache.ace.deployment.provider"                                                                                                                           
             privatepackage="org.apache.ace.deployment.provider.filebased, org.apache.ace.deployment.provider.impl"
             bundleactivator="org.apache.ace.deployment.provider.filebased.Activator" />
         <project-bundle 
-            bundlename="Repository Based Deployment Provider"                                                                                                                                                 
+            bundlename="Apache ACE Repository Based Deployment Provider"                                                                                                                                                 
             bundlesymbolicname="org.apache.ace.deployment.provider.repositorybased"                                                                                                                         
             exportpackage="org.apache.ace.deployment.provider"                                                                                                                           
             privatepackage="org.apache.ace.deployment.provider.repositorybased, org.apache.ace.deployment.provider.impl, org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.repository.impl"
             bundleactivator="org.apache.ace.deployment.provider.repositorybased.Activator" />
         <project-bundle 
-            bundlename="Deployment Stream Generator"                                                                                                                                                 
+            bundlename="Apache ACE Deployment Stream Generator"                                                                                                                                                 
             bundlesymbolicname="org.apache.ace.deployment.streamgenerator"                                                                                                                         
             exportpackage="org.apache.ace.deployment.streamgenerator"                                                                                                                           
             privatepackage="org.apache.ace.deployment.streamgenerator.impl"                                                                                                                           
             bundleactivator="org.apache.ace.deployment.streamgenerator.impl.Activator" />
         <project-bundle
-            bundlename="Server Log Servlet"
+            bundlename="Apache ACE Server Log Servlet"
             bundlesymbolicname="org.apache.ace.server.log"
             privatepackage="org.apache.ace.server.log"
             bundleactivator="org.apache.ace.server.log.Activator" />
         <project-bundle
-            bundlename="Server Log Store"
+            bundlename="Apache ACE Server Log Store"
             bundlesymbolicname="org.apache.ace.server.log.store"
             exportpackage="org.apache.ace.server.log.store, org.apache.ace.log"
             privatepackage="org.apache.ace.server.log.store.impl, org.apache.ace.util"
             bundleactivator="org.apache.ace.server.log.store.impl.Activator" />
         <project-bundle
-            bundlename="Server Log Task"
+            bundlename="Apache ACE Server Log Task"
             bundlesymbolicname="org.apache.ace.server.log.task"
             privatepackage="org.apache.ace.server.log.task"
             bundleactivator="org.apache.ace.server.log.task.Activator" />
         <project-bundle 
-            bundlename="OBR Metadata Generator"
+            bundlename="Apache ACE OBR Metadata Generator"
             bundlesymbolicname="org.apache.ace.obr.metadata"
             exportpackage="org.apache.ace.obr.metadata"
             privatepackage="org.apache.ace.obr.metadata.bindex, org.osgi.impl.bundle.bindex, org.osgi.impl.bundle.obr.resource, org.osgi.service.obr"
@@ -313,106 +313,100 @@
     		bundleclasspath="kxml2-min.jar,."
             bundleactivator="org.apache.ace.obr.metadata.bindex.Activator" />
         <project-bundle 
-            bundlename="OBR Storage"
+            bundlename="Apache ACE OBR Storage"
             bundlesymbolicname="org.apache.ace.obr.storage"
             exportpackage="org.apache.ace.obr.storage"
             privatepackage="org.apache.ace.obr.storage.file"
             bundleactivator="org.apache.ace.obr.storage.file.Activator" />
         <project-bundle 
-            bundlename="OBR Servlet"
+            bundlename="Apache ACE OBR Servlet"
             bundlesymbolicname="org.apache.ace.obr.servlet"
             privatepackage="org.apache.ace.obr.servlet"
             bundleactivator="org.apache.ace.obr.servlet.Activator" />
         <project-bundle 
-            bundlename="Object Repository"
+            bundlename="Apache ACE Object Repository"
             bundlesymbolicname="org.apache.ace.repository"
             exportpackage="org.apache.ace.repository"
             privatepackage="org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.util"
             bundleactivator="org.apache.ace.repository.impl.Activator" />
         <project-bundle 
-            bundlename="Object Repository Servlet"
+            bundlename="Apache ACE Object Repository Servlet"
             bundlesymbolicname="org.apache.ace.repository.servlet"
             privatepackage="org.apache.ace.repository.servlet"
             bundleactivator="org.apache.ace.repository.servlet.Activator" />
         <project-bundle 
-            bundlename="Object Repository Task"
+            bundlename="Apache ACE Object Repository Replication Task"
             bundlesymbolicname="org.apache.ace.repository.task"
             privatepackage="org.apache.ace.repository.task"
             bundleactivator="org.apache.ace.repository.task.Activator" />
+        <!-- note: this bundle needs to export org.apache.ace.server.log.store since it does
+             not require a log to be present, but does need the interface, which is not define in core,
+             since it is not java 1.3 compatible. -->
         <project-bundle
-            bundlename="Repository Model"
+            bundlename="Apache ACE Client Repository and Stateful Gateway Model"
             bundlesymbolicname="org.apache.ace.client.repository"
-            exportpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.repository, org.apache.ace.client.repository.helper"
-            privatepackage="org.apache.ace.client.repository.impl, org.apache.ace.util, org.apache.ace.repository.ext, org.apache.ace.repository.impl"
+            exportpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.repository, org.apache.ace.client.repository.helper, org.apache.ace.client.repository.stateful, org.apache.ace.server.log.store"
+            privatepackage="org.apache.ace.client.repository.impl, org.apache.ace.util, org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.client.repository.stateful.impl"
             bundleactivator="org.apache.ace.client.repository.impl.Activator"/>
-        <!-- note: the StatefulGatewayModel needs to export org.apache.ace.server.log.store since it does
-        not require a log to be present, but does need the interface, which is not define in core,
-        since it is not java 1.3 compatible. -->
         <project-bundle
-            bundlename="Stateful Gateway Model"
-            bundlesymbolicname="org.apache.ace.client.repository.stateful"
-            exportpackage="org.apache.ace.client.repository.stateful, org.apache.ace.server.log.store"
-            privatepackage="org.apache.ace.client.repository.stateful.impl"
-            bundleactivator="org.apache.ace.client.repository.stateful.impl.Activator"/>
-        <project-bundle
-            bundlename="Artifact Helper Resources"
+            bundlename="Apache ACE Client Artifact Helper Resources"
             bundlesymbolicname="org.apache.ace.client.repository.helper.base"
     		includeresource="ext/velocity-dep-1.5.jar"
     		bundleclasspath="velocity-dep-1.5.jar,."
     		importpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.helper, *;resolution:=optional"
             exportpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.helper, org.apache.ace.client.repository.helper.base"/>
         <project-bundle
-            bundlename="Bundle Artifact Helper"
+            bundlename="Apache ACE Client Bundle Artifact Helper"
             bundlesymbolicname="org.apache.ace.client.repository.helper.bundle"
             exportpackage="org.apache.ace.client.repository.helper.bundle"
             privatepackage="org.apache.ace.client.repository.helper.bundle.impl, org.apache.ace.util"
             bundleactivator="org.apache.ace.client.repository.helper.bundle.impl.Activator"/>
         <project-bundle
-            bundlename="Configuration Artifact Helper"
+            bundlename="Apache ACE Client Configuration Artifact Helper"
             bundlesymbolicname="org.apache.ace.client.repository.helper.configuration"
             exportpackage="org.apache.ace.client.repository.helper.configuration"
             privatepackage="org.apache.ace.client.repository.helper.configuration.impl"
             bundleactivator="org.apache.ace.client.repository.helper.configuration.impl.Activator"/>
         <project-bundle
-            bundlename="UserAdmin Artifact Helper"
+            bundlename="Apache ACE Client UserAdmin Artifact Helper"
             bundlesymbolicname="org.apache.ace.client.repository.helper.user"
             exportpackage="org.apache.ace.client.repository.helper.user"
             privatepackage="org.apache.ace.client.repository.helper.user.impl"
             bundleactivator="org.apache.ace.client.repository.helper.user.impl.Activator"/>
         <project-bundle 
-            bundlename="Serverside UserAdmin Configurator"
+            bundlename="Apache ACE Serverside UserAdmin Configurator"
             bundlesymbolicname="org.apache.ace.configurator.serveruseradmin"
             privatepackage="org.apache.ace.configurator.serveruseradmin"
             bundleactivator="org.apache.ace.configurator.serveruseradmin.Activator" />
         <!-- Note that the privatepackage below is not exactly clean; for now, we don't have another way to this,
     	but we might want to clean this up (i.e., everybody should be able to ask for a remote repository) -->
         <project-bundle 
-            bundlename="Repository Based UserAdmin Configuration Task"
+            bundlename="Apache ACE Repository Based UserAdmin Configuration Task"
             bundlesymbolicname="org.apache.ace.configurator.useradmin.task"
             privatepackage="org.apache.ace.configurator.useradmin.task, org.apache.ace.repository.impl, org.apache.ace.repository.ext"
             bundleactivator="org.apache.ace.configurator.useradmin.task.Activator" />
         <project-bundle 
-            bundlename="Repository UserAdmin Editor"
+            bundlename="Apache ACE Client Repository UserAdmin Editor"
             bundlesymbolicname="org.apache.ace.client.repositoryuseradmin"
             exportpackage="org.apache.ace.client.repositoryuseradmin"
             privatepackage="org.apache.ace.client.repositoryuseradmin.impl, org.apache.ace.client.repository, org.apache.ace.repository.impl, org.apache.ace.repository.ext"
             bundleactivator="org.apache.ace.client.repositoryuseradmin.impl.Activator" />
         <project-bundle 
-            bundlename="Server Action Interfaces"
+            bundlename="Apache ACE Server Action Interfaces"
             bundlesymbolicname="org.apache.ace.server.action"
             exportpackage="org.apache.ace.server.action" />
         <project-bundle 
-            bundlename="Popup Action"
+            bundlename="Apache ACE Server Popup Action"
             bundlesymbolicname="org.apache.ace.server.action.popupmessage"
             privatepackage="org.apache.ace.server.action.popupmessage"
             bundleactivator="org.apache.ace.server.action.popupmessage.Activator" />
         <project-bundle 
-            bundlename="Auto Gateway Operator"
+            bundlename="Apache ACE Auto Gateway Operator"
             bundlesymbolicname="org.apache.ace.client.automation"
             privatepackage="org.apache.ace.client.automation"
             bundleactivator="org.apache.ace.client.automation.Activator" />
         <project-bundle 
-            bundlename="UserAdmin Resource Processor"
+            bundlename="Apache ACE UserAdmin Resource Processor"
             bundlesymbolicname="org.apache.ace.resourceprocessor.useradmin" 
             exportpackage="org.apache.ace.resourceprocessor.useradmin" 
             privatepackage="org.apache.ace.resourceprocessor.useradmin.impl"
@@ -422,7 +416,7 @@
             </manifest>
         </project-bundle>
         <project-bundle 
-            bundlename="Luminis Conf Resource Processor"
+            bundlename="Apache ACE AutoConf Resource Processor"
             bundlesymbolicname="org.apache.felix.deployment.rp.autoconf" 
             privatepackage="org.apache.felix.deployment.rp.autoconf.impl, org.apache.felix.metatype.*, org.kxml2.io;-split-package:=merge-first, org.xmlpull.v1;-split-package:=merge-first, org.osgi.service.metatype;-split-package:=merge-first"
 			exportpackage="org.apache.felix.deployment.rp.autoconf"
@@ -432,7 +426,7 @@
             </manifest>
         </project-bundle>
         <project-bundle 
-            bundlename="UPnP Based Location Service"
+            bundlename="Apache ACE UPnP Based Location Service"
             bundlesymbolicname="org.apache.ace.location.upnp"
             exportpackage="org.apache.ace.location"
             privatepackage="org.apache.ace.location.upnp, org.apache.ace.location.upnp.actions, org.apache.ace.location.upnp.util"
@@ -454,69 +448,67 @@
             org.apache.felix.deploymentadmin, org.apache.felix.deploymentadmin.spi, org.apache.felix.eventadmin.impl, org.apache.felix.eventadmin.impl.*"
             bundleactivator="org.apache.ace.ma.webstart.Activator" />
         <project-bundle 
-            bundlename="Configurator"
+            bundlename="Apache ACE Configurator"
             bundlesymbolicname="org.apache.ace.configurator"
             privatepackage="org.apache.ace.configurator, org.apache.ace.gateway.constants"
             bundleactivator="org.apache.ace.configurator.Activator" />
         <project-bundle 
-            bundlename="Scheduler"
+            bundlename="Apache ACE Scheduler"
             bundlesymbolicname="org.apache.ace.scheduler"
             privatepackage="org.apache.ace.scheduler, org.apache.ace.gateway.constants"
             bundleactivator="org.apache.ace.scheduler.Activator" />
         <project-bundle 
-            bundlename="Deployment"
+            bundlename="Apache ACE Deployment"
             bundlesymbolicname="org.apache.ace.deployment"
             exportpackage="org.apache.ace.deployment"
             privatepackage="org.apache.ace.deployment.deploymentadmin"
             bundleactivator="org.apache.ace.deployment.deploymentadmin.Activator" />
         <project-bundle 
-            bundlename="Deployment Task"
+            bundlename="Apache ACE Deployment Task"
             bundlesymbolicname="org.apache.ace.deployment.task"
             exportpackage="org.apache.ace.deployment"
             privatepackage="org.apache.ace.deployment.task"
             bundleactivator="org.apache.ace.deployment.task.Activator" />
         <project-bundle 
-            bundlename="Property Based Discovery"
+            bundlename="Apache ACE Property Based Discovery"
             bundlesymbolicname="org.apache.ace.discovery.property"
             exportpackage="org.apache.ace.discovery"
             privatepackage="org.apache.ace.discovery.property"
             bundleactivator="org.apache.ace.discovery.property.Activator" />
         <project-bundle 
-            bundlename="Property Based Identification"
+            bundlename="Apache ACE Property Based Identification"
             bundlesymbolicname="org.apache.ace.identification.property"
             exportpackage="org.apache.ace.identification"
             privatepackage="org.apache.ace.identification.property"
             bundleactivator="org.apache.ace.identification.property.Activator" />
         <project-bundle 
-            bundlename="Ifconfig/mac-address Based Identification"
+            bundlename="Apache ACE ifconfig/MAC Address Based Identification"
             bundlesymbolicname="org.apache.ace.identification.ifconfig"
             exportpackage="org.apache.ace.identification"
             privatepackage="org.apache.ace.identification.ifconfig"
             bundleactivator="org.apache.ace.identification.ifconfig.Activator" />
         <project-bundle 
-            bundlename="Log Listener"
+            bundlename="Apache ACE Log Listener"
             bundlesymbolicname="org.apache.ace.log.listener"
             privatepackage="org.apache.ace.log.listener"
             bundleactivator="org.apache.ace.log.listener.Activator" />
         <project-bundle 
-            bundlename="Gateway Log"
+            bundlename="Apache ACE Gateway Log"
             bundlesymbolicname="org.apache.ace.gateway.log"
             privatepackage="org.apache.ace.gateway.log, org.apache.ace.gateway.log.task"
             bundleactivator="org.apache.ace.gateway.log.Activator" />
         <project-bundle
-            bundlename="Gateway Log Store"
+            bundlename="Apache ACE Gateway Log Store"
             bundlesymbolicname="org.apache.ace.gateway.log.store"
             privatepackage="org.apache.ace.gateway.log.store.impl, org.apache.ace.util"
             bundleactivator="org.apache.ace.gateway.log.store.impl.Activator"
             exportpackage="org.apache.ace.gateway.log.store, org.apache.ace.log"/>
-    	
         <project-bundle 
-            bundlename="UPnP Based Discovery"
+            bundlename="Apache ACE UPnP Based Discovery"
             bundlesymbolicname="org.apache.ace.discovery.upnp"
             exportpackage="org.apache.ace.discovery"
             privatepackage="org.apache.ace.discovery.upnp"
             bundleactivator="org.apache.ace.discovery.upnp.Activator" />
-
         <mkdir dir="deploy/target/dev-multigateway"/>
         <jar destfile="deploy/target/dev-multigateway/multigatewaybootstrap.jar" basedir="../gateway/classes" includes="org/apache/ace/bootstrap/multigateway/**">
             <manifest>
@@ -529,8 +521,9 @@
     <target name="package-webui" unless="webui.uptodate">
     	<!-- TODO add an activator to bridge between OSGi and GWT -->
         <copy file="../webui/webui.war" tofile="deploy/bundle/org.apache.ace.webui-1.0.0.jar"/>
-    	<echo file="org.apache.ace.webui-1.0.0.bnd">Import-Package: junit.framework;resolution:=optional, com.google.gwt.benchmarks;resolution:=optional, *
-Bundle-Name: Web UI
+    	<echo file="org.apache.ace.webui-1.0.0.bnd">Import-Package: org.apache.ace.log,org.apache.ace.client.repository,org.apache.ace.client.repository.object,org.apache.ace.client.repository.repository,org.apache.ace.client.repository.stateful,org.apache.ace.client.repository.helper,org.apache.ace.client.repository.helper.bundle,org.xml.sax, javax.xml.parsers, junit.framework;resolution:=optional, com.google.gwt.benchmarks;resolution:=optional, *
+Dynamic-ImportPackage: *
+Bundle-Name: Apache ACE Client Web UI
 Bundle-ClassPath: WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar
 Bundle-SymbolicName: org.apache.ace.webui
 Webapp-Context: webui
@@ -539,7 +532,7 @@ Bundle-Activator: org.apache.ace.server.Activator
         <bnd-wrap jars="deploy/bundle/org.apache.ace.webui-1.0.0.jar" output="deploy/bundle/org.apache.ace.webui-1.0.0.jar"/>
     	<jar file="deploy/bundle/org.apache.ace.webui-1.0.0.jar" update="true">
     	<manifest>
-            <attribute name="Bundle-ClassPath" value="WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar, ."/>
+            <attribute name="Bundle-ClassPath" value="WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar, WEB-INF/lib/felix.jar, ."/>
     	</manifest>
     	</jar>
     	<delete file="org.apache.ace.webui-1.0.0.bnd"/>
@@ -547,42 +540,42 @@ Bundle-Activator: org.apache.ace.server.Activator
 
     <target name="package-test" unless="test.uptodate">
         <test-bundle 
-            bundlename="Test Deployment"                                                                                                                                          
+            bundlename="Apache ACE Test Deployment"                                                                                                                                          
             bundlesymbolicname="org.apache.ace.test.deployment" 
             privatepackage="org.apache.ace.test.deployment,org.apache.ace.test.osgi.dm,org.apache.ace.deployment.provider.impl,org.apache.ace.deployment.provider.filebased;-split-package:=merge-last,org.apache.ace.test.utils, org.apache.ace.test.utils.deployment"
             bundleactivator="org.apache.ace.test.deployment.Activator" />
         <test-bundle 
-            bundlename="Test Log"                                                                                                                                          
+            bundlename="Apache ACE Test Log"                                                                                                                                          
             bundlesymbolicname="org.apache.ace.test.log" 
             privatepackage="org.apache.ace.test.log,org.apache.ace.test.osgi.dm"
             bundleactivator="org.apache.ace.test.log.Activator" />
         <test-bundle 
-            bundlename="Test Http Servlet Listener"
+            bundlename="Apache ACE Test HTTP Servlet Listener"
             bundlesymbolicname="org.apache.ace.test.http.listener" 
             privatepackage="org.apache.ace.test.http.listener,org.apache.ace.test.osgi.dm"
             bundleactivator="org.apache.ace.test.http.listener.Activator" />
         <test-bundle 
-            bundlename="Test Repository"
+            bundlename="Apache ACE Test Repository"
             bundlesymbolicname="org.apache.ace.test.repository" 
             privatepackage="org.apache.ace.test.repository, org.apache.ace.test.utils, org.apache.ace.test.osgi.dm"
             bundleactivator="org.apache.ace.test.repository.Activator" />
         <test-bundle 
-            bundlename="Test Repository Admin"
+            bundlename="Apache ACE Test Repository Admin"
             bundlesymbolicname="org.apache.ace.test.repositoryadmin" 
             privatepackage="org.apache.ace.test.repositoryadmin, org.apache.ace.test.utils, org.apache.ace.test.osgi.dm"
             bundleactivator="org.apache.ace.test.repositoryadmin.Activator" />
         <test-bundle 
-            bundlename="Test UserAdmin Configurator"
+            bundlename="Apache ACE Test UserAdmin Configurator"
             bundlesymbolicname="org.apache.ace.test.useradminconfigurator" 
             privatepackage="org.apache.ace.test.useradminconfigurator, org.apache.ace.test.utils, org.apache.ace.test.osgi.dm"
             bundleactivator="org.apache.ace.test.useradminconfigurator.Activator" />
         <test-bundle 
-    	    bundlename="Test SystemBundle Stopper"
+    	    bundlename="Apache ACE Test System Bundle Stopper"
     	    bundlesymbolicname="org.apache.ace.test.bundlestop" 
     	    privatepackage="org.apache.ace.test.bundlestop"
     	    bundleactivator="org.apache.ace.test.bundlestop.Activator" />
         <test-bundle 
-    	    bundlename="Test Mock Autoconf"
+    	    bundlename="Apache ACE Test Mock AutoConf"
     	    bundlesymbolicname="org.apache.ace.test.mockautoconf" 
     	    privatepackage="org.apache.ace.test.mockautoconf"
     	    bundleactivator="org.apache.ace.test.mockautoconf.Activator" >

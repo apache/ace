@@ -153,13 +153,14 @@ public class BundleServlet extends HttpServlet implements ManagedService {
                             fileStream.close();
                         }
                         catch (IOException ioe) {
-                            m_log.log(LogService.LOG_WARNING, "Exception closing the stream" + request.getRequestURL(), ioe);
+                            m_log.log(LogService.LOG_WARNING, "Exception closing the stream " + request.getRequestURL(), ioe);
                         }
                     }
                 }
             }
             catch (IOException ex) {
                 m_log.log(LogService.LOG_WARNING, "Exception in request: " + request.getRequestURL(), ex);
+                // TODO sending an error response after we've already started writing data does not work,
                 sendResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
             finally {

@@ -21,6 +21,8 @@ package org.apache.ace.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.services.Descriptor;
 
@@ -35,8 +37,9 @@ public abstract class ObjectServiceImpl<REPOOBJECT extends RepositoryObject, DES
 
     /**
      * Unwraps the given descriptor, giving back the original repository object.
+     * @param request 
      */
-    public abstract REPOOBJECT unwrap(Descriptor descriptor) throws Exception;
+    public abstract REPOOBJECT unwrap(HttpServletRequest request, Descriptor descriptor) throws Exception;
     
     /**
      * Wraps the given object, returning a descriptor.
@@ -56,7 +59,7 @@ public abstract class ObjectServiceImpl<REPOOBJECT extends RepositoryObject, DES
     }
     
     public void remove(DESCRIPTOR descriptor) throws Exception {
-        remove(unwrap(descriptor));
+        remove(unwrap(getThreadLocalRequest(), descriptor));
     }
     
 }

@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.LicenseObject;
 import org.apache.ace.client.repository.repository.LicenseRepository;
@@ -38,6 +40,7 @@ public class LicenseServiceImpl extends ObjectServiceImpl<LicenseObject, License
     private static LicenseServiceImpl m_instance;
     
     public LicenseServiceImpl() {
+        if (m_instance != null) { System.out.println("Warning, duplicate " + getClass().getSimpleName()); }
         m_instance = this;
     }
     
@@ -78,8 +81,8 @@ public class LicenseServiceImpl extends ObjectServiceImpl<LicenseObject, License
     }
 
     @Override
-    public LicenseObject unwrap(Descriptor descriptor) throws Exception {
-        LicenseRepository lr = Activator.getService(getThreadLocalRequest(), LicenseRepository.class);
+    public LicenseObject unwrap(HttpServletRequest request, Descriptor descriptor) throws Exception {
+        LicenseRepository lr = Activator.getService(request, LicenseRepository.class);
         List<LicenseObject> list = lr.get(Activator.getContext().createFilter("(" + LicenseObject.KEY_NAME + "=" + descriptor.getName() + ")"));
         if (list.size() == 1) {
             return list.get(0);
