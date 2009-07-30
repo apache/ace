@@ -109,6 +109,7 @@
         <replace file="${deploy-dir}/conf/config-noshell.properties" token="@bundles@" value="${bundles-noshell}" />
         <replace file="${deploy-dir}/conf/config.properties" token="@properties@">
             <replacevalue><![CDATA[
+org.ops4j.pax.web.session.timeout=1
 org.apache.felix.http.nio=true
 org.apache.felix.http.enable=true
 org.osgi.service.http.port=8080
@@ -125,6 +126,7 @@ org.apache.felix.https.clientcertificate=needs
         </replace>
         <replace file="${deploy-dir}/conf/config-noshell.properties" token="@properties@">
             <replacevalue><![CDATA[
+org.ops4j.pax.web.session.timeout=1
 org.apache.felix.http.nio=true
 org.apache.felix.http.enable=true
 org.osgi.service.http.port=8080
