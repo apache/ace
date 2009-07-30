@@ -71,8 +71,8 @@
             file:bundle/org.apache.ace.discovery.property-1.0.0.jar" />
         <replace file="${deploy-dir}/conf/config.properties" token="@properties@" value="" />
 
-    	<property name="runCommand" value="java -jar bin/felix.jar"/>
-    	<property name="debugCommand" value="java -jar -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y -Dcom.sun.management.jmxremote.port=6666 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false bin/felix.jar"/>
+    	<property name="runCommand" value="java -Dorg.apache.felix.deploymentadmin.stopunaffectedbundle=false -jar bin/felix.jar"/>
+    	<property name="debugCommand" value="java -Dorg.apache.felix.deploymentadmin.stopunaffectedbundle=false -jar -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y -Dcom.sun.management.jmxremote.port=6666 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false bin/felix.jar"/>
     	<echo file="${deploy-dir}/run.sh">#!/bin/sh
 ${runCommand}
         </echo>
