@@ -47,6 +47,10 @@ public class Activator extends DependencyActivatorBase {
         return m_context;
     }
     
+    static void destroySession(String sessionID) {
+        m_instance.m_sessionFactory.destroySession(sessionID);
+    }
+    
     /**
      * Gets a base directory for this bundle's data; you can use this directory 
      * to pass to {@link SessionFramework#getFramework(javax.servlet.http.HttpSession, File)}.

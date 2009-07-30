@@ -19,9 +19,9 @@
 package org.apache.ace.client.repository.impl;
 
 import java.util.Dictionary;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.SessionFactory;
@@ -71,44 +71,52 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
     public synchronized void destroy(BundleContext context, DependencyManager manager) throws Exception {
     }
 
-    private Set<String> m_sessions = new HashSet<String>();
-    private Service m_service;
-    private Service m_service2;
+    private Map<String, SessionData> m_sessions = new HashMap<String, SessionData>();
+    private static class SessionData {
+        public static SessionData EMPTY_SESSION = new SessionData();
+
+        private Service m_service;
+        private Service m_service2;
+    }
 
     public void createSession(String sessionID) {
         boolean create = false;
         synchronized (m_sessions) {
-            if (!m_sessions.contains(sessionID)) {
-                m_sessions.add(sessionID);
+            if (!m_sessions.containsKey(sessionID)) {
+                m_sessions.put(sessionID, SessionData.EMPTY_SESSION);
                 create = true;
             }
         }
         if (create) {
-            createSessionServices(sessionID);
+            SessionData sd = createSessionServices(sessionID);
+            m_sessions.put(sessionID, sd);
         }
     }
 
     public void destroySession(String sessionID) {
         boolean destroy = false;
+        SessionData sd = SessionData.EMPTY_SESSION;
         synchronized (m_sessions) {
-            destroy = m_sessions.remove(sessionID);
+            destroy = m_sessions.containsKey(sessionID);
+            sd = m_sessions.remove(sessionID);
         }
-        if (destroy) {
-            destroySessionServices(sessionID);
+        if (destroy && !sd.equals(SessionData.EMPTY_SESSION)) {
+            destroySessionServices(sessionID, sd);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private void createSessionServices(String sessionID) {
+    private SessionData createSessionServices(String sessionID) {
+        SessionData sd = new SessionData();
         RepositoryAdminImpl rai = new RepositoryAdminImpl(sessionID);
-        m_service = createService()
+        sd.m_service = createService()
             .setInterface(RepositoryAdmin.class.getName(), rai.getSessionProps())
             .setImplementation(rai)
             .setComposition("getInstances")
             .add(createServiceDependency().setService(PreferencesService.class).setRequired(true))
             .add(createServiceDependency().setService(EventAdmin.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false));
-        m_dependencyManager.add(m_service);
+        m_dependencyManager.add(sd.m_service);
 
         Dictionary topic = new Hashtable();
         topic.put(EventConstants.EVENT_TOPIC, new String[] {
@@ -125,7 +133,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         topic.put(EventConstants.EVENT_FILTER, filter);
         topic.put(SessionFactory.SERVICE_SID, sessionID);
         StatefulGatewayRepositoryImpl statefulGatewayRepositoryImpl = new StatefulGatewayRepositoryImpl();
-        m_service2 = createService()
+        sd.m_service2 = createService()
             .setInterface(new String[] { StatefulGatewayRepository.class.getName(), EventHandler.class.getName() }, topic)
             .setImplementation(statefulGatewayRepositoryImpl)
             .add(createServiceDependency().setService(ArtifactRepository.class, filter).setRequired(true))
@@ -135,13 +143,12 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
             .add(createServiceDependency().setService(BundleHelper.class).setRequired(true))
             .add(createServiceDependency().setService(EventAdmin.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false));
-        m_dependencyManager.add(m_service2);
+        m_dependencyManager.add(sd.m_service2);
+        return sd;
     }
 
-    private void destroySessionServices(String sessionID) {
-        m_dependencyManager.remove(m_service2);
-        m_dependencyManager.remove(m_service);
-        m_service2 = null;
-        m_service = null;
+    private void destroySessionServices(String sessionID, SessionData sd) {
+        m_dependencyManager.remove(sd.m_service2);
+        m_dependencyManager.remove(sd.m_service);
     }
 }

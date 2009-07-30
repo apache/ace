@@ -18,33 +18,22 @@
  */
 package org.apache.ace.server;
 
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
-
 /**
- * Listener that examines sessions that are destroyed and stops an embedded
- * framework stored in <code>SessionConstants.FRAMEWORK</code> if present.
+ * Listener that destroys all session specific services that were published for that session.
  */
 public class SessionListener implements HttpSessionListener {
     public void sessionCreated(HttpSessionEvent se) {
+        // nothing to do when the session was created, the SessionFactory already 
+        // created the appropriate services when we arrive at this point
     }
 
     public void sessionDestroyed(HttpSessionEvent se) {
-        HttpSession session = se.getSession();
-        if (session != null) {
-            Bundle framework = (Bundle) session.getAttribute(SessionConstants.FRAMEWORK);
-            if (framework != null) {
-                try {
-                    framework.stop();
-                }
-                catch (BundleException e) {
-                    // not much we can do if this fails
-                }
-            }
-        }
+        // get the session ID from the session
+        String sessionID = se.getSession().getId();
+        // destroy the session related services
+        Activator.destroySession(sessionID);
     }
 }

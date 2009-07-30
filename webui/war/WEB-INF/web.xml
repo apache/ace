@@ -9,6 +9,11 @@
   <welcome-file-list>
     <welcome-file>webui.html</welcome-file>
   </welcome-file-list>
+
+  <!-- Session listener -->
+  <listener>
+    <listener-class>org.apache.ace.server.SessionListener</listener-class>
+  </listener>
   
   <!-- Servlets -->
   <servlet>
