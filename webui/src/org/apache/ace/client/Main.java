@@ -41,9 +41,13 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 
 /**
  * Entry point for the web UI.
@@ -79,7 +83,8 @@ public class Main implements EntryPoint {
         ts.getTargets(new AsyncCallback<TargetDescriptor[]>() {
 
             public void onFailure(Throwable caught) {
-                Window.alert("Callback failed, not creating UI...");
+                createUI();
+//                Window.alert("Callback failed, not updating UI...");
             }
 
             public void onSuccess(TargetDescriptor[] result) {
@@ -98,10 +103,8 @@ public class Main implements EntryPoint {
     }
 
     private void createUI() {
-        // Add the header panels
         Button addBundleButton = new Button("+");
         addBundleButton.addStyleDependentName("add");
-        RootPanel.get("bundlesHeader").add(addBundleButton);
         addBundleButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 new AddBundleDialog(Main.this).show();
@@ -110,7 +113,6 @@ public class Main implements EntryPoint {
 
         Button addGroupButton = new Button("+");
         addGroupButton.addStyleDependentName("add");
-        RootPanel.get("groupsHeader").add(addGroupButton);
         addGroupButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 m_groupTable.addNew();
@@ -119,7 +121,6 @@ public class Main implements EntryPoint {
         
         Button addLicenseButton = new Button("+");
         addLicenseButton.addStyleDependentName("add");
-        RootPanel.get("licensesHeader").add(addLicenseButton);
         addLicenseButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 m_licenseTable.addNew();
@@ -127,26 +128,21 @@ public class Main implements EntryPoint {
         });
         
         // Create some scrollpanels with our tables
-        ScrollPanel scrollPanel = new ScrollPanel(m_bundleTable);
-        scrollPanel.setHeight("30em");
-        scrollPanel.setStyleName("objectTable");
-        RootPanel.get("bundleColumnContainer").add(scrollPanel);
-        scrollPanel = new ScrollPanel(m_groupTable);
-        scrollPanel.setHeight("30em");
-        scrollPanel.setStyleName("objectTable");
-        RootPanel.get("groupColumnContainer").add(scrollPanel);
-        scrollPanel = new ScrollPanel(m_licenseTable);
-        scrollPanel.setHeight("30em");
-        scrollPanel.setStyleName("objectTable");
-        RootPanel.get("licenseColumnContainer").add(scrollPanel);
-        scrollPanel = new ScrollPanel(m_targetTable);
-        scrollPanel.setHeight("30em");
-        scrollPanel.setStyleName("objectTable");
-        RootPanel.get("targetColumnContainer").add(scrollPanel);
+        ScrollPanel bundleScrollPanel = new ScrollPanel(m_bundleTable);
+//        bundleScrollPanel.setHeight("30em");
+        bundleScrollPanel.setStyleName("objectTable");
+        ScrollPanel groupScrollPanel = new ScrollPanel(m_groupTable);
+//        groupScrollPanel.setHeight("30em");
+        groupScrollPanel.setStyleName("objectTable");
+        ScrollPanel licenseScrollPanel = new ScrollPanel(m_licenseTable);
+//        licenseScrollPanel.setHeight("30em");
+        licenseScrollPanel.setStyleName("objectTable");
+        ScrollPanel targetScrollPanel = new ScrollPanel(m_targetTable);
+//        targetScrollPanel.setHeight("30em");
+        targetScrollPanel.setStyleName("objectTable");
         
         // Create the association buttons
         Button b2g = new Button("<->");
-        RootPanel.get("b2gButton").add(b2g);
         b2g.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 m_assocationService.link(m_bundleTable.getCheckedObject(), m_groupTable.getCheckedObject(), new AsyncCallback<Void>() {
@@ -161,7 +157,6 @@ public class Main implements EntryPoint {
         });
         
         Button g2l = new Button("<->");
-        RootPanel.get("g2lButton").add(g2l);
         g2l.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 GroupDescriptor group = m_groupTable.getCheckedObject();
@@ -177,7 +172,6 @@ public class Main implements EntryPoint {
             }
         });
         Button l2t = new Button("<->");
-        RootPanel.get("l2tButton").add(l2t);
         l2t.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 m_assocationService.link(m_licenseTable.getCheckedObject(), m_targetTable.getCheckedObject(), new AsyncCallback<Void>() {
@@ -191,11 +185,37 @@ public class Main implements EntryPoint {
             }
         });
         
-        // Put our status label in the lower left corner
-        RootPanel.get("serverStatusLabel").add(m_statusLabel);
-        
-        // Add our checkout panel
-        RootPanel.get("buttonPanel").add(new CheckoutPanel(this));
+        FlexTable rootPanel = new FlexTable();
+        FlexCellFormatter formatter = rootPanel.getFlexCellFormatter();
+        rootPanel.setWidth("100%");
+        rootPanel.setHeight("100%");
+        rootPanel.setHTML(1, 0, "Bundle");
+        formatter.setWidth(1, 0, "25%");
+        rootPanel.setWidget(2, 0, addBundleButton);
+        rootPanel.setWidget(2, 1, b2g);
+        formatter.setStyleName(2, 1, "fixedColumn");
+        rootPanel.setWidget(3, 0, bundleScrollPanel);
+        formatter.setHeight(3, 0, "90%");
+        rootPanel.setHTML(1, 2, "Group");
+        formatter.setWidth(1, 2, "25%");
+        rootPanel.setWidget(2, 2, addGroupButton);
+        rootPanel.setWidget(2, 3, g2l);
+        formatter.setStyleName(2, 3, "fixedColumn");
+        rootPanel.setWidget(3, 2, groupScrollPanel);
+        rootPanel.setHTML(1, 4, "License");
+        formatter.setWidth(1, 4, "25%");
+        rootPanel.setWidget(2, 4, addLicenseButton);
+        rootPanel.setWidget(2, 5, l2t);
+        formatter.setStyleName(2, 5, "fixedColumn");
+        rootPanel.setWidget(3, 4, licenseScrollPanel);
+        rootPanel.setHTML(1, 6, "Target");
+        formatter.setWidth(1, 6, "25%");
+        rootPanel.setWidget(3, 6, targetScrollPanel);
+        rootPanel.setWidget(0, 0, new CheckoutPanel(this));
+        formatter.setColSpan(0, 0, 7);
+        rootPanel.setWidget(4, 0, m_statusLabel);
+        formatter.setColSpan(4, 0, 7);
+        RootPanel.get("body").add(rootPanel);
     }
     
     /**
