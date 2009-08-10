@@ -47,10 +47,8 @@ public class Descriptor implements Serializable {
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Descriptor) {
-            return getName().equals(((Descriptor) obj).getName());
-        }
-        return false;
+        return getClass().equals(obj.getClass()) &&
+            getName().equals(((Descriptor) obj).getName());
     }
     
     /**
@@ -58,6 +56,6 @@ public class Descriptor implements Serializable {
      */
     @Override
     public int hashCode() {
-        return getName().hashCode();
+        return getName().hashCode() ^ getClass().hashCode();
     }
 }
