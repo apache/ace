@@ -6,5 +6,6 @@
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/server"/>
+	<classpathentry kind="lib" path="lib/gwt/gwt-user.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
