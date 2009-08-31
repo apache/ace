@@ -32,7 +32,8 @@ public class Activator extends DependencyActivatorBase {
         manager.add(createService()
             .setImplementation(new Configurator(new File(
                 getProperty(context.getProperty(Activator.class.getPackage().getName() + ".CONFIG_DIR"), "conf")),
-                getProperty(context.getProperty(Activator.class.getPackage().getName() + ".POLL_INTERVAL"), 2000)))
+                getProperty(context.getProperty(Activator.class.getPackage().getName() + ".POLL_INTERVAL"), 2000),
+                getProperty(context.getProperty(Activator.class.getPackage().getName() + ".RECONFIG"), true)))
             .add(createServiceDependency()
                 .setService(ConfigurationAdmin.class)
                 .setRequired(true))
@@ -51,5 +52,9 @@ public class Activator extends DependencyActivatorBase {
 
     public long getProperty(String prop, long def) {
         return (prop == null) ? def : Long.parseLong(prop);
+    }
+
+    public boolean getProperty(String prop, boolean def) {
+        return (prop == null) ? def : Boolean.getBoolean(prop);
     }
 }

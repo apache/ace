@@ -69,13 +69,22 @@ public class Configurator implements Runnable {
     private final Map m_checksums = new HashMap();   // absolutepath -> xor(length, date)
     private final Map m_foundFactories = new HashMap(); // absolutedirpath -> (absolutepath -> xor(length, date))
     private Thread m_configThread;
+    private final boolean m_reconfig;
 
-    public Configurator(File dir, long pollInterval) {
+    /**
+     * Instantiates a new configurator.
+     * @param dir The directory to watch.
+     * @param pollInterval The poll iterval in ms.
+     * @param reconfig Whether or not to use reconfiguration: if <code>false</code>, existing configuration
+     * values will not be overwritten, only new values (for a given pid) will be added.
+     */
+    public Configurator(File dir, long pollInterval, boolean reconfig) {
         if ((dir == null) || !dir.isDirectory() || (pollInterval < 0)) {
             throw new IllegalArgumentException("Bad arguments; either not an existing directory or an invalid interval.");
         }
         m_configDir = dir;
         m_pollInterval = pollInterval;
+        m_reconfig = reconfig;
     }
 
     /**
@@ -211,16 +220,15 @@ public class Configurator implements Runnable {
         try {
             Configuration config = getConfiguration(pid, factoryPid);
             Dictionary oldProps = config.getProperties();
-            if (oldProps != null) {
-                Enumeration keys = oldProps.keys();
-                while (keys.hasMoreElements()) {
-                    String key = (String) keys.nextElement();
-                    if (properties.containsKey(key)) {
-                        // FIXME: this is to prevent overwriting configurations, that were changed by other means than this class, every time this class is ran
-                        // sadly, this also breaks editing a configuration file on the fly, degrading this class to do only first-time configurations (on a per key basis)
-                        // ultimately we may want to use autoconf everywhere for managing configurations, at the moment this is not feasible yet
-                        properties.put(key, oldProps.get(key));
-                        m_log.log(LogService.LOG_DEBUG, "Using previously configured value for bundle=" + pid + " key=" + key);
+            if (!m_reconfig) {
+                if (oldProps != null) {
+                    Enumeration keys = oldProps.keys();
+                    while (keys.hasMoreElements()) {
+                        String key = (String) keys.nextElement();
+                        if (properties.containsKey(key)) {
+                            properties.put(key, oldProps.get(key));
+                            m_log.log(LogService.LOG_DEBUG, "Using previously configured value for bundle=" + pid + " key=" + key);
+                        }
                     }
                 }
             }

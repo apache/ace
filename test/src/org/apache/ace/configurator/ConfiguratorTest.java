@@ -44,11 +44,19 @@ public class ConfiguratorTest {
 
     @BeforeMethod(alwaysRun = true)
     protected void setUp() throws Exception {
+        setUp(false);
+    }
+
+    /**
+     * Sets up the environment for testing.
+     * @param reconfig Indicates whether or not the configurator should use reconfiguration.
+     */
+    protected void setUp(boolean reconfig) throws Exception {
         m_configAdmin = new MockConfigAdmin();
 
         m_configDir = FileUtils.createTempFile(null);
         m_configDir.mkdir();
-        m_configurator = new Configurator(m_configDir, 400);
+        m_configurator = new Configurator(m_configDir, 400, reconfig);
 
         TestUtils.configureObject(m_configurator, ConfigurationAdmin.class, m_configAdmin);
         TestUtils.configureObject(m_configurator, LogService.class);
@@ -60,7 +68,6 @@ public class ConfiguratorTest {
         }));
         m_configurator.start();
     }
-
 
     /**
      * save the properties into a configuration file the configurator can read.
@@ -150,7 +157,6 @@ public class ConfiguratorTest {
     }
 
     // remove a configuration
-    @SuppressWarnings("unchecked")
     @Test(groups = { UNIT })
     public void testRemoveFactoryConfiguration() {
         Properties props = createProperties();
@@ -203,10 +209,10 @@ public class ConfiguratorTest {
         assert configuration.get("subst") != null : "Substitution failed";
     }
 
-    // update a configuration
+    // update a configuration, only adding a key (this is allowed in all cases)
     @SuppressWarnings("unchecked")
     @Test(groups = { UNIT })
-    public void testChangeConfiguration() {
+    public void testChangeConfigurationUsingNewKey() {
         Properties initialConfiguration = createProperties();
         saveConfiguration("test-change", initialConfiguration);
 
@@ -221,6 +227,49 @@ public class ConfiguratorTest {
         configuration = getAndWaitForConfiguration(initialConfiguration);
         assert configuration != null : "No configuration received from configurator";
         assert configuration.equals(initialConfiguration) : "Configuration content not expected. Was expecting " + initialConfiguration.size() + " but got " + configuration.size();
+    }
+
+    // update a configuration, changing an already existing key, not using reconfiguration
+    @SuppressWarnings("unchecked")
+    @Test(groups = { UNIT })
+    public void testChangeConfigurationUsingSameKeyNoReconfigure() {
+        Properties configurationValues = createProperties();
+        Properties initialConfigurationValues = new Properties();
+        initialConfigurationValues.putAll(configurationValues);
+        saveConfiguration("test-change", configurationValues);
+
+        Dictionary configuration = getAndWaitForConfiguration(configurationValues);
+        assert configuration != null : "No configuration received from configurator";
+        assert configuration.equals(configurationValues) : "Configuration content not expected. Was expecting " + configurationValues.size() + " but got " + configuration.size();
+
+        configurationValues.put("test","value42");
+        saveConfiguration("test-change", configurationValues);
+
+        // The update should have been ignored, and the old values should still be present.
+        configuration = getAndWaitForConfiguration(configurationValues);
+        assert configuration != null : "No configuration received from configurator";
+        assert configuration.equals(initialConfigurationValues) : "Configuration content not expected. Was expecting " + configurationValues.size() + " but got " + configuration.size();
+    }
+
+    // update a configuration, changing an already existing key, using reconfiguration
+    @SuppressWarnings("unchecked")
+    @Test(groups = { UNIT })
+    public void testChangeConfigurationUsingSameKeyWithReconfigure() throws Exception {
+        setUp(true); // Instruct the configurator to reconfigure
+        Properties configurationValues = createProperties();
+        saveConfiguration("test-change", configurationValues);
+
+        Dictionary configuration = getAndWaitForConfiguration(configurationValues);
+        assert configuration != null : "No configuration received from configurator";
+        assert configuration.equals(configurationValues) : "Configuration content not expected. Was expecting " + configurationValues.size() + " but got " + configuration.size();
+
+        configurationValues.put("test","value42");
+        saveConfiguration("test-change", configurationValues);
+
+        // now the configuration should be updated
+        configuration = getAndWaitForConfiguration(configurationValues);
+        assert configuration != null : "No configuration received from configurator";
+        assert configuration.equals(configurationValues) : "Configuration content not expected. Was expecting " + configurationValues.size() + " but got " + configuration.size();
     }
 
     // remove a configuration
