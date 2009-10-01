@@ -38,6 +38,7 @@ public class Activator extends DependencyActivatorBase {
     private static volatile Activator m_instance;
     
     private volatile SessionFactory m_sessionFactory;
+    private volatile LogService m_log;
 
     static Activator instance() {
         return m_instance;
@@ -45,6 +46,10 @@ public class Activator extends DependencyActivatorBase {
     
     static BundleContext getContext() {
         return m_context;
+    }
+    
+    LogService getLog() {
+        return m_log;
     }
     
     static void destroySession(String sessionID) {
@@ -151,6 +156,7 @@ public class Activator extends DependencyActivatorBase {
         manager.add(createService()
             .setImplementation(this)
             .add(createServiceDependency().setRequired(true).setService(SessionFactory.class))
+            .add(createServiceDependency().setService(LogService.class).setRequired(false))
             );
     }
     @Override

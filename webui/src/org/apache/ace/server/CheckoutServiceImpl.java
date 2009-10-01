@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
-import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
 import org.apache.ace.client.services.CheckoutService;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;

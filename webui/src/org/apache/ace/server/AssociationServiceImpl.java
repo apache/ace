@@ -39,6 +39,7 @@ import org.apache.ace.client.services.Descriptor;
 import org.apache.ace.client.services.GroupDescriptor;
 import org.apache.ace.client.services.LicenseDescriptor;
 import org.apache.ace.client.services.TargetDescriptor;
+import org.osgi.service.log.LogService;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -138,13 +139,19 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
     }
 
     public Descriptor[] getRelated(Descriptor o) throws Exception {
-        HttpServletRequest request = getThreadLocalRequest();
-        RepositoryObject a = ObjectMapping.unwrap(request, o);
-        List<RepositoryObject> relatedObjects = getRelated(request, a);
-        List<Descriptor> descriptors = ObjectMapping.wrap(relatedObjects);
-        return descriptors.toArray(new Descriptor[descriptors.size()]);
+        try {
+            HttpServletRequest request = getThreadLocalRequest();
+            RepositoryObject a = ObjectMapping.unwrap(request, o);
+            List<RepositoryObject> relatedObjects = getRelated(request, a);
+            List<Descriptor> descriptors = ObjectMapping.wrap(relatedObjects);
+            return descriptors.toArray(new Descriptor[descriptors.size()]);
+        }
+        catch (Exception e) {
+            Activator.instance().getLog().log(LogService.LOG_ERROR, "Error getting related objects", e);
+            throw e;
+        }
     }
-    
+
     /**
      * Helper method that finds all related {@link RepositoryObject}s for a given one.
      */
@@ -174,7 +181,8 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
             result.addAll(groups);
             result.addAll(TargetServiceImpl.instance().findSGOs(request, targets));
         }
-        else if (object instanceof StatefulGatewayObject) {
+        else if (object instanceof StatefulGatewayObject && ((StatefulGatewayObject) object).isRegistered()) {
+            // We can ignore any non-registered SGO's, since these will never have any associations.
             List<LicenseObject> licenses = getRelated(object, LicenseObject.class);
             List<GroupObject> groups = getRelated(licenses, GroupObject.class);
             List<ArtifactObject> artifacts = getRelated(groups, ArtifactObject.class);
