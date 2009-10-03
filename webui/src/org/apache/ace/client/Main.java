@@ -19,6 +19,7 @@
 package org.apache.ace.client;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -184,15 +185,22 @@ public class Main implements EntryPoint {
      * Triggers the updating of the highlight
      */
     void updateHighlight() {
-        m_assocationService.getRelated(getSelectedObject(), new AsyncCallback<Descriptor[]>() {
-            public void onFailure(Throwable caught) {
-                // Too bad...
-                Window.alert("Error updating highlights: " + caught);
-            }
-            public void onSuccess(Descriptor[] result) {
-                highlight(Arrays.asList(result));
-            }
-        });
+        Descriptor selected = getSelectedObject();
+        if (selected == null) {
+            List<Descriptor> emptyList = Collections.emptyList();
+            highlight(emptyList);
+        }
+        else {
+            m_assocationService.getRelated(selected, new AsyncCallback<Descriptor[]>() {
+                public void onFailure(Throwable caught) {
+                    // Too bad...
+                    Window.alert("Error updating highlights: " + caught);
+                }
+                public void onSuccess(Descriptor[] result) {
+                    highlight(Arrays.asList(result));
+                }
+            });
+        }
     }
     
     /**
