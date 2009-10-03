@@ -10,6 +10,7 @@
     <path refid="bnd.classpath" />
     <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
     <!-- Add any additional non-server libs (such as JUnit) -->
+    <fileset dir="../webui/lib" includes="gwt-dnd-2.6.5.jar"/>
     <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
   </path>
 

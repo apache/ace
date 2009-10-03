@@ -26,12 +26,11 @@ import java.util.Map;
 import org.apache.ace.client.services.AssociationService;
 import org.apache.ace.client.services.AssociationServiceAsync;
 import org.apache.ace.client.services.Descriptor;
-import org.apache.ace.client.services.GroupDescriptor;
-import org.apache.ace.client.services.LicenseDescriptor;
 import org.apache.ace.client.services.TargetDescriptor;
 import org.apache.ace.client.services.TargetService;
 import org.apache.ace.client.services.TargetServiceAsync;
 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.impl.StringBuilderImpl;
@@ -53,12 +52,14 @@ import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 public class Main implements EntryPoint {
     private static final int REFRESH_INTERVAL = 2000;
     private StatusLabel m_statusLabel = new StatusLabel();
-    private BundleTable m_bundleTable = new BundleTable(m_statusLabel, this);
-    private GroupTable m_groupTable = new GroupTable(m_statusLabel, this);
-    private LicenseTable m_licenseTable = new LicenseTable(m_statusLabel, this);
-    private TargetTable m_targetTable = new TargetTable(m_statusLabel, this);
+    private PickupDragController m_dragController = new PickupDragController(RootPanel.get(), false);
+    private BundleTable m_bundleTable = new BundleTable(m_statusLabel, m_dragController, this);
+    private GroupTable m_groupTable = new GroupTable(m_statusLabel, m_dragController, this);
+    private LicenseTable m_licenseTable = new LicenseTable(m_statusLabel, m_dragController, this);
+    private TargetTable m_targetTable = new TargetTable(m_statusLabel, m_dragController, this);
     
     AssociationServiceAsync m_assocationService = GWT.create(AssociationService.class);
+    
     
     /**
      * Interface for the columns, that they can use to indicate their status of
@@ -139,50 +140,6 @@ public class Main implements EntryPoint {
 //        targetScrollPanel.setHeight("30em");
         targetScrollPanel.setStyleName("objectTable");
         
-        // Create the association buttons
-        Button b2g = new Button("<->");
-        b2g.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                m_assocationService.link(m_bundleTable.getCheckedObject(), m_groupTable.getCheckedObject(), new AsyncCallback<Void>() {
-                    public void onFailure(Throwable caught) {
-                        Window.alert("Error creating association: " + caught);
-                    }
-                    public void onSuccess(Void result) {
-                        updateHighlight();
-                    }
-                });
-            }
-        });
-        
-        Button g2l = new Button("<->");
-        g2l.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                GroupDescriptor group = m_groupTable.getCheckedObject();
-                LicenseDescriptor license = m_licenseTable.getCheckedObject();
-                m_assocationService.link(group, license, new AsyncCallback<Void>() {
-                    public void onFailure(Throwable caught) {
-                        Window.alert("Error creating association: " + caught);
-                    }
-                    public void onSuccess(Void result) {
-                        updateHighlight();
-                    }
-                });
-            }
-        });
-        Button l2t = new Button("<->");
-        l2t.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                m_assocationService.link(m_licenseTable.getCheckedObject(), m_targetTable.getCheckedObject(), new AsyncCallback<Void>() {
-                    public void onFailure(Throwable caught) {
-                        Window.alert("Error creating association: " + caught);
-                    }
-                    public void onSuccess(Void result) {
-                        updateHighlight();
-                    }
-                });
-            }
-        });
-        
         FlexTable rootPanel = new FlexTable();
         FlexCellFormatter formatter = rootPanel.getFlexCellFormatter();
         rootPanel.setWidth("100%");
@@ -190,30 +147,27 @@ public class Main implements EntryPoint {
         rootPanel.setHTML(1, 0, "Bundle");
         formatter.setWidth(1, 0, "25%");
         rootPanel.setWidget(2, 0, addBundleButton);
-        rootPanel.setWidget(2, 1, b2g);
-        formatter.setStyleName(2, 1, "fixedColumn");
         rootPanel.setWidget(3, 0, bundleScrollPanel);
         formatter.setHeight(3, 0, "90%");
-        rootPanel.setHTML(1, 2, "Group");
+        rootPanel.setHTML(1, 1, "Group");
+        formatter.setWidth(1, 1, "25%");
+        rootPanel.setWidget(2, 1, addGroupButton);
+        rootPanel.setWidget(3, 1, groupScrollPanel);
+        rootPanel.setHTML(1, 2, "License");
         formatter.setWidth(1, 2, "25%");
-        rootPanel.setWidget(2, 2, addGroupButton);
-        rootPanel.setWidget(2, 3, g2l);
-        formatter.setStyleName(2, 3, "fixedColumn");
-        rootPanel.setWidget(3, 2, groupScrollPanel);
-        rootPanel.setHTML(1, 4, "License");
-        formatter.setWidth(1, 4, "25%");
-        rootPanel.setWidget(2, 4, addLicenseButton);
-        rootPanel.setWidget(2, 5, l2t);
-        formatter.setStyleName(2, 5, "fixedColumn");
-        rootPanel.setWidget(3, 4, licenseScrollPanel);
-        rootPanel.setHTML(1, 6, "Target");
-        formatter.setWidth(1, 6, "25%");
-        rootPanel.setWidget(3, 6, targetScrollPanel);
+        rootPanel.setWidget(2, 2, addLicenseButton);
+        rootPanel.setWidget(3, 2, licenseScrollPanel);
+        rootPanel.setHTML(1, 3, "Target");
+        formatter.setWidth(1, 3, "25%");
+        rootPanel.setWidget(3, 3, targetScrollPanel);
         rootPanel.setWidget(0, 0, new CheckoutPanel(this));
-        formatter.setColSpan(0, 0, 7);
+        formatter.setColSpan(0, 0, 4);
         rootPanel.setWidget(4, 0, m_statusLabel);
-        formatter.setColSpan(4, 0, 7);
+        formatter.setColSpan(4, 0, 4);
         RootPanel.get("body").add(rootPanel);
+        
+        m_dragController.setBehaviorDragProxy(true);
+        m_dragController.setBehaviorDragStartSensitivity(4);
     }
     
     /**

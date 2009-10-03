@@ -19,10 +19,16 @@
 package org.apache.ace.client;
 
 import org.apache.ace.client.Main.StatusHandler;
+import org.apache.ace.client.services.AssociationService;
+import org.apache.ace.client.services.AssociationServiceAsync;
+import org.apache.ace.client.services.Descriptor;
+import org.apache.ace.client.services.GroupDescriptor;
 import org.apache.ace.client.services.LicenseDescriptor;
 import org.apache.ace.client.services.LicenseService;
 import org.apache.ace.client.services.LicenseServiceAsync;
+import org.apache.ace.client.services.TargetDescriptor;
 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -32,9 +38,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class LicenseTable extends ObjectTable<LicenseDescriptor> {
     private LicenseServiceAsync m_licenseService = GWT.create(LicenseService.class);
+    private AssociationServiceAsync m_associationService = GWT.create(AssociationService.class);
 
-    LicenseTable(StatusHandler handler, Main main) {
-        super(handler, main);
+    LicenseTable(StatusHandler handler, PickupDragController dragController, Main main) {
+        super(handler, dragController, main);
     }
 
     @Override
@@ -69,5 +76,15 @@ public class LicenseTable extends ObjectTable<LicenseDescriptor> {
     @Override
     protected void remove(LicenseDescriptor object, AsyncCallback<Void> callback) {
         m_licenseService.remove(object, callback);
+    }
+
+    @Override
+    protected void link(LicenseDescriptor object, Descriptor other, AsyncCallback<Void> callback) {
+        if (other instanceof GroupDescriptor) {
+            m_associationService.link((GroupDescriptor) other, object, callback);
+        }
+        else if (other instanceof TargetDescriptor) {
+            m_associationService.link(object, (TargetDescriptor) other, callback);
+        }
     }
 }

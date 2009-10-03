@@ -19,10 +19,15 @@
 package org.apache.ace.client;
 
 import org.apache.ace.client.Main.StatusHandler;
+import org.apache.ace.client.services.AssociationService;
+import org.apache.ace.client.services.AssociationServiceAsync;
+import org.apache.ace.client.services.Descriptor;
+import org.apache.ace.client.services.LicenseDescriptor;
 import org.apache.ace.client.services.TargetDescriptor;
 import org.apache.ace.client.services.TargetService;
 import org.apache.ace.client.services.TargetServiceAsync;
 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -31,9 +36,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class TargetTable extends ObjectTable<TargetDescriptor> {
     private TargetServiceAsync m_targetService = GWT.create(TargetService.class);
+    private AssociationServiceAsync m_associationService = GWT.create(AssociationService.class);
 
-    TargetTable(StatusHandler handler, Main main) {
-        super(handler, main);
+    TargetTable(StatusHandler handler, PickupDragController dragController, Main main) {
+        super(handler, dragController, main);
     }
 
     @Override
@@ -59,5 +65,12 @@ public class TargetTable extends ObjectTable<TargetDescriptor> {
     @Override
     protected boolean canDelete() {
         return false;
+    }
+
+    @Override
+    protected void link(TargetDescriptor object, Descriptor other, AsyncCallback<Void> callback) {
+        if (other instanceof LicenseDescriptor) {
+            m_associationService.link((LicenseDescriptor) other, object, callback);
+        }
     }
 }

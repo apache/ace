@@ -27,22 +27,27 @@ import org.apache.ace.client.services.AssociationService;
 import org.apache.ace.client.services.AssociationServiceAsync;
 import org.apache.ace.client.services.Descriptor;
 
+import com.allen_sauer.gwt.dnd.client.DragContext;
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.allen_sauer.gwt.dnd.client.drop.DropController;
+import com.allen_sauer.gwt.dnd.client.drop.SimpleDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.Label;
 
 /**
  * Basic table for using a valueobject per row.
  */
 public abstract class ObjectTable<T extends Descriptor> extends FlexTable {
     private final StatusHandler m_handler;
+    private final PickupDragController m_dragController;
     private final Main m_main;
     
     private final Map<T, ObjectPanel> m_panels = new HashMap<T, ObjectPanel>();
@@ -64,7 +69,6 @@ public abstract class ObjectTable<T extends Descriptor> extends FlexTable {
                 ObjectPanel panel = m_panels.get(t);
                 if (panel == null) {
                     panel = new ObjectPanel(t);
-                    panel.addToGroup(m_buttonGroup);
                     m_panels.put(t, panel);
                 }
                 panel.setText(getText(t));
@@ -82,24 +86,11 @@ public abstract class ObjectTable<T extends Descriptor> extends FlexTable {
     };
     
     /**
-     * Deselects all other checkboxes in the same group when one gets clicked;
-     * this way, we end up with a single selected button.
-     */
-    private final ClickHandler m_buttonGroup = new ClickHandler() {
-        public void onClick(ClickEvent event) {
-            for (ObjectPanel w : m_panels.values()) {
-                if (!w.owns(event.getSource())) {
-                    w.setChecked(false);
-                }
-            }
-        }
-    };
-
-    /**
      * Sole constructor for this class; all subclasses must delegate to this one.
      */
-    public ObjectTable(StatusHandler handler, Main main) {
+    public ObjectTable(StatusHandler handler, PickupDragController dragController, Main main) {
         m_handler = handler;
+        m_dragController = dragController;
         m_main = main;
     }
     
@@ -127,23 +118,15 @@ public abstract class ObjectTable<T extends Descriptor> extends FlexTable {
     protected abstract void remove(T object, AsyncCallback<Void> callback);
     
     /**
+     * Links an object of ours with some other, that has been dropped onto our object.
+     */
+    protected abstract void link(T object, Descriptor other, AsyncCallback<Void> callback);
+    
+    /**
      * States whether removal of this object is allowed.
      */
     protected boolean canDelete() {
         return true;
-    }
-    
-
-    /**
-     * Finds the currently checked object, or <code>null</code> if none is found.
-     */
-    public T getCheckedObject() {
-        for (Map.Entry<T, ObjectPanel> entry : m_panels.entrySet()) {
-            if (entry.getValue().isChecked()) {
-                return entry.getKey();
-            }
-        }
-        return null;
     }
     
     /**
@@ -195,15 +178,17 @@ public abstract class ObjectTable<T extends Descriptor> extends FlexTable {
      * unlink and delete the related object.
      */
     private class ObjectPanel extends FocusPanel {
-        private final CheckBox m_checkbox;
+        private final Label m_label;
         private boolean m_selected;
+        private final T m_object;
 
         public ObjectPanel(final T object) {
+            m_object = object;
             DockPanel mainPanel = new DockPanel();
 
-            m_checkbox = new CheckBox(getText(object));
-            m_checkbox.setStylePrimaryName("objectpaneltext");
-            mainPanel.add(m_checkbox, DockPanel.WEST);
+            m_label = new Label(getText(object));
+            m_label.setStylePrimaryName("objectpaneltext");
+            mainPanel.add(m_label, DockPanel.WEST);
 
             if (canDelete()) {
                 Button delete = new Button("x");
@@ -235,7 +220,6 @@ public abstract class ObjectTable<T extends Descriptor> extends FlexTable {
                         public void onSuccess(Void result) {
                             m_main.updateHighlight();
                         }
-                        
                     });
                     event.stopPropagation(); // we don't want the panel to get the click
                 }
@@ -252,14 +236,30 @@ public abstract class ObjectTable<T extends Descriptor> extends FlexTable {
                     m_main.updateHighlight();
                 }
             });
+            
+            m_dragController.makeDraggable(this);
+            DropController dropController = new SimpleDropController(this) {
+                @Override
+                public void onDrop(DragContext context) {
+                    Object other = ((ObjectPanel) context.draggable).getObject();
+                    if (other instanceof Descriptor) {
+                        link(object, (Descriptor) other, new AsyncCallback<Void>() {
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Error linking objects.");
+                            }
+                            public void onSuccess(Void result) {
+                                // Hurrah!
+                                m_main.updateHighlight();
+                            }
+                        });
+                    }
+                }
+            };
+            m_dragController.registerDropController(dropController);
         }
         
-        public boolean isChecked() {
-            return m_checkbox.getValue();
-        }
-        
-        public void setChecked(boolean b) {
-            m_checkbox.setValue(b);
+        public T getObject() {
+            return m_object;
         }
         
         public boolean isSelected() {
@@ -270,40 +270,16 @@ public abstract class ObjectTable<T extends Descriptor> extends FlexTable {
             m_selected = selected;
             if (selected) {
                 addStyleDependentName("selected");
-                m_checkbox.addStyleDependentName("selected");
+                m_label.addStyleDependentName("selected");
             }
             else {
                 removeStyleDependentName("selected");
-                m_checkbox.removeStyleDependentName("selected");
+                m_label.removeStyleDependentName("selected");
             }
         }
         
-        public void setRelated(boolean related) {
-            if (related) {
-                addStyleDependentName("related");
-            }
-            else {
-                removeStyleDependentName("related");
-            }
-        }
-
         public void setText(String text) {
-            m_checkbox.setText(text);
-        }
-        
-        /**
-         * Returns whether the given object is 'owned' by this panel.
-         */
-        public boolean owns(Object object) {
-            return object.equals(m_checkbox);
-        }
-        
-        /**
-         * Registers a clickhandler with the checkbox; this is used to make sure that at most one
-         * checkbox in a column is checked.
-         */
-        public void addToGroup(ClickHandler handler) {
-            m_checkbox.addClickHandler(handler);
+            m_label.setText(text);
         }
     }
 }

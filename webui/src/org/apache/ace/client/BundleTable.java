@@ -19,10 +19,15 @@
 package org.apache.ace.client;
 
 import org.apache.ace.client.Main.StatusHandler;
+import org.apache.ace.client.services.AssociationService;
+import org.apache.ace.client.services.AssociationServiceAsync;
 import org.apache.ace.client.services.BundleDescriptor;
 import org.apache.ace.client.services.BundleService;
 import org.apache.ace.client.services.BundleServiceAsync;
+import org.apache.ace.client.services.Descriptor;
+import org.apache.ace.client.services.GroupDescriptor;
 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -31,9 +36,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class BundleTable extends ObjectTable<BundleDescriptor> {
     private BundleServiceAsync m_bundleService = GWT.create(BundleService.class);
+    private AssociationServiceAsync m_associationService = GWT.create(AssociationService.class);
 
-    BundleTable(StatusHandler handler, Main main) {
-        super(handler, main);
+    BundleTable(StatusHandler handler, PickupDragController dragController, Main main) {
+        super(handler, dragController, main);
     }
 
     @Override
@@ -54,5 +60,12 @@ public class BundleTable extends ObjectTable<BundleDescriptor> {
     @Override
     protected void remove(BundleDescriptor object, AsyncCallback<Void> callback) {
         m_bundleService.remove(object, callback);
+    }
+
+    @Override
+    protected void link(BundleDescriptor object, Descriptor other, AsyncCallback<Void> callback) {
+        if (other instanceof GroupDescriptor) {
+            m_associationService.link(object, (GroupDescriptor) other, callback);
+        }
     }
 }

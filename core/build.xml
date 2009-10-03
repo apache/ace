@@ -521,7 +521,7 @@
     <target name="package-webui" unless="webui.uptodate">
     	<!-- TODO add an activator to bridge between OSGi and GWT -->
         <copy file="../webui/webui.war" tofile="deploy/bundle/org.apache.ace.webui-1.0.0.jar"/>
-    	<echo file="org.apache.ace.webui-1.0.0.bnd">Import-Package: org.apache.ace.log,org.apache.ace.client.repository,org.apache.ace.client.repository.object,org.apache.ace.client.repository.repository,org.apache.ace.client.repository.stateful,org.apache.ace.client.repository.helper,org.apache.ace.client.repository.helper.bundle,org.xml.sax, javax.xml.parsers, junit.framework;resolution:=optional, com.google.gwt.benchmarks;resolution:=optional, *
+    	<echo file="org.apache.ace.webui-1.0.0.bnd">Import-Package: org.apache.ace.log,org.apache.ace.client.repository,org.apache.ace.client.repository.object,org.apache.ace.client.repository.repository,org.apache.ace.client.repository.stateful,org.apache.ace.client.repository.helper,org.apache.ace.client.repository.helper.bundle,org.xml.sax, javax.xml.parsers, junit.framework;resolution:=optional, com.google.gwt.benchmarks;resolution:=optional, com.allen_sauer.gwt.dnd.client;resolution:=optional, com.allen_sauer.gwt.dnd.client.drop;resolution:=optional, *
 Dynamic-ImportPackage: *
 Bundle-Name: Apache ACE Client Web UI
 Bundle-ClassPath: WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar
@@ -532,7 +532,7 @@ Bundle-Activator: org.apache.ace.server.Activator
         <bnd-wrap jars="deploy/bundle/org.apache.ace.webui-1.0.0.jar" output="deploy/bundle/org.apache.ace.webui-1.0.0.jar"/>
     	<jar file="deploy/bundle/org.apache.ace.webui-1.0.0.jar" update="true">
     	<manifest>
-            <attribute name="Bundle-ClassPath" value="WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar, WEB-INF/lib/felix.jar, ."/>
+            <attribute name="Bundle-ClassPath" value="WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar, ."/>
     	</manifest>
     	</jar>
     	<delete file="org.apache.ace.webui-1.0.0.bnd"/>
