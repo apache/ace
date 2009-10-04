@@ -77,21 +77,25 @@ public class LogIntegrationTest {
 
         boolean found = false;
         long startTime = System.currentTimeMillis();
-        while ((!found) && (System.currentTimeMillis() - startTime < 2000)) {
+        while ((!found) && (System.currentTimeMillis() - startTime < 5000)) {
             // synchronize again
             m_auditLogSyncTask.run();
 
             // get and evaluate results (note that there is some concurrency that might interfere with this test)
             List<LogDescriptor> ranges2 = m_serverStore.getDescriptors();
-            assert ranges2.size() == 1 : "We should still have audit log events for one gateway on the server, but found " + ranges2.size();
-            LogDescriptor range = ranges2.get(0);
-            List<LogEvent> events = m_serverStore.get(range);
-            assert events.size() > 1 : "We should have a couple of events, at least more than the one we added ourselves.";
-            for (LogEvent event : events) {
-                if (event.getType() == 12345) {
-                    assert event.getProperties().get("two").equals("value2") : "We could not retrieve a property of our audit log event.";
-                    found = true;
-                    break;
+            if (ranges2.size() > 0) {
+//              assert ranges2.size() == 1 : "We should still have audit log events for one gateway on the server, but found " + ranges2.size();
+                LogDescriptor range = ranges2.get(0);
+                List<LogEvent> events = m_serverStore.get(range);
+                if (events.size() > 1) {
+//                  assert events.size() > 1 : "We should have a couple of events, at least more than the one we added ourselves.";
+                    for (LogEvent event : events) {
+                        if (event.getType() == 12345) {
+                            assert event.getProperties().get("two").equals("value2") : "We could not retrieve a property of our audit log event.";
+                            found = true;
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -100,7 +104,7 @@ public class LogIntegrationTest {
                 try { TimeUnit.MILLISECONDS.sleep(100); } catch (InterruptedException ie) {}
             }
         }
-        assert found : "We could not retrieve our audit log event (after 2 seconds).";
+        assert found : "We could not retrieve our audit log event (after 5 seconds).";
     }
 
     public void testServlet() throws Exception {
