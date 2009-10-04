@@ -103,9 +103,9 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 public class RepositoryAdminTest implements EventHandler {
-    private BundleContext m_context; /* Injected by dependency manager */
-    private ConfigurationAdmin m_configAdmin; /* Injected by dependency manager */
-    private DependencyManager m_depManager; /* Configured from outside */
+    private volatile BundleContext m_context; /* Injected by dependency manager */
+    private volatile ConfigurationAdmin m_configAdmin; /* Injected by dependency manager */
+    private volatile DependencyManager m_depManager; /* injected by dependency manager */
     private volatile RepositoryAdmin m_repositoryAdmin; /* Injected by dependency manager */
     private volatile ArtifactRepository m_artifactRepository; /* Injected by dependency manager */
     private volatile Artifact2GroupAssociationRepository m_artifact2groupRepository; /* Injected by dependency manager */

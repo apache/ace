@@ -37,7 +37,6 @@ import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
 import org.apache.ace.server.log.store.LogStore;
 import org.apache.ace.test.osgi.dm.TestActivatorBase;
-import org.apache.ace.test.utils.TestUtils;
 import org.apache.felix.dependencymanager.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -50,8 +49,7 @@ import org.osgi.service.event.EventHandler;
  * Activator for the integration test.
  */
 public class Activator extends TestActivatorBase {
-
-    private ConfigurationAdmin m_configAdmin;
+    private volatile ConfigurationAdmin m_configAdmin;
 
     @Override
     protected void initServices(BundleContext context, DependencyManager manager) {
@@ -59,7 +57,14 @@ public class Activator extends TestActivatorBase {
             .setImplementation(this)
             .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true)));
         RepositoryAdminTest test = new RepositoryAdminTest();
+        Dictionary<String, Object> topics = new Hashtable<String, Object>();
+        topics.put(EventConstants.EVENT_TOPIC, new String[] {RepositoryObject.PUBLIC_TOPIC_ROOT + "*",
+            RepositoryObject.PRIVATE_TOPIC_ROOT + "*",
+            RepositoryAdmin.PUBLIC_TOPIC_ROOT + "*",
+            RepositoryAdmin.PRIVATE_TOPIC_ROOT + "*",
+            StatefulGatewayObject.TOPIC_ALL});
         manager.add(createService()
+            .setInterface(EventHandler.class.getName(), topics)
             .setImplementation(test)
             .add(createServiceDependency().setService(RepositoryAdmin.class).setRequired(true))
             .add(createServiceDependency().setService(ArtifactRepository.class).setRequired(true))
@@ -73,16 +78,6 @@ public class Activator extends TestActivatorBase {
             .add(createServiceDependency().setService(StatefulGatewayRepository.class).setRequired(true))
             .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=auditlog))").setRequired(true))
             .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true)));
-        Dictionary<String, Object> topics = new Hashtable<String, Object>();
-        topics.put(EventConstants.EVENT_TOPIC, new String[] {RepositoryObject.PUBLIC_TOPIC_ROOT + "*",
-            RepositoryObject.PRIVATE_TOPIC_ROOT + "*",
-            RepositoryAdmin.PUBLIC_TOPIC_ROOT + "*",
-            RepositoryAdmin.PRIVATE_TOPIC_ROOT + "*",
-            StatefulGatewayObject.TOPIC_ALL});
-        manager.add(createService()
-            .setImplementation(test)
-            .setInterface(EventHandler.class.getName(), topics));
-        TestUtils.configureObject(test, DependencyManager.class, manager);
     }
 
     public void start() throws IOException {
