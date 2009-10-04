@@ -36,8 +36,7 @@ import org.apache.felix.dependencymanager.DependencyManager;
 import org.apache.felix.dependencymanager.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
@@ -49,9 +48,8 @@ public class ServletConfiguratorIntegrationTest {
 
     private static Object instance;
 
-    private BundleContext m_context;
-
-    private DependencyManager m_dependencyManager;
+    private volatile BundleContext m_context;
+    private volatile DependencyManager m_dependencyManager;
 
     // the echo servlet
     private HttpServlet m_echoServlet;
@@ -76,17 +74,6 @@ public class ServletConfiguratorIntegrationTest {
         return new Object[] { instance };
     }
 
-    /**
-     * store the dependencymanager to publish our own test services
-     */
-    public ServletConfiguratorIntegrationTest(DependencyManager dependencyManager) {
-        if (instance == null) {
-            instance = this;
-        }
-        m_dependencyManager = dependencyManager;
-        // start will be called when the dependency manager is ready
-    }
-
     public void start() {
         m_echoServlet = new EchoServlet();
         Dictionary<String, String> dictionary = new Hashtable<String, String>();
@@ -101,9 +88,15 @@ public class ServletConfiguratorIntegrationTest {
                                     .setInterface(HttpService.class.getName(), null);
     }
 
-    private void setUp() throws InvalidSyntaxException, BundleException {
+    private void setUp() {
         if (m_httpBundle == null) {
-            m_httpBundle = m_context.getServiceReference(HttpService.class.getName()).getBundle();
+            ServiceReference ref = m_context.getServiceReference(HttpService.class.getName());
+            if (ref != null) {
+                m_httpBundle = ref.getBundle();
+            }
+            else {
+                throw new IllegalStateException("Could not find HttpService.");
+            }
         }
     }
 

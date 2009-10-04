@@ -21,6 +21,7 @@ package org.apache.ace.test.http.listener;
 import org.apache.ace.test.osgi.dm.TestActivatorBase;
 import org.apache.felix.dependencymanager.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 /**
@@ -31,10 +32,14 @@ public class Activator extends TestActivatorBase {
     @Override
     protected void initServices(BundleContext context, DependencyManager manager) {
         manager.add(createService()
-            .setImplementation(new ServletConfiguratorIntegrationTest(manager))
+            .setImplementation(ServletConfiguratorIntegrationTest.class)
+            .add(createServiceDependency()
+                .setService(HttpService.class)
+                .setRequired(true))
             .add(createServiceDependency()
                 .setService(LogService.class)
-                .setRequired(false)));
+                .setRequired(false))
+                );
     }
 
     @SuppressWarnings("unchecked")
