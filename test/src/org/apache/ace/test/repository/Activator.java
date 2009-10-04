@@ -22,6 +22,7 @@ import org.apache.ace.test.osgi.dm.TestActivatorBase;
 import org.apache.felix.dependencymanager.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 import org.osgi.service.prefs.PreferencesService;
 
@@ -34,6 +35,7 @@ public class Activator extends TestActivatorBase {
     protected void initServices(BundleContext context, DependencyManager manager) {
         manager.add(createService()
             .setImplementation(RepositoryTest.class)
+            .add(createServiceDependency().setService(HttpService.class).setRequired(true))
             .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true))
             .add(createServiceDependency().setService(PreferencesService.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
