@@ -70,17 +70,17 @@ public class ConfiguratorTest {
             "    </user>" +
             "</roles>").getBytes());
 
-        m_repository.commit(bis, m_repository.getRange().getHigh());
+        assert m_repository.commit(bis, m_repository.getRange().getHigh()) : "Committing test user data failed.";
 
         User user = (User) m_userAdmin.getRole("TestUser");
         int count = 0;
-        while ((user == null) && (count < 16)) {
+        while ((user == null) && (count < 60)) {
             Thread.sleep(250);
             user = (User) m_userAdmin.getRole("TestUser");
             count++;
         }
         if (user == null) {
-            assert false : "Even after four seconds, our user is not present.";
+            assert false : "Even after fifteen seconds, our user is not present.";
         }
 
         boolean foundPassword = false;
