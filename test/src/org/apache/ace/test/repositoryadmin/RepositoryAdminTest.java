@@ -84,6 +84,7 @@ import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.apache.ace.server.log.store.LogStore;
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.TestUtils;
 import org.apache.felix.dependencymanager.DependencyManager;
 import org.apache.felix.dependencymanager.Service;
@@ -290,7 +291,7 @@ public class RepositoryAdminTest implements EventHandler {
     }
 
     private static final String ENDPOINT = "/AdminRepTest";
-    private static final String HOST = "http://localhost:8080";
+    private static final String HOST = "http://localhost:" + TestConstants.PORT;
 
     /**
      * Tests the behavior with logging in and out (with multiple users), and communication
@@ -1273,7 +1274,7 @@ public class RepositoryAdminTest implements EventHandler {
 
         // Supply the OBR.
         addObr("/obr", "store");
-        m_artifactRepository.setObrBase(new URL("http://localhost:8080/obr/"));
+        m_artifactRepository.setObrBase(new URL("http://localhost:" + TestConstants.PORT + "/obr/"));
 
         m_artifactRepository.importArtifact(temp.toURI().toURL(), true);
 
@@ -1412,8 +1413,8 @@ public class RepositoryAdminTest implements EventHandler {
     @Test( groups = { TestUtils.INTEGRATION } )
     public void testRepostoryLoginDoubleRepository() throws Exception {
         RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(new MockUser("user"));
-        context.addRepositories(new URL("http://localhost:8080"), "apache", "shop", true, ArtifactRepository.class, Artifact2GroupAssociationRepository.class, GroupRepository.class);
-        context.addRepositories(new URL("http://localhost:8080"), "apache", "deployment", true, GroupRepository.class, Group2LicenseAssociationRepository.class, LicenseRepository.class);
+        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "shop", true, ArtifactRepository.class, Artifact2GroupAssociationRepository.class, GroupRepository.class);
+        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "deployment", true, GroupRepository.class, Group2LicenseAssociationRepository.class, LicenseRepository.class);
         try {
             m_repositoryAdmin.login(context);
             assert false : "We tried to log in with two repositories that try to access the same repository service; this should not be allowed.";
@@ -1429,8 +1430,8 @@ public class RepositoryAdminTest implements EventHandler {
     @Test( groups = { TestUtils.INTEGRATION } )
     public void testRepostoryLoginRepositoryWithoutImplementation() throws Exception {
         RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(new MockUser("user"));
-        context.addRepositories(new URL("http://localhost:8080"), "apache", "shop", true, ArtifactRepository.class, Artifact2GroupAssociationRepository.class, GroupRepository.class);
-        context.addRepositories(new URL("http://localhost:8080"), "apache", "deployment", true, GroupRepository.class, Group2LicenseAssociationRepository.class, newRepository.class);
+        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "shop", true, ArtifactRepository.class, Artifact2GroupAssociationRepository.class, GroupRepository.class);
+        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "deployment", true, GroupRepository.class, Group2LicenseAssociationRepository.class, newRepository.class);
         try {
             m_repositoryAdmin.login(context);
             assert false : "We tried to log in with a repository for which no implementation is available; this should not be allowed.";
@@ -1511,7 +1512,7 @@ public class RepositoryAdminTest implements EventHandler {
     @Test( groups = { TestUtils.INTEGRATION } )
     public void testTemplateProcessing() throws Exception {
         addObr("/obr", "store");
-        m_artifactRepository.setObrBase(new URL("http://localhost:8080/obr/"));
+        m_artifactRepository.setObrBase(new URL("http://localhost:" + TestConstants.PORT + "/obr/"));
 
         // create some template things
         String xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<metatype:MetaData xmlns:metatype= \"http://www.osgi.org/xmlns/metatype/v1.0.0\">\n";
@@ -1798,8 +1799,9 @@ public class RepositoryAdminTest implements EventHandler {
         configServlet.update(propsServlet);
         configStore.update(propsStore);
 
-        // Wait for the enpoint to respond.
-        URL url = new URL("http://localhost:8080" + endpoint + "/repository.xml");
+        // Wait for the endpoint to respond.
+        // TODO below there is a similar url that does put a slash between port and endpoint, why?
+        URL url = new URL("http://localhost:" + TestConstants.PORT + endpoint + "/repository.xml");
         int response = ((HttpURLConnection) url.openConnection()).getResponseCode();
         int tries = 0;
         while ((response != 200) && (tries < 50)) {
@@ -1822,7 +1824,7 @@ public class RepositoryAdminTest implements EventHandler {
         Configuration configServlet = m_configAdmin.getConfiguration("org.apache.ace.obr.servlet");
         configServlet.update(propsServlet);
 
-        URL url = new URL("http://localhost:8080/" + endpoint + "/repository.xml");
+        URL url = new URL("http://localhost:" + TestConstants.PORT + "/" + endpoint + "/repository.xml");
         int response = ((HttpURLConnection) url.openConnection()).getResponseCode();
         int tries = 0;
         while ((response != 404) && (tries < 50)) {

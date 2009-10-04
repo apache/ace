@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
+import org.apache.ace.test.constants.TestConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -56,7 +57,7 @@ public class RepositoryTest {
 
     private static final int COPY_BUFFER_SIZE = 4096;
     private static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
-    private static final String HOST = "http://localhost:8080";
+    private static final String HOST = "http://localhost:" + TestConstants.PORT;
 
     private volatile ConfigurationAdmin m_configAdmin;  // Injected by dependency manager
     private volatile BundleContext m_context;           // Injected by dependency manager

@@ -31,6 +31,7 @@ import java.util.Hashtable;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.ace.http.listener.constants.HttpConstants;
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dependencymanager.DependencyManager;
 import org.apache.felix.dependencymanager.Service;
 import org.osgi.framework.Bundle;
@@ -184,16 +185,15 @@ public class ServletConfiguratorIntegrationTest {
 
     }
 
-
-
     /**
-     * now the server should be made available at
-     * http://localhost:8080/echoservlet
-     * if it is not available after 2000 ms, the test is failed anyway
+     * Now the server should be made available at
+     * http://SERVER:PORT/echoservlet and if it is not available after
+     * some time, the test is failed anyway.
      *
      * The expectSuccess parameter indicated if this method should expect a working echoservlet or a non-working one.
      *
-     * This method returns whether the expect result was met. So if you expect it to work (and it does), true will be returned.
+     * This method returns whether the expect result was met. So if you expect
+     * it to work (and it does), true will be returned.
      * If you expect it to NOT work (and it doesn't), false will be returned.
      */
     private boolean waitForEchoServlet(boolean expectedResult) {
@@ -204,7 +204,7 @@ public class ServletConfiguratorIntegrationTest {
         boolean success = !expectedResult;
         try {
             while ((expectedResult != success) && (System.currentTimeMillis() < startTimeMillis + 30000)) {
-                URL echoServletUrl = new URL("http://localhost:8080/echoServlet?test");
+                URL echoServletUrl = new URL("http://localhost:" + TestConstants.PORT + "/echoServlet?test");
                 String echoString = null;
                 try {
                     bufReader = new BufferedReader(new InputStreamReader(echoServletUrl.openStream()));

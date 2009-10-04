@@ -28,6 +28,7 @@ import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.property.constants.IdentificationConstants;
 import org.apache.ace.log.Log;
 import org.apache.ace.server.log.store.LogStore;
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.osgi.dm.TestActivatorBase;
 import org.apache.felix.dependencymanager.DependencyManager;
 import org.osgi.framework.BundleContext;
@@ -43,7 +44,6 @@ public class Activator extends TestActivatorBase {
     @SuppressWarnings("unchecked")
     private Class[] m_classes = new Class[] { LogIntegrationTest.class };
     public static final String HOST = "localhost";
-    public static final int PORT = 8080;
     public static final String GWID = "gw-id";
     public static final String POLL_INTERVAL = "2";
     private volatile ConfigurationAdmin m_config;
@@ -93,7 +93,7 @@ public class Activator extends TestActivatorBase {
     }
 
     private void configureGateway() throws IOException {
-        setProperty(DiscoveryConstants.DISCOVERY_PID, new Object[][] { { DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + PORT } });
+        setProperty(DiscoveryConstants.DISCOVERY_PID, new Object[][] { { DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + TestConstants.PORT } });
         setProperty(IdentificationConstants.IDENTIFICATION_PID, new Object[][] { { IdentificationConstants.IDENTIFICATION_GATEWAYID_KEY, GWID } });
         createFactoryInstance("org.apache.ace.gateway.log.store.factory", new Object[][] { {"name", "auditlog"} });
         createFactoryInstance("org.apache.ace.gateway.log.factory", new Object[][] { {"name", "auditlog"} });

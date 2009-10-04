@@ -34,6 +34,7 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
 import org.apache.ace.deployment.provider.DeploymentProvider;
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.TestUtils;
 import org.apache.ace.test.utils.deployment.TestProvider;
 import org.osgi.service.log.LogService;
@@ -69,7 +70,7 @@ public class StreamTest {
         for (int i = 1; i <= 250; i++) {
             final String id = "gateway-" + i;
             try {
-                streams[i - 1] = new URL("http://127.0.0.1:8080/data/" + id + "/versions/1.0.0").openStream();
+                streams[i - 1] = new URL("http://127.0.0.1:" + TestConstants.PORT + "/data/" + id + "/versions/1.0.0").openStream();
             }
             catch (IOException ex) {
                 ex.printStackTrace();
@@ -188,7 +189,7 @@ public class StreamTest {
                     for (int i = 250; i < 300; i++) {
                         try {
                             if (streams[i] == null) {
-                                streams[i] = new URL("http://127.0.0.1:8080/data/gateway-" + (i + 1) + "/versions/1.0.0").openStream();
+                                streams[i] = new URL("http://127.0.0.1:" + TestConstants.PORT + "/data/gateway-" + (i + 1) + "/versions/1.0.0").openStream();
                             }
                             int in = streams[i].read();
                             if (in == -1) {

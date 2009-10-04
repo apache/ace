@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.repository.RangeIterator;
 import org.apache.ace.repository.SortedRangeSet;
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -73,7 +74,7 @@ public class RepositoryTool {
         }
         try {
             CommandLine line = parser.parse(options, args, props);
-            String host = line.getOptionValue("host", "http://localhost:8080/");
+            String host = line.getOptionValue("host", "http://localhost:" + TestConstants.PORT + "/");
             String cmd = line.getOptionValue("command", "query");
             String customer = line.getOptionValue("customer");
             String name = line.getOptionValue("name");

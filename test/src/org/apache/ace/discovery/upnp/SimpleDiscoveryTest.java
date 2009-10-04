@@ -23,6 +23,7 @@ import static org.apache.ace.test.utils.TestUtils.UNIT;
 import java.net.URL;
 import java.util.Properties;
 
+import org.apache.ace.test.constants.TestConstants;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.osgi.framework.ServiceReference;
@@ -35,7 +36,7 @@ import org.testng.annotations.Test;
 
 public class SimpleDiscoveryTest {
 
-    private static final String VALID_URL = "http://test.url.com:8080";
+    private static final String VALID_URL = "http://test.url.com:" + TestConstants.PORT;
     private static final String INVALID_URL = "malformed url";
 
     private UPnPBasedDiscovery m_discovery;

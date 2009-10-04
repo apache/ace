@@ -40,6 +40,7 @@ import org.apache.ace.discovery.property.constants.DiscoveryConstants;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.property.constants.IdentificationConstants;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.deployment.BundleStreamGenerator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -60,9 +61,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 public class DeploymentIntegrationTest implements BundleListener, EventHandler {
-
     public static final String HOST = "localhost";
-    public static final int PORT = 8080;
     public static final String GWID = "gw-id";
     public static final long POLL_INTERVAL = 1000;
     private static Object instance;
@@ -319,7 +318,7 @@ public class DeploymentIntegrationTest implements BundleListener, EventHandler {
 
     private void configureGateway() throws IOException {
         // configure discovery bundle
-        setProperty(DiscoveryConstants.DISCOVERY_PID, new Object[][] { { DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + PORT } });
+        setProperty(DiscoveryConstants.DISCOVERY_PID, new Object[][] { { DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + TestConstants.PORT } });
         // configure identification bundle
         setProperty(IdentificationConstants.IDENTIFICATION_PID, new Object[][] { { IdentificationConstants.IDENTIFICATION_GATEWAYID_KEY, GWID } });
         // configure scheduler

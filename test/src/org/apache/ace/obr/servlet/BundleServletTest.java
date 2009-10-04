@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.obr.storage.BundleStore;
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.log.LogService;
@@ -76,7 +77,7 @@ public class BundleServletTest {
 
             @SuppressWarnings("unused")
             public StringBuffer getRequestURL() {
-                return new StringBuffer("http://localhost:8080/obr/" + m_requestFile);
+                return new StringBuffer("http://localhost:" + TestConstants.PORT + "/obr/" + m_requestFile);
             }
 
             @SuppressWarnings("unused")

@@ -23,6 +23,7 @@ import java.util.Properties;
 
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.osgi.dm.TestActivatorBase;
 import org.apache.felix.dependencymanager.DependencyManager;
 import org.osgi.framework.BundleContext;
@@ -84,7 +85,7 @@ public class Activator extends TestActivatorBase {
         props = new Properties();
         props.put("repositoryName", "users");
         props.put("repositoryCustomer", "apache");
-        props.put("repositoryLocation", "http://localhost:8080/repository");
+        props.put("repositoryLocation", "http://localhost:" + TestConstants.PORT + "/repository");
 
         config.update(props);
 

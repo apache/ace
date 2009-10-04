@@ -32,6 +32,7 @@ import org.apache.ace.log.Log;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
 import org.apache.ace.server.log.store.LogStore;
+import org.apache.ace.test.constants.TestConstants;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
@@ -111,25 +112,25 @@ public class LogIntegrationTest {
         events.add(new LogEvent("47", 2, 2, 1, 1, new Properties()));
         m_serverStore.put(events);
 
-        List<String> result = getResponse("http://localhost:8080/auditlog/query");
+        List<String> result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/query");
         assert result.size() > 1 : "We expect at least two logs on the server.";
 
-        result = getResponse("http://localhost:8080/auditlog/receive?gwid=42");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=42");
         assert result.size() == 1 : "Gateway 42 has a single audit log event.";
 
-        result = getResponse("http://localhost:8080/auditlog/receive?gwid=47");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47");
         assert result.size() == 3 : "Gateway 47 has 3 audit log events.";
 
-        result = getResponse("http://localhost:8080/auditlog/receive?gwid=47&logid=1");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=1");
         assert result.size() == 1 : "Gateway 47, logid 1 has 1 audit log event.";
 
-        result = getResponse("http://localhost:8080/auditlog/receive?gwid=47&logid=2");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=2");
         assert result.size() == 2 : "Gateway 47, logid 2 has 2 audit log events.";
 
-        result = getResponse("http://localhost:8080/auditlog/receive?gwid=47&logid=2&range=1");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=2&range=1");
         assert result.size() == 1 : "Gateway 47, logid 2, range 1 has 1 audit log event.";
 
-        result = getResponse("http://localhost:8080/auditlog/receive?gwid=47&logid=2&range=3,5");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=2&range=3,5");
         assert result.size() == 0 : "Gateway 47, logid 2, range 3,5 has 0 audit log event.";
     }
 
