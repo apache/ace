@@ -35,6 +35,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 public class Activator extends TestActivatorBase {
@@ -66,6 +67,7 @@ public class Activator extends TestActivatorBase {
         // service containing the actual integration test
         manager.add(createService()
             .setImplementation(LogIntegrationTest.class)
+            .add(createServiceDependency().setService(HttpService.class).setRequired(true))
             .add(createServiceDependency().setService(Log.class, "(&("+Constants.OBJECTCLASS+"="+Log.class.getName()+")(name=auditlog))").setRequired(true))
             .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=auditlog))").setRequired(true))
             .add(createServiceDependency().setService(Runnable.class, "(&("+Constants.OBJECTCLASS+"="+Runnable.class.getName()+")(taskName=auditlog))").setRequired(true))
