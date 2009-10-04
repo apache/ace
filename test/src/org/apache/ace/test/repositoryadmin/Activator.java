@@ -44,6 +44,7 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.http.HttpService;
 
 /**
  * Activator for the integration test.
@@ -56,7 +57,6 @@ public class Activator extends TestActivatorBase {
         manager.add(createService()
             .setImplementation(this)
             .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true)));
-        RepositoryAdminTest test = new RepositoryAdminTest();
         Dictionary<String, Object> topics = new Hashtable<String, Object>();
         topics.put(EventConstants.EVENT_TOPIC, new String[] {RepositoryObject.PUBLIC_TOPIC_ROOT + "*",
             RepositoryObject.PRIVATE_TOPIC_ROOT + "*",
@@ -65,7 +65,8 @@ public class Activator extends TestActivatorBase {
             StatefulGatewayObject.TOPIC_ALL});
         manager.add(createService()
             .setInterface(EventHandler.class.getName(), topics)
-            .setImplementation(test)
+            .setImplementation(RepositoryAdminTest.class)
+            .add(createServiceDependency().setService(HttpService.class).setRequired(true))
             .add(createServiceDependency().setService(RepositoryAdmin.class).setRequired(true))
             .add(createServiceDependency().setService(ArtifactRepository.class).setRequired(true))
             .add(createServiceDependency().setService(Artifact2GroupAssociationRepository.class).setRequired(true))
