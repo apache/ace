@@ -34,9 +34,7 @@ import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dependencymanager.DependencyManager;
 import org.apache.felix.dependencymanager.Service;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
@@ -60,8 +58,6 @@ public class ServletConfiguratorIntegrationTest {
 
     //mock http service-reference
     private Service m_mockHttpService;
-    // regular http service service-reference
-    private Bundle m_httpBundle;
 
     public ServletConfiguratorIntegrationTest() {
         if (instance == null) {
@@ -79,35 +75,13 @@ public class ServletConfiguratorIntegrationTest {
         Dictionary<String, String> dictionary = new Hashtable<String, String>();
         dictionary.put(HttpConstants.ENDPOINT, "/echoServlet");
         m_echoServletService = m_dependencyManager.createService()
-                                    .setImplementation(m_echoServlet)
-                                    .setInterface(HttpServlet.class.getName(), dictionary);
+            .setImplementation(m_echoServlet)
+            .setInterface(HttpServlet.class.getName(), dictionary);
 
         m_mockHttp = new MockHttpService();
         m_mockHttpService = m_dependencyManager.createService()
-                                    .setImplementation(m_mockHttp)
-                                    .setInterface(HttpService.class.getName(), null);
-    }
-
-    private void setUp() {
-        if (m_httpBundle == null) {
-            ServiceReference ref = m_context.getServiceReference(HttpService.class.getName());
-            if (ref != null) {
-                m_httpBundle = ref.getBundle();
-            }
-            else {
-                throw new IllegalStateException("Could not find HttpService.");
-            }
-        }
-    }
-
-    private void tearDown() {
-        try {
-            m_dependencyManager.remove(m_echoServletService);
-            m_dependencyManager.remove(m_mockHttpService);
-        }
-        catch (IllegalStateException ise) {
-            // It is possible that our services has been removed by the tests themselves; no problem here.
-        }
+            .setImplementation(m_mockHttp)
+            .setInterface(HttpService.class.getName(), null);
     }
 
     /**
@@ -116,40 +90,11 @@ public class ServletConfiguratorIntegrationTest {
      */
     @Test(groups = { INTEGRATION })
     public void testRegisterServlet() throws Exception {
-        setUp();
-
-        assert m_httpBundle != null : "We need a (real) http service !";
-
-        // use normal http service
-        m_httpBundle.start();
         m_dependencyManager.add(m_echoServletService);
         assert waitForEchoServlet(true) : "TestValue not echo'd back";
 
         m_dependencyManager.remove(m_echoServletService);
         assert !waitForEchoServlet(false) : "The servlet should not be available anymore";
-
-        tearDown();
-    }
-
-    /**
-     * Register a servlet and then start the http service and see if it works
-     * After that, try to unregister
-     */
-    @Test(groups = { INTEGRATION })
-    public void testStartHttpService() throws Exception {
-        setUp();
-
-        assert m_httpBundle != null : "We need a (real) http service !";
-
-        // use normal http service
-        m_dependencyManager.add(m_echoServletService);
-        m_httpBundle.start();
-        assert waitForEchoServlet(true) : "TestValue not echo'd back";
-
-        m_dependencyManager.remove(m_echoServletService);
-        assert !waitForEchoServlet(false) : "The servlet should not be available anymore";
-
-        tearDown();
     }
 
     /**
@@ -157,15 +102,9 @@ public class ServletConfiguratorIntegrationTest {
      */
     @Test(groups = { INTEGRATION })
     public void testServletOnTwoHttpServices() throws Exception {
-        setUp();
-
-        assert m_httpBundle != null : "We need a (real) http service !";
-
-        // use normal http service
-        m_dependencyManager.add(m_echoServletService);
         // also use the mock version
         m_dependencyManager.add(m_mockHttpService);
-        m_httpBundle.start();
+        m_dependencyManager.add(m_echoServletService);
         assert waitForEchoServlet(true) : "TestValue not echo'd back";
         assert m_mockHttp.isRegisterCalled() : "Servlet not registered with the mock service";
 
@@ -173,9 +112,6 @@ public class ServletConfiguratorIntegrationTest {
         m_dependencyManager.remove(m_echoServletService);
         assert !waitForEchoServlet(false) : "The servlet should not be available anymore";
         assert m_mockHttp.isUnregisterCalled() : "Servlet not unregistered with the mock service";
-
-        tearDown();
-
     }
 
     /**
@@ -234,8 +170,4 @@ public class ServletConfiguratorIntegrationTest {
         }
         return success;
     }
-
-
-
-
 }
