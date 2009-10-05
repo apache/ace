@@ -735,7 +735,6 @@ Bundle-Activator: org.apache.ace.server.Activator
         	file:instrumented/org.apache.ace.obr.servlet-1.0.0.jar
         	file:instrumented/org.apache.ace.obr.storage-1.0.0.jar
         	file:instrumented/org.apache.ace.client.repository-1.0.0.jar
-            file:instrumented/org.apache.ace.client.repository.stateful-1.0.0.jar
             file:instrumented/org.apache.ace.client.repository.helper.base-1.0.0.jar
             file:instrumented/org.apache.ace.client.repository.helper.bundle-1.0.0.jar
             file:instrumented/org.apache.ace.client.repository.helper.configuration-1.0.0.jar
