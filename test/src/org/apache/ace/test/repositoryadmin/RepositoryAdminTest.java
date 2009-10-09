@@ -1652,7 +1652,7 @@ public class RepositoryAdminTest implements EventHandler {
         m_waitingForTopic.addAll(Arrays.asList(topic));
         m_semaphore = new Semaphore(0);
         result = callable.call();
-        assert m_semaphore.tryAcquire(5000, TimeUnit.MILLISECONDS) : "We expect the event within a reasonable timeout.";
+        assert m_semaphore.tryAcquire(15000, TimeUnit.MILLISECONDS) : "We expect the event within a reasonable timeout.";
         m_semaphore = null;
         return result;
     }
