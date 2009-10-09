@@ -875,27 +875,131 @@ Bundle-Activator: org.apache.ace.server.Activator
 
 	<target name="package" depends="build" description="packages all artifacts">
 		<mkdir dir="deploy/target" />
+		<antcall target="packageDevelopment">
+			<param name="item" value="dev-server-filebased"/>
+		</antcall>
+		<antcall target="packageDevelopment">
+			<param name="item" value="dev-gateway"/>
+		</antcall>
+		<antcall target="packageDevelopment">
+			<param name="item" value="dev-server-webui"/>
+		</antcall>
+
+		<!-- non standard targets can still provide their own build scripts here -->
 		<subant target="deploy" inheritall="true">
-		    <fileset dir="." includes="target-*.xml" />
+			<fileset dir="." includes="target-*.xml" />
 		</subant>
 	</target>
 
+	<target name="packageDevelopment">
+	    <property name="workdir" value="deploy/target/${item}" />
+		<mkdir dir="${workdir}" />
+		
+		<copy todir="${workdir}/conf">
+            <fileset dir="conf/${item}">
+                <include name="**/*.cfg" />
+            </fileset>
+        </copy>
+
+		<copy todir="${workdir}">
+            <fileset dir="conf/${item}">
+                <include name="platform.*" />
+            </fileset>
+        </copy>
+
+		<replace file="${workdir}/platform.setup" token="@bundles@">
+            <replacevalue>file:../../../deploy/bundle</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@ext@">
+            <replacevalue>file:../../../ext</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@lib@">
+            <replacevalue>file:../../../lib</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@default_platform@">
+            <replacevalue>felix</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@default_platform_version@">
+            <replacevalue>2.0.0</replacevalue>
+		</replace>
+		
+		 <property name="cmdline" value="deploy/target/${item}" />
+		
+		<echo file="${workdir}/run.sh">java -jar ../../../lib/pax-runner-1.2.1.jar --workingDirectory=. --args=file:platform.setup scan-file:file:platform.properties</echo>
+	
+		<echo file="${workdir}/run.bat">java -jar ../../../lib/pax-runner-1.2.1.jar --workingDirectory=. --args=file:platform.setup scan-file:file:platform.properties</echo>
+	</target>
+	
+	<target name="cleanTargets">
+		<delete dir="deploy/target"/>
+	</target>
+	
+	<target name="packageProduction">
+		<property name="workdir" value="deploy/target/${item}-production" />
+		<mkdir dir="${workdir}" />
+		
+		<copy todir="${workdir}/conf">
+            <fileset dir="conf/${item}">
+                <include name="**/*.cfg" />
+            </fileset>
+        </copy>
+
+		<copy todir="${workdir}">
+            <fileset dir="conf/${item}">
+                <include name="platform.*" />
+            </fileset>
+        </copy>
+
+		<replace file="${workdir}/platform.setup" token="@bundles@">
+            <replacevalue>file:deploy/bundle</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@ext@">
+            <replacevalue>file:ext</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@lib@">
+            <replacevalue>file:lib</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@default_platform@">
+            <replacevalue>felix</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@default_platform_version@">
+            <replacevalue>2.0.0</replacevalue>
+		</replace>
+		
+		 <property name="cmdline" value="deploy/target/${item}" />
+		
+		<java dir="." classname="org.ops4j.pax.runner.Run" fork="true" taskname="paxrunner" timeout="99999" failonerror="true">
+	        <arg value="--args=file:${workdir}/platform.setup"/>
+	 		<arg value="--executor=script"/>
+			<arg value="--workingDirectory=${workdir}"/>
+			<arg value="scan-file:file:${workdir}/platform.properties"/>
+			<classpath>
+	          <pathelement location="lib/pax-runner-1.2.1.jar"/>
+	        </classpath>
+	      </java>
+	
+		<delete file="${workdir}/platform.setup" />
+		<delete file="${workdir}/platform.properties" />
+		
+		<ziptarget target="${item}-production" />	
+	</target>
+	
+	<!--
+	Means, package all for production. 
+	-->
 	<target name="zip" depends="package" description="zips all targets">
 	    <mkdir dir="deploy/releases" />
-	    <ziptarget target="dev-server" />
-	    <ziptarget target="dev-server-filebased" />
-        <ziptarget target="dev-server-webui" />
-	    <ziptarget target="dev-obr" />
-	    <ziptarget target="dev-gateway" />
-	    <ziptarget target="dev-client" />
-	    <ziptarget target="dev-multigateway" />
-	    <ziptarget target="dev-relay" />
-	    <ziptarget target="dev-customlicenseserver" />
-	    <ziptarget target="dev-customlicenseclient" />
-	    <ziptarget target="dev-obrdeployed-obr" />
-	    <ziptarget target="dev-obrdeployed-gateway" />
-	    <ziptarget target="dev-licensedgateway" />
-	    
+	
+		<antcall target="packageProduction">
+			<param name="item" value="dev-server-filebased"/>
+		</antcall>
+		<antcall target="packageProduction">
+			<param name="item" value="dev-gateway"/>
+		</antcall>
+		<antcall target="packageProduction">
+			<param name="item" value="dev-server-webui"/>
+		</antcall>
+		
 	    <zip basedir="deploy/target" includes="dev-tools/**" destfile="deploy/releases/dev-tools.zip" />
 	</target>
         
