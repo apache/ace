@@ -431,6 +431,11 @@
             exportpackage="org.apache.ace.location"
             privatepackage="org.apache.ace.location.upnp, org.apache.ace.location.upnp.actions, org.apache.ace.location.upnp.util"
             bundleactivator="org.apache.ace.location.upnp.Activator" />
+        <project-bundle 
+            bundlename="Apache ACE Felix WebConsole Plugin"
+            bundlesymbolicname="org.apache.ace.webconsole.plugin"
+            privatepackage="org.apache.ace.webconsole.plugin"
+            bundleactivator="org.apache.ace.webconsole.plugin.Activator" />
     </target>
 
     <target name="package-gateway" unless="gateway.uptodate">
@@ -966,17 +971,17 @@ Bundle-Activator: org.apache.ace.server.Activator
             <replacevalue>2.0.0</replacevalue>
 		</replace>
 		
-		 <property name="cmdline" value="deploy/target/${item}" />
+		<property name="cmdline" value="deploy/target/${item}" />
 		
 		<java dir="." classname="org.ops4j.pax.runner.Run" fork="true" taskname="paxrunner" timeout="99999" failonerror="true">
-	        <arg value="--args=file:${workdir}/platform.setup"/>
-	 		<arg value="--executor=script"/>
-			<arg value="--workingDirectory=${workdir}"/>
-			<arg value="scan-file:file:${workdir}/platform.properties"/>
+	        <arg value="--args=file:${workdir}/platform.setup" />
+	 		<arg value="--executor=script" />
+			<arg value="--workingDirectory=${workdir}" />
+			<arg value="scan-file:file:${workdir}/platform.properties" />
 			<classpath>
-	          <pathelement location="lib/pax-runner-1.2.1.jar"/>
-	        </classpath>
-	      </java>
+				<pathelement location="lib/pax-runner-1.2.1.jar" />
+			</classpath>
+		</java>
 	
 		<delete file="${workdir}/platform.setup" />
 		<delete file="${workdir}/platform.properties" />

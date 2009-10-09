@@ -26,6 +26,7 @@
 @bundles@/org.apache.ace.obr.storage-1.0.0.jar@update
 @bundles@/org.apache.ace.obr.metadata-1.0.0.jar@update
 @bundles@/org.apache.ace.webui-1.0.0.jar@update
+@bundles@/org.apache.ace.webconsole.plugin-1.0.0.jar@update
 
 @ext@/org.osgi.compendium.jar
 @ext@/osgi.mobile.jar
