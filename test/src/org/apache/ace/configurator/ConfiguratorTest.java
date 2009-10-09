@@ -101,12 +101,20 @@ public class ConfiguratorTest {
         }
         if (outFile != null) {
             if (factoryPid == null) {
-                outFile.renameTo(new File(m_configDir, servicePid+".cfg"));
+                File dest = new File(m_configDir, servicePid + ".cfg");
+                if (dest.exists()) {
+                    dest.delete();
+                }
+                outFile.renameTo(dest);
             }
             else {
                 File file = new File(m_configDir, factoryPid);
                 file.mkdirs();
-                outFile.renameTo(new File(file, servicePid+".cfg"));
+                File dest = new File(file, servicePid + ".cfg");
+                if (dest.exists()) {
+                    dest.delete();
+                }
+                outFile.renameTo(dest);
             }
         }
     }
