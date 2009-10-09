@@ -102,7 +102,8 @@ public abstract class TestActivatorBase extends DependencyActivatorBase implemen
                 testng.run();
             }
             else {
-                fail(testng, "Service(s) never started.");
+                int waitingFor = 1 - m_semaphore.availablePermits();
+                fail(testng, "Service(s) never started. Still waiting for " + waitingFor + " services.");
             }
         }
         catch (InterruptedException ie) {
@@ -149,6 +150,7 @@ public abstract class TestActivatorBase extends DependencyActivatorBase implemen
     }
 
     public void started(Service svc) {
+        System.out.println("Started service " + svc);
         m_semaphore.release();
     }
 
@@ -156,6 +158,8 @@ public abstract class TestActivatorBase extends DependencyActivatorBase implemen
     }
 
     public void stopped(Service svc) {
+        // this is weird
+        System.out.println("Stopped service " + svc);
     }
 
     public void stopping(Service svc) {
