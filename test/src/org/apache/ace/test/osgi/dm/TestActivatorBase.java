@@ -94,6 +94,7 @@ public abstract class TestActivatorBase extends DependencyActivatorBase implemen
 
         // wait for the service to be started
         try {
+            System.out.println("Waiting for " + (1 - m_semaphore.availablePermits()) + " to become available.");
             if (m_semaphore.tryAcquire(30, TimeUnit.SECONDS)) {
                 // perform tests
                 testng.setTestClasses(m_testClasses);
@@ -163,5 +164,15 @@ public abstract class TestActivatorBase extends DependencyActivatorBase implemen
     }
 
     public void stopping(Service svc) {
+    }
+
+    public static void main(String[] args) throws Exception {
+        Semaphore s = new Semaphore(-1);
+        System.out.println("#: " + (1 - s.availablePermits()));
+        s.release();
+        System.out.println("#: " + (1 - s.availablePermits()));
+        System.out.println("Trying...");
+        System.out.println(s.tryAcquire(3, TimeUnit.SECONDS));
+        System.out.println("#: " + (1 - s.availablePermits()));
     }
 }
