@@ -54,9 +54,6 @@ public class Activator extends TestActivatorBase {
 
     @Override
     protected void initServices(BundleContext context, DependencyManager manager) {
-        manager.add(createService()
-            .setImplementation(this)
-            .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true)));
         Dictionary<String, Object> topics = new Hashtable<String, Object>();
         topics.put(EventConstants.EVENT_TOPIC, new String[] {RepositoryObject.PUBLIC_TOPIC_ROOT + "*",
             RepositoryObject.PRIVATE_TOPIC_ROOT + "*",
@@ -78,6 +75,9 @@ public class Activator extends TestActivatorBase {
             .add(createServiceDependency().setService(DeploymentVersionRepository.class).setRequired(true))
             .add(createServiceDependency().setService(StatefulGatewayRepository.class).setRequired(true))
             .add(createServiceDependency().setService(LogStore.class, "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))").setRequired(true))
+            .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true)));
+        manager.add(createService()
+            .setImplementation(this)
             .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true)));
     }
 
