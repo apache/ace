@@ -212,7 +212,7 @@ public class RepositoryAdminTest implements EventHandler {
 
 
     @Test( groups = { TestUtils.INTEGRATION } )
-    public void testAssociationsWithMovingEnpoints () throws Exception {
+    public void testAssociationsWithMovingEndpoints () throws Exception {
         final ArtifactObject b1 = createBasicBundleObject("thebundle", "1", null);
         final GroupObject g1 = createBasicGroupObject("thegroup");
         final Artifact2GroupAssociation bg = runAndWaitForEvent(new Callable<Artifact2GroupAssociation>() {
