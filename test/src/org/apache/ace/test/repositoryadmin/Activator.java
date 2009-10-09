@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
@@ -51,9 +52,15 @@ import org.osgi.service.http.HttpService;
  */
 public class Activator extends TestActivatorBase {
     private volatile ConfigurationAdmin m_configAdmin;
+    private volatile SessionFactory m_sessionFactory;
 
     @Override
     protected void initServices(BundleContext context, DependencyManager manager) {
+        manager.add(createService()
+            .setImplementation(this)
+            .add(createServiceDependency().setService(SessionFactory.class).setRequired(true))
+            .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true)));
+
         Dictionary<String, Object> topics = new Hashtable<String, Object>();
         topics.put(EventConstants.EVENT_TOPIC, new String[] {RepositoryObject.PUBLIC_TOPIC_ROOT + "*",
             RepositoryObject.PRIVATE_TOPIC_ROOT + "*",
@@ -76,9 +83,6 @@ public class Activator extends TestActivatorBase {
             .add(createServiceDependency().setService(StatefulGatewayRepository.class).setRequired(true))
             .add(createServiceDependency().setService(LogStore.class, "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))").setRequired(true))
             .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true)));
-        manager.add(createService()
-            .setImplementation(this)
-            .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true)));
     }
 
     public void start() throws IOException {
@@ -86,6 +90,12 @@ public class Activator extends TestActivatorBase {
         props.put("name", "auditlog");
         Configuration config = m_configAdmin.createFactoryConfiguration("org.apache.ace.server.log.store.factory", null);
         config.update(props);
+
+        m_sessionFactory.createSession("test-session-ID");
+    }
+
+    public void stop() {
+        m_sessionFactory.destroySession("test-session-ID");
     }
 
     @SuppressWarnings("unchecked")

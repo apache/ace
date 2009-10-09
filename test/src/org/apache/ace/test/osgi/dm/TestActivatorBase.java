@@ -72,7 +72,7 @@ public abstract class TestActivatorBase extends DependencyActivatorBase implemen
         String nonActiveBundles = "";
         do {
             if (System.currentTimeMillis() > timeout) {
-                fail(testng, "Waiting for all bundles to become active timed out. Inactive bundles: " + nonActiveBundles);
+                fail(testng, "Test timed out, still waiting for " + nonActiveBundles + " bundles to become active.");
             }
             StringBuffer nonActive = new StringBuffer("");
             allActive = true;
@@ -94,7 +94,6 @@ public abstract class TestActivatorBase extends DependencyActivatorBase implemen
 
         // wait for the service to be started
         try {
-            System.out.println("Waiting for " + (1 - m_semaphore.availablePermits()) + " to become available.");
             if (m_semaphore.tryAcquire(30, TimeUnit.SECONDS)) {
                 // perform tests
                 testng.setTestClasses(m_testClasses);
@@ -103,12 +102,11 @@ public abstract class TestActivatorBase extends DependencyActivatorBase implemen
                 testng.run();
             }
             else {
-                int waitingFor = 1 - m_semaphore.availablePermits();
-                fail(testng, "Service(s) never started. Still waiting for " + waitingFor + " services.");
+                fail(testng, "Test timed out, still waiting for " + (1 - m_semaphore.availablePermits()) + " service(s).");
             }
         }
         catch (InterruptedException ie) {
-            fail(testng, "Thread was interrupted.");
+            fail(testng, "Test thread was interrupted.");
         }
         // shutdown after the tests have been run
         try {
@@ -151,7 +149,6 @@ public abstract class TestActivatorBase extends DependencyActivatorBase implemen
     }
 
     public void started(Service svc) {
-        System.out.println("Started service " + svc);
         m_semaphore.release();
     }
 
@@ -159,20 +156,8 @@ public abstract class TestActivatorBase extends DependencyActivatorBase implemen
     }
 
     public void stopped(Service svc) {
-        // this is weird
-        System.out.println("Stopped service " + svc);
     }
 
     public void stopping(Service svc) {
-    }
-
-    public static void main(String[] args) throws Exception {
-        Semaphore s = new Semaphore(-1);
-        System.out.println("#: " + (1 - s.availablePermits()));
-        s.release();
-        System.out.println("#: " + (1 - s.availablePermits()));
-        System.out.println("Trying...");
-        System.out.println(s.tryAcquire(3, TimeUnit.SECONDS));
-        System.out.println("#: " + (1 - s.availablePermits()));
     }
 }
