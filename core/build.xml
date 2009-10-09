@@ -742,7 +742,7 @@ Bundle-Activator: org.apache.ace.server.Activator
             file:bundle/org.apache.ace.configurator-1.0.0.jar
         	file:instrumented/org.apache.ace.client.automation-1.0.0.jar
             file:bundle/org.apache.ace.test.repositoryadmin-1.0.0.jar"
-            timeout="60000" datafile="${basedir}/cobertura.ser" />
+            timeout="120000" datafile="${basedir}/cobertura.ser" />
 
         <run-felix-coverage destdir="deploy/target/test" bundles="
             file:bundle/org.apache.ace.consolelogger-1.0.0.jar
