@@ -77,7 +77,7 @@ public class Activator extends TestActivatorBase {
             .add(createServiceDependency().setService(GatewayRepository.class).setRequired(true))
             .add(createServiceDependency().setService(DeploymentVersionRepository.class).setRequired(true))
             .add(createServiceDependency().setService(StatefulGatewayRepository.class).setRequired(true))
-            .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=auditlog))").setRequired(true))
+            .add(createServiceDependency().setService(LogStore.class, "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))").setRequired(true))
             .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true)));
     }
 
