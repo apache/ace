@@ -55,7 +55,7 @@ public class Configurator implements Runnable {
     private static final String DELIM_STOP = "}";
     private static final FileFilter FILENAME_FILTER = new FileFilter() {
         public boolean accept(File file) {
-            return file.getName().endsWith(".cfg") || file.isDirectory();
+            return !file.isHidden() && (file.getName().endsWith(".cfg") || file.isDirectory());
         }
     };
     private static final String FACTORY_INSTANCE_KEY = "factory.instance.pid";
@@ -296,7 +296,7 @@ public class Configurator implements Runnable {
     /**
      * Performs variable substitution for a complete set of properties
      *
-     * @see substVars()
+     * @see #substVars(String, String, java.util.Map, java.util.Properties)
      * @param properties Set of properties to apply substitution on.
      * @return Same set of properties with all variables substituted.
      */
