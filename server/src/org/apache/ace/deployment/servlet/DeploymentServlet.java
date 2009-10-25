@@ -20,6 +20,7 @@ package org.apache.ace.deployment.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Dictionary;
 import java.util.List;
 
@@ -63,106 +64,140 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
      * <li><code>HttpServletResponse.SC_OK</code> - If all went fine
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        String path = request.getPathInfo();
-        if (path == null) {
-            sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid");
-            return;
-        }
-
-        String[] pathElements = path.split("/");
-        int numberOfElements = pathElements.length;
-
-        if ((numberOfElements < 3) || (numberOfElements > 4) || !VERSIONS.equals(pathElements[2])) {
-            sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid");
-            return;
-        }
-
-        String gatewayID = pathElements[1];
-        List<String> versions;
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            versions = m_provider.getVersions(gatewayID);
-        }
-        catch (IllegalArgumentException iae) {
-            String description = "Unknown gateway (" + gatewayID + ")";
-            m_log.log(LogService.LOG_WARNING, description, iae);
-            sendError(response, HttpServletResponse.SC_NOT_FOUND, description);
-            return;
-        }
-        catch (IOException ioe) {
-            String description = "Error getting available versions.";
-            m_log.log(LogService.LOG_WARNING, description, ioe);
-            sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, description);
-            return;
-        }
+            String[] pathElements = verifyAndGetPathElements(request.getPathInfo());
+            String gatewayID = pathElements[1];
+            List<String> versions = getVersions(gatewayID);
+            int numberOfElements = pathElements.length;
 
-        ServletOutputStream output = null;
-        try {
-            output = response.getOutputStream();
             if (numberOfElements == 3) {
-                response.setContentType(TEXT_MIMETYPE);
-                for (String version : versions) {
-                    output.print(version);
-                    output.print("\n");
-                }
+                handleVersionsRequest(versions, response);
             }
             else {
                 String version = pathElements[3];
-                if (!versions.contains(version)) {
-                    sendError(response, HttpServletResponse.SC_NOT_FOUND, "Unknown version (" + version + ")");
-                    return;
-                }
-                String current = request.getParameter(CURRENT);
+                handlePackageDelivery(gatewayID, version, versions, request, response);
+            }
 
-                InputStream inputStream;
-                if (current != null) {
-                    inputStream = m_streamGenerator.getDeploymentPackage(gatewayID, current, version);
-                }
-                else {
-                    inputStream = m_streamGenerator.getDeploymentPackage(gatewayID, version);
-                }
-
-                response.setContentType(DP_MIMETYPE);
-                byte[] buffer = new byte[1024 * 32];
-                for (int bytesRead = inputStream.read(buffer); bytesRead != -1; bytesRead = inputStream.read(buffer)) {
-                    output.write(buffer, 0, bytesRead);
-                }
-            }
         }
-        catch (IOException ex) {
-            String description = "Problem reading request or response data";
-            m_log.log(LogService.LOG_WARNING, description, ex);
-            sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, description);
-        }
-        finally {
-            try {
-                if (output != null) {
-                    output.close();
-                }
-            }
-            catch (Exception ex) {
-                m_log.log(LogService.LOG_WARNING, "Exception trying to close stream after request: " + request.getRequestURL(), ex);
-            }
+        catch (AceRestException e) {
+            m_log.log(LogService.LOG_WARNING, e.getMessage(), e);
+            e.handleAsHttpError(response);
         }
     }
 
-    // send a response with the specified status code and description
-    private void sendError(HttpServletResponse response, int statusCode, String description) {
-        m_log.log(LogService.LOG_WARNING, "Deployment request failed: " + description);
+    /**
+     * Serve the case where requested path is like:
+     * http://host/endpoint/gatewayid/versions/ returns a list of versions available for the specified gateway
+     *
+     * @param versions versions to be put into response
+     * @param response response object.
+     */
+    private void handleVersionsRequest(List<String> versions, HttpServletResponse response) throws AceRestException {
+        ServletOutputStream output = null;
+
+        response.setContentType(TEXT_MIMETYPE);
         try {
-            response.sendError(statusCode, description);
+            output = response.getOutputStream();
+            for (String version : versions) {
+                output.print(version);
+                output.print("\n");
+            }
         }
         catch (IOException e) {
-            m_log.log(LogService.LOG_WARNING, "Unable to send error response with status code '" + statusCode + "'", e);
+            throw new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid");
         }
+        finally {
+            tryClose(output);
+        }
+    }
+
+    private void handlePackageDelivery(final String gatewayID, final String version, final List<String> versions, final HttpServletRequest request, final HttpServletResponse response) throws AceRestException {
+        ServletOutputStream output = null;
+
+        response.setContentType(TEXT_MIMETYPE);
+        try {
+            output = response.getOutputStream();
+            if (!versions.contains(version)) {
+                throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown version (" + version + ")");
+            }
+            String current = request.getParameter(CURRENT);
+
+            InputStream inputStream;
+            if (current != null) {
+                inputStream = m_streamGenerator.getDeploymentPackage(gatewayID, current, version);
+            }
+            else {
+                inputStream = m_streamGenerator.getDeploymentPackage(gatewayID, version);
+            }
+
+            response.setContentType(DP_MIMETYPE);
+            byte[] buffer = new byte[1024 * 32];
+            for (int bytesRead = inputStream.read(buffer); bytesRead != -1; bytesRead = inputStream.read(buffer)) {
+                output.write(buffer, 0, bytesRead);
+            }
+        }
+        catch (IOException e) {
+            throw new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid");
+        }
+        finally {
+            tryClose(output);
+        }
+    }
+
+    private List<String> getVersions(String gatewayID) throws AceRestException {
+        try {
+            return m_provider.getVersions(gatewayID);
+        }
+        catch (IllegalArgumentException iae) {
+            throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown gateway (" + gatewayID + ")");
+        }
+        catch (IOException ioe) {
+            throw new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error getting available versions.");
+        }
+    }
+
+    private void tryClose(OutputStream output) {
+        try {
+            if (output != null) {
+                output.close();
+            }
+        }
+        catch (IOException e) {
+            m_log.log(LogService.LOG_WARNING, "Exception trying to close stream after request. ", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Make sure the path is valid.
+     * Also returns the splited version of #path.
+     *
+     * @param path http request path
+     *
+     * @return splitted version of #path. Split delim is "/"
+     *
+     * @throws AceRestException if path is not valid or cannot be processed.
+     */
+    private String[] verifyAndGetPathElements(String path) throws AceRestException {
+        if (path == null) {
+            throw new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid");
+        }
+        String[] elements = path.split("/");
+        int numberOfElements = elements.length;
+
+        if ((numberOfElements < 3) || (numberOfElements > 4) || !VERSIONS.equals(elements[2])) {
+            throw new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid");
+        }
+        return elements;
     }
 
     @Override
     public String getServletInfo() {
-        return "LiQ Deployment Servlet Endpoint";
+        return "Ace Deployment Servlet Endpoint";
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings( "unchecked" )
     public void updated(Dictionary settings) throws ConfigurationException {
         // Nothing needs to be done - handled by DependencyManager
     }
