@@ -55,15 +55,10 @@ import org.osgi.service.log.LogService;
  * org.osgi.framework.Version format.
  */
 public class FileBasedProvider implements DeploymentProvider, ManagedService {
-
     private static final String DIRECTORY_NAME = "BaseDirectoryName";
-
-    private final int OSGI_R4_MANIFEST_VERSION = 2;
-
+    private static final int OSGI_R4_MANIFEST_VERSION = 2;
     private volatile File m_baseDirectory;
-
     private volatile LogService m_log;
-
     private final Semaphore m_disk = new Semaphore(1, true);
 
     /**
@@ -71,13 +66,20 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
      * .jar files in that directory. If the manifest cannot be found, This method can only parse OSGi R4 bundles
      */
     public List<ArtifactData> getBundleData(String gatewayId, String version) throws IllegalArgumentException {
-
         List<String> versions = getVersions(gatewayId);
         if (!versions.contains(version)) {
             throw new IllegalArgumentException("Unknown version " + version + " requested");
         }
         File gatewayDirectory = new File(m_baseDirectory, gatewayId);
-        File versionDirectory = new File(gatewayDirectory, version);
+        File versionDirectory;
+        if (gatewayDirectory.isDirectory()) {
+            // gateway has its own folder
+            versionDirectory = findMatchingVersionDirectory(gatewayDirectory, version);
+        }
+        else {
+            // shared folder from m_baseDirectory
+            versionDirectory = findMatchingVersionDirectory(m_baseDirectory, version);
+        }
         List<ArtifactData> bundleData = new ArrayList<ArtifactData>();
 
         JarInputStream jarInputStream = null;
@@ -131,13 +133,10 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
                                 @Override
                                 protected URLConnection openConnection(final URL u) throws IOException {
                                     return new URLConnection(u) {
-
                                         @Override
                                         public void connect() throws IOException {
                                             // TODO Auto-generated method stub
-
                                         }
-
                                         @Override
                                         public InputStream getInputStream() throws IOException {
                                             final InputStream parent;
@@ -169,15 +168,14 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
                                                     }
                                                 }
 
-												@Override
-												public void close() throws IOException {
-													parent.close();
-												}
+                                                @Override
+                                                public void close() throws IOException {
+                                                    parent.close();
+                                                }
                                             };
                                         }
                                     };
                                 }
-
                             });
                             bundleData.add(new ArtifactDataImpl(jarFile.getName(), symbolicName, bundleVersion, bundleUrl, true));
                         }
@@ -198,6 +196,53 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
         return bundleData;
     }
 
+    /**
+     * Version folder and requested version do not always match (see implementation of getVersions, which uses Versions.parseVersion to allow different styles)
+     * like 1 instead of 1.0.0 and alike.
+     * So we need to do some crawling to map them.
+     *
+     * @param gatewayDirectory store directory
+     * @param version          that has been requested.
+     *
+     * @return the matching folder.
+     *
+     * @throws IllegalArgumentException if no matching folder has been found. If this happens something is weirdly wrong.
+     */
+    private File findMatchingVersionDirectory(File gatewayDirectory, String version) {
+        // first try the direct way:
+        File directTry = new File(gatewayDirectory, version);
+        if ((directTry != null) && directTry.isDirectory()) {
+            return directTry;
+        }
+        // otherwise try to find it:
+        Version requestedVersion;
+        try {
+            requestedVersion = Version.parseVersion(version);
+        }
+        catch (IllegalArgumentException iae) {
+            throw new IllegalArgumentException("Requested version " + version + " has no matching folder in store: " + gatewayDirectory.getAbsolutePath());
+        }
+
+        File[] files = gatewayDirectory.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File possibleVersionDirectory = files[i];
+            if (possibleVersionDirectory.isDirectory()) {
+                // ok, it is a directory. Now see if it is a version
+                try {
+                    Version foundVersion = Version.parseVersion(possibleVersionDirectory.getName());
+                    // no exception, but is could still be an empty version
+                    if ((requestedVersion != null) && requestedVersion.equals(foundVersion)) {
+                        return new File(gatewayDirectory, possibleVersionDirectory.getName());
+                    }
+                }
+                catch (IllegalArgumentException iae) {
+                    // dont' care at this point.
+                }
+            }
+        }
+        throw new IllegalArgumentException("Requested version " + version + " has no matching folder in store: " + gatewayDirectory.getAbsolutePath());
+    }
+
     public List<ArtifactData> getBundleData(String gatewayId, String versionFrom, String versionTo) throws IllegalArgumentException {
         List<ArtifactData> dataVersionFrom = getBundleData(gatewayId, versionFrom);
         List<ArtifactData> dataVersionTo = getBundleData(gatewayId, versionTo);
@@ -216,7 +261,6 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
      * Check for the existence of bundledata in the collection for a bundle with the given symbolic name
      *
      * @param symbolicName
-     * @return
      */
     private ArtifactData getBundleData(String symbolicName, Collection<ArtifactData> data) {
         Iterator<ArtifactData> it = data.iterator();
@@ -240,32 +284,13 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
         List<Version> versionList = new ArrayList<Version>();
         File gatewayDirectory = new File(m_baseDirectory.getAbsolutePath(), gatewayId);
         if (gatewayDirectory.isDirectory()) {
-            // ok, it is a directory. Now treat all the subdirectories as seperate versions
-            File[] files = gatewayDirectory.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                File possibleVersionDirectory = files[i];
-                if (possibleVersionDirectory.isDirectory()) {
-                    // ok, it is a directory. Now see if it is a version
-                    try {
-                        Version version = Version.parseVersion(possibleVersionDirectory.getName());
-                        // no exception, but is could still be an empty version
-                        if (!version.equals(Version.emptyVersion)) {
-                            versionList.add(version);
-                        }
-                    }
-                    catch (IllegalArgumentException iae) {
-                        // do nothing. This version will be ignored.
-                        m_log.log(LogService.LOG_WARNING, "Directory " + possibleVersionDirectory.toString() + " does not contain a valid version number", iae);
-                    }
-                }
-            }
-            if (files.length == 0) {
-                m_log.log(LogService.LOG_DEBUG, "No versions found for gateway " + gatewayId);
-            }
+            getVersions(gatewayId, versionList, gatewayDirectory);
         }
         else {
-            throw new IllegalArgumentException("Gateway directory " + gatewayDirectory.toString() + " is requested but not found.");
+            // try from m_baseDirectory
+            getVersions(gatewayId, versionList, m_baseDirectory);
         }
+
         // now sort the list of versions and convert all values to strings.
         Collections.sort(versionList);
         List<String> stringVersionList = new ArrayList<String>();
@@ -275,6 +300,36 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
             stringVersionList.add(version);
         }
         return stringVersionList;
+    }
+
+    /**
+     *
+     * @param gatewayId ID that requested versions
+     * @param versionList where collected versions will be put into.
+     * @param base folder to be crawled.
+     */
+    private void getVersions(String gatewayId, List<Version> versionList, File base) {
+        // ok, it is a directory. Now treat all the subdirectories as seperate versions
+        File[] files = base.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File possibleVersionDirectory = files[i];
+            if (possibleVersionDirectory.isDirectory()) {
+                // ok, it is a directory. Now see if it is a version
+                try {
+                    Version version = Version.parseVersion(possibleVersionDirectory.getName());
+                    // no exception, but is could still be an empty version
+                    if (!version.equals(Version.emptyVersion)) {
+                        versionList.add(version);
+                    }
+                }
+                catch (IllegalArgumentException iae) {
+                    // do nothing. This version will be ignored.
+                }
+            }
+        }
+        if (files.length == 0) {
+            m_log.log(LogService.LOG_DEBUG, "No versions found for gateway " + gatewayId);
+        }
     }
 
     /**
