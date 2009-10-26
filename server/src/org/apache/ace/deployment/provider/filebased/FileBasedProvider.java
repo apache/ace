@@ -55,9 +55,13 @@ import org.osgi.service.log.LogService;
  * org.osgi.framework.Version format.
  */
 public class FileBasedProvider implements DeploymentProvider, ManagedService {
+    /** Directory where all the target ID folders are located. */
     private static final String DIRECTORY_NAME = "BaseDirectoryName";
+    /** Fallback directory for all targets that have no specific versions. Defaults to BaseDirectoryName if not specified. */
+    private static final String DEFAULT_DIRECTORY_NAME = "DefaultDirectoryName";
     private static final int OSGI_R4_MANIFEST_VERSION = 2;
     private volatile File m_baseDirectory;
+    private volatile File m_defaultDirectory;
     private volatile LogService m_log;
     private final Semaphore m_disk = new Semaphore(1, true);
 
@@ -77,8 +81,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
             versionDirectory = findMatchingVersionDirectory(gatewayDirectory, version);
         }
         else {
-            // shared folder from m_baseDirectory
-            versionDirectory = findMatchingVersionDirectory(m_baseDirectory, version);
+            versionDirectory = findMatchingVersionDirectory(m_defaultDirectory, version);
         }
         List<ArtifactData> bundleData = new ArrayList<ArtifactData>();
 
@@ -287,8 +290,8 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
             getVersions(gatewayId, versionList, gatewayDirectory);
         }
         else {
-            // try from m_baseDirectory
-            getVersions(gatewayId, versionList, m_baseDirectory);
+            // try the default
+            getVersions(gatewayId, versionList, m_defaultDirectory);
         }
 
         // now sort the list of versions and convert all values to strings.
@@ -344,6 +347,16 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
                 throw new ConfigurationException(DIRECTORY_NAME, "The directory called '" + baseDirectoryName + "' " + (baseDirectory.exists() ? "is no directory." : "doesn't exist."));
             }
             m_baseDirectory = baseDirectory;
+
+            String defaultDirectoryName = (String) settings.get(DEFAULT_DIRECTORY_NAME);
+            File defaultDirectory = new File(defaultDirectoryName);
+            if (!defaultDirectory.exists() || !defaultDirectory.isDirectory()) {
+                // fallback to using the base directory
+                m_defaultDirectory = baseDirectory;
+            }
+            else {
+                m_defaultDirectory = defaultDirectory;
+            }
         }
     }
 
