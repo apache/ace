@@ -349,14 +349,15 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
             m_baseDirectory = baseDirectory;
 
             String defaultDirectoryName = (String) settings.get(DEFAULT_DIRECTORY_NAME);
-            File defaultDirectory = new File(defaultDirectoryName);
-            if (!defaultDirectory.exists() || !defaultDirectory.isDirectory()) {
-                // fallback to using the base directory
-                m_defaultDirectory = baseDirectory;
+            if (defaultDirectoryName != null) {
+                File defaultDirectory = new File(defaultDirectoryName);
+                if (defaultDirectory.exists() && defaultDirectory.isDirectory()) {
+                    m_defaultDirectory = defaultDirectory;
+                    return;
+                }
             }
-            else {
-                m_defaultDirectory = defaultDirectory;
-            }
+            // fallback to using the base directory
+            m_defaultDirectory = baseDirectory;
         }
     }
 
