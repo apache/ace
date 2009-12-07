@@ -40,17 +40,19 @@
     <modules>
         <module>ace-util</module>
         <module>ace-repository</module>
+        <module>ace-consolelogger</module>
         <module>ace-log</module>
         <module>ace-discovery-api</module>
         <module>ace-discovery-property</module>
         <module>ace-identification-api</module>
         <module>ace-identification-property</module>
+        <module>ace-scheduler-api</module>
     </modules>
 
     <name>Apache ACE - POM</name>
 
     <build>
-        
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
