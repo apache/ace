@@ -47,6 +47,10 @@
         <module>ace-identification-api</module>
         <module>ace-identification-property</module>
         <module>ace-scheduler-api</module>
+
+        <module>ace-deployment-provider-api</module>
+        <module>ace-deployment-streamgenerator</module>
+        <module>ace-deployment-servlet</module>
     </modules>
 
     <name>Apache ACE - POM</name>
@@ -148,6 +152,12 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.dependencymanager</artifactId>
                 <version>2.0.1</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.4</version>
                 <scope>provided</scope>
             </dependency>
             <!-- Test dependencies -->
