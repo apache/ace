@@ -40,11 +40,14 @@
     <modules>
         <module>ace-discovery-api</module>
         <module>ace-discovery-property</module>
+        <module>ace-identification-api</module>
+        <module>ace-identification-property</module>
     </modules>
 
     <name>Apache ACE - POM</name>
 
     <build>
+        
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
