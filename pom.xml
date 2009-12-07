@@ -38,6 +38,9 @@
 
 
     <modules>
+        <module>ace-util</module>
+        <module>ace-repository</module>
+        <module>ace-log</module>
         <module>ace-discovery-api</module>
         <module>ace-discovery-property</module>
         <module>ace-identification-api</module>
