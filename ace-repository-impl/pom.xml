@@ -28,15 +28,15 @@
     </parent>
 
     <groupId>org.apache.ace</groupId>
-    <artifactId>ace-deployment-provider-repositorybased</artifactId>
+    <artifactId>ace-repository-impl</artifactId>
     <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Deployment Provider Repositorybased</name>
+    <name>Apache ACE - Repository Impl</name>
 
     <properties>
-        <bundle.symbolicName>${namespace}.deployment.provider.repositorybased</bundle.symbolicName>
-        <bundle.namespace>${namespace}.deployment.provider.repositorybased</bundle.namespace>
+        <bundle.symbolicName>${namespace}.repository.impl</bundle.symbolicName>
+        <bundle.namespace>${namespace}.repository.impl</bundle.namespace>
     </properties>
 
     <build>
@@ -48,28 +48,12 @@
         </plugins>
     </build>
 
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository</artifactId>
+            <artifactId>ace-repository</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment-provider-base</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment-provider-api</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -83,7 +67,10 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
     </dependencies>
-
 
 </project>

@@ -1,3 +1,5 @@
+Bundle-Activator: ${bundle.namespace}.impl.Activator
+
 Bundle-Version>:\
   ${pom.version}
 

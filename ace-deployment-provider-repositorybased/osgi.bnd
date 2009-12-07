@@ -1,10 +1,10 @@
+Bundle-Activator: ${bundle.namespace}.Activator
+
 Bundle-Version>:\
   ${pom.version}
 
 Bundle-SymbolicName:\
   ${bundle.symbolicName}
-
-Import-Package:
 
 Export-Package:\
   ${bundle.namespace}; version="${pom.version}"

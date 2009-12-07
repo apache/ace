@@ -40,6 +40,8 @@
     <modules>
         <module>ace-util</module>
         <module>ace-repository</module>
+        <module>ace-repository-impl</module>
+
         <module>ace-consolelogger</module>
         <module>ace-log</module>
         <module>ace-discovery-api</module>
@@ -48,9 +50,17 @@
         <module>ace-identification-property</module>
         <module>ace-scheduler-api</module>
 
+        <module>ace-client-repository</module>
+
         <module>ace-deployment-provider-api</module>
         <module>ace-deployment-streamgenerator</module>
         <module>ace-deployment-servlet</module>
+        <module>ace-deployment-provider-base</module>
+        <module>ace-deployment-provider-filebased</module>
+        <module>ace-deployment-provider-repositorybased</module>
+
+        <module>ace-httplistener</module>
+
     </modules>
 
     <name>Apache ACE - POM</name>
@@ -158,6 +168,12 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
                 <version>2.4</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>1.6.2</version>
                 <scope>provided</scope>
             </dependency>
             <!-- Test dependencies -->
