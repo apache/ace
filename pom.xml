@@ -61,6 +61,10 @@
 
         <module>ace-httplistener</module>
 
+        <module>ace-log-store</module>
+        <module>ace-log-servlet</module>
+        <module>ace-log-task</module>
+
     </modules>
 
     <name>Apache ACE - POM</name>
