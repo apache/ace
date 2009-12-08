@@ -65,6 +65,10 @@
         <module>ace-log-servlet</module>
         <module>ace-log-task</module>
 
+        <module>ace-obr-metadata</module>
+        <module>ace-obr-storage</module>
+        <module>ace-obr-servlet</module>
+
     </modules>
 
     <name>Apache ACE - POM</name>
@@ -180,6 +184,11 @@
                 <version>1.6.2</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>kxml2</groupId>
+                <artifactId>kxml2</artifactId>
+                <version>2.3.0</version>
+            </dependency>
             <!-- Test dependencies -->
             <dependency>
                 <groupId>junit</groupId>
@@ -193,6 +202,7 @@
                 <version>1.8.1</version>
                 <scope>test</scope>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 

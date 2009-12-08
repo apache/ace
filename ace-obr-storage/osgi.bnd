@@ -7,4 +7,3 @@ Bundle-SymbolicName:\
 Export-Package:\
   ${bundle.namespace}; version="${pom.version}"
 
-Ý

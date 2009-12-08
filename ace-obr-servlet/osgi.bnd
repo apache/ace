@@ -1,3 +1,5 @@
+Bundle-Activator: ${bundle.namespace}.Activator
+
 Bundle-Version>:\
   ${pom.version}
 
@@ -7,4 +9,3 @@ Bundle-SymbolicName:\
 Export-Package:\
   ${bundle.namespace}; version="${pom.version}"
 
-Ý
