@@ -1,0 +1,13 @@
+Bundle-Activator: ${bundle.namespace}.impl.Activator
+
+Bundle-Version>:\
+  ${pom.version}
+
+Bundle-SymbolicName:\
+  ${bundle.symbolicName}
+
+Private-Package: org.apache.ace.client.repository.impl, org.apache.ace.util, org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.client.repository.stateful.impl
+
+Export-Package:\
+  org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.repository, org.apache.ace.client.repository.helper, org.apache.ace.client.repository.stateful, org.apache.ace.server.log.store
+

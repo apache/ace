@@ -247,11 +247,13 @@
     </target>
 
     <target name="package-core" unless="core.uptodate">
+        <!-- ace-consolelogger -->
         <project-bundle 
             bundlename="Apache ACE Console Logger"                                                                                                                                          
             bundlesymbolicname="org.apache.ace.consolelogger" 
             privatepackage="org.apache.ace.consolelogger"
             bundleactivator="org.apache.ace.consolelogger.Activator" />
+        <!-- ace-log-->
         <project-bundle 
             bundlename="Apache ACE Log Interfaces"                                                                                                                                            
             bundlesymbolicname="org.apache.ace.log"
@@ -260,50 +262,59 @@
     </target>
 
     <target name="package-server" unless="server.uptodate">
+        <!-- ace-deployment-servlet -->
         <project-bundle 
             bundlename="Apache ACE Deployment Servlet"                                                                                                                                                 
             bundlesymbolicname="org.apache.ace.deployment.servlet"                                                                                                                         
             privatepackage="org.apache.ace.deployment.servlet"
             bundleactivator="org.apache.ace.deployment.servlet.Activator" />
+        <!-- ace-httplistener -->
         <project-bundle 
             bundlename="Apache ACE HTTP Service Listener"                                                                                                                                                 
             bundlesymbolicname="org.apache.ace.http.listener"                                                                                                                         
             privatepackage="org.apache.ace.http.listener"                                                                                                                           
             bundleactivator="org.apache.ace.http.listener.Activator" />
+        <!-- ace-deployment-provider-filebased -->        
         <project-bundle 
             bundlename="Apache ACE File Based Deployment Provider"                                                                                                                                                 
             bundlesymbolicname="org.apache.ace.deployment.provider.filebased"                                                                                                                         
             exportpackage="org.apache.ace.deployment.provider"                                                                                                                           
             privatepackage="org.apache.ace.deployment.provider.filebased, org.apache.ace.deployment.provider.impl"
             bundleactivator="org.apache.ace.deployment.provider.filebased.Activator" />
+        <!-- ace-deployment-provider-repositorybased -->
         <project-bundle 
             bundlename="Apache ACE Repository Based Deployment Provider"                                                                                                                                                 
             bundlesymbolicname="org.apache.ace.deployment.provider.repositorybased"                                                                                                                         
             exportpackage="org.apache.ace.deployment.provider"                                                                                                                           
             privatepackage="org.apache.ace.deployment.provider.repositorybased, org.apache.ace.deployment.provider.impl, org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.repository.impl"
             bundleactivator="org.apache.ace.deployment.provider.repositorybased.Activator" />
+        <!-- ace-deployment-streamgenerator -->        
         <project-bundle 
             bundlename="Apache ACE Deployment Stream Generator"                                                                                                                                                 
             bundlesymbolicname="org.apache.ace.deployment.streamgenerator"                                                                                                                         
             exportpackage="org.apache.ace.deployment.streamgenerator"                                                                                                                           
             privatepackage="org.apache.ace.deployment.streamgenerator.impl"                                                                                                                           
             bundleactivator="org.apache.ace.deployment.streamgenerator.impl.Activator" />
+        <!-- ace-log-servlet -->        
         <project-bundle
             bundlename="Apache ACE Server Log Servlet"
             bundlesymbolicname="org.apache.ace.server.log"
             privatepackage="org.apache.ace.server.log"
             bundleactivator="org.apache.ace.server.log.Activator" />
+        <!-- ace-log-store -->
         <project-bundle
             bundlename="Apache ACE Server Log Store"
             bundlesymbolicname="org.apache.ace.server.log.store"
             exportpackage="org.apache.ace.server.log.store, org.apache.ace.log"
             privatepackage="org.apache.ace.server.log.store.impl, org.apache.ace.util"
             bundleactivator="org.apache.ace.server.log.store.impl.Activator" />
+        <!-- ace-log-task -->        
         <project-bundle
             bundlename="Apache ACE Server Log Task"
             bundlesymbolicname="org.apache.ace.server.log.task"
             privatepackage="org.apache.ace.server.log.task"
             bundleactivator="org.apache.ace.server.log.task.Activator" />
+        <!-- ace-obr-metadata -->        
         <project-bundle 
             bundlename="Apache ACE OBR Metadata Generator"
             bundlesymbolicname="org.apache.ace.obr.metadata"
@@ -312,28 +323,33 @@
     		includeresource="ext/kxml2-min.jar"
     		bundleclasspath="kxml2-min.jar,."
             bundleactivator="org.apache.ace.obr.metadata.bindex.Activator" />
+        <!-- ace-obr-storage -->        
         <project-bundle 
             bundlename="Apache ACE OBR Storage"
             bundlesymbolicname="org.apache.ace.obr.storage"
             exportpackage="org.apache.ace.obr.storage"
             privatepackage="org.apache.ace.obr.storage.file"
             bundleactivator="org.apache.ace.obr.storage.file.Activator" />
+        <!-- ace-obr-servlet -->        
         <project-bundle 
             bundlename="Apache ACE OBR Servlet"
             bundlesymbolicname="org.apache.ace.obr.servlet"
             privatepackage="org.apache.ace.obr.servlet"
             bundleactivator="org.apache.ace.obr.servlet.Activator" />
+        <!-- ace-repository-impl -->        
         <project-bundle 
             bundlename="Apache ACE Object Repository"
             bundlesymbolicname="org.apache.ace.repository"
             exportpackage="org.apache.ace.repository"
             privatepackage="org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.util"
             bundleactivator="org.apache.ace.repository.impl.Activator" />
+        <!-- ace-repository-servlet -->
         <project-bundle 
             bundlename="Apache ACE Object Repository Servlet"
             bundlesymbolicname="org.apache.ace.repository.servlet"
             privatepackage="org.apache.ace.repository.servlet"
             bundleactivator="org.apache.ace.repository.servlet.Activator" />
+        <!-- ace-repository-task -->        
         <project-bundle 
             bundlename="Apache ACE Object Repository Replication Task"
             bundlesymbolicname="org.apache.ace.repository.task"
@@ -342,12 +358,14 @@
         <!-- note: this bundle needs to export org.apache.ace.server.log.store since it does
              not require a log to be present, but does need the interface, which is not define in core,
              since it is not java 1.3 compatible. -->
+        <!-- ace-client-repository-impl -->
         <project-bundle
             bundlename="Apache ACE Client Repository and Stateful Gateway Model"
             bundlesymbolicname="org.apache.ace.client.repository"
             exportpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.repository, org.apache.ace.client.repository.helper, org.apache.ace.client.repository.stateful, org.apache.ace.server.log.store"
             privatepackage="org.apache.ace.client.repository.impl, org.apache.ace.util, org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.client.repository.stateful.impl"
             bundleactivator="org.apache.ace.client.repository.impl.Activator"/>
+        <!-- ace-client-repository -->        
         <project-bundle
             bundlename="Apache ACE Client Artifact Helper Resources"
             bundlesymbolicname="org.apache.ace.client.repository.helper.base"
@@ -355,24 +373,28 @@
     		bundleclasspath="velocity-dep-1.5.jar,."
     		importpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.helper, *;resolution:=optional"
             exportpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.helper, org.apache.ace.client.repository.helper.base"/>
+        <!-- MISSING -->
         <project-bundle
             bundlename="Apache ACE Client Bundle Artifact Helper"
             bundlesymbolicname="org.apache.ace.client.repository.helper.bundle"
             exportpackage="org.apache.ace.client.repository.helper.bundle"
             privatepackage="org.apache.ace.client.repository.helper.bundle.impl, org.apache.ace.util"
             bundleactivator="org.apache.ace.client.repository.helper.bundle.impl.Activator"/>
+        <!-- ace-client-repository-configuration -->
         <project-bundle
             bundlename="Apache ACE Client Configuration Artifact Helper"
             bundlesymbolicname="org.apache.ace.client.repository.helper.configuration"
             exportpackage="org.apache.ace.client.repository.helper.configuration"
             privatepackage="org.apache.ace.client.repository.helper.configuration.impl"
             bundleactivator="org.apache.ace.client.repository.helper.configuration.impl.Activator"/>
+        <!-- MISSING -->
         <project-bundle
             bundlename="Apache ACE Client UserAdmin Artifact Helper"
             bundlesymbolicname="org.apache.ace.client.repository.helper.user"
             exportpackage="org.apache.ace.client.repository.helper.user"
             privatepackage="org.apache.ace.client.repository.helper.user.impl"
             bundleactivator="org.apache.ace.client.repository.helper.user.impl.Activator"/>
+        <!-- MISSING -->
         <project-bundle 
             bundlename="Apache ACE Serverside UserAdmin Configurator"
             bundlesymbolicname="org.apache.ace.configurator.serveruseradmin"
@@ -380,31 +402,37 @@
             bundleactivator="org.apache.ace.configurator.serveruseradmin.Activator" />
         <!-- Note that the privatepackage below is not exactly clean; for now, we don't have another way to this,
     	but we might want to clean this up (i.e., everybody should be able to ask for a remote repository) -->
+        <!-- MISSING -->
         <project-bundle 
             bundlename="Apache ACE Repository Based UserAdmin Configuration Task"
             bundlesymbolicname="org.apache.ace.configurator.useradmin.task"
             privatepackage="org.apache.ace.configurator.useradmin.task, org.apache.ace.repository.impl, org.apache.ace.repository.ext"
             bundleactivator="org.apache.ace.configurator.useradmin.task.Activator" />
+        <!-- MISSING -->
         <project-bundle 
             bundlename="Apache ACE Client Repository UserAdmin Editor"
             bundlesymbolicname="org.apache.ace.client.repositoryuseradmin"
             exportpackage="org.apache.ace.client.repositoryuseradmin"
             privatepackage="org.apache.ace.client.repositoryuseradmin.impl, org.apache.ace.client.repository, org.apache.ace.repository.impl, org.apache.ace.repository.ext"
             bundleactivator="org.apache.ace.client.repositoryuseradmin.impl.Activator" />
+        <!-- MISSING -->
         <project-bundle 
             bundlename="Apache ACE Server Action Interfaces"
             bundlesymbolicname="org.apache.ace.server.action"
             exportpackage="org.apache.ace.server.action" />
+        <!-- MISSING -->
         <project-bundle 
             bundlename="Apache ACE Server Popup Action"
             bundlesymbolicname="org.apache.ace.server.action.popupmessage"
             privatepackage="org.apache.ace.server.action.popupmessage"
             bundleactivator="org.apache.ace.server.action.popupmessage.Activator" />
+        <!-- MISSING -->
         <project-bundle 
             bundlename="Apache ACE Auto Gateway Operator"
             bundlesymbolicname="org.apache.ace.client.automation"
             privatepackage="org.apache.ace.client.automation"
             bundleactivator="org.apache.ace.client.automation.Activator" />
+        <!-- MISSING -->
         <project-bundle 
             bundlename="Apache ACE UserAdmin Resource Processor"
             bundlesymbolicname="org.apache.ace.resourceprocessor.useradmin" 
@@ -415,6 +443,7 @@
                 <attribute name="Deployment-ProvidesResourceProcessor" value="org.apache.ace.resourceprocessor.useradmin" />
             </manifest>
         </project-bundle>
+        <!-- MISSING -->
         <project-bundle 
             bundlename="Apache ACE AutoConf Resource Processor"
             bundlesymbolicname="org.apache.felix.deployment.rp.autoconf" 
@@ -425,12 +454,14 @@
                 <attribute name="Deployment-ProvidesResourceProcessor" value="org.osgi.deployment.rp.autoconf" />
             </manifest>
         </project-bundle>
+        <!-- MISSING -->
         <project-bundle 
             bundlename="Apache ACE UPnP Based Location Service"
             bundlesymbolicname="org.apache.ace.location.upnp"
             exportpackage="org.apache.ace.location"
             privatepackage="org.apache.ace.location.upnp, org.apache.ace.location.upnp.actions, org.apache.ace.location.upnp.util"
             bundleactivator="org.apache.ace.location.upnp.Activator" />
+        <!-- MISSING -->
         <project-bundle 
             bundlename="Apache ACE Felix WebConsole Plugin"
             bundlesymbolicname="org.apache.ace.webconsole.plugin"
