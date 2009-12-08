@@ -373,7 +373,7 @@
     		bundleclasspath="velocity-dep-1.5.jar,."
     		importpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.helper, *;resolution:=optional"
             exportpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.helper, org.apache.ace.client.repository.helper.base"/>
-        <!-- MISSING -->
+        <!-- ace-client-repository-helper-bundle -->        
         <project-bundle
             bundlename="Apache ACE Client Bundle Artifact Helper"
             bundlesymbolicname="org.apache.ace.client.repository.helper.bundle"

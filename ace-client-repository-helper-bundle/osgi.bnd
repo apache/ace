@@ -1,0 +1,10 @@
+Bundle-Version>:\
+  ${pom.version}
+
+Bundle-SymbolicName:\
+  ${bundle.symbolicName}
+
+Private-Package: org.apache.ace.client.repository.helper.bundle.impl, org.apache.ace.util
+
+Export-Package:\
+ ${bundle.namespace}
