@@ -56,6 +56,7 @@
         <module>ace-client-repository-configuration</module>
         <module>ace-client-repository-impl</module>
         <module>ace-client-repository-helper-bundle</module>
+        <module>ace-client-repository-helper-user</module>
 
         <module>ace-deployment-provider-api</module>
         <module>ace-deployment-streamgenerator</module>

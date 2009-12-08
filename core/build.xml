@@ -387,7 +387,7 @@
             exportpackage="org.apache.ace.client.repository.helper.configuration"
             privatepackage="org.apache.ace.client.repository.helper.configuration.impl"
             bundleactivator="org.apache.ace.client.repository.helper.configuration.impl.Activator"/>
-        <!-- MISSING -->
+        <!-- ace-client-repository-helper-user -->        
         <project-bundle
             bundlename="Apache ACE Client UserAdmin Artifact Helper"
             bundlesymbolicname="org.apache.ace.client.repository.helper.user"
