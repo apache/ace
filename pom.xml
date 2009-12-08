@@ -41,7 +41,9 @@
         <module>ace-util</module>
         <module>ace-repository</module>
         <module>ace-repository-impl</module>
-
+        <module>ace-repository-servlet</module>
+        <module>ace-repository-task</module>
+                
         <module>ace-consolelogger</module>
         <module>ace-log</module>
         <module>ace-discovery-api</module>
@@ -51,6 +53,7 @@
         <module>ace-scheduler-api</module>
 
         <module>ace-client-repository</module>
+        <module>ace-client-repository-configuration</module>
 
         <module>ace-deployment-provider-api</module>
         <module>ace-deployment-streamgenerator</module>
