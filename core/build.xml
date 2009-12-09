@@ -484,63 +484,73 @@
             org.apache.ace.log, org.apache.ace.util, org.apache.ace.repository,  
             org.apache.felix.deploymentadmin, org.apache.felix.deploymentadmin.spi, org.apache.felix.eventadmin.impl, org.apache.felix.eventadmin.impl.*"
             bundleactivator="org.apache.ace.ma.webstart.Activator" />
-        <!-- work -->
+        <!-- ace-configurator -->
         <project-bundle 
             bundlename="Apache ACE Configurator"
             bundlesymbolicname="org.apache.ace.configurator"
             privatepackage="org.apache.ace.configurator, org.apache.ace.gateway.constants"
             bundleactivator="org.apache.ace.configurator.Activator" />
+        <!-- ace-scheduler -->
         <project-bundle 
             bundlename="Apache ACE Scheduler"
             bundlesymbolicname="org.apache.ace.scheduler"
             privatepackage="org.apache.ace.scheduler, org.apache.ace.gateway.constants"
             bundleactivator="org.apache.ace.scheduler.Activator" />
+        <!-- ace-deployment -->
         <project-bundle 
             bundlename="Apache ACE Deployment"
             bundlesymbolicname="org.apache.ace.deployment"
             exportpackage="org.apache.ace.deployment"
             privatepackage="org.apache.ace.deployment.deploymentadmin"
             bundleactivator="org.apache.ace.deployment.deploymentadmin.Activator" />
+        <!-- ace-deployment-task -->
         <project-bundle 
             bundlename="Apache ACE Deployment Task"
             bundlesymbolicname="org.apache.ace.deployment.task"
             exportpackage="org.apache.ace.deployment"
             privatepackage="org.apache.ace.deployment.task"
             bundleactivator="org.apache.ace.deployment.task.Activator" />
+        <!--ace-discovery-property -->
         <project-bundle 
             bundlename="Apache ACE Property Based Discovery"
             bundlesymbolicname="org.apache.ace.discovery.property"
             exportpackage="org.apache.ace.discovery"
             privatepackage="org.apache.ace.discovery.property"
             bundleactivator="org.apache.ace.discovery.property.Activator" />
+        <!-- ace-identification-property -->
         <project-bundle 
             bundlename="Apache ACE Property Based Identification"
             bundlesymbolicname="org.apache.ace.identification.property"
             exportpackage="org.apache.ace.identification"
             privatepackage="org.apache.ace.identification.property"
             bundleactivator="org.apache.ace.identification.property.Activator" />
+        <!-- work: ace-identification-ifconfig -->
         <project-bundle 
             bundlename="Apache ACE ifconfig/MAC Address Based Identification"
             bundlesymbolicname="org.apache.ace.identification.ifconfig"
             exportpackage="org.apache.ace.identification"
             privatepackage="org.apache.ace.identification.ifconfig"
             bundleactivator="org.apache.ace.identification.ifconfig.Activator" />
+        <!-- work: ace-log-listener -->
         <project-bundle 
             bundlename="Apache ACE Log Listener"
             bundlesymbolicname="org.apache.ace.log.listener"
             privatepackage="org.apache.ace.log.listener"
             bundleactivator="org.apache.ace.log.listener.Activator" />
+        <!-- work: ace-gateway-log -->
         <project-bundle 
             bundlename="Apache ACE Gateway Log"
             bundlesymbolicname="org.apache.ace.gateway.log"
             privatepackage="org.apache.ace.gateway.log, org.apache.ace.gateway.log.task"
             bundleactivator="org.apache.ace.gateway.log.Activator" />
+        <!-- work: ace-gateway-log-store -->
         <project-bundle
             bundlename="Apache ACE Gateway Log Store"
             bundlesymbolicname="org.apache.ace.gateway.log.store"
             privatepackage="org.apache.ace.gateway.log.store.impl, org.apache.ace.util"
             bundleactivator="org.apache.ace.gateway.log.store.impl.Activator"
             exportpackage="org.apache.ace.gateway.log.store, org.apache.ace.log"/>
+        <!-- work: ace-discovery-upnp -->
         <project-bundle 
             bundlename="Apache ACE UPnP Based Discovery"
             bundlesymbolicname="org.apache.ace.discovery.upnp"
@@ -548,6 +558,7 @@
             privatepackage="org.apache.ace.discovery.upnp"
             bundleactivator="org.apache.ace.discovery.upnp.Activator" />
         <mkdir dir="deploy/target/dev-multigateway"/>
+        <!-- not ported yet -->
         <jar destfile="deploy/target/dev-multigateway/multigatewaybootstrap.jar" basedir="../gateway/classes" includes="org/apache/ace/bootstrap/multigateway/**">
             <manifest>
                 <attribute name="Main-Class" value="org.apache.ace.bootstrap.multigateway.MultiFrameworkStarter"/>
