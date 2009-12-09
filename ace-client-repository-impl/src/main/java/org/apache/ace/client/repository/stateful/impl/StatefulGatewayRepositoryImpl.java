@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -322,7 +323,7 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
      */
     void notifyChanged(StatefulGatewayObject sgoi, String topic, Properties additionalProperties) {
         additionalProperties.put(RepositoryObject.EVENT_ENTITY, sgoi);
-        m_eventAdmin.postEvent(new Event(topic, additionalProperties));
+        m_eventAdmin.postEvent(new Event(topic, (Dictionary) additionalProperties));
     }
 
     /**

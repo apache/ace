@@ -394,7 +394,7 @@
             exportpackage="org.apache.ace.client.repository.helper.user"
             privatepackage="org.apache.ace.client.repository.helper.user.impl"
             bundleactivator="org.apache.ace.client.repository.helper.user.impl.Activator"/>
-        <!-- MISSING -->
+        <!-- ace-configurator-serveruseradmin -->
         <project-bundle 
             bundlename="Apache ACE Serverside UserAdmin Configurator"
             bundlesymbolicname="org.apache.ace.configurator.serveruseradmin"
@@ -402,7 +402,7 @@
             bundleactivator="org.apache.ace.configurator.serveruseradmin.Activator" />
         <!-- Note that the privatepackage below is not exactly clean; for now, we don't have another way to this,
     	but we might want to clean this up (i.e., everybody should be able to ask for a remote repository) -->
-        <!-- MISSING -->
+        <!-- ace-configurator-useradmin-task -->
         <project-bundle 
             bundlename="Apache ACE Repository Based UserAdmin Configuration Task"
             bundlesymbolicname="org.apache.ace.configurator.useradmin.task"
@@ -432,7 +432,7 @@
             bundlesymbolicname="org.apache.ace.client.automation"
             privatepackage="org.apache.ace.client.automation"
             bundleactivator="org.apache.ace.client.automation.Activator" />
-        <!-- MISSING -->
+        <!-- ace-resourceprocessor-useradmin -->
         <project-bundle 
             bundlename="Apache ACE UserAdmin Resource Processor"
             bundlesymbolicname="org.apache.ace.resourceprocessor.useradmin" 

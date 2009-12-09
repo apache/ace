@@ -18,6 +18,7 @@
  */
 package org.apache.ace.client.repository.impl;
 
+import java.util.Dictionary;
 import java.util.Properties;
 
 import org.apache.ace.client.repository.SessionFactory;
@@ -70,9 +71,9 @@ public class ChangeNotifierImpl implements ChangeNotifier {
 
     public void notifyChanged(String topic, Properties props, boolean internalOnly) {
         props = addSession(props);
-        m_eventAdmin.sendEvent(new Event(m_privateTopicRoot + m_entityRoot + topic, props));
+        m_eventAdmin.sendEvent(new Event(m_privateTopicRoot + m_entityRoot + topic,(Dictionary) props));
         if (!internalOnly) {
-            m_eventAdmin.postEvent(new Event(m_publicTopicRoot + m_entityRoot + topic, props));
+            m_eventAdmin.postEvent(new Event(m_publicTopicRoot + m_entityRoot + topic, (Dictionary)props));
         }
     }
 
