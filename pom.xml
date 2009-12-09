@@ -78,6 +78,7 @@
         <module>ace-log-store</module>
         <module>ace-log-servlet</module>
         <module>ace-log-task</module>
+        <module>ace-log-listener</module>
 
         <module>ace-obr-metadata</module>
         <module>ace-obr-storage</module>
@@ -96,6 +97,10 @@
         <module>ace-webconsole-plugin</module>
 
         <module>ace-configurator</module>
+
+        <module>ace-gateway-log</module>
+        <module>ace-gateway-log-store</module>
+        <module>ace-discovery-upnp</module>      
 
     </modules>
 
