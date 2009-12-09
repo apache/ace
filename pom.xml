@@ -57,6 +57,7 @@
         <module>ace-client-repository-impl</module>
         <module>ace-client-repository-helper-bundle</module>
         <module>ace-client-repository-helper-user</module>
+        <module>ace-client-automation</module>
 
         <module>ace-deployment-provider-api</module>
         <module>ace-deployment-streamgenerator</module>
@@ -78,6 +79,15 @@
         <module>ace-configurator-serveruseradmin</module>
         <module>ace-resourceprocessor-useradmin</module>
         <module>ace-configurator-useradmin-task</module>
+
+        <module>ace-client-repository-useradmin</module>
+
+        <module>ace-server-action</module>
+        <module>ace-server-action-popupmessage</module>
+
+        <module>ace-location-upnp</module>
+        <module>ace-webconsole-plugin</module>
+
     </modules>
 
     <name>Apache ACE - POM</name>

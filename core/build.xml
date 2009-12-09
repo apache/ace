@@ -408,25 +408,25 @@
             bundlesymbolicname="org.apache.ace.configurator.useradmin.task"
             privatepackage="org.apache.ace.configurator.useradmin.task, org.apache.ace.repository.impl, org.apache.ace.repository.ext"
             bundleactivator="org.apache.ace.configurator.useradmin.task.Activator" />
-        <!-- MISSING -->
+        <!-- ace-client-repository-useradmin -->
         <project-bundle 
             bundlename="Apache ACE Client Repository UserAdmin Editor"
             bundlesymbolicname="org.apache.ace.client.repositoryuseradmin"
             exportpackage="org.apache.ace.client.repositoryuseradmin"
             privatepackage="org.apache.ace.client.repositoryuseradmin.impl, org.apache.ace.client.repository, org.apache.ace.repository.impl, org.apache.ace.repository.ext"
             bundleactivator="org.apache.ace.client.repositoryuseradmin.impl.Activator" />
-        <!-- MISSING -->
+        <!-- ace-server-action -->
         <project-bundle 
             bundlename="Apache ACE Server Action Interfaces"
             bundlesymbolicname="org.apache.ace.server.action"
             exportpackage="org.apache.ace.server.action" />
-        <!-- MISSING -->
+        <!-- ace-server-action-popupmessage -->
         <project-bundle 
             bundlename="Apache ACE Server Popup Action"
             bundlesymbolicname="org.apache.ace.server.action.popupmessage"
             privatepackage="org.apache.ace.server.action.popupmessage"
             bundleactivator="org.apache.ace.server.action.popupmessage.Activator" />
-        <!-- MISSING -->
+        <!-- ace-client-automation -->
         <project-bundle 
             bundlename="Apache ACE Auto Gateway Operator"
             bundlesymbolicname="org.apache.ace.client.automation"
@@ -443,7 +443,7 @@
                 <attribute name="Deployment-ProvidesResourceProcessor" value="org.apache.ace.resourceprocessor.useradmin" />
             </manifest>
         </project-bundle>
-        <!-- MISSING -->
+        <!-- not ported yet (felix ?) -->
         <project-bundle 
             bundlename="Apache ACE AutoConf Resource Processor"
             bundlesymbolicname="org.apache.felix.deployment.rp.autoconf" 
@@ -454,14 +454,14 @@
                 <attribute name="Deployment-ProvidesResourceProcessor" value="org.osgi.deployment.rp.autoconf" />
             </manifest>
         </project-bundle>
-        <!-- MISSING -->
+        <!-- ace-location-upnp -->
         <project-bundle 
             bundlename="Apache ACE UPnP Based Location Service"
             bundlesymbolicname="org.apache.ace.location.upnp"
             exportpackage="org.apache.ace.location"
             privatepackage="org.apache.ace.location.upnp, org.apache.ace.location.upnp.actions, org.apache.ace.location.upnp.util"
             bundleactivator="org.apache.ace.location.upnp.Activator" />
-        <!-- MISSING -->
+        <!-- ace-webconsole-plugin -->
         <project-bundle 
             bundlename="Apache ACE Felix WebConsole Plugin"
             bundlesymbolicname="org.apache.ace.webconsole.plugin"
@@ -470,6 +470,7 @@
     </target>
 
     <target name="package-gateway" unless="gateway.uptodate">
+        <!-- not ported yet -->
         <project-bundle 
             bundlename="Webstart Management Agent"
             bundlesymbolicname="org.apache.ace.ma.webstart"
@@ -483,6 +484,7 @@
             org.apache.ace.log, org.apache.ace.util, org.apache.ace.repository,  
             org.apache.felix.deploymentadmin, org.apache.felix.deploymentadmin.spi, org.apache.felix.eventadmin.impl, org.apache.felix.eventadmin.impl.*"
             bundleactivator="org.apache.ace.ma.webstart.Activator" />
+        <!-- work -->
         <project-bundle 
             bundlename="Apache ACE Configurator"
             bundlesymbolicname="org.apache.ace.configurator"
