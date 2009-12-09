@@ -34,8 +34,8 @@
 
     <properties>
         <namespace>org.apache.ace</namespace>
+        <gwtversion>1.7.1</gwtversion>
     </properties>
-
 
     <modules>
         <module>ace-util</module>
@@ -52,7 +52,7 @@
         <module>ace-identification-api</module>
         <module>ace-identification-property</module>
         <module>ace-identification-ifconfig</module>
-        
+
         <module>ace-scheduler-api</module>
         <module>ace-scheduler</module>
 
@@ -100,7 +100,7 @@
 
         <module>ace-gateway-log</module>
         <module>ace-gateway-log-store</module>
-        <module>ace-discovery-upnp</module>      
+        <module>ace-discovery-upnp</module>
 
     </modules>
 
@@ -163,6 +163,7 @@
                         </instructions>
                     </configuration>
                 </plugin>
+
             </plugins>
         </pluginManagement>
         <extensions>
@@ -241,7 +242,7 @@
                 <version>1.8.1</version>
                 <scope>test</scope>
             </dependency>
-
+          
         </dependencies>
     </dependencyManagement>
 
