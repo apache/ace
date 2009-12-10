@@ -36,7 +36,7 @@ import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.*;
  * @since Dec 10, 2009
  */
 @RunWith( JUnit4TestRunner.class )
-public class MinimalGateway
+public class MinimalGatewayTest
 {
 
     @Configuration
