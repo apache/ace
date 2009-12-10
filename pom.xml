@@ -55,8 +55,8 @@
             </activation>
             <modules>
                 <module>ace-util</module>
+                <module>ace-repository-api</module>
                 <module>ace-repository</module>
-                <module>ace-repository-impl</module>
                 <module>ace-repository-servlet</module>
                 <module>ace-repository-task</module>
 
