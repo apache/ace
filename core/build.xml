@@ -1052,7 +1052,7 @@ Bundle-Activator: org.apache.ace.server.Activator
 	    <zip basedir="deploy/target" includes="dev-tools/**" destfile="deploy/releases/dev-tools.zip" />
 	</target>
         
-	<target name="release" depends="clean, coverage-test, integration-test, javadoc, package, zip" description="does a clean release">
+	<target name="release" depends="clean, javadoc, package, zip" description="does a clean release">
 	</target>
 
 	<macrodef name="ziptarget">
