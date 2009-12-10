@@ -35,7 +35,7 @@
     <name>Apache ACE - Repository</name>
     
     <properties>
-        <bundle.symbolicName>${namespace}.repository</bundle.symbolicName>
+        <bundle.symbolicName>${namespace}.repository.api</bundle.symbolicName>
         <bundle.namespace>${namespace}.repository</bundle.namespace>
     </properties>
 
