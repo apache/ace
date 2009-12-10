@@ -28,7 +28,7 @@
     </parent>
 
     <groupId>org.apache.ace</groupId>
-    <artifactId>ace-repository</artifactId>
+    <artifactId>ace-repository-api</artifactId>
     <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 

@@ -6,6 +6,9 @@ Bundle-Version>:\
 Bundle-SymbolicName:\
   ${bundle.symbolicName}
 
+Embed-Dependency:\
+  *; scope=compile|runtime; type=!pom;inline=true
+  
 Export-Package:\
   ${bundle.namespace}; version="${pom.version}"
 
