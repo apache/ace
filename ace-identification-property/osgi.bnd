@@ -7,7 +7,7 @@ Bundle-SymbolicName:\
   ${bundle.symbolicName}
 
 Export-Package:\
-  org.apache.ace.discovery; version="${pom.version}"
+  ${bundle.namespace}; version="${pom.version}"
 
 Embed-Dependency:\
   *; scope=compile|runtime; type=!pom;inline=true
