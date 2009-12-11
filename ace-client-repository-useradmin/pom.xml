@@ -55,7 +55,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository-impl</artifactId>
+            <artifactId>ace-repository</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
