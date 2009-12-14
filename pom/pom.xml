@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!--
+
+        Licensed to the Apache Software Foundation (ASF) under one or more
+        contributor license agreements.  See the NOTICE file distributed with
+        this work for additional information regarding copyright ownership.
+        The ASF licenses this file to You under the Apache License, Version 2.0
+        (the "License"); you may not use this file except in compliance with
+        the License.  You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    -->
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>6</version>
+    </parent>
+
+    <groupId>org.apache.ace</groupId>
+    <artifactId>ace-pom</artifactId>
+    <version>0.8.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <namespace>org.apache.ace</namespace>
+        <gwtversion>1.7.1</gwtversion>
+        <dependency.version.mockito>1.8.1</dependency.version.mockito>
+        <dependency.version.dependencymanager>2.0.1</dependency.version.dependencymanager>
+
+        <dependency.version.eventadmin>1.0.0</dependency.version.eventadmin>
+        <dependency.version.configadmin>1.2.4</dependency.version.configadmin>
+        <dependency.version.deploymentadmin>0.9.0-SNAPSHOT</dependency.version.deploymentadmin>
+
+        <dependency.version.osgi.core>4.2.0</dependency.version.osgi.core>
+        <dependency.version.osgi.compendium>4.2.0</dependency.version.osgi.compendium>
+        <dependency.version.servletapi>2.4</dependency.version.servletapi>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>ace-util</module>
+                <module>ace-repository-api</module>
+                <module>ace-repository</module>
+                <module>ace-repository-servlet</module>
+                <module>ace-repository-task</module>
+
+                <module>ace-consolelogger</module>
+                <module>ace-log</module>
+                <module>ace-discovery-api</module>
+                <module>ace-discovery-property</module>
+
+                <module>ace-identification-api</module>
+                <module>ace-identification-property</module>
+                <module>ace-identification-ifconfig</module>
+
+                <module>ace-scheduler-api</module>
+                <module>ace-scheduler</module>
+
+                <module>ace-client-repository</module>
+                <module>ace-client-repository-configuration</module>
+                <module>ace-client-repository-impl</module>
+                <module>ace-client-repository-helper-bundle</module>
+                <module>ace-client-repository-helper-user</module>
+                <module>ace-client-automation</module>
+
+                <module>ace-deployment-provider-api</module>
+                <module>ace-deployment-streamgenerator</module>
+                <module>ace-deployment-servlet</module>
+                <module>ace-deployment-provider-base</module>
+                <module>ace-deployment-provider-filebased</module>
+                <module>ace-deployment-provider-repositorybased</module>
+                <module>ace-deployment-api</module>
+                <module>ace-deployment</module>
+                <module>ace-deployment-task</module>
+
+                <module>ace-httplistener</module>
+
+                <module>ace-log-store</module>
+                <module>ace-log-servlet</module>
+                <module>ace-log-task</module>
+                <module>ace-log-listener</module>
+
+                <module>ace-obr-metadata</module>
+                <module>ace-obr-storage</module>
+                <module>ace-obr-servlet</module>
+
+                <module>ace-configurator-serveruseradmin</module>
+                <module>ace-resourceprocessor-useradmin</module>
+                <module>ace-configurator-useradmin-task</module>
+
+                <module>ace-client-repository-useradmin</module>
+
+                <module>ace-server-action</module>
+                <module>ace-server-action-popupmessage</module>
+
+                <module>ace-location-upnp</module>
+                <module>ace-webconsole-plugin</module>
+
+                <module>ace-configurator</module>
+
+                <module>ace-gateway-log</module>
+                <module>ace-gateway-log-store</module>
+                <module>ace-discovery-upnp</module>
+
+                <module>ace-webui</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>targets</id>
+            <modules>
+                <!-- Targets (can be used by all Pax Tools) -->
+                <module>ace-target-devgateway</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>it</id>
+            <modules>
+                <module>ace-integrationtests</module>
+            </modules>
+        </profile>
+
+    </profiles>
+
+    <name>Apache ACE - POM</name>
+
+    <build>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.0-alpha-4</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>2.0.0</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <instructions>
+                            <_include>-osgi.bnd</_include>
+                        </instructions>
+                    </configuration>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>1.0-beta-6</version>
+            </extension>
+        </extensions>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${dependency.version.osgi.core}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>${dependency.version.osgi.compendium}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.dependencymanager</artifactId>
+                <version>${dependency.version.dependencymanager}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.configadmin</artifactId>
+                <version>${dependency.version.configadmin}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.eventadmin</artifactId>
+                <version>${dependency.version.eventadmin}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.deploymentadmin</artifactId>
+                <version>${dependency.version.deploymentadmin}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>${dependency.version.servletapi}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>1.6.2</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>kxml2</groupId>
+                <artifactId>kxml2</artifactId>
+                <version>2.3.0</version>
+            </dependency>
+            <dependency>
+                <groupId>xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>1.2.2</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- Test dependencies -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>${dependency.version.mockito}</version>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+</project>
