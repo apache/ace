@@ -49,6 +49,18 @@
 
     <name>Apache ACE - POM</name>
 
+    <url>http://incubator.apache.org/ace/</url>
+
+    <issueManagement>
+        <system>jira</system>
+        <url>https://issues.apache.org/jira/browse/ACE</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk</connection>
+        <developerConnection>scm:svn:https://tonit@svn.apache.org/repos/asf/incubator/ace/trunk</developerConnection>
+    </scm>
+
     <build>
 
         <plugins>
