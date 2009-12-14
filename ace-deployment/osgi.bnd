@@ -10,6 +10,6 @@ Embed-Dependency:\
   *; scope=compile|runtime; type=!pom;inline=true
 
 Export-Package:\
-  ${bundle.namespace}.deploymentadmin; version="${pom.version}",
-  ${bundle.namespace}; version="${pom.version}"
+  ${bundle.namespace}.deploymentadmin; version="${pom.version}"
 
+-exportcontents:  ${bundle.namespace}; version="${pom.version}"

@@ -61,6 +61,7 @@ public class MinimalGatewayTest
         // just check that all have been resolved.
         for( Bundle bundle : context.getBundles() )
         {
+            System.out.println( "+ " + bundle.getSymbolicName() );
             if( bundle.getState() != Bundle.ACTIVE )
             {
                 System.err.println( "Bundle " + bundle.getLocation() + " has not been started." );

@@ -5,7 +5,7 @@
 --version=@default_platform_version@
 
 @bundles@/org.apache.ace.consolelogger-1.0.0.jar@update
-@bundles@/org.apache.ace.log.listener-1.0.0.jar@update           
+@bundles@/org.apache.ace.log.listener-1.0.0.jar@update
 @bundles@/org.apache.ace.gateway.log.store-1.0.0.jar@update
 @bundles@/org.apache.ace.gateway.log-1.0.0.jar@update
 @bundles@/org.apache.ace.log-1.0.0.jar@update

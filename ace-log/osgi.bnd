@@ -7,3 +7,8 @@ Bundle-SymbolicName:\
 Export-Package:\
   ${bundle.namespace}; version="${pom.version}"
 
+Embed-Dependency:\
+  *; scope=compile|runtime; type=!pom;inline=true
+
+-exportcontents: org.apache.ace.repository;version="${pom.version}",org.apache.ace.util;version="${pom.version}"
+

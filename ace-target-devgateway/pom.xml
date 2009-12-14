@@ -142,13 +142,6 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>ace-scheduler</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -164,6 +157,13 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-deployment</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-deployment-task</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
