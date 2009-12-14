@@ -36,8 +36,8 @@
     <name>Apache ACE - Deployment</name>
     
     <properties>
-        <bundle.symbolicName>${namespace}.deployment.deploymentadmin</bundle.symbolicName>
-        <bundle.namespace>${namespace}.deployment.deploymentadmin</bundle.namespace>
+        <bundle.symbolicName>${namespace}.deployment</bundle.symbolicName>
+        <bundle.namespace>${namespace}.deployment</bundle.namespace>
     </properties>
 
     <build>
