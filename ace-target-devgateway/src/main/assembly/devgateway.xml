@@ -4,8 +4,9 @@
     <id>distribution</id>
     <formats>
         <format>dir</format>
+        <format>zip</format>
     </formats>
-    <baseDirectory>ace-development</baseDirectory>
+    <baseDirectory>ace-gateway</baseDirectory>
 
     <fileSets>
         <fileSet>
@@ -16,7 +17,6 @@
             </includes>
             <filtered>true</filtered>
         </fileSet>
-
     </fileSets>
 
     <files>
@@ -51,30 +51,5 @@
                 ${artifact.artifactId}.${artifact.extension}
             </outputFileNameMapping>
         </dependencySet>
-
-        <!--
-        <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <scope>runtime</scope>
-            <outputDirectory>required-artifacts</outputDirectory>
-            <excludes>
-                <exclude>org.ops4j.pax.runner:pax-runner</exclude>
-                <exclude>org.apache.ace.*:**</exclude>
-            </excludes>
-        </dependencySet>
-        <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <scope>provided</scope>
-            <includes>
-                <include>org.ops4j.pax.runner:pax-runner</include>
-            </includes>
-            <outputFileNameMapping>
-                ${artifact.artifactId}.${artifact.extension}
-            </outputFileNameMapping>
-        </dependencySet>
-        -->
-
     </dependencySets>
 </assembly>
