@@ -18,6 +18,8 @@ package org.apache.ace.it.server;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
@@ -29,6 +31,7 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 import static junit.framework.Assert.*;
 import static org.ops4j.pax.exam.CoreOptions.*;
+import static org.ops4j.pax.exam.OptionUtils.*;
 import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.*;
 
 /**
@@ -42,11 +45,14 @@ public class MinimalGatewayTest
     @Configuration
     public Option[] config()
     {
-        return options(
-            felix().version( "2.0.1" ),
-            // this is the launch configuration for our "target". Packed and referenced as a normal maven artifact.
-            scanPom( "jar:mvn:org.apache.ace/ace-target-devgateway/0.8.0-SNAPSHOT!/epom.xml" ),
-            autoWrap()
+        System.setProperty( "java.protocol.handler.pkgs", "org.ops4j.pax.url" );
+
+        return combine(
+            options(
+                felix().version( "2.0.1" )
+            ),
+            AssemblyConfigure.get( "ace-gateway", "mvn:org.apache.ace/ace-target-devgateway/0.8.0-SNAPSHOT/zip/distribution" )
+
         );
     }
 
