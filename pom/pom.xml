@@ -49,17 +49,38 @@
     </properties>
 
     <name>Apache ACE - POM</name>
+    <description>
+        This pom provides project information that is common to all ACE sub-projects.
+    </description>
 
     <url>http://incubator.apache.org/ace/</url>
+    <inceptionYear>2009</inceptionYear>
 
     <issueManagement>
         <system>jira</system>
         <url>https://issues.apache.org/jira/browse/ACE</url>
     </issueManagement>
+    
+    <mailingLists>
+        <mailingList>
+            <name>Apache ACE Developer List</name>
+            <subscribe>ace-dev-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>ace-dev-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>ace-dev@incubator.apache.org</post>
+        </mailingList>
+        <mailingList>
+            <name>Apache ACE SCM List</name>
+            <subscribe>ace-commits-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>ace-commits-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>ace-commits@incubator.apache.org</post>
+        </mailingList>
+    </mailingLists>
+    
+    <!-- TODO Add developers section -->
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/pom</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/pom</developerConnection>
     </scm>
 
     <build>
