@@ -36,7 +36,7 @@
     <name>Apache ACE - Log Store</name>
 
     <properties>
-        <bundle.symbolicName>${namespace}.log.task</bundle.symbolicName>
+        <bundle.symbolicName>${namespace}.server.log.task</bundle.symbolicName>
         <bundle.namespace>${namespace}.server.log.task</bundle.namespace>
     </properties>
 

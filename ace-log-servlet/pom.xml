@@ -36,7 +36,7 @@
     <name>Apache ACE - Log Servlet</name>
     
     <properties>
-        <bundle.symbolicName>${namespace}.log.servlet</bundle.symbolicName>
+        <bundle.symbolicName>${namespace}.server.log.servlet</bundle.symbolicName>
         <bundle.namespace>${namespace}.server.log.servlet</bundle.namespace>
     </properties>
 
