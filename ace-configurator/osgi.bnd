@@ -4,6 +4,5 @@ Bundle-Version>:\
 Bundle-SymbolicName:\
   ${bundle.symbolicName}
 
-Export-Package:\
-  ${bundle.namespace}; version="${pom.version}"
+Export-Package:
 
