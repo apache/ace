@@ -7,5 +7,5 @@ Bundle-SymbolicName:\
   ${bundle.symbolicName}
 
 Export-Package:\
-  ${bundle.namespace}; version="${pom.version}"
+  org.apache.ace.deployment; version="${pom.version}"
 
