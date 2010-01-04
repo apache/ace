@@ -9,3 +9,6 @@ Bundle-SymbolicName:\
 Export-Package:\
   ${bundle.namespace}; version="${pom.version}"
 
+Embed-Dependency:\
+  ace-log; inline=true
+
