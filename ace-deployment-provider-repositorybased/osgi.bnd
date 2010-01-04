@@ -9,3 +9,6 @@ Bundle-SymbolicName:\
 Export-Package:\
   ${bundle.namespace}; version="${pom.version}"
 
+Embed-Dependency:\
+  ace-deployment-provider-api; inline=true, ace-deployment-provider-base; inline=true,ace-repository; inline=true
+
