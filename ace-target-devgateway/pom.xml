@@ -49,7 +49,7 @@
                         </goals>
                         <configuration>
                             <descriptors>
-                                <descriptor>src/main/assembly/devgateway.xml</descriptor>
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
                             </descriptors>
                             <archiveBaseDirectory>${project.outputDirectory}</archiveBaseDirectory>
                         </configuration>
