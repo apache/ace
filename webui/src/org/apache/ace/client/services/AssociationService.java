@@ -26,6 +26,9 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  */
 @RemoteServiceRelativePath("associations")
 public interface AssociationService extends RemoteService {
+    public static enum AssocationType {
+        STATIC, DYNAMIC
+    }
     /**
      * Links a bundle and a group; note that this will create a link to a given bundle,
      * not to its symbolic name.
@@ -52,4 +55,20 @@ public interface AssociationService extends RemoteService {
      * Gets all the descriptors that are in some way related to the given one.
      */
     Descriptor[] getRelated(Descriptor o) throws Exception;
+    
+    /**
+     * Sets the association type between artifacts and groups. There are two types:
+     * static and dynamic. The former means that when you create an association, it
+     * is linked to that specific version of an artifact. The latter means it is
+     * always linked to the latest version of an artifact. This setting affects the
+     * creation of associations. Once an association is created, you cannot change its
+     * type anymore.
+     */
+    void setAssocationType(AssocationType type);
+    
+    /**
+     * Returns the association type that is used when creating an association between
+     * an artifact and a group.
+     */
+    AssocationType getAssocationType();
 }

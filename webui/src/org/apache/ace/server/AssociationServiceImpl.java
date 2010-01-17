@@ -19,12 +19,15 @@
 package org.apache.ace.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.GatewayObject;
 import org.apache.ace.client.repository.object.GroupObject;
@@ -48,19 +51,37 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
  * each of the descriptor objects.
  */
 public class AssociationServiceImpl extends RemoteServiceServlet implements AssociationService {
+    
     /**
      * Generated serialVersionUID
      */
     private static final long serialVersionUID = 2413722456179463935L;
+    private AssocationType m_assocationType = AssocationType.DYNAMIC;
 
+    public void setAssocationType(AssocationType type) {
+        m_assocationType  = type;
+    }
+    public AssocationType getAssocationType() {
+        return m_assocationType;
+    }
+    
     public void link(BundleDescriptor bundle, GroupDescriptor group) throws Exception {
         HttpServletRequest request = getThreadLocalRequest();
         Artifact2GroupAssociationRepository a2gr = Activator.getService(request, Artifact2GroupAssociationRepository.class);
         
         ArtifactObject a = (ArtifactObject) ObjectMapping.unwrap(request, bundle);
         GroupObject g = (GroupObject) ObjectMapping.unwrap(request, group);
-        
-        a2gr.create(a, g);
+
+        switch (m_assocationType) {
+            case STATIC:
+                a2gr.create(a, g);
+                break;
+            case DYNAMIC:
+                Map<String, String> properties = new HashMap<String, String>();
+                properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
+                a2gr.create(a, properties, g, null);
+                break;
+        }
     }
 
     private void unlink(BundleDescriptor bundle, GroupDescriptor group) throws Exception {
@@ -210,4 +231,5 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
         }
         return result;
     }
+    
 }
