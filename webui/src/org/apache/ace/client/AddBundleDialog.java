@@ -50,7 +50,7 @@ public class AddBundleDialog extends DialogBox {
     OBRServiceAsync m_obrService = GWT.create(OBRService.class);
 
     AddBundleDialog(final Main main) {
-        setText("Add bundle");
+        setText("Add artifact");
         
         final ObjectListBox<OBRBundleDescriptor> obrFiles = new ObjectListBox<OBRBundleDescriptor>();
         obrFiles.setVisibleItemCount(8);
@@ -74,12 +74,12 @@ public class AddBundleDialog extends DialogBox {
         
         // Create the button panel
         HorizontalPanel buttonPanel = new HorizontalPanel();
-        Button saveButton = new Button("Save");
+        Button saveButton = new Button("Add");
         saveButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 m_obrService.importBundle(obrFiles.getSelectedObject(), new AsyncCallback<Void>() {
                     public void onFailure(Throwable caught) {
-                        Window.alert("Error importing bundle " + obrFiles.getSelectedObject());
+                        Window.alert("Error importing artifact " + obrFiles.getSelectedObject());
                     }
                     public void onSuccess(Void result) {
                         main.updateUI();
@@ -100,7 +100,7 @@ public class AddBundleDialog extends DialogBox {
         
         // Put the dialog together
         VerticalPanel content = new VerticalPanel();
-        content.add(new Label("Where is your bundle?"));
+        content.add(new Label("Where is your artifact?"));
         content.add(stackPanel);
         
         buttonPanel.add(cancelButton);

@@ -55,11 +55,11 @@ public class GroupTable extends ObjectTable<GroupDescriptor> {
     }
     
     void addNew() {
-        String result = Window.prompt("Add group", "New group");
+        String result = Window.prompt("Add feature", "New feature");
         if (result != null) {
             m_groupService.addGroup(result, new AsyncCallback<Void>() {
                 public void onFailure(Throwable caught) {
-                    Window.alert("Error adding group.");
+                    Window.alert("Error adding feature.");
                 }
                 public void onSuccess(Void result) {
                     // Hurrah!
