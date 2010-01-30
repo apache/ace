@@ -4,5 +4,7 @@ Bundle-Version>:\
 Bundle-SymbolicName:\
   ${bundle.symbolicName}
 
+Bundle-Activator: ${bundle.namespace}.Activator
+
 Export-Package:
 
