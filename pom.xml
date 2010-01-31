@@ -113,6 +113,7 @@
             <modules>
                 <!-- Targets (can be used by all Pax Tools) -->
                 <module>ace-target-devgateway</module>
+				<module>ace-target-devserver</module>
             </modules>
         </profile>
         <profile>

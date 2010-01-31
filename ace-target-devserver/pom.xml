@@ -97,62 +97,85 @@
 
         <dependency>
             <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.deploymentadmin</artifactId>
+            <artifactId>org.apache.felix.dependencymanager.shell</artifactId>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.main</artifactId>
+			<version>2.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.prefs</artifactId>
+			<version>1.0.4</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.shell</artifactId>
+			<version>1.4.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.shell.tui</artifactId>
+			<version>1.4.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+		<!-- TODO the following artifact names are purely fictional, we need to
+		          check if they actually exist somewhere -->
+		<!--
+        <dependency>
+            <groupId>org.knopflerfish</groupId>
+            <artifactId>bundle-useradmin</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.knopflerfish</groupId>
+            <artifactId>log</artifactId>
+            <scope>provided</scope>
+        </dependency>
+		-->
+		<!-- TODO validate if these are the right artifacts -->
+		<dependency>
+		    <groupId>org.ops4j.pax.web</groupId>
+		    <artifactId>pax-web-extender-war</artifactId>
+		    <version>0.7.2</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.ops4j.pax.web</groupId>
+		    <artifactId>pax-web-jetty-bundle</artifactId>
+		    <version>0.7.2</version>
+		</dependency>
+		
+
+        <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-consolelogger</artifactId>
+            <artifactId>ace-client-repository</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-log-listener</artifactId>
+            <artifactId>ace-client-repository-helper-bundle</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
 
+		<!-- TODO this next artifact does not seem to exist yet -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-gateway-log</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-gateway-log-store</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-log</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-discovery-property</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-identification-property</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-scheduler</artifactId>
+            <artifactId>ace-client-repository-helper-base</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -166,14 +189,119 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment</artifactId>
+            <artifactId>ace-consolelogger</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment-task</artifactId>
+            <artifactId>ace-deployment-provider-repositorybased</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-deployment-servlet</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-deployment-streamgenerator</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-discovery-property</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-httplistener</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-obr-metadata</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-obr-servlet</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-obr-storage</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-repository-servlet</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-repository</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-resourceprocessor-useradmin</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-scheduler</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-server-log-store</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-server-log</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-webconsole-plugin</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-webui</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
