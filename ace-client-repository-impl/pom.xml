@@ -62,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-log-store</artifactId>
+            <artifactId>ace-server-log-store</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
