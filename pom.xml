@@ -77,7 +77,7 @@
 
                 <module>ace-httplistener</module>
 
-                <module>ace-log-store</module>
+                <module>ace-server-log-store</module>
                 <module>ace-log-servlet</module>
                 <module>ace-log-task</module>
                 <module>ace-log-listener</module>
