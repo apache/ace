@@ -1,0 +1,27 @@
+#Exchange with felix,knopflerfish, equinox
+--platform=@default_platform@
+
+#Exchange with any valid version of you selected platform
+--version=@default_platform_version@
+
+@bundles@/org.apache.ace.consolelogger-1.0.0.jar@update
+@bundles@/org.apache.ace.configurator-1.0.0.jar@update
+@bundles@/org.apache.ace.http.listener-1.0.0.jar@update
+@bundles@/org.apache.ace.deployment.servlet-1.0.0.jar@update
+@bundles@/org.apache.ace.deployment.provider.filebased-1.0.0.jar@update
+@bundles@/org.apache.ace.deployment.streamgenerator-1.0.0.jar@update
+  
+#@bundles@/org.apache.ace.http.echo.servlet-1.0.0.jar@update
+
+@ext@/org.osgi.compendium.jar
+@ext@/osgi.mobile.jar
+@ext@/javax.servlet.jar
+@ext@/org.apache.felix.dependencymanager.jar
+@ext@/org.apache.felix.dependencymanager.shell.jar
+
+@lib@/org.apache.felix.configadmin.jar
+@lib@/org.apache.felix.eventadmin.jar
+@lib@/log_all-2.0.0.jar
+@lib@/http.jetty.jar
+@lib@/useradmin_all-2.0.0.jar
+@lib@/org.apache.felix.prefs.jar

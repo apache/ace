@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd"> -->
+
+<web-app>
+
+  <!-- Default page to serve -->
+  <welcome-file-list>
+    <welcome-file>webui.html</welcome-file>
+  </welcome-file-list>
+
+  <!-- Session listener -->
+  <listener>
+    <listener-class>org.apache.ace.server.SessionListener</listener-class>
+  </listener>
+  
+  <!-- Servlets -->
+  <servlet>
+    <servlet-name>bundleServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.BundleServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>bundleServlet</servlet-name>
+    <url-pattern>/webui/bundles</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>groupServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.GroupServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>groupServlet</servlet-name>
+    <url-pattern>/webui/groups</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>licenseServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.LicenseServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>licenseServlet</servlet-name>
+    <url-pattern>/webui/licenses</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>targetServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.TargetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>targetServlet</servlet-name>
+    <url-pattern>/webui/targets</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>checkoutServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.CheckoutServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>checkoutServlet</servlet-name>
+    <url-pattern>/webui/checkout</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>associationServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.AssociationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>associationServlet</servlet-name>
+    <url-pattern>/webui/associations</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>obrServlet</servlet-name>
+    <servlet-class>org.apache.ace.server.OBRServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>obrServlet</servlet-name>
+    <url-pattern>/webui/obrService</url-pattern>
+  </servlet-mapping>
+
+</web-app>

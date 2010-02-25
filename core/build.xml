@@ -1,0 +1,1067 @@
+<project name="core" default="build" basedir=".">
+    <property file="project.properties" />
+
+    <path id="cobertura.classpath">
+        <fileset dir="../test/ext/cobertura">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <path id="ext.classpath">
+        <fileset dir="ext">
+            <include name="**/*.jar" />
+        </fileset>
+    	<pathelement location="lib/felix/1.8.1/bundle/org.apache.felix.shell-1.2.0.jar" />
+    </path>
+
+    <path id="projects.classpath">
+        <pathelement path="classes"/>
+        <pathelement path="../gateway/classes"/>
+        <pathelement path="../server/classes"/>
+    </path>
+
+    <path id="bnd.classpath">
+        <path refid="projects.classpath" />
+        <path refid="ext.classpath" />
+    </path>
+
+    <path id="webstart.classpath">
+        <path refid="projects.classpath" />
+        <fileset dir="ext">
+            <include name="**/*.jar" />
+            <exclude name="org.osgi.compendium.jar" />
+            <exclude name="osgi.mobile.jar" />
+        </fileset>
+        <pathelement location="lib/org.apache.felix.deploymentadmin-0.9.0-SNAPSHOT.jar" />
+        <pathelement location="lib/org.apache.felix.eventadmin.jar" />
+        <pathelement location="lib/org.apache.felix.configadmin.jar" />
+        <pathelement location="lib/log_all-2.0.0.jar" />
+    </path>
+
+    <path id="test.classpath">
+        <path refid="projects.classpath" />
+        <pathelement location="../test/classes" />
+        <path refid="ext.classpath" />
+        <pathelement location="../test/ext/testng-5.5-jdk15.jar" />
+        <pathelement location="../test/ext/easymock.jar" />
+        <pathelement location="lib/felix/1.8.1/bin/felix.jar" />
+        <pathelement location="lib/xstream-build/1.3/xpp3_min-1.1.4c.jar" />
+    	<fileset dir="../test/ext/commons">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="lib/ant-contrib-1.0b3.jar" />
+
+    <taskdef resource="testngtasks" classpath="../test/ext/testng-5.5-jdk15.jar" />
+
+    <taskdef resource="tasks.properties" classpathref="cobertura.classpath" />
+
+    <taskdef name="bnd-wrap" 
+         classname="aQute.bnd.ant.WrapTask"
+         classpath="lib/bnd.jar"/>
+
+    <taskdef name="bundle"
+        classname="net.luminis.build.plugin.bnd.BuildTask"
+        classpath="lib/net.luminis.build.plugin.jar" />
+
+    <presetdef name="project-bundle">
+        <bundle outputdir="deploy/bundle"
+            classpathrefid="bnd.classpath"
+            bundleversion="1.0.0"
+            bundlevendor="Apache ACE" />
+    </presetdef>
+
+    <presetdef name="test-bundle">
+        <bundle outputdir="deploy/test"
+            importpackage="!org.apache.tools.ant, !org.apache.tools.ant.*, !org.apache.bsf, !org.apache.bsf.*, !junit.*, !com.sun.javadoc, !com.sun.javadoc.*, !com.sun.tools.javadoc, !com.sun.tools.javadoc.*, *"
+            classpathrefid="test.classpath"
+            bundleversion="1.0.0"
+            bundlevendor="Apache ACE" />
+    </presetdef>
+
+    <!-- instruments a bundle for code coverage -->
+    <macrodef name="instrument-bundle">
+        <attribute name="fromfile" />
+        <attribute name="todir" />
+        <sequential>
+            <!-- To run instrumentation without actually instrumenting, uncomment the next line,
+        	     and comment the rest of the sequential
+        	     TODO create a property for this -->
+            <!--
+            <copy file="@{fromfile}" todir="@{todir}" />
+        	-->
+            <!-- -->
+            <dirname file="@{fromfile}" property="dir-@{fromfile}" />
+            <basename file="@{fromfile}" property="name-@{fromfile}" />
+            <cobertura-instrument todir="@{todir}">
+                <includeClasses regex="org.apache.ace.*" />
+                <instrumentationClasspath>
+                    <pathelement location="@{fromfile}" />
+                </instrumentationClasspath>
+            </cobertura-instrument>
+            <jar destfile="@{todir}/${name-@{fromfile}}" update="true">
+                <manifest>
+                    <attribute name="DynamicImport-Package" value="net.sourceforge.cobertura.*" />
+                </manifest>
+            </jar>
+            <!-- -->
+        </sequential>
+    </macrodef>
+
+    <!-- runs felix with code coverage support -->
+    <macrodef name="run-felix-coverage">
+        <attribute name="destdir" />
+        <attribute name="bundles" />
+        <attribute name="timeout" default="60000" />
+        <attribute name="datafile" default="cobertura.ser" />
+        <sequential>
+            <delete dir="@{destdir}/cache" failonerror="false" />
+            <java dir="@{destdir}" classname="org.apache.felix.main.Main" fork="true" taskname="felix" timeout="@{timeout}" failonerror="true">
+                <jvmarg value="-ea" />
+                <!--
+            	<jvmarg value="-Xdebug" />
+                <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y" />
+                -->
+                <jvmarg value="-Dorg.apache.felix.eventadmin.Timeout=0" />
+                <sysproperty key="net.sourceforge.cobertura.datafile" value="@{datafile}" />
+                <sysproperty key="test-bundles" value="@{bundles}" />
+                <classpath>
+                    <pathelement location="deploy/target/test/bin/felix.jar" />
+                    <pathelement location="../test/ext/testng-5.5-jdk15.jar" />
+                    <pathelement location="../test/ext/cobertura/cobertura.jar" />
+                    <pathelement location="../test/ext/cobertura/asm-2.2.1.jar" />
+                    <pathelement location="../test/ext/cobertura/jakarta-oro-2.0.8.jar" />
+                    <pathelement location="../test/ext/cobertura/log4j-1.2.9.jar" />
+                </classpath>
+            </java>
+        </sequential>
+    </macrodef>
+
+    <target name="init">
+        <mkdir dir="deploy" />
+        <mkdir dir="deploy/bundle" />
+        <mkdir dir="deploy/test" />
+        <mkdir dir="deploy/target" />
+        <mkdir dir="deploy/tools" />
+        <mkdir dir="deploy/lib" />
+        <mkdir dir="../core/classes" />
+        <mkdir dir="../gateway/classes" />
+        <mkdir dir="../server/classes" />
+        <mkdir dir="../test/classes" />
+    </target>
+
+    <target name="clean" description="removes all generated artifacts">
+        <delete file="cobertura.ser" />
+        <delete dir="deploy" />
+        <delete dir="../gateway/classes" />
+        <delete dir="../server/classes" />
+        <delete dir="../test/classes" />
+        <delete dir="../core/classes" />
+        <delete dir="../webui/webui.war" />
+    	<subant buildpath="../webui" target="clean"/>
+        <delete>
+            <fileset dir="." includes="*.build" />
+        </delete>
+    </target>
+
+    <target name="build" depends="init" description="builds all code and tests">
+        <java classname="org.apache.tools.ant.launch.Launcher" fork="true" failonerror="true">
+            <classpath>
+                <pathelement location="lib/ecj.jar"/>
+                <pathelement location="${ant.home}/lib/ant.jar"/>
+                <pathelement location="${ant.home}/lib/ant-launcher.jar"/>
+            </classpath>
+            <jvmarg line="-Dbuild.compiler=org.eclipse.jdt.core.JDTCompilerAdapter"/>
+            <jvmarg line="-Dfailonerror.property=true" />
+            <arg line="build-core build-server build-gateway build-webui build-test"/>
+        </java>
+    </target>
+
+    <target name="build-core" depends="init">
+        <javac srcdir="src" destdir="classes" debug="on" nowarn="on" source="1.3" target="1.1" failonerror="${failonerror.property}" bootclasspath="lib/org.osgi.foundation.jar" classpathref="bnd.classpath"/>
+        <uptodate property="core.uptodate" targetfile="last.core.build">
+            <srcfiles dir="src" includes="**/*.java"/>
+            <srcfiles dir=".">
+                <include name="build.xml" />
+            </srcfiles>
+        </uptodate>
+        <antcall target="package-core" />
+        <touch file="last.core.build" />
+    </target>
+
+    <target name="build-server" depends="init">
+        <javac srcdir="../server/src" destdir="../server/classes" debug="on" nowarn="on" source="1.5" target="1.5" failonerror="${failonerror.property}" classpathref="bnd.classpath"/>
+        <uptodate property="server.uptodate" targetfile="last.server.build">
+            <srcfiles dir="../server/src" includes="**/*.java"/>
+            <srcfiles dir="../core/src" includes="**/*.java"/>
+            <srcfiles dir=".">
+                <include name="build.xml" />
+            </srcfiles>
+        </uptodate>
+        <antcall target="package-server" />
+        <touch file="last.server.build" />
+    </target>
+
+    <target name="build-gateway" depends="init">
+        <javac srcdir="../gateway/src" destdir="../gateway/classes" debug="on" nowarn="on" source="1.3" target="1.1" failonerror="${failonerror.property}" 
+            bootclasspath="lib/org.osgi.foundation.jar" classpathref="bnd.classpath"/>
+        <uptodate property="gateway.uptodate" targetfile="last.gateway.build">
+            <srcfiles dir="../gateway/src" includes="**/*.java"/>
+            <srcfiles dir="../core/src" includes="**/*.java"/>
+            <srcfiles dir=".">
+                <include name="build.xml" />
+            </srcfiles>
+        </uptodate>
+        <antcall target="package-gateway" />
+        <touch file="last.gateway.build" />
+    </target>
+
+    <target name="build-test" depends="init">
+        <javac srcdir="../test/src" destdir="../test/classes" debug="on" nowarn="on" source="1.6" target="1.6" failonerror="${failonerror.property}" classpathref="test.classpath"/>
+        <uptodate property="test.uptodate" targetfile="last.test.build">
+            <srcfiles dir="../core/src" includes="**/*.java"/>
+            <srcfiles dir="../gateway/src" includes="**/*.java"/>
+            <srcfiles dir="../server/src" includes="**/*.java"/>
+            <srcfiles dir="../test/src" includes="**/*.java"/>
+        </uptodate>
+        <antcall target="package-test" />
+        <touch file="last.test.build" />
+    </target>
+    
+    <target name="build-webui">
+        <uptodate property="webui.uptodate" value="true" targetfile="last.webui.build">
+            <srcfiles dir="../webui/src" includes="**/*.java"/>
+        	<srcfiles dir="../webui/war" includes="**/*" />
+        </uptodate>
+        <if>
+            <equals arg1="${webui.uptodate}" arg2="true"/>
+            <else>
+                <subant buildpath="../webui" target="war">
+                    <reference refid="bnd.classpath"/>
+                </subant>
+            </else>
+        </if>
+        <antcall target="package-webui" />
+        <touch file="last.webui.build" />
+    </target>
+
+    <target name="package-core" unless="core.uptodate">
+        <!-- ace-consolelogger -->
+        <project-bundle 
+            bundlename="Apache ACE Console Logger"                                                                                                                                          
+            bundlesymbolicname="org.apache.ace.consolelogger" 
+            privatepackage="org.apache.ace.consolelogger"
+            bundleactivator="org.apache.ace.consolelogger.Activator" />
+        <!-- ace-log-->
+        <project-bundle 
+            bundlename="Apache ACE Log Interfaces"                                                                                                                                            
+            bundlesymbolicname="org.apache.ace.log"
+            exportpackage="org.apache.ace.log, org.apache.ace.repository"
+            privatepackage="org.apache.ace.util" />
+    </target>
+
+    <target name="package-server" unless="server.uptodate">
+        <!-- ace-deployment-servlet -->
+        <project-bundle 
+            bundlename="Apache ACE Deployment Servlet"                                                                                                                                                 
+            bundlesymbolicname="org.apache.ace.deployment.servlet"                                                                                                                         
+            privatepackage="org.apache.ace.deployment.servlet"
+            bundleactivator="org.apache.ace.deployment.servlet.Activator" />
+        <!-- ace-httplistener -->
+        <project-bundle 
+            bundlename="Apache ACE HTTP Service Listener"                                                                                                                                                 
+            bundlesymbolicname="org.apache.ace.http.listener"                                                                                                                         
+            privatepackage="org.apache.ace.http.listener"                                                                                                                           
+            bundleactivator="org.apache.ace.http.listener.Activator" />
+        <!-- ace-deployment-provider-filebased -->        
+        <project-bundle 
+            bundlename="Apache ACE File Based Deployment Provider"                                                                                                                                                 
+            bundlesymbolicname="org.apache.ace.deployment.provider.filebased"                                                                                                                         
+            exportpackage="org.apache.ace.deployment.provider"                                                                                                                           
+            privatepackage="org.apache.ace.deployment.provider.filebased, org.apache.ace.deployment.provider.impl"
+            bundleactivator="org.apache.ace.deployment.provider.filebased.Activator" />
+        <!-- ace-deployment-provider-repositorybased -->
+        <project-bundle 
+            bundlename="Apache ACE Repository Based Deployment Provider"                                                                                                                                                 
+            bundlesymbolicname="org.apache.ace.deployment.provider.repositorybased"                                                                                                                         
+            exportpackage="org.apache.ace.deployment.provider"                                                                                                                           
+            privatepackage="org.apache.ace.deployment.provider.repositorybased, org.apache.ace.deployment.provider.impl, org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.repository.impl"
+            bundleactivator="org.apache.ace.deployment.provider.repositorybased.Activator" />
+        <!-- ace-deployment-streamgenerator -->        
+        <project-bundle 
+            bundlename="Apache ACE Deployment Stream Generator"                                                                                                                                                 
+            bundlesymbolicname="org.apache.ace.deployment.streamgenerator"                                                                                                                         
+            exportpackage="org.apache.ace.deployment.streamgenerator"                                                                                                                           
+            privatepackage="org.apache.ace.deployment.streamgenerator.impl"                                                                                                                           
+            bundleactivator="org.apache.ace.deployment.streamgenerator.impl.Activator" />
+        <!-- ace-log-servlet -->        
+        <project-bundle
+            bundlename="Apache ACE Server Log Servlet"
+            bundlesymbolicname="org.apache.ace.server.log"
+            privatepackage="org.apache.ace.server.log"
+            bundleactivator="org.apache.ace.server.log.Activator" />
+        <!-- ace-log-store -->
+        <project-bundle
+            bundlename="Apache ACE Server Log Store"
+            bundlesymbolicname="org.apache.ace.server.log.store"
+            exportpackage="org.apache.ace.server.log.store, org.apache.ace.log"
+            privatepackage="org.apache.ace.server.log.store.impl, org.apache.ace.util"
+            bundleactivator="org.apache.ace.server.log.store.impl.Activator" />
+        <!-- ace-log-task -->        
+        <project-bundle
+            bundlename="Apache ACE Server Log Task"
+            bundlesymbolicname="org.apache.ace.server.log.task"
+            privatepackage="org.apache.ace.server.log.task"
+            bundleactivator="org.apache.ace.server.log.task.Activator" />
+        <!-- ace-obr-metadata -->        
+        <project-bundle 
+            bundlename="Apache ACE OBR Metadata Generator"
+            bundlesymbolicname="org.apache.ace.obr.metadata"
+            exportpackage="org.apache.ace.obr.metadata"
+            privatepackage="org.apache.ace.obr.metadata.bindex, org.osgi.impl.bundle.bindex, org.osgi.impl.bundle.obr.resource, org.osgi.service.obr"
+    		includeresource="ext/kxml2-min.jar"
+    		bundleclasspath="kxml2-min.jar,."
+            bundleactivator="org.apache.ace.obr.metadata.bindex.Activator" />
+        <!-- ace-obr-storage -->        
+        <project-bundle 
+            bundlename="Apache ACE OBR Storage"
+            bundlesymbolicname="org.apache.ace.obr.storage"
+            exportpackage="org.apache.ace.obr.storage"
+            privatepackage="org.apache.ace.obr.storage.file"
+            bundleactivator="org.apache.ace.obr.storage.file.Activator" />
+        <!-- ace-obr-servlet -->        
+        <project-bundle 
+            bundlename="Apache ACE OBR Servlet"
+            bundlesymbolicname="org.apache.ace.obr.servlet"
+            privatepackage="org.apache.ace.obr.servlet"
+            bundleactivator="org.apache.ace.obr.servlet.Activator" />
+        <!-- ace-repository-impl -->        
+        <project-bundle 
+            bundlename="Apache ACE Object Repository"
+            bundlesymbolicname="org.apache.ace.repository"
+            exportpackage="org.apache.ace.repository"
+            privatepackage="org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.util"
+            bundleactivator="org.apache.ace.repository.impl.Activator" />
+        <!-- ace-repository-servlet -->
+        <project-bundle 
+            bundlename="Apache ACE Object Repository Servlet"
+            bundlesymbolicname="org.apache.ace.repository.servlet"
+            privatepackage="org.apache.ace.repository.servlet"
+            bundleactivator="org.apache.ace.repository.servlet.Activator" />
+        <!-- ace-repository-task -->        
+        <project-bundle 
+            bundlename="Apache ACE Object Repository Replication Task"
+            bundlesymbolicname="org.apache.ace.repository.task"
+            privatepackage="org.apache.ace.repository.task"
+            bundleactivator="org.apache.ace.repository.task.Activator" />
+        <!-- note: this bundle needs to export org.apache.ace.server.log.store since it does
+             not require a log to be present, but does need the interface, which is not define in core,
+             since it is not java 1.3 compatible. -->
+        <!-- ace-client-repository-impl -->
+        <project-bundle
+            bundlename="Apache ACE Client Repository and Stateful Gateway Model"
+            bundlesymbolicname="org.apache.ace.client.repository"
+            exportpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.repository, org.apache.ace.client.repository.helper, org.apache.ace.client.repository.stateful, org.apache.ace.server.log.store"
+            privatepackage="org.apache.ace.client.repository.impl, org.apache.ace.util, org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.client.repository.stateful.impl"
+            bundleactivator="org.apache.ace.client.repository.impl.Activator"/>
+        <!-- ace-client-repository -->        
+        <project-bundle
+            bundlename="Apache ACE Client Artifact Helper Resources"
+            bundlesymbolicname="org.apache.ace.client.repository.helper.base"
+    		includeresource="ext/velocity-dep-1.5.jar"
+    		bundleclasspath="velocity-dep-1.5.jar,."
+    		importpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.helper, *;resolution:=optional"
+            exportpackage="org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.helper, org.apache.ace.client.repository.helper.base"/>
+        <!-- ace-client-repository-helper-bundle -->        
+        <project-bundle
+            bundlename="Apache ACE Client Bundle Artifact Helper"
+            bundlesymbolicname="org.apache.ace.client.repository.helper.bundle"
+            exportpackage="org.apache.ace.client.repository.helper.bundle"
+            privatepackage="org.apache.ace.client.repository.helper.bundle.impl, org.apache.ace.util"
+            bundleactivator="org.apache.ace.client.repository.helper.bundle.impl.Activator"/>
+        <!-- ace-client-repository-configuration -->
+        <project-bundle
+            bundlename="Apache ACE Client Configuration Artifact Helper"
+            bundlesymbolicname="org.apache.ace.client.repository.helper.configuration"
+            exportpackage="org.apache.ace.client.repository.helper.configuration"
+            privatepackage="org.apache.ace.client.repository.helper.configuration.impl"
+            bundleactivator="org.apache.ace.client.repository.helper.configuration.impl.Activator"/>
+        <!-- ace-client-repository-helper-user -->        
+        <project-bundle
+            bundlename="Apache ACE Client UserAdmin Artifact Helper"
+            bundlesymbolicname="org.apache.ace.client.repository.helper.user"
+            exportpackage="org.apache.ace.client.repository.helper.user"
+            privatepackage="org.apache.ace.client.repository.helper.user.impl"
+            bundleactivator="org.apache.ace.client.repository.helper.user.impl.Activator"/>
+        <!-- ace-configurator-serveruseradmin -->
+        <project-bundle 
+            bundlename="Apache ACE Serverside UserAdmin Configurator"
+            bundlesymbolicname="org.apache.ace.configurator.serveruseradmin"
+            privatepackage="org.apache.ace.configurator.serveruseradmin"
+            bundleactivator="org.apache.ace.configurator.serveruseradmin.Activator" />
+        <!-- Note that the privatepackage below is not exactly clean; for now, we don't have another way to this,
+    	but we might want to clean this up (i.e., everybody should be able to ask for a remote repository) -->
+        <!-- ace-configurator-useradmin-task -->
+        <project-bundle 
+            bundlename="Apache ACE Repository Based UserAdmin Configuration Task"
+            bundlesymbolicname="org.apache.ace.configurator.useradmin.task"
+            privatepackage="org.apache.ace.configurator.useradmin.task, org.apache.ace.repository.impl, org.apache.ace.repository.ext"
+            bundleactivator="org.apache.ace.configurator.useradmin.task.Activator" />
+        <!-- ace-client-repository-useradmin -->
+        <project-bundle 
+            bundlename="Apache ACE Client Repository UserAdmin Editor"
+            bundlesymbolicname="org.apache.ace.client.repositoryuseradmin"
+            exportpackage="org.apache.ace.client.repositoryuseradmin"
+            privatepackage="org.apache.ace.client.repositoryuseradmin.impl, org.apache.ace.client.repository, org.apache.ace.repository.impl, org.apache.ace.repository.ext"
+            bundleactivator="org.apache.ace.client.repositoryuseradmin.impl.Activator" />
+        <!-- ace-server-action -->
+        <project-bundle 
+            bundlename="Apache ACE Server Action Interfaces"
+            bundlesymbolicname="org.apache.ace.server.action"
+            exportpackage="org.apache.ace.server.action" />
+        <!-- ace-server-action-popupmessage -->
+        <project-bundle 
+            bundlename="Apache ACE Server Popup Action"
+            bundlesymbolicname="org.apache.ace.server.action.popupmessage"
+            privatepackage="org.apache.ace.server.action.popupmessage"
+            bundleactivator="org.apache.ace.server.action.popupmessage.Activator" />
+        <!-- ace-client-automation -->
+        <project-bundle 
+            bundlename="Apache ACE Auto Gateway Operator"
+            bundlesymbolicname="org.apache.ace.client.automation"
+            privatepackage="org.apache.ace.client.automation"
+            bundleactivator="org.apache.ace.client.automation.Activator" />
+        <!-- ace-resourceprocessor-useradmin -->
+        <project-bundle 
+            bundlename="Apache ACE UserAdmin Resource Processor"
+            bundlesymbolicname="org.apache.ace.resourceprocessor.useradmin" 
+            exportpackage="org.apache.ace.resourceprocessor.useradmin" 
+            privatepackage="org.apache.ace.resourceprocessor.useradmin.impl"
+            bundleactivator="org.apache.ace.resourceprocessor.useradmin.impl.Activator">
+            <manifest>
+                <attribute name="Deployment-ProvidesResourceProcessor" value="org.apache.ace.resourceprocessor.useradmin" />
+            </manifest>
+        </project-bundle>
+        <!-- not ported yet (felix ?) -->
+        <project-bundle 
+            bundlename="Apache ACE AutoConf Resource Processor"
+            bundlesymbolicname="org.apache.felix.deployment.rp.autoconf" 
+            privatepackage="org.apache.felix.deployment.rp.autoconf.impl, org.apache.felix.metatype.*, org.kxml2.io;-split-package:=merge-first, org.xmlpull.v1;-split-package:=merge-first, org.osgi.service.metatype;-split-package:=merge-first"
+			exportpackage="org.apache.felix.deployment.rp.autoconf"
+    		bundleactivator="org.apache.felix.deployment.rp.autoconf.Activator">
+            <manifest>
+                <attribute name="Deployment-ProvidesResourceProcessor" value="org.osgi.deployment.rp.autoconf" />
+            </manifest>
+        </project-bundle>
+        <!-- ace-location-upnp -->
+        <project-bundle 
+            bundlename="Apache ACE UPnP Based Location Service"
+            bundlesymbolicname="org.apache.ace.location.upnp"
+            exportpackage="org.apache.ace.location"
+            privatepackage="org.apache.ace.location.upnp, org.apache.ace.location.upnp.actions, org.apache.ace.location.upnp.util"
+            bundleactivator="org.apache.ace.location.upnp.Activator" />
+        <!-- ace-webconsole-plugin -->
+        <project-bundle 
+            bundlename="Apache ACE Felix WebConsole Plugin"
+            bundlesymbolicname="org.apache.ace.webconsole.plugin"
+            privatepackage="org.apache.ace.webconsole.plugin"
+            bundleactivator="org.apache.ace.webconsole.plugin.Activator" />
+    </target>
+
+    <target name="package-gateway" unless="gateway.uptodate">
+        <!-- not ported yet -->
+        <project-bundle 
+            bundlename="Webstart Management Agent"
+            bundlesymbolicname="org.apache.ace.ma.webstart"
+            classpathrefid="webstart.classpath"
+            exportpackage="org.osgi.service.deploymentadmin, org.osgi.service.deploymentadmin.spi, org.osgi.service.log, org.osgi.util.tracker, org.apache.felix.dependencymanager, org.osgi.service.event, org.osgi.service.cm"
+            privatepackage="org.apache.ace.configurator, org.apache.ace.gateway.constants, org.apache.ace.scheduler, 
+            org.apache.ace.deployment, org.apache.ace.deployment.deploymentadmin, org.apache.ace.deployment.task, 
+            org.apache.ace.discovery, org.apache.ace.identification, org.apache.ace.ma.webstart,
+            org.apache.ace.log.listener, org.apache.ace.gateway.log, 
+            org.apache.ace.gateway.log.task, org.apache.ace.gateway.log.store, org.apache.ace.gateway.log.store.impl, 
+            org.apache.ace.log, org.apache.ace.util, org.apache.ace.repository,  
+            org.apache.felix.deploymentadmin, org.apache.felix.deploymentadmin.spi, org.apache.felix.eventadmin.impl, org.apache.felix.eventadmin.impl.*"
+            bundleactivator="org.apache.ace.ma.webstart.Activator" />
+        <!-- ace-configurator -->
+        <project-bundle 
+            bundlename="Apache ACE Configurator"
+            bundlesymbolicname="org.apache.ace.configurator"
+            privatepackage="org.apache.ace.configurator, org.apache.ace.gateway.constants"
+            bundleactivator="org.apache.ace.configurator.Activator" />
+        <!-- ace-scheduler -->
+        <project-bundle 
+            bundlename="Apache ACE Scheduler"
+            bundlesymbolicname="org.apache.ace.scheduler"
+            privatepackage="org.apache.ace.scheduler, org.apache.ace.gateway.constants"
+            bundleactivator="org.apache.ace.scheduler.Activator" />
+        <!-- ace-deployment -->
+        <project-bundle 
+            bundlename="Apache ACE Deployment"
+            bundlesymbolicname="org.apache.ace.deployment"
+            exportpackage="org.apache.ace.deployment"
+            privatepackage="org.apache.ace.deployment.deploymentadmin"
+            bundleactivator="org.apache.ace.deployment.deploymentadmin.Activator" />
+        <!-- ace-deployment-task -->
+        <project-bundle 
+            bundlename="Apache ACE Deployment Task"
+            bundlesymbolicname="org.apache.ace.deployment.task"
+            exportpackage="org.apache.ace.deployment"
+            privatepackage="org.apache.ace.deployment.task"
+            bundleactivator="org.apache.ace.deployment.task.Activator" />
+        <!--ace-discovery-property -->
+        <project-bundle 
+            bundlename="Apache ACE Property Based Discovery"
+            bundlesymbolicname="org.apache.ace.discovery.property"
+            exportpackage="org.apache.ace.discovery"
+            privatepackage="org.apache.ace.discovery.property"
+            bundleactivator="org.apache.ace.discovery.property.Activator" />
+        <!-- ace-identification-property -->
+        <project-bundle 
+            bundlename="Apache ACE Property Based Identification"
+            bundlesymbolicname="org.apache.ace.identification.property"
+            exportpackage="org.apache.ace.identification"
+            privatepackage="org.apache.ace.identification.property"
+            bundleactivator="org.apache.ace.identification.property.Activator" />
+        <!-- work: ace-identification-ifconfig -->
+        <project-bundle 
+            bundlename="Apache ACE ifconfig/MAC Address Based Identification"
+            bundlesymbolicname="org.apache.ace.identification.ifconfig"
+            exportpackage="org.apache.ace.identification"
+            privatepackage="org.apache.ace.identification.ifconfig"
+            bundleactivator="org.apache.ace.identification.ifconfig.Activator" />
+        <!-- work: ace-log-listener -->
+        <project-bundle 
+            bundlename="Apache ACE Log Listener"
+            bundlesymbolicname="org.apache.ace.log.listener"
+            privatepackage="org.apache.ace.log.listener"
+            bundleactivator="org.apache.ace.log.listener.Activator" />
+        <!-- work: ace-gateway-log -->
+        <project-bundle 
+            bundlename="Apache ACE Gateway Log"
+            bundlesymbolicname="org.apache.ace.gateway.log"
+            privatepackage="org.apache.ace.gateway.log, org.apache.ace.gateway.log.task"
+            bundleactivator="org.apache.ace.gateway.log.Activator" />
+        <!-- work: ace-gateway-log-store -->
+        <project-bundle
+            bundlename="Apache ACE Gateway Log Store"
+            bundlesymbolicname="org.apache.ace.gateway.log.store"
+            privatepackage="org.apache.ace.gateway.log.store.impl, org.apache.ace.util"
+            bundleactivator="org.apache.ace.gateway.log.store.impl.Activator"
+            exportpackage="org.apache.ace.gateway.log.store, org.apache.ace.log"/>
+        <!-- work: ace-discovery-upnp -->
+        <project-bundle 
+            bundlename="Apache ACE UPnP Based Discovery"
+            bundlesymbolicname="org.apache.ace.discovery.upnp"
+            exportpackage="org.apache.ace.discovery"
+            privatepackage="org.apache.ace.discovery.upnp"
+            bundleactivator="org.apache.ace.discovery.upnp.Activator" />
+        <mkdir dir="deploy/target/dev-multigateway"/>
+        <!-- not ported yet -->
+        <jar destfile="deploy/target/dev-multigateway/multigatewaybootstrap.jar" basedir="../gateway/classes" includes="org/apache/ace/bootstrap/multigateway/**">
+            <manifest>
+                <attribute name="Main-Class" value="org.apache.ace.bootstrap.multigateway.MultiFrameworkStarter"/>
+                <attribute name="Class-Path" value="bin/felix.jar"/>
+            </manifest>
+        </jar>
+    </target>
+    
+    <target name="package-webui" unless="webui.uptodate">
+    	<!-- TODO add an activator to bridge between OSGi and GWT -->
+        <copy file="../webui/webui.war" tofile="deploy/bundle/org.apache.ace.webui-1.0.0.jar"/>
+    	<echo file="org.apache.ace.webui-1.0.0.bnd">Import-Package: org.apache.ace.log,org.apache.ace.client.repository,org.apache.ace.client.repository.object,org.apache.ace.client.repository.repository,org.apache.ace.client.repository.stateful,org.apache.ace.client.repository.helper,org.apache.ace.client.repository.helper.bundle,org.xml.sax, javax.xml.parsers, junit.framework;resolution:=optional, com.google.gwt.benchmarks;resolution:=optional, com.allen_sauer.gwt.dnd.client;resolution:=optional, com.allen_sauer.gwt.dnd.client.drop;resolution:=optional, *
+Dynamic-ImportPackage: *
+Bundle-Name: Apache ACE Client Web UI
+Bundle-ClassPath: WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar
+Bundle-SymbolicName: org.apache.ace.webui
+Webapp-Context: webui
+Bundle-Activator: org.apache.ace.server.Activator
+        </echo>
+        <bnd-wrap jars="deploy/bundle/org.apache.ace.webui-1.0.0.jar" output="deploy/bundle/org.apache.ace.webui-1.0.0.jar"/>
+    	<jar file="deploy/bundle/org.apache.ace.webui-1.0.0.jar" update="true">
+    	<manifest>
+            <attribute name="Bundle-ClassPath" value="WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar, ."/>
+    	</manifest>
+    	</jar>
+    	<delete file="org.apache.ace.webui-1.0.0.bnd"/>
+    </target>
+
+    <target name="package-test" unless="test.uptodate">
+        <test-bundle 
+            bundlename="Apache ACE Test Deployment"                                                                                                                                          
+            bundlesymbolicname="org.apache.ace.test.deployment" 
+            privatepackage="org.apache.ace.test.deployment,org.apache.ace.test.osgi.dm,org.apache.ace.deployment.provider.impl,org.apache.ace.deployment.provider.filebased;-split-package:=merge-last,org.apache.ace.test.utils, org.apache.ace.test.utils.deployment"
+            bundleactivator="org.apache.ace.test.deployment.Activator" />
+        <test-bundle 
+            bundlename="Apache ACE Test Log"                                                                                                                                          
+            bundlesymbolicname="org.apache.ace.test.log" 
+            privatepackage="org.apache.ace.test.log,org.apache.ace.test.osgi.dm"
+            bundleactivator="org.apache.ace.test.log.Activator" />
+        <test-bundle 
+            bundlename="Apache ACE Test HTTP Servlet Listener"
+            bundlesymbolicname="org.apache.ace.test.http.listener" 
+            privatepackage="org.apache.ace.test.http.listener,org.apache.ace.test.osgi.dm"
+            bundleactivator="org.apache.ace.test.http.listener.Activator" />
+        <test-bundle 
+            bundlename="Apache ACE Test Repository"
+            bundlesymbolicname="org.apache.ace.test.repository" 
+            privatepackage="org.apache.ace.test.repository, org.apache.ace.test.utils, org.apache.ace.test.osgi.dm"
+            bundleactivator="org.apache.ace.test.repository.Activator" />
+        <test-bundle 
+            bundlename="Apache ACE Test Repository Admin"
+            bundlesymbolicname="org.apache.ace.test.repositoryadmin" 
+            privatepackage="org.apache.ace.test.repositoryadmin, org.apache.ace.test.utils, org.apache.ace.test.osgi.dm"
+            bundleactivator="org.apache.ace.test.repositoryadmin.Activator" />
+        <test-bundle 
+            bundlename="Apache ACE Test UserAdmin Configurator"
+            bundlesymbolicname="org.apache.ace.test.useradminconfigurator" 
+            privatepackage="org.apache.ace.test.useradminconfigurator, org.apache.ace.test.utils, org.apache.ace.test.osgi.dm"
+            bundleactivator="org.apache.ace.test.useradminconfigurator.Activator" />
+        <test-bundle 
+    	    bundlename="Apache ACE Test System Bundle Stopper"
+    	    bundlesymbolicname="org.apache.ace.test.bundlestop" 
+    	    privatepackage="org.apache.ace.test.bundlestop"
+    	    bundleactivator="org.apache.ace.test.bundlestop.Activator" />
+        <test-bundle 
+    	    bundlename="Apache ACE Test Mock AutoConf"
+    	    bundlesymbolicname="org.apache.ace.test.mockautoconf" 
+    	    privatepackage="org.apache.ace.test.mockautoconf"
+    	    bundleactivator="org.apache.ace.test.mockautoconf.Activator" >
+            <manifest>
+                <attribute name="Deployment-ProvidesResourceProcessor" value="org.osgi.deployment.rp.autoconf"/>
+            </manifest>
+        </test-bundle>
+        <copy file="deploy/test/org.apache.ace.test.bundlestop-1.0.0.jar" todir="deploy/tools/"/>
+        <jar destfile="deploy/tools/BundleGenerator.jar" basedir="../test/classes" includes="org/apache/ace/test/tools/BundleGenerator*.class">
+            <manifest>
+                <attribute name="Main-Class" value="org.apache.ace.test.tools.BundleGenerator" />
+            </manifest>
+        </jar>
+        <jar destfile="deploy/tools/RepositoryTool.jar" basedir="../test/classes" includes="org/apache/ace/test/tools/RepositoryTool*.class">
+            <fileset dir="classes">
+                <include name="org/apache/ace/repository/*.class" />
+                <exclude name="org/apache/ace/repository/Repository*.class" />
+            </fileset>
+            <manifest>
+                <attribute name="Main-Class" value="org.apache.ace.test.tools.RepositoryTool" />
+                <attribute name="Class-Path" value="commons-cli-1.1.jar" />
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="test" depends="build" description="runs all tests">
+        <antcall target="coverage-test" />
+        <antcall target="integration-test" />
+    </target>
+
+    <target name="test-smoke" depends="build" description="runs smoke tests">
+        <run-tests groups="smoke" />
+    </target>
+
+    <target name="integration-test" depends="package" description="runs integration tests">
+        <!-- instrument the classes for code coverage -->
+        <mkdir dir="deploy/target/test/instrumented" />
+        <outofdate outputsources="instrumented.src">
+            <sourcefiles>
+                <fileset dir="deploy/bundle" />
+            </sourcefiles>
+            <targetfiles>
+                <fileset dir="deploy/target/test/instrumented" />
+            </targetfiles>
+            <mapper type="glob" from="deploy/bundle/*" to="deploy/target/test/instrumented/*" />
+            <sequential>
+                <for list="${instrumented.src}" delimiter=" " param="instrumented.file">
+                    <sequential>
+                        <instrument-bundle fromfile="@{instrumented.file}" todir="deploy/target/test/instrumented" />
+                    </sequential>
+                </for>
+            </sequential>
+        </outofdate>
+
+        <!-- runs the tests -->
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/osgi.mobile.jar 
+            file:bundle/org.apache.felix.shell-1.2.0.jar 
+            file:bundle/org.apache.felix.shell.tui-1.2.0.jar 
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
+            file:bundle/org.apache.felix.configadmin.jar 
+            file:bundle/org.apache.felix.eventadmin.jar
+            file:bundle/org.apache.felix.deploymentadmin-0.9.0-SNAPSHOT.jar
+            file:instrumented/org.apache.ace.scheduler-1.0.0.jar
+            file:instrumented/org.apache.ace.deployment-1.0.0.jar
+            file:instrumented/org.apache.ace.deployment.task-1.0.0.jar
+            file:instrumented/org.apache.ace.discovery.property-1.0.0.jar
+            file:instrumented/org.apache.ace.identification.property-1.0.0.jar
+            file:instrumented/org.apache.ace.http.listener-1.0.0.jar
+            file:instrumented/org.apache.ace.deployment.servlet-1.0.0.jar
+            file:instrumented/org.apache.ace.deployment.provider.filebased-1.0.0.jar
+            file:instrumented/org.apache.ace.deployment.streamgenerator-1.0.0.jar
+            file:bundle/org.apache.ace.test.deployment-1.0.0.jar"
+            timeout="60000" datafile="${basedir}/cobertura.ser" />
+
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/org.apache.felix.shell-1.2.0.jar 
+            file:bundle/org.apache.felix.shell.tui-1.2.0.jar 
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/org.apache.felix.configadmin.jar 
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
+            file:instrumented/org.apache.ace.http.listener-1.0.0.jar
+            file:bundle/org.apache.ace.test.http.listener-1.0.0.jar"
+        	timeout="30000" datafile="${basedir}/cobertura.ser" />
+
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/osgi.mobile.jar 
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.apache.felix.shell-1.2.0.jar 
+            file:bundle/org.apache.felix.shell.tui-1.2.0.jar 
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/org.apache.felix.configadmin.jar 
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
+            file:instrumented/org.apache.ace.log.listener-1.0.0.jar
+            file:instrumented/org.apache.ace.log-1.0.0.jar
+            file:instrumented/org.apache.ace.discovery.property-1.0.0.jar
+            file:instrumented/org.apache.ace.identification.property-1.0.0.jar
+            file:instrumented/org.apache.ace.gateway.log.store-1.0.0.jar
+            file:instrumented/org.apache.ace.gateway.log-1.0.0.jar
+            file:instrumented/org.apache.ace.http.listener-1.0.0.jar
+            file:instrumented/org.apache.ace.server.log.store-1.0.0.jar
+            file:instrumented/org.apache.ace.server.log.task-1.0.0.jar
+            file:instrumented/org.apache.ace.server.log-1.0.0.jar
+            file:bundle/org.apache.ace.test.log-1.0.0.jar"
+        	timeout="30000" datafile="${basedir}/cobertura.ser" />
+
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.apache.felix.shell-1.2.0.jar 
+            file:bundle/org.apache.felix.shell.tui-1.2.0.jar 
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/org.apache.felix.configadmin.jar
+        	file:bundle/org.apache.felix.prefs.jar
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
+            file:instrumented/org.apache.ace.http.listener-1.0.0.jar
+        	file:instrumented/org.apache.ace.repository-1.0.0.jar
+        	file:instrumented/org.apache.ace.repository.servlet-1.0.0.jar
+            file:bundle/org.apache.ace.test.repository-1.0.0.jar"
+            timeout="30000" datafile="${basedir}/cobertura.ser" />
+
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.apache.felix.shell-1.2.0.jar 
+            file:bundle/org.apache.felix.shell.tui-1.2.0.jar 
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/org.apache.felix.configadmin.jar
+        	file:bundle/org.apache.felix.prefs.jar
+            file:bundle/org.apache.felix.eventadmin.jar
+        	file:bundle/useradmin_all-2.0.0.jar
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
+            file:bundle/org.apache.ace.xstream-1.3.jar 
+        	file:bundle/log_all-2.0.0.jar
+            file:instrumented/org.apache.ace.log-1.0.0.jar
+            file:instrumented/org.apache.ace.server.log.store-1.0.0.jar
+            file:instrumented/org.apache.ace.http.listener-1.0.0.jar
+        	file:instrumented/org.apache.ace.repository-1.0.0.jar
+        	file:instrumented/org.apache.ace.repository.servlet-1.0.0.jar
+        	file:instrumented/org.apache.ace.obr.metadata-1.0.0.jar
+        	file:instrumented/org.apache.ace.obr.servlet-1.0.0.jar
+        	file:instrumented/org.apache.ace.obr.storage-1.0.0.jar
+        	file:instrumented/org.apache.ace.client.repository-1.0.0.jar
+            file:instrumented/org.apache.ace.client.repository.helper.base-1.0.0.jar
+            file:instrumented/org.apache.ace.client.repository.helper.bundle-1.0.0.jar
+            file:instrumented/org.apache.ace.client.repository.helper.configuration-1.0.0.jar
+        	file:bundle/org.apache.ace.configurator.serveruseradmin-1.0.0.jar
+            file:bundle/org.apache.ace.configurator-1.0.0.jar
+        	file:instrumented/org.apache.ace.client.automation-1.0.0.jar
+            file:bundle/org.apache.ace.test.repositoryadmin-1.0.0.jar"
+            timeout="240000" datafile="${basedir}/cobertura.ser" />
+
+        <run-felix-coverage destdir="deploy/target/test" bundles="
+            file:bundle/org.apache.ace.consolelogger-1.0.0.jar
+            file:bundle/org.osgi.compendium.jar 
+            file:bundle/osgi.mobile.jar 
+            file:bundle/javax.servlet.jar 
+            file:bundle/http.jetty.jar
+            file:bundle/org.apache.felix.shell-1.2.0.jar 
+            file:bundle/org.apache.felix.shell.tui-1.2.0.jar 
+        	file:bundle/org.apache.felix.prefs.jar
+            file:bundle/org.apache.felix.dependencymanager.jar 
+            file:bundle/org.apache.felix.dependencymanager.shell.jar 
+            file:bundle/org.apache.felix.configadmin.jar
+            file:bundle/useradmin_all-2.0.0.jar
+            file:bundle/log_all-2.0.0.jar
+            file:bundle/org.apache.ace.scheduler-1.0.0.jar
+            file:bundle/org.apache.ace.http.listener-1.0.0.jar
+        	file:bundle/org.apache.ace.repository-1.0.0.jar
+        	file:bundle/org.apache.ace.repository.servlet-1.0.0.jar
+        	file:instrumented/org.apache.ace.resourceprocessor.useradmin-1.0.0.jar
+        	file:instrumented/org.apache.ace.configurator.useradmin.task-1.0.0.jar
+        	file:bundle/org.apache.ace.test.useradminconfigurator-1.0.0.jar"
+            timeout="60000" datafile="${basedir}/cobertura.ser" />
+
+        <!-- create a report -->
+        <mkdir dir="deploy/target/test/coverage" />
+        <cobertura-report format="html" destdir="deploy/target/test/coverage/results" datafile="${basedir}/cobertura.ser">
+            <fileset dir="src">
+                <include name="../core/**/*.java" />
+            </fileset>
+            <fileset dir="../server/src">
+                <include name="**/*.java" />
+            </fileset>
+            <fileset dir="../gateway/src">
+                <include name="**/*.java" />
+            </fileset>
+        </cobertura-report>
+        <cobertura-report format="xml" destdir="deploy/target/test/coverage/results-xml" datafile="${basedir}/cobertura.ser">
+            <fileset dir="src">
+                <include name="../core/**/*.java" />
+            </fileset>
+            <fileset dir="../server/src">
+                <include name="**/*.java" />
+            </fileset>
+            <fileset dir="../gateway/src">
+                <include name="**/*.java" />
+            </fileset>
+        </cobertura-report>
+    </target>
+
+    <target name="coverage-test" depends="build" description="run tests with code coverage">
+        <delete dir="deploy/test/coverage" />
+        <mkdir dir="deploy/test/coverage" />
+        <cobertura-instrument todir="deploy/test/coverage">
+            <fileset dir="../gateway/classes">
+                <include name="**/*.class" />
+            </fileset>
+            <fileset dir="../server/classes">
+                <include name="**/*.class" />
+            </fileset>
+            <fileset dir="../core/classes">
+                <include name="**/*.class" />
+            </fileset>
+        </cobertura-instrument>
+        <testng groups="unit" excludedgroups="broken" outputDir="deploy/test/coverage/test" haltOnFailure="true" verbose="2" listener="org.apache.ace.test.build.BrokenTestListener">
+            <!--
+            <jvmarg value="-Xdebug" />
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n" />
+            -->
+            <classpath>
+                <pathelement location="deploy/test/coverage" />
+                <fileset dir="ext">
+                    <include name="**/*.jar" />
+                </fileset>
+                <fileset dir="../test/ext">
+                    <include name="cobertura/*.jar" />
+                    <include name="commons/*.jar" />
+                </fileset>
+                <pathelement location="../core/classes" />
+                <pathelement location="../test/classes" />
+                <pathelement location="../gateway/classes" />
+                <pathelement location="../server/classes" />
+                <pathelement location="lib/felix/1.8.1/bin/felix.jar" />
+                <pathelement location="lib/xstream-build/1.3/xpp3_min-1.1.4c.jar" />
+                <pathelement location="../test/ext/easymock.jar" />
+            </classpath>
+            <classfileset dir="../test/classes" includes="**/*.class" />
+        </testng>
+        <cobertura-report format="html" destdir="deploy/test/coverage/results" datafile="${basedir}/cobertura.ser">
+            <fileset dir="../core/src">
+                <include name="**/*.java" />
+            </fileset>
+            <fileset dir="../server/src">
+                <include name="**/*.java" />
+            </fileset>
+            <fileset dir="../gateway/src">
+                <include name="**/*.java" />
+            </fileset>
+        </cobertura-report>
+    </target>
+
+    <target name="javadoc">
+        <javadoc destdir="deploy/docs/api" author="false" version="false" use="true" windowtitle="L-iQ API">
+            <classpath refid="test.classpath"/>
+            <fileset dir="../gateway/src" defaultexcludes="yes">
+                <include name="**" />
+            </fileset>
+            <fileset dir="../server/src" defaultexcludes="yes">
+                <include name="**" />
+            </fileset>
+            <doctitle>
+                <![CDATA[<h1>L-iQ</h1>]]>
+            </doctitle>
+        	<bottom>
+            <![CDATA[<i>Copyright &#169; 2009 Apache Software Foundation. All rights reserved.</i>]]>
+	        </bottom>
+		    <link href="http://java.sun.com/javase/6/docs/api/" />
+		    <link href="http://www2.osgi.org/javadoc/r4/" />
+		</javadoc>
+	</target>
+
+	<macrodef name="run-tests">
+		<attribute name="groups" />
+		<sequential>
+		    <testng classpathref="test.classpath" groups="@{groups}" excludedgroups="broken" outputDir="deploy/test" haltOnFailure="false" verbose="2">
+		        <classfileset dir="../test/classes" includes="**/*.class" />
+		    </testng>
+		</sequential>
+	</macrodef>
+
+	<target name="package" depends="build" description="packages all artifacts">
+		<mkdir dir="deploy/target" />
+		<antcall target="packageDevelopment">
+			<param name="item" value="dev-server-filebased"/>
+		</antcall>
+		<antcall target="packageDevelopment">
+			<param name="item" value="dev-gateway"/>
+		</antcall>
+		<antcall target="packageDevelopment">
+			<param name="item" value="dev-server-webui"/>
+		</antcall>
+
+		<!-- non standard targets can still provide their own build scripts here -->
+		<subant target="deploy" inheritall="true">
+			<fileset dir="." includes="target-*.xml" />
+		</subant>
+	</target>
+
+	<target name="packageDevelopment">
+	    <property name="workdir" value="deploy/target/${item}" />
+		<mkdir dir="${workdir}" />
+		
+		<copy todir="${workdir}/conf">
+            <fileset dir="conf/${item}">
+                <include name="**/*.cfg" />
+            </fileset>
+        </copy>
+
+		<copy todir="${workdir}">
+            <fileset dir="conf/${item}">
+                <include name="platform.*" />
+            </fileset>
+        </copy>
+
+		<replace file="${workdir}/platform.setup" token="@bundles@">
+            <replacevalue>file:../../../deploy/bundle</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@ext@">
+            <replacevalue>file:../../../ext</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@lib@">
+            <replacevalue>file:../../../lib</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@default_platform@">
+            <replacevalue>felix</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@default_platform_version@">
+            <replacevalue>2.0.0</replacevalue>
+		</replace>
+		
+		 <property name="cmdline" value="deploy/target/${item}" />
+		
+		<echo file="${workdir}/run.sh">java -jar ../../../lib/pax-runner-1.2.1.jar --workingDirectory=. --args=file:platform.setup scan-file:file:platform.properties</echo>
+	
+		<echo file="${workdir}/run.bat">java -jar ../../../lib/pax-runner-1.2.1.jar --workingDirectory=. --args=file:platform.setup scan-file:file:platform.properties</echo>
+	</target>
+	
+	<target name="cleanTargets">
+		<delete dir="deploy/target"/>
+	</target>
+	
+	<target name="packageProduction">
+		<property name="workdir" value="deploy/target/${item}-production" />
+		<mkdir dir="${workdir}" />
+		
+		<copy todir="${workdir}/conf">
+            <fileset dir="conf/${item}">
+                <include name="**/*.cfg" />
+            </fileset>
+        </copy>
+
+		<copy todir="${workdir}">
+            <fileset dir="conf/${item}">
+                <include name="platform.*" />
+            </fileset>
+        </copy>
+
+		<replace file="${workdir}/platform.setup" token="@bundles@">
+            <replacevalue>file:deploy/bundle</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@ext@">
+            <replacevalue>file:ext</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@lib@">
+            <replacevalue>file:lib</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@default_platform@">
+            <replacevalue>felix</replacevalue>
+		</replace>
+		<replace file="${workdir}/platform.setup" token="@default_platform_version@">
+            <replacevalue>2.0.0</replacevalue>
+		</replace>
+		
+		<property name="cmdline" value="deploy/target/${item}" />
+		
+		<java dir="." classname="org.ops4j.pax.runner.Run" fork="true" taskname="paxrunner" timeout="99999" failonerror="true">
+	        <arg value="--args=file:${workdir}/platform.setup" />
+	 		<arg value="--executor=script" />
+			<arg value="--workingDirectory=${workdir}" />
+			<arg value="scan-file:file:${workdir}/platform.properties" />
+			<classpath>
+				<pathelement location="lib/pax-runner-1.2.1.jar" />
+			</classpath>
+		</java>
+	
+		<delete file="${workdir}/platform.setup" />
+		<delete file="${workdir}/platform.properties" />
+		
+		<ziptarget target="${item}-production" />	
+	</target>
+	
+	<!--
+	Means, package all for production. 
+	-->
+	<target name="zip" depends="package" description="zips all targets">
+	    <mkdir dir="deploy/releases" />
+	
+		<antcall target="packageProduction">
+			<param name="item" value="dev-server-filebased"/>
+		</antcall>
+		<antcall target="packageProduction">
+			<param name="item" value="dev-gateway"/>
+		</antcall>
+		<antcall target="packageProduction">
+			<param name="item" value="dev-server-webui"/>
+		</antcall>
+		
+	    <zip basedir="deploy/target" includes="dev-tools/**" destfile="deploy/releases/dev-tools.zip" />
+	</target>
+        
+	<target name="release" depends="clean, javadoc, package, zip" description="does a clean release">
+	</target>
+
+	<macrodef name="ziptarget">
+		<attribute name="target"/>
+		<sequential>
+		    <zip basedir="deploy/target" includes="@{target}/**" excludes="@{target}/*.app/**" destfile="deploy/releases/@{target}.zip" />
+		    <zip destfile="deploy/releases/@{target}.zip" update="true" >
+		        <zipfileset dir="deploy/target" includes="@{target}/*.app/**" filemode="777" />
+		    </zip>
+		</sequential>
+	</macrodef>
+</project>

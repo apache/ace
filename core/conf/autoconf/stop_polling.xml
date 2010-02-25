@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+    <OCD name="b" id="b">
+		<AD id="org.apache.ace.deployment.task.DeploymentUpdateTask" type="Integer" cardinality="0" />
+		<AD id="auditlog" type="Integer" cardinality="0" />
+    </OCD>
+    
+    <Designate pid="org.apache.ace.scheduler" bundle="file:bundle/org.apache.ace.scheduler-1.0.0.jar" merge="false">
+		<Object ocdref="b">
+		    <Attribute adref="org.apache.ace.deployment.task.DeploymentUpdateTask" content="0" />
+		    <Attribute adref="auditlog" content="2000" />
+		</Object>
+    </Designate>
+</MetaData>

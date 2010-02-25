@@ -1,0 +1,44 @@
+#Exchange with felix,knopflerfish, equinox
+--platform=@default_platform@
+
+#Exchange with any valid version of you selected platform
+--version=@default_platform_version@
+
+# Provisioning
+@bundles@/org.apache.ace.consolelogger-1.0.0.jar@update
+@bundles@/org.apache.ace.configurator-1.0.0.jar@update
+@bundles@/org.apache.ace.configurator.useradmin.task-1.0.0.jar@update
+@bundles@/org.apache.ace.resourceprocessor.useradmin-1.0.0.jar@update
+@bundles@/org.apache.ace.http.listener-1.0.0.jar@update
+@bundles@/org.apache.ace.deployment.servlet-1.0.0.jar@update
+@bundles@/org.apache.ace.deployment.provider.repositorybased-1.0.0.jar@update
+@bundles@/org.apache.ace.deployment.streamgenerator-1.0.0.jar@update
+@bundles@/org.apache.ace.discovery.property-1.0.0.jar@update
+@bundles@/org.apache.ace.server.log.store-1.0.0.jar@update
+@bundles@/org.apache.ace.server.log-1.0.0.jar@update
+@bundles@/org.apache.ace.scheduler-1.0.0.jar@update
+@bundles@/org.apache.ace.repository-1.0.0.jar@update
+@bundles@/org.apache.ace.repository.servlet-1.0.0.jar@update
+@bundles@/org.apache.ace.client.repository-1.0.0.jar@update
+@bundles@/org.apache.ace.client.repository.helper.base-1.0.0.jar@update
+@bundles@/org.apache.ace.client.repository.helper.bundle-1.0.0.jar@update
+@bundles@/org.apache.ace.obr.servlet-1.0.0.jar@update
+@bundles@/org.apache.ace.obr.storage-1.0.0.jar@update
+@bundles@/org.apache.ace.obr.metadata-1.0.0.jar@update
+@bundles@/org.apache.ace.webui-1.0.0.jar@update
+@bundles@/org.apache.ace.webconsole.plugin-1.0.0.jar@update
+
+@ext@/org.osgi.compendium.jar
+@ext@/osgi.mobile.jar
+@ext@/javax.servlet.jar
+@ext@/org.apache.felix.dependencymanager.jar
+@ext@/org.apache.felix.dependencymanager.shell.jar
+
+@lib@/org.apache.ace.xstream-1.3.jar
+@lib@/org.apache.felix.configadmin.jar
+@lib@/org.apache.felix.eventadmin.jar
+@lib@/useradmin_all-2.0.0.jar
+@lib@/log_all-2.0.0.jar
+@lib@/org.apache.felix.prefs.jar
+@lib@/pax-web-service-0.6.0.jar
+@lib@/pax-web-extender-war-0.7.0-SNAPSHOT.jar
