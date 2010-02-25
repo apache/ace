@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gateway"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/server"/>
+	<classpathentry kind="lib" path="ext/testng-5.5-jdk15.jar"/>
+	<classpathentry kind="lib" path="ext/commons/commons-cli-1.1.jar"/>
+	<classpathentry kind="lib" path="ext/easymock.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/core"/>
+	<classpathentry kind="lib" path="/core/lib/felix/1.8.1/bin/felix.jar"/>
+	<classpathentry kind="lib" path="/core/lib/xstream-build/1.3/xpp3_min-1.1.4c.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>
