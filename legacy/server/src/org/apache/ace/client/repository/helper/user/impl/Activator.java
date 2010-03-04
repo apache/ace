@@ -24,8 +24,8 @@ import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.ArtifactRecognizer;
 import org.apache.ace.client.repository.helper.user.UserAdminHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.felix.dependencymanager.DependencyActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 

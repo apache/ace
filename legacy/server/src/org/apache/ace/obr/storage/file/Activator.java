@@ -20,8 +20,8 @@ package org.apache.ace.obr.storage.file;
 
 import org.apache.ace.obr.metadata.MetadataGenerator;
 import org.apache.ace.obr.storage.BundleStore;
-import org.apache.felix.dependencymanager.DependencyActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
