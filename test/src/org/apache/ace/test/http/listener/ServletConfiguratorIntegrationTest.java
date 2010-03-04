@@ -32,8 +32,8 @@ import javax.servlet.http.HttpServlet;
 
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.test.constants.TestConstants;
-import org.apache.felix.dependencymanager.DependencyManager;
-import org.apache.felix.dependencymanager.Service;
+import org.apache.felix.dm.DependencyManager;
+import org.apache.felix.dm.service.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
 import org.testng.annotations.Factory;

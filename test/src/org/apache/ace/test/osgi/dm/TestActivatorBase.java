@@ -25,10 +25,10 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.test.utils.TestUtils;
-import org.apache.felix.dependencymanager.DependencyActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
-import org.apache.felix.dependencymanager.Service;
-import org.apache.felix.dependencymanager.ServiceStateListener;
+import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
+import org.apache.felix.dm.service.Service;
+import org.apache.felix.dm.service.ServiceStateListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;

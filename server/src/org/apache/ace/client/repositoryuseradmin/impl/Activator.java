@@ -19,8 +19,8 @@
 package org.apache.ace.client.repositoryuseradmin.impl;
 
 import org.apache.ace.client.repositoryuseradmin.RepositoryUserAdmin;
-import org.apache.felix.dependencymanager.DependencyActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 import org.osgi.service.prefs.PreferencesService;

@@ -21,10 +21,15 @@ package org.apache.felix.metatype.internal;
 
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.apache.felix.metatype.internal.l10n.BundleResources;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.util.tracker.ServiceTracker;

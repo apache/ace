@@ -19,7 +19,7 @@
 package org.apache.ace.test.repository;
 
 import org.apache.ace.test.osgi.dm.TestActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.http.HttpService;

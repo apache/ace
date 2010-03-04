@@ -25,7 +25,7 @@ import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.osgi.dm.TestActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
