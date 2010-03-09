@@ -20,6 +20,7 @@ package org.apache.ace.deployment.task;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Dictionary;
 import java.util.Properties;
 
 import org.osgi.framework.Version;
@@ -57,7 +58,7 @@ public class DeploymentCheckTask extends DeploymentTaskBase implements Runnable 
                 Properties properties = new Properties();
                 properties.put("deploymentpackage.localversion", ((highestLocalVersion == null) ? Version.emptyVersion : highestLocalVersion));
                 properties.put("deploymentpackage.remoteversion", highestRemoteVersion);
-                m_eventAdmin.postEvent(new Event(TOPIC_UPDATE_AVAILABLE, properties));
+                m_eventAdmin.postEvent(new Event(TOPIC_UPDATE_AVAILABLE, (Dictionary) properties));
             }
         }
         catch (MalformedURLException e) {

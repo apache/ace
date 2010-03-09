@@ -40,6 +40,14 @@ import org.osgi.service.cm.ManagedService;
 public class Scheduler implements ManagedService {
     protected Map m_tasks = new HashMap/*<String, SchedulerTask>*/();
 
+    public void stop() {
+        for (Iterator i = m_tasks.keySet().iterator(); i.hasNext();) {
+            String name = (String) i.next();
+            SchedulerTask schedTask = (SchedulerTask) m_tasks.get(name);
+            schedTask.stop();
+        }
+    }
+
     /**
      * Adds a new runnable to this scheduler. The runnable will be created if necessary, registered, and processed.
      * @param name A name for this task.
