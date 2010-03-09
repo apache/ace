@@ -104,6 +104,13 @@ public class SchedulerTask {
         m_configurationRecipe = recipe;
     }
 
+    public void stop() {
+        if (m_executer != null) {
+            m_executer.stop();
+            m_executer = null;
+        }
+    }
+
     public boolean process() {
         Object recipe = findRecipe();
         if ((recipe != null) && (m_task != null)) {
@@ -118,10 +125,7 @@ public class SchedulerTask {
         }
         else {
             // there is nothing to do, since there is no recipe or task
-            if (m_executer != null) {
-                m_executer.stop();
-                m_executer = null;
-            }
+            stop();
         }
         m_currentRecipe = recipe;
         return ((recipe != null) || (m_task != null));
