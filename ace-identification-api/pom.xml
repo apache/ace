@@ -36,8 +36,8 @@
     <name>Apache ACE - Identification Property</name>
     
     <properties>
-        <bundle.symbolicName>${namespace}.identification</bundle.symbolicName>
-        <bundle.namespace>${namespace}.identification.api</bundle.namespace>
+        <bundle.symbolicName>${namespace}.identification.api</bundle.symbolicName>
+        <bundle.namespace>${namespace}.identification</bundle.namespace>
     </properties>
 
     <build>
