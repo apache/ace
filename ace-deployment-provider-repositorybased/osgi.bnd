@@ -7,7 +7,7 @@ Bundle-SymbolicName:\
   ${bundle.symbolicName}
 
 Export-Package:\
-  ${bundle.namespace}; version="${pom.version}"
+  org.apache.ace.deployment.provider; version="${pom.version}"
 
 Embed-Dependency:\
   ace-deployment-provider-api; inline=true, ace-deployment-provider-base; inline=true,ace-repository; inline=true
