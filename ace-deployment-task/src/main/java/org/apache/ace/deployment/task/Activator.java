@@ -20,12 +20,13 @@ package org.apache.ace.deployment.task;
 
 import java.util.Dictionary;
 import java.util.Properties;
+
 import org.apache.ace.deployment.Deployment;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.identification.Identification;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
-import org.apache.felix.dependencymanager.DependencyActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;

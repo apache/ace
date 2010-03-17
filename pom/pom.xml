@@ -37,7 +37,7 @@
         <namespace>org.apache.ace</namespace>
         <gwtversion>1.7.1</gwtversion>
         <dependency.version.mockito>1.8.1</dependency.version.mockito>
-        <dependency.version.dependencymanager>2.0.1</dependency.version.dependencymanager>
+        <dependency.version.dependencymanager>3.0.0-SNAPSHOT</dependency.version.dependencymanager>
 
         <dependency.version.eventadmin>1.0.0</dependency.version.eventadmin>
         <dependency.version.configadmin>1.2.4</dependency.version.configadmin>

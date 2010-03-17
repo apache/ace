@@ -20,6 +20,7 @@ package org.apache.ace.client.repository.stateful.impl;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
@@ -35,8 +36,8 @@ import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
 import org.apache.ace.client.repository.repository.GatewayRepository;
 import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
 import org.apache.ace.server.log.store.LogStore;
-import org.apache.felix.dependencymanager.DependencyActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.event.EventAdmin;

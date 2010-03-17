@@ -24,11 +24,12 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.RepositoryReplication;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
-import org.apache.felix.dependencymanager.DependencyManager;
-import org.apache.felix.dependencymanager.Service;
+import org.apache.felix.dm.DependencyManager;
+import org.apache.felix.dm.service.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
