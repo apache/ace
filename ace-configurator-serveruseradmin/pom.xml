@@ -33,7 +33,7 @@
     <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Configurator Server Useradmin</name>
+    <name>Apache ACE - Configurator Server UserAdmin</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.configurator.serveruseradmin</bundle.symbolicName>

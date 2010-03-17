@@ -33,7 +33,7 @@
     <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Client Repository Useradmin</name>
+    <name>Apache ACE - Client Repository UserAdmin</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.client.repository.useradmin</bundle.symbolicName>
