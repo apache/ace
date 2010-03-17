@@ -20,12 +20,13 @@ package org.apache.ace.client.repository.helper.configuration.impl;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+
 import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.ArtifactRecognizer;
 import org.apache.ace.client.repository.helper.configuration.ConfigurationHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.felix.dependencymanager.DependencyActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 
 /**

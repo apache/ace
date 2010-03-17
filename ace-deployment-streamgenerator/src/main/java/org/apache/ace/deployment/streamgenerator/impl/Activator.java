@@ -20,8 +20,8 @@ package org.apache.ace.deployment.streamgenerator.impl;
 
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.streamgenerator.StreamGenerator;
-import org.apache.felix.dependencymanager.DependencyActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 
 public class Activator extends DependencyActivatorBase {

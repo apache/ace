@@ -20,10 +20,11 @@ package org.apache.ace.discovery.property;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.discovery.property.constants.DiscoveryConstants;
-import org.apache.felix.dependencymanager.DependencyActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.log.LogService;

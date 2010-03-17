@@ -21,6 +21,7 @@ package org.apache.ace.gateway.log.store;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.List;
+
 import org.apache.ace.log.LogEvent;
 
 /**

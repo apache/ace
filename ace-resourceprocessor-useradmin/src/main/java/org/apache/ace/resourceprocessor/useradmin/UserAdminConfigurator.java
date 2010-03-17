@@ -20,6 +20,7 @@ package org.apache.ace.resourceprocessor.useradmin;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import org.w3c.dom.Document;
 
 /**

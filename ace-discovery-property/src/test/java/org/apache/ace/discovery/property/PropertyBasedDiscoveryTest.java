@@ -15,17 +15,20 @@
  */
 package org.apache.ace.discovery.property;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Dictionary;
 import java.util.Hashtable;
+
 import org.apache.ace.discovery.property.constants.DiscoveryConstants;
 import org.junit.Test;
 import org.osgi.service.cm.ConfigurationException;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 
 /**
  * @author Toni Menzel

@@ -19,9 +19,10 @@
 package org.apache.ace.server.action.popupmessage;
 
 import java.util.Properties;
+
 import org.apache.ace.server.action.Action;
-import org.apache.felix.dependencymanager.DependencyActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 
 public class Activator extends DependencyActivatorBase {

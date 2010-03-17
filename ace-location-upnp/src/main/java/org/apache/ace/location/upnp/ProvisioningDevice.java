@@ -24,10 +24,12 @@ import java.net.MalformedURLException;
 import java.util.Dictionary;
 import java.util.Properties;
 import java.util.UUID;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.osgi.service.http.HttpService;
 import org.osgi.service.upnp.UPnPDevice;
 import org.osgi.service.upnp.UPnPIcon;

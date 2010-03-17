@@ -17,19 +17,20 @@
  */
 package org.apache.ace.identification.property;
 
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
 import java.lang.reflect.Field;
 import java.util.Dictionary;
 import java.util.Hashtable;
+
 import org.apache.ace.identification.property.constants.IdentificationConstants;
 import org.junit.Test;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
-
-import static org.hamcrest.core.Is.*;
-import static org.hamcrest.core.IsEqual.*;
-import static org.hamcrest.core.IsNull.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Toni Menzel

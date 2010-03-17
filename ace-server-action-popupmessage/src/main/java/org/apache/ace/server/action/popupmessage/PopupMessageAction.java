@@ -19,6 +19,7 @@
 package org.apache.ace.server.action.popupmessage;
 
 import javax.swing.JOptionPane;
+
 import org.apache.ace.server.action.MessageAction;
 import org.osgi.service.event.Event;
 import org.osgi.service.useradmin.User;

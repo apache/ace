@@ -21,6 +21,7 @@ package org.apache.ace.discovery.property;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Dictionary;
+
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.discovery.property.constants.DiscoveryConstants;
 import org.osgi.service.cm.ConfigurationException;

@@ -20,8 +20,8 @@ package org.apache.ace.location.upnp;
 
 import org.apache.ace.location.LocationService;
 import org.apache.ace.location.upnp.util.HostUtil;
-import org.apache.felix.dependencymanager.DependencyActivatorBase;
-import org.apache.felix.dependencymanager.DependencyManager;
+import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.upnp.UPnPDevice;

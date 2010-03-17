@@ -20,6 +20,7 @@ package org.apache.ace.location.upnp;
 
 import java.net.URL;
 import java.util.Dictionary;
+
 import org.apache.ace.location.LocationService;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
