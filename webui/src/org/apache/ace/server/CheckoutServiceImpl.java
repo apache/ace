@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.services.CheckoutService;
+import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -58,15 +59,33 @@ public class CheckoutServiceImpl extends RemoteServiceServlet implements Checkou
     }
 
     public void checkout() throws Exception {
-        getRepositoryAdmin().checkout();
+        try {
+            getRepositoryAdmin().checkout();
+        }
+        catch (Exception e) {
+            Activator.instance().getLog().log(LogService.LOG_WARNING, "Checkout failed", e);
+            throw e;
+        }
     }
 
     public void commit() throws Exception {
-        getRepositoryAdmin().commit();
+        try {
+            getRepositoryAdmin().commit();
+        }
+        catch (Exception e) {
+            Activator.instance().getLog().log(LogService.LOG_WARNING, "Commit failed", e);
+            throw e;
+        }
     }
 
     public void revert() throws Exception {
-        getRepositoryAdmin().revert();
+        try {
+            getRepositoryAdmin().revert();
+        }
+        catch (Exception e) {
+            Activator.instance().getLog().log(LogService.LOG_WARNING, "Revert failed", e);
+            throw e;
+        }
     }
 
 }
