@@ -1,4 +1,4 @@
-Bundle-Activator: ${bundle.namespace}.Activator
+Bundle-Activator: ${bundle.namespace}.bindex.Activator
 
 Bundle-Version>:\
   ${pom.version}

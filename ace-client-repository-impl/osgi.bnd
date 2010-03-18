@@ -1,4 +1,4 @@
-Bundle-Activator: ${bundle.namespace}.impl.Activator
+Bundle-Activator: ${bundle.namespace}.Activator
 
 Bundle-Version>:\
   ${pom.version}
@@ -11,3 +11,8 @@ Private-Package: org.apache.ace.client.repository.impl, org.apache.ace.util, org
 Export-Package:\
   org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.repository, org.apache.ace.client.repository.helper, org.apache.ace.client.repository.stateful, org.apache.ace.server.log.store
 
+Import-Package: *;resolution:=optional
+
+Embed-Dependency:\
+  xstream
+  
