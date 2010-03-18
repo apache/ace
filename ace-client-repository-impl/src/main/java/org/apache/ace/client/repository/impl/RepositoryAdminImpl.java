@@ -60,9 +60,6 @@ import org.apache.ace.repository.impl.CachedRepositoryImpl;
 import org.apache.ace.repository.impl.FilebasedBackupRepository;
 import org.apache.ace.repository.impl.RemoteRepository;
 import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.dependencies.ServiceDependency;
-import org.apache.felix.dm.impl.Logger;
-import org.apache.felix.dm.impl.ServiceImpl;
 import org.apache.felix.dm.service.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -111,7 +108,6 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     private GatewayRepositoryImpl m_gatewayRepositoryImpl;
     private License2GatewayAssociationRepositoryImpl m_license2GatewayAssociationRepositoryImpl;
     private DeploymentVersionRepositoryImpl m_deploymentVersionRepositoryImpl;
-    private Logger m_logger;
     private ChangeNotifierManager m_changeNotifierManager;
     private final String m_sessionID;
     private final Properties m_sessionProps;
