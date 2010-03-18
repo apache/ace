@@ -21,6 +21,15 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+	<!-- for Knopflerfish files -->
+	<repositories>
+	    <repository>
+	      <id>ops4j</id>
+	      <url>http://repository.ops4j.org/maven2/</url>
+	    </repository>
+	</repositories>
+	
+
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
@@ -134,20 +143,21 @@
 
 		<!-- TODO the following artifact names are purely fictional, we need to
 		          check if they actually exist somewhere -->
-		<!--
+
         <dependency>
-            <groupId>org.knopflerfish</groupId>
-            <artifactId>bundle-useradmin</artifactId>
+            <groupId>org.knopflerfish.bundle.useradmin</groupId>
+            <artifactId>useradmin_all</artifactId>
+			<version>2.0.0</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.knopflerfish</groupId>
-            <artifactId>log</artifactId>
+            <groupId>org.knopflerfish.bundle.log</groupId>
+            <artifactId>log_all</artifactId>
+			<version>2.0.0</version>
             <scope>provided</scope>
         </dependency>
-		-->
-		
+
 		<!-- For now, let's include a different implementation found in the
 		     maven repository. -->
 		<!-- But not the Eclipse ones, as they all have a weird dependency on some
@@ -361,14 +371,13 @@
         </dependency>
 
 
-		<!-- not there yet, borrow from old project for now? 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-webui</artifactId>
             <version>${project.version}</version>
+			<type>war</type>
             <scope>runtime</scope>
         </dependency>
-		-->
 
     </dependencies>
 </project>
