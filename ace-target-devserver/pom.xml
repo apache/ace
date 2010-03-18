@@ -72,11 +72,13 @@
             <scope>provided</scope>
         </dependency>
 
+<!--
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -101,13 +103,14 @@
             <scope>provided</scope>
         </dependency>
 
+<!-- why?
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.main</artifactId>
 			<version>2.0.0</version>
             <scope>provided</scope>
         </dependency>
-
+-->
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.prefs</artifactId>
@@ -144,6 +147,25 @@
             <scope>provided</scope>
         </dependency>
 		-->
+		
+		<!-- For now, let's include a different implementation found in the
+		     maven repository. -->
+		<!-- But not the Eclipse ones, as they all have a weird dependency on some
+		     Eclipse specific event manager...
+		<dependency>
+		    <groupId>org.eclipse.equinox</groupId>
+		    <artifactId>useradmin</artifactId>
+		    <version>1.0.0-v20070226</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.eclipse.equinox</groupId>
+		    <artifactId>log</artifactId>
+		    <version>1.0.100-v20070226</version>
+		</dependency>
+		-->
+		
+		
 		<!-- TODO validate if these are the right artifacts -->
 		<dependency>
 		    <groupId>org.ops4j.pax.web</groupId>
@@ -167,6 +189,14 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>ace-client-repository-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>ace-client-repository-helper-bundle</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
@@ -184,6 +214,20 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-configurator</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-configurator-useradmin-task</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-configurator-serveruseradmin</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -286,12 +330,14 @@
             <scope>runtime</scope>
         </dependency>
 
+<!-- does not exist anymore?
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-server-log</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
+-->
 
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -302,10 +348,27 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>ace-log</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-log-servlet</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+		<!-- not there yet, borrow from old project for now? 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>ace-webui</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
+		-->
 
     </dependencies>
 </project>

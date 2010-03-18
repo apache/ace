@@ -24,6 +24,9 @@
             <source>src/main/resources/run.sh</source>
             <fileMode>0777</fileMode>
         </file>
+        <file>
+            <source>src/main/resources/platform.properties</source>
+        </file>
     </files>
     <dependencySets>
         <dependencySet>
