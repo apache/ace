@@ -33,7 +33,7 @@
     <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Client Repository</name>
+    <name>Apache ACE - Client Repository Helper Bundle</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.client.repository.helper.bundle</bundle.symbolicName>
