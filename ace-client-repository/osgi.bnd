@@ -9,4 +9,4 @@ Export-Package:
 Import-Package: *;resolution:=optional
 
 Embed-Dependency: \
-  velocity
+  velocity, xpp3

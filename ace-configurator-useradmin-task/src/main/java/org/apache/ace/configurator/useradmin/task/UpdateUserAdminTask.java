@@ -73,6 +73,7 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
         catch (IOException e) {
             // If anything went wrong, this means the remote repository is not available;
             // this also means the UserAdmin is left undisturbed.
+        	m_log.log(LogService.LOG_WARNING, "Error running update UserAdmin task.", e);
         }
     }
 

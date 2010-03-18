@@ -14,5 +14,5 @@ Export-Package:\
 Import-Package: *;resolution:=optional
 
 Embed-Dependency:\
-  xstream
+  xstream, xpp3
   

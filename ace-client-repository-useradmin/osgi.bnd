@@ -7,3 +7,5 @@ Bundle-SymbolicName:\
 Export-Package:\
   ${bundle.namespace}; version="${pom.version}"
 
+Bundle-Activator: \
+  ${bundle.namespace}.impl.Activator
