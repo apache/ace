@@ -55,11 +55,11 @@ public class LicenseTable extends ObjectTable<LicenseDescriptor> {
     }
 
     void addNew() {
-        String result = Window.prompt("Add license", "New license");
+        String result = Window.prompt("Add distribution", "New distribution");
         if (result != null) {
             m_licenseService.addLicense(result, new AsyncCallback<Void>() {
                 public void onFailure(Throwable caught) {
-                    Window.alert("Error adding license.");
+                    Window.alert("Error adding distribution.");
                 }
                 public void onSuccess(Void result) {
                     // Hurrah!

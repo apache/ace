@@ -145,16 +145,16 @@ public class Main implements EntryPoint {
         FlexCellFormatter formatter = rootPanel.getFlexCellFormatter();
         rootPanel.setWidth("100%");
         rootPanel.setHeight("100%");
-        rootPanel.setHTML(1, 0, "Bundle");
+        rootPanel.setHTML(1, 0, "Artifact");
         formatter.setWidth(1, 0, "25%");
         rootPanel.setWidget(2, 0, addBundleButton);
         rootPanel.setWidget(3, 0, bundleScrollPanel);
         formatter.setHeight(3, 0, "90%");
-        rootPanel.setHTML(1, 1, "Group");
+        rootPanel.setHTML(1, 1, "Feature");
         formatter.setWidth(1, 1, "25%");
         rootPanel.setWidget(2, 1, addGroupButton);
         rootPanel.setWidget(3, 1, groupScrollPanel);
-        rootPanel.setHTML(1, 2, "License");
+        rootPanel.setHTML(1, 2, "Distribution");
         formatter.setWidth(1, 2, "25%");
         rootPanel.setWidget(2, 2, addLicenseButton);
         rootPanel.setWidget(3, 2, licenseScrollPanel);
@@ -255,7 +255,7 @@ public class Main implements EntryPoint {
         private static final boolean VERBOSE = true;
         
         public StatusLabel() {
-            setText("checking server status...");
+            setText("Checking server status...");
         }
 
         public void handleFail(String table) {
@@ -276,12 +276,12 @@ public class Main implements EntryPoint {
             }
             
             if (allOk) {
-                setText("Server connection all happy.");
+                setText("Connected to server.");
                 setStyleName("serverStatusGood");
             }
             else {
                 StringBuilderImpl sb = new StringBuilderImpl();
-                sb.append("Error communicating with server.");
+                sb.append("Not connected to server.");
                 if (VERBOSE) {
                     for (Map.Entry<String, Boolean> entry : m_statuses.entrySet()) {
                         if (!entry.getValue()) {
