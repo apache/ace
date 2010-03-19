@@ -34,11 +34,12 @@ Import-Package: \
   com.allen_sauer.gwt.dnd.client;resolution:=optional, \
   com.allen_sauer.gwt.dnd.client.drop;resolution:=optional, \
   !org.apache.ace.server, \
+  !com.google.*, \
   *
 
 Dynamic-ImportPackage: *
 
-Bundle-ClassPath: WEB-INF/classes, WEB-INF/lib/gwt-servlet-1.7.1.jar
+Bundle-ClassPath: ., WEB-INF/classes, WEB-INF/lib/gwt-servlet-1.7.1.jar
 
 Webapp-Context: webui
 
