@@ -1,8 +1,31 @@
-Bundle-Version>:\
+Bundle-Version>: \
   ${pom.version}
 
-Bundle-SymbolicName:\
+Bundle-SymbolicName: \
   ${bundle.symbolicName}
 
 Bundle-Name: Apache ACE - Client Web UI
+
 Bundle-Activator: org.apache.ace.server.Activator
+
+Import-Package: \
+  org.apache.ace.log, \
+  org.apache.ace.client.repository, \
+  org.apache.ace.client.repository.object, \
+  org.apache.ace.client.repository.repository, \
+  org.apache.ace.client.repository.stateful, \
+  org.apache.ace.client.repository.helper, \
+  org.apache.ace.client.repository.helper.bundle, \
+  org.xml.sax, \
+  javax.xml.parsers, \
+  junit.framework;resolution:=optional, \
+  com.google.gwt.benchmarks;resolution:=optional, \
+  com.allen_sauer.gwt.dnd.client;resolution:=optional, \
+  com.allen_sauer.gwt.dnd.client.drop;resolution:=optional, *
+
+Dynamic-ImportPackage: *
+
+Bundle-ClassPath: WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar
+
+Webapp-Context: webui
+
