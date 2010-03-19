@@ -18,6 +18,9 @@
  */
 package org.apache.ace.client;
 
+import static org.apache.ace.client.services.AssociationService.AssociationType.DYNAMIC;
+import static org.apache.ace.client.services.AssociationService.AssociationType.STATIC;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +33,7 @@ import org.apache.ace.client.services.Descriptor;
 import org.apache.ace.client.services.TargetDescriptor;
 import org.apache.ace.client.services.TargetService;
 import org.apache.ace.client.services.TargetServiceAsync;
+import org.apache.ace.client.services.AssociationService.AssociationType;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.EntryPoint;
@@ -45,6 +49,7 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 
 /**
@@ -127,18 +132,55 @@ public class Main implements EntryPoint {
             }
         });
         
+        final ToggleButton associationTypeButton = new ToggleButton("STATIC");
+        m_assocationService.getAssociationType(new AsyncCallback<AssociationType>() {
+        	public void onSuccess(AssociationType result) {
+        		switch (result) {
+        			case STATIC:
+        				associationTypeButton.setDown(false);
+        				associationTypeButton.setText("STATIC");
+        				break;
+        			case DYNAMIC:
+        				associationTypeButton.setDown(true);
+        				associationTypeButton.setText("DYNAMIC");
+        				break;
+        				
+        		}
+        	}
+        	public void onFailure(Throwable caught) {
+        	}
+		});
+        associationTypeButton.addStyleDependentName("add");
+        associationTypeButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+		        m_assocationService.getAssociationType(new AsyncCallback<AssociationType>() {
+		        	public void onSuccess(AssociationType result) {
+		        		switch (result) {
+		        			case STATIC:
+		        				m_assocationService.setAssociationType(DYNAMIC, null);
+		        				associationTypeButton.setText("DYNAMIC");
+		        				break;
+		        			case DYNAMIC:
+		        				m_assocationService.setAssociationType(STATIC, null);
+		        				associationTypeButton.setText("STATIC");
+		        				break;
+		        				
+		        		}
+		        	}
+		        	public void onFailure(Throwable caught) {
+		        	}
+				});
+			}
+		});
+        
         // Create some scrollpanels with our tables
         ScrollPanel bundleScrollPanel = new ScrollPanel(m_bundleTable);
-//        bundleScrollPanel.setHeight("30em");
         bundleScrollPanel.setStyleName("objectTable");
         ScrollPanel groupScrollPanel = new ScrollPanel(m_groupTable);
-//        groupScrollPanel.setHeight("30em");
         groupScrollPanel.setStyleName("objectTable");
         ScrollPanel licenseScrollPanel = new ScrollPanel(m_licenseTable);
-//        licenseScrollPanel.setHeight("30em");
         licenseScrollPanel.setStyleName("objectTable");
         ScrollPanel targetScrollPanel = new ScrollPanel(m_targetTable);
-//        targetScrollPanel.setHeight("30em");
         targetScrollPanel.setStyleName("objectTable");
         
         FlexTable rootPanel = new FlexTable();
@@ -162,7 +204,8 @@ public class Main implements EntryPoint {
         formatter.setWidth(1, 3, "25%");
         rootPanel.setWidget(3, 3, targetScrollPanel);
         rootPanel.setWidget(0, 0, new CheckoutPanel(this));
-        formatter.setColSpan(0, 0, 4);
+        formatter.setColSpan(0, 0, 3);
+        rootPanel.setWidget(0, 1, associationTypeButton);
         rootPanel.setWidget(4, 0, m_statusLabel);
         formatter.setColSpan(4, 0, 4);
         RootPanel.get("body").add(rootPanel);

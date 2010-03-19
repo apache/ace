@@ -18,6 +18,8 @@
  */
 package org.apache.ace.client.services;
 
+import org.apache.ace.client.services.AssociationService.AssociationType;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -29,4 +31,6 @@ public interface AssociationServiceAsync {
     void link(LicenseDescriptor license, TargetDescriptor target, AsyncCallback<Void> callback);
     void unlink(Descriptor license, Descriptor target, AsyncCallback<Void> callback);
     void getRelated(Descriptor o, AsyncCallback<Descriptor[]> callback);
+    void setAssociationType(AssociationType type, AsyncCallback<Void> callback);
+    AssociationType getAssociationType(AsyncCallback<AssociationType> callback);
 }

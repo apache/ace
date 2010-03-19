@@ -19,12 +19,15 @@
 package org.apache.ace.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.GatewayObject;
 import org.apache.ace.client.repository.object.GroupObject;
@@ -52,6 +55,7 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
      * Generated serialVersionUID
      */
     private static final long serialVersionUID = 2413722456179463935L;
+    private AssociationType m_associationType = AssociationType.DYNAMIC;
 
     public void link(BundleDescriptor bundle, GroupDescriptor group) throws Exception {
         HttpServletRequest request = getThreadLocalRequest();
@@ -60,7 +64,16 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
         ArtifactObject a = (ArtifactObject) ObjectMapping.unwrap(request, bundle);
         GroupObject g = (GroupObject) ObjectMapping.unwrap(request, group);
         
-        a2gr.create(a, g);
+        switch (m_associationType) {
+	        case STATIC:
+	        	a2gr.create(a, g);
+	        	break;
+	        case DYNAMIC:
+	        	Map<String, String> properties = new HashMap<String, String>();
+	        	properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
+	        	a2gr.create(a, properties, g, null);
+	        	break;
+        }
     }
 
     private void unlink(BundleDescriptor bundle, GroupDescriptor group) throws Exception {
@@ -150,6 +163,14 @@ public class AssociationServiceImpl extends RemoteServiceServlet implements Asso
             Activator.instance().getLog().log(LogService.LOG_ERROR, "Error getting related objects", e);
             throw e;
         }
+    }
+    
+    public void setAssociationType(AssociationType type) {
+    	m_associationType = type;
+    }
+    
+    public AssociationType getAssociationType() {
+    	return m_associationType;
     }
 
     /**
