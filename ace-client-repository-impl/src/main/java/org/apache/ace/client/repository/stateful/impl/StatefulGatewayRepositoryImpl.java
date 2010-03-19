@@ -292,7 +292,7 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
     }
 
     /**
-     * See {@link DeploymentRepository#getDeploymentVersion(String)}.
+     * See {@link DeploymentRepository#getDeploymentVersion(java.lang.String)}.
      */
     DeploymentVersionObject getMostRecentDeploymentVersion(String gatewayID) {
         return m_deploymentRepository.getMostRecentDeploymentVersion(gatewayID);

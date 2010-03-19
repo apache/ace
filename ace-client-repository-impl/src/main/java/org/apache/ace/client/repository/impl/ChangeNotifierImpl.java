@@ -73,7 +73,7 @@ public class ChangeNotifierImpl implements ChangeNotifier {
         props = addSession(props);
         m_eventAdmin.sendEvent(new Event(m_privateTopicRoot + m_entityRoot + topic,(Dictionary) props));
         if (!internalOnly) {
-            m_eventAdmin.postEvent(new Event(m_publicTopicRoot + m_entityRoot + topic, (Dictionary)props));
+            m_eventAdmin.postEvent(new Event(m_publicTopicRoot + m_entityRoot + topic, (Dictionary) props));
         }
     }
 

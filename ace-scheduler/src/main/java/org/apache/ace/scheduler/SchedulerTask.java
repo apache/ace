@@ -24,8 +24,7 @@ import org.osgi.service.cm.ConfigurationException;
  * Wrapper class for collecting a <code>Runnable</code> and its corresponding <code>recipe</code>(s).
  * Will schedule the task when both a schedule and a <code>Runnable</code> are available.<br>
  */
-public class SchedulerTask
-{
+public class SchedulerTask {
     private final String m_name;
     private Runnable m_task;
     private String m_description;
@@ -105,6 +104,13 @@ public class SchedulerTask
         m_configurationRecipe = recipe;
     }
 
+    public void stop() {
+        if (m_executer != null) {
+            m_executer.stop();
+            m_executer = null;
+        }
+    }
+
     public boolean process() {
         Object recipe = findRecipe();
         if ((recipe != null) && (m_task != null)) {
@@ -119,10 +125,7 @@ public class SchedulerTask
         }
         else {
             // there is nothing to do, since there is no recipe or task
-            if (m_executer != null) {
-                m_executer.stop();
-                m_executer = null;
-            }
+            stop();
         }
         m_currentRecipe = recipe;
         return ((recipe != null) || (m_task != null));

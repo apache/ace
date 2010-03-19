@@ -57,11 +57,11 @@ public class DeploymentCheckTask extends DeploymentTaskBase implements Runnable 
                 Properties properties = new Properties();
                 properties.put("deploymentpackage.localversion", ((highestLocalVersion == null) ? Version.emptyVersion : highestLocalVersion));
                 properties.put("deploymentpackage.remoteversion", highestRemoteVersion);
-                m_eventAdmin.postEvent(new Event(TOPIC_UPDATE_AVAILABLE, (Dictionary)properties));
+                m_eventAdmin.postEvent(new Event(TOPIC_UPDATE_AVAILABLE, (Dictionary) properties));
             }
         }
         catch (MalformedURLException e) {
-            m_log.log(LogService.LOG_ERROR, "Error creating endpoint url",e );
+            m_log.log(LogService.LOG_ERROR, "Error creating endpoint url", e);
         }
         catch (Exception e) {
             m_log.log(LogService.LOG_ERROR, "Error checking for update", e);
