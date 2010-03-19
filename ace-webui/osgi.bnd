@@ -9,6 +9,9 @@ Bundle-Name: Apache ACE - Client Web UI
 Bundle-Activator: org.apache.ace.server.Activator
 
 Import-Package: \
+  org.osgi.framework, \
+  org.osgi.service.log, \
+  org.osgi.service.useradmin, \
   org.apache.ace.log, \
   org.apache.ace.client.repository, \
   org.apache.ace.client.repository.object, \
@@ -16,16 +19,26 @@ Import-Package: \
   org.apache.ace.client.repository.stateful, \
   org.apache.ace.client.repository.helper, \
   org.apache.ace.client.repository.helper.bundle, \
+  org.apache.felix.dm, \
+  org.apache.felix.dm.dependencies, \
+  org.apache.felix.dm.service, \
   org.xml.sax, \
+  org.w3c.dom, \
+  javax.servlet, \
+  javax.servlet.http, \
   javax.xml.parsers, \
+  javax.xml.namespace, \
+  javax.xml.xpath, \
   junit.framework;resolution:=optional, \
   com.google.gwt.benchmarks;resolution:=optional, \
   com.allen_sauer.gwt.dnd.client;resolution:=optional, \
-  com.allen_sauer.gwt.dnd.client.drop;resolution:=optional, *
+  com.allen_sauer.gwt.dnd.client.drop;resolution:=optional, \
+  !org.apache.ace.server, \
+  *
 
 Dynamic-ImportPackage: *
 
-Bundle-ClassPath: WEB-INF/classes, WEB-INF/lib/gwt-servlet.jar
+Bundle-ClassPath: WEB-INF/classes, WEB-INF/lib/gwt-servlet-1.7.1.jar
 
 Webapp-Context: webui
 
