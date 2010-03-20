@@ -32,5 +32,5 @@ public interface AssociationServiceAsync {
     void unlink(Descriptor license, Descriptor target, AsyncCallback<Void> callback);
     void getRelated(Descriptor o, AsyncCallback<Descriptor[]> callback);
     void setAssociationType(AssociationType type, AsyncCallback<Void> callback);
-    AssociationType getAssociationType(AsyncCallback<AssociationType> callback);
+    void getAssociationType(AsyncCallback<AssociationType> callback);
 }

@@ -65,11 +65,11 @@ public interface AssociationService extends RemoteService {
      * This setting affects the creation of associations. Once an association
      * is created, you cannot change its type anymore.
      */
-    void setAssociationType(AssociationType type);
+    void setAssociationType(AssociationType type) throws Exception;
     
     /**
      * Returns the association type that is used when creating an association
      * between an artifact and a feature.
      */
-    AssociationType getAssociationType();
+    AssociationType getAssociationType() throws Exception;
 }
