@@ -18,11 +18,18 @@
  */
 package org.apache.ace.scheduler.constants;
 
-public interface SchedulerConstants
-{
+/**
+ * Compile time constants for the scheduler.
+ */
+public interface SchedulerConstants {
+    /** Persistent ID for the scheduler, provided for configuration purposes. */
     public static final String SCHEDULER_PID = "org.apache.ace.scheduler";
+    /** Name of the task that will be scheduled. */
     public static final String SCHEDULER_NAME_KEY = "taskName";
+    /** Description of the task. */
     public static final String SCHEDULER_DESCRIPTION_KEY = "description";
+    /** The recipe describing when the task should be scheduled. */
     public static final String SCHEDULER_RECIPE = "recipe";
+    /** Determines if the recipe provided in the task overrides any recipe that is configured. */
     public static final String SCHEDULER_RECIPE_OVERRIDE = "override";
 }
