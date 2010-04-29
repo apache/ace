@@ -21,6 +21,7 @@ package org.apache.ace.repository.task;
 import java.util.Properties;
 
 import org.apache.ace.discovery.Discovery;
+import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
@@ -30,9 +31,8 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         Properties props = new Properties();
-        // TODO we need to fix these property constants
-        props.put("taskName", RepositoryReplicationTask.class.getName());
-        props.put("description", "Synchronizes repositories.");
+        props.put(SchedulerConstants.SCHEDULER_NAME_KEY, RepositoryReplicationTask.class.getName());
+        props.put(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY, "Synchronizes repositories.");
         manager.add(createService()
             .setInterface(Runnable.class.getName(), props)
             .setImplementation(RepositoryReplicationTask.class)
