@@ -36,7 +36,7 @@ public class BundleServlet extends HttpServlet implements ManagedService {
     public static final String TEXT_MIMETYPE = "text/plain";
 
     private static final long serialVersionUID = 1L;
-    private static final int COPY_BUFFER_SIZE = 1024;
+    private static final int COPY_BUFFER_SIZE = 4096;
 
     private volatile LogService m_log; /* will be injected by dependencymanager */
     private volatile BundleStore m_store; /* will be injected by dependencymanager */
@@ -125,17 +125,15 @@ public class BundleServlet extends HttpServlet implements ManagedService {
         }
         else {
             String id = path.substring(1);
-            response.setContentType(TEXT_MIMETYPE);
-
             ServletOutputStream output = null;
             try {
-                output = response.getOutputStream();
                 InputStream fileStream = null;
                 try {
                     fileStream = m_store.get(id);
-
                     if (fileStream != null) {
                         // send the bundle as stream to the caller
+                        response.setContentType(TEXT_MIMETYPE);
+                        output = response.getOutputStream();
                         byte[] buffer = new byte[COPY_BUFFER_SIZE];
                         for (int bytes = fileStream.read(buffer); bytes != -1; bytes = fileStream.read(buffer)) {
                             output.write(buffer, 0, bytes);
@@ -158,8 +156,6 @@ public class BundleServlet extends HttpServlet implements ManagedService {
             }
             catch (IOException ex) {
                 m_log.log(LogService.LOG_WARNING, "Exception in request: " + request.getRequestURL(), ex);
-                // TODO sending an error response after we've already started writing data does not work,
-                sendResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
             finally {
                 try {
@@ -191,11 +187,11 @@ public class BundleServlet extends HttpServlet implements ManagedService {
 
     @Override
     public String getServletInfo() {
-        return "LiQ OBR Servlet";
+        return "Apache ACE OBR Servlet";
     }
 
     @SuppressWarnings("unchecked")
     public void updated(Dictionary settings) throws ConfigurationException {
-        // Nothing needs to be done - handled by DependencyManager
+        // nothing needs to be done, settings are propagated by the dependency manager
     }
 }
