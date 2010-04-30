@@ -36,7 +36,6 @@ import org.osgi.service.log.LogService;
  * the scheduler.
  */
 public class Activator extends DependencyActivatorBase {
-
     private Scheduler m_scheduler;
 
     public void init(BundleContext context, DependencyManager manager) throws Exception {
