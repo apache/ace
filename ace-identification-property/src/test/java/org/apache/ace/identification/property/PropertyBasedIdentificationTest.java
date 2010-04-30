@@ -1,19 +1,20 @@
 /*
- * Copyright 2009 Toni Menzel.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ace.identification.property;
 
@@ -32,24 +33,15 @@ import org.junit.Test;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 
-/**
- * @author Toni Menzel
- * @since Dec 7, 2009
- */
-public class PropertyBasedIdentificationTest
-{
-
+public class PropertyBasedIdentificationTest {
     @Test
-    public void getIdWithoutUpdate()
-    {
+    public void getIdWithoutUpdate() {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
         assertThat( basedIdentification.getID(), is( nullValue() ) );
     }
 
     @Test
-    public void getIdWithUpdate()
-        throws ConfigurationException
-    {
+    public void getIdWithUpdate() throws ConfigurationException {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
         Dictionary dict = new Hashtable();
         dict.put( IdentificationConstants.IDENTIFICATION_GATEWAYID_KEY, "myGatewayId" );
@@ -58,9 +50,7 @@ public class PropertyBasedIdentificationTest
     }
 
     @Test
-    public void getIdOverwrite()
-        throws ConfigurationException
-    {
+    public void getIdOverwrite() throws ConfigurationException {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
         injectServices( basedIdentification );
 
@@ -75,27 +65,21 @@ public class PropertyBasedIdentificationTest
         assertThat( basedIdentification.getID(), is( equalTo( "newId" ) ) );
     }
 
-    private void injectServices( Object o )
-    {
-        for( Field field : o.getClass().getDeclaredFields() )
-        {
-            if( field.getType() == LogService.class )
-            {
-                field.setAccessible( true );
-                try
-                {
-                    field.set( o, getLogService() );
-                } catch( IllegalAccessException e )
-                {
+    private void injectServices(Object o) {
+        for (Field field : o.getClass().getDeclaredFields()) {
+            if (field.getType() == LogService.class) {
+                field.setAccessible(true);
+                try {
+                    field.set(o, getLogService());
+                }
+                catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
         }
     }
 
-    private LogService getLogService()
-    {
-        return mock( LogService.class );
-
+    private LogService getLogService() {
+        return mock(LogService.class);
     }
 }
