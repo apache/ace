@@ -65,7 +65,6 @@ public class SchedulerTest {
         props.put("local.mock.task1", "invalidValue");
         m_scheduler.updated(props);
         m_scheduler.addRunnable("local.mock.task1", new Runnable() {
-            @Override
             public void run() {
             }}, "Dummy testing task", null, false);
     }
@@ -74,7 +73,6 @@ public class SchedulerTest {
     public synchronized void testAddTask() throws Exception {
         assert m_scheduler.m_tasks.isEmpty();
         m_scheduler.addRunnable("local.mock.task1", new Runnable() {
-            @Override
             public void run() {
             }}, "Dummy testing task", null, false);
         assert m_scheduler.m_tasks.size() == 1 : "Exactly one task should be known to the scheduler";
@@ -85,7 +83,6 @@ public class SchedulerTest {
     @Test(groups = { UNIT })
     public synchronized void testRemoveTask() throws Exception {
         m_scheduler.addRunnable("local.mock.task1", new Runnable() {
-            @Override
             public void run() {
             }}, "Dummy testing task", null, false);
         m_scheduler.removeRunnable("nonExistent");
@@ -101,7 +98,6 @@ public class SchedulerTest {
         m_scheduler.updated(props);
 
         m_scheduler.addRunnable("local.mock.task1", new Runnable() {
-            @Override
             public void run() {
             }}, "Dummy testing task", null, false);
 
@@ -118,7 +114,6 @@ public class SchedulerTest {
         assert !((SchedulerTask) m_scheduler.m_tasks.get("local.mock.task1")).isScheduled() : "Since we have not provided a runnable for the scheduler, the tasks should not be scheduled.";
 
         m_scheduler.addRunnable("local.mock.task1", new Runnable() {
-            @Override
             public void run() {
             }}, "Dummy testing task", 2000l, true);
 
@@ -126,7 +121,6 @@ public class SchedulerTest {
         assert ((SchedulerTask) m_scheduler.m_tasks.get("local.mock.task1")).isScheduled() : "Since we have now provided a runnable for the scheduler, the tasks should be scheduled.";
 
         m_scheduler.addRunnable("local.mock.task1", new Runnable() {
-            @Override
             public void run() {
             }}, "Dummy testing task", 2000l, false);
 

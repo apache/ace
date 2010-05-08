@@ -39,7 +39,6 @@ public class ExecuterTest {
     public void testExecute() throws Exception {
         m_sem = new Semaphore(1);
         Executer executer = new Executer(new Runnable() {
-            @Override
             public void run() {
                 m_sem.release();
             }
@@ -54,7 +53,6 @@ public class ExecuterTest {
     public void testStop() throws Exception {
         m_sem = new Semaphore(2);
         Executer executer = new Executer(new Runnable() {
-            @Override
             public void run() {
                 try {
                     m_sem.tryAcquire(1, TimeUnit.SECONDS);
