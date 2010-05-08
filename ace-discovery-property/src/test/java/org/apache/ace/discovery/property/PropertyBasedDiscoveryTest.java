@@ -30,31 +30,21 @@ import org.apache.ace.discovery.property.constants.DiscoveryConstants;
 import org.junit.Test;
 import org.osgi.service.cm.ConfigurationException;
 
-/**
- * @author Toni Menzel
- * @since Dec 6, 2009
- */
-public class PropertyBasedDiscoveryTest
-{
-
+public class PropertyBasedDiscoveryTest {
     @Test
-    public void discoverWithoutPropertyUpdate()
-    {
+    public void discoverWithoutPropertyUpdate() {
         PropertyBasedDiscovery discovery = new PropertyBasedDiscovery();
         URL url = discovery.discover();
-        assertThat( url, is( nullValue() ) );
+        assertThat(url, is(nullValue()));
     }
 
     @Test
-    public void discoverWithPropertyUpdate()
-        throws ConfigurationException, URISyntaxException
-    {
+    public void discoverWithPropertyUpdate() throws ConfigurationException, URISyntaxException {
         PropertyBasedDiscovery discovery = new PropertyBasedDiscovery();
         Dictionary dict = new Hashtable();
-        dict.put( DiscoveryConstants.DISCOVERY_URL_KEY, "file://local" );
-
-        discovery.updated( dict );
+        dict.put(DiscoveryConstants.DISCOVERY_URL_KEY, "file://local");
+        discovery.updated(dict);
         URL url = discovery.discover();
-        assertThat( url.toURI(), is( equalTo( new URI( "file://local" ) ) ) );
+        assertThat(url.toURI(), is(equalTo(new URI("file://local"))));
     }
 }
