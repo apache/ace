@@ -67,6 +67,10 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>ace-util</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
-
 </project>
