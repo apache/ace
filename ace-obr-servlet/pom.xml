@@ -78,6 +78,10 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>ace-util</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
-
 </project>
