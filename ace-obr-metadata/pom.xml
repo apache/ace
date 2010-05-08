@@ -25,7 +25,7 @@
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
         <version>0.8.0-SNAPSHOT</version>
-        <relativePath>../pom/</relativePath>                
+        <relativePath>../pom/</relativePath>
     </parent>
 
     <groupId>org.apache.ace</groupId>
@@ -50,7 +50,6 @@
     </build>
 
     <dependencies>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -68,6 +67,15 @@
             <artifactId>kxml2</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>ace-util</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>ace-deployment-provider-base</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
-
 </project>
