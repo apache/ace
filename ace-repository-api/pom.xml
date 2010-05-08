@@ -49,5 +49,11 @@
         </plugins>
     </build>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>ace-util</artifactId>
+            <version>${version}</version>
+        </dependency>
+    </dependencies>
 </project>
