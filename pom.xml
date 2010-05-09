@@ -133,6 +133,7 @@
             <id>server</id>
             <modules>
                 <module>pom</module>
+                <module>ace-util</module>
                 <module>ace-client-repository</module>
                 <module>ace-client-repository-impl</module>
                 <module>ace-client-repository-helper-bundle</module>
@@ -141,8 +142,11 @@
                 <module>ace-configurator-serveruseradmin</module>
                 <module>ace-consolelogger</module>
                 <module>ace-deployment-provider-repositorybased</module>
+                <module>ace-deployment-provider-api</module>
+                <module>ace-deployment-provider-base</module>
                 <module>ace-deployment-servlet</module>
                 <module>ace-deployment-streamgenerator</module>
+                <module>ace-discovery-api</module>
                 <module>ace-discovery-property</module>
                 <module>ace-httplistener</module>
                 <module>ace-obr-metadata</module>
