@@ -107,6 +107,24 @@
             </modules>
         </profile>
         <profile>
+            <id>gateway</id>
+            <modules>
+                <module>pom</module>
+                <module>ace-consolelogger</module>
+                <module>ace-log-listener</module>
+                <module>ace-gateway-log</module>
+                <module>ace-gateway-log-store</module>
+                <module>ace-log</module>
+                <module>ace-identification-api</module>
+                <module>ace-discovery-api</module>
+                <module>ace-discovery-property</module>
+                <module>ace-identification-property</module>
+                <module>ace-scheduler</module>
+                <module>ace-deployment</module>
+                <module>ace-deployment-task</module>
+            </modules>
+        </profile>
+        <profile>
             <id>targets</id>
             <modules>
                 <!-- Targets (can be used by all Pax Tools) -->
