@@ -110,6 +110,8 @@
             <id>gateway</id>
             <modules>
                 <module>pom</module>
+                <module>ace-deployment-provider-api</module>
+                <module>ace-util</module>
                 <module>ace-consolelogger</module>
                 <module>ace-log-listener</module>
                 <module>ace-gateway-log</module>
@@ -119,8 +121,11 @@
                 <module>ace-discovery-api</module>
                 <module>ace-discovery-property</module>
                 <module>ace-identification-property</module>
+                <module>ace-repository-api</module>
+                <module>ace-scheduler-api</module>
                 <module>ace-scheduler</module>
                 <module>ace-deployment</module>
+                <module>ace-deployment-api</module>
                 <module>ace-deployment-task</module>
             </modules>
         </profile>
