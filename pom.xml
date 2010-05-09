@@ -125,6 +125,37 @@
             </modules>
         </profile>
         <profile>
+            <id>server</id>
+            <modules>
+                <module>pom</module>
+                <module>ace-client-repository</module>
+                <module>ace-client-repository-impl</module>
+                <module>ace-client-repository-helper-bundle</module>
+                <module>ace-configurator</module>
+                <module>ace-configurator-useradmin-task</module>
+                <module>ace-configurator-serveruseradmin</module>
+                <module>ace-consolelogger</module>
+                <module>ace-deployment-provider-repositorybased</module>
+                <module>ace-deployment-servlet</module>
+                <module>ace-deployment-streamgenerator</module>
+                <module>ace-discovery-property</module>
+                <module>ace-httplistener</module>
+                <module>ace-obr-metadata</module>
+                <module>ace-obr-storage</module>
+                <module>ace-repository-api</module>
+                <module>ace-repository-servlet</module>
+                <module>ace-repository</module>
+                <module>ace-resourceprocessor-useradmin</module>
+                <module>ace-scheduler</module>
+                <module>ace-scheduler-api</module>
+                <module>ace-server-log-store</module>
+                <module>ace-webconsole-plugin</module>
+                <module>ace-log</module>
+                <module>ace-log-servlet</module>
+                <module>ace-webui</module>
+            </modules>
+        </profile>
+        <profile>
             <id>targets</id>
             <modules>
                 <!-- Targets (can be used by all Pax Tools) -->
