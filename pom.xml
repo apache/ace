@@ -151,6 +151,7 @@
                 <module>ace-httplistener</module>
                 <module>ace-obr-metadata</module>
                 <module>ace-obr-storage</module>
+                <module>ace-obr-servlet</module>
                 <module>ace-repository-api</module>
                 <module>ace-repository-servlet</module>
                 <module>ace-repository</module>
