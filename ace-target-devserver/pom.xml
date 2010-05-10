@@ -24,8 +24,8 @@
 	<!-- for Knopflerfish files -->
 	<repositories>
 	    <repository>
-	      <id>ops4j</id>
-	      <url>http://repository.ops4j.org/maven2/</url>
+	      <id>okidokiteam-3rdparty</id>
+	      <url>http://okidokiteam.com/nexus/content/repositories/thirdparty/</url>
 	    </repository>
 	</repositories>
 	
@@ -81,14 +81,6 @@
             <scope>provided</scope>
         </dependency>
 
-<!--
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
--->
-
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.configadmin</artifactId>
@@ -112,14 +104,6 @@
             <scope>provided</scope>
         </dependency>
 
-<!-- why?
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.main</artifactId>
-			<version>2.0.0</version>
-            <scope>provided</scope>
-        </dependency>
--->
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.prefs</artifactId>
