@@ -31,9 +31,23 @@
     <groupId>org.apache.ace</groupId>
     <artifactId>ace-util</artifactId>
     <version>0.8.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
-    <name>Apache ACE - Util (library)</name>
+    <name>Apache ACE - Util</name>
+
+    <properties>
+        <bundle.symbolicName>${namespace}.util</bundle.symbolicName>
+        <bundle.namespace>${namespace}.util</bundle.namespace>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>

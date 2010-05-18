@@ -33,7 +33,7 @@
     <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Identification API</name>
+    <name>Apache ACE - Identification Property Based</name>
     
     <properties>
         <bundle.symbolicName>${namespace}.identification.property</bundle.symbolicName>
@@ -71,6 +71,7 @@
             <groupId>${groupId}</groupId>
             <artifactId>ace-util</artifactId>
             <version>${version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

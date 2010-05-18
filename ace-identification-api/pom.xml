@@ -33,7 +33,7 @@
     <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Identification Property</name>
+    <name>Apache ACE - Identification API</name>
     
     <properties>
         <bundle.symbolicName>${namespace}.identification.api</bundle.symbolicName>
