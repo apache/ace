@@ -35,7 +35,7 @@
 
     <properties>
         <namespace>org.apache.ace</namespace>
-        <gwtversion>1.7.1</gwtversion>
+        <gwtversion>2.0.3</gwtversion>
         <dependency.version.mockito>1.8.1</dependency.version.mockito>
         <dependency.version.dependencymanager>3.0.0-SNAPSHOT</dependency.version.dependencymanager>
 

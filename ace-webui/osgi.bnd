@@ -39,7 +39,7 @@ Import-Package: \
 
 Dynamic-ImportPackage: *
 
-Bundle-ClassPath: ., WEB-INF/classes, WEB-INF/lib/gwt-servlet-1.7.1.jar
+Bundle-ClassPath: ., WEB-INF/classes, WEB-INF/lib/gwt-servlet-2.0.3.jar
 
 Webapp-Context: webui
 
