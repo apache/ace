@@ -24,6 +24,10 @@
             <source>src/main/resources/run.sh</source>
             <fileMode>0777</fileMode>
         </file>
+		<file>
+	        <source>src/main/resources/run.bat</source>
+            <fileMode>0777</fileMode>
+       </file>
     </files>
     <dependencySets>
         <dependencySet>
