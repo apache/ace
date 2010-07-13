@@ -60,7 +60,7 @@ import org.apache.ace.repository.impl.CachedRepositoryImpl;
 import org.apache.ace.repository.impl.FilebasedBackupRepository;
 import org.apache.ace.repository.impl.RemoteRepository;
 import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.service.Service;
+import org.apache.felix.dm.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventConstants;

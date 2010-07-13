@@ -42,7 +42,7 @@ import org.apache.ace.client.repository.stateful.impl.StatefulGatewayRepositoryI
 import org.apache.ace.server.log.store.LogStore;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.service.Service;
+import org.apache.felix.dm.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.event.EventAdmin;
