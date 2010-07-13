@@ -28,7 +28,7 @@ import org.apache.ace.gateway.log.store.LogStore;
 import org.apache.ace.identification.Identification;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.service.Service;
+import org.apache.felix.dm.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
