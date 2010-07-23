@@ -37,7 +37,7 @@
     
     <properties>
         <bundle.symbolicName>${namespace}.deployment</bundle.symbolicName>
-        <bundle.namespace>${namespace}.deployment</bundle.namespace>
+        <bundle.namespace>${namespace}.deployment.deploymentadmin</bundle.namespace>
     </properties>
 
     <build>

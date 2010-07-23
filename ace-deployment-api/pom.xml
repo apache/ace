@@ -36,7 +36,7 @@
     <name>Apache ACE - Deployment API</name>
 
     <properties>
-        <bundle.symbolicName>${namespace}.deployment</bundle.symbolicName>
+        <bundle.symbolicName>${namespace}.deployment.api</bundle.symbolicName>
         <bundle.namespace>${namespace}.deployment</bundle.namespace>
     </properties>
 

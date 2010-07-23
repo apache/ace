@@ -1,4 +1,4 @@
-Bundle-Activator: ${bundle.namespace}.deploymentadmin.Activator
+Bundle-Activator: ${bundle.namespace}.Activator
 
 Bundle-Version>:\
   ${pom.version}
@@ -6,10 +6,4 @@ Bundle-Version>:\
 Bundle-SymbolicName:\
   ${bundle.symbolicName}
 
-Embed-Dependency:\
-  *; scope=compile|runtime; type=!pom;inline=true
-
-Export-Package:\
-  ${bundle.namespace}.deploymentadmin; version="${pom.version}"
-
--exportcontents:  ${bundle.namespace}; version="${pom.version}"
+Export-Package:
