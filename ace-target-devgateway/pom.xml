@@ -137,6 +137,13 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>ace-repository-api</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>ace-log</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
