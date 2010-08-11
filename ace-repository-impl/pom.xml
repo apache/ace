@@ -25,19 +25,19 @@
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
         <version>0.8.0-SNAPSHOT</version>
-        <relativePath>../pom/</relativePath>        
+        <relativePath>../pom/</relativePath>                
     </parent>
 
     <groupId>org.apache.ace</groupId>
-    <artifactId>ace-client-repository</artifactId>
+    <artifactId>ace-repository-impl</artifactId>
     <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Client Repository</name>
+    <name>Apache ACE - Repository Impl</name>
 
     <properties>
-        <bundle.symbolicName>${namespace}.client.repository</bundle.symbolicName>
-        <bundle.namespace>${namespace}.client.repository</bundle.namespace>
+        <bundle.symbolicName>${namespace}.repository.impl</bundle.symbolicName>
+        <bundle.namespace>${namespace}.repository</bundle.namespace>
     </properties>
 
     <build>
@@ -49,15 +49,26 @@
         </plugins>
     </build>
 
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-log</artifactId>
+            <artifactId>ace-range-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment-provider-api</artifactId>
+            <artifactId>ace-repository-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-repository-ext</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -69,14 +80,12 @@
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.velocity</groupId>
-            <artifactId>velocity</artifactId>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
-        
         <dependency>
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3</artifactId>
-            <version>1.1.4c</version>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
         </dependency>
     </dependencies>
 

@@ -20,7 +20,7 @@ package org.apache.ace.log;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
-import org.apache.ace.repository.SortedRangeSet;
+import org.apache.ace.range.SortedRangeSet;
 import org.testng.annotations.Test;
 
 public class LogDescriptorTest {

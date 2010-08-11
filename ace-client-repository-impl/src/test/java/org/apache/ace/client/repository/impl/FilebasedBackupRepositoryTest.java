@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.ace.repository.impl.FilebasedBackupRepository;
+import org.apache.ace.repository.ext.impl.FilebasedBackupRepository;
 import org.apache.ace.test.utils.TestUtils;
 import org.testng.annotations.Test;
 

@@ -26,13 +26,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.List;
+
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.gateway.log.store.LogStore;
 import org.apache.ace.identification.Identification;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
-import org.apache.ace.repository.RangeIterator;
-import org.apache.ace.repository.SortedRangeSet;
+import org.apache.ace.range.RangeIterator;
+import org.apache.ace.range.SortedRangeSet;
 import org.osgi.service.log.LogService;
 
 public class LogSyncTask implements Runnable {

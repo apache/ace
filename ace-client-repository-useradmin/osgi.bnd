@@ -7,5 +7,36 @@ Bundle-SymbolicName:\
 Export-Package:\
   ${bundle.namespace}; version="${pom.version}"
 
+Private-Package: \
+	${bundle.namespace}.impl, \
+	org.apache.ace.repository.ext, \
+	org.apache.ace.repository.ext.impl
+
+Import-Package: \
+	!javax.security.auth, \
+	!javax.swing.plaf, \
+	!javax.xml.parsers, \
+	!javax.xml.stream, \
+	!javax.xml.transform.sax, \
+	!net.sf.cglib.proxy, \
+	!nu.xom, \
+	!org.codehaus.jettison.mapped, \
+	!org.dom4j, \
+	!org.dom4j.io, \
+	!org.dom4j.tree, \
+	!org.jdom, \
+	!org.jdom.input, \
+	!org.joda.time, \
+	!org.joda.time.format, \
+	!org.w3c.dom, \
+	!org.xml.sax, \
+	!org.xml.sax.helpers, \
+	!sun.misc, \
+	!sun.reflect, \
+	*
+
+Embed-Dependency:\
+  xstream, xpp3
+
 Bundle-Activator: \
   ${bundle.namespace}.impl.Activator

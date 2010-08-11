@@ -20,7 +20,8 @@ package org.apache.ace.log;
 
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-import org.apache.ace.repository.SortedRangeSet;
+
+import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.util.Codec;
 
 /**
@@ -31,9 +32,7 @@ import org.apache.ace.util.Codec;
  * <li>A set of event IDs</li>
  * </ul>
  */
-public class LogDescriptor
-{
-
+public class LogDescriptor {
     private final SortedRangeSet m_rangeSet;
     private final long m_logID;
     private final String m_gatewayID;

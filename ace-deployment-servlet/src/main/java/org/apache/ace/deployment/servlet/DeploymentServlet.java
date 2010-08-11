@@ -151,6 +151,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
             throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown gateway (" + gatewayID + ")");
         }
         catch (IOException ioe) {
+            m_log.log(LogService.LOG_WARNING, "Error getting available versions.", ioe);
             throw new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error getting available versions.");
         }
     }

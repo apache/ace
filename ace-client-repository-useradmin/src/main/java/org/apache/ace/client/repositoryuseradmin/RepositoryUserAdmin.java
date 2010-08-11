@@ -20,6 +20,7 @@ package org.apache.ace.client.repositoryuseradmin;
 
 import java.io.IOException;
 import java.net.URL;
+
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 

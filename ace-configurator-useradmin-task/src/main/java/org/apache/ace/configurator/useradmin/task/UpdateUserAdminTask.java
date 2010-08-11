@@ -26,8 +26,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Dictionary;
 import java.util.Properties;
+
 import org.apache.ace.repository.ext.CachedRepository;
-import org.apache.ace.repository.impl.CachedRepositoryImpl;
+import org.apache.ace.repository.ext.impl.CachedRepositoryImpl;
 import org.apache.ace.resourceprocessor.useradmin.UserAdminConfigurator;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationException;

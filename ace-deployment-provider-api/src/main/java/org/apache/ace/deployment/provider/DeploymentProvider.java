@@ -25,8 +25,7 @@ import java.util.List;
  * An interface that provides the meta information for the bundles
  * in a certain version number.
  */
-public interface DeploymentProvider
-{
+public interface DeploymentProvider {
 
     /**
      * Get the collection of bundleData for a specific version. This data can be used to generate a deployment package.

@@ -6,12 +6,43 @@ Bundle-Version>:\
 Bundle-SymbolicName:\
   ${bundle.symbolicName}
 
-Private-Package: org.apache.ace.client.repository.impl, org.apache.ace.util, org.apache.ace.repository.ext, org.apache.ace.repository.impl, org.apache.ace.client.repository.stateful.impl
+Private-Package: \
+	org.apache.ace.client.repository.impl, \
+	org.apache.ace.util, \
+	org.apache.ace.repository.ext, \
+	org.apache.ace.repository.ext.impl, \
+	org.apache.ace.client.repository.stateful.impl
 
-Export-Package:\
-  org.apache.ace.client.repository, org.apache.ace.client.repository.object, org.apache.ace.client.repository.repository, org.apache.ace.client.repository.helper, org.apache.ace.client.repository.stateful, org.apache.ace.server.log.store
+Export-Package: \
+  org.apache.ace.client.repository, \
+  org.apache.ace.client.repository.object, \
+  org.apache.ace.client.repository.repository, \
+  org.apache.ace.client.repository.helper, \
+  org.apache.ace.client.repository.stateful, \
+  org.apache.ace.server.log.store
 
-Import-Package: *;resolution:=optional
+Import-Package: \
+	!javax.security.auth, \
+	!javax.swing.plaf, \
+	!javax.xml.parsers, \
+	!javax.xml.stream, \
+	!javax.xml.transform.sax, \
+	!net.sf.cglib.proxy, \
+	!nu.xom, \
+	!org.codehaus.jettison.mapped, \
+	!org.dom4j, \
+	!org.dom4j.io, \
+	!org.dom4j.tree, \
+	!org.jdom, \
+	!org.jdom.input, \
+	!org.joda.time, \
+	!org.joda.time.format, \
+	!org.w3c.dom, \
+	!org.xml.sax, \
+	!org.xml.sax.helpers, \
+	!sun.misc, \
+	!sun.reflect, \
+	*
 
 Embed-Dependency:\
   xstream, xpp3

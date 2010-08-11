@@ -21,6 +21,8 @@ package org.apache.ace.repository;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.ace.range.SortedRangeSet;
+
 /**
  * Providing full access to a repository, which includes read and write access.
  */

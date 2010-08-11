@@ -7,3 +7,4 @@ Bundle-SymbolicName:\
 Export-Package:\
   ${bundle.namespace}; version="${pom.version}"
 
+Private-Package: org.apache.ace.util

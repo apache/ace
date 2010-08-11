@@ -37,7 +37,7 @@
     
     <properties>
         <bundle.symbolicName>${namespace}.discovery</bundle.symbolicName>
-        <bundle.namespace>${namespace}.discovery.api</bundle.namespace>
+        <bundle.namespace>${namespace}.discovery</bundle.namespace>
     </properties>
 
     <build>

@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.repository.RangeIterator;
-import org.apache.ace.repository.SortedRangeSet;
+import org.apache.ace.range.RangeIterator;
+import org.apache.ace.range.SortedRangeSet;
 import org.testng.annotations.Test;
 
 public class LogTaskTest {

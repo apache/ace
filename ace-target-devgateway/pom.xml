@@ -137,7 +137,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository-api</artifactId>
+            <artifactId>ace-range-api</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -151,7 +151,21 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>ace-discovery-api</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>ace-discovery-property</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-identification-api</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -186,7 +200,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment</artifactId>
+            <artifactId>ace-deployment-deploymentadmin</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -194,20 +208,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-deployment-task</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment-provider-api</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-util</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>

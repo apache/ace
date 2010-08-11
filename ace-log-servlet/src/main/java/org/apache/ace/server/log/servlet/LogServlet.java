@@ -23,14 +23,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
-import org.apache.ace.repository.SortedRangeSet;
+import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.server.log.store.LogStore;
 import org.osgi.service.log.LogService;
 

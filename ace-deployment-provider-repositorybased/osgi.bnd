@@ -6,9 +6,11 @@ Bundle-Version>:\
 Bundle-SymbolicName:\
   ${bundle.symbolicName}
 
-Export-Package:\
-  org.apache.ace.deployment.provider; version="${pom.version}"
+Export-Package:
 
-Embed-Dependency:\
-  ace-deployment-provider-api; inline=true, ace-deployment-provider-base; inline=true,ace-repository; inline=true
-
+Private-Package: \
+	${bundle.namespace}, \
+	org.apache.ace.deployment.provider.impl, \
+	org.apache.ace.repository.ext, \
+	org.apache.ace.repository.ext.impl
+	

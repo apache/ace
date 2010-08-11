@@ -37,7 +37,7 @@
     
     <properties>
         <bundle.symbolicName>${namespace}.identification.property</bundle.symbolicName>
-        <bundle.namespace>${namespace}.identification</bundle.namespace>
+        <bundle.namespace>${namespace}.identification.property</bundle.namespace>
     </properties>
 
     <build>

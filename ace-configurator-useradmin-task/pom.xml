@@ -52,12 +52,17 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>ace-range-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>ace-repository-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository</artifactId>
+            <artifactId>ace-repository-ext</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

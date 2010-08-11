@@ -25,7 +25,7 @@ import java.io.InputStream;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.ext.BackupRepository;
 import org.apache.ace.repository.ext.CachedRepository;
-import org.apache.ace.repository.impl.CachedRepositoryImpl;
+import org.apache.ace.repository.ext.impl.CachedRepositoryImpl;
 import org.apache.ace.test.utils.TestUtils;
 import org.testng.annotations.Test;
 

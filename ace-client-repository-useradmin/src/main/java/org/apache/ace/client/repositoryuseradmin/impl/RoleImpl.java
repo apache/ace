@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;

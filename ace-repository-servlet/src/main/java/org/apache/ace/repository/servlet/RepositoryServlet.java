@@ -21,8 +21,9 @@ package org.apache.ace.repository.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Dictionary;
+
+import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.Repository;
-import org.apache.ace.repository.SortedRangeSet;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationException;

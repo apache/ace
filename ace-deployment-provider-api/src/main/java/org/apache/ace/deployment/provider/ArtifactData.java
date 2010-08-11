@@ -25,8 +25,7 @@ import java.util.jar.Attributes;
  * The ArtifactData as returned by the <code>DeploymentProvider</code> class in this package.
  * It contains several pieces of data which describe the artifact and the place where it can be found.
  */
-public interface ArtifactData
-{
+public interface ArtifactData {
 
     /**
      * Indicate if the bundle has changed. This is used when comparing artifacts in 2 versions. (see DeploymentProvider)

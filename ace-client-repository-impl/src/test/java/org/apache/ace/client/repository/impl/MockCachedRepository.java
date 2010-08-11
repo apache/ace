@@ -21,7 +21,7 @@ package org.apache.ace.client.repository.impl;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.ace.repository.SortedRangeSet;
+import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.ext.CachedRepository;
 
 

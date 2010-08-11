@@ -52,7 +52,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository-api</artifactId>
+            <artifactId>ace-range-api</artifactId>
             <version>${project.version}</version>
         </dependency>
          <dependency>

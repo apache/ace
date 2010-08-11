@@ -173,10 +173,16 @@
 		    <version>0.7.2</version>
 		</dependency>
 		
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-range-api</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository</artifactId>
+            <artifactId>ace-client-repository-api</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -188,6 +194,12 @@
             <scope>runtime</scope>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-client-repository-helper-base</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -235,6 +247,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>ace-deployment-provider-api</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>ace-deployment-provider-repositorybased</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
@@ -254,6 +272,12 @@
             <scope>runtime</scope>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-discovery-api</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-discovery-property</artifactId>
@@ -291,14 +315,19 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>ace-repository-api</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>ace-repository-servlet</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository</artifactId>
+            <artifactId>ace-repository-impl</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -354,7 +383,6 @@
             <scope>runtime</scope>
         </dependency>
 
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-webui</artifactId>
@@ -363,5 +391,20 @@
             <scope>runtime</scope>
         </dependency>
 
+		<!-- experimental, please leave this in for now
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-webui-vaadin</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin</artifactId>
+            <version>6.4.1</version>
+            <scope>runtime</scope>
+        </dependency>
+		-->
     </dependencies>
 </project>

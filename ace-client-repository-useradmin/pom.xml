@@ -36,8 +36,8 @@
     <name>Apache ACE - Client Repository UserAdmin</name>
 
     <properties>
-        <bundle.symbolicName>${namespace}.client.repository.useradmin</bundle.symbolicName>
-        <bundle.namespace>${namespace}.client.repository.useradmin</bundle.namespace>
+        <bundle.symbolicName>${namespace}.client.repositoryuseradmin</bundle.symbolicName>
+        <bundle.namespace>${namespace}.client.repositoryuseradmin</bundle.namespace>
     </properties>
 
     <build>
@@ -51,12 +51,27 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository</artifactId>
+            <artifactId>ace-client-repository-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository</artifactId>
+            <artifactId>ace-client-repository-helper-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-range-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-repository-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-repository-ext</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -79,6 +94,11 @@
         <dependency>
             <groupId>xstream</groupId>
             <artifactId>xstream</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>1.1.4c</version>
         </dependency>
     </dependencies>
 

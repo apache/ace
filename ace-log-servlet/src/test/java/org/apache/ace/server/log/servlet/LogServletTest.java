@@ -31,8 +31,7 @@ import javax.servlet.ServletOutputStream;
 
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
-import org.apache.ace.repository.SortedRangeSet;
-import org.apache.ace.server.log.servlet.LogServlet;
+import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.server.log.store.LogStore;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.log.LogService;

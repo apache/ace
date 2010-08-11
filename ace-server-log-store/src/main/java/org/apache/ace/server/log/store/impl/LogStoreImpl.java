@@ -35,7 +35,7 @@ import java.util.Map;
 
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
-import org.apache.ace.repository.SortedRangeSet;
+import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.server.log.store.LogStore;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;

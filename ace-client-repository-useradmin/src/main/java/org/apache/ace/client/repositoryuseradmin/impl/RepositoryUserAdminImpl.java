@@ -37,20 +37,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.StreamException;
-import com.thoughtworks.xstream.io.xml.DomDriver;
+
 import org.apache.ace.client.repositoryuseradmin.RepositoryUserAdmin;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.ext.CachedRepository;
-import org.apache.ace.repository.impl.CachedRepositoryImpl;
-import org.apache.ace.repository.impl.FilebasedBackupRepository;
-import org.apache.ace.repository.impl.RemoteRepository;
+import org.apache.ace.repository.ext.impl.CachedRepositoryImpl;
+import org.apache.ace.repository.ext.impl.FilebasedBackupRepository;
+import org.apache.ace.repository.ext.impl.RemoteRepository;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
@@ -60,6 +53,15 @@ import org.osgi.service.prefs.PreferencesService;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.io.StreamException;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 /**
  * RepositoryUserAdminImpl can checkout, commit and revert a repository

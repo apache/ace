@@ -29,7 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.ace.repository.SortedRangeSet;
+import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.ext.CachedRepository;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.framework.BundleContext;
