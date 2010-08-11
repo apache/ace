@@ -1,0 +1,53 @@
+Bundle-Version>:\
+  ${pom.version}
+
+Bundle-SymbolicName:\
+  ${bundle.symbolicName}
+
+Export-Package: \
+	${bundle.namespace}
+
+Import-Package: \
+	!javax.security.auth, \
+	!javax.swing.plaf, \
+	!javax.xml.parsers, \
+	!javax.xml.stream, \
+	!javax.xml.transform.sax, \
+	!net.sf.cglib.proxy, \
+	!nu.xom, \
+	!org.codehaus.jettison.mapped, \
+	!org.dom4j, \
+	!org.dom4j.io, \
+	!org.dom4j.tree, \
+	!org.jdom, \
+	!org.jdom.input, \
+	!org.joda.time, \
+	!org.joda.time.format, \
+	!org.w3c.dom, \
+	!org.xml.sax, \
+	!org.xml.sax.helpers, \
+	!sun.misc, \
+	!sun.reflect, \
+	!com.werken.xpath, \
+	!javax.naming, \
+	!javax.servlet, \
+	!javax.servlet.http, \
+	!javax.sql, \
+	!org.apache.commons.collections, \
+	!org.apache.commons.collections.map, \
+	!org.apache.commons.lang, \
+	!org.apache.commons.lang.builder, \
+	!org.apache.commons.lang.text, \
+	!org.apache.commons.logging, \
+	!org.apache.log, \
+	!org.apache.log.format, \
+	!org.apache.log.output.io, \
+	!org.apache.log4j, \
+	!org.apache.oro.text.perl, \
+	!org.apache.tools.ant, \
+	!org.apache.tools.ant.taskdefs, \
+	!org.jdom.output, \
+	*
+
+Embed-Dependency: \
+	velocity, xpp3
