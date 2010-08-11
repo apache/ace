@@ -45,6 +45,7 @@
                 <module>ace-range-api</module>
 
                 <module>ace-repository-api</module>
+                <module>ace-repository-ext</module>
                 <module>ace-repository-impl</module>
                 <module>ace-repository-servlet</module>
                 <module>ace-repository-task</module>
