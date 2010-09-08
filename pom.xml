@@ -83,6 +83,10 @@
                 <module>ace-deployment-deploymentadmin</module>
                 <module>ace-deployment-task</module>
 
+				<!--
+                <module>ace-distribution-servlet</module>
+				-->
+
                 <module>ace-httplistener</module>
 
                 <module>ace-server-log-store</module>

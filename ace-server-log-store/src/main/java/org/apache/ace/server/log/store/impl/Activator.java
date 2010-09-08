@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.ace.server.log.store.LogStore;
+import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
@@ -39,7 +39,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
 
     private static final String LOG_NAME = "name";
     private DependencyManager m_manager;
-    private final Map<String, Service> m_instances = new HashMap<String, Service>();
+    private final Map<String, Component> m_instances = new HashMap<String, Component>();
     private BundleContext m_context;
     private volatile LogService m_log;
 
@@ -49,7 +49,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         m_manager = manager;
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, "org.apache.ace.server.log.store.factory");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(this)
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
@@ -60,7 +60,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     }
 
     public void deleted(String pid) {
-        Service log = m_instances.remove(pid);
+        Component log = m_instances.remove(pid);
         if (log != null) {
             m_manager.remove(log);
             delete(new File(m_context.getDataFile(""), pid));
@@ -87,12 +87,12 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             throw new ConfigurationException(LOG_NAME, "Log name has to be specified.");
         }
 
-        Service service = m_instances.get(pid);
+        Component service = m_instances.get(pid);
         if (service == null) {
             Properties props = new Properties();
             props.put(LOG_NAME, name);
             File baseDir = new File(m_context.getDataFile(""), pid);
-            service = m_manager.createService()
+            service = m_manager.createComponent()
                 .setInterface(LogStore.class.getName(), props)
                 .setImplementation(new LogStoreImpl(baseDir, name))
                 .add(createServiceDependency().setService(EventAdmin.class).setRequired(false));

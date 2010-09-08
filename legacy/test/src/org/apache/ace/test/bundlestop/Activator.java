@@ -41,7 +41,7 @@ public class Activator extends DependencyActivatorBase {
 
         SystemBundleStopper stopper = new SystemBundleStopper();
         context.addBundleListener(stopper);
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(EventHandler.class.getName(), properties)
             .setImplementation(stopper)
             .add(createServiceDependency()

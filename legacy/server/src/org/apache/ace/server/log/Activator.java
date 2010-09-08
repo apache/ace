@@ -48,7 +48,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         m_manager = manager;
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, "org.apache.ace.server.log.servlet.factory");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(this)
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));    }
@@ -83,7 +83,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         if (service == null) {
             Properties props = new Properties();
             props.put(HttpConstants.ENDPOINT, endpoint);
-            service = m_manager.createService()
+            service = m_manager.createComponent()
                 .setInterface(HttpServlet.class.getName(), props)
                 .setImplementation(new LogServlet(name))
                 .add(createServiceDependency().setService(LogService.class).setRequired(false))

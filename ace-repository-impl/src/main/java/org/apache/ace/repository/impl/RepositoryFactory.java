@@ -28,8 +28,8 @@ import java.util.Map;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.RepositoryReplication;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
+import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
@@ -52,7 +52,7 @@ public class RepositoryFactory implements ManagedServiceFactory {
     private File m_baseDir;
     private Preferences m_prefs;
     private final DependencyManager m_manager;
-    private final Map<String, Service> m_instances = new HashMap<String, Service>();
+    private final Map<String, Component> m_instances = new HashMap<String, Component>();
 
     public RepositoryFactory(DependencyManager manager) {
         m_manager = manager;
@@ -60,7 +60,7 @@ public class RepositoryFactory implements ManagedServiceFactory {
 
     public synchronized void deleted(String pid) {
         // pull service
-        Service service = m_instances.remove(pid);
+        Component service = m_instances.remove(pid);
         if (service != null) {
             m_manager.remove(service);
         }
@@ -153,7 +153,7 @@ public class RepositoryFactory implements ManagedServiceFactory {
         node.put(RepositoryConstants.REPOSITORY_NAME, name);
         node.put(RepositoryConstants.REPOSITORY_CUSTOMER, customer);
 
-        Service service = m_instances.get(pid);
+        Component service = m_instances.get(pid);
         if (service == null) {
             // new instance
             File dir = new File(m_baseDir, pid);
@@ -166,7 +166,7 @@ public class RepositoryFactory implements ManagedServiceFactory {
                     m_log.log(LogService.LOG_ERROR, "Unable to set initial contents of the repository.", e);
                 }
             }
-            service = m_manager.createService()
+            service = m_manager.createComponent()
                 .setInterface(new String[] {RepositoryReplication.class.getName(), Repository.class.getName()}, dict)
                 .setImplementation(store)
                 .add(m_manager.createServiceDependency().setService(LogService.class).setRequired(false));

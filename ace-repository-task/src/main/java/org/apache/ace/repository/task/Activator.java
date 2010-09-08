@@ -33,7 +33,7 @@ public class Activator extends DependencyActivatorBase {
         Properties props = new Properties();
         props.put(SchedulerConstants.SCHEDULER_NAME_KEY, RepositoryReplicationTask.class.getName());
         props.put(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY, "Synchronizes repositories.");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(Runnable.class.getName(), props)
             .setImplementation(RepositoryReplicationTask.class)
             .add(createServiceDependency().setService(Discovery.class).setRequired(true))

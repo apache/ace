@@ -56,7 +56,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
         m_context = context;
-        manager.add(createService()
+        manager.add(createComponent()
             .setImplementation(this)
             .add(createServiceDependency()
                 .setService(LogService.class)

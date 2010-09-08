@@ -61,7 +61,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
     @Override
     public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
         m_dependencyManager = manager;
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(SessionFactory.class.getName(), null)
             .setImplementation(this)
         );
@@ -109,7 +109,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
     private SessionData createSessionServices(String sessionID) {
         SessionData sd = new SessionData();
         RepositoryAdminImpl rai = new RepositoryAdminImpl(sessionID);
-        sd.m_service = createService()
+        sd.m_service = createComponent()
             .setInterface(RepositoryAdmin.class.getName(), rai.getSessionProps())
             .setImplementation(rai)
             .setComposition("getInstances")
@@ -133,7 +133,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         topic.put(EventConstants.EVENT_FILTER, filter);
         topic.put(SessionFactory.SERVICE_SID, sessionID);
         StatefulGatewayRepositoryImpl statefulGatewayRepositoryImpl = new StatefulGatewayRepositoryImpl();
-        sd.m_service2 = createService()
+        sd.m_service2 = createComponent()
             .setInterface(new String[] { StatefulGatewayRepository.class.getName(), EventHandler.class.getName() }, topic)
             .setImplementation(statefulGatewayRepositoryImpl)
             .add(createServiceDependency().setService(ArtifactRepository.class, filter).setRequired(true))

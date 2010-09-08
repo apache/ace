@@ -29,7 +29,7 @@ public class Activator extends DependencyActivatorBase {
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(DeploymentProvider.class.getName(), null)
             .setImplementation(FileBasedProvider.class)
             .add(createConfigurationDependency()

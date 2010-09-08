@@ -37,7 +37,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) {
         m_impl = new RepositoryUserAdminImpl();
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(RepositoryUserAdmin.class.getName(), null)
             .setImplementation(m_impl)
             .add(createServiceDependency()

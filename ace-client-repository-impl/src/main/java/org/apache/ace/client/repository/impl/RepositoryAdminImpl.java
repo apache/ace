@@ -59,8 +59,8 @@ import org.apache.ace.repository.ext.CachedRepository;
 import org.apache.ace.repository.ext.impl.CachedRepositoryImpl;
 import org.apache.ace.repository.ext.impl.FilebasedBackupRepository;
 import org.apache.ace.repository.ext.impl.RemoteRepository;
+import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventConstants;
@@ -99,7 +99,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     private RepositorySet[] m_repositorySets;
 
     private volatile DependencyManager m_manager;
-    List<Service[]> m_services;
+    List<Component[]> m_services;
     private ArtifactRepositoryImpl m_artifactRepositoryImpl;
     private GroupRepositoryImpl m_groupRepositoryImpl;
     private Artifact2GroupAssociationRepositoryImpl m_artifact2GroupAssociationRepositoryImpl;
@@ -170,7 +170,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             m_deploymentVersionRepositoryImpl = new DeploymentVersionRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, DeploymentVersionObject.TOPIC_ENTITY_ROOT, m_sessionID));
         }
         // first, register the artifact repository manually; it needs some special care.
-        Service artifactRepoService = m_manager.createService()
+        Component artifactRepoService = m_manager.createComponent()
             .setInterface(ArtifactRepository.class.getName(), m_sessionProps)
             .setImplementation(m_artifactRepositoryImpl)
             .add(m_manager.createServiceDependency().setService(LogService.class).setRequired(false))
@@ -178,14 +178,14 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         Dictionary topic = new Hashtable();
         topic.put(EventConstants.EVENT_TOPIC, new String[] {});
         topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
-        Service artifactHandlerService = m_manager.createService()
+        Component artifactHandlerService = m_manager.createComponent()
             .setInterface(EventHandler.class.getName(), topic)
             .setImplementation(m_artifactRepositoryImpl);
         m_manager.add(artifactRepoService);
         m_manager.add(artifactHandlerService);
 
-        m_services = new ArrayList<Service[]>();
-        m_services.add(new Service[] {artifactRepoService, artifactHandlerService});
+        m_services = new ArrayList<Component[]>();
+        m_services.add(new Component[] {artifactRepoService, artifactHandlerService});
 
         // register all repositories are services. Keep the service objects around, we need them to pull the services later.
         m_services.add(registerRepository(Artifact2GroupAssociationRepository.class, m_artifact2GroupAssociationRepositoryImpl, new String[] {createPrivateObjectTopic(ArtifactObject.TOPIC_ENTITY_ROOT), createPrivateObjectTopic(GroupObject.TOPIC_ENTITY_ROOT)}));
@@ -214,29 +214,29 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
      * Pulls all repository services; is used to make sure the repositories go away before the RepositoryAdmin does.
      */
     synchronized void pullRepositories() {
-        for (Service[] services : m_services) {
-            for (Service service : services) {
+        for (Component[] services : m_services) {
+            for (Component service : services) {
                 m_manager.remove(service);
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends RepositoryObject> Service[] registerRepository(Class<? extends ObjectRepository<T>> iface, ObjectRepositoryImpl<?, T> imp, String[] topics) {
-        Service repositoryService = m_manager.createService()
+    private <T extends RepositoryObject> Component[] registerRepository(Class<? extends ObjectRepository<T>> iface, ObjectRepositoryImpl<?, T> imp, String[] topics) {
+        Component repositoryService = m_manager.createComponent()
             .setInterface(iface.getName(), m_sessionProps)
             .setImplementation(imp)
             .add(m_manager.createServiceDependency().setService(LogService.class).setRequired(false));
         Dictionary topic = new Hashtable();
         topic.put(EventConstants.EVENT_TOPIC, topics);
         topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
-        Service handlerService = m_manager.createService()
+        Component handlerService = m_manager.createComponent()
             .setInterface(EventHandler.class.getName(), topic)
             .setImplementation(imp);
 
         m_manager.add(repositoryService);
         m_manager.add(handlerService);
-        return new Service[] {repositoryService, handlerService};
+        return new Component[] {repositoryService, handlerService};
     }
 
     /**

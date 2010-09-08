@@ -37,7 +37,7 @@ public class Activator extends TestActivatorBase {
 
     @Override
     protected void initServices(BundleContext context, DependencyManager manager) {
-        manager.add(createService()
+        manager.add(createComponent()
             .setImplementation(ConfiguratorTest.class)
             .add(createServiceDependency()
                 .setService(UserAdmin.class)
@@ -48,7 +48,7 @@ public class Activator extends TestActivatorBase {
 
         // We need to do some configuration for this test to run; therefore,
         // we (as activator) wait around for the ConfigurationAdmin.
-        manager.add(createService()
+        manager.add(createComponent()
             .setImplementation(this)
             .add(createServiceDependency()
                 .setService(ConfigurationAdmin.class)

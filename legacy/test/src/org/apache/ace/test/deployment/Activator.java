@@ -37,7 +37,7 @@ public class Activator extends TestActivatorBase {
 
     @Override
     protected void initServices(BundleContext context, DependencyManager manager) {
-        manager.add(createService()
+        manager.add(createComponent()
             .setImplementation(DeploymentIntegrationTest.class)
             .add(createServiceDependency().setService(HttpService.class).setRequired(true))
             .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true))

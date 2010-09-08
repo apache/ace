@@ -53,7 +53,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
         StatefulGatewayRepositoryImpl statefulGatewayRepositoryImpl = new StatefulGatewayRepositoryImpl();
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(StatefulGatewayRepository.class.getName(), null)
             .setImplementation(statefulGatewayRepositoryImpl)
             .add(createServiceDependency().setService(ArtifactRepository.class).setRequired(true))
@@ -74,7 +74,7 @@ public class Activator extends DependencyActivatorBase {
             GatewayObject.TOPIC_ALL,
             DeploymentVersionObject.TOPIC_ALL,
             RepositoryAdmin.TOPIC_REFRESH, RepositoryAdmin.TOPIC_LOGIN});
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(EventHandler.class.getName(), topic)
             .setImplementation(statefulGatewayRepositoryImpl));
     }

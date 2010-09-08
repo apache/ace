@@ -62,7 +62,7 @@ public class RepositoryServlet extends RepositoryServletBase {
 
     @Override
     public String getServletInfo() {
-        return "LiQ Repository Servlet";
+        return "Apache ACE Repository Servlet";
     }
 
     @Override

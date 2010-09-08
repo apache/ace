@@ -36,7 +36,7 @@ public class Activator extends DependencyActivatorBase {
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, PID);
 
-        manager.add(createService().setInterface(ResourceProcessor.class.getName(), props)
+        manager.add(createComponent().setInterface(ResourceProcessor.class.getName(), props)
                 .setImplementation(impl));
     }
 

@@ -39,13 +39,13 @@ public class Activator extends DependencyActivatorBase {
         Dictionary<String, String> props = new Hashtable<String, String>();
         props.put(ArtifactObject.KEY_MIMETYPE, BundleHelper.MIMETYPE);
         BundleHelperImpl helperImpl = new BundleHelperImpl();
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ArtifactHelper.class.getName(), props)
             .setImplementation(helperImpl));
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ArtifactRecognizer.class.getName(), null)
             .setImplementation(helperImpl));
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(BundleHelper.class.getName(), null)
             .setImplementation(helperImpl));
     }

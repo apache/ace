@@ -34,7 +34,7 @@ public class Activator extends DependencyActivatorBase {
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, "org.apache.ace.server.repository.factory");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(new RepositoryFactory(manager))
             .add(createServiceDependency().setService(PreferencesService.class).setRequired(true))

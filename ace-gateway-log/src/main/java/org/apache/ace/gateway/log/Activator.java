@@ -29,9 +29,9 @@ import org.apache.ace.gateway.log.task.LogSyncTask;
 import org.apache.ace.identification.Identification;
 import org.apache.ace.log.Log;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
+import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
@@ -51,7 +51,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         m_manager = manager;
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, "org.apache.ace.gateway.log.factory");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(this)
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
@@ -61,11 +61,11 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     }
 
     public synchronized void deleted(String pid) {
-        Service log = (Service) m_logInstances.remove(pid);
+        Component log = (Component) m_logInstances.remove(pid);
         if (log != null) {
             m_manager.remove(log);
         }
-        Service sync = (Service) m_syncInstances.remove(pid);
+        Component sync = (Component) m_syncInstances.remove(pid);
         if (sync != null) {
             m_manager.remove(sync);
         }
@@ -81,12 +81,12 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             throw new ConfigurationException(LOG_NAME, "Log name has to be specified.");
         }
 
-        Service service = (Service) m_logInstances.get(pid);
+        Component service = (Component) m_logInstances.get(pid);
         if (service == null) {
             // publish log service
             Properties props = new Properties();
             props.put(LOG_NAME, name);
-            Service log = m_manager.createService()
+            Component log = m_manager.createComponent()
                 .setInterface(Log.class.getName(), props)
                 .setImplementation(LogImpl.class)
                 .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + "))").setRequired(true))
@@ -97,7 +97,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             properties.put(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY, "Task that synchronizes log store with id=" + name + " on the gateway and server");
             properties.put(SchedulerConstants.SCHEDULER_NAME_KEY, name);
             properties.put(SchedulerConstants.SCHEDULER_RECIPE, "2000");
-            Service sync = m_manager.createService()
+            Component sync = m_manager.createComponent()
                 .setInterface(Runnable.class.getName(), properties)
                 .setImplementation(new LogSyncTask(name))
                 .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + "))").setRequired(true))

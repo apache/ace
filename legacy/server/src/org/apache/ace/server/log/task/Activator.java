@@ -47,7 +47,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         m_manager = manager;
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, "org.apache.ace.server.log.task.factory");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(this)
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
@@ -81,7 +81,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             props.put(LOG_NAME, name);
             props.put("taskName", LogSyncTask.class.getName());
             props.put("description", "Syncs log (name=" + name + ") with a server.");
-            service = m_manager.createService()
+            service = m_manager.createComponent()
                 .setInterface(new String[] { Runnable.class.getName(), LogSync.class.getName() }, props)
                 .setImplementation(new LogSyncTask(name, name))
                 .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + "))").setRequired(true))

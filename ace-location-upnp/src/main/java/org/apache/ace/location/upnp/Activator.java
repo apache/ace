@@ -37,14 +37,14 @@ public class Activator extends DependencyActivatorBase {
 		ProvisioningDevice psDevice = new ProvisioningDevice(host, port);
 
 		//this service is configured with the correct settings
-		manager.add(createService()
+		manager.add(createComponent()
 		    .setImplementation(new LocationServiceImpl(host, port))
             .setInterface(LocationService.class.getName(), null)
             .add(createConfigurationDependency().setPid(LocationServiceImpl.PID))
 		    );
 
 		//this service depends on the highest ranked location service
-		manager.add(createService()
+		manager.add(createComponent()
 				.setImplementation(psDevice)
 				.setInterface(UPnPDevice.class.getName(), psDevice.getDescriptions(null))
 				.setComposition("getComposition")

@@ -31,7 +31,7 @@ public class Activator extends DependencyActivatorBase {
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(HttpServlet.class.getName(), null)
             .setImplementation(RepositoryServlet.class)
             .add(createConfigurationDependency()
@@ -41,7 +41,7 @@ public class Activator extends DependencyActivatorBase {
                 .setService(LogService.class)
                 .setRequired(false)));
 
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(HttpServlet.class.getName(), null)
             .setImplementation(RepositoryReplicationServlet.class)
             .add(createConfigurationDependency()

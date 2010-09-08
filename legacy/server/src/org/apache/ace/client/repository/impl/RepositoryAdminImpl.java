@@ -169,7 +169,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             m_deploymentVersionRepositoryImpl = new DeploymentVersionRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, DeploymentVersionObject.TOPIC_ENTITY_ROOT, m_sessionID));
         }
         // first, register the artifact repository manually; it needs some special care.
-        Service artifactRepoService = m_manager.createService()
+        Service artifactRepoService = m_manager.createComponent()
             .setInterface(ArtifactRepository.class.getName(), m_sessionProps)
             .setImplementation(m_artifactRepositoryImpl)
             .add(m_manager.createServiceDependency().setService(LogService.class).setRequired(false))
@@ -177,7 +177,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         Dictionary topic = new Hashtable();
         topic.put(EventConstants.EVENT_TOPIC, new String[] {});
         topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
-        Service artifactHandlerService = m_manager.createService()
+        Service artifactHandlerService = m_manager.createComponent()
             .setInterface(EventHandler.class.getName(), topic)
             .setImplementation(m_artifactRepositoryImpl);
         m_manager.add(artifactRepoService);
@@ -223,14 +223,14 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
 
     @SuppressWarnings("unchecked")
     private <T extends RepositoryObject> Service[] registerRepository(Class<? extends ObjectRepository<T>> iface, ObjectRepositoryImpl<?, T> imp, String[] topics) {
-        Service repositoryService = m_manager.createService()
+        Service repositoryService = m_manager.createComponent()
             .setInterface(iface.getName(), m_sessionProps)
             .setImplementation(imp)
             .add(m_manager.createServiceDependency().setService(LogService.class).setRequired(false));
         Dictionary topic = new Hashtable();
         topic.put(EventConstants.EVENT_TOPIC, topics);
         topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
-        Service handlerService = m_manager.createService()
+        Service handlerService = m_manager.createComponent()
             .setInterface(EventHandler.class.getName(), topic)
             .setImplementation(imp);
 

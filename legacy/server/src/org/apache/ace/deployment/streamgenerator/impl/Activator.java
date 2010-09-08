@@ -27,7 +27,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(StreamGenerator.class.getName(), null)
             .setImplementation(StreamGeneratorImpl.class)
             .add(createServiceDependency()

@@ -26,9 +26,9 @@ import java.util.Properties;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.log.LogSync;
 import org.apache.ace.server.log.store.LogStore;
+import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
@@ -39,7 +39,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
 
     private static final String LOG_NAME = "name";
     private DependencyManager m_manager;
-    private final Map<String, Service> m_instances = new HashMap<String, Service>();
+    private final Map<String, Component> m_instances = new HashMap<String, Component>();
     private volatile LogService m_log;
 
     @Override
@@ -47,7 +47,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         m_manager = manager;
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, "org.apache.ace.server.log.task.factory");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(this)
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
@@ -58,7 +58,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     }
 
     public void deleted(String pid) {
-        Service service = m_instances.remove(pid);
+        Component service = m_instances.remove(pid);
         if (service != null) {
             m_manager.remove(service);
         }
@@ -75,13 +75,13 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             throw new ConfigurationException(LOG_NAME, "Log name has to be specified.");
         }
 
-        Service service = m_instances.get(pid);
+        Component service = m_instances.get(pid);
         if (service == null) {
             Properties props = new Properties();
             props.put(LOG_NAME, name);
             props.put("taskName", LogSyncTask.class.getName());
             props.put("description", "Syncs log (name=" + name + ") with a server.");
-            service = m_manager.createService()
+            service = m_manager.createComponent()
                 .setInterface(new String[] { Runnable.class.getName(), LogSync.class.getName() }, props)
                 .setImplementation(new LogSyncTask(name, name))
                 .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + "))").setRequired(true))

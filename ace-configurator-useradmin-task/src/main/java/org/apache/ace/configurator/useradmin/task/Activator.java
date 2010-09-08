@@ -36,7 +36,7 @@ public class Activator extends DependencyActivatorBase {
         Properties props = new Properties();
         props.put("taskName", UpdateUserAdminTask.PID);
         props.put("description", "Synchronizes the UserAdmin with the server.");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(Runnable.class.getName(), props)
             .setImplementation(UpdateUserAdminTask.class)
             .add(createServiceDependency().setService(UserAdminConfigurator.class).setRequired(true))

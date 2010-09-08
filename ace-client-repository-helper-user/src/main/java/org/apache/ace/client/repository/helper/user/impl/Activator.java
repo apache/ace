@@ -39,12 +39,12 @@ public class Activator extends DependencyActivatorBase {
         Properties props = new Properties();
         props.put(ArtifactObject.KEY_MIMETYPE, UserAdminHelper.MIMETYPE);
         UserHelperImpl helperImpl = new UserHelperImpl();
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ArtifactHelper.class.getName(), props)
             .setImplementation(helperImpl));
         props = new Properties();
         props.put(Constants.SERVICE_RANKING, 10);
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ArtifactRecognizer.class.getName(), props)
             .setImplementation(helperImpl));
     }

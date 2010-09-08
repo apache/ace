@@ -40,9 +40,9 @@ import org.apache.ace.client.repository.repository.GatewayRepository;
 import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
 import org.apache.ace.client.repository.stateful.impl.StatefulGatewayRepositoryImpl;
 import org.apache.ace.server.log.store.LogStore;
+import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.Service;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.event.EventAdmin;
@@ -61,7 +61,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
     @Override
     public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
         m_dependencyManager = manager;
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(SessionFactory.class.getName(), null)
             .setImplementation(this)
         );
@@ -75,8 +75,8 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
     private static class SessionData {
         public static SessionData EMPTY_SESSION = new SessionData();
 
-        private Service m_service;
-        private Service m_service2;
+        private Component m_service;
+        private Component m_service2;
     }
 
     public void createSession(String sessionID) {
@@ -109,7 +109,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
     private SessionData createSessionServices(String sessionID) {
         SessionData sd = new SessionData();
         RepositoryAdminImpl rai = new RepositoryAdminImpl(sessionID);
-        sd.m_service = createService()
+        sd.m_service = createComponent()
             .setInterface(RepositoryAdmin.class.getName(), rai.getSessionProps())
             .setImplementation(rai)
             .setComposition("getInstances")
@@ -133,7 +133,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         topic.put(EventConstants.EVENT_FILTER, filter);
         topic.put(SessionFactory.SERVICE_SID, sessionID);
         StatefulGatewayRepositoryImpl statefulGatewayRepositoryImpl = new StatefulGatewayRepositoryImpl();
-        sd.m_service2 = createService()
+        sd.m_service2 = createComponent()
             .setInterface(new String[] { StatefulGatewayRepository.class.getName(), EventHandler.class.getName() }, topic)
             .setImplementation(statefulGatewayRepositoryImpl)
             .add(createServiceDependency().setService(ArtifactRepository.class, filter).setRequired(true))

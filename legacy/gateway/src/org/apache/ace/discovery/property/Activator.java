@@ -34,7 +34,7 @@ public class Activator extends DependencyActivatorBase {
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         Dictionary properties = new Hashtable();
         properties.put(Constants.SERVICE_PID, DiscoveryConstants.DISCOVERY_PID);
-        manager.add(createService()
+        manager.add(createComponent()
                         .setInterface(new String[] {Discovery.class.getName()}, properties)
                         .setImplementation(PropertyBasedDiscovery.class)
                         .add(createConfigurationDependency()

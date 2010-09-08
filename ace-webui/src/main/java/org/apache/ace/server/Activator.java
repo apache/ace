@@ -153,7 +153,7 @@ public class Activator extends DependencyActivatorBase {
             }
         });
         
-        manager.add(createService()
+        manager.add(createComponent()
             .setImplementation(this)
             .add(createServiceDependency().setRequired(true).setService(SessionFactory.class))
             .add(createServiceDependency().setService(LogService.class).setRequired(false))
