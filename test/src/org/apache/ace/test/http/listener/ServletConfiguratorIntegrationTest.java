@@ -74,12 +74,12 @@ public class ServletConfiguratorIntegrationTest {
         m_echoServlet = new EchoServlet();
         Dictionary<String, String> dictionary = new Hashtable<String, String>();
         dictionary.put(HttpConstants.ENDPOINT, "/echoServlet");
-        m_echoServletService = m_dependencyManager.createService()
+        m_echoServletService = m_dependencyManager.createComponent()
             .setImplementation(m_echoServlet)
             .setInterface(HttpServlet.class.getName(), dictionary);
 
         m_mockHttp = new MockHttpService();
-        m_mockHttpService = m_dependencyManager.createService()
+        m_mockHttpService = m_dependencyManager.createComponent()
             .setImplementation(m_mockHttp)
             .setInterface(HttpService.class.getName(), null);
     }

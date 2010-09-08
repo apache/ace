@@ -51,7 +51,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         m_manager = manager;
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, "org.apache.ace.gateway.log.factory");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(this)
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
@@ -86,7 +86,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             // publish log service
             Properties props = new Properties();
             props.put(LOG_NAME, name);
-            Service log = m_manager.createService()
+            Service log = m_manager.createComponent()
                 .setInterface(Log.class.getName(), props)
                 .setImplementation(LogImpl.class)
                 .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + "))").setRequired(true))
@@ -97,7 +97,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             properties.put(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY, "Task that synchronizes log store with id=" + name + " on the gateway and server");
             properties.put(SchedulerConstants.SCHEDULER_NAME_KEY, name);
             properties.put(SchedulerConstants.SCHEDULER_RECIPE, "2000");
-            Service sync = m_manager.createService()
+            Service sync = m_manager.createComponent()
                 .setInterface(Runnable.class.getName(), properties)
                 .setImplementation(new LogSyncTask(name))
                 .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + "))").setRequired(true))

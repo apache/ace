@@ -1027,7 +1027,7 @@ public class RepositoryAdminTest implements EventHandler {
         Properties serviceProps = new Properties();
         serviceProps.put(ArtifactHelper.KEY_MIMETYPE, "mymime");
 
-        Service myHelperService = m_depManager.createService()
+        Service myHelperService = m_depManager.createComponent()
             .setInterface(ArtifactHelper.class.getName(), serviceProps)
             .setImplementation(myHelper);
 
@@ -1457,7 +1457,7 @@ public class RepositoryAdminTest implements EventHandler {
         Properties serviceProps = new Properties();
         serviceProps.put(ArtifactHelper.KEY_MIMETYPE, "mymime");
 
-        Service helperService = m_depManager.createService()
+        Service helperService = m_depManager.createComponent()
             .setInterface(ArtifactHelper.class.getName(), serviceProps)
             .setImplementation(helper);
 

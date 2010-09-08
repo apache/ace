@@ -88,12 +88,12 @@ public class Activator extends DependencyActivatorBase {
     }
 
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(Identification.class.getName(), null)
             .setImplementation(SystemPropertyIdentification.class)
             );
 
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(Discovery.class.getName(), null)
             .setImplementation(SystemPropertyDiscovery.class)
             );
@@ -102,7 +102,7 @@ public class Activator extends DependencyActivatorBase {
         // service factories configured by config admin here
         Properties logProps = new Properties();
         logProps.put("name", "auditlog");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(LogStore.class.getName(), logProps)
             .setImplementation(new LogStoreImpl(new File(context.getDataFile(""), "audit")))
             .add(createServiceDependency().setService(Identification.class).setRequired(true))
@@ -110,7 +110,7 @@ public class Activator extends DependencyActivatorBase {
             );
 
         // same for the log service and sync task
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(Log.class.getName(), logProps)
             .setImplementation(LogImpl.class)
             .add(createServiceDependency().setService(LogStore.class, "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))").setRequired(true))
@@ -121,7 +121,7 @@ public class Activator extends DependencyActivatorBase {
         properties.put(SchedulerConstants.SCHEDULER_NAME_KEY, "auditlog");
         properties.put(SchedulerConstants.SCHEDULER_RECIPE, "2000");
 
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(Runnable.class.getName(), properties)
             .setImplementation(new LogSyncTask("auditlog"))
             .add(createServiceDependency().setService(LogStore.class, "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))").setRequired(true))

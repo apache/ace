@@ -43,7 +43,7 @@ public class Activator extends DependencyActivatorBase {
         checkProperties.put(SchedulerConstants.SCHEDULER_NAME_KEY, DeploymentCheckTask.class.getName());
         checkProperties.put(SchedulerConstants.SCHEDULER_RECIPE, "5000");
 
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(Runnable.class.getName(), updateProperties)
             .setImplementation(DeploymentUpdateTask.class)
             .add(createServiceDependency().setService(Deployment.class).setRequired(true))
@@ -52,7 +52,7 @@ public class Activator extends DependencyActivatorBase {
              .add(createServiceDependency().setService(EventAdmin.class).setRequired(false))
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
 
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(Runnable.class.getName(), checkProperties)
             .setImplementation(DeploymentCheckTask.class)
             .add(createServiceDependency().setService(Deployment.class).setRequired(true))

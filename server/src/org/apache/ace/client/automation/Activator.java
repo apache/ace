@@ -37,7 +37,7 @@ public class Activator extends DependencyActivatorBase {
      */
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        manager.add(createService()
+        manager.add(createComponent()
             .setImplementation(AutoGatewayOperator.class)
             .add(createConfigurationDependency().setPid(AutoGatewayOperator.PID))
             .add(createServiceDependency().setRequired(true).setService(UserAdmin.class))

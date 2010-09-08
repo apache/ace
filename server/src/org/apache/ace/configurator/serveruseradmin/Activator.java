@@ -42,7 +42,7 @@ public class Activator extends DependencyActivatorBase {
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        manager.add(createService()
+        manager.add(createComponent()
             .setImplementation(this)
             .add(createServiceDependency().setService(UserAdmin.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));

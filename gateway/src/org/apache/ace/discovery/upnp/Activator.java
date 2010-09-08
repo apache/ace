@@ -33,7 +33,7 @@ public class Activator extends DependencyActivatorBase {
             .append(UPnPDevice.TYPE).append("=")
             .append(UPnPBasedDiscovery.DEVICE_TYPE).append(")");
 
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(new String[] {Discovery.class.getName()}, null)
             .setImplementation(UPnPBasedDiscovery.class)
                 .add(createServiceDependency()

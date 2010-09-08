@@ -43,7 +43,7 @@ public class Activator extends DependencyActivatorBase {
         m_scheduler = new Scheduler();
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, SchedulerConstants.SCHEDULER_PID);
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ManagedService.class.getName(), props)
             .setImplementation(m_scheduler)
             .add(createServiceDependency()

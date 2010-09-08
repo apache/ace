@@ -59,13 +59,13 @@ public class Activator extends TestActivatorBase {
     @Override
     protected void initServices(BundleContext context, DependencyManager manager) {
         // helper service that configures the system
-        manager.add(createService()
+        manager.add(createComponent()
             .setImplementation(this)
             .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false))
         );
         // service containing the actual integration test
-        manager.add(createService()
+        manager.add(createComponent()
             .setImplementation(LogIntegrationTest.class)
             .add(createServiceDependency().setService(HttpService.class).setRequired(true))
             .add(createServiceDependency().setService(Log.class, "(&("+Constants.OBJECTCLASS+"="+Log.class.getName()+")(name=auditlog))").setRequired(true))

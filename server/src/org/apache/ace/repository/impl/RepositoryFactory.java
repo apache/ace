@@ -166,7 +166,7 @@ public class RepositoryFactory implements ManagedServiceFactory {
                     m_log.log(LogService.LOG_ERROR, "Unable to set initial contents of the repository.", e);
                 }
             }
-            service = m_manager.createService()
+            service = m_manager.createComponent()
                 .setInterface(new String[] {RepositoryReplication.class.getName(), Repository.class.getName()}, dict)
                 .setImplementation(store)
                 .add(m_manager.createServiceDependency().setService(LogService.class).setRequired(false));

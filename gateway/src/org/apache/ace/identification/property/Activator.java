@@ -27,7 +27,7 @@ import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
     public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
-       manager.add(createService()
+       manager.add(createComponent()
             .setInterface(new String[] {Identification.class.getName()}, null)
             .setImplementation(PropertyBasedIdentification.class)
             .add(createConfigurationDependency()

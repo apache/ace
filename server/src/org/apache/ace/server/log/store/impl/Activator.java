@@ -49,7 +49,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         m_manager = manager;
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, "org.apache.ace.server.log.store.factory");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(this)
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
@@ -92,7 +92,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             Properties props = new Properties();
             props.put(LOG_NAME, name);
             File baseDir = new File(m_context.getDataFile(""), pid);
-            service = m_manager.createService()
+            service = m_manager.createComponent()
                 .setInterface(LogStore.class.getName(), props)
                 .setImplementation(new LogStoreImpl(baseDir, name))
                 .add(createServiceDependency().setService(EventAdmin.class).setRequired(false));

@@ -44,7 +44,7 @@ public class Activator extends DependencyActivatorBase {
 
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, PID);
-        manager.add(createService().setInterface(ResourceProcessor.class.getName(), props)
+        manager.add(createComponent().setInterface(ResourceProcessor.class.getName(), props)
                 .setImplementation(processor)
                 .add(createServiceDependency()
                     .setService(UserAdminConfigurator.class)
@@ -55,7 +55,7 @@ public class Activator extends DependencyActivatorBase {
                     .setRequired(false)));
 
 
-        manager.add(createService().setInterface(UserAdminConfigurator.class.getName(), null)
+        manager.add(createComponent().setInterface(UserAdminConfigurator.class.getName(), null)
             .setImplementation(userAdminStore)
             .add(createServiceDependency()
                 .setService(UserAdmin.class)

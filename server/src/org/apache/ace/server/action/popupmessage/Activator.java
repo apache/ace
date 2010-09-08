@@ -31,7 +31,7 @@ public class Activator extends DependencyActivatorBase {
     public void init(BundleContext context, DependencyManager manager) {
         Properties props = new Properties();
         props.put(Action.ACTION_NAME, PopupMessageAction.NAME);
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(Action.class.getName(), props)
             .setImplementation(PopupMessageAction.class)
             );

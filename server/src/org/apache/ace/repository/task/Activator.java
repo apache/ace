@@ -33,7 +33,7 @@ public class Activator extends DependencyActivatorBase {
         // TODO we need to fix these property constants
         props.put("taskName", RepositoryReplicationTask.class.getName());
         props.put("description", "Synchronizes repositories.");
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(Runnable.class.getName(), props)
             .setImplementation(RepositoryReplicationTask.class)
             .add(createServiceDependency().setService(Discovery.class).setRequired(true))

@@ -36,7 +36,7 @@ public class Activator extends DependencyActivatorBase {
         Dictionary dict = new Hashtable();
         dict.put( "felix.webconsole.label", WebUIConsoleServlet.LABEL );
         dict.put( "felix.webconsole.title", WebUIConsoleServlet.TITLE );
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(Servlet.class.getName(), dict)
             .setImplementation(new WebUIConsoleServlet())
         );

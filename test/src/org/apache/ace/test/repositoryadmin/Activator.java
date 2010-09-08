@@ -56,7 +56,7 @@ public class Activator extends TestActivatorBase {
 
     @Override
     protected void initServices(BundleContext context, DependencyManager manager) {
-        manager.add(createService()
+        manager.add(createComponent()
             .setImplementation(this)
             .add(createServiceDependency().setService(SessionFactory.class).setRequired(true))
             .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true)));
@@ -67,7 +67,7 @@ public class Activator extends TestActivatorBase {
             RepositoryAdmin.PUBLIC_TOPIC_ROOT + "*",
             RepositoryAdmin.PRIVATE_TOPIC_ROOT + "*",
             StatefulGatewayObject.TOPIC_ALL});
-        manager.add(createService()
+        manager.add(createComponent()
             .setInterface(EventHandler.class.getName(), topics)
             .setImplementation(RepositoryAdminTest.class)
             .add(createServiceDependency().setService(HttpService.class).setRequired(true))
