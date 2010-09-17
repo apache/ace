@@ -1,0 +1,22 @@
+Bundle-Activator: ${bundle.namespace}.managementagent.Activator
+
+Bundle-Version>:\
+  ${pom.version}
+
+Bundle-SymbolicName:\
+  ${bundle.symbolicName}
+
+Private-Package: \
+	org.apache.ace.*, \
+	org.apache.felix.*, \
+	EDU.oswego.cs.dl.util.concurrent
+	
+
+Export-Package: \
+	org.osgi.service.cm;version="1.2", \
+	org.osgi.service.deploymentadmin;version="1.0", \
+	org.osgi.service.deploymentadmin.spi;version="1.0", \
+	org.osgi.service.event;version="1.2", \
+	org.osgi.service.log;version="1.3", \
+	org.osgi.service.metatype;version="1.1"
+
