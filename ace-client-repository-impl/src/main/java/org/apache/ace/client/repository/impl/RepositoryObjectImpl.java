@@ -427,10 +427,12 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
     static void writeMap(HierarchicalStreamWriter writer, Map<String, String> entries, String name) {
         writer.startNode(name);
         for (Map.Entry<String, String> entry : entries.entrySet()) {
-            writer.startNode(entry.getKey());
-            assert (entry.getValue() != null);
-            writer.setValue(entry.getValue());
-            writer.endNode();
+            if (entry.getKey() != null && entry.getValue() != null) {
+                // we only write values that have non null keys and values
+                writer.startNode(entry.getKey());
+                writer.setValue(entry.getValue());
+                writer.endNode();
+            }
         }
         writer.endNode();
     }
