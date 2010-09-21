@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-
 import org.apache.ace.client.repository.Associatable;
 import org.apache.ace.client.repository.Association;
 import org.apache.ace.client.repository.RepositoryObject;
@@ -547,8 +546,8 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
     }
 
     void ensureCurrent() {
+    	ensureNotDeleted();
         ensureNotBusy();
-        ensureNotDeleted();
     }
 
     public String getDefinition() {
