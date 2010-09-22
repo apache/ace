@@ -114,7 +114,6 @@
 
                 <module>ace-gateway-log</module>
                 <module>ace-gateway-log-store</module>
-                <module>ace-discovery-upnp</module>
                 <module>ace-webui</module>
             </modules>
         </profile>
