@@ -49,7 +49,7 @@ public class MinimalGatewayTest
 
         return combine(
             options(
-                felix().version( "2.0.1" )
+                felix().version( "3.0.2" )
             ),
             AssemblyConfigure.get( "ace-gateway", "mvn:org.apache.ace/ace-target-devgateway/0.8.0-SNAPSHOT/zip/distribution" )
 

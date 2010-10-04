@@ -45,5 +45,6 @@ Import-Package: \
 	*
 
 Embed-Dependency:\
-  xstream, xpp3
+  xstream,\
+  xpp3
   

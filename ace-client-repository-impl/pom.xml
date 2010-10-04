@@ -98,8 +98,9 @@
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
         <dependency>
-            <groupId>xstream</groupId>
+            <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
+			<scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>xpp3</groupId>
