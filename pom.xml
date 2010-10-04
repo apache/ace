@@ -135,7 +135,6 @@
                 <module>ace-repository-api</module>
                 <module>ace-scheduler-api</module>
                 <module>ace-scheduler</module>
-                <module>ace-deployment</module>
                 <module>ace-deployment-api</module>
                 <module>ace-deployment-task</module>
             </modules>
@@ -145,7 +144,6 @@
             <modules>
                 <module>pom</module>
                 <module>ace-util</module>
-                <module>ace-client-repository</module>
                 <module>ace-client-repository-impl</module>
                 <module>ace-client-repository-helper-bundle</module>
                 <module>ace-configurator</module>
@@ -165,7 +163,6 @@
                 <module>ace-obr-servlet</module>
                 <module>ace-repository-api</module>
                 <module>ace-repository-servlet</module>
-                <module>ace-repository</module>
                 <module>ace-resourceprocessor-useradmin</module>
                 <module>ace-scheduler</module>
                 <module>ace-scheduler-api</module>
@@ -182,6 +179,12 @@
                 <!-- Targets (can be used by all Pax Tools) -->
                 <module>ace-target-devgateway</module>
                 <module>ace-target-devserver</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>development</id>
+            <modules>
+                <module>ace-managementagent</module>
             </modules>
         </profile>
         <profile>
