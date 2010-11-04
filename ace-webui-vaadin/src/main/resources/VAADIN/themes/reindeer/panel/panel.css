@@ -1,0 +1,85 @@
+.blue .v-panel-caption,
+.blue .v-panel-nocaption,
+.blue .v-panel-content {
+	border-color: #a8bcc5;
+}
+.v-panel-caption,
+.v-panel-nocaption,
+.white .v-panel-caption,
+.white .v-panel-nocaption {
+	border-bottom: 1px solid #dcdcdc;
+	line-height: 16px; /* accommodate minimum icon size */
+}
+.v-sa .v-panel-caption,
+.v-sa .v-panel-nocaption,
+.v-ff3 .v-panel-caption,
+.v-ff3 .v-panel-nocaption {
+	border-bottom-color: rgba(0,0,0,.1);
+}
+.v-panel-caption {
+	padding-bottom: 2px;
+}
+.v-panel-content {
+	border: 1px solid #dcdcdc;
+	border-bottom: none;
+	border-top: none;
+}
+.v-sa .v-panel-content,
+.v-ff3 .v-panel-content {
+	border-color: rgba(0,0,0,.1);
+}
+.v-panel-content > div {
+	background: #fff;
+	min-height: 100%;
+}
+.v-ie6 .v-panel-content {
+	background: #fff;
+}
+.v-panel-deco {
+	height: 1px;
+	border-top: 1px solid #bebebe;
+	background: #e2e2e2;
+	overflow: hidden;
+}
+.blue .v-panel-deco {
+	border-color: #92a3ac;
+	background: #adc2cd;
+}
+.v-sa .v-panel-deco,
+.v-ff3 .v-panel-deco {
+	border-top-color: rgba(0,0,0,.1);
+	background: rgba(0,0,0,.08);
+}
+.v-panel-caption .v-errorindicator {
+	height: 16px;
+	width: 13px;
+	background: url(../common/icons/error.png) no-repeat 50%;
+	display: inline;
+	display: inline-block;
+	vertical-align: middle;
+}
+.v-ie6 .v-panel-caption .v-errorindicator {
+	background-image: url(../common/icons/error-ie6.png);
+}
+.v-ff2 .v-panel-caption .v-errorindicator  {
+	display: -moz-inline-stack;
+}
+
+/* Light style */
+.v-panel-caption-light,
+.v-panel-nocaption-light {
+	border: none;
+}
+.v-panel-content-light {
+	border: none;
+}
+.v-panel-content-light > div {
+	background: transparent;
+}
+.v-ie6 .v-panel-content-light {
+	background: transparent;
+}
+.v-panel-deco-light {
+	height: 0;
+	border: none;
+}
