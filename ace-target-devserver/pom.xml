@@ -22,13 +22,14 @@
     <modelVersion>4.0.0</modelVersion>
 
 	<!-- for Knopflerfish files -->
+	<!--
 	<repositories>
 	    <repository>
 	      <id>okidokiteam-3rdparty</id>
 	      <url>http://okidokiteam.com/nexus/content/repositories/thirdparty/</url>
 	    </repository>
 	</repositories>
-	
+	-->
 
     <parent>
         <groupId>org.apache.ace</groupId>
@@ -111,6 +112,7 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- 
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.shell</artifactId>
@@ -124,7 +126,8 @@
 			<version>1.4.1</version>
             <scope>provided</scope>
         </dependency>
-
+ -->
+ 
 		<!-- TODO the following artifact names are purely fictional, we need to
 		          check if they actually exist somewhere -->
 
@@ -285,15 +288,6 @@
             <scope>runtime</scope>
         </dependency>
 
-		<!--
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-distribution-servlet</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-		-->
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-httplistener</artifactId>
@@ -400,7 +394,7 @@
             <scope>runtime</scope>
         </dependency>
 
-		<!-- experimental, please leave this in for now
+		<!-- experimental, please leave this in for now -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-webui-vaadin</artifactId>
@@ -411,9 +405,18 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin</artifactId>
-            <version>6.4.1</version>
+            <version>6.4.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
+		<!-- work in progress, not done yet
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-distribution-servlet</artifactId>
+            <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
 		-->
+
     </dependencies>
 </project>

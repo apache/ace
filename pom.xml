@@ -83,9 +83,6 @@
                 <module>ace-deployment-deploymentadmin</module>
                 <module>ace-deployment-task</module>
 
-				<!--
-                <module>ace-distribution-servlet</module>
-				-->
 
                 <module>ace-httplistener</module>
 
@@ -114,7 +111,16 @@
 
                 <module>ace-gateway-log</module>
                 <module>ace-gateway-log-store</module>
+				<!--
                 <module>ace-webui</module>
+				-->
+				<!-- extras -->
+                <module>ace-webui-vaadin</module>
+
+				<!-- not ready yet
+                <module>ace-distribution-servlet</module>
+				-->
+
             </modules>
         </profile>
         <profile>
