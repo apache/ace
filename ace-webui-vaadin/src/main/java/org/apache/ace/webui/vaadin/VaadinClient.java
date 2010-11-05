@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.ace.webui.vaadin;
 
 import java.io.IOException;
@@ -50,13 +68,15 @@ import com.vaadin.ui.Table.TableTransferable;
 /*
 
 TODO:
- - Add an editor that appears on double clicking on an item in a table (partially done)
- - Enable drag and drop to create associations (partially done)
  - Add buttons to remove associations (think about how we can better visualize this)
- - Add buttons to create new items in all of the tables (partially done)
- - Add drag and drop to the artifacts column (partially done)
- - Allow updates of the target column
+ - Add functionality for adding an artifact
+ - Allow live updates of the target column
  - Create a special editor for dealing with new artifact types
+
+ - Enable drag and drop to create associations (done)
+ - Add drag and drop to the artifacts column (done)
+ - Add an editor that appears on double clicking on an item in a table (done)
+ - Add buttons to create new items in all of the tables (done for those that make sense)
  */
 public class VaadinClient extends com.vaadin.Application {
     private static final String OBJECT_NAME = "name";
@@ -186,7 +206,7 @@ public class VaadinClient extends com.vaadin.Application {
 
         m_targetsPanel = createTargetsPanel();
         grid.addComponent(m_targetsPanel, 3, 2);
-        grid.addComponent(new Button("Add target..."), 3, 1);
+//        grid.addComponent(new Button("Add target..."), 3, 1); We don't add targets for now...
         
         grid.setRowExpandRatio(2, 1.0f);
 
@@ -195,7 +215,49 @@ public class VaadinClient extends com.vaadin.Application {
         m_distributionsPanel.addListener(new SelectionListener(m_distributionsPanel, m_distributionRepository, new Class[] { GroupObject.class, ArtifactObject.class }, new Class[] { GatewayObject.class }, new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
         m_targetsPanel.addListener(new SelectionListener(m_targetsPanel, m_targetRepository, new Class[] { LicenseObject.class, GroupObject.class, ArtifactObject.class}, new Class[] {}, new Table[] { m_artifactsPanel, m_featuresPanel, m_distributionsPanel }));
 
-        
+        m_artifactsPanel.setDropHandler(new AssociationDropHandler((Table) null, m_featuresPanel) {
+            @Override
+            protected void associateFromLeft(String left, String right) {
+            }
+
+            @Override
+            protected void associateFromRight(String left, String right) {
+                m_artifact2GroupAssciationRepository.create(getArtifact(left), getFeature(right));
+            }
+        });
+        m_featuresPanel.setDropHandler(new AssociationDropHandler(m_artifactsPanel, m_distributionsPanel) {
+            @Override
+            protected void associateFromLeft(String left, String right) {
+                m_artifact2GroupAssciationRepository.create(getArtifact(left), getFeature(right));
+            }
+
+            @Override
+            protected void associateFromRight(String left, String right) {
+                m_group2LicenseAssociationRepository.create(getFeature(left), getDistribution(right));
+            }
+        });
+        m_distributionsPanel.setDropHandler(new AssociationDropHandler(m_featuresPanel, m_targetsPanel) {
+            @Override
+            protected void associateFromLeft(String left, String right) {
+                m_group2LicenseAssociationRepository.create(getFeature(left), getDistribution(right));
+            }
+
+            @Override
+            protected void associateFromRight(String left, String right) {
+                m_license2GatewayAssociationRepository.create(getDistribution(left), getTarget(right));
+            }
+        });
+        m_targetsPanel.setDropHandler(new AssociationDropHandler(m_distributionsPanel, (Table) null) {
+            @Override
+            protected void associateFromLeft(String left, String right) {
+                m_license2GatewayAssociationRepository.create(getDistribution(left), getTarget(right));
+            }
+
+            @Override
+            protected void associateFromRight(String left, String right) {
+            }
+        });
+
         updateTableData();
         
         main.addComponent(grid);
@@ -268,6 +330,7 @@ public class VaadinClient extends com.vaadin.Application {
         result.setSelectable(true);
         result.setMultiSelect(true);
         result.setImmediate(true);
+        result.setDragMode(TableDragMode.ROW);
         return result;
     }
 
@@ -295,6 +358,7 @@ public class VaadinClient extends com.vaadin.Application {
                 }
             }
         });
+
         return result;
     }
 
@@ -313,6 +377,7 @@ public class VaadinClient extends com.vaadin.Application {
         result.setSelectable(true);
         result.setMultiSelect(true);
         result.setImmediate(true);
+        result.setDragMode(TableDragMode.ROW);
         result.addListener(new ItemClickListener() {
             public void itemClick(ItemClickEvent event) {
                 if (event.isDoubleClick()) {
@@ -322,30 +387,7 @@ public class VaadinClient extends com.vaadin.Application {
                 }
             }
         });
-        result.setDropHandler(new DropHandler() {
 
-            public void drop(DragAndDropEvent event) {
-                Transferable transferable = event.getTransferable();
-                TargetDetails targetDetails = event.getTargetDetails();
-                System.out.println("F: " + transferable);
-                if (transferable instanceof TableTransferable) {
-                    TableTransferable tt = (TableTransferable) transferable;
-                    Object fromItemId = tt.getItemId();
-                    System.out.println("FF: " + fromItemId);
-                    System.out.println("T: " + targetDetails.getClass().getName());
-                    if (targetDetails instanceof AbstractSelectTargetDetails) {
-                        AbstractSelectTargetDetails ttd = (AbstractSelectTargetDetails) targetDetails;
-                        Object toItemId = ttd.getItemIdOver();
-                        System.out.println("TT: " + toItemId);
-                        m_group2LicenseAssociationRepository.create(getFeature((String) fromItemId), getDistribution((String) toItemId));
-                        updateTableData();
-                    }
-                }
-            }
-
-            public AcceptCriterion getAcceptCriterion() {
-                return AcceptAll.get();
-            }});
         return result;
     }
 
@@ -363,7 +405,49 @@ public class VaadinClient extends com.vaadin.Application {
         result.setSelectable(true);
         result.setMultiSelect(true);
         result.setImmediate(true);
+        result.setDragMode(TableDragMode.ROW);
         return result;
+    }
+
+    private abstract class AssociationDropHandler implements DropHandler {
+        private final Table m_left;
+        private final Table m_right;
+
+        public AssociationDropHandler(Table left, Table right) {
+            m_left = left;
+            m_right = right;
+        }
+
+        public void drop(DragAndDropEvent event) {
+            Transferable transferable = event.getTransferable();
+            TargetDetails targetDetails = event.getTargetDetails();
+            System.out.println("F: " + transferable);
+            if (transferable instanceof TableTransferable) {
+                TableTransferable tt = (TableTransferable) transferable;
+                Object fromItemId = tt.getItemId();
+                System.out.println("FF: " + fromItemId);
+                System.out.println("T: " + targetDetails.getClass().getName());
+                if (targetDetails instanceof AbstractSelectTargetDetails) {
+                    AbstractSelectTargetDetails ttd = (AbstractSelectTargetDetails) targetDetails;
+                    Object toItemId = ttd.getItemIdOver();
+                    System.out.println("TT: " + toItemId);
+                    if (tt.getSourceComponent().equals(m_left)) {
+                        associateFromLeft((String) fromItemId, (String) toItemId);
+                    }
+                    else {
+                        associateFromRight((String) toItemId, (String) fromItemId);
+                    }
+                    updateTableData();
+                }
+            }
+        }
+
+        public AcceptCriterion getAcceptCriterion() {
+            return AcceptAll.get();
+        }
+
+        protected abstract void associateFromLeft(String left, String right);
+        protected abstract void associateFromRight(String left, String right);
     }
 
     private void showEditWindow(String objectName, final NamedObject object, Window main) {
@@ -523,6 +607,18 @@ public class VaadinClient extends com.vaadin.Application {
         m_featureRepository.create(attributes, tags);
     }
 
+    private ArtifactObject getArtifact(String name) {
+        try {
+            List<ArtifactObject> list = m_artifactRepository.get(m_context.createFilter("(" + ArtifactObject.KEY_ARTIFACT_NAME + "=" + name + ")"));
+            if (list.size() == 1) {
+                return list.get(0);
+            }
+        }
+        catch (InvalidSyntaxException e) {
+        }
+        return null;
+    }
+
     private GroupObject getFeature(String name) {
         try {
             List<GroupObject> list = m_featureRepository.get(m_context.createFilter("(" + GroupObject.KEY_NAME + "=" + name + ")"));
@@ -533,14 +629,6 @@ public class VaadinClient extends com.vaadin.Application {
         catch (InvalidSyntaxException e) {
         }
         return null;
-    }
-    
-    private void deleteFeature(String name) {
-        GroupObject feature = getFeature(name);
-        if (feature != null) {
-            m_featureRepository.remove(feature);
-            // TODO cleanup links?
-        }
     }
     
     private LicenseObject getDistribution(String name) {
@@ -555,6 +643,26 @@ public class VaadinClient extends com.vaadin.Application {
         return null;
     }
     
+    private GatewayObject getTarget(String name) {
+        try {
+            List<GatewayObject> list = m_targetRepository.get(m_context.createFilter("(" + GatewayObject.KEY_ID + "=" + name + ")"));
+            if (list.size() == 1) {
+                return list.get(0);
+            }
+        }
+        catch (InvalidSyntaxException e) {
+        }
+        return null;
+    }
+
+    private void deleteFeature(String name) {
+        GroupObject feature = getFeature(name);
+        if (feature != null) {
+            m_featureRepository.remove(feature);
+            // TODO cleanup links?
+        }
+    }
+
     private void createDistribution(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(LicenseObject.KEY_NAME, name);
