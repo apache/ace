@@ -28,11 +28,7 @@ import java.util.Set;
 
 import com.vaadin.ui.*;
 import org.apache.ace.client.repository.*;
-import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.client.repository.object.GatewayObject;
-import org.apache.ace.client.repository.object.Group2LicenseAssociation;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.*;
 import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.GatewayRepository;
@@ -62,13 +58,14 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractSelect.AbstractSelectTargetDetails;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Table.CellStyleGenerator;
-import com.vaadin.ui.Table.TableDragMode;
 import com.vaadin.ui.Table.TableTransferable;
 
 /*
 
 TODO:
  - Add buttons to remove associations (think about how we can better visualize this)
+ - Add buttons to remove objects
+ - Handle ui updates better
  - Add functionality for adding an artifact
  - Allow live updates of the target column
  - Create a special editor for dealing with new artifact types
@@ -106,10 +103,10 @@ public class VaadinClient extends com.vaadin.Application {
     private volatile LogService m_log;
     private String m_sessionID;
     private volatile List<LicenseObject> m_distributions;
-    private Table m_artifactsPanel;
-    private Table m_featuresPanel;
-    private Table m_distributionsPanel;
-    private Table m_targetsPanel;
+    private ObjectPanel m_artifactsPanel;
+    private ObjectPanel m_featuresPanel;
+    private ObjectPanel m_distributionsPanel;
+    private ObjectPanel m_targetsPanel;
     private List<ArtifactObject> m_artifacts;
     private List<GroupObject> m_features;
     private List<GatewayObject> m_targets;
@@ -192,7 +189,7 @@ public class VaadinClient extends com.vaadin.Application {
 
         grid.addComponent(createToolbar(), 0, 0, 3, 0);
 
-        m_artifactsPanel = createArtifactsPanel();
+        m_artifactsPanel = createArtifactsPanel(main);
         grid.addComponent(m_artifactsPanel, 0, 2);
         grid.addComponent(new Button("Add artifact..."), 0, 1);
 
@@ -204,7 +201,7 @@ public class VaadinClient extends com.vaadin.Application {
         grid.addComponent(m_distributionsPanel, 2, 2);
         grid.addComponent(createAddDistributionButton(main), 2, 1);
 
-        m_targetsPanel = createTargetsPanel();
+        m_targetsPanel = createTargetsPanel(main);
         grid.addComponent(m_targetsPanel, 3, 2);
 //        grid.addComponent(new Button("Add target..."), 3, 1); We don't add targets for now...
         
@@ -316,97 +313,40 @@ public class VaadinClient extends com.vaadin.Application {
         return toolbar;
     }
 
-    private Table createArtifactsPanel() {
-        Table result = new Table("Artifacts");
-        result.addContainerProperty(OBJECT_NAME, String.class, null);
-        result.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
-        result.setSizeFull();
-        result.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
+    private ObjectPanel createArtifactsPanel(Window main) {
+        return new ObjectPanel("Artifact", main, false, false) {
             @Override
-            public boolean equals(Object itemId, RepositoryObject object) {
-                return ((object instanceof ArtifactObject) && ((ArtifactObject) object).getName().equals(itemId));
+            protected RepositoryObject getFromId(String id) {
+                return getArtifact(id);
             }
-        });
-        result.setSelectable(true);
-        result.setMultiSelect(true);
-        result.setImmediate(true);
-        result.setDragMode(TableDragMode.ROW);
-        return result;
+        };
     }
 
-    private Table createFeaturesPanel(final Window main) {
-        Table result = new Table("Features");
-        result.addContainerProperty(OBJECT_NAME, String.class, null);
-        result.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
-        result.setSizeFull();
-        result.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
+    private ObjectPanel createFeaturesPanel(Window main) {
+        return new ObjectPanel("Feature", main, true, true) {
             @Override
-            public boolean equals(Object itemId, RepositoryObject object) {
-                return ((object instanceof GroupObject) && ((GroupObject) object).getName().equals(itemId));
+            protected RepositoryObject getFromId(String id) {
+                return getFeature(id);
             }
-        });
-        result.setSelectable(true);
-        result.setMultiSelect(true);
-        result.setImmediate(true);
-        result.setDragMode(TableDragMode.ROW);
-        result.addListener(new ItemClickListener() {
-            public void itemClick(ItemClickEvent event) {
-                if (event.isDoubleClick()) {
-                    String itemId = (String) event.getItemId();
-                    final GroupObject feature = getFeature(itemId);
-                    showEditWindow("Feature", getNamedObject(feature), main);
-                }
-            }
-        });
-
-        return result;
+        };
     }
 
-    private Table createDistributionsPanel(final Window main) {
-        Table result = new Table("Distributions");
-        result.addContainerProperty(OBJECT_NAME, String.class, null);
-        result.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
-        result.addContainerProperty("button", Button.class, null);
-        result.setSizeFull();
-        result.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
+    private ObjectPanel createDistributionsPanel(Window main) {
+        return new ObjectPanel("Distribution", main, true, true) {
             @Override
-            public boolean equals(Object itemId, RepositoryObject object) {
-                return ((object instanceof LicenseObject) && ((LicenseObject) object).getName().equals(itemId));
+            protected RepositoryObject getFromId(String id) {
+                return getDistribution(id);
             }
-        });
-        result.setSelectable(true);
-        result.setMultiSelect(true);
-        result.setImmediate(true);
-        result.setDragMode(TableDragMode.ROW);
-        result.addListener(new ItemClickListener() {
-            public void itemClick(ItemClickEvent event) {
-                if (event.isDoubleClick()) {
-                    String itemId = (String) event.getItemId();
-                    final LicenseObject distribution = getDistribution(itemId);
-                    showEditWindow("Distribution", getNamedObject(distribution), main);
-                }
-            }
-        });
-
-        return result;
+        };
     }
 
-    private Table createTargetsPanel() {
-        Table result = new Table("Targets");
-        result.addContainerProperty(OBJECT_NAME, String.class, null);
-        result.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
-        result.setSizeFull();
-        result.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
+    private ObjectPanel createTargetsPanel(Window main) {
+        return new ObjectPanel("Target", main, false, false) {
             @Override
-            public boolean equals(Object itemId, RepositoryObject object) {
-                return ((object instanceof GatewayObject) && ((GatewayObject) object).getID().equals(itemId));
+            protected RepositoryObject getFromId(String id) {
+                return getTarget(id);
             }
-        });
-        result.setSelectable(true);
-        result.setMultiSelect(true);
-        result.setImmediate(true);
-        result.setDragMode(TableDragMode.ROW);
-        return result;
+        };
     }
 
     private abstract class AssociationDropHandler implements DropHandler {
@@ -698,56 +638,141 @@ public class VaadinClient extends com.vaadin.Application {
             Item item = m_artifactsPanel.addItem(artifact.getName());
             item.getItemProperty(OBJECT_NAME).setValue(artifact.getName());
             item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
+            Button removeLinkButton = new RemoveLinkButton<ArtifactObject>(artifact, null, m_featuresPanel) {
+                @Override
+                protected void removeLinkFromLeft(ArtifactObject object, RepositoryObject other) {}
+
+                @Override
+                protected void removeLinkFromRight(ArtifactObject object, RepositoryObject other) {
+                    List<Artifact2GroupAssociation> associations = object.getAssociationsWith((GroupObject) other);
+                    for (Artifact2GroupAssociation association : associations) {
+                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                        m_artifact2GroupAssciationRepository.remove(association);
+                    }
+                    m_associatedItems.remove(object);
+                }
+            }; // add this to the others
+            item.getItemProperty("button").setValue(removeLinkButton);
         }
         m_features = m_featureRepository.get();
         m_featuresPanel.removeAllItems();
         for (GroupObject group : m_features) {
-            Item licenseItem = m_featuresPanel.addItem(group.getName());
-            licenseItem.getItemProperty(OBJECT_NAME).setValue(group.getName());
-            licenseItem.getItemProperty(OBJECT_DESCRIPTION).setValue(group.getDescription());
+            Item featureItem = m_featuresPanel.addItem(group.getName());
+            featureItem.getItemProperty(OBJECT_NAME).setValue(group.getName());
+            featureItem.getItemProperty(OBJECT_DESCRIPTION).setValue(group.getDescription());
+            Button removeLinkButton = new RemoveLinkButton<GroupObject>(group, m_artifactsPanel, m_distributionsPanel) {
+                @Override
+                protected void removeLinkFromLeft(GroupObject object, RepositoryObject other) {
+                    List<Artifact2GroupAssociation> associations = object.getAssociationsWith((ArtifactObject) other);
+                    for (Artifact2GroupAssociation association : associations) {
+                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                        m_artifact2GroupAssciationRepository.remove(association);
+                    }
+                    m_associatedItems.remove(object);
+                }
+
+                @Override
+                protected void removeLinkFromRight(GroupObject object, RepositoryObject other) {
+                    List<Group2LicenseAssociation> associations = object.getAssociationsWith((LicenseObject) other);
+                    for (Group2LicenseAssociation association : associations) {
+                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                        m_group2LicenseAssociationRepository.remove(association);
+                    }
+                    m_associatedItems.remove(object);
+                }
+            }; // add this to the others
+            featureItem.getItemProperty("button").setValue(removeLinkButton);
         }
         m_distributions = m_distributionRepository.get();
         m_distributionsPanel.removeAllItems();
-        for (LicenseObject license : m_distributions) {
+        for (final LicenseObject license : m_distributions) {
             Item licenseItem = m_distributionsPanel.addItem(license.getName());
             licenseItem.getItemProperty(OBJECT_NAME).setValue(license.getName());
             licenseItem.getItemProperty(OBJECT_DESCRIPTION).setValue(license.getDescription());
-            Button removeLinkButton = new Button("-");
-            final LicenseObject distribution = license;
-            removeLinkButton.addListener(new Button.ClickListener() {
-                public void buttonClick(ClickEvent event) {
-                    System.out.println("Removing link to " + distribution.getName());
-                    if (m_activeTable.equals(m_featuresPanel)) {
-                        Set<?> selection = m_activeSelection;
-                        if (selection != null) {
-                            for (Object item : selection) {
-                                RepositoryObject object = m_activeSelectionListener.lookup(item);
-                                List<Group2LicenseAssociation> associations = distribution.getAssociationsWith((GroupObject) object);
-                                for (Group2LicenseAssociation g2l : associations) {
-                                    System.out.println("> " + g2l.getLeft() + " <-> " + g2l.getRight());
-                                    m_group2LicenseAssociationRepository.remove(g2l);
-                                }
-                                m_associatedItems.remove(object);
-                            }
-//                            updateTableData();
-                        }
+            Button removeLinkButton = new RemoveLinkButton<LicenseObject>(license, m_featuresPanel, m_targetsPanel) {
+                @Override
+                protected void removeLinkFromLeft(LicenseObject object, RepositoryObject other) {
+                    List<Group2LicenseAssociation> associations = object.getAssociationsWith((GroupObject) other);
+                    for (Group2LicenseAssociation association : associations) {
+                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                        m_group2LicenseAssociationRepository.remove(association);
                     }
-                    if (m_activeTable.equals(m_targetsPanel)) {
-                        
-                    }
+                    m_associatedItems.remove(object);
                 }
-            });
+
+                @Override
+                protected void removeLinkFromRight(LicenseObject object, RepositoryObject other) {
+                    List<License2GatewayAssociation> associations = object.getAssociationsWith((GatewayObject) other);
+                    for (License2GatewayAssociation association : associations) {
+                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                        m_license2GatewayAssociationRepository.remove(association);
+                    }
+                    m_associatedItems.remove(object);
+                }
+            }; // add this to the others
             licenseItem.getItemProperty("button").setValue(removeLinkButton);
         }
         m_targets = m_targetRepository.get();
         m_targetsPanel.removeAllItems();
         for (GatewayObject license : m_targets) {
-            Item licenseItem = m_targetsPanel.addItem(license.getID());
-            licenseItem.getItemProperty(OBJECT_NAME).setValue(license.getID());
-            licenseItem.getItemProperty(OBJECT_DESCRIPTION).setValue("?");
+            Item targetItem = m_targetsPanel.addItem(license.getID());
+            targetItem.getItemProperty(OBJECT_NAME).setValue(license.getID());
+            targetItem.getItemProperty(OBJECT_DESCRIPTION).setValue("?");
+            Button removeLinkButton = new RemoveLinkButton<GatewayObject>(license, m_distributionsPanel, null) {
+                @Override
+                protected void removeLinkFromLeft(GatewayObject object, RepositoryObject other) {
+                    List<License2GatewayAssociation> associations = object.getAssociationsWith((LicenseObject) other);
+                    for (License2GatewayAssociation association : associations) {
+                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                        m_license2GatewayAssociationRepository.remove(association);
+                    }
+                    m_associatedItems.remove(object);
+                }
+
+                @Override
+                protected void removeLinkFromRight(GatewayObject object, RepositoryObject other) {
+                }
+            }; // add this to the others
+            targetItem.getItemProperty("button").setValue(removeLinkButton);
         }
     }
-    
+
+    private abstract class RemoveLinkButton<REPO_OBJECT extends RepositoryObject> extends Button {
+        // TODO generify?
+        public RemoveLinkButton(final REPO_OBJECT object, final ObjectPanel toLeft, final ObjectPanel toRight) {
+            super("-");
+            addListener(new Button.ClickListener() {
+                public void buttonClick(ClickEvent event) {
+                    System.out.println("Removing link to " + getNamedObject(object).getName());
+                    if (m_activeTable.equals(toLeft)) {
+                        Set<?> selection = m_activeSelection;
+                        if (selection != null) {
+                            for (Object item : selection) {
+                                RepositoryObject selected = m_activeSelectionListener.lookup(item);
+                                removeLinkFromLeft(object, selected);
+                            }
+//                            updateTableData();
+                        }
+                    }
+                    else if (m_activeTable.equals(toRight)) {
+                        Set<?> selection = m_activeSelection;
+                        if (selection != null) {
+                            for (Object item : selection) {
+                                RepositoryObject selected = m_activeSelectionListener.lookup(item);
+                                removeLinkFromRight(object, selected);
+                            }
+//                            updateTableData();
+                        }
+                    }
+                }
+            });
+        }
+
+        protected abstract void removeLinkFromLeft(REPO_OBJECT object, RepositoryObject other);
+
+        protected abstract void removeLinkFromRight(REPO_OBJECT object, RepositoryObject other);
+    }
+
     @Override
     public void close() {
         super.close();
@@ -900,6 +925,39 @@ public class VaadinClient extends com.vaadin.Application {
             return new NamedTargetObject((GatewayObject) object);
         }
         return null;
+    }
+
+    private abstract class ObjectPanel extends Table {
+        public ObjectPanel(final String name, final Window main, boolean hasEdit, boolean hasDeleteButton) {
+            super(name + "s");
+            addContainerProperty(OBJECT_NAME, String.class, null);
+            addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
+            addContainerProperty("button", Button.class, null);
+            setSizeFull();
+            setCellStyleGenerator(new CellStyleGeneratorImplementation() {
+                @Override
+                public boolean equals(Object itemId, RepositoryObject object) {
+                    return (getNamedObject(object).getName().equals(itemId));
+                }
+            });
+            setSelectable(true);
+            setMultiSelect(true);
+            setImmediate(true);
+            setDragMode(TableDragMode.ROW);
+            if (hasEdit) {
+                addListener(new ItemClickListener() {
+                    public void itemClick(ItemClickEvent event) {
+                        if (event.isDoubleClick()) {
+                            String itemId = (String) event.getItemId();
+                            RepositoryObject object = getFromId(itemId);
+                            showEditWindow(name, getNamedObject(object), main);
+                        }
+                    }
+                });
+            }
+        }
+
+        protected abstract RepositoryObject getFromId(String id);
     }
 
     private interface NamedObject {
