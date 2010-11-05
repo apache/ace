@@ -8,10 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.ace.client.repository.RepositoryAdmin;
-import org.apache.ace.client.repository.RepositoryAdminLoginContext;
-import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.SessionFactory;
+import com.vaadin.ui.*;
+import org.apache.ace.client.repository.*;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.GatewayObject;
 import org.apache.ace.client.repository.object.Group2LicenseAssociation;
@@ -44,16 +42,10 @@ import com.vaadin.event.dd.acceptcriteria.AcceptAll;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractSelect.AbstractSelectTargetDetails;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.CellStyleGenerator;
 import com.vaadin.ui.Table.TableDragMode;
 import com.vaadin.ui.Table.TableTransferable;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 
 /*
 
@@ -63,6 +55,7 @@ TODO:
  - Add buttons to remove associations (think about how we can better visualize this)
  - Add buttons to create new items in all of the tables (partially done)
  - Add drag and drop to the artifacts column (partially done)
+ - Allow updates of the target column
  - Create a special editor for dealing with new artifact types
  */
 public class VaadinClient extends com.vaadin.Application {
@@ -95,7 +88,7 @@ public class VaadinClient extends com.vaadin.Application {
     private volatile List<LicenseObject> m_distributions;
     private Table m_artifactsPanel;
     private Table m_featuresPanel;
-	private Table m_distributionsPanel;
+    private Table m_distributionsPanel;
     private Table m_targetsPanel;
     private List<ArtifactObject> m_artifacts;
     private List<GroupObject> m_features;
@@ -108,7 +101,7 @@ public class VaadinClient extends com.vaadin.Application {
     public SelectionListener m_activeSelectionListener;
 
     // basic session ID generator
-	private static long generateSessionID() {
+    private static long generateSessionID() {
         return SESSION_ID++;
     }
     
@@ -177,10 +170,41 @@ public class VaadinClient extends com.vaadin.Application {
         grid.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         grid.setHeight(100, Sizeable.UNITS_PERCENTAGE);
 
-        // toolbar
+        grid.addComponent(createToolbar(), 0, 0, 3, 0);
+
+        m_artifactsPanel = createArtifactsPanel();
+        grid.addComponent(m_artifactsPanel, 0, 2);
+        grid.addComponent(new Button("Add artifact..."), 0, 1);
+
+        m_featuresPanel = createFeaturesPanel(main);
+        grid.addComponent(m_featuresPanel, 1, 2);
+        grid.addComponent(createAddFeatureButton(main), 1, 1);
+
+        m_distributionsPanel = createDistributionsPanel(main);
+        grid.addComponent(m_distributionsPanel, 2, 2);
+        grid.addComponent(createAddDistributionButton(main), 2, 1);
+
+        m_targetsPanel = createTargetsPanel();
+        grid.addComponent(m_targetsPanel, 3, 2);
+        grid.addComponent(new Button("Add target..."), 3, 1);
+        
+        grid.setRowExpandRatio(2, 1.0f);
+
+        m_artifactsPanel.addListener(new SelectionListener(m_artifactsPanel, m_artifactRepository, new Class[] {}, new Class[] { GroupObject.class, LicenseObject.class, GatewayObject.class }, new Table[] { m_featuresPanel, m_distributionsPanel, m_targetsPanel }));
+        m_featuresPanel.addListener(new SelectionListener(m_featuresPanel, m_featureRepository, new Class[] { ArtifactObject.class }, new Class[] { LicenseObject.class, GatewayObject.class }, new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }));
+        m_distributionsPanel.addListener(new SelectionListener(m_distributionsPanel, m_distributionRepository, new Class[] { GroupObject.class, ArtifactObject.class }, new Class[] { GatewayObject.class }, new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
+        m_targetsPanel.addListener(new SelectionListener(m_targetsPanel, m_targetRepository, new Class[] { LicenseObject.class, GroupObject.class, ArtifactObject.class}, new Class[] {}, new Table[] { m_artifactsPanel, m_featuresPanel, m_distributionsPanel }));
+
+        
+        updateTableData();
+        
+        main.addComponent(grid);
+    }
+
+    private GridLayout createToolbar() {
         GridLayout toolbar = new GridLayout(3,1);
         toolbar.setSpacing(true);
-        
+
         Button retrieveButton = new Button("Retrieve");
         retrieveButton.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -196,7 +220,7 @@ public class VaadinClient extends com.vaadin.Application {
             }
         });
         toolbar.addComponent(retrieveButton, 0, 0);
-        
+
         Button storeButton = new Button("Store");
         storeButton.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -227,24 +251,78 @@ public class VaadinClient extends com.vaadin.Application {
             }
         });
         toolbar.addComponent(revertButton, 2, 0);
-        
-        grid.addComponent(toolbar, 0, 0, 3, 0);
-        
-        m_distributionsPanel = new Table("Distributions");
-        m_distributionsPanel.addContainerProperty(OBJECT_NAME, String.class, null);
-        m_distributionsPanel.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
-        m_distributionsPanel.addContainerProperty("button", Button.class, null);
-        m_distributionsPanel.setSizeFull();
-        m_distributionsPanel.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
+        return toolbar;
+    }
+
+    private Table createArtifactsPanel() {
+        Table result = new Table("Artifacts");
+        result.addContainerProperty(OBJECT_NAME, String.class, null);
+        result.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
+        result.setSizeFull();
+        result.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
+            @Override
+            public boolean equals(Object itemId, RepositoryObject object) {
+                return ((object instanceof ArtifactObject) && ((ArtifactObject) object).getName().equals(itemId));
+            }
+        });
+        result.setSelectable(true);
+        result.setMultiSelect(true);
+        result.setImmediate(true);
+        return result;
+    }
+
+    private Table createFeaturesPanel(final Window main) {
+        Table result = new Table("Features");
+        result.addContainerProperty(OBJECT_NAME, String.class, null);
+        result.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
+        result.setSizeFull();
+        result.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
+            @Override
+            public boolean equals(Object itemId, RepositoryObject object) {
+                return ((object instanceof GroupObject) && ((GroupObject) object).getName().equals(itemId));
+            }
+        });
+        result.setSelectable(true);
+        result.setMultiSelect(true);
+        result.setImmediate(true);
+        result.setDragMode(TableDragMode.ROW);
+        result.addListener(new ItemClickListener() {
+            public void itemClick(ItemClickEvent event) {
+                if (event.isDoubleClick()) {
+                    String itemId = (String) event.getItemId();
+                    final GroupObject feature = getFeature(itemId);
+                    showEditWindow("Feature", getNamedObject(feature), main);
+                }
+            }
+        });
+        return result;
+    }
+
+    private Table createDistributionsPanel(final Window main) {
+        Table result = new Table("Distributions");
+        result.addContainerProperty(OBJECT_NAME, String.class, null);
+        result.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
+        result.addContainerProperty("button", Button.class, null);
+        result.setSizeFull();
+        result.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
             @Override
             public boolean equals(Object itemId, RepositoryObject object) {
                 return ((object instanceof LicenseObject) && ((LicenseObject) object).getName().equals(itemId));
             }
         });
-        m_distributionsPanel.setSelectable(true);
-        m_distributionsPanel.setMultiSelect(true);
-        m_distributionsPanel.setImmediate(true);
-        m_distributionsPanel.setDropHandler(new DropHandler() {
+        result.setSelectable(true);
+        result.setMultiSelect(true);
+        result.setImmediate(true);
+        result.addListener(new ItemClickListener() {
+            public void itemClick(ItemClickEvent event) {
+                if (event.isDoubleClick()) {
+                    String itemId = (String) event.getItemId();
+                    final LicenseObject distribution = getDistribution(itemId);
+                    showEditWindow("Distribution", getNamedObject(distribution), main);
+                }
+            }
+        });
+        result.setDropHandler(new DropHandler() {
 
             public void drop(DragAndDropEvent event) {
                 Transferable transferable = event.getTransferable();
@@ -268,224 +346,175 @@ public class VaadinClient extends com.vaadin.Application {
             public AcceptCriterion getAcceptCriterion() {
                 return AcceptAll.get();
             }});
-        
-        
-        grid.setRowExpandRatio(2, 1.0f);
-        
-        grid.addComponent(m_distributionsPanel, 2, 2);
-        grid.addComponent(new Button("Add distribution..."), 2, 1);
-        
-        m_artifactsPanel = new Table("Artifacts");
-        m_artifactsPanel.addContainerProperty(OBJECT_NAME, String.class, null);
-        m_artifactsPanel.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
-        m_artifactsPanel.setSizeFull();
-        m_artifactsPanel.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
-            @Override
-            public boolean equals(Object itemId, RepositoryObject object) {
-                return ((object instanceof ArtifactObject) && ((ArtifactObject) object).getName().equals(itemId));
-            }
-        });
-        m_artifactsPanel.setSelectable(true);
-        m_artifactsPanel.setMultiSelect(true);
-        m_artifactsPanel.setImmediate(true);
-        grid.addComponent(m_artifactsPanel, 0, 2);
-        grid.addComponent(new Button("Add artifact..."), 0, 1);
-        
-        Button addFeature = new Button("Add Feature...");
-        addFeature.addListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                final Window featureWindow;
-                featureWindow = new Window();
-                featureWindow.setModal(true);
-                featureWindow.setCaption("Add Feature");
-                featureWindow.setWidth("15em");
-                
-             // Configure the windws layout; by default a VerticalLayout
-                VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
-                layout.setMargin(true);
-                layout.setSpacing(true);
+        return result;
+    }
 
-                final TextField name = new TextField("name");
-                final TextField description = new TextField("description");
-
-                layout.addComponent(name);
-                layout.addComponent(description);
-                
-                Button close = new Button("Close", new Button.ClickListener() {
-                    // inline click-listener
-                    public void buttonClick(ClickEvent event) {
-                        // close the window by removing it from the parent window
-                        (featureWindow.getParent()).removeWindow(featureWindow);
-                        // create the feature
-                        createFeature((String) name.getValue(), (String) description.getValue());
-                        updateTableData();
-                    }
-                });
-                // The components added to the window are actually added to the window's
-                // layout; you can use either. Alignments are set using the layout
-                layout.addComponent(close);
-                layout.setComponentAlignment(close, "right");
-                
-                if (featureWindow.getParent() != null) {
-                    // window is already showing
-                    main.getWindow().showNotification(
-                            "Window is already open");
-                } else {
-                    // Open the subwindow by adding it to the parent
-                    // window
-                    main.getWindow().addWindow(featureWindow);
-                }
-                name.focus();
-            }
-        });
-        
-        
-        
-        grid.addComponent(addFeature, 1, 1);
-        
-        m_featuresPanel = new Table("Features");
-        m_featuresPanel.addContainerProperty(OBJECT_NAME, String.class, null);
-        m_featuresPanel.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
-        m_featuresPanel.setSizeFull();
-        m_featuresPanel.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
-            @Override
-            public boolean equals(Object itemId, RepositoryObject object) {
-                return ((object instanceof GroupObject) && ((GroupObject) object).getName().equals(itemId));
-            }
-        });
-        m_featuresPanel.setSelectable(true);
-        m_featuresPanel.setMultiSelect(true);
-        m_featuresPanel.setImmediate(true);
-        m_featuresPanel.setDragMode(TableDragMode.ROW);
-        m_featuresPanel.addListener(new ItemClickListener() {
-            public void itemClick(ItemClickEvent event) {
-                if (event.isDoubleClick()) {
-                    String itemId = (String) event.getItemId();
-                    final GroupObject feature = getFeature(itemId);
-                    final Window featureWindow = new Window();
-                    featureWindow.setModal(true);
-                    featureWindow.setCaption("Edit Feature");
-                    featureWindow.setWidth("15em");
-                    
-                 // Configure the windws layout; by default a VerticalLayout
-                    VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
-                    layout.setMargin(true);
-                    layout.setSpacing(true);
-
-                    final TextField name = new TextField("name");
-                    final TextField description = new TextField("description");
-
-                    name.setValue(feature.getName());
-                    description.setValue(feature.getDescription());
-                    
-                    layout.addComponent(name);
-                    layout.addComponent(description);
-                    
-                    Button close = new Button("Close", new Button.ClickListener() {
-                        // inline click-listener
-                        public void buttonClick(ClickEvent event) {
-                            // close the window by removing it from the parent window
-                            (featureWindow.getParent()).removeWindow(featureWindow);
-                            // create the feature
-                            feature.setDescription((String) description.getValue());
-                            updateTableData();
-                        }
-                    });
-                    // The components added to the window are actually added to the window's
-                    // layout; you can use either. Alignments are set using the layout
-                    layout.addComponent(close);
-                    layout.setComponentAlignment(close, "right");
-                    
-                    if (featureWindow.getParent() != null) {
-                        // window is already showing
-                        main.getWindow().showNotification(
-                                "Window is already open");
-                    } else {
-                        // Open the subwindow by adding it to the parent
-                        // window
-                        main.getWindow().addWindow(featureWindow);
-                    }
-                    name.setReadOnly(true);
-                    description.focus();
-
-                }
-            }
-        });
-
-        
-        grid.addComponent(m_featuresPanel, 1, 2);
-        
-        m_targetsPanel = new Table("Targets");
-        m_targetsPanel.addContainerProperty(OBJECT_NAME, String.class, null);
-        m_targetsPanel.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
-        m_targetsPanel.setSizeFull();
-        m_targetsPanel.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
+    private Table createTargetsPanel() {
+        Table result = new Table("Targets");
+        result.addContainerProperty(OBJECT_NAME, String.class, null);
+        result.addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
+        result.setSizeFull();
+        result.setCellStyleGenerator(new CellStyleGeneratorImplementation() {
             @Override
             public boolean equals(Object itemId, RepositoryObject object) {
                 return ((object instanceof GatewayObject) && ((GatewayObject) object).getID().equals(itemId));
             }
         });
-        m_targetsPanel.setSelectable(true);
-        m_targetsPanel.setMultiSelect(true);
-        m_targetsPanel.setImmediate(true);
-        grid.addComponent(m_targetsPanel, 3, 2);
-        grid.addComponent(new Button("Add target..."), 3, 1);
-        
-        m_artifactsPanel.addListener(new SelectionListener(m_artifactsPanel, new Class[] {}, new Class[] { GroupObject.class, LicenseObject.class, GatewayObject.class }, new Table[] { m_featuresPanel, m_distributionsPanel, m_targetsPanel }) {
-            @Override
-            public RepositoryObject lookup(Object value) {
-                for (ArtifactObject object : m_artifactRepository.get()) {
-                    if (object.getName().equals(value)) {
-                        System.out.println("Found: " + object.getName());
-                        return object;
-                    }
-                }
-                return null;
-            }
-        });
-        m_featuresPanel.addListener(new SelectionListener(m_featuresPanel, new Class[] { ArtifactObject.class }, new Class[] { LicenseObject.class, GatewayObject.class }, new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }) {
-            @Override
-            public RepositoryObject lookup(Object value) {
-                for (GroupObject object : m_featureRepository.get()) {
-                    if (object.getName().equals(value)) {
-                        System.out.println("Found: " + object.getName());
-                        return object;
-                    }
-                }
-                return null;
-            }
-        });
-        m_distributionsPanel.addListener(new SelectionListener(m_distributionsPanel, new Class[] { GroupObject.class, ArtifactObject.class }, new Class[] { GatewayObject.class }, new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }) {
-            @Override
-            public RepositoryObject lookup(Object value) {
-                for (LicenseObject object : m_distributionRepository.get()) {
-                    if (object.getName().equals(value)) {
-                        System.out.println("Found: " + object.getName());
-                        return object;
-                    }
-                }
-                return null;
-            }
-        });
-        m_targetsPanel.addListener(new SelectionListener(m_targetsPanel, new Class[] { LicenseObject.class, GroupObject.class, ArtifactObject.class}, new Class[] {}, new Table[] { m_artifactsPanel, m_featuresPanel, m_distributionsPanel }) {
-            @Override
-            public RepositoryObject lookup(Object value) {
-                for (GatewayObject object : m_targetRepository.get()) {
-                    if (object.getID().equals(value)) {
-                        System.out.println("Found: " + object.getID());
-                        return object;
-                    }
-                }
-                return null;
-            }
-        });
-
-        
-        updateTableData();
-        
-        main.addComponent(grid);
+        result.setSelectable(true);
+        result.setMultiSelect(true);
+        result.setImmediate(true);
+        return result;
     }
-    
+
+    private void showEditWindow(String objectName, final NamedObject object, Window main) {
+        final Window featureWindow = new Window();
+        featureWindow.setModal(true);
+        featureWindow.setCaption("Edit " + objectName);
+        featureWindow.setWidth("15em");
+
+        // Configure the windws layout; by default a VerticalLayout
+        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
+        layout.setMargin(true);
+        layout.setSpacing(true);
+
+        final TextField name = new TextField("name");
+        final TextField description = new TextField("description");
+
+        name.setValue(object.getName());
+        description.setValue(object.getDescription());
+
+        layout.addComponent(name);
+        layout.addComponent(description);
+
+        Button close = new Button("Close", new Button.ClickListener() {
+            // inline click-listener
+            public void buttonClick(ClickEvent event) {
+                // close the window by removing it from the parent window
+                (featureWindow.getParent()).removeWindow(featureWindow);
+                // create the feature
+                object.setDescription((String) description.getValue());
+                updateTableData();
+            }
+        });
+        // The components added to the window are actually added to the window's
+        // layout; you can use either. Alignments are set using the layout
+        layout.addComponent(close);
+        layout.setComponentAlignment(close, "right");
+
+        if (featureWindow.getParent() != null) {
+            // window is already showing
+            main.getWindow().showNotification(
+                    "Window is already open");
+        } else {
+            // Open the subwindow by adding it to the parent
+            // window
+            main.getWindow().addWindow(featureWindow);
+        }
+        name.setReadOnly(true);
+        description.focus();
+    }
+
+    private Button createAddFeatureButton(final Window main) {
+        Button button = new Button("Add Feature...");
+        button.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                new AddFeatureWindow(main).show();
+            }
+        });
+        return button;
+    }
+
+    private Button createAddDistributionButton(final Window main) {
+        Button button = new Button("Add Distribution...");
+        button.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                new AddDistributionWindow(main).show();
+            }
+        });
+        return button;
+    }
+
+    private class AddFeatureWindow extends AddWindow {
+        public AddFeatureWindow(Window main) {
+            super(main);
+        }
+
+        @Override
+        protected void create(String name, String description) {
+            createFeature(name, description);
+        }
+
+    }
+
+    private class AddDistributionWindow extends AddWindow {
+        public AddDistributionWindow(Window main) {
+            super(main);
+        }
+
+        @Override
+        protected void create(String name, String description) {
+            createDistribution(name, description);
+        }
+
+    }
+
+    private abstract class AddWindow extends Window {
+        private final Window m_main;
+        private final TextField m_name;
+
+        public AddWindow(final Window main) {
+            m_main = main;
+            setModal(true);
+            setCaption("Add Feature");
+            setWidth("15em");
+
+            // Configure the windws layout; by default a VerticalLayout
+            VerticalLayout layout = (VerticalLayout) getContent();
+            layout.setMargin(true);
+            layout.setSpacing(true);
+
+            m_name = new TextField("name");
+            final TextField description = new TextField("description");
+
+            layout.addComponent(m_name);
+            layout.addComponent(description);
+
+            Button close = new Button("Close", new Button.ClickListener() {
+                // inline click-listener
+                public void buttonClick(ClickEvent event) {
+                    // close the window by removing it from the parent window
+                    (getParent()).removeWindow(AddWindow.this);
+                    // create the feature
+                    create((String) m_name.getValue(), (String) description.getValue());
+                    updateTableData();
+                }
+            });
+            // The components added to the window are actually added to the window's
+            // layout; you can use either. Alignments are set using the layout
+            layout.addComponent(close);
+            layout.setComponentAlignment(close, "right");
+        }
+
+        public void show() {
+            if (getParent() != null) {
+                // window is already showing
+                m_main.getWindow().showNotification(
+                        "Window is already open");
+            } else {
+                // Open the subwindow by adding it to the parent
+                // window
+                m_main.getWindow().addWindow(this);
+            }
+            setRelevantFocus();
+        }
+
+        private void setRelevantFocus() {
+            m_name.focus();
+        }
+
+        protected abstract void create(String name, String description);
+    }
+
     private void createFeature(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(GroupObject.KEY_NAME, name);
@@ -493,6 +522,7 @@ public class VaadinClient extends com.vaadin.Application {
         Map<String, String> tags = new HashMap<String, String>();
         m_featureRepository.create(attributes, tags);
     }
+
     private GroupObject getFeature(String name) {
         try {
             List<GroupObject> list = m_featureRepository.get(m_context.createFilter("(" + GroupObject.KEY_NAME + "=" + name + ")"));
@@ -525,23 +555,6 @@ public class VaadinClient extends com.vaadin.Application {
         return null;
     }
     
-//    private GroupObject editFeature(String name, String description) {
-//        try {
-//            List<GroupObject> list = m_featureRepository.get(m_context.createFilter("(" + GroupObject.KEY_NAME + "=" + name + ")"));
-//            if (list.size() == 1) {
-//                return list.get(0);
-//            }
-//            Map<String, String> attributes = new HashMap<String, String>();
-////            attributes.put(GroupObject.KEY_NAME, name);
-//            attributes.put(GroupObject.KEY_DESCRIPTION, description);
-//            Map<String, String> tags = new HashMap<String, String>();
-////            m_featureRepository.create(attributes, tags);
-//        }
-//        catch (InvalidSyntaxException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//    }
     private void createDistribution(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(LicenseObject.KEY_NAME, name);
@@ -634,13 +647,16 @@ public class VaadinClient extends com.vaadin.Application {
         // TODO: clean up the ace client session?
     }
 
-    public abstract class SelectionListener implements Table.ValueChangeListener {
+    public class SelectionListener implements Table.ValueChangeListener {
         private final Table m_table;
         private final Table[] m_tablesToRefresh;
+        private final ObjectRepository<? extends RepositoryObject> m_repository;
         private final Class[] m_left;
         private final Class[] m_right;
-        public SelectionListener(Table table, Class[] left, Class[] right, Table[] tablesToRefresh) {
+        
+        public SelectionListener(Table table, ObjectRepository<? extends RepositoryObject> repository, Class[] left, Class[] right, Table[] tablesToRefresh) {
             m_table = table;
+            m_repository = repository;
             m_left = left;
             m_right = right;
             m_tablesToRefresh = tablesToRefresh;
@@ -725,7 +741,16 @@ public class VaadinClient extends com.vaadin.Application {
                 }
             }
         }
-        public abstract RepositoryObject lookup(Object value);
+
+        public RepositoryObject lookup(Object value) {
+            for (RepositoryObject object : m_repository.get()) {
+                if (getNamedObject(object).getName().equals(value)) {
+                    System.out.println("Found: " + getNamedObject(object).getName());
+                    return object;
+                }
+            }
+            return null;
+        }
     }
 
     /** Highlights associated and related items in other columns. */
@@ -751,5 +776,107 @@ public class VaadinClient extends com.vaadin.Application {
             return null;
         }
         public abstract boolean equals(Object itemId, RepositoryObject object);
+    }
+
+    private NamedObject getNamedObject(RepositoryObject object) {
+        if (object instanceof ArtifactObject) {
+            return new NamedArtifactObject((ArtifactObject) object);
+        }
+        else if (object instanceof GroupObject) {
+            return new NamedFeatureObject((GroupObject) object);
+        }
+        else if (object instanceof LicenseObject) {
+            return new NamedDistributionObject((LicenseObject) object);
+        }
+        else if (object instanceof GatewayObject) {
+            return new NamedTargetObject((GatewayObject) object);
+        }
+        return null;
+    }
+
+    private interface NamedObject {
+        String getName();
+        String getDescription();
+        void setDescription(String description);
+    }
+
+    private static class NamedArtifactObject implements NamedObject {
+        private final ArtifactObject m_target;
+
+        public NamedArtifactObject(ArtifactObject target) {
+            m_target = target;
+        }
+
+        public String getName() {
+            return m_target.getName();
+        }
+
+        public String getDescription() {
+            return m_target.getDescription();
+        }
+
+        public void setDescription(String description) {
+            m_target.setDescription(description);
+        }
+    }
+
+    private static class NamedFeatureObject implements NamedObject {
+        private final GroupObject m_target;
+
+        public NamedFeatureObject(GroupObject target) {
+            m_target = target;
+        }
+
+        public String getName() {
+            return m_target.getName();
+        }
+
+        public String getDescription() {
+            return m_target.getDescription();
+        }
+
+        public void setDescription(String description) {
+            m_target.setDescription(description);
+        }
+    }
+
+    private static class NamedDistributionObject implements NamedObject {
+        private final LicenseObject m_target;
+
+        public NamedDistributionObject(LicenseObject target) {
+            m_target = target;
+        }
+
+        public String getName() {
+            return m_target.getName();
+        }
+
+        public String getDescription() {
+            return m_target.getDescription();
+        }
+
+        public void setDescription(String description) {
+            m_target.setDescription(description);
+        }
+    }
+
+    private static class NamedTargetObject implements NamedObject {
+        private final GatewayObject m_target;
+
+        public NamedTargetObject(GatewayObject target) {
+            m_target = target;
+        }
+
+        public String getName() {
+            return m_target.getID();
+        }
+
+        public String getDescription() {
+            return "";
+        }
+
+        public void setDescription(String description) {
+            throw new IllegalArgumentException();
+        }
     }
 }
