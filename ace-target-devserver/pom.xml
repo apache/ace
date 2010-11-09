@@ -23,13 +23,13 @@
 
 	<!-- for Knopflerfish files -->
 	<!--
+	-->
 	<repositories>
 	    <repository>
 	      <id>okidokiteam-3rdparty</id>
 	      <url>http://okidokiteam.com/nexus/content/repositories/thirdparty/</url>
 	    </repository>
 	</repositories>
-	-->
 
     <parent>
         <groupId>org.apache.ace</groupId>
