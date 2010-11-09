@@ -112,8 +112,8 @@
                 <module>ace-gateway-log</module>
                 <module>ace-gateway-log-store</module>
 				<!--
-                <module>ace-webui</module>
 				-->
+                <module>ace-webui</module>
 				<!-- extras -->
                 <module>ace-webui-vaadin</module>
 
