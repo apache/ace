@@ -54,8 +54,10 @@ import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.TargetDetails;
 import com.vaadin.event.dd.acceptcriteria.AcceptAll;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
+import com.vaadin.event.dd.acceptcriteria.Or;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractSelect.AbstractSelectTargetDetails;
+import com.vaadin.ui.AbstractSelect.VerticalLocationIs;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Table.CellStyleGenerator;
 import com.vaadin.ui.Table.TableTransferable;
@@ -366,16 +368,34 @@ public class VaadinClient extends com.vaadin.Application {
                 TableTransferable tt = (TableTransferable) transferable;
                 Object fromItemId = tt.getItemId();
                 System.out.println("FF: " + fromItemId);
+                // get the active selection
+                Set<?> selection = m_activeSelection;
                 System.out.println("T: " + targetDetails.getClass().getName());
                 if (targetDetails instanceof AbstractSelectTargetDetails) {
                     AbstractSelectTargetDetails ttd = (AbstractSelectTargetDetails) targetDetails;
                     Object toItemId = ttd.getItemIdOver();
                     System.out.println("TT: " + toItemId);
                     if (tt.getSourceComponent().equals(m_left)) {
-                        associateFromLeft((String) fromItemId, (String) toItemId);
+                        if (selection != null) {
+                            for (Object item : selection) {
+                                System.out.println("FS: " + item);
+                                associateFromLeft((String) item, (String) toItemId);
+                            }
+                        }
+                        else {
+                            associateFromLeft((String) fromItemId, (String) toItemId);
+                        }
                     }
                     else {
-                        associateFromRight((String) toItemId, (String) fromItemId);
+                        if (selection != null) {
+                            for (Object item : selection) {
+                                System.out.println("FS: " + item);
+                                associateFromRight((String) toItemId, (String) item);
+                            }
+                        }
+                        else {
+                            associateFromRight((String) toItemId, (String) fromItemId);
+                        }
                     }
                     updateTableData();
                 }
@@ -383,7 +403,8 @@ public class VaadinClient extends com.vaadin.Application {
         }
 
         public AcceptCriterion getAcceptCriterion() {
-            return AcceptAll.get();
+//            return AcceptAll.get();
+            return new Or(VerticalLocationIs.MIDDLE);
         }
 
         protected abstract void associateFromLeft(String left, String right);
@@ -943,7 +964,7 @@ public class VaadinClient extends com.vaadin.Application {
             setSelectable(true);
             setMultiSelect(true);
             setImmediate(true);
-            setDragMode(TableDragMode.ROW);
+            setDragMode(TableDragMode.MULTIROW);
             if (hasEdit) {
                 addListener(new ItemClickListener() {
                     public void itemClick(ItemClickEvent event) {
