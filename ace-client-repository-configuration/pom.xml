@@ -36,8 +36,8 @@
     <name>Apache ACE - Client Repository Configuration</name>
 
     <properties>
-        <bundle.symbolicName>${namespace}.client.repository.configuration</bundle.symbolicName>
-        <bundle.namespace>${namespace}.client.repository.configuration</bundle.namespace>
+        <bundle.symbolicName>${namespace}.client.repository.helper.configuration</bundle.symbolicName>
+        <bundle.namespace>${namespace}.client.repository.helper.configuration</bundle.namespace>
     </properties>
 
     <build>
