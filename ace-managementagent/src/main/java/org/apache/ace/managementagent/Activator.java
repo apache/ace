@@ -53,7 +53,7 @@ public class Activator extends DependencyActivatorBase {
         try {
             configure("org.apache.ace.discovery.property", "serverURL", System.getProperty("discovery", "http://localhost:8080"));
             configure("org.apache.ace.identification.property", "gatewayID", System.getProperty("identification", "configuredGatewayID"));
-            configure("org.apache.ace.scheduler", "auditlog", "2000", "org.apache.ace.deployment.task.DeploymentUpdateTask", "2000");
+            configure("org.apache.ace.scheduler", "auditlog", System.getProperty("syncinterval", "2000"), "org.apache.ace.deployment.task.DeploymentUpdateTask", System.getProperty("syncinterval", "2000"));
             configureFactory("org.apache.ace.gateway.log.factory", "name", "auditlog");
             configureFactory("org.apache.ace.gateway.log.store.factory", "name", "auditlog");
         }
