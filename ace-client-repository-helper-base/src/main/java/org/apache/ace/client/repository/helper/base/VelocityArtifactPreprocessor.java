@@ -217,7 +217,6 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         }
 
         // process the template
-
         // first check: did we need any processing at all?
         if (Arrays.equals(result, input)) {
             return false;

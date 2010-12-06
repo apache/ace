@@ -10,3 +10,5 @@ Bundle-SymbolicName:\
 Export-Package:\
   ${bundle.namespace}; version="${pom.version}"
 
+Deployment-ProvidesResourceProcessor:\
+  org.osgi.deployment.rp.autoconf

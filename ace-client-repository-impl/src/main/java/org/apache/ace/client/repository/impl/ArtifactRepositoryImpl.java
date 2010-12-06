@@ -32,17 +32,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.RepositoryUtil;
 import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.ArtifactRecognizer;
-import org.apache.ace.client.repository.helper.PropertyResolver;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.GatewayObject;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.object.LicenseObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -495,70 +491,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             return preprocessor.needsNewVersion(artifact.getURL(), new GatewayPropertyResolver(gateway), gatewayID, fromVersion);
         }
     }
-
-    private static class GatewayPropertyResolver implements PropertyResolver {
-
-        private final GatewayObject m_go;
-
-        public GatewayPropertyResolver(GatewayObject go) {
-            m_go = go;
-        }
-
-        public String get(String key) {
-            return get(key, m_go);
-        }
-
-        private String get(String key, RepositoryObject ro) {
-            // Is it in this object?
-            String result = findKeyInObject(ro, key);
-            if (result != null) {
-                return result;
-            }
-
-            // Is it in one of the children?
-            List<RepositoryObject> children = getChildren(ro);
-            for (RepositoryObject child : children) {
-                result = findKeyInObject(child, key);
-                if (result != null) {
-                    return result;
-                }
-            }
-
-            // Not found yet? then continue to the next level recursively.
-            for (RepositoryObject child : children) {
-                result = get(key, child);
-                if (result != null) {
-                    return result;
-                }
-            }
-            return result;
-        }
-
-        private List getChildren(RepositoryObject ob) {
-            if (ob instanceof GatewayObject) {
-                return ((GatewayObject) ob).getLicenses();
-            }
-            else if (ob instanceof LicenseObject) {
-                return ((LicenseObject) ob).getGroups();
-            }
-            else if (ob instanceof GroupObject) {
-                return ((GroupObject) ob).getArtifacts();
-            }
-            return new ArrayList();
-        }
-
-        private String findKeyInObject(RepositoryObject ro, String key) {
-            String result;
-            if ((result = ro.getAttribute(key)) != null) {
-                return result;
-            }
-            if ((result = ro.getTag(key)) != null) {
-                return result;
-            }
-            return null;
-        }
-
-    }
+    
 
     public URL getObrBase() {
         return m_obrBase;

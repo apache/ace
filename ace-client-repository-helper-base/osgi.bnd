@@ -50,4 +50,4 @@ Import-Package: \
 	*
 
 Embed-Dependency: \
-	velocity, xpp3
+	velocity, xpp3, commons-collections, commons-lang
