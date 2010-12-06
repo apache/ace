@@ -41,7 +41,7 @@ public class Processor implements ResourceProcessor{
     private List<String> m_toInstall;
     private List<String> m_toRemove;
 
-    private ResourceStore m_resourceStore;
+    private final ResourceStore m_resourceStore;
 
     Processor(ResourceStore store) {
         m_resourceStore = store;
@@ -121,6 +121,8 @@ public class Processor implements ResourceProcessor{
 
     public void commit() {
         ensureSession();
+        m_resourceStore.begin();
+
         while (!m_toInstall.isEmpty()) {
             try {
                 m_resourceStore.install(m_toInstall.remove(0));
@@ -138,6 +140,7 @@ public class Processor implements ResourceProcessor{
             }
         }
 
+        m_resourceStore.end();
         endSession();
     }
 

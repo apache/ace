@@ -25,7 +25,6 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -56,10 +55,24 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
     private Object m_installListLock = new Object();
     private boolean m_clear;
 
+    private List<String> m_installedUsers;
+    
     UserAdminStore(BundleContext context) {
         super(context);
     }
 
+    
+    
+    @Override
+    public void begin() {
+    	m_installedUsers = new ArrayList<String>();
+    }
+    
+    @Override
+    public void end() {
+    	m_installedUsers = new ArrayList<String>();
+    }
+    
     @Override
     public void install(String resourceName) throws IOException {
         InputStream input = getResource(resourceName);
@@ -95,7 +108,9 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
         m_toRemove.clear();
         installRoles(doc);
         m_clear = true;
+        begin();
         updateUserAdmin();
+        end();
     }
 
     public void setUsers(InputStream input) throws IOException {
@@ -122,12 +137,7 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
      */
     private void removeRoles(Document doc) {
         synchronized (m_installListLock) {
-            // do this backwards from the order in the file
-            List<ProcessRole> roles = getRoles(doc);
-            ListIterator<ProcessRole> i = roles.listIterator(roles.size());
-            for (ProcessRole role = i.previous(); i.hasPrevious(); i.previous()) {
-                m_toRemove.add(role);
-            }
+            m_toRemove.addAll(getRoles(doc));
         }
     }
 
@@ -142,13 +152,10 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
                     return;
                 }
 
-                List<String> updated = new ArrayList<String>();
-
                 // install or update all roles we have to update
                 while (!m_toInstall.isEmpty()) {
                     ProcessRole role = m_toInstall.remove(0);
                     updateRole(role);
-                    updated.add(role.getName());
                 }
 
                 // remove all roles that have not been updated if this install
@@ -162,7 +169,7 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
                         // Will not happen, since we pass in a null filter.
                     }
                     for (Role r : roles) {
-                        if (!updated.contains(r.getName())) {
+                        if (!m_installedUsers.contains(r.getName())) {
                             m_userAdmin.removeRole(r.getName());
                         }
                     }
@@ -172,8 +179,12 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
                 // removed
                 if (!m_clear) {
                     while (!m_toRemove.isEmpty()) {
-                        ProcessRole role = m_toRemove.remove(m_toRemove.size());
-                        m_userAdmin.removeRole(role.getName());
+                    	//do it tail to head
+                        ProcessRole role = m_toRemove.remove( m_toRemove.size() - 1 );
+                        
+                        if (!m_installedUsers.contains(role.getName())) {
+                        	m_userAdmin.removeRole(role.getName());
+                        }
                     }
                 }
 
@@ -188,6 +199,8 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
      */
     @SuppressWarnings("unchecked")
     private void updateRole(ProcessRole role) {
+        m_installedUsers.add(role.getName());
+        
         Role r = m_userAdmin.getRole(role.getName());
         if (r == null) {
             r = m_userAdmin.createRole(role.getName(), role.getType());
@@ -273,7 +286,9 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
                 throw new IllegalStateException("UserAdminStore is intended to work with a single user admin.");
             }
             m_userAdmin = admin;
+            begin();
             updateUserAdmin();
+            end();
         }
     }
 

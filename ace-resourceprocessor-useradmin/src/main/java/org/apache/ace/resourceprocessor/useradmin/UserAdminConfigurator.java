@@ -37,7 +37,7 @@ import org.w3c.dom.Document;
  *     &lt;user name="user1"&gt;
  *         &lt;properties&gt;
  *             &lt;realname type="String"&gt;Mr. U. One&lt;/realname&gt;
- *             &lt;address&gt;1 Infinite Loop&lt;/realname&gt;
+ *             &lt;address&gt;1 Infinite Loop&lt;/address&gt;
  *         &lt;/properties&gt;
  *         &lt;credentials&gt;
  *             &lt;password type="byte[]"&gt;secret&lt;/password&gt;

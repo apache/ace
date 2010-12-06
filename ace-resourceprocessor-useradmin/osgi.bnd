@@ -1,11 +1,9 @@
-Bundle-Version>:\
-  ${pom.version}
+Bundle-Version>: ${pom.version}
 
-Bundle-SymbolicName:\
-  ${bundle.symbolicName}
+Bundle-SymbolicName: ${bundle.symbolicName}
 
-Export-Package:\
-  ${bundle.namespace}; version="${pom.version}"
+Export-Package: ${bundle.namespace}; version="${pom.version}"
 
-Bundle-Activator: \
-  ${bundle.namespace}.impl.Activator
+Bundle-Activator: ${bundle.namespace}.impl.Activator
+  
+Deployment-ProvidesResourceProcessor: org.apache.ace.resourceprocessor.useradmin
