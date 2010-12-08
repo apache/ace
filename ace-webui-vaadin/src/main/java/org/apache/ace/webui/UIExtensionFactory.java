@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.webui.vaadin;
+package org.apache.ace.webui;
 
 import java.util.Map;
 
 import com.vaadin.ui.Component;
 
 /**
- * A {@link org.apache.ace.webui.vaadin.UIExtensionFactory} creates components for named extension points in the Vaadin UI.
+ * A {@link org.apache.ace.webui.UIExtensionFactory} creates components for named extension points in the Vaadin UI.
  */
 public interface UIExtensionFactory {
     public static final String EXTENSION_POINT = "extension_point";

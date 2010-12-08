@@ -8,4 +8,6 @@ Bundle-Name: Apache ACE - Client Web UI (Vaadin)
 
 Bundle-Activator: org.apache.ace.webui.vaadin.Activator
 
+Export-Package: org.apache.ace.webui
+
 Import-Package: *
