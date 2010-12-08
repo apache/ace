@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.xpath.XPath;
@@ -59,6 +60,8 @@ import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -67,6 +70,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.sun.java.swing.plaf.nimbus.ToggleButtonPainter;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.ItemClickEvent;
@@ -83,6 +87,8 @@ import com.vaadin.ui.AbstractSelect.VerticalLocationIs;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.CellStyleGenerator;
 import com.vaadin.ui.Table.TableTransferable;
@@ -126,7 +132,7 @@ public class VaadinClient extends com.vaadin.Application {
     private volatile GroupRepository m_featureRepository;
     private volatile LicenseRepository m_distributionRepository;
     private volatile StatefulGatewayRepository m_statefulTargetRepository;
-    private volatile Artifact2GroupAssociationRepository m_artifact2GroupAssciationRepository;
+    private volatile Artifact2GroupAssociationRepository m_artifact2GroupAssociationRepository;
     private volatile Group2LicenseAssociationRepository m_group2LicenseAssociationRepository;
     private volatile License2GatewayAssociationRepository m_license2GatewayAssociationRepository;
     private volatile RepositoryAdmin m_admin;
@@ -147,6 +153,7 @@ public class VaadinClient extends com.vaadin.Application {
     private Set<?> m_activeSelection;
     public SelectionListener m_activeSelectionListener;
     private List<OBREntry> m_obrList;
+    private GridLayout m_grid;
 
     // basic session ID generator
     private static long generateSessionID() {
@@ -212,16 +219,16 @@ public class VaadinClient extends com.vaadin.Application {
         setMainWindow(main);
         main.getContent().setSizeFull();
         
-        final GridLayout grid = new GridLayout(4, 3);
-        grid.setSpacing(true);
+        m_grid = new GridLayout(4, 4);
+        m_grid.setSpacing(true);
 
-        grid.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        grid.setHeight(100, Sizeable.UNITS_PERCENTAGE);
+        m_grid.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        m_grid.setHeight(100, Sizeable.UNITS_PERCENTAGE);
 
-        grid.addComponent(createToolbar(), 0, 0, 3, 0);
+        m_grid.addComponent(createToolbar(), 0, 0, 3, 0);
 
         m_artifactsPanel = createArtifactsPanel(main);
-        grid.addComponent(m_artifactsPanel, 0, 2);
+        m_grid.addComponent(m_artifactsPanel, 0, 2);
         Button addArtifactButton = new Button("Add artifact...");
         addArtifactButton.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -229,21 +236,31 @@ public class VaadinClient extends com.vaadin.Application {
             }
         });
 
-        grid.addComponent(addArtifactButton, 0, 1);
+        m_grid.addComponent(addArtifactButton, 0, 1);
 
         m_featuresPanel = createFeaturesPanel(main);
-        grid.addComponent(m_featuresPanel, 1, 2);
-        grid.addComponent(createAddFeatureButton(main), 1, 1);
-
+        m_grid.addComponent(m_featuresPanel, 1, 2);
+        m_grid.addComponent(createAddFeatureButton(main), 1, 1);
+        
         m_distributionsPanel = createDistributionsPanel(main);
-        grid.addComponent(m_distributionsPanel, 2, 2);
-        grid.addComponent(createAddDistributionButton(main), 2, 1);
+        m_grid.addComponent(m_distributionsPanel, 2, 2);
+        m_grid.addComponent(createAddDistributionButton(main), 2, 1);
 
         m_targetsPanel = createTargetsPanel(main);
-        grid.addComponent(m_targetsPanel, 3, 2);
-//        grid.addComponent(new Button("Add target..."), 3, 1); We don't add targets for now...
+        m_grid.addComponent(m_targetsPanel, 3, 2);
+        Button addTargetButton = new Button("Add target...");
+        m_grid.addComponent(addTargetButton, 3, 1); 
+        addTargetButton.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                new AddTargetWindow(main).show();
+            }
+        });
         
-        grid.setRowExpandRatio(2, 1.0f);
+        m_grid.setRowExpandRatio(2, 1.0f);
+        
+        ProgressIndicator progress = new ProgressIndicator(0f);
+        progress.setPollingInterval(500);
+        m_grid.addComponent(progress, 0, 3);
 
         m_artifactsPanel.addListener(new SelectionListener(m_artifactsPanel, m_artifactRepository, new Class[] {}, new Class[] { GroupObject.class, LicenseObject.class, GatewayObject.class }, new Table[] { m_featuresPanel, m_distributionsPanel, m_targetsPanel }));
         m_featuresPanel.addListener(new SelectionListener(m_featuresPanel, m_featureRepository, new Class[] { ArtifactObject.class }, new Class[] { LicenseObject.class, GatewayObject.class }, new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }));
@@ -257,13 +274,13 @@ public class VaadinClient extends com.vaadin.Application {
 
             @Override
             protected void associateFromRight(String left, String right) {
-                m_artifact2GroupAssciationRepository.create(getArtifact(left), getFeature(right));
+                m_artifact2GroupAssociationRepository.create(getArtifact(left), getFeature(right));
             }
         });
         m_featuresPanel.setDropHandler(new AssociationDropHandler(m_artifactsPanel, m_distributionsPanel) {
             @Override
             protected void associateFromLeft(String left, String right) {
-                m_artifact2GroupAssciationRepository.create(getArtifact(left), getFeature(right));
+                m_artifact2GroupAssociationRepository.create(getArtifact(left), getFeature(right));
             }
 
             @Override
@@ -307,9 +324,32 @@ public class VaadinClient extends com.vaadin.Application {
             }
         });
 
-        updateTableData();
+        main.addComponent(m_grid);
         
-        main.addComponent(grid);
+//        m_manager.add(m_manager.createComponent()
+//            .setInterface(EventHandler.class.getName(), new Properties() {{
+//                put(EventConstants.EVENT_TOPIC, GroupObject.TOPIC_ALL);
+//            }})
+//            .setImplementation(m_featuresTable)
+//            .add(m_manager.createServiceDependency()
+//                .setService(GroupRepository.class, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
+//                .setRequired(true)
+//                .setInstanceBound(true)
+//            )
+//        );
+        addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL);
+        addListener(m_featuresPanel, GroupObject.TOPIC_ALL);
+        addListener(m_distributionsPanel, LicenseObject.TOPIC_ALL);
+        addListener(m_targetsPanel, StatefulGatewayObject.TOPIC_ALL);
+    }
+    
+    private void addListener(final Object implementation, final String topic) {
+        m_manager.add(m_manager.createComponent()
+            .setInterface(EventHandler.class.getName(), new Properties() {{
+                put(EventConstants.EVENT_TOPIC, topic);
+            }})
+            .setImplementation(implementation)
+        );
     }
 
     private GridLayout createToolbar() {
@@ -338,7 +378,6 @@ public class VaadinClient extends com.vaadin.Application {
                 try {
                     m_admin.commit();
                     System.out.println("commit");
-                    updateTableData();
                 }
                 catch (IOException e) {
                     // TODO Auto-generated catch block
@@ -371,6 +410,40 @@ public class VaadinClient extends com.vaadin.Application {
             protected RepositoryObject getFromId(String id) {
                 return getArtifact(id);
             }
+            private void init() {
+                populate();
+            }
+            public void populate() {
+                removeAllItems();
+                for (ArtifactObject artifact : m_artifactRepository.get()) {
+                    add(artifact);
+                }
+            }
+            public void handleEvent(org.osgi.service.event.Event event) {
+                ArtifactObject artifact = (ArtifactObject) event.getProperty(ArtifactObject.EVENT_ENTITY);
+                String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
+                if (ArtifactObject.TOPIC_ADDED.equals(topic)) {
+                    add(artifact);
+                }
+                if (ArtifactObject.TOPIC_REMOVED.equals(topic)) {
+                    remove(artifact);
+                }
+                if (ArtifactObject.TOPIC_CHANGED.equals(topic)) {
+                    change(artifact);
+                }
+            }
+            private void add(ArtifactObject artifact) {
+                Item item = addItem(artifact.getName());
+                item.getItemProperty(OBJECT_NAME).setValue(artifact.getName());
+                item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
+            }
+            private void change(ArtifactObject artifact) {
+                Item item = getItem(artifact.getName());
+                item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
+            }
+            private void remove(ArtifactObject artifact) {
+                removeItem(artifact.getName());
+            }
         };
     }
 
@@ -380,7 +453,69 @@ public class VaadinClient extends com.vaadin.Application {
             protected RepositoryObject getFromId(String id) {
                 return getFeature(id);
             }
+            private void init() {
+                populate();
+            }
+            public void populate() {
+                removeAllItems();
+                for (GroupObject feature : m_featureRepository.get()) {
+                    add(feature);
+                }
+            }
+            public void handleEvent(org.osgi.service.event.Event event) {
+                GroupObject feature = (GroupObject) event.getProperty(GroupObject.EVENT_ENTITY);
+                String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
+                if (GroupObject.TOPIC_ADDED.equals(topic)) {
+                    add(feature);
+                }
+                if (GroupObject.TOPIC_REMOVED.equals(topic)) {
+                    remove(feature);
+                }
+                if (GroupObject.TOPIC_CHANGED.equals(topic)) {
+                    change(feature);
+                }
+            }
+            private void add(GroupObject feature) {
+                System.out.println("FEATURE-EVENT-ADD: " + feature);
+                Item item = addItem(feature.getName());
+                item.getItemProperty(OBJECT_NAME).setValue(feature.getName());
+                item.getItemProperty(OBJECT_DESCRIPTION).setValue(feature.getDescription());
+                Button removeLinkButton = new RemoveLinkButton<GroupObject>(feature, m_artifactsPanel, m_distributionsPanel) {
+                    @Override
+                    protected void removeLinkFromLeft(GroupObject object, RepositoryObject other) {
+                        List<Artifact2GroupAssociation> associations = object.getAssociationsWith((ArtifactObject) other);
+                        for (Artifact2GroupAssociation association : associations) {
+                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                            m_artifact2GroupAssociationRepository.remove(association);
+                        }
+                        m_associatedItems.remove(object);
+                        m_table.requestRepaint();
+                    }
+
+                    @Override
+                    protected void removeLinkFromRight(GroupObject object, RepositoryObject other) {
+                        List<Group2LicenseAssociation> associations = object.getAssociationsWith((LicenseObject) other);
+                        for (Group2LicenseAssociation association : associations) {
+                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                            m_group2LicenseAssociationRepository.remove(association);
+                        }
+                        m_associatedItems.remove(object);
+                        m_table.requestRepaint();
+                    }
+                };
+                HorizontalLayout buttons = new HorizontalLayout();
+                buttons.addComponent(removeLinkButton);
+                item.getItemProperty(ACTIONS).setValue(buttons);
+            }
+            private void change(GroupObject go) {
+                Item item = getItem(go.getName());
+                item.getItemProperty(OBJECT_DESCRIPTION).setValue(go.getDescription());
+            }
+            private void remove(GroupObject go) {
+                removeItem(go.getName());
+            }
         };
+        
     }
 
     private ObjectPanel createDistributionsPanel(Window main) {
@@ -388,6 +523,40 @@ public class VaadinClient extends com.vaadin.Application {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getDistribution(id);
+            }
+            private void init() {
+                populate();
+            }
+            public void populate() {
+                removeAllItems();
+                for (LicenseObject distribution : m_distributionRepository.get()) {
+                    add(distribution);
+                }
+            }
+            public void handleEvent(org.osgi.service.event.Event event) {
+                LicenseObject distribution = (LicenseObject) event.getProperty(LicenseObject.EVENT_ENTITY);
+                String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
+                if (LicenseObject.TOPIC_ADDED.equals(topic)) {
+                    add(distribution);
+                }
+                if (LicenseObject.TOPIC_REMOVED.equals(topic)) {
+                    remove(distribution);
+                }
+                if (LicenseObject.TOPIC_CHANGED.equals(topic)) {
+                    change(distribution);
+                }
+            }
+            private void add(LicenseObject distribution) {
+                Item item = addItem(distribution.getName());
+                item.getItemProperty(OBJECT_NAME).setValue(distribution.getName());
+                item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
+            }
+            private void change(LicenseObject distribution) {
+                Item item = getItem(distribution.getName());
+                item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
+            }
+            private void remove(LicenseObject distribution) {
+                removeItem(distribution.getName());
             }
         };
     }
@@ -397,6 +566,59 @@ public class VaadinClient extends com.vaadin.Application {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getTarget(id);
+            }
+            private void init(Component component) {
+                populate();
+                DependencyManager dm = component.getDependencyManager();
+            }
+            public void populate() {
+                removeAllItems();
+                for (StatefulGatewayObject statefulTarget : m_statefulTargetRepository.get()) {
+                    add(statefulTarget);
+                }
+            }
+            public void handleEvent(org.osgi.service.event.Event event) {
+                StatefulGatewayObject statefulTarget = (StatefulGatewayObject) event.getProperty(StatefulGatewayObject.EVENT_ENTITY);
+                String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
+                if (StatefulGatewayObject.TOPIC_ADDED.equals(topic)) {
+                    add(statefulTarget);
+                }
+                if (StatefulGatewayObject.TOPIC_REMOVED.equals(topic)) {
+                    remove(statefulTarget);
+                }
+                if (StatefulGatewayObject.TOPIC_CHANGED.equals(topic)) {
+                    change(statefulTarget);
+                }
+            }
+            private void add(StatefulGatewayObject statefulTarget) {
+                Item item = addItem(statefulTarget.getID());
+                item.getItemProperty(OBJECT_NAME).setValue(statefulTarget.getID());
+                item.getItemProperty(OBJECT_DESCRIPTION).setValue("TODO");
+                HorizontalLayout buttons = new HorizontalLayout();
+                Button startStopButton = new Button("start");
+                startStopButton.addListener(new Button.ClickListener() {
+                    public void buttonClick(ClickEvent event) {
+                        // TODO start/stop the cloud node
+                        String caption = event.getButton().getCaption();
+                        System.out.println("Action: " + caption);
+                        if ("start".equals(caption)) {
+                            event.getButton().setCaption("stop");
+                        }
+                        else {
+                            event.getButton().setCaption("start");
+                        }
+                        m_table.requestRepaint();
+                    }
+                });
+                buttons.addComponent(startStopButton);
+                item.getItemProperty(ACTIONS).setValue(buttons);
+            }
+            private void change(StatefulGatewayObject statefulTarget) {
+                Item item = getItem(statefulTarget.getID());
+                item.getItemProperty(OBJECT_DESCRIPTION).setValue("TODO");
+            }
+            private void remove(StatefulGatewayObject statefulTarget) {
+                removeItem(statefulTarget.getID());
             }
         };
     }
@@ -418,8 +640,8 @@ public class VaadinClient extends com.vaadin.Application {
                 TableTransferable tt = (TableTransferable) transferable;
                 Object fromItemId = tt.getItemId();
                 System.out.println("FF: " + fromItemId);
-                // get the active selection
-                Set<?> selection = m_activeSelection;
+                // get the active selection, but only if we drag from the same table
+                Set<?> selection = (tt.getSourceComponent().equals(m_activeTable)) ? m_activeSelection : null;
                 System.out.println("T: " + targetDetails.getClass().getName());
                 if (targetDetails instanceof AbstractSelectTargetDetails) {
                     AbstractSelectTargetDetails ttd = (AbstractSelectTargetDetails) targetDetails;
@@ -447,7 +669,9 @@ public class VaadinClient extends com.vaadin.Application {
                             associateFromRight((String) toItemId, (String) fromItemId);
                         }
                     }
-                    updateTableData();
+                    // TODO add to highlighting (it's probably easiest to recalculate the whole
+                    // set of related and associated items here, see SelectionListener, or to manually
+                    // figure out the changes in all cases
                 }
             }
         }
@@ -481,14 +705,13 @@ public class VaadinClient extends com.vaadin.Application {
         layout.addComponent(name);
         layout.addComponent(description);
 
-        Button close = new Button("Close", new Button.ClickListener() {
+        Button close = new Button("Ok", new Button.ClickListener() {
             // inline click-listener
             public void buttonClick(ClickEvent event) {
                 // close the window by removing it from the parent window
                 (featureWindow.getParent()).removeWindow(featureWindow);
                 // create the feature
                 object.setDescription((String) description.getValue());
-                updateTableData();
             }
         });
         // The components added to the window are actually added to the window's
@@ -532,6 +755,7 @@ public class VaadinClient extends com.vaadin.Application {
     private class AddFeatureWindow extends AddWindow {
         public AddFeatureWindow(Window main) {
             super(main);
+            setCaption("Add Feature");
         }
 
         @Override
@@ -544,13 +768,25 @@ public class VaadinClient extends com.vaadin.Application {
     private class AddDistributionWindow extends AddWindow {
         public AddDistributionWindow(Window main) {
             super(main);
+            setCaption("Add Distribution");
         }
 
         @Override
         protected void create(String name, String description) {
             createDistribution(name, description);
         }
+    }
+    
+    private class AddTargetWindow extends AddWindow {
+        public AddTargetWindow(Window main) {
+            super(main);
+            setCaption("Add Target");
+        }
 
+        @Override
+        protected void create(String name, String description) {
+            createTarget(name, description);
+        }
     }
 
     private abstract class AddWindow extends Window {
@@ -560,7 +796,6 @@ public class VaadinClient extends com.vaadin.Application {
         public AddWindow(final Window main) {
             m_main = main;
             setModal(true);
-            setCaption("Add Feature");
             setWidth("15em");
 
             // Configure the windws layout; by default a VerticalLayout
@@ -574,14 +809,13 @@ public class VaadinClient extends com.vaadin.Application {
             layout.addComponent(m_name);
             layout.addComponent(description);
 
-            Button close = new Button("Close", new Button.ClickListener() {
+            Button close = new Button("Ok", new Button.ClickListener() {
                 // inline click-listener
                 public void buttonClick(ClickEvent event) {
                     // close the window by removing it from the parent window
                     (getParent()).removeWindow(AddWindow.this);
                     // create the feature
                     create((String) m_name.getValue(), (String) description.getValue());
-                    updateTableData();
                 }
             });
             // The components added to the window are actually added to the window's
@@ -616,6 +850,13 @@ public class VaadinClient extends com.vaadin.Application {
         attributes.put(GroupObject.KEY_DESCRIPTION, description);
         Map<String, String> tags = new HashMap<String, String>();
         m_featureRepository.create(attributes, tags);
+    }
+    
+    private void createTarget(String name, String description) {
+        Map<String, String> attributes = new HashMap<String, String>();
+        attributes.put(StatefulGatewayObject.KEY_ID, name);
+        Map<String, String> tags = new HashMap<String, String>();
+        m_statefulTargetRepository.preregister(attributes, tags);
     }
 
     private ArtifactObject getArtifact(String name) {
@@ -705,8 +946,15 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
 
-    
     private void updateTableData() {
+        m_artifactsPanel.populate();
+        m_featuresPanel.populate();
+        m_distributionsPanel.populate();
+        m_targetsPanel.populate();
+    }
+    
+    // TODO rip the button logic from this method
+    private void updateTableDataX() {
         m_artifacts = m_artifactRepository.get();
         m_artifactsPanel.removeAllItems();
         for (ArtifactObject artifact : m_artifacts) {
@@ -722,7 +970,7 @@ public class VaadinClient extends com.vaadin.Application {
                     List<Artifact2GroupAssociation> associations = object.getAssociationsWith((GroupObject) other);
                     for (Artifact2GroupAssociation association : associations) {
                         System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
-                        m_artifact2GroupAssciationRepository.remove(association);
+                        m_artifact2GroupAssociationRepository.remove(association);
                     }
                     m_associatedItems.remove(object);
                 }
@@ -741,7 +989,7 @@ public class VaadinClient extends com.vaadin.Application {
                     List<Artifact2GroupAssociation> associations = object.getAssociationsWith((ArtifactObject) other);
                     for (Artifact2GroupAssociation association : associations) {
                         System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
-                        m_artifact2GroupAssciationRepository.remove(association);
+                        m_artifact2GroupAssociationRepository.remove(association);
                     }
                     m_associatedItems.remove(object);
                 }
@@ -898,12 +1146,16 @@ public class VaadinClient extends com.vaadin.Application {
         public void valueChange(ValueChangeEvent event) {
             
             if (m_activeSelection != null && m_activeTable != null) {
-                for (Object val : m_activeSelection) {
-                    m_activeTable.unselect(val);
+                if (m_activeTable.equals(m_table)) {
+                    System.out.println("SAME TABLE!");
+                }
+                else {
+                    for (Object val : m_activeSelection) {
+                        m_activeTable.unselect(val);
+                    }
+                    m_table.requestRepaint();
                 }
             }
-            
-            
             
             m_activeSelectionListener = this;
             
@@ -922,18 +1174,6 @@ public class VaadinClient extends com.vaadin.Application {
             // remember the active selection too
             m_activeSelection = value;
 
-            
-            
-            
-//            for (Table t : m_tablesToRefresh) {
-//                System.out.println("resetting selected items on other tables " + t);
-//                t.setValue(null);
-//            }
-
-            
-            
-            
-            
             if (value == null) {
                 System.out.println("no selection");
             }
@@ -996,7 +1236,6 @@ public class VaadinClient extends com.vaadin.Application {
                     
                     for (Table t : m_tablesToRefresh) {
                         System.out.println("refreshing " + t);
-//                        t.setValue(null);
                         t.requestRepaint();
                     }
                     
@@ -1009,8 +1248,8 @@ public class VaadinClient extends com.vaadin.Application {
                         System.out.println("** " + ro);
                     }
                     
-                    // when switching columns, we need to repaint, but it messes up the
-                    // cursor position
+//                    // when switching columns, we need to repaint, but it messes up the
+//                    // cursor position
 //                    m_table.requestRepaint();
                 }
             }
@@ -1020,14 +1259,22 @@ public class VaadinClient extends com.vaadin.Application {
             for (RepositoryObject object : m_repository.get()) {
                 System.out.println("..." + object);
                 if (object instanceof StatefulGatewayObject) {
-                    object = ((StatefulGatewayObject) object).getGatewayObject();
+                    StatefulGatewayObject sgo = (StatefulGatewayObject) object;
+                    if (sgo.isRegistered()) {
+                        object = sgo.getGatewayObject();
+                    }
+                    else {
+                        object = null;
+                    }
                 }
-                NamedObject namedObject = getNamedObject(object);
-                System.out.println("..." + namedObject);
-                if (namedObject != null) {
-                    if (namedObject.getName().equals(value)) {
-                        System.out.println("Found: " + namedObject.getName());
-                        return object;
+                if (object != null) {
+                    NamedObject namedObject = getNamedObject(object);
+                    System.out.println("..." + namedObject);
+                    if (namedObject != null) {
+                        if (namedObject.getName().equals(value)) {
+                            System.out.println("Found: " + namedObject.getName());
+                            return object;
+                        }
                     }
                 }
             }
@@ -1076,12 +1323,14 @@ public class VaadinClient extends com.vaadin.Application {
         return null;
     }
 
-    private abstract class ObjectPanel extends Table {
+    private abstract class ObjectPanel extends Table implements EventHandler {
+        public static final String ACTIONS = "actions";
+        protected Table m_table = this;
         public ObjectPanel(final String name, final Window main, boolean hasEdit, boolean hasDeleteButton) {
             super(name + "s");
             addContainerProperty(OBJECT_NAME, String.class, null);
             addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
-            addContainerProperty("button", Button.class, null);
+            addContainerProperty(ACTIONS, HorizontalLayout.class, null);
             setSizeFull();
             setCellStyleGenerator(new CellStyleGeneratorImplementation() {
                 @Override
@@ -1105,7 +1354,7 @@ public class VaadinClient extends com.vaadin.Application {
                 });
             }
         }
-
+        public abstract void populate();
         protected abstract RepositoryObject getFromId(String id);
     }
 
@@ -1242,7 +1491,6 @@ public class VaadinClient extends com.vaadin.Application {
                         }
                     }
                 }
-                updateTableData();
             }
         });
         // The components added to the window are actually added to the window's

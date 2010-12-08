@@ -45,6 +45,20 @@ public class Activator extends DependencyActivatorBase {
             .setInterface(HttpServlet.class.getName(), props)
             .setImplementation(VaadinServlet.class)
         );
+        
+        // show events
+//        manager.add(createComponent()
+//            .setImplementation(new EventHandler() {
+//                public void handleEvent(Event event) {
+//                    System.out.print("EVENT: " + event.getTopic());
+//                    for (String key : event.getPropertyNames()) {
+//                        System.out.print(" " + key + "=" + event.getProperty(key));
+//                    }
+//                    System.out.println();
+//                }
+//            })
+//            .setInterface(EventHandler.class.getName(), new Properties() {{ put(EventConstants.EVENT_TOPIC, "*"); }} )
+//        );
     }
     
     @Override
