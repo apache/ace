@@ -56,6 +56,7 @@ import org.apache.ace.client.repository.repository.License2GatewayAssociationRep
 import org.apache.ace.client.repository.repository.LicenseRepository;
 import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
+import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
@@ -570,6 +571,20 @@ public class VaadinClient extends com.vaadin.Application {
             private void init(Component component) {
                 populate();
                 DependencyManager dm = component.getDependencyManager();
+                component.add(dm.createServiceDependency()
+                    .setInstanceBound(true)
+                    .setService(UIExtensionFactory.class)
+                    .setCallbacks("addExtension", "removeExtension")
+                );
+            }
+            private List<UIExtensionFactory> m_factories = new ArrayList<UIExtensionFactory>();
+            public void addExtension(UIExtensionFactory factory) {
+                m_factories.add(factory);
+                populate();
+            }
+            public void removeExtension(UIExtensionFactory factory) {
+                m_factories.remove(factory);
+                populate();
             }
             public void populate() {
                 removeAllItems();
@@ -595,22 +610,12 @@ public class VaadinClient extends com.vaadin.Application {
                 item.getItemProperty(OBJECT_NAME).setValue(statefulTarget.getID());
                 item.getItemProperty(OBJECT_DESCRIPTION).setValue("TODO");
                 HorizontalLayout buttons = new HorizontalLayout();
-                Button startStopButton = new Button("start");
-                startStopButton.addListener(new Button.ClickListener() {
-                    public void buttonClick(ClickEvent event) {
-                        // TODO start/stop the cloud node
-                        String caption = event.getButton().getCaption();
-                        System.out.println("Action: " + caption);
-                        if ("start".equals(caption)) {
-                            event.getButton().setCaption("stop");
-                        }
-                        else {
-                            event.getButton().setCaption("start");
-                        }
-                        m_table.requestRepaint();
-                    }
-                });
-                buttons.addComponent(startStopButton);
+                Map<String, Object> context = new HashMap<String, Object>();
+                context.put("object", statefulTarget);
+                for (UIExtensionFactory factory : m_factories) {
+                    com.vaadin.ui.Component component = factory.create(context);
+                    buttons.addComponent(component);
+                }
                 item.getItemProperty(ACTIONS).setValue(buttons);
             }
             private void change(StatefulGatewayObject statefulTarget) {

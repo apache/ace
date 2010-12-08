@@ -23,7 +23,7 @@ import java.util.Map;
 import com.vaadin.ui.Component;
 
 /**
- * A {@link org.apache.ace.webui.UIExtensionFactory} creates components for named extension points in the Vaadin UI.
+ * Creates components for named extension points in the Vaadin UI.
  */
 public interface UIExtensionFactory {
     public static final String EXTENSION_POINT = "extension_point";

@@ -18,15 +18,22 @@
  */
 package org.apache.ace.webui.vaadin;
 
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServlet;
 
+import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
 import org.apache.ace.http.listener.constants.HttpConstants;
+import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
+
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Button.ClickEvent;
 
 public class Activator extends DependencyActivatorBase {
     @Override
@@ -59,6 +66,22 @@ public class Activator extends DependencyActivatorBase {
 //            })
 //            .setInterface(EventHandler.class.getName(), new Properties() {{ put(EventConstants.EVENT_TOPIC, "*"); }} )
 //        );
+        
+        // shows off components that are contributed by extensions
+        manager.add(createComponent()
+            .setInterface(UIExtensionFactory.class.getName(), null)
+            .setImplementation(new UIExtensionFactory() {
+                public Component create(Map<String, Object> context) {
+                    final StatefulGatewayObject target = (StatefulGatewayObject) context.get("object");
+                    return new Button("i", new Button.ClickListener() {
+                        public void buttonClick(ClickEvent event) {
+                            event.getButton().getWindow().showNotification(
+                                target.getID(), "current version is " + target.getCurrentVersion());
+                        }
+                    });
+                }
+            })
+        );
     }
     
     @Override
