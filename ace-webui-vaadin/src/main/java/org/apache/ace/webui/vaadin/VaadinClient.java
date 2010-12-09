@@ -1156,6 +1156,7 @@ public class VaadinClient extends com.vaadin.Application {
         // TODO generify?
         public RemoveLinkButton(final REPO_OBJECT object, final ObjectPanel toLeft, final ObjectPanel toRight) {
             super("-");
+            setStyleName("small");
             addListener(new Button.ClickListener() {
                 public void buttonClick(ClickEvent event) {
                     if (m_activeTable.equals(toLeft)) {

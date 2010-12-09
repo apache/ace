@@ -73,12 +73,14 @@ public class Activator extends DependencyActivatorBase {
             .setImplementation(new UIExtensionFactory() {
                 public Component create(Map<String, Object> context) {
                     final StatefulGatewayObject target = (StatefulGatewayObject) context.get("object");
-                    return new Button("i", new Button.ClickListener() {
+                    Button button = new Button("i", new Button.ClickListener() {
                         public void buttonClick(ClickEvent event) {
                             event.getButton().getWindow().showNotification(
                                 target.getID(), "current version is " + target.getCurrentVersion());
                         }
                     });
+                    button.setStyleName("small");
+                    return button;
                 }
             })
         );
