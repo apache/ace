@@ -1158,7 +1158,6 @@ public class VaadinClient extends com.vaadin.Application {
             super("-");
             addListener(new Button.ClickListener() {
                 public void buttonClick(ClickEvent event) {
-                    System.out.println("Removing link to " + getNamedObject(object).getName());
                     if (m_activeTable.equals(toLeft)) {
                         Set<?> selection = m_activeSelection;
                         if (selection != null) {
