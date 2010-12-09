@@ -437,6 +437,25 @@ public class VaadinClient extends com.vaadin.Application {
                 Item item = addItem(artifact.getName());
                 item.getItemProperty(OBJECT_NAME).setValue(artifact.getName());
                 item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
+                Button removeLinkButton = new RemoveLinkButton<ArtifactObject>(artifact, null, m_featuresPanel) {
+                    @Override
+                    protected void removeLinkFromLeft(ArtifactObject object, RepositoryObject other) {}
+
+                    @Override
+                    protected void removeLinkFromRight(ArtifactObject object, RepositoryObject other) {
+                        List<Artifact2GroupAssociation> associations = object.getAssociationsWith((GroupObject) other);
+                        for (Artifact2GroupAssociation association : associations) {
+                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                            m_artifact2GroupAssociationRepository.remove(association);
+                        }
+                        m_associatedItems.remove(object);
+                        m_table.requestRepaint();
+                    }
+                };
+                HorizontalLayout buttons = new HorizontalLayout();
+                buttons.addComponent(removeLinkButton);
+                item.getItemProperty(ACTIONS).setValue(buttons);
+
             }
             private void change(ArtifactObject artifact) {
                 Item item = getItem(artifact.getName());
@@ -551,6 +570,32 @@ public class VaadinClient extends com.vaadin.Application {
                 Item item = addItem(distribution.getName());
                 item.getItemProperty(OBJECT_NAME).setValue(distribution.getName());
                 item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
+                Button removeLinkButton = new RemoveLinkButton<LicenseObject>(distribution, m_featuresPanel, m_targetsPanel) {
+                    @Override
+                    protected void removeLinkFromLeft(LicenseObject object, RepositoryObject other) {
+                        List<Group2LicenseAssociation> associations = object.getAssociationsWith((GroupObject) other);
+                        for (Group2LicenseAssociation association : associations) {
+                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                            m_group2LicenseAssociationRepository.remove(association);
+                        }
+                        m_associatedItems.remove(object);
+                        m_table.requestRepaint();
+                    }
+
+                    @Override
+                    protected void removeLinkFromRight(LicenseObject object, RepositoryObject other) {
+                        List<License2GatewayAssociation> associations = object.getAssociationsWith((GatewayObject) other);
+                        for (License2GatewayAssociation association : associations) {
+                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                            m_license2GatewayAssociationRepository.remove(association);
+                        }
+                        m_associatedItems.remove(object);
+                        m_table.requestRepaint();
+                    }
+                };
+                HorizontalLayout buttons = new HorizontalLayout();
+                buttons.addComponent(removeLinkButton);
+                item.getItemProperty(ACTIONS).setValue(buttons);
             }
             private void change(LicenseObject distribution) {
                 Item item = getItem(distribution.getName());
@@ -609,7 +654,24 @@ public class VaadinClient extends com.vaadin.Application {
                 Item item = addItem(statefulTarget.getID());
                 item.getItemProperty(OBJECT_NAME).setValue(statefulTarget.getID());
                 item.getItemProperty(OBJECT_DESCRIPTION).setValue("TODO");
+                Button removeLinkButton = new RemoveLinkButton<StatefulGatewayObject>(statefulTarget, m_distributionsPanel, null) {
+                    @Override
+                    protected void removeLinkFromLeft(StatefulGatewayObject object, RepositoryObject other) {
+                        List<License2GatewayAssociation> associations = object.getAssociationsWith((LicenseObject) other);
+                        for (License2GatewayAssociation association : associations) {
+                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                            m_license2GatewayAssociationRepository.remove(association);
+                        }
+                        m_associatedItems.remove(object);
+                        m_table.requestRepaint();
+                    }
+
+                    @Override
+                    protected void removeLinkFromRight(StatefulGatewayObject object, RepositoryObject other) {
+                    }
+                };
                 HorizontalLayout buttons = new HorizontalLayout();
+                buttons.addComponent(removeLinkButton);
                 Map<String, Object> context = new HashMap<String, Object>();
                 context.put("object", statefulTarget);
                 for (UIExtensionFactory factory : m_factories) {
