@@ -22,11 +22,21 @@ package org.apache.ace.launcher;
 import org.apache.ace.managementagent.Activator;
 import org.osgi.framework.launch.FrameworkFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+/**
+ * A simple launcher, that launches the embedded Felix together with a management agent. It accepts the following
+ * command line arguments,
+ * <ul>
+ * <li><tt>--fwOption=key=value</tt> framework options to be passed to the launched framework. This argument can be used
+ * multiple times.</li>
+ * </ul>
+ * <br>
+ * Furthermore, it inherits all system properties that the self-containted Management Agent accepts. 
+ *
+ */
 public class Main {
     public static void main(String[] args) throws Exception {
         FrameworkFactory factory = (FrameworkFactory) Class.forName("org.apache.felix.framework.FrameworkFactory").newInstance();
@@ -35,7 +45,20 @@ public class Main {
         activators.add(new Activator());
         Map frameworkProperties = new HashMap();
         frameworkProperties.put("felix.systembundle.activators", activators);
+        frameworkProperties.putAll(findFrameworkProperties(args));
 
         factory.newFramework(frameworkProperties).start();
+    }
+
+    static Map findFrameworkProperties(String[] args) {
+        Pattern pattern = Pattern.compile("--(\\w*)=([.\\w]*)=(.*)");
+        Map result = new HashMap();
+        for (String arg : args) {
+            Matcher m = pattern.matcher(arg);
+            if (m.matches() && m.group(1).equals("fwOption")) {
+                result.put(m.group(2), m.group(3));
+            }
+        }
+        return result;
     }
 }
