@@ -19,8 +19,11 @@
 package org.apache.ace.webui.vaadin;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -71,31 +74,33 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.sun.java.swing.plaf.nimbus.ToggleButtonPainter;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.Transferable;
+import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.TargetDetails;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.event.dd.acceptcriteria.Or;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.AbstractSelect.AbstractSelectTargetDetails;
-import com.vaadin.ui.AbstractSelect.VerticalLocationIs;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Table.CellStyleGenerator;
-import com.vaadin.ui.Table.TableTransferable;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.AbstractSelect.AbstractSelectTargetDetails;
+import com.vaadin.ui.AbstractSelect.VerticalLocationIs;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Table.CellStyleGenerator;
+import com.vaadin.ui.Table.TableTransferable;
+import com.vaadin.ui.Upload.FailedEvent;
+import com.vaadin.ui.Upload.SucceededEvent;
 
 /*
 
@@ -1511,60 +1516,135 @@ public class VaadinClient extends com.vaadin.Application {
         }
     }
     
-    private void showAddArtifactDialog(final Window main) {
-        final Window featureWindow = new Window();
-        featureWindow.setModal(true);
-        featureWindow.setCaption("Add artifact");
-        featureWindow.setWidth("50em");
+    private class AddArtifactWindow extends Window {
+    	private File m_file;
+    	private List<URL> m_uploadedArtifacts = new ArrayList<URL>();
+    	
+    	public AddArtifactWindow(final Window main) {
+    		super();
+            setModal(true);
+            setCaption("Add artifact");
+            setWidth("50em");
+            
+            // Configure the windws layout; by default a VerticalLayout
+            VerticalLayout layout = (VerticalLayout) getContent();
+            layout.setMargin(true);
+            layout.setSpacing(true);
 
-        // Configure the windws layout; by default a VerticalLayout
-        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
-        layout.setMargin(true);
-        layout.setSpacing(true);
+            final TextField search = new TextField("search");
+            final Table artifacts = new ArtifactTable(main);
+            final Table uploadedArtifacts = new ArtifactTable(main);
+            final Upload uploadArtifact = new Upload("Upload Artifact", new Upload.Receiver() {
+    			public OutputStream receiveUpload(String filename, String MIMEType) {
+    				FileOutputStream fos = null; // Output stream to write to
+    		        try {
+    		        	m_file = new File(filename); //File.createTempFile(filename, "tmp");
+    		            // Open the file for writing.
+    		            fos = new FileOutputStream(m_file);
+    		        }
+    		        catch (final IOException e) {
+    		            // Error while opening the file. Not reported here.
+    		            e.printStackTrace();
+    		            return null;
+    		        }
+    		        return fos; // Return the output stream to write to			
+    	        }
+    		});
+            
+            artifacts.setCaption("Artifacts in repository");
+            uploadedArtifacts.setCaption("Uploaded artifacts");
+            uploadedArtifacts.setSelectable(false);
+            
+            search.setValue("");
+            try {
+                getBundles(artifacts);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            uploadArtifact.setImmediate(true);
+            
+            uploadArtifact.addListener(new Upload.SucceededListener() {
+    			
+    			public void uploadSucceeded(SucceededEvent event) {
+    				System.out.println("upload succeeded: " + event.getFilename());
+    				try {
+    					URL artifact = m_file.toURI().toURL();
+    		            Item item = uploadedArtifacts.addItem(artifact);
+    		            item.getItemProperty("symbolic name").setValue(m_file.getName());
+    		            item.getItemProperty("version").setValue("");
+    					m_uploadedArtifacts.add(artifact);
+					}
+    				catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+    				
+    			}
+    		});
+            uploadArtifact.addListener(new Upload.FailedListener() {
+    			
+    			public void uploadFailed(FailedEvent event) {
+    				System.out.println("upload failed: " + event);
+    			}
+    		});
 
-        final TextField search = new TextField("search");
-        final Table artifacts = new ArtifactTable(main);
+            layout.addComponent(search);
+            layout.addComponent(artifacts);
+            layout.addComponent(uploadArtifact);
+            layout.addComponent(uploadedArtifacts);
 
-        search.setValue("");
-        try {
-            getBundles(artifacts);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        layout.addComponent(search);
-        layout.addComponent(artifacts);
-
-        Button close = new Button("Add", new Button.ClickListener() {
-            // inline click-listener
-            public void buttonClick(ClickEvent event) {
-                // close the window by removing it from the parent window
-                (featureWindow.getParent()).removeWindow(featureWindow);
-                // TODO add the selected artifacts
-                for (Object id : artifacts.getItemIds()) {
-                    if (artifacts.isSelected(id)) {
-                        for (OBREntry e : m_obrList) {
-                            if (e.getUri().equals(id)) {
-                                System.out.println("Importing " + e);
-                                try {
-                                    importBundle(e);
-                                }
-                                catch (Exception e1) {
-                                    // TODO Auto-generated catch block
-                                    e1.printStackTrace();
+            Button close = new Button("Add", new Button.ClickListener() {
+                // inline click-listener
+                public void buttonClick(ClickEvent event) {
+                    // close the window by removing it from the parent window
+                    (AddArtifactWindow.this.getParent()).removeWindow(AddArtifactWindow.this);
+                    List<ArtifactObject> added = new ArrayList<ArtifactObject>();
+                    // TODO add the selected artifacts
+                    for (Object id : artifacts.getItemIds()) {
+                        if (artifacts.isSelected(id)) {
+                            for (OBREntry e : m_obrList) {
+                                if (e.getUri().equals(id)) {
+                                    System.out.println("Importing " + e);
+                                    try {
+                                        ArtifactObject ao = importBundle(e);
+                                        added.add(ao);
+                                    }
+                                    catch (Exception e1) {
+                                        // TODO Auto-generated catch block
+                                        e1.printStackTrace();
+                                    }
                                 }
                             }
                         }
                     }
+                    for (URL artifact : m_uploadedArtifacts) {
+                    	try {
+                    		ArtifactObject ao = importBundle(artifact);
+                            added.add(ao);
+						}
+                    	catch (IOException e) {
+							e.printStackTrace();
+						}
+                    }
+                    // TODO: make a decision here
+                    // so now we have enough information to show a list of imported artifacts (added)
+                    // but do we want to show this list or do we just assume the user will see the new
+                    // artifacts in the left most column? do we also report failures? or only report
+                    // if there were failures?
                 }
-            }
-        });
-        // The components added to the window are actually added to the window's
-        // layout; you can use either. Alignments are set using the layout
-        layout.addComponent(close);
-        layout.setComponentAlignment(close, "right");
-
+            });
+            // The components added to the window are actually added to the window's
+            // layout; you can use either. Alignments are set using the layout
+            layout.addComponent(close);
+            layout.setComponentAlignment(close, "right");
+            search.focus();
+    	}
+    }
+    
+    private void showAddArtifactDialog(final Window main) {
+        final AddArtifactWindow featureWindow = new AddArtifactWindow(main);
         if (featureWindow.getParent() != null) {
             // window is already showing
             main.getWindow().showNotification("Window is already open");
@@ -1573,7 +1653,6 @@ public class VaadinClient extends com.vaadin.Application {
             // window
             main.getWindow().addWindow(featureWindow);
         }
-        search.focus();
     }
     
     public static class ArtifactTable extends Table {
@@ -1675,8 +1754,12 @@ public class VaadinClient extends com.vaadin.Application {
         }
     }
 
-    public void importBundle(OBREntry bundle) throws Exception {
-        m_artifactRepository.importArtifact(new URL(new URL(obr), bundle.getUri()), false);
+    public ArtifactObject importBundle(OBREntry bundle) throws IOException {
+        return m_artifactRepository.importArtifact(new URL(new URL(obr), bundle.getUri()), false);
+    }
+    
+    public ArtifactObject importBundle(URL artifact) throws IOException {
+		return m_artifactRepository.importArtifact(artifact, true);
     }
     
     public static class OBREntry {
