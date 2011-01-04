@@ -118,9 +118,10 @@ TODO:
  - Add buttons to create new items in all of the tables (done for those that make sense)
  */
 public class VaadinClient extends com.vaadin.Application {
-    private static final String OBJECT_NAME = "name";
-	private static final String OBJECT_DESCRIPTION = "description";
-    private static final long serialVersionUID = 1L;
+    public static final String OBJECT_NAME = "name";
+	public static final String OBJECT_DESCRIPTION = "description";
+
+	private static final long serialVersionUID = 1L;
     private static long SESSION_ID = 12345;
     private static String gatewayRepo = "gateway";
     private static String shopRepo = "shop";
@@ -152,12 +153,8 @@ public class VaadinClient extends com.vaadin.Application {
     private List<ArtifactObject> m_artifacts;
     private List<GroupObject> m_features;
     private List<StatefulGatewayObject> m_targets;
-    private List<RepositoryObject> m_associatedItems = new ArrayList<RepositoryObject>();
-    private List<RepositoryObject> m_relatedItems = new ArrayList<RepositoryObject>();
+    private final Associations m_associations = new Associations();
     
-    private Table m_activeTable;
-    private Set<?> m_activeSelection;
-    public SelectionListener m_activeSelectionListener;
     private List<OBREntry> m_obrList;
     private GridLayout m_grid;
 
@@ -205,20 +202,7 @@ public class VaadinClient extends com.vaadin.Application {
     public void init() {
         System.out.println("INIT " + this);
         
-        try {
-            User user = m_userAdmin.getUser("username", "d");
-            RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
-            
-            context.addShopRepository(new URL(hostName + endpoint), customerName, shopRepo, true)
-                .setObrBase(new URL(obr))
-                .addGatewayRepository(new URL(hostName + endpoint), customerName, gatewayRepo, true)
-                .addDeploymentRepository(new URL(hostName + endpoint), customerName, deployRepo, true);
-            m_admin.login(context);
-            m_admin.checkout();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        login();
         
         setTheme("ace");
         final Window main = new Window("Apache ACE - User Interface - " + this);
@@ -268,10 +252,10 @@ public class VaadinClient extends com.vaadin.Application {
         progress.setPollingInterval(500);
         m_grid.addComponent(progress, 0, 3);
 
-        m_artifactsPanel.addListener(new SelectionListener(m_artifactsPanel, m_artifactRepository, new Class[] {}, new Class[] { GroupObject.class, LicenseObject.class, GatewayObject.class }, new Table[] { m_featuresPanel, m_distributionsPanel, m_targetsPanel }));
-        m_featuresPanel.addListener(new SelectionListener(m_featuresPanel, m_featureRepository, new Class[] { ArtifactObject.class }, new Class[] { LicenseObject.class, GatewayObject.class }, new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }));
-        m_distributionsPanel.addListener(new SelectionListener(m_distributionsPanel, m_distributionRepository, new Class[] { GroupObject.class, ArtifactObject.class }, new Class[] { GatewayObject.class }, new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
-        m_targetsPanel.addListener(new SelectionListener(m_targetsPanel, m_statefulTargetRepository, new Class[] { LicenseObject.class, GroupObject.class, ArtifactObject.class}, new Class[] {}, new Table[] { m_artifactsPanel, m_featuresPanel, m_distributionsPanel }));
+        m_artifactsPanel.addListener(m_associations.createSelectionListener(m_artifactsPanel, m_artifactRepository, new Class[] {}, new Class[] { GroupObject.class, LicenseObject.class, GatewayObject.class }, new Table[] { m_featuresPanel, m_distributionsPanel, m_targetsPanel }));
+        m_featuresPanel.addListener(m_associations.createSelectionListener(m_featuresPanel, m_featureRepository, new Class[] { ArtifactObject.class }, new Class[] { LicenseObject.class, GatewayObject.class }, new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }));
+        m_distributionsPanel.addListener(m_associations.createSelectionListener(m_distributionsPanel, m_distributionRepository, new Class[] { GroupObject.class, ArtifactObject.class }, new Class[] { GatewayObject.class }, new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
+        m_targetsPanel.addListener(m_associations.createSelectionListener(m_targetsPanel, m_statefulTargetRepository, new Class[] { LicenseObject.class, GroupObject.class, ArtifactObject.class}, new Class[] {}, new Table[] { m_artifactsPanel, m_featuresPanel, m_distributionsPanel }));
 
         m_artifactsPanel.setDropHandler(new AssociationDropHandler((Table) null, m_featuresPanel) {
             @Override
@@ -332,22 +316,28 @@ public class VaadinClient extends com.vaadin.Application {
 
         main.addComponent(m_grid);
         
-//        m_manager.add(m_manager.createComponent()
-//            .setInterface(EventHandler.class.getName(), new Properties() {{
-//                put(EventConstants.EVENT_TOPIC, GroupObject.TOPIC_ALL);
-//            }})
-//            .setImplementation(m_featuresTable)
-//            .add(m_manager.createServiceDependency()
-//                .setService(GroupRepository.class, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
-//                .setRequired(true)
-//                .setInstanceBound(true)
-//            )
-//        );
         addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL);
         addListener(m_featuresPanel, GroupObject.TOPIC_ALL);
         addListener(m_distributionsPanel, LicenseObject.TOPIC_ALL);
         addListener(m_targetsPanel, StatefulGatewayObject.TOPIC_ALL);
     }
+
+	private void login() {
+		try {
+            User user = m_userAdmin.getUser("username", "d");
+            RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
+            
+            context.addShopRepository(new URL(hostName + endpoint), customerName, shopRepo, true)
+                .setObrBase(new URL(obr))
+                .addGatewayRepository(new URL(hostName + endpoint), customerName, gatewayRepo, true)
+                .addDeploymentRepository(new URL(hostName + endpoint), customerName, deployRepo, true);
+            m_admin.login(context);
+            m_admin.checkout();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+	}
     
     private void addListener(final Object implementation, final String topic) {
         m_manager.add(m_manager.createComponent()
@@ -359,7 +349,7 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private GridLayout createToolbar() {
-        GridLayout toolbar = new GridLayout(3,1);
+        GridLayout toolbar = new GridLayout(3, 1);
         toolbar.setSpacing(true);
 
         Button retrieveButton = new Button("Retrieve");
@@ -411,7 +401,7 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private ObjectPanel createArtifactsPanel(Window main) {
-        return new ObjectPanel("Artifact", main, false, false) {
+        return new ObjectPanel(m_associations, "Artifact", main, false, false) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getArtifact(id);
@@ -453,7 +443,7 @@ public class VaadinClient extends com.vaadin.Application {
                             System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_artifact2GroupAssociationRepository.remove(association);
                         }
-                        m_associatedItems.remove(object);
+                        m_associations.removeAssociatedItem(object);
                         m_table.requestRepaint();
                     }
                 };
@@ -473,7 +463,7 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private ObjectPanel createFeaturesPanel(Window main) {
-        return new ObjectPanel("Feature", main, true, true) {
+        return new ObjectPanel(m_associations, "Feature", main, true, true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getFeature(id);
@@ -513,7 +503,7 @@ public class VaadinClient extends com.vaadin.Application {
                             System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_artifact2GroupAssociationRepository.remove(association);
                         }
-                        m_associatedItems.remove(object);
+                        m_associations.removeAssociatedItem(object);
                         m_table.requestRepaint();
                     }
 
@@ -524,7 +514,7 @@ public class VaadinClient extends com.vaadin.Application {
                             System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_group2LicenseAssociationRepository.remove(association);
                         }
-                        m_associatedItems.remove(object);
+                        m_associations.removeAssociatedItem(object);
                         m_table.requestRepaint();
                     }
                 };
@@ -543,8 +533,40 @@ public class VaadinClient extends com.vaadin.Application {
         
     }
 
+    public abstract class RemoveLinkButton<REPO_OBJECT extends RepositoryObject> extends Button {
+        // TODO generify?
+        public RemoveLinkButton(final REPO_OBJECT object, final ObjectPanel toLeft, final ObjectPanel toRight) {
+            super("-");
+            setStyleName("small");
+            addListener(new Button.ClickListener() {
+                public void buttonClick(ClickEvent event) {
+                    Set<?> selection = m_associations.getActiveSelection();
+                    if (selection != null) {
+	                    if (m_associations.isActiveTable(toLeft)) {
+                            for (Object item : selection) {
+                                RepositoryObject selected = m_associations.lookupInActiveSelection(item);
+                                removeLinkFromLeft(object, selected);
+                            }
+	                    }
+	                    else if (m_associations.isActiveTable(toRight)) {
+                            for (Object item : selection) {
+                                RepositoryObject selected = m_associations.lookupInActiveSelection(item);
+                                removeLinkFromRight(object, selected);
+                            }
+	                    }
+                    }
+                }
+            });
+        }
+
+        protected abstract void removeLinkFromLeft(REPO_OBJECT object, RepositoryObject other);
+
+        protected abstract void removeLinkFromRight(REPO_OBJECT object, RepositoryObject other);
+    }
+    
+    
     private ObjectPanel createDistributionsPanel(Window main) {
-        return new ObjectPanel("Distribution", main, true, true) {
+        return new ObjectPanel(m_associations, "Distribution", main, true, true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getDistribution(id);
@@ -583,7 +605,7 @@ public class VaadinClient extends com.vaadin.Application {
                             System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_group2LicenseAssociationRepository.remove(association);
                         }
-                        m_associatedItems.remove(object);
+                        m_associations.removeAssociatedItem(object);
                         m_table.requestRepaint();
                     }
 
@@ -594,7 +616,7 @@ public class VaadinClient extends com.vaadin.Application {
                             System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_license2GatewayAssociationRepository.remove(association);
                         }
-                        m_associatedItems.remove(object);
+                        m_associations.removeAssociatedItem(object);
                         m_table.requestRepaint();
                     }
                 };
@@ -613,7 +635,7 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private ObjectPanel createTargetsPanel(Window main) {
-        return new ObjectPanel("Target", main, false, false) {
+        return new ObjectPanel(m_associations, "Target", main, false, false) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getTarget(id);
@@ -667,7 +689,7 @@ public class VaadinClient extends com.vaadin.Application {
                             System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_license2GatewayAssociationRepository.remove(association);
                         }
-                        m_associatedItems.remove(object);
+                        m_associations.removeAssociatedItem(object);
                         m_table.requestRepaint();
                     }
 
@@ -713,7 +735,9 @@ public class VaadinClient extends com.vaadin.Application {
                 Object fromItemId = tt.getItemId();
                 System.out.println("FF: " + fromItemId);
                 // get the active selection, but only if we drag from the same table
-                Set<?> selection = (tt.getSourceComponent().equals(m_activeTable)) ? m_activeSelection : null;
+                
+                Set<?> selection = m_associations.isActiveTable(tt.getSourceComponent()) ? m_associations.getActiveSelection() : null;
+                
                 System.out.println("T: " + targetDetails.getClass().getName());
                 if (targetDetails instanceof AbstractSelectTargetDetails) {
                     AbstractSelectTargetDetails ttd = (AbstractSelectTargetDetails) targetDetails;
@@ -757,7 +781,7 @@ public class VaadinClient extends com.vaadin.Application {
         protected abstract void associateFromRight(String left, String right);
     }
 
-    private void showEditWindow(String objectName, final NamedObject object, Window main) {
+    private static void showEditWindow(String objectName, final NamedObject object, Window main) {
         final Window featureWindow = new Window();
         featureWindow.setModal(true);
         featureWindow.setCaption("Edit " + objectName);
@@ -824,10 +848,9 @@ public class VaadinClient extends com.vaadin.Application {
         return button;
     }
 
-    private class AddFeatureWindow extends AddWindow {
+    private class AddFeatureWindow extends AbstractAddWindow {
         public AddFeatureWindow(Window main) {
-            super(main);
-            setCaption("Add Feature");
+            super(main, "Add Feature");
         }
 
         @Override
@@ -837,10 +860,9 @@ public class VaadinClient extends com.vaadin.Application {
 
     }
 
-    private class AddDistributionWindow extends AddWindow {
+    private class AddDistributionWindow extends AbstractAddWindow {
         public AddDistributionWindow(Window main) {
-            super(main);
-            setCaption("Add Distribution");
+            super(main, "Add Distribution");
         }
 
         @Override
@@ -849,71 +871,15 @@ public class VaadinClient extends com.vaadin.Application {
         }
     }
     
-    private class AddTargetWindow extends AddWindow {
+    private class AddTargetWindow extends AbstractAddWindow {
         public AddTargetWindow(Window main) {
-            super(main);
-            setCaption("Add Target");
+            super(main, "Add Target");
         }
 
         @Override
         protected void create(String name, String description) {
             createTarget(name, description);
         }
-    }
-
-    private abstract class AddWindow extends Window {
-        private final Window m_main;
-        private final TextField m_name;
-
-        public AddWindow(final Window main) {
-            m_main = main;
-            setModal(true);
-            setWidth("15em");
-
-            // Configure the windws layout; by default a VerticalLayout
-            VerticalLayout layout = (VerticalLayout) getContent();
-            layout.setMargin(true);
-            layout.setSpacing(true);
-
-            m_name = new TextField("name");
-            final TextField description = new TextField("description");
-
-            layout.addComponent(m_name);
-            layout.addComponent(description);
-
-            Button close = new Button("Ok", new Button.ClickListener() {
-                // inline click-listener
-                public void buttonClick(ClickEvent event) {
-                    // close the window by removing it from the parent window
-                    (getParent()).removeWindow(AddWindow.this);
-                    // create the feature
-                    create((String) m_name.getValue(), (String) description.getValue());
-                }
-            });
-            // The components added to the window are actually added to the window's
-            // layout; you can use either. Alignments are set using the layout
-            layout.addComponent(close);
-            layout.setComponentAlignment(close, "right");
-        }
-
-        public void show() {
-            if (getParent() != null) {
-                // window is already showing
-                m_main.getWindow().showNotification(
-                        "Window is already open");
-            } else {
-                // Open the subwindow by adding it to the parent
-                // window
-                m_main.getWindow().addWindow(this);
-            }
-            setRelevantFocus();
-        }
-
-        private void setRelevantFocus() {
-            m_name.focus();
-        }
-
-        protected abstract void create(String name, String description);
     }
 
     private void createFeature(String name, String description) {
@@ -997,26 +963,6 @@ public class VaadinClient extends com.vaadin.Application {
         Map<String, String> tags = new HashMap<String, String>();
         m_distributionRepository.create(attributes, tags);
     }
-    
-    /**
-     * Helper method to find all related {@link RepositoryObject}s in a given 'direction'
-     */
-    private <FROM extends RepositoryObject, TO extends RepositoryObject> List<TO> getRelated(FROM from, Class<TO> toClass) {
-        // if the SGO is not backed by a GO yet, this will cause an exception
-        return from.getAssociations(toClass);
-    }
-    
-    /**
-     * Helper method to find all related {@link RepositoryObject}s in a given 'direction', starting with a list of objects
-     */
-    private <FROM extends RepositoryObject, TO extends RepositoryObject> List<TO> getRelated(List<FROM> from, Class<TO> toClass) {
-        List<TO> result = new ArrayList<TO>();
-        for (RepositoryObject o : from) {
-            result.addAll(getRelated(o, toClass));
-        }
-        return result;
-    }
-
 
     private void updateTableData() {
         m_artifactsPanel.populate();
@@ -1025,173 +971,6 @@ public class VaadinClient extends com.vaadin.Application {
         m_targetsPanel.populate();
     }
     
-    // TODO rip the button logic from this method
-    private void updateTableDataX() {
-        m_artifacts = m_artifactRepository.get();
-        m_artifactsPanel.removeAllItems();
-        for (ArtifactObject artifact : m_artifacts) {
-            Item item = m_artifactsPanel.addItem(artifact.getName());
-            item.getItemProperty(OBJECT_NAME).setValue(artifact.getName());
-            item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
-            Button removeLinkButton = new RemoveLinkButton<ArtifactObject>(artifact, null, m_featuresPanel) {
-                @Override
-                protected void removeLinkFromLeft(ArtifactObject object, RepositoryObject other) {}
-
-                @Override
-                protected void removeLinkFromRight(ArtifactObject object, RepositoryObject other) {
-                    List<Artifact2GroupAssociation> associations = object.getAssociationsWith((GroupObject) other);
-                    for (Artifact2GroupAssociation association : associations) {
-                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
-                        m_artifact2GroupAssociationRepository.remove(association);
-                    }
-                    m_associatedItems.remove(object);
-                }
-            }; // add this to the others
-            item.getItemProperty("button").setValue(removeLinkButton);
-        }
-        m_features = m_featureRepository.get();
-        m_featuresPanel.removeAllItems();
-        for (GroupObject group : m_features) {
-            Item featureItem = m_featuresPanel.addItem(group.getName());
-            featureItem.getItemProperty(OBJECT_NAME).setValue(group.getName());
-            featureItem.getItemProperty(OBJECT_DESCRIPTION).setValue(group.getDescription());
-            Button removeLinkButton = new RemoveLinkButton<GroupObject>(group, m_artifactsPanel, m_distributionsPanel) {
-                @Override
-                protected void removeLinkFromLeft(GroupObject object, RepositoryObject other) {
-                    List<Artifact2GroupAssociation> associations = object.getAssociationsWith((ArtifactObject) other);
-                    for (Artifact2GroupAssociation association : associations) {
-                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
-                        m_artifact2GroupAssociationRepository.remove(association);
-                    }
-                    m_associatedItems.remove(object);
-                }
-
-                @Override
-                protected void removeLinkFromRight(GroupObject object, RepositoryObject other) {
-                    List<Group2LicenseAssociation> associations = object.getAssociationsWith((LicenseObject) other);
-                    for (Group2LicenseAssociation association : associations) {
-                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
-                        m_group2LicenseAssociationRepository.remove(association);
-                    }
-                    m_associatedItems.remove(object);
-                }
-            }; // add this to the others
-            featureItem.getItemProperty("button").setValue(removeLinkButton);
-        }
-        m_distributions = m_distributionRepository.get();
-        m_distributionsPanel.removeAllItems();
-        for (final LicenseObject license : m_distributions) {
-            Item licenseItem = m_distributionsPanel.addItem(license.getName());
-            licenseItem.getItemProperty(OBJECT_NAME).setValue(license.getName());
-            licenseItem.getItemProperty(OBJECT_DESCRIPTION).setValue(license.getDescription());
-            Button removeLinkButton = new RemoveLinkButton<LicenseObject>(license, m_featuresPanel, m_targetsPanel) {
-                @Override
-                protected void removeLinkFromLeft(LicenseObject object, RepositoryObject other) {
-                    List<Group2LicenseAssociation> associations = object.getAssociationsWith((GroupObject) other);
-                    for (Group2LicenseAssociation association : associations) {
-                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
-                        m_group2LicenseAssociationRepository.remove(association);
-                    }
-                    m_associatedItems.remove(object);
-                }
-
-                @Override
-                protected void removeLinkFromRight(LicenseObject object, RepositoryObject other) {
-                    List<License2GatewayAssociation> associations = object.getAssociationsWith((GatewayObject) other);
-                    for (License2GatewayAssociation association : associations) {
-                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
-                        m_license2GatewayAssociationRepository.remove(association);
-                    }
-                    m_associatedItems.remove(object);
-                }
-            }; // add this to the others
-            licenseItem.getItemProperty("button").setValue(removeLinkButton);
-        }
-        m_statefulTargetRepository.refresh();
-        m_targets = m_statefulTargetRepository.get();
-        m_targetsPanel.removeAllItems();
-        for (StatefulGatewayObject target : m_targets) {
-            Item targetItem = m_targetsPanel.addItem(target.getID());
-            targetItem.getItemProperty(OBJECT_NAME).setValue(target.getID());
-            targetItem.getItemProperty(OBJECT_DESCRIPTION).setValue("?");
-            Button removeLinkButton = new RemoveLinkButton<StatefulGatewayObject>(target, m_distributionsPanel, null) {
-                @Override
-                protected void removeLinkFromLeft(StatefulGatewayObject object, RepositoryObject other) {
-                    List<License2GatewayAssociation> associations = object.getAssociationsWith((LicenseObject) other);
-                    for (License2GatewayAssociation association : associations) {
-                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
-                        m_license2GatewayAssociationRepository.remove(association);
-                    }
-                    m_associatedItems.remove(object);
-                }
-
-                @Override
-                protected void removeLinkFromRight(StatefulGatewayObject object, RepositoryObject other) {
-                }
-            }; // add this to the others
-            targetItem.getItemProperty("button").setValue(removeLinkButton);
-        }
-        
-//        m_targets = m_targetRepository.get();
-//        m_targetsPanel.removeAllItems();
-//        for (GatewayObject license : m_targets) {
-//            Item targetItem = m_targetsPanel.addItem(license.getID());
-//            targetItem.getItemProperty(OBJECT_NAME).setValue(license.getID());
-//            targetItem.getItemProperty(OBJECT_DESCRIPTION).setValue("?");
-//            Button removeLinkButton = new RemoveLinkButton<GatewayObject>(license, m_distributionsPanel, null) {
-//                @Override
-//                protected void removeLinkFromLeft(GatewayObject object, RepositoryObject other) {
-//                    List<License2GatewayAssociation> associations = object.getAssociationsWith((LicenseObject) other);
-//                    for (License2GatewayAssociation association : associations) {
-//                        System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
-//                        m_license2GatewayAssociationRepository.remove(association);
-//                    }
-//                    m_associatedItems.remove(object);
-//                }
-//
-//                @Override
-//                protected void removeLinkFromRight(GatewayObject object, RepositoryObject other) {
-//                }
-//            }; // add this to the others
-//            targetItem.getItemProperty("button").setValue(removeLinkButton);
-//        }
-    }
-
-    private abstract class RemoveLinkButton<REPO_OBJECT extends RepositoryObject> extends Button {
-        // TODO generify?
-        public RemoveLinkButton(final REPO_OBJECT object, final ObjectPanel toLeft, final ObjectPanel toRight) {
-            super("-");
-            setStyleName("small");
-            addListener(new Button.ClickListener() {
-                public void buttonClick(ClickEvent event) {
-                    if (m_activeTable.equals(toLeft)) {
-                        Set<?> selection = m_activeSelection;
-                        if (selection != null) {
-                            for (Object item : selection) {
-                                RepositoryObject selected = m_activeSelectionListener.lookup(item);
-                                removeLinkFromLeft(object, selected);
-                            }
-//                            updateTableData();
-                        }
-                    }
-                    else if (m_activeTable.equals(toRight)) {
-                        Set<?> selection = m_activeSelection;
-                        if (selection != null) {
-                            for (Object item : selection) {
-                                RepositoryObject selected = m_activeSelectionListener.lookup(item);
-                                removeLinkFromRight(object, selected);
-                            }
-//                            updateTableData();
-                        }
-                    }
-                }
-            });
-        }
-
-        protected abstract void removeLinkFromLeft(REPO_OBJECT object, RepositoryObject other);
-
-        protected abstract void removeLinkFromRight(REPO_OBJECT object, RepositoryObject other);
-    }
 
     @Override
     public void close() {
@@ -1200,216 +979,20 @@ public class VaadinClient extends com.vaadin.Application {
         // TODO: clean up the ace client session?
     }
 
-    public class SelectionListener implements Table.ValueChangeListener {
-        private final Table m_table;
-        private final Table[] m_tablesToRefresh;
-        private final ObjectRepository<? extends RepositoryObject> m_repository;
-        private final Class[] m_left;
-        private final Class[] m_right;
-        
-        public SelectionListener(Table table, ObjectRepository<? extends RepositoryObject> repository, Class[] left, Class[] right, Table[] tablesToRefresh) {
-            m_table = table;
-            m_repository = repository;
-            m_left = left;
-            m_right = right;
-            m_tablesToRefresh = tablesToRefresh;
-        }
-        
-        public void valueChange(ValueChangeEvent event) {
-            
-            if (m_activeSelection != null && m_activeTable != null) {
-                if (m_activeTable.equals(m_table)) {
-                    System.out.println("SAME TABLE!");
-                }
-                else {
-                    for (Object val : m_activeSelection) {
-                        m_activeTable.unselect(val);
-                    }
-                    m_table.requestRepaint();
-                }
-            }
-            
-            m_activeSelectionListener = this;
-            
-            // set the active table
-            m_activeTable = m_table;
-            
-            // in multiselect mode, a Set of itemIds is returned,
-            // in singleselect mode the itemId is returned directly
-            Set<?> value = (Set<?>) event.getProperty().getValue();
-            if (null == value || value.size() == 0) {
-//                    selected.setValue("No selection");
-            } else {
-//                    selected.setValue("Selected: " + table.getValue());
-            }
 
-            // remember the active selection too
-            m_activeSelection = value;
-
-            if (value == null) {
-                System.out.println("no selection");
-            }
-            else {
-                System.out.println("selection:");
-                
-                m_associatedItems.clear();
-                m_relatedItems.clear();
-                for (Object val : value) {
-                    System.out.println(" - " + m_table.getItem(val).getItemProperty(OBJECT_NAME) + " " + val);
-                    RepositoryObject lo = lookup(val);
-                    System.out.println("lookup(" + val + ") returned " + lo);
-                    if (lo != null) {
-                        List related = null;
-                        for (int i = 0; i < m_left.length; i++) {
-                            if (i == 0) {
-                                related = getRelated(lo, m_left[i]);
-                                System.out.println("left associated:");
-                                for (Object o : related) {
-                                    System.out.println(" -> " + o);
-                                }
-                                m_associatedItems.addAll(related);
-                            }
-                            else {
-                                related = getRelated(related, m_left[i]);
-                                System.out.println("left related:");
-                                for (Object o : related) {
-                                    System.out.println(" -> " + o);
-                                }
-                                m_relatedItems.addAll(related);
-                            }
-                        }
-                        for (int i = 0; i < m_right.length; i++) {
-                            if (i == 0) {
-                                related = getRelated(lo, m_right[i]);
-                                System.out.println("right associated:");
-                                for (Object o : related) {
-                                    System.out.println(" -> " + o);
-                                }
-                                m_associatedItems.addAll(related);
-                            }
-                            else {
-                                related = getRelated(related, m_right[i]);
-                                System.out.println("right related:");
-                                for (Object o : related) {
-                                    System.out.println(" -> " + o);
-                                }
-                                m_relatedItems.addAll(related);
-                            }
-                        }
-                    }
-                    System.out.println("summarizing associated:");
-                    for (RepositoryObject ro : m_associatedItems) {
-                        System.out.println("** " + ro);
-                    }
-                    System.out.println("summarizing related:");
-                    for (RepositoryObject ro : m_relatedItems) {
-                        System.out.println("** " + ro);
-                    }
-                    
-                    for (Table t : m_tablesToRefresh) {
-                        System.out.println("refreshing " + t);
-                        t.requestRepaint();
-                    }
-                    
-                    System.out.println("summarizing associated:");
-                    for (RepositoryObject ro : m_associatedItems) {
-                        System.out.println("** " + ro);
-                    }
-                    System.out.println("summarizing related:");
-                    for (RepositoryObject ro : m_relatedItems) {
-                        System.out.println("** " + ro);
-                    }
-                    
-//                    // when switching columns, we need to repaint, but it messes up the
-//                    // cursor position
-//                    m_table.requestRepaint();
-                }
-            }
-        }
-
-        public RepositoryObject lookup(Object value) {
-            for (RepositoryObject object : m_repository.get()) {
-                System.out.println("..." + object);
-                if (object instanceof StatefulGatewayObject) {
-                    StatefulGatewayObject sgo = (StatefulGatewayObject) object;
-                    if (sgo.isRegistered()) {
-                        object = sgo.getGatewayObject();
-                    }
-                    else {
-                        object = null;
-                    }
-                }
-                if (object != null) {
-                    NamedObject namedObject = getNamedObject(object);
-                    System.out.println("..." + namedObject);
-                    if (namedObject != null) {
-                        if (namedObject.getName().equals(value)) {
-                            System.out.println("Found: " + namedObject.getName());
-                            return object;
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-    }
-
-    /** Highlights associated and related items in other columns. */
-    private abstract class CellStyleGeneratorImplementation implements CellStyleGenerator {
-        public String getStyle(Object itemId, Object propertyId) {
-            if (propertyId == null) {
-                // no propertyId, styling row
-                for (RepositoryObject o : m_associatedItems) {
-                    System.out.println("cellrenderer probing: " + o);
-                    if (equals(itemId, o)) {
-                        System.out.println(" -> associated");
-                        return "associated";
-                    }
-                }
-                for (RepositoryObject o : m_relatedItems) {
-                    if (equals(itemId, o)) {
-                        System.out.println(" -> related");
-                        return "related";
-                    }
-                }
-                System.out.println("cellrenderer: unrelated");
-            }
-            return null;
-        }
-        public abstract boolean equals(Object itemId, RepositoryObject object);
-    }
-
-    private NamedObject getNamedObject(RepositoryObject object) {
-        if (object instanceof ArtifactObject) {
-            return new NamedArtifactObject((ArtifactObject) object);
-        }
-        else if (object instanceof GroupObject) {
-            return new NamedFeatureObject((GroupObject) object);
-        }
-        else if (object instanceof LicenseObject) {
-            return new NamedDistributionObject((LicenseObject) object);
-        }
-        else if (object instanceof GatewayObject) {
-            return new NamedTargetObject((GatewayObject) object);
-        }
-        return null;
-    }
-
-    private abstract class ObjectPanel extends Table implements EventHandler {
+    public abstract class ObjectPanel extends Table implements EventHandler {
         public static final String ACTIONS = "actions";
         protected Table m_table = this;
-        public ObjectPanel(final String name, final Window main, boolean hasEdit, boolean hasDeleteButton) {
+        protected Associations m_associations;
+        
+        public ObjectPanel(Associations associations, final String name, final Window main, boolean hasEdit, boolean hasDeleteButton) {
             super(name + "s");
+            m_associations = associations;
             addContainerProperty(OBJECT_NAME, String.class, null);
             addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
             addContainerProperty(ACTIONS, HorizontalLayout.class, null);
             setSizeFull();
-            setCellStyleGenerator(new CellStyleGeneratorImplementation() {
-                @Override
-                public boolean equals(Object itemId, RepositoryObject object) {
-                    return (getNamedObject(object).getName().equals(itemId));
-                }
-            });
+            setCellStyleGenerator(m_associations.createCellStyleGenerator());
             setSelectable(true);
             setMultiSelect(true);
             setImmediate(true);
@@ -1420,7 +1003,7 @@ public class VaadinClient extends com.vaadin.Application {
                         if (event.isDoubleClick()) {
                             String itemId = (String) event.getItemId();
                             RepositoryObject object = getFromId(itemId);
-                            showEditWindow(name, getNamedObject(object), main);
+                            showEditWindow(name, m_associations.getNamedObject(object), main);
                         }
                     }
                 });
@@ -1430,95 +1013,9 @@ public class VaadinClient extends com.vaadin.Application {
         protected abstract RepositoryObject getFromId(String id);
     }
 
-    private interface NamedObject {
-        String getName();
-        String getDescription();
-        void setDescription(String description);
-    }
-
-    private static class NamedArtifactObject implements NamedObject {
-        private final ArtifactObject m_target;
-
-        public NamedArtifactObject(ArtifactObject target) {
-            m_target = target;
-        }
-
-        public String getName() {
-            return m_target.getName();
-        }
-
-        public String getDescription() {
-            return m_target.getDescription();
-        }
-
-        public void setDescription(String description) {
-            m_target.setDescription(description);
-        }
-    }
-
-    private static class NamedFeatureObject implements NamedObject {
-        private final GroupObject m_target;
-
-        public NamedFeatureObject(GroupObject target) {
-            m_target = target;
-        }
-
-        public String getName() {
-            return m_target.getName();
-        }
-
-        public String getDescription() {
-            return m_target.getDescription();
-        }
-
-        public void setDescription(String description) {
-            m_target.setDescription(description);
-        }
-    }
-
-    private static class NamedDistributionObject implements NamedObject {
-        private final LicenseObject m_target;
-
-        public NamedDistributionObject(LicenseObject target) {
-            m_target = target;
-        }
-
-        public String getName() {
-            return m_target.getName();
-        }
-
-        public String getDescription() {
-            return m_target.getDescription();
-        }
-
-        public void setDescription(String description) {
-            m_target.setDescription(description);
-        }
-    }
-
-    private static class NamedTargetObject implements NamedObject {
-        private final GatewayObject m_target;
-
-        public NamedTargetObject(GatewayObject target) {
-            m_target = target;
-        }
-
-        public String getName() {
-            return m_target.getID();
-        }
-
-        public String getDescription() {
-            return "";
-        }
-
-        public void setDescription(String description) {
-            throw new IllegalArgumentException();
-        }
-    }
-    
     private class AddArtifactWindow extends Window {
     	private File m_file;
-    	private List<URL> m_uploadedArtifacts = new ArrayList<URL>();
+    	private List<File> m_uploadedArtifacts = new ArrayList<File>();
     	
     	public AddArtifactWindow(final Window main) {
     		super();
@@ -1539,6 +1036,11 @@ public class VaadinClient extends com.vaadin.Application {
     				FileOutputStream fos = null; // Output stream to write to
     		        try {
     		        	m_file = new File(filename); //File.createTempFile(filename, "tmp");
+    		        	if (m_file.exists()) {
+    		        		throw new IOException("Uploaded file already exists.");
+    		        		// meaning probably somebody else is in the process of uploading 
+    		        		// the exact same file...
+    		        	}
     		            // Open the file for writing.
     		            fos = new FileOutputStream(m_file);
     		        }
@@ -1574,7 +1076,7 @@ public class VaadinClient extends com.vaadin.Application {
     		            Item item = uploadedArtifacts.addItem(artifact);
     		            item.getItemProperty("symbolic name").setValue(m_file.getName());
     		            item.getItemProperty("version").setValue("");
-    					m_uploadedArtifacts.add(artifact);
+    					m_uploadedArtifacts.add(m_file);
 					}
     				catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -1619,14 +1121,17 @@ public class VaadinClient extends com.vaadin.Application {
                             }
                         }
                     }
-                    for (URL artifact : m_uploadedArtifacts) {
+                    for (File artifact : m_uploadedArtifacts) {
                     	try {
-                    		ArtifactObject ao = importBundle(artifact);
+                    		ArtifactObject ao = importBundle(artifact.toURI().toURL());
                             added.add(ao);
 						}
                     	catch (IOException e) {
 							e.printStackTrace();
 						}
+                    	finally {
+                    		artifact.delete();
+                    	}
                     }
                     // TODO: make a decision here
                     // so now we have enough information to show a list of imported artifacts (added)
@@ -1652,18 +1157,6 @@ public class VaadinClient extends com.vaadin.Application {
             // Open the subwindow by adding it to the parent
             // window
             main.getWindow().addWindow(featureWindow);
-        }
-    }
-    
-    public static class ArtifactTable extends Table {
-        public ArtifactTable(final Window main) {
-            super("Artifacts");
-            addContainerProperty("symbolic name", String.class, null);
-            addContainerProperty("version", String.class, null);
-            setSizeFull();
-            setSelectable(true);
-            setMultiSelect(true);
-            setImmediate(true);
         }
     }
     
@@ -1760,39 +1253,5 @@ public class VaadinClient extends com.vaadin.Application {
     
     public ArtifactObject importBundle(URL artifact) throws IOException {
 		return m_artifactRepository.importArtifact(artifact, true);
-    }
-    
-    public static class OBREntry {
-        private final String m_symbolicName;
-        private final String m_version;
-        private final String m_uri;
-        
-        public OBREntry(String symbolicName, String version, String uri) {
-            m_symbolicName = symbolicName;
-            m_version = version;
-            m_uri = uri;
-        }
-        
-        public String getVersion() {
-            return m_version;
-        }
-        
-        public String getSymbolicName() {
-            return m_symbolicName;
-        }
-        
-        public String getUri() {
-            return m_uri;
-        }
-
-        @Override
-        public int hashCode() {
-            return m_uri.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return m_uri.equals(((OBREntry) obj).m_uri);
-        }
     }
 }
