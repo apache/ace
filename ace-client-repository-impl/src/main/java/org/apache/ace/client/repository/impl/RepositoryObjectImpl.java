@@ -514,8 +514,8 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         // setBusy should 'wait' until all altering operations have passed. To do so,
         // it gets the locks for the other 'set' objects. Once it has all these locks,
         // we are sure no thread is performing a set-action.
-        synchronized(m_attributes) {
-            synchronized(m_associations) {
+        synchronized(m_associations) {
+            synchronized(m_attributes) {
                 if (m_busy && !busy) {
                     m_associations.notifyAll();
                     m_attributes.notifyAll();
