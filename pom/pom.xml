@@ -40,7 +40,7 @@
         <dependency.version.dependencymanager>3.0.0-SNAPSHOT</dependency.version.dependencymanager>
 
         <dependency.version.eventadmin>1.2.2</dependency.version.eventadmin>
-        <dependency.version.configadmin>1.2.4</dependency.version.configadmin>
+        <dependency.version.configadmin>1.2.8</dependency.version.configadmin>
         <dependency.version.deploymentadmin>0.9.0-SNAPSHOT</dependency.version.deploymentadmin>
 
         <dependency.version.osgi.core>4.2.0</dependency.version.osgi.core>
