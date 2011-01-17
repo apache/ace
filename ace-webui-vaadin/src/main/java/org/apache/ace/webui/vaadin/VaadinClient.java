@@ -28,6 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,9 +86,11 @@ import com.vaadin.event.dd.TargetDetails;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.event.dd.acceptcriteria.Or;
 import com.vaadin.terminal.Sizeable;
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
@@ -202,7 +205,7 @@ public class VaadinClient extends com.vaadin.Application {
     public void init() {
         System.out.println("INIT " + this);
         
-        login();
+//        login();
         
         setTheme("ace");
         final Window main = new Window("Apache ACE - User Interface - " + this);
@@ -320,11 +323,70 @@ public class VaadinClient extends com.vaadin.Application {
         addListener(m_featuresPanel, GroupObject.TOPIC_ALL);
         addListener(m_distributionsPanel, LicenseObject.TOPIC_ALL);
         addListener(m_targetsPanel, StatefulGatewayObject.TOPIC_ALL);
+        
+        LoginWindow loginWindow = new LoginWindow();
+        main.getWindow().addWindow(loginWindow);
+        loginWindow.center();
+    }
+    
+    public class LoginWindow extends Window {
+        private TextField m_name;
+        private TextField m_password;
+        private Button m_loginButton;
+        
+        public LoginWindow() {
+            super("Apache ACE Login");
+            setResizable(false);
+            setModal(true);
+            setWidth("15em");
+            
+            LoginPanel p = new LoginPanel();
+            setContent(p);
+        }
+        
+        public void closeWindow() {
+            getParent().removeWindow(this);
+        }
+        
+        public class LoginPanel extends VerticalLayout {
+            public LoginPanel() {
+                setSpacing(true);
+                setMargin(true);
+                setClosable(false);
+                setSizeFull();
+                m_name = new TextField("Name", "");
+                m_password = new TextField("Password", "");
+                m_password.setSecret(true);
+                m_loginButton = new Button("Login");
+                addComponent(m_name);
+                addComponent(m_password);
+                addComponent(m_loginButton);
+                setComponentAlignment(m_loginButton, "center");
+                m_name.focus();
+                m_name.selectAll();
+                m_loginButton.addListener(new Button.ClickListener() {
+                    public void buttonClick(ClickEvent event) {
+                        if (login((String) m_name.getValue(), (String) m_password.getValue())) {
+                            closeWindow();
+                        }
+                        else {
+                            // TODO provide some feedback, login failed, for now don't close the login window
+                            m_loginButton.setComponentError(new UserError("Invalid username or password."));
+                        }
+                    }
+                });
+            }
+        }
     }
 
-	private void login() {
+	private boolean login(String username, String password) {
 		try {
             User user = m_userAdmin.getUser("username", "d");
+            Dictionary credentials = user.getCredentials();
+            String userPassword = (String) credentials.get("password");
+            if (!password.equals(userPassword)) {
+                return false;
+            }
             RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
             
             context.addShopRepository(new URL(hostName + endpoint), customerName, shopRepo, true)
@@ -333,9 +395,11 @@ public class VaadinClient extends com.vaadin.Application {
                 .addDeploymentRepository(new URL(hostName + endpoint), customerName, deployRepo, true);
             m_admin.login(context);
             m_admin.checkout();
+            return true;
         }
         catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
 	}
     
