@@ -205,8 +205,6 @@ public class VaadinClient extends com.vaadin.Application {
     public void init() {
         System.out.println("INIT " + this);
         
-//        login();
-        
         setTheme("ace");
         final Window main = new Window("Apache ACE - User Interface - " + this);
         setMainWindow(main);
@@ -381,7 +379,10 @@ public class VaadinClient extends com.vaadin.Application {
 
 	private boolean login(String username, String password) {
 		try {
-            User user = m_userAdmin.getUser("username", "d");
+            User user = m_userAdmin.getUser("username", username);
+            if (user == null) {
+                
+            }
             Dictionary credentials = user.getCredentials();
             String userPassword = (String) credentials.get("password");
             if (!password.equals(userPassword)) {
