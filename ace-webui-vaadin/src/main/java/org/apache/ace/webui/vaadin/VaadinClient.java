@@ -45,6 +45,7 @@ import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
+import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.GatewayObject;
@@ -88,6 +89,8 @@ import com.vaadin.event.dd.acceptcriteria.Or;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -160,6 +163,8 @@ public class VaadinClient extends com.vaadin.Application {
     
     private List<OBREntry> m_obrList;
     private GridLayout m_grid;
+    
+    private boolean m_dynamicRelations = true;
 
     // basic session ID generator
     private static long generateSessionID() {
@@ -220,14 +225,19 @@ public class VaadinClient extends com.vaadin.Application {
 
         m_artifactsPanel = createArtifactsPanel(main);
         m_grid.addComponent(m_artifactsPanel, 0, 2);
-        Button addArtifactButton = new Button("Add artifact...");
-        addArtifactButton.addListener(new Button.ClickListener() {
+        HorizontalLayout artifactToolbar = new HorizontalLayout();
+        artifactToolbar.addComponent(createAddArtifactButton(main));
+        CheckBox dynamicCheckBox = new CheckBox("Dynamic Links");
+        dynamicCheckBox.setImmediate(true);
+        dynamicCheckBox.setValue(Boolean.TRUE);
+        dynamicCheckBox.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                showAddArtifactDialog(main);
+                m_dynamicRelations = event.getButton().booleanValue();
             }
         });
-
-        m_grid.addComponent(addArtifactButton, 0, 1);
+        artifactToolbar.addComponent(dynamicCheckBox);
+        
+        m_grid.addComponent(artifactToolbar, 0, 1);
 
         m_featuresPanel = createFeaturesPanel(main);
         m_grid.addComponent(m_featuresPanel, 1, 2);
@@ -239,13 +249,7 @@ public class VaadinClient extends com.vaadin.Application {
 
         m_targetsPanel = createTargetsPanel(main);
         m_grid.addComponent(m_targetsPanel, 3, 2);
-        Button addTargetButton = new Button("Add target...");
-        m_grid.addComponent(addTargetButton, 3, 1); 
-        addTargetButton.addListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                new AddTargetWindow(main).show();
-            }
-        });
+        m_grid.addComponent(createAddTargetButton(main), 3, 1); 
         
         m_grid.setRowExpandRatio(2, 1.0f);
         
@@ -265,13 +269,27 @@ public class VaadinClient extends com.vaadin.Application {
 
             @Override
             protected void associateFromRight(String left, String right) {
-                m_artifact2GroupAssociationRepository.create(getArtifact(left), getFeature(right));
+                if (m_dynamicRelations) {
+                    Map<String, String> properties = new HashMap<String, String>();
+                    properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
+                    m_artifact2GroupAssociationRepository.create(getArtifact(left), properties, getFeature(right), null);
+                }
+                else {
+                    m_artifact2GroupAssociationRepository.create(getArtifact(left), getFeature(right));
+                }
             }
         });
         m_featuresPanel.setDropHandler(new AssociationDropHandler(m_artifactsPanel, m_distributionsPanel) {
             @Override
             protected void associateFromLeft(String left, String right) {
-                m_artifact2GroupAssociationRepository.create(getArtifact(left), getFeature(right));
+                if (m_dynamicRelations) {
+                    Map<String, String> properties = new HashMap<String, String>();
+                    properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
+                    m_artifact2GroupAssociationRepository.create(getArtifact(left), properties, getFeature(right), null);
+                }
+                else {
+                    m_artifact2GroupAssociationRepository.create(getArtifact(left), getFeature(right));
+                }
             }
 
             @Override
@@ -325,6 +343,26 @@ public class VaadinClient extends com.vaadin.Application {
         LoginWindow loginWindow = new LoginWindow();
         main.getWindow().addWindow(loginWindow);
         loginWindow.center();
+    }
+
+    private Button createAddTargetButton(final Window main) {
+        Button addTargetButton = new Button("Add target...");
+        addTargetButton.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                new AddTargetWindow(main).show();
+            }
+        });
+        return addTargetButton;
+    }
+
+    private Button createAddArtifactButton(final Window main) {
+        Button addArtifactButton = new Button("Add artifact...");
+        addArtifactButton.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                showAddArtifactDialog(main);
+            }
+        });
+        return addArtifactButton;
     }
     
     public class LoginWindow extends Window {
