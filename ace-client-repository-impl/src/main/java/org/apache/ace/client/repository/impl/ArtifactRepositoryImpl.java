@@ -261,7 +261,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         }
 
         if (recognizer == null) {
-            throw new IllegalArgumentException("There is no artifact recognizer that recognizes artifact " + ((url == null) ? "(null)" : url.toString()));
+            throw new IllegalArgumentException("There is no artifact recognizer that recognizes artifact " + ((mimetype != null) ? mimetype : url));
         }
 
         // Package the results in the map.
