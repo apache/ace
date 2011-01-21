@@ -76,7 +76,7 @@ public class Activator extends DependencyActivatorBase {
                     Button button = new Button("i", new Button.ClickListener() {
                         public void buttonClick(ClickEvent event) {
                             event.getButton().getWindow().showNotification(
-                                target.getID(), "current version is " + target.getCurrentVersion());
+                                target.getID(), "Available version: " + target.getCurrentVersion() + ", installed version: " + target.getLastInstallVersion());
                         }
                     });
                     button.setStyleName("small");
