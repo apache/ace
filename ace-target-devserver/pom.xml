@@ -211,6 +211,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-client-repository-helper-configuration</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
 		<!-- TODO this next artifact does not seem to exist yet
         <dependency>
             <groupId>${project.groupId}</groupId>
