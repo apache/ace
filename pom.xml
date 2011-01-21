@@ -65,10 +65,10 @@
                 <module>ace-scheduler</module>
 
                 <module>ace-client-repository-api</module>
-                <module>ace-client-repository-configuration</module>
                 <module>ace-client-repository-impl</module>
                 <module>ace-client-repository-helper-base</module>
                 <module>ace-client-repository-helper-bundle</module>
+                <module>ace-client-repository-helper-configuration</module>
                 <module>ace-client-repository-helper-user</module>
                 <module>ace-client-automation</module>
 
