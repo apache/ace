@@ -419,7 +419,7 @@ public class VaadinClient extends com.vaadin.Application {
 		try {
             User user = m_userAdmin.getUser("username", username);
             if (user == null) {
-                
+                return false;
             }
             Dictionary credentials = user.getCredentials();
             String userPassword = (String) credentials.get("password");
