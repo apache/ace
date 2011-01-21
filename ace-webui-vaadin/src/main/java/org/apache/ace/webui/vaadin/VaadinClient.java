@@ -76,6 +76,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.sun.corba.se.impl.oa.poa.AOMEntry;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.ItemClickEvent;
@@ -1318,9 +1319,9 @@ public class VaadinClient extends com.vaadin.Application {
         for (int nResource = 0; nResource < resources.getLength(); nResource++) {
             Node resource = resources.item(nResource);
             NamedNodeMap attr = resource.getAttributes();
-            String uri = attr.getNamedItem("uri").getTextContent();
-            String symbolicname = attr.getNamedItem("symbolicname").getTextContent();
-            String version = attr.getNamedItem("version").getTextContent();
+            String uri = getNamedItemText(attr, "uri");
+            String symbolicname = getNamedItemText(attr, "symbolicname");
+            String version = getNamedItemText(attr, "version");
             m_obrList.add(new OBREntry(symbolicname, version, uri));
         }
 
@@ -1332,7 +1333,7 @@ public class VaadinClient extends com.vaadin.Application {
             String artifactURL = ao.getURL();
             if (artifactURL.startsWith(obrBase.toExternalForm())) {
                 // we now know this artifact comes from the OBR we are querying, so we are interested.
-                fromRepository.add(new OBREntry(ao.getName(), null /* TODO version */, new File(artifactURL).getName()));
+                fromRepository.add(new OBREntry(ao.getName(), ao.getAttribute(BundleHelper.KEY_VERSION), new File(artifactURL).getName()));
             }
         }
 
@@ -1345,9 +1346,27 @@ public class VaadinClient extends com.vaadin.Application {
 
         // Create a list of all bundle names
         for (OBREntry s : m_obrList) {
-            Item item = table.addItem(s.getUri());
-            item.getItemProperty("symbolic name").setValue(s.getSymbolicName());
-            item.getItemProperty("version").setValue(s.getVersion());
+            String uri = s.getUri();
+            String symbolicName = s.getSymbolicName();
+            String version = s.getVersion();
+            Item item = table.addItem(uri);
+            if (symbolicName == null || symbolicName.length() == 0) {
+                item.getItemProperty("symbolic name").setValue(uri);
+            }
+            else {
+                item.getItemProperty("symbolic name").setValue(symbolicName);
+            }
+            item.getItemProperty("version").setValue(version);
+        }
+    }
+    
+    private static String getNamedItemText(NamedNodeMap attr, String name) {
+        Node namedItem = attr.getNamedItem(name);
+        if (namedItem == null) {
+            return null;
+        }
+        else {
+            return namedItem.getTextContent();
         }
     }
 
