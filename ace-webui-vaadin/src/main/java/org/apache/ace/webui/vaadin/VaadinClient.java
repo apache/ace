@@ -996,6 +996,7 @@ public class VaadinClient extends com.vaadin.Application {
     private void createTarget(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(StatefulGatewayObject.KEY_ID, name);
+        attributes.put(GatewayObject.KEY_AUTO_APPROVE, "true");
         Map<String, String> tags = new HashMap<String, String>();
         m_statefulTargetRepository.preregister(attributes, tags);
     }
