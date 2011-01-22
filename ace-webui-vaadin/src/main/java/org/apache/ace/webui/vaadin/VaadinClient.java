@@ -852,7 +852,7 @@ public class VaadinClient extends com.vaadin.Application {
                             associateFromLeft((String) fromItemId, (String) toItemId);
                         }
                     }
-                    else {
+                    else if (tt.getSourceComponent().equals(m_right)) {
                         if (selection != null) {
                             for (Object item : selection) {
                                 System.out.println("FS: " + item);
