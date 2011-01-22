@@ -92,7 +92,7 @@ public class Configurator implements Runnable {
      */
     synchronized void start() {
         if (m_configThread == null) {
-            m_configThread = new Thread(this, "LiQ-Configurator");
+            m_configThread = new Thread(this, "Apache ACE Configurator");
         }
         m_configThread.setDaemon(true);
         m_configThread.start();
