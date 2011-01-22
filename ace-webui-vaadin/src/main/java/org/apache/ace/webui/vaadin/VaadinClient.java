@@ -39,6 +39,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.RepositoryObject;
@@ -263,26 +264,38 @@ public class VaadinClient extends com.vaadin.Application {
 
             @Override
             protected void associateFromRight(String left, String right) {
-                if (m_dynamicRelations) {
-                    Map<String, String> properties = new HashMap<String, String>();
-                    properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
-                    m_artifact2GroupAssociationRepository.create(getArtifact(left), properties, getFeature(right), null);
-                }
-                else {
-                    m_artifact2GroupAssociationRepository.create(getArtifact(left), getFeature(right));
+                ArtifactObject artifact = getArtifact(left);
+                // if you drop on a resource processor, and try to get it, you will get null
+                // because you cannot associate anything with a resource processor so we check
+                // for null here
+                if (artifact != null) {
+                    if (m_dynamicRelations) {
+                        Map<String, String> properties = new HashMap<String, String>();
+                        properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
+                        m_artifact2GroupAssociationRepository.create(artifact, properties, getFeature(right), null);
+                    }
+                    else {
+                        m_artifact2GroupAssociationRepository.create(artifact, getFeature(right));
+                    }
                 }
             }
         });
         m_featuresPanel.setDropHandler(new AssociationDropHandler(m_artifactsPanel, m_distributionsPanel) {
             @Override
             protected void associateFromLeft(String left, String right) {
-                if (m_dynamicRelations) {
-                    Map<String, String> properties = new HashMap<String, String>();
-                    properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
-                    m_artifact2GroupAssociationRepository.create(getArtifact(left), properties, getFeature(right), null);
-                }
-                else {
-                    m_artifact2GroupAssociationRepository.create(getArtifact(left), getFeature(right));
+                ArtifactObject artifact = getArtifact(left);
+                // if you drop on a resource processor, and try to get it, you will get null
+                // because you cannot associate anything with a resource processor so we check
+                // for null here
+                if (artifact != null) {
+                    if (m_dynamicRelations) {
+                        Map<String, String> properties = new HashMap<String, String>();
+                        properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
+                        m_artifact2GroupAssociationRepository.create(artifact, properties, getFeature(right), null);
+                    }
+                    else {
+                        m_artifact2GroupAssociationRepository.create(artifact, getFeature(right));
+                    }
                 }
             }
 
@@ -528,25 +541,37 @@ public class VaadinClient extends com.vaadin.Application {
             }
             private void add(ArtifactObject artifact) {
                 Item item = addItem(artifact.getName());
+                String resourceProcessorPID = artifact.getAttribute(BundleHelper.KEY_RESOURCE_PROCESSOR_PID);
                 item.getItemProperty(OBJECT_NAME).setValue(artifact.getName());
-                item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
-                Button removeLinkButton = new RemoveLinkButton<ArtifactObject>(artifact, null, m_featuresPanel) {
-                    @Override
-                    protected void removeLinkFromLeft(ArtifactObject object, RepositoryObject other) {}
-
-                    @Override
-                    protected void removeLinkFromRight(ArtifactObject object, RepositoryObject other) {
-                        List<Artifact2GroupAssociation> associations = object.getAssociationsWith((GroupObject) other);
-                        for (Artifact2GroupAssociation association : associations) {
-                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
-                            m_artifact2GroupAssociationRepository.remove(association);
-                        }
-                        m_associations.removeAssociatedItem(object);
-                        m_table.requestRepaint();
-                    }
-                };
+                // for now, for resource processors, let's say so in the description
+                if (resourceProcessorPID != null) {
+                    item.getItemProperty(OBJECT_DESCRIPTION).setValue("Resource Processor");
+                }
+                else {
+                    item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
+                }
                 HorizontalLayout buttons = new HorizontalLayout();
-                buttons.addComponent(removeLinkButton);
+                // resource processors can never be directly associated with anything, so we only need
+                // buttons to remove links for any other type of artifact
+                if (resourceProcessorPID == null) {
+                    Button removeLinkButton = new RemoveLinkButton<ArtifactObject>(artifact, null, m_featuresPanel) {
+                        @Override
+                        protected void removeLinkFromLeft(ArtifactObject object, RepositoryObject other) {}
+                        
+                        @Override
+                        protected void removeLinkFromRight(ArtifactObject object, RepositoryObject other) {
+                            List<Artifact2GroupAssociation> associations = object.getAssociationsWith((GroupObject) other);
+                            for (Artifact2GroupAssociation association : associations) {
+                                System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                                m_artifact2GroupAssociationRepository.remove(association);
+                            }
+                            m_associations.removeAssociatedItem(object);
+                            m_table.requestRepaint();
+                        }
+                    };
+                    buttons.addComponent(removeLinkButton);
+                }
+                buttons.addComponent(new RemoveItemButton<ArtifactObject, ArtifactRepository>(artifact, m_artifactRepository));
                 item.getItemProperty(ACTIONS).setValue(buttons);
 
             }
@@ -618,6 +643,7 @@ public class VaadinClient extends com.vaadin.Application {
                 };
                 HorizontalLayout buttons = new HorizontalLayout();
                 buttons.addComponent(removeLinkButton);
+                buttons.addComponent(new RemoveItemButton<GroupObject, GroupRepository>(feature, m_featureRepository));
                 item.getItemProperty(ACTIONS).setValue(buttons);
             }
             private void change(GroupObject go) {
@@ -660,6 +686,18 @@ public class VaadinClient extends com.vaadin.Application {
         protected abstract void removeLinkFromLeft(REPO_OBJECT object, RepositoryObject other);
 
         protected abstract void removeLinkFromRight(REPO_OBJECT object, RepositoryObject other);
+    }
+    
+    public class RemoveItemButton<REPO_OBJECT extends RepositoryObject, REPO extends ObjectRepository> extends Button {
+        public RemoveItemButton(final REPO_OBJECT object, final REPO repository) {
+            super("x");
+            setStyleName("small");
+            addListener(new Button.ClickListener() {
+                public void buttonClick(ClickEvent event) {
+                    repository.remove(object);
+                }
+            });
+        }
     }
     
     
@@ -720,6 +758,7 @@ public class VaadinClient extends com.vaadin.Application {
                 };
                 HorizontalLayout buttons = new HorizontalLayout();
                 buttons.addComponent(removeLinkButton);
+                buttons.addComponent(new RemoveItemButton<LicenseObject, LicenseRepository>(distribution, m_distributionRepository));
                 item.getItemProperty(ACTIONS).setValue(buttons);
             }
             private void change(LicenseObject distribution) {
@@ -797,6 +836,8 @@ public class VaadinClient extends com.vaadin.Application {
                 };
                 HorizontalLayout buttons = new HorizontalLayout();
                 buttons.addComponent(removeLinkButton);
+                // next line commented out because removing stateful targets currently is not possible
+                //buttons.addComponent(new RemoveItemButton<StatefulGatewayObject, StatefulGatewayRepository>(statefulTarget, m_statefulTargetRepository));
                 Map<String, Object> context = new HashMap<String, Object>();
                 context.put("object", statefulTarget);
                 for (UIExtensionFactory factory : m_factories) {
