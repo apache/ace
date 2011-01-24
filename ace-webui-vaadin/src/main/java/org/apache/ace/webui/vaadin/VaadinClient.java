@@ -555,37 +555,32 @@ public class VaadinClient extends com.vaadin.Application {
                 }
             }
             private void add(ArtifactObject artifact) {
-                Item item = addItem(artifact.getName());
                 String resourceProcessorPID = artifact.getAttribute(BundleHelper.KEY_RESOURCE_PROCESSOR_PID);
-                item.getItemProperty(OBJECT_NAME).setValue(artifact.getName());
-                // for now, for resource processors, let's say so in the description
                 if (resourceProcessorPID != null) {
-                    item.getItemProperty(OBJECT_DESCRIPTION).setValue("Resource Processor");
+                	// if it's a resource processor we don't add it to our list, as resource processors don't
+                	// show up there (you can query for them separately)
+                	return;
                 }
-                else {
-                    item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
-                }
+                Item item = addItem(artifact.getName());
+                item.getItemProperty(OBJECT_NAME).setValue(artifact.getName());
+                item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
                 HorizontalLayout buttons = new HorizontalLayout();
-                // resource processors can never be directly associated with anything, so we only need
-                // buttons to remove links for any other type of artifact
-                if (resourceProcessorPID == null) {
-                    Button removeLinkButton = new RemoveLinkButton<ArtifactObject>(artifact, null, m_featuresPanel) {
-                        @Override
-                        protected void removeLinkFromLeft(ArtifactObject object, RepositoryObject other) {}
-                        
-                        @Override
-                        protected void removeLinkFromRight(ArtifactObject object, RepositoryObject other) {
-                            List<Artifact2GroupAssociation> associations = object.getAssociationsWith((GroupObject) other);
-                            for (Artifact2GroupAssociation association : associations) {
-                                System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
-                                m_artifact2GroupAssociationRepository.remove(association);
-                            }
-                            m_associations.removeAssociatedItem(object);
-                            m_table.requestRepaint();
+                Button removeLinkButton = new RemoveLinkButton<ArtifactObject>(artifact, null, m_featuresPanel) {
+                    @Override
+                    protected void removeLinkFromLeft(ArtifactObject object, RepositoryObject other) {}
+                    
+                    @Override
+                    protected void removeLinkFromRight(ArtifactObject object, RepositoryObject other) {
+                        List<Artifact2GroupAssociation> associations = object.getAssociationsWith((GroupObject) other);
+                        for (Artifact2GroupAssociation association : associations) {
+                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
+                            m_artifact2GroupAssociationRepository.remove(association);
                         }
-                    };
-                    buttons.addComponent(removeLinkButton);
-                }
+                        m_associations.removeAssociatedItem(object);
+                        m_table.requestRepaint();
+                    }
+                };
+                buttons.addComponent(removeLinkButton);
                 buttons.addComponent(new RemoveItemButton<ArtifactObject, ArtifactRepository>(artifact, m_artifactRepository));
                 Map<String, Object> context = new HashMap<String, Object>();
                 context.put("object", artifact);

@@ -41,14 +41,25 @@ public class VaadinResourceHandler {
                     return m_context.getMimeType(name);
                 }
 
+                /**
+                 * ACE uses a slightly modified version of the 'reindeer' theme. To avoid having
+                 * to copy all resources in the Vaadin jar, we only override the files we changed
+                 * and do replace the theme name 'ace' with 'reindeer' before we go looking for the
+                 * original files.
+                 * 
+                 * When updating to a new Vaadin version, usually you need to copy the styles.css
+                 * file from the original archive again and append the ACE changes to the end, as this
+                 * file tends to change considerably between versions.
+                 */
                 public URL getResource(String name) {
                     URL resource = null;
                     String prefix = "/VAADIN/";
                     if (name.startsWith(prefix)) {
-                        resource = getClass().getResource(name);
+                    	String originalName = name.replace("/ace/", "/reindeer/");
+                        resource = getClass().getResource(originalName);
                         if (resource == null) {
                             // try to find the resource in the Vaadin bundle instead
-                            resource = com.vaadin.Application.class.getResource(name);
+                            resource = com.vaadin.Application.class.getResource(originalName);
                         }
                     }
                     return resource;
