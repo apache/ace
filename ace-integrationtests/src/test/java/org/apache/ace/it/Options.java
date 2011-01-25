@@ -19,8 +19,10 @@
 package org.apache.ace.it;
 
 import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
+import org.ops4j.pax.exam.options.WrappedUrlProvisionOption;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 /**
  * This class contains a set of Pax Exam options, intended for typo-free provisioning of bundles.
@@ -49,14 +51,43 @@ public class Options {
             return maven("org.apache.felix.configadmin");
         }
 
+        public static MavenArtifactProvisionOption eventAdmin() {
+            return maven("org.apache.felix.eventadmin");
+        }
+
+        public static MavenArtifactProvisionOption deploymentAdmin() {
+            return maven("org.apache.felix.deploymentadmin");
+        }
+
         private static MavenArtifactProvisionOption maven(String artifactId) {
             return Options.maven("org.apache.felix", artifactId);
         }
     }
 
     public static class Ace {
+        public static WrappedUrlProvisionOption util() {
+            // we do this because we need access to some test classes that aren't exported
+            return wrappedBundle(mavenBundle("org.apache.ace", "ace-util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL);
+        }
+
         public static MavenArtifactProvisionOption rangeApi() {
             return maven("ace-range-api");
+        }
+
+        public static MavenArtifactProvisionOption discoveryApi() {
+            return maven("ace-discovery-api");
+        }
+
+        public static MavenArtifactProvisionOption discoveryProperty() {
+            return maven("ace-discovery-property");
+        }
+
+        public static MavenArtifactProvisionOption identificationApi() {
+            return maven("ace-identification-api");
+        }
+
+        public static MavenArtifactProvisionOption identificationProperty() {
+            return maven("ace-identification-property");
         }
 
         public static MavenArtifactProvisionOption scheduler() {
@@ -99,8 +130,32 @@ public class Options {
             return maven("ace-configurator-useradmin-task");
         }
 
+        public static MavenArtifactProvisionOption deploymentApi() {
+            return maven("ace-deployment-api");
+        }
+
+        public static MavenArtifactProvisionOption deploymentDeploymentAdmin() {
+            return maven("ace-deployment-deploymentadmin");
+        }
+
+        public static MavenArtifactProvisionOption deploymentServlet() {
+            return maven("ace-deployment-servlet");
+        }
+
+        public static MavenArtifactProvisionOption deploymentTask() {
+            return maven("ace-deployment-task");
+        }
+
+        public static MavenArtifactProvisionOption deploymentStreamgenerator() {
+            return maven("ace-deployment-streamgenerator");
+        }
+
         public static MavenArtifactProvisionOption deploymentProviderApi() {
             return maven("ace-deployment-provider-api");
+        }
+
+        public static MavenArtifactProvisionOption deploymentProviderFilebased() {
+            return maven("ace-deployment-provider-filebased");
         }
 
         private static MavenArtifactProvisionOption maven(String artifactId) {

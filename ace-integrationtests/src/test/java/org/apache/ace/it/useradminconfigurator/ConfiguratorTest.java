@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.WrappedUrlProvisionOption;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -47,6 +48,7 @@ public class ConfiguratorTest extends IntegrationTestBase {
         return options(
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),    
             provision(
+                wrappedBundle(maven("org.apache.ace", "ace-util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL), // we do this because we need access to some test classes that aren't exported
                 Osgi.compendium(),
                 jetty(),
                 Felix.preferences(),

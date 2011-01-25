@@ -37,6 +37,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.ace.test.utils.Util.properties;
 import static org.junit.Assert.fail;
 
 /**
@@ -179,14 +180,6 @@ public class IntegrationTestBase {
     private Configuration createFactoryConfiguration(String factoryPid) throws IOException {
         ConfigurationAdmin admin = getService(ConfigurationAdmin.class);
         return admin.createFactoryConfiguration(factoryPid, null);
-    }
-
-    private static Properties properties(String... values) {
-        Properties props = new Properties();
-        for (int i = 0; i < values.length; i += 2) {
-            props.put(values[i], values[i+1]);
-        }
-        return props;
     }
 
     // Dependency Manager bridge methods
