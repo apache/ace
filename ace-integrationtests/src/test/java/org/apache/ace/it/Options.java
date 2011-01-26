@@ -158,10 +158,37 @@ public class Options {
             return maven("ace-deployment-provider-filebased");
         }
 
-        private static MavenArtifactProvisionOption maven(String artifactId) {
-            return Options.maven("org.apache.ace", artifactId);
+        public static MavenArtifactProvisionOption log() {
+            return maven("ace-log");
         }
 
+        public static MavenArtifactProvisionOption logListener() {
+            return maven("ace-log-listener");
+        }
+
+        public static MavenArtifactProvisionOption logServlet() {
+            return maven("ace-log-servlet");
+        }
+
+        public static MavenArtifactProvisionOption serverLogStore() {
+            return maven("ace-server-log-store");
+        }
+
+        public static MavenArtifactProvisionOption logTask() {
+            return maven("ace-log-task");
+        }
+
+        public static MavenArtifactProvisionOption gatewayLog() {
+            return maven("ace-gateway-log");
+        }
+
+        public static MavenArtifactProvisionOption gatewayLogStore() {
+            return maven("ace-gateway-log-store");
+        }
+
+        public static MavenArtifactProvisionOption maven(String artifactId) {
+            return Options.maven("org.apache.ace", artifactId);
+        }
     }
 
     public static class Knopflerfish {
