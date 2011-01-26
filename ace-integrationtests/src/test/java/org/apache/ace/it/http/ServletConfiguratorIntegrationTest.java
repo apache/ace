@@ -77,19 +77,6 @@ public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
             .setInterface(HttpService.class.getName(), null);
     }
 
-    protected Component[] getDependencies() {
-        return new Component[] {
-            createComponent()
-                .setImplementation(ServletConfiguratorIntegrationTest.class)
-                .add(createServiceDependency()
-                    .setService(HttpService.class)
-                    .setRequired(true))
-                .add(createServiceDependency()
-                    .setService(LogService.class)
-                    .setRequired(false))
-            };
-    }           
-
     // the echo servlet
     private HttpServlet m_echoServlet;
     // echo servlet service-reference
