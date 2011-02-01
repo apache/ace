@@ -186,6 +186,42 @@ public class Options {
             return maven("ace-gateway-log-store");
         }
 
+        public static MavenArtifactProvisionOption obrMetadata() {
+            return maven("ace-obr-metadata");
+        }
+
+        public static MavenArtifactProvisionOption obrServlet() {
+            return maven("ace-obr-servlet");
+        }
+
+        public static MavenArtifactProvisionOption obrStorage() {
+            return maven("ace-obr-storage");
+        }
+
+        public static MavenArtifactProvisionOption clientRepositoryApi() {
+            return maven("ace-client-repository-api");
+        }
+
+        public static MavenArtifactProvisionOption clientRepositoryImpl() {
+            return maven("ace-client-repository-impl");
+        }
+
+        public static MavenArtifactProvisionOption clientRepositoryHelperBase() {
+            return maven("ace-client-repository-helper-base");
+        }
+
+        public static MavenArtifactProvisionOption clientRepositoryHelperBundle() {
+            return maven("ace-client-repository-helper-bundle");
+        }
+
+        public static MavenArtifactProvisionOption clientRepositoryHelperConfiguration() {
+            return maven("ace-client-repository-helper-configuration");
+        }
+
+        public static MavenArtifactProvisionOption clientAutomation() {
+            return maven("ace-client-automation");
+        }
+
         public static MavenArtifactProvisionOption maven(String artifactId) {
             return Options.maven("org.apache.ace", artifactId);
         }
