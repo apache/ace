@@ -160,6 +160,25 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
     private volatile StatefulGatewayRepository m_statefulGatewayRepository; /* Injected by dependency manager */
     private volatile LogStore m_auditLogStore; /* Injected by dependency manager */
 
+    public void cleanUp() throws IOException, InvalidSyntaxException, InterruptedException {
+        // Simply remove all objects in the repository.
+        clearRepository(m_artifactRepository);
+        clearRepository(m_artifact2groupRepository);
+        clearRepository(m_group2licenseRepository);
+        clearRepository(m_license2gatewayRepository);
+        clearRepository(m_artifactRepository);
+        clearRepository(m_groupRepository);
+        clearRepository(m_licenseRepository);
+        clearRepository(m_gatewayRepository);
+        clearRepository(m_deploymentVersionRepository);
+        m_statefulGatewayRepository.refresh();
+        try {
+            m_repositoryAdmin.logout(true);
+        }
+        catch (Exception ioe) {
+            //ioe.printStackTrace(System.out);
+        }
+    }
 
     public <T extends RepositoryObject> void clearRepository (ObjectRepository<T> rep) {
         for (T entity : rep.get()) {
