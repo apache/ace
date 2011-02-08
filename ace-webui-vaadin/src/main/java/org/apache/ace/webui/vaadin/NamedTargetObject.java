@@ -1,11 +1,11 @@
 package org.apache.ace.webui.vaadin;
 
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
 
 class NamedTargetObject implements NamedObject {
-    private final GatewayObject m_target;
+    private final StatefulGatewayObject m_target;
 
-    public NamedTargetObject(GatewayObject target) {
+    public NamedTargetObject(StatefulGatewayObject target) {
         m_target = target;
     }
 

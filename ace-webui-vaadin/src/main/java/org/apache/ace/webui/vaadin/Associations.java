@@ -90,8 +90,8 @@ public class Associations {
     	else if (object instanceof LicenseObject) {
     		return new NamedDistributionObject((LicenseObject) object);
     	}
-    	else if (object instanceof GatewayObject) {
-    		return new NamedTargetObject((GatewayObject) object);
+    	else if (object instanceof StatefulGatewayObject) {
+    		return new NamedTargetObject((StatefulGatewayObject) object);
     	}
     	return null;
     }

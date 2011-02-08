@@ -34,6 +34,8 @@ import org.osgi.service.http.HttpService;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 public class Activator extends DependencyActivatorBase {
     @Override
@@ -69,18 +71,20 @@ public class Activator extends DependencyActivatorBase {
         
         // shows off components that are contributed by extensions
         manager.add(createComponent()
-            .setInterface(UIExtensionFactory.class.getName(), null)
+            .setInterface(UIExtensionFactory.class.getName(), new Properties() {{ put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET); }})
             .setImplementation(new UIExtensionFactory() {
                 public Component create(Map<String, Object> context) {
-                    final StatefulGatewayObject target = (StatefulGatewayObject) context.get("object");
-                    Button button = new Button("i", new Button.ClickListener() {
+                    final NamedObject object = (NamedObject) context.get("object");
+                    VerticalLayout vl = new VerticalLayout();
+                    vl.setCaption("Info");
+                    Button button = new Button("info", new Button.ClickListener() {
                         public void buttonClick(ClickEvent event) {
-                            event.getButton().getWindow().showNotification(
-                                target.getID(), "Available version: " + target.getCurrentVersion() + ", installed version: " + target.getLastInstallVersion());
+                            event.getButton().getWindow().showNotification(object.getName(), "Description: " + object.getName());
                         }
                     });
-                    button.setStyleName("small");
-                    return button;
+                    vl.addComponent(new Label("Hit the button to see a message pop up!"));
+                    vl.addComponent(button);
+                    return vl;
                 }
             })
         );
