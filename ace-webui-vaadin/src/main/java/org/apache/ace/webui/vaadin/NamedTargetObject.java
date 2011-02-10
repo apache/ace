@@ -1,18 +1,29 @@
 package org.apache.ace.webui.vaadin;
 
 import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.client.repository.object.GatewayObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
 import org.apache.ace.webui.NamedObject;
 
 class NamedTargetObject implements NamedObject {
-    private final StatefulGatewayObject m_target;
+    private final RepositoryObject m_target;
 
     public NamedTargetObject(StatefulGatewayObject target) {
         m_target = target;
     }
+    
+    public NamedTargetObject(GatewayObject target) {
+        m_target = target;
+    }
 
     public String getName() {
-        return m_target.getID();
+    	if (m_target instanceof StatefulGatewayObject) {
+    		return ((StatefulGatewayObject) m_target).getID();
+    	}
+    	else if (m_target instanceof GatewayObject) {
+    		return ((GatewayObject) m_target).getID();
+    	}
+    	return null;
     }
 
     public String getDescription() {

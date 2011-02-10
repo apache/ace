@@ -94,6 +94,9 @@ public class Associations {
     	else if (object instanceof StatefulGatewayObject) {
     		return new NamedTargetObject((StatefulGatewayObject) object);
     	}
+    	else if (object instanceof GatewayObject) {
+    		return new NamedTargetObject((GatewayObject) object);
+    	}
     	return null;
     }
     
