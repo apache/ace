@@ -25,15 +25,13 @@
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
         <version>0.8.0-SNAPSHOT</version>
-        <relativePath>../pom/</relativePath>                
+        <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-log-task</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Log Store</name>
+    <name>Apache ACE :: Log Store</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.server.log.task</bundle.symbolicName>
@@ -82,8 +80,6 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
-
     </dependencies>
-
 
 </project>

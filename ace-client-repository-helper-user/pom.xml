@@ -28,12 +28,10 @@
         <relativePath>../pom/</relativePath>                
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-client-repository-helper-user</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Client Repository Helper User</name>
+    <name>Apache ACE :: Client Repository Helper User</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.client.repository.helper.user</bundle.symbolicName>
@@ -73,4 +71,5 @@
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
     </dependencies>
+
 </project>

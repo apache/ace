@@ -28,12 +28,10 @@
         <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-deployment-task</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Deployment Task</name>
+    <name>Apache ACE :: Deployment Task</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.deployment.task</bundle.symbolicName>
@@ -94,4 +92,5 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
 </project>

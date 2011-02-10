@@ -28,12 +28,10 @@
         <relativePath>../pom/</relativePath>                
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-deployment-provider-filebased</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Deployment Provider Filebased</name>
+    <name>Apache ACE :: Deployment Provider Filebased</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.deployment.provider.filebased</bundle.symbolicName>
@@ -57,8 +55,7 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
-
-        <!-- dependencies -->
+        <!-- provided dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-deployment-provider-api</artifactId>
@@ -79,6 +76,5 @@
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
     </dependencies>
-
 
 </project>

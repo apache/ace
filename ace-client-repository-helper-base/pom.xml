@@ -28,12 +28,10 @@
         <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-client-repository-helper-base</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Client Repository Helper Base</name>
+    <name>Apache ACE :: Client Repository Helper Base</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.client.repository.helper.base</bundle.symbolicName>
@@ -93,4 +91,5 @@
             <version>1.1.4c</version>
         </dependency>
     </dependencies>
+
 </project>

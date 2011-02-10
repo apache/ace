@@ -28,12 +28,10 @@
         <relativePath>../pom/</relativePath>                
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-deployment-provider-repositorybased</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Deployment Provider Repositorybased</name>
+    <name>Apache ACE :: Deployment Provider Repositorybased</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.deployment.provider.repositorybased</bundle.symbolicName>
@@ -55,7 +53,6 @@
             <artifactId>ace-client-repository-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-deployment-provider-base</artifactId>
@@ -90,6 +87,5 @@
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
     </dependencies>
-
 
 </project>

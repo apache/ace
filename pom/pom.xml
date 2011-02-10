@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
-        <version>6</version>
+        <version>8</version>
     </parent>
 
     <groupId>org.apache.ace</groupId>
@@ -48,7 +48,7 @@
         <dependency.version.servletapi>2.4</dependency.version.servletapi>
     </properties>
 
-    <name>Apache ACE - POM</name>
+    <name>Apache ACE :: POM</name>
     <description>
         This pom provides project information that is common to all ACE sub-projects.
     </description>
@@ -75,11 +75,57 @@
         </mailingList>
     </mailingLists>
 
-    <!-- TODO Add developers section -->
+    <developers>
+        <developer>
+            <id>angelos</id>
+            <name>Angelo van der Sijpt </name>
+        </developer>
+        <developer>
+            <id>btopping</id>
+            <name>Brian Toppinc</name>
+        </developer>
+        <developer>
+            <id>christian</id>
+            <name>Christian van Spaandonk</name>
+        </developer>
+        <developer>
+            <id>clement</id>
+            <name>Clément Escoffier</name>
+        </developer>
+        <developer>
+            <id>cziegeler</id>
+            <name>Carsten Ziegeler</name>
+        </developer>
+        <developer>
+            <id>fmeschbe</id>
+            <name>Felix Meschberger</name>
+        </developer>
+        <developer>
+            <id>jbonofre</id>
+            <name>Jean-Baptiste Onofré</name>
+        </developer>
+        <developer>
+            <id>marrs</id>
+            <name>Marcel Offermans</name>
+        </developer>
+        <developer>
+            <id>niclas</id>
+            <name>Niclas Hedhman</name>
+        </developer>
+        <developer>
+            <id>pauls</id>
+            <name>Karl Pauls</name>
+        </developer>
+        <developer>
+            <id>tonit</id>
+            <name>Toni Menzel</name>
+        </developer>
+    </developers>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/pom</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/pom</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace</url>
     </scm>
 
     <build>
@@ -259,4 +305,5 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
 </project>

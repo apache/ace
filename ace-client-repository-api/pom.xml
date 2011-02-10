@@ -28,12 +28,10 @@
         <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-client-repository-api</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Client Repository API</name>
+    <name>Apache ACE :: Client Repository API</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.client.repository</bundle.symbolicName>

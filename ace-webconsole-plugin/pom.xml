@@ -28,12 +28,10 @@
         <relativePath>../pom/</relativePath>                
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-webconsole-plugin</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Webconsole Plugin</name>
+    <name>Apache ACE :: Webconsole Plugin</name>
     
     <properties>
         <bundle.symbolicName>${namespace}.webconsole.plugin</bundle.symbolicName>

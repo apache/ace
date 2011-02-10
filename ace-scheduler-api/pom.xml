@@ -25,16 +25,14 @@
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
         <version>0.8.0-SNAPSHOT</version>
-        <relativePath>../pom/</relativePath>                
+        <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-scheduler-api</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Scheduler API</name>
-    
+    <name>Apache ACE :: Scheduler API</name>
+
     <properties>
         <bundle.symbolicName>${namespace}.scheduler.api</bundle.symbolicName>
         <bundle.namespace>${namespace}.scheduler.constants</bundle.namespace>
@@ -48,6 +46,5 @@
             </plugin>
         </plugins>
     </build>
-
 
 </project>

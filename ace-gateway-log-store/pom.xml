@@ -28,12 +28,10 @@
         <relativePath>../pom/</relativePath>                
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-gateway-log-store</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Gateway Log Store</name>
+    <name>Apache ACE :: Gateway Log Store</name>
     
     <properties>
         <bundle.symbolicName>${namespace}.gateway.log.store</bundle.symbolicName>

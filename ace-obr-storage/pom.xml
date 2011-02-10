@@ -25,15 +25,13 @@
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
         <version>0.8.0-SNAPSHOT</version>
-        <relativePath>../pom/</relativePath>                
+        <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-obr-storage</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - OBR Storage</name>
+    <name>Apache ACE :: OBR Storage</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.obr.storage</bundle.symbolicName>
@@ -74,4 +72,5 @@
             <version>${version}</version>
         </dependency>
     </dependencies>
+
 </project>

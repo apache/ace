@@ -28,12 +28,10 @@
         <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-discovery-upnp</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Discovery UPNP</name>
+    <name>Apache ACE :: Discovery UPNP</name>
     
     <properties>
         <bundle.symbolicName>${namespace}.discovery.upnp</bundle.symbolicName>
@@ -78,4 +76,5 @@
             <version>2.5.2</version>
         </dependency>
     </dependencies>
+
 </project>

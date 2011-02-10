@@ -25,16 +25,14 @@
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
         <version>0.8.0-SNAPSHOT</version>
-        <relativePath>../pom/</relativePath>                
+        <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-range-api</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Range API</name>
-    
+    <name>Apache ACE :: Range API</name>
+
     <properties>
         <bundle.symbolicName>${namespace}.range</bundle.symbolicName>
         <bundle.namespace>${namespace}.range</bundle.namespace>
@@ -48,11 +46,13 @@
             </plugin>
         </plugins>
     </build>
+
     <dependencies>
         <dependency>
-            <groupId>${groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>ace-util</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
+
 </project>

@@ -25,16 +25,14 @@
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
         <version>0.8.0-SNAPSHOT</version>
-        <relativePath>../pom/</relativePath>                
+        <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-log-servlet</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Log Servlet</name>
-    
+    <name>Apache ACE :: Log Servlet</name>
+
     <properties>
         <bundle.symbolicName>${namespace}.server.log.servlet</bundle.symbolicName>
         <bundle.namespace>${namespace}.server.log.servlet</bundle.namespace>
@@ -50,43 +48,42 @@
     </build>
 
     <dependencies>
-           <dependency>
-               <groupId>${project.groupId}</groupId>
-               <artifactId>ace-range-api</artifactId>
-               <version>${project.version}</version>
-           </dependency>
-           <dependency>
-               <groupId>${project.groupId}</groupId>
-               <artifactId>ace-repository-api</artifactId>
-               <version>${project.version}</version>
-           </dependency>
-         <dependency>
-               <groupId>${project.groupId}</groupId>
-               <artifactId>ace-server-log-store</artifactId>
-               <version>${project.version}</version>
-           </dependency>
-         <dependency>
-               <groupId>${project.groupId}</groupId>
-               <artifactId>ace-httplistener</artifactId>
-               <version>${project.version}</version>
-           </dependency>
-           <dependency>
-               <groupId>org.osgi</groupId>
-               <artifactId>org.osgi.core</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>org.osgi</groupId>
-               <artifactId>org.osgi.compendium</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>org.apache.felix</groupId>
-               <artifactId>org.apache.felix.dependencymanager</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>javax.servlet</groupId>
-               <artifactId>servlet-api</artifactId>
-           </dependency>
-       </dependencies>
-    
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-range-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-repository-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-server-log-store</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ace-httplistener</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.dependencymanager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

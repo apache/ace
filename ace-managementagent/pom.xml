@@ -28,9 +28,7 @@
         <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-managementagent</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>Apache ACE - Management Agent</name>
@@ -78,90 +76,71 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.deploymentadmin</artifactId>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-log-listener</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-gateway-log</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-gateway-log-store</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-range-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-log</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-discovery-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-discovery-property</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-identification-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-identification-property</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-scheduler</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <!--
-                <dependency>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>ace-configurator</artifactId>
-                    <version>${project.version}</version>
-                             </dependency>
-        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-deployment-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-deployment-deploymentadmin</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-deployment-task</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
 </project>

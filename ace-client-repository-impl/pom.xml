@@ -28,12 +28,10 @@
         <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-client-repository-impl</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Client Repository Implementation</name>
+    <name>Apache ACE :: Client Repository Implementation</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.client.repository.impl</bundle.symbolicName>
@@ -108,4 +106,5 @@
             <version>1.1.4c</version>
         </dependency>
     </dependencies>
+
 </project>

@@ -25,15 +25,13 @@
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
         <version>0.8.0-SNAPSHOT</version>
-        <relativePath>../pom/</relativePath>                
+        <relativePath>../pom/</relativePath>
     </parent>
 
-    <groupId>org.apache.ace</groupId>
     <artifactId>ace-repository-servlet</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Repository Servlet</name>
+    <name>Apache ACE :: Repository Servlet</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.repository.servlet</bundle.symbolicName>
@@ -55,13 +53,11 @@
             <artifactId>ace-range-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-repository-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
