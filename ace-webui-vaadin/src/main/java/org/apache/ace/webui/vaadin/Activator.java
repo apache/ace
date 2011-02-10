@@ -78,13 +78,15 @@ public class Activator extends DependencyActivatorBase {
                     final NamedObject object = (NamedObject) context.get("object");
                     VerticalLayout vl = new VerticalLayout();
                     vl.setCaption("Info");
-                    Button button = new Button("info", new Button.ClickListener() {
-                        public void buttonClick(ClickEvent event) {
-                            event.getButton().getWindow().showNotification(object.getName(), "Description: " + object.getName());
-                        }
-                    });
-                    vl.addComponent(new Label("Hit the button to see a message pop up!"));
-                    vl.addComponent(button);
+                    final NamedObject namedObject = (NamedObject) context.get("object");
+                    final StatefulGatewayObject target = (StatefulGatewayObject) namedObject.getObject();
+                    Label info = new Label("Target ID: " + namedObject.getName() + "<br />" +
+                		"Installed version: " + target.getLastInstallVersion() + "<br />" +
+        				"Available version: " + target.getCurrentVersion() + "<br />" +
+						"Provisioning state: " + target.getProvisioningState() + "<br />" +
+						"Registration state: " + target.getRegistrationState());
+                    info.setContentMode(Label.CONTENT_XHTML);
+                    vl.addComponent(info);
                     return vl;
                 }
             })

@@ -1078,7 +1078,7 @@ public class VaadinClient extends com.vaadin.Application {
 		        final Window featureWindow = new Window();
 		        featureWindow.setModal(true);
 		        featureWindow.setCaption("Edit " + objectName + ": " + object.getName());
-		        featureWindow.setWidth("50em");
+		        featureWindow.setWidth("500px");
 
 		        // Configure the windws layout; by default a VerticalLayout
 		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
@@ -1095,21 +1095,13 @@ public class VaadinClient extends com.vaadin.Application {
 //		        layout.addComponent(description);
 		        
 		        TabSheet tabs = new TabSheet();
-		        tabs.setHeight("12em");
+		        tabs.setHeight("350px");
                 Map<String, Object> context = new HashMap<String, Object>();
                 context.put("object", object);
                 for (UIExtensionFactory factory : m_factories) {
                     com.vaadin.ui.Component component = factory.create(context);
                     tabs.addTab(component);
                 }
-		        VerticalLayout tab1 = new VerticalLayout();
-		        tab1.setCaption("Demo 1");
-		        tab1.addComponent(new Label("This is a hardcoded demo tab."));
-		        VerticalLayout tab2 = new VerticalLayout();
-		        tab2.setCaption("Demo 2");
-		        tab2.addComponent(new Label("This one is too, you cannot remove it for now."));
-		        tabs.addTab(tab1);
-		        tabs.addTab(tab2);
 		        layout.addComponent(tabs);
 
 		        Button close = new Button("Ok", new Button.ClickListener() {
