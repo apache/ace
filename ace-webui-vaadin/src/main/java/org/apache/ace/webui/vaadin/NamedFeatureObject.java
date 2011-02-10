@@ -1,5 +1,6 @@
 package org.apache.ace.webui.vaadin;
 
+import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.GroupObject;
 
 public class NamedFeatureObject implements NamedObject {
@@ -19,5 +20,9 @@ public class NamedFeatureObject implements NamedObject {
 
     public void setDescription(String description) {
         m_target.setDescription(description);
+    }
+    
+    public RepositoryObject getObject() {
+        return m_target;
     }
 }
