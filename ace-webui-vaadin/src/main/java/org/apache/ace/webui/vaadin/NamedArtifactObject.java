@@ -2,6 +2,7 @@ package org.apache.ace.webui.vaadin;
 
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.ArtifactObject;
+import org.apache.ace.webui.NamedObject;
 
 public class NamedArtifactObject implements NamedObject {
     private final ArtifactObject m_target;

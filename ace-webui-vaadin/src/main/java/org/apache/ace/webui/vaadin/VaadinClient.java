@@ -60,6 +60,7 @@ import org.apache.ace.client.repository.repository.License2GatewayAssociationRep
 import org.apache.ace.client.repository.repository.LicenseRepository;
 import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
+import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;

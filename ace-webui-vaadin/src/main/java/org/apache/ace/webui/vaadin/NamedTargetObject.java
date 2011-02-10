@@ -2,6 +2,7 @@ package org.apache.ace.webui.vaadin;
 
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.webui.NamedObject;
 
 class NamedTargetObject implements NamedObject {
     private final StatefulGatewayObject m_target;

@@ -2,6 +2,7 @@ package org.apache.ace.webui.vaadin;
 
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.GroupObject;
+import org.apache.ace.webui.NamedObject;
 
 public class NamedFeatureObject implements NamedObject {
     private final GroupObject m_target;

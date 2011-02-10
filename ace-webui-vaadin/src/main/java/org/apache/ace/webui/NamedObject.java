@@ -1,4 +1,4 @@
-package org.apache.ace.webui.vaadin;
+package org.apache.ace.webui;
 
 import org.apache.ace.client.repository.RepositoryObject;
 

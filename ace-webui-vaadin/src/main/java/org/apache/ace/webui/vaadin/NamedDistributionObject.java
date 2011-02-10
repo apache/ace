@@ -2,6 +2,7 @@ package org.apache.ace.webui.vaadin;
 
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.webui.NamedObject;
 
 public class NamedDistributionObject implements NamedObject {
     private final LicenseObject m_target;

@@ -11,6 +11,7 @@ import org.apache.ace.client.repository.object.GatewayObject;
 import org.apache.ace.client.repository.object.GroupObject;
 import org.apache.ace.client.repository.object.LicenseObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.webui.NamedObject;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Table;
