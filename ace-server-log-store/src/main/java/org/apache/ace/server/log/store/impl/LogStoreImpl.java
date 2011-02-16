@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
+import org.apache.ace.range.Range;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.server.log.store.LogStore;
 import org.osgi.service.event.Event;
@@ -57,7 +58,8 @@ public class LogStoreImpl implements LogStore {
     }
 
     /*
-     * init the dir in which to store logs in - thows IllegalArgumentException if we can't get it.
+     * init the dir in which to store logs in - thows IllegalArgumentException
+     * if we can't get it.
      */
     protected void start() throws IOException {
         if (!m_dir.isDirectory() && !m_dir.mkdirs()) {
@@ -68,28 +70,45 @@ public class LogStoreImpl implements LogStore {
     /**
      * @see org.apache.ace.server.log.store.LogStore#get(org.apache.ace.log.LogDescriptor)
      */
-    public synchronized List<LogEvent> get(LogDescriptor descriptor) throws IOException {
+    public synchronized List<LogEvent> get(LogDescriptor descriptor)
+            throws IOException {
         final List<LogEvent> result = new ArrayList<LogEvent>();
         final SortedRangeSet set = descriptor.getRangeSet();
         BufferedReader in = null;
         try {
-            File log = new File(new File(m_dir, gatewayIDToFilename(descriptor.getGatewayID())), String.valueOf(descriptor.getLogID()));
+            File log = new File(new File(m_dir,
+                    gatewayIDToFilename(descriptor.getGatewayID())),
+                    String.valueOf(descriptor.getLogID()));
             if (!log.isFile()) {
                 return result;
             }
             in = new BufferedReader(new FileReader(log));
-            for (String line = in.readLine(); line != null; line = in.readLine()) {
+            String file = log.getAbsolutePath();
+            long counter = 0;
+            for (String line = in.readLine(); line != null; line = in
+                    .readLine()) {
                 LogEvent event = new LogEvent(line);
-                if (set.contains(event.getID())) {
+                long id = event.getID();
+                if ((counter != -1) && ++counter == id) {
+
+                } else {
+                    counter = -1;
+                }
+                if (set.contains(id)) {
                     result.add(event);
                 }
             }
-        }
+            if (counter < 1) {
+                m_fileToID.remove(file);
+            } else {
+                m_fileToID.put(file, counter);
+            }
+        } 
         finally {
             if (in != null) {
                 try {
                     in.close();
-                }
+                } 
                 catch (Exception ex) {
                     // Not much we can do
                 }
@@ -98,18 +117,28 @@ public class LogStoreImpl implements LogStore {
         return result;
     }
 
+    private final Map<String, Long> m_fileToID = new HashMap<String, Long>();
+
     /**
      * @see org.apache.ace.server.log.store.LogStore#getDescriptor(String, long)
      */
-    public LogDescriptor getDescriptor(String gatewayID, long logID) throws IOException {
-        List<Long> ids = new ArrayList<Long>();
-        for (LogEvent event : get(new LogDescriptor(gatewayID, logID, SortedRangeSet.FULL_SET))) {
-            ids.add(event.getID());
+    public synchronized LogDescriptor getDescriptor(String gatewayID, long logID)
+            throws IOException {
+        Long high = m_fileToID.get(new File(new File(m_dir,
+                gatewayIDToFilename(gatewayID)), String.valueOf(logID))
+                .getAbsolutePath());
+        if (high != null) {
+            Range r = new Range(1, high);
+            return new LogDescriptor(gatewayID, logID, new SortedRangeSet(
+                    r.toRepresentation()));
         }
-        long[] idsArray = new long[ids.size()];
+        List<LogEvent> events = get(new LogDescriptor(gatewayID, logID,
+                SortedRangeSet.FULL_SET));
+
+        long[] idsArray = new long[events.size()];
         int i = 0;
-        for (Long l : ids) {
-            idsArray[i++] = l;
+        for (LogEvent e : events) {
+            idsArray[i++] = e.getID();
         }
         return new LogDescriptor(gatewayID, logID, new SortedRangeSet(idsArray));
     }
@@ -117,7 +146,8 @@ public class LogStoreImpl implements LogStore {
     /**
      * @see org.apache.ace.server.log.store.LogStore#getDescriptors(String)
      */
-    public List<LogDescriptor> getDescriptors(String gatewayID) throws IOException {
+    public List<LogDescriptor> getDescriptors(String gatewayID)
+            throws IOException {
         File dir = new File(m_dir, gatewayIDToFilename(gatewayID));
         List<LogDescriptor> result = new ArrayList<LogDescriptor>();
         if (!dir.isDirectory()) {
@@ -156,26 +186,46 @@ public class LogStoreImpl implements LogStore {
 
     /**
      * Add a list of events to the log of the given ids.
-     *
-     * @param gatewayID the id of the gateway to append to its log.
-     * @param logID the id of the given gateway log.
-     * @param list a list of events to store.
-     * @throws java.io.IOException in case of any error.
+     * 
+     * @param gatewayID
+     *            the id of the gateway to append to its log.
+     * @param logID
+     *            the id of the given gateway log.
+     * @param list
+     *            a list of events to store.
+     * @throws java.io.IOException
+     *             in case of any error.
      */
-    protected synchronized void put(String gatewayID, Long logID, List<LogEvent> list) throws IOException {
+    protected synchronized void put(String gatewayID, Long logID,
+            List<LogEvent> list) throws IOException {
         if ((list == null) || (list.size() == 0)) {
             // nothing to add, so return
             return;
         }
         // we actually need to distinguish between two scenarios here:
         // 1. we can append events at the end of the existing file
-        // 2. we need to insert events in the existing file (meaning we have to rewrite basically the whole file)
-        List<LogEvent> events = get(new LogDescriptor(gatewayID, logID, SortedRangeSet.FULL_SET));
-        // remove duplicates first
-        list.removeAll(events);
+        // 2. we need to insert events in the existing file (meaning we have to
+        // rewrite basically the whole file)
+        String file = new File(new File(m_dir, gatewayIDToFilename(gatewayID)),
+                String.valueOf(logID)).getAbsolutePath();
+        Long highest = m_fileToID.get(file);
+        boolean cached = false;
+        if (highest != null) {
+            if (highest.longValue() + 1 == list.get(0).getID()) {
+                cached = true;
+            }
+        }
+        List<LogEvent> events = null;
+        if (!cached) {
+            events = get(new LogDescriptor(gatewayID, logID,
+                    SortedRangeSet.FULL_SET));
+
+            // remove duplicates first
+            list.removeAll(events);
+        }
 
         if (list.size() == 0) {
-            //nothing to add anymore, so return
+            // nothing to add anymore, so return
             return;
         }
 
@@ -185,30 +235,44 @@ public class LogStoreImpl implements LogStore {
             if (!dir.isDirectory() && !dir.mkdirs()) {
                 throw new IOException("Unable to create backup store.");
             }
-            if ((events.size() == 0) || (events.get(events.size() - 1).getID() < list.get(0).getID())) {
+            if (cached
+                    || ((events.size() == 0) || (events.get(events.size() - 1)
+                            .getID() < list.get(0).getID()))) {
                 // we can append to the existing file
-                out = new PrintWriter(new FileWriter(new File(dir, logID.toString()), true));
-            }
-            else {
+                out = new PrintWriter(new FileWriter(new File(dir,
+                        logID.toString()), true));
+            } else {
                 // we have to merge the lists
                 list.addAll(events);
                 // and sort
                 Collections.sort(list);
-                out = new PrintWriter(new FileWriter(new File(dir, logID.toString())));
+                out = new PrintWriter(new FileWriter(new File(dir,
+                        logID.toString())));
             }
+            long high = 0;
             for (LogEvent event : list) {
                 out.println(event.toRepresentation());
+                if (high < event.getID()) {
+                    high = event.getID();
+                } else {
+                    high = Long.MAX_VALUE;
+                }
                 // send (eventadmin)event about a new (log)event being stored
                 Dictionary props = new Hashtable();
                 props.put(LogStore.EVENT_PROP_LOGNAME, m_name);
                 props.put(LogStore.EVENT_PROP_LOG_EVENT, event);
                 m_eventAdmin.postEvent(new Event(LogStore.EVENT_TOPIC, props));
             }
-        }
+            if ((cached) && (high < Long.MAX_VALUE)) {
+                m_fileToID.put(file, new Long(high));
+            } else {
+                m_fileToID.remove(file);
+            }
+        } 
         finally {
             try {
                 out.close();
-            }
+            } 
             catch (Exception ex) {
                 // Not much we can do
             }
@@ -216,16 +280,20 @@ public class LogStoreImpl implements LogStore {
     }
 
     /**
-     * Sort the given list of events into a map of maps according to the gatewayID and the logID of each event.
-     *
-     * @param events a list of events to sort.
-     * @return a map of maps that maps gateway ids to a map that maps log ids to a list of events that have those ids.
+     * Sort the given list of events into a map of maps according to the
+     * gatewayID and the logID of each event.
+     * 
+     * @param events
+     *            a list of events to sort.
+     * @return a map of maps that maps gateway ids to a map that maps log ids to
+     *         a list of events that have those ids.
      */
     @SuppressWarnings("boxing")
     protected Map<String, Map<Long, List<LogEvent>>> sort(List<LogEvent> events) {
         Map<String, Map<Long, List<LogEvent>>> result = new HashMap<String, Map<Long, List<LogEvent>>>();
         for (LogEvent event : events) {
-            Map<Long, List<LogEvent>> gateway = result.get(event.getGatewayID());
+            Map<Long, List<LogEvent>> gateway = result
+                    .get(event.getGatewayID());
 
             if (gateway == null) {
                 gateway = new HashMap<Long, List<LogEvent>>();
@@ -248,14 +316,15 @@ public class LogStoreImpl implements LogStore {
      */
     private <T> T notNull(T target) throws IOException {
         if (target == null) {
-            throw new IOException("Unknown IO error while trying to access the store.");
+            throw new IOException(
+                    "Unknown IO error while trying to access the store.");
         }
         return target;
     }
 
     private static String filenameToGatewayID(String filename) {
         byte[] bytes = new byte[filename.length() / 2];
-        for (int i = 0; i < (filename.length() / 2); i ++) {
+        for (int i = 0; i < (filename.length() / 2); i++) {
             String hexValue = filename.substring(i * 2, (i + 1) * 2);
             bytes[i] = Byte.parseByte(hexValue, 16);
         }
@@ -263,7 +332,7 @@ public class LogStoreImpl implements LogStore {
         String result = null;
         try {
             result = new String(bytes, "UTF-8");
-        }
+        } 
         catch (UnsupportedEncodingException e) {
             // UTF-8 is a mandatory encoding; this will never happen.
         }
@@ -278,12 +347,11 @@ public class LogStoreImpl implements LogStore {
                 String hexValue = Integer.toHexString(b.intValue());
                 if (hexValue.length() % 2 == 0) {
                     result.append(hexValue);
-                }
-                else {
+                } else {
                     result.append('0').append(hexValue);
                 }
             }
-        }
+        } 
         catch (UnsupportedEncodingException e) {
             // UTF-8 is a mandatory encoding; this will never happen.
         }

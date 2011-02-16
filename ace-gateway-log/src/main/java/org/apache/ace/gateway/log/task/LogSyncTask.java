@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.ace.discovery.Discovery;
@@ -52,37 +53,46 @@ public class LogSyncTask implements Runnable {
     private final String m_endpoint;
 
     public LogSyncTask(String endpoint) {
-        m_endpoint  = endpoint;
+        m_endpoint = endpoint;
     }
 
     /**
-     * Synchronize the log events available remote with the events available locally.
+     * Synchronize the log events available remote with the events available
+     * locally.
      */
     public void run() {
         String gatewayID = m_identification.getID();
         URL host = m_discovery.discover();
 
         if (host == null) {
-            //expected if there's no discovered
-            //ps or relay server
-            m_log.log(LogService.LOG_WARNING, "Unable to synchronize log with remote (endpoint=" + m_endpoint + ") - none available");
+            // expected if there's no discovered
+            // ps or relay server
+            m_log.log(LogService.LOG_WARNING,
+                    "Unable to synchronize log with remote (endpoint="
+                            + m_endpoint + ") - none available");
             return;
         }
 
         Connection sendConnection = null;
         try {
-            sendConnection = new Connection(new URL(host, m_endpoint + "/" + COMMAND_SEND));
+            sendConnection = new Connection(new URL(host, m_endpoint + "/"
+                    + COMMAND_SEND));
             long[] logIDs = m_LogStore.getLogIDs();
             for (int i = 0; i < logIDs.length; i++) {
-                Connection queryConnection = new Connection(new URL(host, m_endpoint + "/" + COMMAND_QUERY + "?" + PARAMETER_GATEWAYID + "=" + gatewayID  + "&" + PARAMETER_LOGID + "=" + logIDs[i]));
-                // TODO: make sure no actual call is made using sendConnection when there's nothing to sync
-                synchronizeLog(logIDs[i], queryConnection.getInputStream(), sendConnection);
+                Connection queryConnection = new Connection(new URL(host,
+                        m_endpoint + "/" + COMMAND_QUERY + "?"
+                                + PARAMETER_GATEWAYID + "=" + gatewayID + "&"
+                                + PARAMETER_LOGID + "=" + logIDs[i]));
+                // TODO: make sure no actual call is made using sendConnection
+                // when there's nothing to sync
+                synchronizeLog(logIDs[i], queryConnection.getInputStream(),
+                        sendConnection);
             }
-        }
-        catch (IOException e) {
-            m_log.log(LogService.LOG_ERROR, "Unable to (fully) synchronize log with remote (endpoint=" + m_endpoint + ")", e);
-        }
-        finally {
+        } catch (IOException e) {
+            m_log.log(LogService.LOG_ERROR,
+                    "Unable to (fully) synchronize log with remote (endpoint="
+                            + m_endpoint + ")", e);
+        } finally {
             if (sendConnection != null) {
                 sendConnection.close();
             }
@@ -90,14 +100,23 @@ public class LogSyncTask implements Runnable {
     }
 
     /**
-     * Synchronizes a single log (there can be multiple log/logid's per gateway).
-     *
-     * @param logID ID of the log to synchronize.
-     * @param queryInput Stream pointing to a query result for the events available remotely for this log id
-     * @param sendConnection.getOutputStream() Stream to write the events to that are missing on the remote side.
-     * @throws java.io.IOException If synchronization could not be completed due to an I/O failure.
+     * Synchronizes a single log (there can be multiple log/logid's per
+     * gateway).
+     * 
+     * @param logID
+     *            ID of the log to synchronize.
+     * @param queryInput
+     *            Stream pointing to a query result for the events available
+     *            remotely for this log id
+     * @param sendConnection
+     *            .getOutputStream() Stream to write the events to that are
+     *            missing on the remote side.
+     * @throws java.io.IOException
+     *             If synchronization could not be completed due to an I/O
+     *             failure.
      */
-    protected void synchronizeLog(long logID, InputStream queryInput, Connection sendConnection) throws IOException {
+    protected void synchronizeLog(long logID, InputStream queryInput,
+            Connection sendConnection) throws IOException {
         long highestLocal = m_LogStore.getHighestID(logID);
         if (highestLocal == 0) {
             // No events, no need to synchronize
@@ -107,26 +126,43 @@ public class LogSyncTask implements Runnable {
         SortedRangeSet remoteRange = getDescriptor(queryInput).getRangeSet();
         SortedRangeSet delta = remoteRange.diffDest(localRange);
         RangeIterator rangeIterator = delta.iterator();
-        List events = m_LogStore.get(logID, 1, highestLocal);
         BufferedWriter writer = null;
-        writer = new BufferedWriter(new OutputStreamWriter(sendConnection.getOutputStream()));
-
-        while (rangeIterator.hasNext()) {
-            // Note the -1: Events are 1-based, but the list is 0-based.
-            LogEvent event = (LogEvent) events.get((int) rangeIterator.next() - 1);
-            writer.write(event.toRepresentation() + "\n");
+        writer = new BufferedWriter(new OutputStreamWriter(
+                sendConnection.getOutputStream()));
+        if (rangeIterator.hasNext()) {
+            long lowest = rangeIterator.next();
+            long highest = delta.getHigh();
+            if (lowest <= highest) {
+                List events = m_LogStore.get(logID, lowest,
+                        highestLocal > highest ? highest : highestLocal);
+                Iterator iter = events.iterator();
+                while (iter.hasNext()) {
+                    LogEvent current = (LogEvent) iter.next();
+                    while ((current.getID() > lowest)
+                            && rangeIterator.hasNext()) {
+                        lowest = rangeIterator.next();
+                    }
+                    if (current.getID() == lowest) {
+                        writer.write(current.toRepresentation() + "\n");
+                    }
+                }
+            }
         }
         writer.flush();
     }
 
     /**
      * Retrieves a LogDescriptor object from the specified stream.
-     *
-     * @param queryInput Stream containing a LogDescriptor object.
-     * @return LogDescriptor object reflecting the range contained in the stream.
-     * @throws java.io.IOException If no range could be determined due to an I/O failure.
+     * 
+     * @param queryInput
+     *            Stream containing a LogDescriptor object.
+     * @return LogDescriptor object reflecting the range contained in the
+     *         stream.
+     * @throws java.io.IOException
+     *             If no range could be determined due to an I/O failure.
      */
-    protected LogDescriptor getDescriptor(InputStream queryInput) throws IOException {
+    protected LogDescriptor getDescriptor(InputStream queryInput)
+            throws IOException {
         BufferedReader queryReader = null;
         try {
             queryReader = new BufferedReader(new InputStreamReader(queryInput));
@@ -134,19 +170,22 @@ public class LogSyncTask implements Runnable {
             if (rangeString != null) {
                 try {
                     return new LogDescriptor(rangeString);
-                }
+                } 
                 catch (IllegalArgumentException iae) {
-                    throw new IOException("Could not determine highest remote event id, received malformed event range (" + rangeString + ")");
+                    throw new IOException(
+                            "Could not determine highest remote event id, received malformed event range ("
+                                    + rangeString + ")");
                 }
             } else {
-                throw new IOException("Could not construct LogDescriptor from stream because stream is empty");
+                throw new IOException(
+                        "Could not construct LogDescriptor from stream because stream is empty");
             }
-        }
+        } 
         finally {
             if (queryReader != null) {
                 try {
                     queryReader.close();
-                }
+                } 
                 catch (Exception ex) {
                     // not much we can do
                 }
