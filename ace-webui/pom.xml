@@ -129,19 +129,15 @@
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-servlet</artifactId>
-            <version>${gwtversion}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
-            <version>${gwtversion}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.code.gwt-dnd</groupId>
             <artifactId>gwt-dnd</artifactId>
-            <version>2.6.5</version>
         </dependency>
     </dependencies>
 

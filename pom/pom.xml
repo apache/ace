@@ -29,26 +29,11 @@
 
     <groupId>org.apache.ace</groupId>
     <artifactId>ace-pom</artifactId>
+    <name>Apache ACE :: POM</name>
     <version>0.8.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2009</inceptionYear>
 
-    <properties>
-        <namespace>org.apache.ace</namespace>
-        <gwtversion>2.0.3</gwtversion>
-        <dependency.version.mockito>1.8.1</dependency.version.mockito>
-        <dependency.version.dependencymanager>3.0.0-SNAPSHOT</dependency.version.dependencymanager>
-
-        <dependency.version.eventadmin>1.2.2</dependency.version.eventadmin>
-        <dependency.version.configadmin>1.2.8</dependency.version.configadmin>
-        <dependency.version.deploymentadmin>0.9.0-SNAPSHOT</dependency.version.deploymentadmin>
-
-        <dependency.version.osgi.core>4.2.0</dependency.version.osgi.core>
-        <dependency.version.osgi.compendium>4.2.0</dependency.version.osgi.compendium>
-        <dependency.version.servletapi>2.4</dependency.version.servletapi>
-    </properties>
-
-    <name>Apache ACE :: POM</name>
     <description>
         This pom provides project information that is common to all ACE sub-projects.
     </description>
@@ -127,6 +112,41 @@
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/pom</developerConnection>
         <url>http://svn.apache.org/repos/asf/incubator/ace</url>
     </scm>
+
+    <properties>
+        <namespace>org.apache.ace</namespace>
+
+        <!-- Dependency versions -->
+        <commons-collections.version>3.2.1</commons-collections.version>
+        <commons-lang.version>2.4</commons-lang.version>
+        <commons-logging.version>1.1.1</commons-logging.version>
+        <easymock.version>2.5.2</easymock.version>
+        <felix.configadmin.version>1.2.8</felix.configadmin.version>
+        <felix.dependencymanager.version>3.0.0-SNAPSHOT</felix.dependencymanager.version>
+        <felix.deploymentadmin.version>0.9.0-SNAPSHOT</felix.deploymentadmin.version>
+        <felix.eventadmin.version>1.2.2</felix.eventadmin.version>
+        <felix.framework.version>3.0.6</felix.framework.version>
+        <felix.prefs.version>1.0.4</felix.prefs.version>
+        <felix.shell.version>1.4.1</felix.shell.version>
+        <gwt.version>2.0.3</gwt.version>
+        <gwt-dnd.version>2.6.5</gwt-dnd.version>
+        <junit.version>4.4</junit.version>
+        <knopflerfish.version>2.0.0</knopflerfish.version>
+        <kxml2.version>2.3.0</kxml2.version>
+        <mockito.version>1.8.1</mockito.version>
+        <osgi.compendium.version>4.2.0</osgi.compendium.version>
+        <osgi.core.version>4.2.0</osgi.core.version>
+        <pax.exam.version>1.2.3</pax.exam.version>
+        <pax.runner.version>1.5.0</pax.runner.version>
+        <pax.swissbox.version>1.2.0</pax.swissbox.version>
+        <pax.web.version>0.7.2</pax.web.version>
+        <servlet-api.version>2.4</servlet-api.version>
+        <surefire.testng.version>2.5</surefire.testng.version>
+        <vaadin.version>6.5.0</vaadin.version>
+        <velocity.version>1.6.2</velocity.version>
+        <xpp3.version>1.1.4c</xpp3.version>
+        <xstream.version>1.2.2</xstream.version>
+    </properties>
 
     <repositories>
       <repository>
@@ -208,106 +228,177 @@
         </extensions>
     </build>
 
+    <!-- Global Dependencies for Testing Facilities -->
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-testng</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
         </dependency>
-		<dependency>
-		    <groupId>org.apache.maven.surefire</groupId>
-		    <artifactId>surefire-testng</artifactId>
-		</dependency>
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
+
+            <!-- Commons -->
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${commons-logging.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- OPS4J -->
+            <dependency>
+                <groupId>org.ops4j.pax.swissbox</groupId>
+                <artifactId>pax-swissbox-tinybundles</artifactId>
+                <version>${pax.swissbox.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
-                <version>${dependency.version.osgi.core}</version>
+                <version>${osgi.core.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.compendium</artifactId>
-                <version>${dependency.version.osgi.compendium}</version>
+                <version>${osgi.compendium.version}</version>
                 <scope>provided</scope>
             </dependency>
+
+            <!-- Apache Felix -->
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.dependencymanager</artifactId>
-                <version>${dependency.version.dependencymanager}</version>
+                <version>${felix.dependencymanager.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.dependencymanager.shell</artifactId>
-                <version>${dependency.version.dependencymanager}</version>
+                <version>${felix.dependencymanager.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.configadmin</artifactId>
-                <version>${dependency.version.configadmin}</version>
+                <version>${felix.configadmin.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.eventadmin</artifactId>
-                <version>${dependency.version.eventadmin}</version>
+                <version>${felix.eventadmin.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.deploymentadmin</artifactId>
-                <version>${dependency.version.deploymentadmin}</version>
+                <version>${felix.deploymentadmin.version}</version>
                 <scope>provided</scope>
             </dependency>
+
+            <!-- Servlet API -->
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
-                <version>${dependency.version.servletapi}</version>
+                <version>${servlet-api.version}</version>
                 <scope>provided</scope>
             </dependency>
+
+            <!-- Apache Velocity -->
             <dependency>
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
-                <version>1.6.2</version>
+                <version>${velocity.version}</version>
                 <scope>provided</scope>
             </dependency>
+
+            <!-- KXML -->
             <dependency>
                 <groupId>net.sf.kxml</groupId>
                 <artifactId>kxml2</artifactId>
-                <version>2.3.0</version>
+                <version>${kxml2.version}</version>
                 <scope>provided</scope>                
             </dependency>
+
+            <!-- XPP3 -->
+            <dependency>
+                <groupId>xpp3</groupId>
+                <artifactId>xpp3</artifactId>
+                <version>${xpp3.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- XStream -->
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.2.2</version>
+                <version>${xstream.version}</version>
                 <scope>provided</scope>
             </dependency>
+
+            <!-- GWT -->
+            <dependency>
+                <groupId>com.google.gwt</groupId>
+                <artifactId>gwt-user</artifactId>
+                <version>${gwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.gwt</groupId>
+                <artifactId>gwt-servlet</artifactId>
+                <version>${gwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gwt-dnd</groupId>
+                <artifactId>gwt-dnd</artifactId>
+                <version>${gwt-dnd.version}</version>
+            </dependency>
+
+            <!-- Vaadin -->
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin</artifactId>
+                <version>${vaadin.version}</version>
+            </dependency>
+
             <!-- Test dependencies -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.4</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
 			<dependency>
 			    <groupId>org.apache.maven.surefire</groupId>
 			    <artifactId>surefire-testng</artifactId>
-			    <version>2.5</version>
+			    <version>${surefire.testng.version}</version>
                 <scope>test</scope>
 			</dependency>
             <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>${easymock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
-                <version>${dependency.version.mockito}</version>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

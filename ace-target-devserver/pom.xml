@@ -69,7 +69,6 @@
         <dependency>
             <groupId>org.ops4j.pax.runner</groupId>
             <artifactId>pax-runner</artifactId>
-            <version>1.5.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -100,21 +99,18 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.prefs</artifactId>
-            <version>1.0.4</version>
             <scope>provided</scope>
         </dependency>
         <!-- 
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.shell</artifactId>
-			<version>1.4.1</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.shell.tui</artifactId>
-			<version>1.4.1</version>
             <scope>provided</scope>
         </dependency>
  -->
@@ -125,14 +121,12 @@
         <dependency>
             <groupId>org.knopflerfish.bundle.useradmin</groupId>
             <artifactId>useradmin_all</artifactId>
-            <version>2.0.0</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.knopflerfish.bundle.log</groupId>
             <artifactId>log_all</artifactId>
-            <version>2.0.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -143,13 +137,11 @@
           <dependency>
               <groupId>org.eclipse.equinox</groupId>
               <artifactId>useradmin</artifactId>
-              <version>1.0.0-v20070226</version>
           </dependency>
 
           <dependency>
               <groupId>org.eclipse.equinox</groupId>
               <artifactId>log</artifactId>
-              <version>1.0.100-v20070226</version>
           </dependency>
           -->
 
@@ -158,12 +150,10 @@
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-extender-war</artifactId>
-            <version>0.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-jetty-bundle</artifactId>
-            <version>0.7.2</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -372,7 +362,6 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin</artifactId>
-            <version>6.5.1</version>
             <scope>runtime</scope>
         </dependency>
         <!-- work in progress, not done yet

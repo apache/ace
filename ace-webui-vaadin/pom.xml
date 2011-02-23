@@ -85,7 +85,6 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin</artifactId>
-            <version>6.5.1</version>
         </dependency>
     </dependencies>
 
