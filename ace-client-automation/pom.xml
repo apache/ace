@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <!--
 
@@ -25,35 +26,26 @@
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
         <version>0.8.0-SNAPSHOT</version>
-        <relativePath>../pom/</relativePath>        
+        <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
     <artifactId>ace-client-automation</artifactId>
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Client Automation</name>
-    
+
     <properties>
         <bundle.symbolicName>${namespace}.client.automation</bundle.symbolicName>
         <bundle.namespace>${namespace}.client.automation</bundle.namespace>
     </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-
-      <dependencies>
+    <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-client-repository-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-           <dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ace-scheduler-api</artifactId>
             <version>${project.version}</version>

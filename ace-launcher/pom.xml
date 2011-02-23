@@ -25,13 +25,12 @@
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
         <version>0.8.0-SNAPSHOT</version>
-        <relativePath>../pom/</relativePath>
+        <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
     <artifactId>ace-launcher</artifactId>
 
     <name>Apache ACE :: Launcher</name>
-
 
     <build>
         <plugins>

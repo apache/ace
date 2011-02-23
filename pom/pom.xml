@@ -25,6 +25,7 @@
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>8</version>
+        <relativePath></relativePath>
     </parent>
 
     <groupId>org.apache.ace</groupId>
@@ -63,7 +64,7 @@
     <developers>
         <developer>
             <id>angelos</id>
-            <name>Angelo van der Sijpt </name>
+            <name>Angelo van der Sijpt</name>
         </developer>
         <developer>
             <id>btopping</id>
@@ -126,9 +127,10 @@
         <felix.deploymentadmin.version>0.9.0-SNAPSHOT</felix.deploymentadmin.version>
         <felix.eventadmin.version>1.2.2</felix.eventadmin.version>
         <felix.framework.version>3.0.6</felix.framework.version>
+        <felix.maven-bundle-plugin.version>2.3.4</felix.maven-bundle-plugin.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
         <felix.shell.version>1.4.1</felix.shell.version>
-        <gwt.version>2.0.3</gwt.version>
+        <gwt.version>2.1.0</gwt.version>
         <gwt-dnd.version>2.6.5</gwt-dnd.version>
         <junit.version>4.4</junit.version>
         <knopflerfish.version>2.0.0</knopflerfish.version>
@@ -149,25 +151,15 @@
     </properties>
 
     <repositories>
-      <repository>
-         <id>ace-m2</id>
-         <url>http://svn.apache.org/repos/asf/incubator/ace/repo</url>
-      </repository>
+        <repository>
+            <id>ace-m2</id>
+            <url>http://svn.apache.org/repos/asf/incubator/ace/repo</url>
+        </repository>
     </repositories>
 
     <build>
 
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.3</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.0-alpha-4</version>
-            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -198,27 +190,24 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${felix.maven-bundle-plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <_include>-osgi.bnd</_include>
+                    </instructions>
+                    <supportedProjectTypes>
+                        <supportedProjectType>jar</supportedProjectType>
+                        <supportedProjectType>bundle</supportedProjectType>
+                        <supportedProjectType>war</supportedProjectType>
+                    </supportedProjectTypes>
+                </configuration>
+            </plugin>
         </plugins>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.1.0</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <instructions>
-                            <_include>-osgi.bnd</_include>
-                        </instructions>
-				        <supportedProjectTypes>
-					        <supportedProjectType>jar</supportedProjectType>
-					        <supportedProjectType>bundle</supportedProjectType>
-					        <supportedProjectType>war</supportedProjectType>
-				        </supportedProjectTypes>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
@@ -226,6 +215,7 @@
                 <version>1.0-beta-6</version>
             </extension>
         </extensions>
+
     </build>
 
     <!-- Global Dependencies for Testing Facilities -->
@@ -289,26 +279,8 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.dependencymanager.shell</artifactId>
-                <version>${felix.dependencymanager.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.configadmin</artifactId>
                 <version>${felix.configadmin.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.eventadmin</artifactId>
-                <version>${felix.eventadmin.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.deploymentadmin</artifactId>
-                <version>${felix.deploymentadmin.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -333,7 +305,7 @@
                 <groupId>net.sf.kxml</groupId>
                 <artifactId>kxml2</artifactId>
                 <version>${kxml2.version}</version>
-                <scope>provided</scope>                
+                <scope>provided</scope>
             </dependency>
 
             <!-- XPP3 -->
@@ -383,12 +355,12 @@
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
-			<dependency>
-			    <groupId>org.apache.maven.surefire</groupId>
-			    <artifactId>surefire-testng</artifactId>
-			    <version>${surefire.testng.version}</version>
+            <dependency>
+                <groupId>org.apache.maven.surefire</groupId>
+                <artifactId>surefire-testng</artifactId>
+                <version>${surefire.testng.version}</version>
                 <scope>test</scope>
-			</dependency>
+            </dependency>
             <dependency>
                 <groupId>org.easymock</groupId>
                 <artifactId>easymock</artifactId>
