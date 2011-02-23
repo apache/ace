@@ -229,10 +229,10 @@ public class Options {
 
     public static class Knopflerfish {
         public static MavenArtifactProvisionOption useradmin() {
-            return maven("org.knopflerfish.bundle.useradmin", "useradmin_all");
+            return maven("org.knopflerfish.bundle.useradmin", "useradmin");
         }
         public static MavenArtifactProvisionOption log() {
-            return maven("org.knopflerfish.bundle.log", "log_all");
+            return maven("org.knopflerfish.log", "log");
         }
     }
 

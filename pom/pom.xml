@@ -133,6 +133,7 @@
         <gwt.version>2.1.0</gwt.version>
         <gwt-dnd.version>2.6.5</gwt-dnd.version>
         <junit.version>4.4</junit.version>
+        <knopflerfish.version>2.0.2</knopflerfish.version>
         <kxml2.version>2.3.0</kxml2.version>
         <mockito.version>1.8.1</mockito.version>
         <osgi.compendium.version>4.2.0</osgi.compendium.version>
@@ -153,6 +154,16 @@
         <repository>
             <id>ace-m2</id>
             <url>http://svn.apache.org/repos/asf/incubator/ace/repo</url>
+        </repository>
+        <repository>
+            <id>knopflerfish-m2</id>
+            <url>http://www.knopflerfish.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
@@ -375,6 +386,20 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.prefs</artifactId>
                 <version>${felix.prefs.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- Knopflerfish -->
+            <dependency>
+                <groupId>org.knopflerfish.log</groupId>
+                <artifactId>log</artifactId>
+                <version>${knopflerfish.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.knopflerfish.bundle.useradmin</groupId>
+                <artifactId>useradmin</artifactId>
+                <version>${knopflerfish.version}</version>
                 <scope>provided</scope>
             </dependency>
 
