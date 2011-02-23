@@ -20,6 +20,7 @@
 package org.apache.ace.launcher;
 
 import org.apache.ace.managementagent.Activator;
+import org.osgi.framework.Constants;
 import org.osgi.framework.launch.FrameworkFactory;
 
 import java.util.*;
@@ -45,6 +46,13 @@ public class Main {
         activators.add(new Activator());
         Map frameworkProperties = new HashMap();
         frameworkProperties.put("felix.systembundle.activators", activators);
+        frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.osgi.service.deploymentadmin;version=\"1.0\","
+                + "org.osgi.service.deploymentadmin.spi;version=\"1.0\","
+                + "org.osgi.service.cm;version=\"1.3\","
+                + "org.osgi.service.event;version=\"1.2\","
+                + "org.osgi.service.log;version=\"1.3\","
+                + "org.osgi.service.metatype;version=\"1.1\"");
+
         frameworkProperties.putAll(findFrameworkProperties(args));
 
         factory.newFramework(frameworkProperties).start();
