@@ -85,15 +85,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.knopflerfish.bundle.useradmin</groupId>
-            <artifactId>useradmin_all</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.knopflerfish.bundle.log</groupId>
-            <artifactId>log_all</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.ace</groupId>
             <artifactId>ace-scheduler</artifactId>
             <version>${project.version}</version>

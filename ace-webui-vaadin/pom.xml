@@ -38,13 +38,6 @@
         <bundle.namespace>${namespace}</bundle.namespace>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>ace-repository</id>
-            <url>http://svn.apache.org/repos/asf/incubator/ace/repo</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>

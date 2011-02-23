@@ -31,7 +31,7 @@
     <artifactId>ace-managementagent</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE - Management Agent</name>
+    <name>Apache ACE :: Management Agent</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.managementagent</bundle.symbolicName>

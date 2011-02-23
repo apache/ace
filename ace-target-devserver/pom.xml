@@ -57,14 +57,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <!-- for Knopflerfish files -->
-        <repository>
-            <id>okidokiteam-3rdparty</id>
-            <url>http://okidokiteam.com/nexus/content/repositories/thirdparty/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.ops4j.pax.runner</groupId>
@@ -101,50 +93,6 @@
             <artifactId>org.apache.felix.prefs</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- 
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.shell</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.shell.tui</artifactId>
-            <scope>provided</scope>
-        </dependency>
- -->
-
-        <!-- TODO the following artifact names are purely fictional, we need to
-                    check if they actually exist somewhere -->
-
-        <dependency>
-            <groupId>org.knopflerfish.bundle.useradmin</groupId>
-            <artifactId>useradmin_all</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.knopflerfish.bundle.log</groupId>
-            <artifactId>log_all</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- For now, let's include a different implementation found in the
-               maven repository. -->
-        <!-- But not the Eclipse ones, as they all have a weird dependency on some
-               Eclipse specific event manager...
-          <dependency>
-              <groupId>org.eclipse.equinox</groupId>
-              <artifactId>useradmin</artifactId>
-          </dependency>
-
-          <dependency>
-              <groupId>org.eclipse.equinox</groupId>
-              <artifactId>log</artifactId>
-          </dependency>
-          -->
-
 
         <!-- TODO validate if these are the right artifacts -->
         <dependency>

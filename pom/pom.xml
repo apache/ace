@@ -133,7 +133,6 @@
         <gwt.version>2.1.0</gwt.version>
         <gwt-dnd.version>2.6.5</gwt-dnd.version>
         <junit.version>4.4</junit.version>
-        <knopflerfish.version>2.0.0</knopflerfish.version>
         <kxml2.version>2.3.0</kxml2.version>
         <mockito.version>1.8.1</mockito.version>
         <osgi.compendium.version>4.2.0</osgi.compendium.version>
@@ -250,9 +249,44 @@
 
             <!-- OPS4J -->
             <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam</artifactId>
+                <version>${pax.exam.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-container-default</artifactId>
+                <version>${pax.exam.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-junit</artifactId>
+                <version>${pax.exam.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.runner</groupId>
+                <artifactId>pax-runner</artifactId>
+                <version>${pax.runner.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.ops4j.pax.swissbox</groupId>
                 <artifactId>pax-swissbox-tinybundles</artifactId>
                 <version>${pax.swissbox.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.web</groupId>
+                <artifactId>pax-web-extender-war</artifactId>
+                <version>${pax.web.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.web</groupId>
+                <artifactId>pax-web-jetty-bundle</artifactId>
+                <version>${pax.web.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -305,6 +339,18 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.dependencymanager.shell</artifactId>
+                <version>${felix.dependencymanager.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.deploymentadmin</artifactId>
+                <version>${felix.deploymentadmin.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.eventadmin</artifactId>
                 <version>${felix.eventadmin.version}</version>
                 <scope>provided</scope>
@@ -318,6 +364,18 @@
                         <artifactId>org.osgi.compendium</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.framework</artifactId>
+                <version>${felix.framework.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.prefs</artifactId>
+                <version>${felix.prefs.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- Servlet API -->

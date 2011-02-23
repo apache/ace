@@ -83,7 +83,6 @@
                 <module>ace-deployment-deploymentadmin</module>
                 <module>ace-deployment-task</module>
 
-
                 <module>ace-httplistener</module>
 
                 <module>ace-server-log-store</module>
@@ -111,15 +110,23 @@
 
                 <module>ace-gateway-log</module>
                 <module>ace-gateway-log-store</module>
-				<!--
-				-->
+
                 <module>ace-webui</module>
-				<!-- extras -->
+
                 <module>ace-webui-vaadin</module>
+
+                <module>ace-managementagent</module>
+                <module>ace-launcher</module>
+
+                <module>ace-target-defaults</module>
+                <module>ace-target-devgateway</module>
+                <module>ace-target-devserver</module>
 
 				<!-- not ready yet
                 <module>ace-distribution-servlet</module>
 				-->
+
+                <module>ace-integrationtests</module>
 
             </modules>
         </profile>
