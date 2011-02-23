@@ -32,104 +32,99 @@
     <packaging>pom</packaging>
     <name>Apache ACE :: Reactor</name>
 
+    <modules>
+        <module>pom</module>
+        <module>ace-util</module>
+
+        <module>ace-range-api</module>
+
+        <module>ace-repository-api</module>
+        <module>ace-repository-ext</module>
+        <module>ace-repository-impl</module>
+        <module>ace-repository-servlet</module>
+        <module>ace-repository-task</module>
+
+        <module>ace-consolelogger</module>
+        <module>ace-log</module>
+
+        <module>ace-discovery-api</module>
+        <module>ace-discovery-property</module>
+        <module>ace-discovery-upnp</module>
+
+        <module>ace-identification-api</module>
+        <module>ace-identification-property</module>
+        <module>ace-identification-ifconfig</module>
+
+        <module>ace-scheduler-api</module>
+        <module>ace-scheduler</module>
+
+        <module>ace-client-repository-api</module>
+        <module>ace-client-repository-impl</module>
+        <module>ace-client-repository-helper-base</module>
+        <module>ace-client-repository-helper-bundle</module>
+        <module>ace-client-repository-helper-configuration</module>
+        <module>ace-client-repository-helper-user</module>
+        <module>ace-client-automation</module>
+
+        <module>ace-deployment-provider-api</module>
+        <module>ace-deployment-streamgenerator</module>
+        <module>ace-deployment-servlet</module>
+        <module>ace-deployment-provider-base</module>
+        <module>ace-deployment-provider-filebased</module>
+        <module>ace-deployment-provider-repositorybased</module>
+
+        <module>ace-deployment-api</module>
+        <module>ace-deployment-deploymentadmin</module>
+        <module>ace-deployment-task</module>
+
+        <module>ace-httplistener</module>
+
+        <module>ace-server-log-store</module>
+        <module>ace-log-servlet</module>
+        <module>ace-log-task</module>
+        <module>ace-log-listener</module>
+
+        <module>ace-obr-metadata</module>
+        <module>ace-obr-storage</module>
+        <module>ace-obr-servlet</module>
+
+        <module>ace-configurator-serveruseradmin</module>
+        <module>ace-resourceprocessor-useradmin</module>
+        <module>ace-configurator-useradmin-task</module>
+
+        <module>ace-client-repository-useradmin</module>
+
+        <module>ace-server-action</module>
+        <module>ace-server-action-popupmessage</module>
+
+        <module>ace-location-upnp</module>
+        <module>ace-webconsole-plugin</module>
+
+        <module>ace-configurator</module>
+
+        <module>ace-gateway-log</module>
+        <module>ace-gateway-log-store</module>
+
+        <module>ace-webui</module>
+
+        <module>ace-webui-vaadin</module>
+
+        <module>ace-managementagent</module>
+        <module>ace-launcher</module>
+
+        <module>ace-target-defaults</module>
+        <module>ace-target-devgateway</module>
+        <module>ace-target-devserver</module>
+
+        <!-- not ready yet
+        <module>ace-distribution-servlet</module>
+        -->
+
+        <module>ace-integrationtests</module>
+
+    </modules>
+
     <profiles>
-        <profile>
-            <id>release</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>pom</module>
-                <module>ace-util</module>
-
-                <module>ace-range-api</module>
-
-                <module>ace-repository-api</module>
-                <module>ace-repository-ext</module>
-                <module>ace-repository-impl</module>
-                <module>ace-repository-servlet</module>
-                <module>ace-repository-task</module>
-
-                <module>ace-consolelogger</module>
-                <module>ace-log</module>
-
-                <module>ace-discovery-api</module>
-                <module>ace-discovery-property</module>
-                <module>ace-discovery-upnp</module>
-
-                <module>ace-identification-api</module>
-                <module>ace-identification-property</module>
-                <module>ace-identification-ifconfig</module>
-
-                <module>ace-scheduler-api</module>
-                <module>ace-scheduler</module>
-
-                <module>ace-client-repository-api</module>
-                <module>ace-client-repository-impl</module>
-                <module>ace-client-repository-helper-base</module>
-                <module>ace-client-repository-helper-bundle</module>
-                <module>ace-client-repository-helper-configuration</module>
-                <module>ace-client-repository-helper-user</module>
-                <module>ace-client-automation</module>
-
-                <module>ace-deployment-provider-api</module>
-                <module>ace-deployment-streamgenerator</module>
-                <module>ace-deployment-servlet</module>
-                <module>ace-deployment-provider-base</module>
-                <module>ace-deployment-provider-filebased</module>
-                <module>ace-deployment-provider-repositorybased</module>
-
-                <module>ace-deployment-api</module>
-                <module>ace-deployment-deploymentadmin</module>
-                <module>ace-deployment-task</module>
-
-                <module>ace-httplistener</module>
-
-                <module>ace-server-log-store</module>
-                <module>ace-log-servlet</module>
-                <module>ace-log-task</module>
-                <module>ace-log-listener</module>
-
-                <module>ace-obr-metadata</module>
-                <module>ace-obr-storage</module>
-                <module>ace-obr-servlet</module>
-
-                <module>ace-configurator-serveruseradmin</module>
-                <module>ace-resourceprocessor-useradmin</module>
-                <module>ace-configurator-useradmin-task</module>
-
-                <module>ace-client-repository-useradmin</module>
-
-                <module>ace-server-action</module>
-                <module>ace-server-action-popupmessage</module>
-
-                <module>ace-location-upnp</module>
-                <module>ace-webconsole-plugin</module>
-
-                <module>ace-configurator</module>
-
-                <module>ace-gateway-log</module>
-                <module>ace-gateway-log-store</module>
-
-                <module>ace-webui</module>
-
-                <module>ace-webui-vaadin</module>
-
-                <module>ace-managementagent</module>
-                <module>ace-launcher</module>
-
-                <module>ace-target-defaults</module>
-                <module>ace-target-devgateway</module>
-                <module>ace-target-devserver</module>
-
-				<!-- not ready yet
-                <module>ace-distribution-servlet</module>
-				-->
-
-                <module>ace-integrationtests</module>
-
-            </modules>
-        </profile>
         <profile>
             <id>gateway</id>
             <modules>
@@ -208,4 +203,5 @@
             </modules>
         </profile>
     </profiles>
+
 </project>
