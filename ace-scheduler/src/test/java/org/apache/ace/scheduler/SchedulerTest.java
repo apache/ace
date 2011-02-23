@@ -59,14 +59,15 @@ public class SchedulerTest {
         assert !((SchedulerTask) m_scheduler.m_tasks.get("local.mock.task1")).isScheduled() : "Since we have not provided a runnable for the scheduler, the tasks should not be scheduled.";
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
-    public synchronized void testIllegalUpdate() throws Exception {
+    @Test( groups = { UNIT } )
+    public synchronized void testAdditionalProperties() throws Exception {
         Properties props = new Properties();
         props.put("local.mock.task1", "invalidValue");
         m_scheduler.updated(props);
         m_scheduler.addRunnable("local.mock.task1", new Runnable() {
             public void run() {
             }}, "Dummy testing task", null, false);
+        // We should be able to get here, since unrecognized properties should be ignored.
     }
 
     @Test(groups = { UNIT })

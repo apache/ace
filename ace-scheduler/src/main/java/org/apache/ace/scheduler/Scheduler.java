@@ -27,6 +27,7 @@ import java.util.Map;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.log.LogService;
 
 /**
  * The scheduler periodically runs tasks based on a scheduling recipe. Tasks can be added and
@@ -39,6 +40,7 @@ import org.osgi.service.cm.ManagedService;
  */
 public class Scheduler implements ManagedService {
     protected Map m_tasks = new HashMap/*<String, SchedulerTask>*/();
+    private volatile LogService m_log;
 
     /**
      * Makes sure that all tasks are indeed stopped when the scheduler is stopped.
@@ -116,7 +118,15 @@ public class Scheduler implements ManagedService {
                     schedTask = new SchedulerTask(name);
                     m_tasks.put(name, schedTask);
                 }
-                schedTask.updateConfigurationRecipe(properties.get(name));
+                try {
+                    schedTask.updateConfigurationRecipe(properties.get(name));
+                }
+                catch (ConfigurationException ce) {
+                    // This is most likely an illegal recipe, caused by an config property we don't understand.
+                    // So, no problem.
+                    m_log.log(LogService.LOG_INFO,
+                            name + "=" + properties.get(name) + " does not look like a valid schedule recipe.");
+                }
             }
 
             // and remove all tasks that now have no schedule or runnable
@@ -124,7 +134,7 @@ public class Scheduler implements ManagedService {
                 String name = (String) i.next();
                 SchedulerTask schedTask = (SchedulerTask) m_tasks.get(name);
                 if (!schedTask.process()) {
-                    m_tasks.remove(name);
+                    i.remove();
                 }
             }
         }
