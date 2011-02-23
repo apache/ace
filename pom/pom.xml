@@ -125,7 +125,7 @@
         <felix.configadmin.version>1.2.8</felix.configadmin.version>
         <felix.dependencymanager.version>3.0.0-SNAPSHOT</felix.dependencymanager.version>
         <felix.deploymentadmin.version>0.9.0-SNAPSHOT</felix.deploymentadmin.version>
-        <felix.eventadmin.version>1.2.2</felix.eventadmin.version>
+        <felix.eventadmin.version>1.2.8</felix.eventadmin.version>
         <felix.framework.version>3.0.6</felix.framework.version>
         <felix.maven-bundle-plugin.version>2.3.4</felix.maven-bundle-plugin.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
@@ -273,15 +273,51 @@
             <!-- Apache Felix -->
             <dependency>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.dependencymanager</artifactId>
-                <version>${felix.dependencymanager.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.configadmin</artifactId>
                 <version>${felix.configadmin.version}</version>
                 <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.osgi</groupId>
+                        <artifactId>org.osgi.core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.osgi</groupId>
+                        <artifactId>org.osgi.compendium</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.dependencymanager</artifactId>
+                <version>${felix.dependencymanager.version}</version>
+                <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.osgi</groupId>
+                        <artifactId>org.osgi.core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.osgi</groupId>
+                        <artifactId>org.osgi.compendium</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.eventadmin</artifactId>
+                <version>${felix.eventadmin.version}</version>
+                <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.osgi</groupId>
+                        <artifactId>org.osgi.core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.osgi</groupId>
+                        <artifactId>org.osgi.compendium</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- Servlet API -->
