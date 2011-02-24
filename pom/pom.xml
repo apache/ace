@@ -391,13 +391,13 @@
 
             <!-- Knopflerfish -->
             <dependency>
-                <groupId>org.knopflerfish.log</groupId>
+                <groupId>org.knopflerfish</groupId>
                 <artifactId>log</artifactId>
                 <version>${knopflerfish.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.knopflerfish.bundle.useradmin</groupId>
+                <groupId>org.knopflerfish.bundle</groupId>
                 <artifactId>useradmin</artifactId>
                 <version>${knopflerfish.version}</version>
                 <scope>provided</scope>
