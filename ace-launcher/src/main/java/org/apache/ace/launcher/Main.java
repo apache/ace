@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  * multiple times.</li>
  * </ul>
  * <br>
- * Furthermore, it inherits all system properties that the self-containted Management Agent accepts. 
+ * Furthermore, it inherits all system properties that the self-contained Management Agent accepts. 
  *
  */
 public class Main {
@@ -51,7 +51,8 @@ public class Main {
                 + "org.osgi.service.cm;version=\"1.3\","
                 + "org.osgi.service.event;version=\"1.2\","
                 + "org.osgi.service.log;version=\"1.3\","
-                + "org.osgi.service.metatype;version=\"1.1\"");
+                + "org.osgi.service.metatype;version=\"1.1\","
+                + "org.apache.ace.log;version=\"0.8.0\"");
 
         frameworkProperties.putAll(findFrameworkProperties(args));
 
