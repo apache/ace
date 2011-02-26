@@ -10,4 +10,6 @@ Bundle-Activator: org.apache.ace.webui.vaadin.Activator
 
 Export-Package: org.apache.ace.webui
 
+Private-Package: org.apache.ace.webui.vaadin, org.apache.ace.test.utils
+
 Import-Package: *

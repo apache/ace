@@ -60,6 +60,7 @@ import org.apache.ace.client.repository.repository.License2GatewayAssociationRep
 import org.apache.ace.client.repository.repository.LicenseRepository;
 import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
+import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.Component;
@@ -89,6 +90,7 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.AbstractSelect.AbstractSelectTargetDetails;
 import com.vaadin.ui.AbstractSelect.VerticalLocationIs;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
@@ -163,6 +165,8 @@ public class VaadinClient extends com.vaadin.Application {
     private GridLayout m_grid;
     
     private boolean m_dynamicRelations = true;
+	private File m_sessionDir; // private folder for session info
+	private boolean m_dependenciesResolved = false;
 
     // basic session ID generator
     private static long generateSessionID() {
@@ -172,6 +176,9 @@ public class VaadinClient extends com.vaadin.Application {
     public void setupDependencies(Component component) {
         System.out.println("SETUP " + this);
         m_sessionID = "" + generateSessionID();
+        File dir = m_context.getDataFile(m_sessionID);
+        dir.mkdir();
+        m_sessionDir = dir;
         m_sessionFactory.createSession(m_sessionID);
         addDependency(component, RepositoryAdmin.class);
         addDependency(component, LicenseRepository.class);
@@ -181,6 +188,11 @@ public class VaadinClient extends com.vaadin.Application {
         addDependency(component, Group2LicenseAssociationRepository.class);
         addDependency(component, License2GatewayAssociationRepository.class);
         addDependency(component, StatefulGatewayRepository.class);
+        
+        addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL);
+        addListener(m_featuresPanel, GroupObject.TOPIC_ALL);
+        addListener(m_distributionsPanel, LicenseObject.TOPIC_ALL);
+        addListener(m_targetsPanel, StatefulGatewayObject.TOPIC_ALL);
     }
     
     private void addDependency(Component component, Class service) {
@@ -193,15 +205,28 @@ public class VaadinClient extends com.vaadin.Application {
     
     public void start() {
         System.out.println("START " + this);
+        synchronized (this) {
+        	m_dependenciesResolved = true;
+        }
+    }
+    
+    public boolean areDependenciesResolved() {
+        synchronized (this) {
+        	return m_dependenciesResolved;
+        }
     }
     
     public void stop() {
         System.out.println("STOP " + this);
+        synchronized (this) {
+        	m_dependenciesResolved = false;
+        }
     }
     
     public void destroyDependencies() {
         System.out.println("DESTROY " + this);
         m_sessionFactory.destroySession(m_sessionID);
+        FileUtils.removeDirectoryWithContent(m_sessionDir);
     }
     
     
@@ -209,6 +234,25 @@ public class VaadinClient extends com.vaadin.Application {
         System.out.println("INIT " + this);
         
         setTheme("ace");
+        
+        System.out.println("DR: " + areDependenciesResolved());
+        if (!areDependenciesResolved()) {
+        	final Window message = new Window("Apache ACE");
+        	setMainWindow(message);
+            message.getContent().setSizeFull();
+            Label richText = new Label(
+                "<h1>Apache ACE User Interface</h1>" +
+                "<p>Due to missing component dependencies on the server, probably due to misconfiguration, " +
+                "the user interface cannot be properly started. Please contact your server administrator. " +
+                "You can retry accessing the user interface by <a href=\"?restartApplication\">following this link</a>.</p>"
+            );
+            // TODO we might want to add some more details here as to what's missing
+            // on the other hand, the user probably can't fix that anyway
+            richText.setContentMode(Label.CONTENT_XHTML);
+            message.addComponent(richText);
+            return;
+        }
+        
         final Window main = new Window("Apache ACE (" + m_sessionID + ") " + this);
         setMainWindow(main);
         main.getContent().setSizeFull();
@@ -344,11 +388,6 @@ public class VaadinClient extends com.vaadin.Application {
         });
 
         main.addComponent(m_grid);
-        
-        addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL);
-        addListener(m_featuresPanel, GroupObject.TOPIC_ALL);
-        addListener(m_distributionsPanel, LicenseObject.TOPIC_ALL);
-        addListener(m_targetsPanel, StatefulGatewayObject.TOPIC_ALL);
         
         LoginWindow loginWindow = new LoginWindow();
         main.getWindow().addWindow(loginWindow);
@@ -1397,7 +1436,6 @@ public class VaadinClient extends com.vaadin.Application {
             setCaption("Add artifact");
             setWidth("50em");
             
-            // Configure the windws layout; by default a VerticalLayout
             VerticalLayout layout = (VerticalLayout) getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
@@ -1407,23 +1445,24 @@ public class VaadinClient extends com.vaadin.Application {
             final Table uploadedArtifacts = new ArtifactTable(main);
             final Upload uploadArtifact = new Upload("Upload Artifact", new Upload.Receiver() {
     			public OutputStream receiveUpload(String filename, String MIMEType) {
-    				FileOutputStream fos = null; // Output stream to write to
+    				FileOutputStream fos = null;
     		        try {
-    		        	m_file = new File(filename); //File.createTempFile(filename, "tmp");
+    		        	m_file = new File(m_sessionDir, filename); 
     		        	if (m_file.exists()) {
     		        		throw new IOException("Uploaded file already exists.");
-    		        		// meaning probably somebody else is in the process of uploading 
-    		        		// the exact same file...
     		        	}
-    		            // Open the file for writing.
     		            fos = new FileOutputStream(m_file);
     		        }
     		        catch (final IOException e) {
-    		            // Error while opening the file. Not reported here.
-    		            e.printStackTrace();
+                        getMainWindow().showNotification(
+                            "Upload artifact failed",
+                            "File " + m_file.getName() + "<br />could not be accepted on the server.<br />" +
+                            "Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
+                        m_log.log(LogService.LOG_ERROR, "Upload of " + m_file.getAbsolutePath() + " failed.", e);
     		            return null;
     		        }
-    		        return fos; // Return the output stream to write to			
+    		        return fos;
     	        }
     		});
             
@@ -1453,16 +1492,22 @@ public class VaadinClient extends com.vaadin.Application {
     					m_uploadedArtifacts.add(m_file);
 					}
     				catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+                        getMainWindow().showNotification(
+                            "Upload artifact processing failed",
+                            "<br />Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
+                        m_log.log(LogService.LOG_ERROR, "Processing of " + m_file.getAbsolutePath() + " failed.", e);
 					}
-    				
     			}
     		});
             uploadArtifact.addListener(new Upload.FailedListener() {
-    			
     			public void uploadFailed(FailedEvent event) {
-    				System.out.println("upload failed: " + event);
+                    getMainWindow().showNotification(
+                        "Upload artifact failed",
+                        "File " + event.getFilename() + "<br />could not be uploaded to the server.<br />" +
+                        "Reason: " + event.getReason().getMessage(),
+                        Notification.TYPE_ERROR_MESSAGE);
+                    m_log.log(LogService.LOG_ERROR, "Upload of " + event.getFilename() + " size " + event.getLength() + " type " + event.getMIMEType() + " failed.", event.getReason());
     			}
     		});
 
@@ -1482,14 +1527,17 @@ public class VaadinClient extends com.vaadin.Application {
                         if (artifacts.isSelected(id)) {
                             for (OBREntry e : m_obrList) {
                                 if (e.getUri().equals(id)) {
-                                    System.out.println("Importing " + e);
                                     try {
                                         ArtifactObject ao = importBundle(e);
                                         added.add(ao);
                                     }
                                     catch (Exception e1) {
-                                        // TODO Auto-generated catch block
-                                        e1.printStackTrace();
+                                        getMainWindow().showNotification(
+                                            "Import artifact failed",
+                                            "Artifact " + e.getSymbolicName() + " " + e.getVersion() + "<br />could not be imported into the repository.<br />" +
+                                            "Reason: " + e1.getMessage(),
+                                            Notification.TYPE_ERROR_MESSAGE);
+                                        m_log.log(LogService.LOG_ERROR, "Import of " + e.getSymbolicName() + " " + e.getVersion() + " failed.", e1);
                                     }
                                 }
                             }
@@ -1500,8 +1548,13 @@ public class VaadinClient extends com.vaadin.Application {
                     		ArtifactObject ao = importBundle(artifact.toURI().toURL());
                             added.add(ao);
 						}
-                    	catch (IOException e) {
-							e.printStackTrace();
+                    	catch (Exception e) {
+                            getMainWindow().showNotification(
+                                "Import artifact failed",
+                                "Artifact " + artifact.getAbsolutePath() + "<br />could not be imported into the repository.<br />" +
+                                "Reason: " + e.getMessage(),
+                                Notification.TYPE_ERROR_MESSAGE);
+                            m_log.log(LogService.LOG_ERROR, "Import of " + artifact.getAbsolutePath() + " failed.", e);
 						}
                     	finally {
                     		artifact.delete();
@@ -1517,7 +1570,7 @@ public class VaadinClient extends com.vaadin.Application {
             // The components added to the window are actually added to the window's
             // layout; you can use either. Alignments are set using the layout
             layout.addComponent(close);
-            layout.setComponentAlignment(close, "right");
+            layout.setComponentAlignment(close, Alignment.MIDDLE_RIGHT);
             search.focus();
     	}
     }
@@ -1527,7 +1580,8 @@ public class VaadinClient extends com.vaadin.Application {
         if (featureWindow.getParent() != null) {
             // window is already showing
             main.getWindow().showNotification("Window is already open");
-        } else {
+        }
+        else {
             // Open the subwindow by adding it to the parent
             // window
             main.getWindow().addWindow(featureWindow);
