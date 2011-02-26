@@ -252,10 +252,19 @@
 
             <!-- Commons -->
             <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons-lang.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>${commons-logging.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- OPS4J -->
@@ -263,19 +272,16 @@
                 <groupId>org.ops4j.pax.exam</groupId>
                 <artifactId>pax-exam</artifactId>
                 <version>${pax.exam.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.exam</groupId>
                 <artifactId>pax-exam-container-default</artifactId>
                 <version>${pax.exam.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.exam</groupId>
                 <artifactId>pax-exam-junit</artifactId>
                 <version>${pax.exam.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.runner</groupId>
@@ -286,19 +292,16 @@
                 <groupId>org.ops4j.pax.swissbox</groupId>
                 <artifactId>pax-swissbox-tinybundles</artifactId>
                 <version>${pax.swissbox.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.web</groupId>
                 <artifactId>pax-web-extender-war</artifactId>
                 <version>${pax.web.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.web</groupId>
                 <artifactId>pax-web-jetty-bundle</artifactId>
                 <version>${pax.web.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- OSGi -->
@@ -306,13 +309,11 @@
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
                 <version>${osgi.core.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.compendium</artifactId>
                 <version>${osgi.compendium.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- Apache Felix -->
@@ -320,7 +321,6 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.configadmin</artifactId>
                 <version>${felix.configadmin.version}</version>
-                <scope>provided</scope>
                 <exclusions>
                     <exclusion>
                         <groupId>org.osgi</groupId>
@@ -336,7 +336,6 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.dependencymanager</artifactId>
                 <version>${felix.dependencymanager.version}</version>
-                <scope>provided</scope>
                 <exclusions>
                     <exclusion>
                         <groupId>org.osgi</groupId>
@@ -352,19 +351,16 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.dependencymanager.shell</artifactId>
                 <version>${felix.dependencymanager.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.deploymentadmin</artifactId>
                 <version>${felix.deploymentadmin.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.eventadmin</artifactId>
                 <version>${felix.eventadmin.version}</version>
-                <scope>provided</scope>
                 <exclusions>
                     <exclusion>
                         <groupId>org.osgi</groupId>
@@ -385,7 +381,6 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.prefs</artifactId>
                 <version>${felix.prefs.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- Knopflerfish -->
@@ -393,13 +388,11 @@
                 <groupId>org.knopflerfish</groupId>
                 <artifactId>log</artifactId>
                 <version>${knopflerfish.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.knopflerfish.bundle</groupId>
                 <artifactId>useradmin</artifactId>
                 <version>${knopflerfish.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- Servlet API -->
@@ -407,7 +400,6 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
                 <version>${servlet-api.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- Apache Velocity -->
@@ -415,7 +407,6 @@
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
                 <version>${velocity.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- KXML -->
@@ -423,7 +414,6 @@
                 <groupId>net.sf.kxml</groupId>
                 <artifactId>kxml2</artifactId>
                 <version>${kxml2.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- XPP3 -->
@@ -431,7 +421,6 @@
                 <groupId>xpp3</groupId>
                 <artifactId>xpp3</artifactId>
                 <version>${xpp3.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- XStream -->
@@ -439,7 +428,6 @@
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
                 <version>${xstream.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- GWT -->
@@ -471,25 +459,21 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven.surefire</groupId>
                 <artifactId>surefire-testng</artifactId>
                 <version>${surefire.testng.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.easymock</groupId>
                 <artifactId>easymock</artifactId>
                 <version>${easymock.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
                 <version>${mockito.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
