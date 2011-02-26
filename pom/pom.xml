@@ -68,7 +68,7 @@
         </developer>
         <developer>
             <id>btopping</id>
-            <name>Brian Toppinc</name>
+            <name>Brian Topping</name>
         </developer>
         <developer>
             <id>christian</id>
@@ -144,7 +144,7 @@
         <pax.web.version>0.7.2</pax.web.version>
         <servlet-api.version>2.4</servlet-api.version>
         <surefire.testng.version>2.5</surefire.testng.version>
-        <vaadin.version>6.5.0</vaadin.version>
+        <vaadin.version>6.5.1</vaadin.version>
         <velocity.version>1.6.2</velocity.version>
         <xpp3.version>1.1.4c</xpp3.version>
         <xstream.version>1.2.2</xstream.version>
