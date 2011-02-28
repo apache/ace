@@ -32,10 +32,20 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Deployment :: Streamgenerator</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.deployment.streamgenerator</bundle.symbolicName>
-        <bundle.namespace>${namespace}.deployment.streamgenerator</bundle.namespace>
+        <export.package>
+            org.apache.ace.deployment.streamgenerator;version=${project.version}
+        </export.package>
+        <import.package>
+            org.apache.ace.deployment.provider;version=${project.version},
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.deployment.streamgenerator.impl
+        </private.package>
+        <bundle.activator>org.apache.ace.deployment.streamgenerator.impl.Activator</bundle.activator>
     </properties>
 
     <dependencies>

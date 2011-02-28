@@ -32,10 +32,16 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: OBR :: Servlet</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.obr.servlet</bundle.symbolicName>
-        <bundle.namespace>${namespace}.obr.servlet</bundle.namespace>
+        <export.package>
+            org.apache.ace.obr.servlet;version=${project.version}
+        </export.package>
+        <import.package>
+            *
+        </import.package>
+        <bundle.activator>org.apache.ace.obr.servlet.Activator</bundle.activator>
     </properties>
 
     <dependencies>

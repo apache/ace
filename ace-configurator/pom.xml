@@ -32,10 +32,14 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Configurator</name>
+    <description></description>
     
     <properties>
-        <bundle.symbolicName>${namespace}.configurator</bundle.symbolicName>
-        <bundle.namespace>${namespace}.configurator</bundle.namespace>
+        <import.package>*</import.package>
+        <private.package>
+            org.apache.ace.configurator
+        </private.package>
+        <bundle.activator>org.apache.ace.configurator.Activator</bundle.activator>
     </properties>
 
      <dependencies>

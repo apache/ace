@@ -32,10 +32,18 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Location :: UPNP Service</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.location.upnp</bundle.symbolicName>
-        <bundle.namespace>${namespace}.location.upnp</bundle.namespace>
+        <export.package>
+            org.apache.ace.location;version=${project.version},
+            org.apache.ace.location.upnp;version=${project.version},
+            org.apache.ace.location.upnp.actions;version=${project.version},
+            org.apache.ace.location.upnp.util;version=${project.version}
+        </export.package>
+        <import.package>
+            *
+        </import.package>
     </properties>
 
     <dependencies>

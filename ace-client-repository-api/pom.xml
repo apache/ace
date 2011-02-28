@@ -32,10 +32,21 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Client :: Repository :: API</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.client.repository.api</bundle.symbolicName>
-        <bundle.namespace>${namespace}.client.repository</bundle.namespace>
+        <import.package>
+            org.apache.ace.log;version=${project.version},
+            *
+        </import.package>
+        <export.package>
+            org.apache.ace.client.repository;version=${project.version},
+            org.apache.ace.client.repository.helper;version=${project.version},
+            org.apache.ace.client.repository.helper.bundle;version=${project.version},
+            org.apache.ace.client.repository.object;version=${project.version},
+            org.apache.ace.client.repository.repository;version=${project.version},
+            org.apache.ace.client.repository.stateful;version=${project.version}
+        </export.package>
     </properties>
 
     <dependencies>

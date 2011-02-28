@@ -32,10 +32,49 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Client :: Repository :: Implementation</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.client.repository.impl</bundle.symbolicName>
-        <bundle.namespace>${namespace}.client.repository.impl</bundle.namespace>
+        <export.package>
+            org.apache.ace.client.repository;version=${project.version},
+            org.apache.ace.client.repository.object;version=${project.version},
+            org.apache.ace.client.repository.repository;version=${project.version},
+            org.apache.ace.client.repository.helper;version=${project.version},
+            org.apache.ace.client.repository.stateful;version=${project.version},
+            org.apache.ace.server.log.store;version=${project.version}
+        </export.package>
+        <import.package>
+	        !javax.security.auth,
+	        !javax.swing.plaf,
+	        !javax.xml.parsers,
+	        !javax.xml.stream,
+	        !javax.xml.transform.sax,
+	        !net.sf.cglib.proxy,
+	        !nu.xom,
+	        !org.codehaus.jettison.mapped,
+	        !org.dom4j,
+	        !org.dom4j.io,
+	        !org.dom4j.tree,
+	        !org.jdom,
+	        !org.jdom.input,
+	        !org.joda.time,
+	        !org.joda.time.format,
+	        !org.w3c.dom,
+	        !org.xml.sax,
+	        !org.xml.sax.helpers,
+	        !sun.misc,
+	        !sun.reflect,
+	        *
+        </import.package>
+        <private.package>
+            org.apache.ace.client.repository.impl,
+            org.apache.ace.util,
+            org.apache.ace.repository.ext,
+            org.apache.ace.repository.ext.impl,
+            org.apache.ace.client.repository.stateful.impl
+        </private.package>
+        <bundle.activator>org.apache.ace.client.repository.impl.Activator</bundle.activator>
+        <embed.dependency>xstream, xpp3</embed.dependency>
     </properties>
 
     <dependencies>

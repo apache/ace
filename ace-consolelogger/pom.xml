@@ -32,10 +32,16 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: ConsoleLogger</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.consolelogger</bundle.symbolicName>
-        <bundle.namespace>${namespace}.consolelogger</bundle.namespace>
+        <import.package>
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.consolelogger
+        </private.package>
+        <bundle.activator>org.apache.ace.consolelogger.Activator</bundle.activator>
     </properties>
 
     <dependencies>

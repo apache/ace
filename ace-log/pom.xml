@@ -32,10 +32,19 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Log</name>
+    <description></description>
     
     <properties>
-        <bundle.symbolicName>${namespace}.log</bundle.symbolicName>
-        <bundle.namespace>${namespace}.log</bundle.namespace>
+        <export.package>
+            org.apache.ace.log;version=${project.version}
+        </export.package>
+        <import.package>
+            org.apache.ace.range;version=${project.version},
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.util
+        </private.package>
     </properties>
 
     <dependencies>

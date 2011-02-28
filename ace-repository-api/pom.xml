@@ -32,10 +32,15 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Repository :: API</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.repository.api</bundle.symbolicName>
-        <bundle.namespace>${namespace}.repository</bundle.namespace>
+        <export.package>
+            org.apache.ace.repository;version=${project.version}
+        </export.package>
+        <import.package>
+            org.apache.ace.range;version=${project.version}
+        </import.package>
     </properties>
 
     <dependencies>

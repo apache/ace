@@ -32,10 +32,16 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Configurator :: Server UserAdmin</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.configurator.serveruseradmin</bundle.symbolicName>
-        <bundle.namespace>${namespace}.configurator.serveruseradmin</bundle.namespace>
+        <import.package>
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.configurator.serveruseradmin
+        </private.package>
+        <bundle.activator>org.apache.ace.configurator.serveruseradmin.Activator</bundle.activator>
     </properties>
 
     <dependencies>

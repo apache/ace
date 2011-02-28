@@ -32,10 +32,15 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Deployment :: API</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.deployment.api</bundle.symbolicName>
-        <bundle.namespace>${namespace}.deployment</bundle.namespace>
+        <export.package>
+            org.apache.ace.deployment;version=${project.version}
+        </export.package>
+        <import.package>
+            *
+        </import.package>
     </properties>
 
     <dependencies>

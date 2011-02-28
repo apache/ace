@@ -33,10 +33,15 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Client :: Automation</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.client.automation</bundle.symbolicName>
-        <bundle.namespace>${namespace}.client.automation</bundle.namespace>
+        <import.package>
+            org.apache.ace.client.repository;version=${project.version},
+            org.apache.ace.client.repository.repository;version=${project.version},
+            org.apache.ace.client.repository.stateful;version=${project.version},
+            *
+        </import.package>
     </properties>
 
     <dependencies>
@@ -60,7 +65,6 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
-
     </dependencies>
 
 </project>

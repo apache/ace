@@ -32,10 +32,22 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Deployment :: Provider :: Repositorybased</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.deployment.provider.repositorybased</bundle.symbolicName>
-        <bundle.namespace>${namespace}.deployment.provider.repositorybased</bundle.namespace>
+        <import.package>
+            org.apache.ace.deployment.provider;version=${project.version},
+            org.apache.ace.range;version=${project.version},
+            org.apache.ace.repository;version=${project.version},
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.deployment.provider.repositorybased,
+            org.apache.ace.deployment.provider.impl,
+            org.apache.ace.repository.ext,
+            org.apache.ace.repository.ext.impl
+        </private.package>
+        <bundle.activator>org.apache.ace.deployment.provider.repositorybased.Activator</bundle.activator>
     </properties>
 
     <dependencies>

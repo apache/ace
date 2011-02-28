@@ -32,10 +32,17 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Log :: Listener</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.log.listener</bundle.symbolicName>
-        <bundle.namespace>${namespace}.log.listener</bundle.namespace>
+        <import.package>
+            org.apache.ace.log;version=${project.version},
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.log.listener
+        </private.package>
+        <bundle.activator>org.apache.ace.log.listener.Activator</bundle.activator>
     </properties>
 
     <dependencies>

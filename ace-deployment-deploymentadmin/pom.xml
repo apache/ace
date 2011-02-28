@@ -32,10 +32,17 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Deployment :: DeploymentAdmin Based</name>
+    <description></description>
     
     <properties>
-        <bundle.symbolicName>${namespace}.deployment.deploymentadmin</bundle.symbolicName>
-        <bundle.namespace>${namespace}.deployment.deploymentadmin</bundle.namespace>
+        <import.package>
+            org.apache.ace.deployment;version=${project.version},
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.deployment.deploymentadmin
+        </private.package>
+        <bundle.activator>org.apache.ace.deployment.deploymentadmin.Activator</bundle.activator>
     </properties>
 
      <dependencies>

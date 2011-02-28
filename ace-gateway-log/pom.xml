@@ -32,10 +32,21 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Gateway :: Log</name>
+    <description></description>
     
     <properties>
-        <bundle.symbolicName>${namespace}.gateway.log</bundle.symbolicName>
-        <bundle.namespace>${namespace}.gateway.log</bundle.namespace>
+        <import.package>
+            org.apache.ace.discovery;version=${project.version},
+            org.apache.ace.gateway.log.store;version=${project.version},
+            org.apache.ace.gateway.log.task;version=${project.version},
+            org.apache.ace.identification;version=${project.version},
+            org.apache.ace.log;version=${project.version},
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.gateway.log
+        </private.package>
+        <bundle.activator>org.apache.ace.gateway.log.Activator</bundle.activator>
     </properties>
 
     <dependencies>

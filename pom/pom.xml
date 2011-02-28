@@ -115,9 +115,14 @@
     </scm>
 
     <properties>
-        <namespace>org.apache.ace</namespace>
+        <!-- Default OSGi statements -->
+        <import.package></import.package>
+        <export.package></export.package>
+        <private.package></private.package>
+        <embed.dependency></embed.dependency>
+        <bundle.activator></bundle.activator>
+        <deployment.providesresourceprocessor></deployment.providesresourceprocessor>
 
-        <!-- Dependency versions -->
         <commons-collections.version>3.2.1</commons-collections.version>
         <commons-lang.version>2.4</commons-lang.version>
         <commons-logging.version>1.1.1</commons-logging.version>
@@ -207,7 +212,15 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <_include>-osgi.bnd</_include>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Description>${project.description}</Bundle-Description>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <Export-Package>${export.package}</Export-Package>
+                        <Import-Package>${import.package}</Import-Package>
+                        <Private-Package>${private.package}</Private-Package>
+                        <Embed-Dependency>${embed.dependency}</Embed-Dependency>
+                        <Bundle-Activator>${bundle.activator}</Bundle-Activator>
+                        <Deployment-ProvidesResourceProcessor>${deployment.providesresourceprocessor}</Deployment-ProvidesResourceProcessor>
                     </instructions>
                     <supportedProjectTypes>
                         <supportedProjectType>jar</supportedProjectType>

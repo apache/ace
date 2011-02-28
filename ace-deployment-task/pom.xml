@@ -32,10 +32,19 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Deployment :: Task</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.deployment.task</bundle.symbolicName>
-        <bundle.namespace>${namespace}.deployment.task</bundle.namespace>
+        <import.package>
+            org.apache.ace.deployment;version=${project.version},
+            org.apache.ace.discovery;version=${project.version},
+            org.apache.ace.identification;version=${project.version},
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.deployment.task
+        </private.package>
+        <bundle.activator>org.apache.ace.deployment.task.Activator</bundle.activator>
     </properties>
 
     <dependencies>

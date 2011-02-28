@@ -32,10 +32,13 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Identification :: Ifconfig</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.identification.ifconfig</bundle.symbolicName>
-        <bundle.namespace>${namespace}.identification.ifconfig</bundle.namespace>
+        <import.package>
+            org.apache.ace.identification.ifconfig
+        </import.package>
+        <bundle.activator>org.apache.ace.identification.ifconfig.Activator</bundle.activator>
     </properties>
 
     <dependencies>

@@ -32,10 +32,17 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Identification :: Property Based</name>
+    <description></description>
     
     <properties>
-        <bundle.symbolicName>${namespace}.identification.property</bundle.symbolicName>
-        <bundle.namespace>${namespace}.identification.property</bundle.namespace>
+        <import.package>
+            org.apache.ace.identification;version=${project.version},
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.identification.property
+        </private.package>
+        <bundle.activator>org.apache.ace.identification.property.Activator</bundle.activator>
     </properties>
 
     <dependencies>

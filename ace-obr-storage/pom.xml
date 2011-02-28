@@ -32,10 +32,17 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: OBR :: Storage</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.obr.storage</bundle.symbolicName>
-        <bundle.namespace>${namespace}.obr.storage</bundle.namespace>
+        <export.package>
+            org.apache.ace.obr.storage;version=${project.version}
+        </export.package>
+        <import.package>
+            org.apache.ace.obr.storage.file,
+            *
+        </import.package>
+        <bundle.activator>org.apache.ace.obr.storage.file.Activator</bundle.activator>
     </properties>
 
     <dependencies>

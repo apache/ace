@@ -32,10 +32,12 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Range :: API</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.range.api</bundle.symbolicName>
-        <bundle.namespace>${namespace}.range</bundle.namespace>
+        <export.package>
+            org.apache.ace.range;version=${project.version}
+        </export.package>
     </properties>
 
     <dependencies>

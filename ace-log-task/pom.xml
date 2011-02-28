@@ -32,10 +32,20 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Log :: Task</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.server.log.task</bundle.symbolicName>
-        <bundle.namespace>${namespace}.server.log.task</bundle.namespace>
+        <import.package>
+            org.apache.ace.discovery;version=${project.version},
+            org.apache.ace.log;version=${project.version},
+            org.apache.ace.range;version=${project.version},
+            org.apache.ace.server.log.store;version=${project.version},
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.server.log.task
+        </private.package>
+        <bundle.activator>org.apache.ace.server.log.task.Activator</bundle.activator>
     </properties>
 
     <dependencies>
