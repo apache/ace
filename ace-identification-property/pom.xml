@@ -40,7 +40,8 @@
             *
         </import.package>
         <private.package>
-            org.apache.ace.identification.property
+            org.apache.ace.identification.property,
+            org.apache.ace.identification.property.constants
         </private.package>
         <bundle.activator>org.apache.ace.identification.property.Activator</bundle.activator>
     </properties>

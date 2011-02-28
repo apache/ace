@@ -40,7 +40,8 @@
             *
         </import.package>
         <private.package>
-            org.apache.ace.discovery.property
+            org.apache.ace.discovery.property,
+            org.apache.ace.discovery.property.constants
         </private.package>
         <bundle.activator>org.apache.ace.discovery.property.Activator</bundle.activator>
     </properties>

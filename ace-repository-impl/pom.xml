@@ -41,7 +41,8 @@
             *
         </import.package>
         <private.package>
-            org.apache.ace.repository.impl
+            org.apache.ace.repository.impl,
+            org.apache.ace.repository.impl.constants
         </private.package>
         <bundle.activator>org.apache.ace.repository.impl.Activator</bundle.activator>
     </properties>
