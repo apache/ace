@@ -32,10 +32,21 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Server :: Log :: Store</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.server.log.store</bundle.symbolicName>
-        <bundle.namespace>${namespace}.server.log.store</bundle.namespace>
+        <export.package>
+            org.apache.ace.server.log.store;version=${project.version}
+        </export.package>
+        <import.package>
+            org.apache.ace.log;version=${project.version},
+            org.apache.ace.range;version=${project.version},
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.server.log.store.impl
+        </private.package>
+        <bundle.activator>org.apache.ace.server.log.store.impl.Activator</bundle.activator>
     </properties>
 
     <dependencies>

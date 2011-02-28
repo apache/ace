@@ -34,8 +34,7 @@
     <name>Apache ACE :: Web UI</name>
 
     <properties>
-        <bundle.symbolicName>${namespace}.webui</bundle.symbolicName>
-        <bundle.namespace>${namespace}</bundle.namespace>
+        <bundle.activator>org.apache.ace.server.Activator</bundle.activator>
     </properties>
 
     <build>

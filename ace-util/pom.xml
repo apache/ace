@@ -32,10 +32,16 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Util</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.util</bundle.symbolicName>
-        <bundle.namespace>${namespace}.util</bundle.namespace>
+        <export.package>
+            org.apache.ace.util;version=${project.version},
+            org.apache.ace.test*;version=${project.version}
+        </export.package>
+        <import.package>
+            *
+        </import.package>
     </properties>
 
     <dependencies>

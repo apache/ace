@@ -32,10 +32,16 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Scheduler</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.scheduler</bundle.symbolicName>
-        <bundle.namespace>${namespace}.scheduler</bundle.namespace>
+        <export.package>
+            org.apache.ace.scheduler;version=${project.version}
+        </export.package>
+        <import.package>
+            *
+        </import.package>
+        <bundle.activator>org.apache.ace.scheduler.Activator</bundle.activator>
     </properties>
 
     <dependencies>

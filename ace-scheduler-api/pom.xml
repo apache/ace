@@ -32,10 +32,12 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Scheduler :: API</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.scheduler.api</bundle.symbolicName>
-        <bundle.namespace>${namespace}.scheduler.constants</bundle.namespace>
+        <export.package>
+            org.apache.ace.scheduler.constants;version=${project.version}
+        </export.package>
     </properties>
 
 </project>

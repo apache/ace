@@ -32,10 +32,15 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Webconsole :: Plugin</name>
+    <description></description>
     
     <properties>
-        <bundle.symbolicName>${namespace}.webconsole.plugin</bundle.symbolicName>
-        <bundle.namespace>${namespace}.webconsole.plugin</bundle.namespace>
+        <export.package>
+            org.apache.ace.webconsole.plugin;version=${project.version}
+        </export.package>
+        <import.package>
+            *
+        </import.package>
     </properties>
 
     <dependencies>

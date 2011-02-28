@@ -32,10 +32,15 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Server :: Action API</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.server.action</bundle.symbolicName>
-        <bundle.namespace>${namespace}.server.action</bundle.namespace>
+        <export.package>
+            org.apache.ace.server.action;version=${project.version}
+        </export.package>
+        <import.package>
+            *
+        </import.package>
     </properties>
 
     <dependencies>

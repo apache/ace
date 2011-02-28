@@ -32,10 +32,21 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Web UI :: Vaadin</name>
+    <description></description>
 
     <properties>
-        <bundle.symbolicName>${namespace}.webui.vaadin</bundle.symbolicName>
-        <bundle.namespace>${namespace}</bundle.namespace>
+        <bundle.activator>org.apache.ace.webui.vaadin.Activator</bundle.activator>
+        <export.package>
+            org.apache.ace.webui;version=${project.version}
+        </export.package>
+        <import.package>
+            com.vaadin*,
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.webui.vaadin,
+            org.apache.ace.test.utils
+        </private.package>
     </properties>
 
     <dependencies>
