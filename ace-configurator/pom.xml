@@ -28,7 +28,7 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-configurator</artifactId>
+    <artifactId>org.apache.ace.configurator</artifactId>
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Configurator</name>
@@ -52,9 +52,8 @@
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.util</artifactId>
         </dependency>
     </dependencies>
 

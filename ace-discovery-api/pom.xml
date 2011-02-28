@@ -28,13 +28,13 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-discovery-api</artifactId>
+    <artifactId>org.apache.ace.discovery.api</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Discovery API</name>
+    <name>Apache ACE :: Discovery :: API</name>
     
     <properties>
-        <bundle.symbolicName>${namespace}.discovery</bundle.symbolicName>
+        <bundle.symbolicName>${namespace}.discovery.api</bundle.symbolicName>
         <bundle.namespace>${namespace}.discovery</bundle.namespace>
     </properties>
 

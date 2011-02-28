@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-deployment-servlet</artifactId>
+    <artifactId>org.apache.ace.deployment.servlet</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Deployment Servlet</name>
+    <name>Apache ACE :: Deployment :: Servlet</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.deployment.servlet</bundle.symbolicName>
@@ -40,14 +40,16 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment-provider-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.deployment.provider.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment-streamgenerator</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.deployment.streamgenerator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -64,11 +66,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-util</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

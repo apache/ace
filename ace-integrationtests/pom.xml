@@ -28,9 +28,9 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-integrationtests</artifactId>
+    <artifactId>org.apache.ace.integrationtests</artifactId>
 
-    <name>Apache ACE :: IT</name>
+    <name>Apache ACE :: Integration Tests</name>
 
     <dependencies>
         <dependency>
@@ -95,198 +95,159 @@
 
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-scheduler</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.scheduler</artifactId>
         </dependency>
       <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-discovery-property</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.discovery.property</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-identification-property</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.identification.property</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-httplistener</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.httplistener</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-repository-api</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.repository.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-repository-ext</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.repository.ext</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-repository-impl</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.repository.impl</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-repository-servlet</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.repository.servlet</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-repository-task</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.repository.task</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-resourceprocessor-useradmin</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.resourceprocessor.useradmin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-configurator-serveruseradmin</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.configurator.serveruseradmin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-configurator-useradmin-task</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.configurator.useradmin.task</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-range-api</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.range.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-deployment-provider-api</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.deployment.provider.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-deployment-provider-base</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.deployment.provider.base</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-deployment-provider-filebased</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.deployment.provider.filebased</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-discovery-api</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.discovery.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-identification-api</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.identification.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-deployment-api</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.deployment.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-deployment-deploymentadmin</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.deployment.deploymentadmin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-deployment-servlet</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.deployment.servlet</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-deployment-task</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.deployment.task</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-deployment-streamgenerator</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.deployment.streamgenerator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-log</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.log</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-log-listener</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.log.listener</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-log-servlet</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.log.servlet</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-server-log-store</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.server.log.store</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-log-task</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.log.task</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-gateway-log</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.gateway.log</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-gateway-log-store</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.gateway.log.store</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-obr-metadata</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.obr.metadata</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-obr-servlet</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.obr.servlet</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-obr-storage</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.obr.storage</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-client-repository-api</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.client.repository.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-client-repository-impl</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.client.repository.impl</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-client-repository-helper-base</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.client.repository.helper.base</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-client-repository-helper-bundle</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.client.repository.helper.bundle</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-client-repository-helper-configuration</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.client.repository.helper.configuration</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>ace-client-automation</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.apache.ace.client.automation</artifactId>
         </dependency>
     </dependencies>
 

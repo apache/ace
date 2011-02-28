@@ -67,159 +67,159 @@ public class Options {
     public static class Ace {
         public static WrappedUrlProvisionOption util() {
             // we do this because we need access to some test classes that aren't exported
-            return wrappedBundle(mavenBundle("org.apache.ace", "ace-util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL);
+            return wrappedBundle(mavenBundle("org.apache.ace", "org.apache.ace.util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL);
         }
 
         public static MavenArtifactProvisionOption rangeApi() {
-            return maven("ace-range-api");
+            return maven("org.apache.ace.range.api");
         }
 
         public static MavenArtifactProvisionOption discoveryApi() {
-            return maven("ace-discovery-api");
+            return maven("org.apache.ace.discovery.api");
         }
 
         public static MavenArtifactProvisionOption discoveryProperty() {
-            return maven("ace-discovery-property");
+            return maven("org.apache.ace.discovery.property");
         }
 
         public static MavenArtifactProvisionOption identificationApi() {
-            return maven("ace-identification-api");
+            return maven("org.apache.ace.identification.api");
         }
 
         public static MavenArtifactProvisionOption identificationProperty() {
-            return maven("ace-identification-property");
+            return maven("org.apache.ace.identification.property");
         }
 
         public static MavenArtifactProvisionOption scheduler() {
-            return maven("ace-scheduler");
+            return maven("org.apache.ace.scheduler");
         }
 
         public static MavenArtifactProvisionOption httplistener() {
-            return maven("ace-httplistener");
+            return maven("org.apache.ace.httplistener");
         }
 
         public static MavenArtifactProvisionOption repositoryApi() {
-            return maven("ace-repository-api");
+            return maven("org.apache.ace.repository.api");
         }
 
         public static MavenArtifactProvisionOption repositoryExt() {
-            return maven("ace-repository-ext");
+            return maven("org.apache.ace.repository.exy");
         }
 
         public static MavenArtifactProvisionOption repositoryImpl() {
-            return maven("ace-repository-impl");
+            return maven("org.apache.ace.repository.impl");
         }
 
         public static MavenArtifactProvisionOption repositoryServlet() {
-            return maven("ace-repository-servlet");
+            return maven("org.apache.ace.repository.servlet");
         }
 
         public static MavenArtifactProvisionOption repositoryTask() {
-            return maven("ace-repository-task");
+            return maven("org.apache.ace.repository.task");
         }
 
         public static MavenArtifactProvisionOption resourceprocessorUseradmin() {
-            return maven("ace-resourceprocessor-useradmin");
+            return maven("org.apache.ace.resourceprocessor.useradmin");
         }
 
         public static MavenArtifactProvisionOption configuratorServeruseradmin() {
-            return maven("ace-configurator-serveruseradmin");
+            return maven("org.apache.ace.configurator.serveruseradmin");
         }
 
         public static MavenArtifactProvisionOption configuratorUseradminTask() {
-            return maven("ace-configurator-useradmin-task");
+            return maven("org.apache.ace.configurator.useradmin.task");
         }
 
         public static MavenArtifactProvisionOption deploymentApi() {
-            return maven("ace-deployment-api");
+            return maven("org.apache.ace.deployment.api");
         }
 
         public static MavenArtifactProvisionOption deploymentDeploymentAdmin() {
-            return maven("ace-deployment-deploymentadmin");
+            return maven("org.apache.ace.deployment.deploymentadmin");
         }
 
         public static MavenArtifactProvisionOption deploymentServlet() {
-            return maven("ace-deployment-servlet");
+            return maven("org.apache.ace.deployment.servlet");
         }
 
         public static MavenArtifactProvisionOption deploymentTask() {
-            return maven("ace-deployment-task");
+            return maven("org.apache.ace.deployment.task");
         }
 
         public static MavenArtifactProvisionOption deploymentStreamgenerator() {
-            return maven("ace-deployment-streamgenerator");
+            return maven("org.apache.ace.deployment.streamgenerator");
         }
 
         public static MavenArtifactProvisionOption deploymentProviderApi() {
-            return maven("ace-deployment-provider-api");
+            return maven("org.apache.ace.deployment.provider.api");
         }
 
         public static MavenArtifactProvisionOption deploymentProviderFilebased() {
-            return maven("ace-deployment-provider-filebased");
+            return maven("org.apache.ace;deployment.provider.filebased");
         }
 
         public static MavenArtifactProvisionOption log() {
-            return maven("ace-log");
+            return maven("org.apache.ace.log");
         }
 
         public static MavenArtifactProvisionOption logListener() {
-            return maven("ace-log-listener");
+            return maven("org.apache.ace.log.listener");
         }
 
         public static MavenArtifactProvisionOption logServlet() {
-            return maven("ace-log-servlet");
+            return maven("org.apache.ace.log.servlet");
         }
 
         public static MavenArtifactProvisionOption serverLogStore() {
-            return maven("ace-server-log-store");
+            return maven("org.apache.ace.server.log.store");
         }
 
         public static MavenArtifactProvisionOption logTask() {
-            return maven("ace-log-task");
+            return maven("org.apache.ace.log.task");
         }
 
         public static MavenArtifactProvisionOption gatewayLog() {
-            return maven("ace-gateway-log");
+            return maven("org.apache.ace.gateway.log");
         }
 
         public static MavenArtifactProvisionOption gatewayLogStore() {
-            return maven("ace-gateway-log-store");
+            return maven("org.apache.ace.gateway.log.store");
         }
 
         public static MavenArtifactProvisionOption obrMetadata() {
-            return maven("ace-obr-metadata");
+            return maven("org.apache.ace.obr.metadata");
         }
 
         public static MavenArtifactProvisionOption obrServlet() {
-            return maven("ace-obr-servlet");
+            return maven("org.apache.ace.obr.servlet");
         }
 
         public static MavenArtifactProvisionOption obrStorage() {
-            return maven("ace-obr-storage");
+            return maven("org.apache.ace.obr.storage");
         }
 
         public static MavenArtifactProvisionOption clientRepositoryApi() {
-            return maven("ace-client-repository-api");
+            return maven("org.apache.ace.client.repository.api");
         }
 
         public static MavenArtifactProvisionOption clientRepositoryImpl() {
-            return maven("ace-client-repository-impl");
+            return maven("org.apache.ace.client.repository.impl");
         }
 
         public static MavenArtifactProvisionOption clientRepositoryHelperBase() {
-            return maven("ace-client-repository-helper-base");
+            return maven("org.apache.ace.client.repository.helper.base");
         }
 
         public static MavenArtifactProvisionOption clientRepositoryHelperBundle() {
-            return maven("ace-client-repository-helper-bundle");
+            return maven("org.apache.ace.client.repository.helper.bundle");
         }
 
         public static MavenArtifactProvisionOption clientRepositoryHelperConfiguration() {
-            return maven("ace-client-repository-helper-configuration");
+            return maven("org.apache.ace.client.repository.helper.configuration");
         }
 
         public static MavenArtifactProvisionOption clientAutomation() {
-            return maven("ace-client-automation");
+            return maven("org.apache.ace.client.automation");
         }
 
         public static MavenArtifactProvisionOption maven(String artifactId) {

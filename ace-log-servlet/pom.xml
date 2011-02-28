@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-log-servlet</artifactId>
+    <artifactId>org.apache.ace.log.servlet</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Log Servlet</name>
+    <name>Apache ACE :: Log :: Servlet</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.server.log.servlet</bundle.symbolicName>
@@ -40,24 +40,20 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-range-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.range.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.repository.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-server-log-store</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.server.log.store</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-httplistener</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.httplistener</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

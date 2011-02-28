@@ -28,7 +28,7 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-scheduler</artifactId>
+    <artifactId>org.apache.ace.scheduler</artifactId>
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Scheduler</name>
@@ -40,9 +40,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-scheduler-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.scheduler.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -57,9 +56,8 @@
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.util</artifactId>
         </dependency>
     </dependencies>
 

@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-client-repository-useradmin</artifactId>
+    <artifactId>org.apache.ace.client.repository.useradmin</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Client Repository UserAdmin</name>
+    <name>Apache ACE :: Client :: Repository :: UserAdmin</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.client.repositoryuseradmin</bundle.symbolicName>
@@ -40,34 +40,28 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.repository.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository-helper-base</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.repository.helper.base</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-range-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.range.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.repository.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository-ext</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.repository.ext</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-server-log-store</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.server.log.store</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

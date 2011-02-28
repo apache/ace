@@ -28,9 +28,9 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-target-defaults</artifactId>
+    <artifactId>org.apache.ace.target.defaults</artifactId>
 
-    <name>Apache ACE :: Target Defaults</name>
+    <name>Apache ACE :: Target :: Defaults</name>
     <description>Holds descriptors for certain ace launch configurations.</description>
 
     <build>

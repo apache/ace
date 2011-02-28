@@ -28,21 +28,20 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-range-api</artifactId>
+    <artifactId>org.apache.ace.range.api</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Range API</name>
+    <name>Apache ACE :: Range :: API</name>
 
     <properties>
-        <bundle.symbolicName>${namespace}.range</bundle.symbolicName>
+        <bundle.symbolicName>${namespace}.range.api</bundle.symbolicName>
         <bundle.namespace>${namespace}.range</bundle.namespace>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.util</artifactId>
         </dependency>
     </dependencies>
 

@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-log-listener</artifactId>
+    <artifactId>org.apache.ace.log.listener</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Log Listener</name>
+    <name>Apache ACE :: Log :: Listener</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.log.listener</bundle.symbolicName>
@@ -52,9 +52,8 @@
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-log</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.log</artifactId>
         </dependency>
     </dependencies>
 

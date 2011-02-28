@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-server-action-popupmessage</artifactId>
+    <artifactId>org.apache.ace.server.action.popupmessage</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Server Action Popup Message</name>
+    <name>Apache ACE :: Server :: Action :: Popup Message</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.server.action.popupmessage</bundle.symbolicName>
@@ -40,9 +40,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-server-action</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.server.action</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

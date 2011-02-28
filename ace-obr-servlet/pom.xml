@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-obr-servlet</artifactId>
+    <artifactId>org.apache.ace.obr.servlet</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: OBR Servlet</name>
+    <name>Apache ACE :: OBR :: Servlet</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.obr.servlet</bundle.symbolicName>
@@ -40,16 +40,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-obr-metadata</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.obr.metadata</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-obr-storage</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.obr.storage</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -68,9 +64,8 @@
             <artifactId>servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.util</artifactId>
         </dependency>
     </dependencies>
 

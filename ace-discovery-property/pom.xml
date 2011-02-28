@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-discovery-property</artifactId>
+    <artifactId>org.apache.ace.discovery.property</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Discovery Property Based</name>
+    <name>Apache ACE :: Discovery :: Property Based</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.discovery.property</bundle.symbolicName>
@@ -40,14 +40,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-discovery-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.discovery.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

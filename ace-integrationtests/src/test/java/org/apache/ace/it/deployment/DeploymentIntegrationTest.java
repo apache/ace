@@ -68,7 +68,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
             new VMOption("-ea"),
             provision(
-                wrappedBundle(maven("org.apache.ace", "ace-deployment-provider-base")), // necessary since we use an impl class here...
+                wrappedBundle(maven("org.apache.ace", "org.apache.ace.deployment.provider.base")), // necessary since we use an impl class here...
                 Ace.util(),
                 Osgi.compendium(),
                 Felix.dependencyManager(),

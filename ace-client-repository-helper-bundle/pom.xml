@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-client-repository-helper-bundle</artifactId>
+    <artifactId>org.apache.ace.client.repository.helper.bundle</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Client Repository Helper Bundle</name>
+    <name>Apache ACE :: Client :: Repository :: Helper :: Bundle</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.client.repository.helper.bundle</bundle.symbolicName>
@@ -40,9 +40,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.repository.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

@@ -48,7 +48,7 @@ public class ConfiguratorTest extends IntegrationTestBase {
         return options(
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),    
             provision(
-                wrappedBundle(maven("org.apache.ace", "ace-util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL), // we do this because we need access to some test classes that aren't exported
+                wrappedBundle(maven("org.apache.ace", "org.apache.ace.util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL), // we do this because we need access to some test classes that aren't exported
                 Osgi.compendium(),
                 jetty(),
                 Felix.preferences(),

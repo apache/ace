@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-client-repository-impl</artifactId>
+    <artifactId>org.apache.ace.client.repository.impl</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Client Repository Implementation</name>
+    <name>Apache ACE :: Client :: Repository :: Implementation</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.client.repository.impl</bundle.symbolicName>
@@ -40,39 +40,32 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.repository.api</artifactId>
         </dependency>
          <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.repository.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-repository-ext</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.repository.ext</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-server-log-store</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.server.log.store</artifactId>
         </dependency>
          <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-range-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.range.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.util</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository-helper-bundle</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.repository.helper.bundle</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -89,7 +82,6 @@
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
-			<scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>xpp3</groupId>

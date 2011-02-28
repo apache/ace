@@ -28,7 +28,7 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-webui</artifactId>
+    <artifactId>org.apache.ace.webui</artifactId>
     <packaging>war</packaging>
 
     <name>Apache ACE :: Web UI</name>
@@ -43,6 +43,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
+                <version>2.1.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -102,9 +103,8 @@
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.repository.api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>

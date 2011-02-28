@@ -28,7 +28,7 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-consolelogger</artifactId>
+    <artifactId>org.apache.ace.consolelogger</artifactId>
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: ConsoleLogger</name>

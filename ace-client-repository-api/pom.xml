@@ -28,26 +28,24 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-client-repository-api</artifactId>
+    <artifactId>org.apache.ace.client.repository.api</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Client Repository API</name>
+    <name>Apache ACE :: Client :: Repository :: API</name>
 
     <properties>
-        <bundle.symbolicName>${namespace}.client.repository</bundle.symbolicName>
+        <bundle.symbolicName>${namespace}.client.repository.api</bundle.symbolicName>
         <bundle.namespace>${namespace}.client.repository</bundle.namespace>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-log</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.log</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment-provider-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.deployment.provider.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

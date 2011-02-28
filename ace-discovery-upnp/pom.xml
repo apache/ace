@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-discovery-upnp</artifactId>
+    <artifactId>org.apache.ace.discovery.upnp</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Discovery UPNP</name>
+    <name>Apache ACE :: Discovery :: UPNP</name>
     
     <properties>
         <bundle.symbolicName>${namespace}.discovery.upnp</bundle.symbolicName>
@@ -40,9 +40,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-discovery-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.discovery.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -57,9 +56,8 @@
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.easymock</groupId>

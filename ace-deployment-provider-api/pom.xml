@@ -28,13 +28,13 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-deployment-provider-api</artifactId>
+    <artifactId>org.apache.ace.deployment.provider.api</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Deployment Provider API</name>
+    <name>Apache ACE :: Deployment :: Provider :: API</name>
     
     <properties>
-        <bundle.symbolicName>${namespace}.deployment.provider</bundle.symbolicName>
+        <bundle.symbolicName>${namespace}.deployment.provider.api</bundle.symbolicName>
         <bundle.namespace>${namespace}.deployment.provider</bundle.namespace>
     </properties>
 

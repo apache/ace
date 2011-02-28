@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-gateway-log</artifactId>
+    <artifactId>org.apache.ace.gateway.log</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Gateway Log</name>
+    <name>Apache ACE :: Gateway :: Log</name>
     
     <properties>
         <bundle.symbolicName>${namespace}.gateway.log</bundle.symbolicName>
@@ -40,29 +40,24 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-discovery-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.discovery.api</artifactId>
         </dependency>
          <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-scheduler-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.scheduler.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-range-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.range.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-gateway-log-store</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.gateway.log.store</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-identification-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.identification.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

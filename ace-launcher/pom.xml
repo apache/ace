@@ -28,7 +28,7 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-launcher</artifactId>
+    <artifactId>org.apache.ace.launcher</artifactId>
 
     <name>Apache ACE :: Launcher</name>
 
@@ -62,9 +62,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-managementagent</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.managementagent</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>

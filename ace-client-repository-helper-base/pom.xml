@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-client-repository-helper-base</artifactId>
+    <artifactId>org.apache.ace.client.repository.helper.base</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Client Repository Helper Base</name>
+    <name>Apache ACE :: Client :: Repository :: Helper :: Base</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.client.repository.helper.base</bundle.symbolicName>
@@ -40,19 +40,16 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-log</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.log</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment-provider-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.deployment.provider.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.repository.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

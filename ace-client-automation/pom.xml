@@ -29,10 +29,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-client-automation</artifactId>
+    <artifactId>org.apache.ace.client.automation</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Client Automation</name>
+    <name>Apache ACE :: Client :: Automation</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.client.automation</bundle.symbolicName>
@@ -41,14 +41,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.repository.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-scheduler-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.scheduler.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

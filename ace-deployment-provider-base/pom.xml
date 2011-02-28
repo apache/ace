@@ -28,21 +28,19 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-deployment-provider-base</artifactId>
+    <artifactId>org.apache.ace.deployment.provider.base</artifactId>
     <packaging>jar</packaging>
 
-    <name>Apache ACE :: Deployment Provider Base (library)</name>
+    <name>Apache ACE :: Deployment :: Provider :: Base (library)</name>
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-client-repository-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.repository.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment-provider-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.deployment.provider.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

@@ -28,7 +28,7 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-util</artifactId>
+    <artifactId>org.apache.ace.util</artifactId>
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Util</name>
@@ -48,9 +48,8 @@
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ace-deployment-provider-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.deployment.provider.api</artifactId>
         </dependency>
     </dependencies>
 

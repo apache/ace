@@ -28,10 +28,10 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ace-location-upnp</artifactId>
+    <artifactId>org.apache.ace.location.upnp</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Location UPNP Service</name>
+    <name>Apache ACE :: Location :: UPNP Service</name>
 
     <properties>
         <bundle.symbolicName>${namespace}.location.upnp</bundle.symbolicName>

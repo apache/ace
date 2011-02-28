@@ -51,7 +51,8 @@ public class MinimalGatewayTest
             options(
                 felix().version( "3.0.2" )
             ),
-            AssemblyConfigure.get( "ace-gateway", "mvn:org.apache.ace/ace-target-devgateway/0.8.0-SNAPSHOT/zip/distribution" )
+            // TODO avoid to use hard coded version
+            AssemblyConfigure.get( "ace-gateway", "mvn:org.apache.ace/org.apache.ace.target.devgateway/0.8.0-SNAPSHOT/zip/distribution" )
 
         );
     }
