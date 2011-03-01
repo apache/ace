@@ -44,6 +44,12 @@
             org.apache.ace.server.log.store;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.client.repository,
+            !org.apache.ace.client.repository.object,
+            !org.apache.ace.client.repository.repository,
+            !org.apache.ace.client.repository.helper,
+            !org.apache.ace.client.repository.stateful,
+            !org.apache.ace.server.log.store,
 	        !javax.security.auth,
 	        !javax.swing.plaf,
 	        !javax.xml.parsers,

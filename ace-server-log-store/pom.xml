@@ -39,6 +39,7 @@
             org.apache.ace.server.log.store;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.server.log.store,
             org.apache.ace.log;version=${project.version},
             org.apache.ace.range;version=${project.version},
             *
@@ -46,7 +47,9 @@
         <private.package>
             org.apache.ace.server.log.store.impl
         </private.package>
-        <bundle.activator>org.apache.ace.server.log.store.impl.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.server.log.store.impl.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

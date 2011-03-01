@@ -35,20 +35,21 @@
     <description></description>
 
     <properties>
-        <bundle.activator>org.apache.ace.client.repository.helper.bundle.impl.Activator</bundle.activator>
-        <private.package>
-            org.apache.ace.client.repository.helper.bundle.impl,
-            org.apache.ace.util
-        </private.package>
         <export.package>
             org.apache.ace.client.repository.helper.bundle;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.client.repository.helper.bundle,
             org.apache.ace.client.repository;version=${project.version},
             org.apache.ace.client.repository.helper;version=${project.version},
             org.apache.ace.client.repository.object;version=${project.version},
             *
         </import.package>
+        <private.package>
+            org.apache.ace.client.repository.helper.bundle.impl,
+            org.apache.ace.util
+        </private.package>
+        <bundle.activator>org.apache.ace.client.repository.helper.bundle.impl.Activator</bundle.activator>
     </properties>
 
     <dependencies>

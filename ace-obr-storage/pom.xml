@@ -39,6 +39,7 @@
             org.apache.ace.obr.storage;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.obr.storage,
             org.apache.ace.obr.metadata;version=${project.version},
             *
         </import.package>
@@ -46,7 +47,9 @@
             org.apache.ace.obr.storage.file,
             org.apache.ace.obr.storage.file.constants
         </private.package>
-        <bundle.activator>org.apache.ace.obr.storage.file.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.obr.storage.file.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

@@ -45,7 +45,9 @@
         <private.package>
             org.apache.ace.server.log.task
         </private.package>
-        <bundle.activator>org.apache.ace.server.log.task.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.server.log.task.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

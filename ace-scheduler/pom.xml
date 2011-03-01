@@ -39,9 +39,12 @@
             org.apache.ace.scheduler;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.scheduler,
             *
         </import.package>
-        <bundle.activator>org.apache.ace.scheduler.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.scheduler.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

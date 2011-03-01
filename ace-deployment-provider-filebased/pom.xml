@@ -39,6 +39,7 @@
             org.apache.ace.deployment.provider.filebased;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.deployment.provider.filebased,
             org.apache.ace.deployment.provider;version=${project.version},
             org.apache.ace.deployment.provider.impl;version=${project.version},
             *

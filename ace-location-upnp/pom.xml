@@ -42,6 +42,10 @@
             org.apache.ace.location.upnp.util;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.location,
+            !org.apache.ace.location.upnp,
+            !org.apache.ace.location.upnp.actions,
+            !org.apache.ace.location.upnp.util,
             *
         </import.package>
     </properties>

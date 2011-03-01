@@ -36,9 +36,15 @@
 
     <properties>
         <import.package>
-            org.apache.ace.identification.ifconfig
+            org.apache.ace.identification;version=${project.version},
+            *
         </import.package>
-        <bundle.activator>org.apache.ace.identification.ifconfig.Activator</bundle.activator>
+        <private.package>
+            org.apache.ace.identification.ifconfig
+        </private.package>
+        <bundle.activator>
+            org.apache.ace.identification.ifconfig.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

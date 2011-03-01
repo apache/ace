@@ -47,7 +47,9 @@
             org.apache.ace.repository.ext,
             org.apache.ace.repository.ext.impl
         </private.package>
-        <bundle.activator>org.apache.ace.deployment.provider.repositorybased.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.deployment.provider.repositorybased.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

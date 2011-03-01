@@ -39,6 +39,7 @@
             org.apache.ace.webconsole.plugin;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.webconsole.plugin,
             *
         </import.package>
     </properties>

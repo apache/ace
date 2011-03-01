@@ -39,9 +39,12 @@
             org.apache.ace.obr.servlet;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.obr.servlet,
             *
         </import.package>
-        <bundle.activator>org.apache.ace.obr.servlet.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.obr.servlet.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

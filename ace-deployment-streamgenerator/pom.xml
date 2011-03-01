@@ -39,13 +39,16 @@
             org.apache.ace.deployment.streamgenerator;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.deployment.streamgenerator,
             org.apache.ace.deployment.provider;version=${project.version},
             *
         </import.package>
         <private.package>
             org.apache.ace.deployment.streamgenerator.impl
         </private.package>
-        <bundle.activator>org.apache.ace.deployment.streamgenerator.impl.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.deployment.streamgenerator.impl.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

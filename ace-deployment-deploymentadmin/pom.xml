@@ -42,7 +42,9 @@
         <private.package>
             org.apache.ace.deployment.deploymentadmin
         </private.package>
-        <bundle.activator>org.apache.ace.deployment.deploymentadmin.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.deployment.deploymentadmin.Activator
+        </bundle.activator>
     </properties>
 
      <dependencies>

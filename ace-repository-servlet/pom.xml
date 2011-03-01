@@ -39,11 +39,14 @@
             org.apache.ace.repository.servlet;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.repository.servlet,
             org.apache.ace.range;version=${project.version},
             org.apache.ace.repository;version=${project.version},
             *
         </import.package>
-        <bundle.activator>org.apache.ace.repository.servlet.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.repository.servlet.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

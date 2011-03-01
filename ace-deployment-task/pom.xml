@@ -44,7 +44,9 @@
         <private.package>
             org.apache.ace.deployment.task
         </private.package>
-        <bundle.activator>org.apache.ace.deployment.task.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.deployment.task.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

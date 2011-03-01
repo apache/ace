@@ -39,6 +39,7 @@
             org.apache.ace.repository;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.repository,
             org.apache.ace.range;version=${project.version}
         </import.package>
     </properties>

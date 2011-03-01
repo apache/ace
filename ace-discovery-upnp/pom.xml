@@ -39,10 +39,13 @@
             org.apache.ace.discovery.upnp;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.discovery.upnp,
             org.apache.ace.discovery;version=${project.version},
             *
         </import.package>
-        <bundle.activator>org.apache.ace.discovery.upnp.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.discovery.upnp.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

@@ -40,6 +40,7 @@
             org.apache.ace.client.repository.helper.configuration;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.client.repository.helper.configuration,
             org.apache.ace.client.repository.helper;version=${project.version},
             org.apache.ace.client.repository.helper.base;version=${project.version},
             org.apache.ace.client.repository.object;version=${project.version},

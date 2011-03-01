@@ -38,6 +38,9 @@
         <export.package>
             org.apache.ace.range;version=${project.version}
         </export.package>
+        <import.package>
+            !org.apache.ace.range
+        </import.package>
     </properties>
 
     <dependencies>

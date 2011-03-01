@@ -40,6 +40,8 @@
             org.apache.ace.test*;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.util,
+            !org.apache.ace.test*,
             *
         </import.package>
     </properties>

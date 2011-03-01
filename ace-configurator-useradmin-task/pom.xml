@@ -46,7 +46,9 @@
             org.apache.ace.repository.ext,
             org.apache.ace.repository.ext.impl
         </private.package>
-        <bundle.activator>org.apache.ace.configurator.useradmin.task.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.configurator.useradmin.task.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

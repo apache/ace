@@ -45,6 +45,13 @@
 	        org.apache.ace.log;version=${project.version}
         </export.package>
         <import.package>
+            !org.osgi.service.cm,
+            !org.osgi.service.deploymentadmin,
+            !org.osgi.service.deploymentadmin.spi,
+            !org.osgi.service.event,
+            !org.osgi.service.log,
+            !org.osgi.service.metatype,
+            !org.apache.ace.log,
             *
         </import.package>
         <private.package>
@@ -52,7 +59,9 @@
             org.apache.felix.*,
             EDU.oswego.cs.dl.util.concurrent
         </private.package>
-        <bundle.activator>org.apache.ace.managementagent.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.managementagent.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

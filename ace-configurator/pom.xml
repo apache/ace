@@ -35,11 +35,15 @@
     <description></description>
     
     <properties>
-        <import.package>*</import.package>
+        <import.package>
+            *
+        </import.package>
         <private.package>
             org.apache.ace.configurator
         </private.package>
-        <bundle.activator>org.apache.ace.configurator.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.configurator.Activator
+        </bundle.activator>
     </properties>
 
      <dependencies>

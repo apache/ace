@@ -39,6 +39,7 @@
             org.apache.ace.deployment;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.deployment,
             *
         </import.package>
     </properties>

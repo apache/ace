@@ -39,12 +39,15 @@
             org.apache.ace.repository.task;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.repository.task,
             org.apache.ace.discovery;version=${project.version},
             org.apache.ace.range;version=${project.version},
             org.apache.ace.repository;version=${project.version},
             *
         </import.package>
-        <bundle.activator>org.apache.ace.repository.task.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.repository.task.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

@@ -39,6 +39,7 @@
             org.apache.ace.log;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.log,
             org.apache.ace.range;version=${project.version},
             *
         </import.package>

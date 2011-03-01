@@ -39,12 +39,15 @@
             org.apache.ace.server.log.servlet;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.server.log.servlet,
             org.apache.ace.log;version=${project.version},
             org.apache.ace.range;version=${project.version},
             org.apache.ace.server.log.store;version=${project.version},
             *
         </import.package>
-        <bundle.activator>org.apache.ace.server.log.servlet.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.server.log.servlet.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

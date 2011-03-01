@@ -39,6 +39,7 @@
             org.apache.ace.gateway.log.store;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.gateway.log.store,
             org.apache.ace.identification;version=${project.version},
             org.apache.ace.log;version=${project.version},
             *
@@ -46,7 +47,9 @@
         <private.package>
             org.apache.ace.gateway.log.store.impl
         </private.package>
-        <bundle.activator>org.apache.ace.gateway.log.store.impl.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.gateway.log.store.impl.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

@@ -39,10 +39,13 @@
             org.apache.ace.server.action.popupmessage;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.server.action.popupmessage,
             org.apache.ace.server.action;version=${project.version},
             *
         </import.package>
-        <bundle.activator>org.apache.ace.server.action.popupmessage.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.server.action.popupmessage.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

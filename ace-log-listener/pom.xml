@@ -42,7 +42,9 @@
         <private.package>
             org.apache.ace.log.listener
         </private.package>
-        <bundle.activator>org.apache.ace.log.listener.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.log.listener.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

@@ -61,6 +61,10 @@
         </mailingList>
     </mailingLists>
 
+    <prerequisites>
+        <maven>3.0.2</maven>
+    </prerequisites>
+
     <developers>
         <developer>
             <id>angelos</id>

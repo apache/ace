@@ -41,7 +41,9 @@
         <private.package>
             org.apache.ace.consolelogger
         </private.package>
-        <bundle.activator>org.apache.ace.consolelogger.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.consolelogger.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

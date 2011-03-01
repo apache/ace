@@ -40,9 +40,13 @@
             org.apache.ace.http.listener.constants;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.http.listener,
+            !org.apache.ace.http.listener.constants,
             *
         </import.package>
-        <bundle.activator>org.apache.ace.http.listener.Activator</bundle.activator>
+        <bundle.activator>
+            org.apache.ace.http.listener.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

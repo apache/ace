@@ -35,11 +35,11 @@
     <description></description>
 
     <properties>
-        <bundle.activator>org.apache.ace.webui.vaadin.Activator</bundle.activator>
         <export.package>
             org.apache.ace.webui;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.webui,
             com.vaadin*,
             *
         </import.package>
@@ -47,6 +47,9 @@
             org.apache.ace.webui.vaadin,
             org.apache.ace.test.utils
         </private.package>
+        <bundle.activator>
+            org.apache.ace.webui.vaadin.Activator
+        </bundle.activator>
     </properties>
 
     <dependencies>

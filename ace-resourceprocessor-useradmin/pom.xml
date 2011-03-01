@@ -39,13 +39,18 @@
             org.apache.ace.resourceprocessor.useradmin;version=${project.version}
         </export.package>
         <import.package>
+            !org.apache.ace.resourceprocessor.useradmin,
             *
         </import.package>
         <private.package>
             org.apache.ace.resourceprocessor.useradmin.impl
         </private.package>
-        <bundle.activator>org.apache.ace.resourceprocessor.useradmin.impl.Activator</bundle.activator>
-        <deployment.providesresourceprocessor>org.apache.ace.resourceprocessor.useradmin</deployment.providesresourceprocessor>
+        <bundle.activator>
+            org.apache.ace.resourceprocessor.useradmin.impl.Activator
+        </bundle.activator>
+        <deployment.providesresourceprocessor>
+            org.apache.ace.resourceprocessor.useradmin
+        </deployment.providesresourceprocessor>
     </properties>
 
     <dependencies>
