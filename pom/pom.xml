@@ -231,6 +231,16 @@
             </plugin>
         </plugins>
 
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.ops4j.pax.exam</groupId>
+                    <artifactId>maven-paxexam-plugin</artifactId>
+                    <version>${pax.exam.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
