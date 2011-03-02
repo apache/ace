@@ -265,13 +265,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.webui</artifactId>
-            <type>war</type>
-            <scope>runtime</scope>
-        </dependency>
-        <!-- experimental, please leave this in for now -->
-        <dependency>
-            <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.webui.vaadin</artifactId>
             <scope>runtime</scope>
         </dependency>

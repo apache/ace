@@ -105,8 +105,6 @@
         <module>ace-gateway-log</module>
         <module>ace-gateway-log-store</module>
 
-        <module>ace-webui</module>
-
         <module>ace-webui-vaadin</module>
 
         <module>ace-managementagent</module>
@@ -120,8 +118,9 @@
         <module>ace-distribution-servlet</module>
         -->
 
+<!--
         <module>ace-integrationtests</module>
-
+-->
     </modules>
 
     <profiles>

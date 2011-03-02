@@ -62,7 +62,7 @@
     </mailingLists>
 
     <prerequisites>
-        <maven>3.0.2</maven>
+        <maven>2.2.1</maven>
     </prerequisites>
 
     <developers>
@@ -139,8 +139,6 @@
         <felix.maven-bundle-plugin.version>2.3.4</felix.maven-bundle-plugin.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
         <felix.shell.version>1.4.1</felix.shell.version>
-        <gwt.version>2.1.0</gwt.version>
-        <gwt-dnd.version>2.6.5</gwt-dnd.version>
         <junit.version>4.4</junit.version>
         <knopflerfish.version>2.0.2</knopflerfish.version>
         <kxml2.version>2.3.0</kxml2.version>
@@ -758,23 +756,6 @@
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
                 <version>${xstream.version}</version>
-            </dependency>
-
-            <!-- GWT -->
-            <dependency>
-                <groupId>com.google.gwt</groupId>
-                <artifactId>gwt-user</artifactId>
-                <version>${gwt.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.gwt</groupId>
-                <artifactId>gwt-servlet</artifactId>
-                <version>${gwt.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.gwt-dnd</groupId>
-                <artifactId>gwt-dnd</artifactId>
-                <version>${gwt-dnd.version}</version>
             </dependency>
 
             <!-- Vaadin -->
