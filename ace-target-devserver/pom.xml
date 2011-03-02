@@ -230,7 +230,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.repository.api</artifactId>
+            <artifactId>org.apache.ace.repository.impl</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
