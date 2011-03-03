@@ -188,11 +188,6 @@ public class VaadinClient extends com.vaadin.Application {
         addDependency(component, Group2LicenseAssociationRepository.class);
         addDependency(component, License2GatewayAssociationRepository.class);
         addDependency(component, StatefulGatewayRepository.class);
-        
-        addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL);
-        addListener(m_featuresPanel, GroupObject.TOPIC_ALL);
-        addListener(m_distributionsPanel, LicenseObject.TOPIC_ALL);
-        addListener(m_targetsPanel, StatefulGatewayObject.TOPIC_ALL);
     }
     
     private void addDependency(Component component, Class service) {
@@ -387,6 +382,11 @@ public class VaadinClient extends com.vaadin.Application {
             }
         });
 
+        addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL);
+        addListener(m_featuresPanel, GroupObject.TOPIC_ALL);
+        addListener(m_distributionsPanel, LicenseObject.TOPIC_ALL);
+        addListener(m_targetsPanel, StatefulGatewayObject.TOPIC_ALL);
+        
         main.addComponent(m_grid);
         
         LoginWindow loginWindow = new LoginWindow();
