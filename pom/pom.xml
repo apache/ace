@@ -148,7 +148,7 @@
         <pax.exam.version>1.2.3</pax.exam.version>
         <pax.runner.version>1.5.0</pax.runner.version>
         <pax.swissbox.version>1.2.0</pax.swissbox.version>
-        <pax.web.version>1.0.1</pax.web.version>
+        <pax.web.version>0.7.2</pax.web.version>
         <servlet-api.version>2.4</servlet-api.version>
         <surefire.testng.version>2.5</surefire.testng.version>
         <vaadin.version>6.5.1</vaadin.version>
