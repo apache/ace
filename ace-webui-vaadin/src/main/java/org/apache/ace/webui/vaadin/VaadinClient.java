@@ -554,7 +554,7 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private ObjectPanel createArtifactsPanel(Window main) {
-        return new ObjectPanel(m_associations, "Artifact", main, false, false) {
+        return new ObjectPanel(m_associations, "Artifact", main, true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getArtifact(id);
@@ -624,12 +624,6 @@ public class VaadinClient extends com.vaadin.Application {
                 };
                 buttons.addComponent(removeLinkButton);
                 buttons.addComponent(new RemoveItemButton<ArtifactObject, ArtifactRepository>(artifact, m_artifactRepository));
-                Map<String, Object> context = new HashMap<String, Object>();
-                context.put("object", artifact);
-                for (UIExtensionFactory factory : m_factories) {
-                    com.vaadin.ui.Component component = factory.create(context);
-                    buttons.addComponent(component);
-                }
                 item.getItemProperty(ACTIONS).setValue(buttons);
 
             }
@@ -645,7 +639,7 @@ public class VaadinClient extends com.vaadin.Application {
 		        final Window featureWindow = new Window();
 		        featureWindow.setModal(true);
 		        featureWindow.setCaption("Edit " + objectName);
-		        featureWindow.setWidth("15em");
+		        featureWindow.setWidth("500px");
 
 		        // Configure the windws layout; by default a VerticalLayout
 		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
@@ -662,12 +656,13 @@ public class VaadinClient extends com.vaadin.Application {
 		        layout.addComponent(description);
 		        
 		        TabSheet tabs = new TabSheet();
-		        VerticalLayout tab1 = new VerticalLayout();
-		        tab1.setCaption("Demo 1");
-		        VerticalLayout tab2 = new VerticalLayout();
-		        tab2.setCaption("Demo 2");
-		        tabs.addTab(tab1);
-		        tabs.addTab(tab2);
+		        tabs.setHeight("350px");
+                Map<String, Object> context = new HashMap<String, Object>();
+                context.put("object", object);
+                for (UIExtensionFactory factory : m_factories) {
+                    com.vaadin.ui.Component component = factory.create(context);
+                    tabs.addTab(component);
+                }
 		        layout.addComponent(tabs);
 
 		        Button close = new Button("Ok", new Button.ClickListener() {
@@ -699,7 +694,7 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private ObjectPanel createFeaturesPanel(Window main) {
-        return new ObjectPanel(m_associations, "Feature", main, true, true) {
+        return new ObjectPanel(m_associations, "Feature", main, true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getFeature(id);
@@ -772,12 +767,6 @@ public class VaadinClient extends com.vaadin.Application {
                 HorizontalLayout buttons = new HorizontalLayout();
                 buttons.addComponent(removeLinkButton);
                 buttons.addComponent(new RemoveItemButton<GroupObject, GroupRepository>(feature, m_featureRepository));
-                Map<String, Object> context = new HashMap<String, Object>();
-                context.put("object", feature);
-                for (UIExtensionFactory factory : m_factories) {
-                    com.vaadin.ui.Component component = factory.create(context);
-                    buttons.addComponent(component);
-                }
                 item.getItemProperty(ACTIONS).setValue(buttons);
             }
             private void change(GroupObject go) {
@@ -792,7 +781,7 @@ public class VaadinClient extends com.vaadin.Application {
 		        final Window featureWindow = new Window();
 		        featureWindow.setModal(true);
 		        featureWindow.setCaption("Edit " + objectName);
-		        featureWindow.setWidth("15em");
+		        featureWindow.setWidth("500px");
 
 		        // Configure the windws layout; by default a VerticalLayout
 		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
@@ -809,12 +798,13 @@ public class VaadinClient extends com.vaadin.Application {
 		        layout.addComponent(description);
 		        
 		        TabSheet tabs = new TabSheet();
-		        VerticalLayout tab1 = new VerticalLayout();
-		        tab1.setCaption("Demo 1");
-		        VerticalLayout tab2 = new VerticalLayout();
-		        tab2.setCaption("Demo 2");
-		        tabs.addTab(tab1);
-		        tabs.addTab(tab2);
+		        tabs.setHeight("350px");
+                Map<String, Object> context = new HashMap<String, Object>();
+                context.put("object", object);
+                for (UIExtensionFactory factory : m_factories) {
+                    com.vaadin.ui.Component component = factory.create(context);
+                    tabs.addTab(component);
+                }
 		        layout.addComponent(tabs);
 
 		        Button close = new Button("Ok", new Button.ClickListener() {
@@ -890,7 +880,7 @@ public class VaadinClient extends com.vaadin.Application {
     
     
     private ObjectPanel createDistributionsPanel(Window main) {
-        return new ObjectPanel(m_associations, "Distribution", main, true, true) {
+        return new ObjectPanel(m_associations, "Distribution", main, true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getDistribution(id);
@@ -962,12 +952,6 @@ public class VaadinClient extends com.vaadin.Application {
                 HorizontalLayout buttons = new HorizontalLayout();
                 buttons.addComponent(removeLinkButton);
                 buttons.addComponent(new RemoveItemButton<LicenseObject, LicenseRepository>(distribution, m_distributionRepository));
-                Map<String, Object> context = new HashMap<String, Object>();
-                context.put("object", distribution);
-                for (UIExtensionFactory factory : m_factories) {
-                    com.vaadin.ui.Component component = factory.create(context);
-                    buttons.addComponent(component);
-                }
                 item.getItemProperty(ACTIONS).setValue(buttons);
             }
             private void change(LicenseObject distribution) {
@@ -982,7 +966,7 @@ public class VaadinClient extends com.vaadin.Application {
 		        final Window featureWindow = new Window();
 		        featureWindow.setModal(true);
 		        featureWindow.setCaption("Edit " + objectName);
-		        featureWindow.setWidth("15em");
+		        featureWindow.setWidth("500px");
 
 		        // Configure the windws layout; by default a VerticalLayout
 		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
@@ -999,12 +983,13 @@ public class VaadinClient extends com.vaadin.Application {
 		        layout.addComponent(description);
 		        
 		        TabSheet tabs = new TabSheet();
-		        VerticalLayout tab1 = new VerticalLayout();
-		        tab1.setCaption("Demo 1");
-		        VerticalLayout tab2 = new VerticalLayout();
-		        tab2.setCaption("Demo 2");
-		        tabs.addTab(tab1);
-		        tabs.addTab(tab2);
+		        tabs.setHeight("350px");
+                Map<String, Object> context = new HashMap<String, Object>();
+                context.put("object", object);
+                for (UIExtensionFactory factory : m_factories) {
+                    com.vaadin.ui.Component component = factory.create(context);
+                    tabs.addTab(component);
+                }
 		        layout.addComponent(tabs);
 
 		        Button close = new Button("Ok", new Button.ClickListener() {
@@ -1036,7 +1021,7 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private ObjectPanel createTargetsPanel(Window main) {
-        return new ObjectPanel(m_associations, "Target", main, true, false) {
+        return new ObjectPanel(m_associations, "Target", main, true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getTarget(id);
@@ -1393,7 +1378,7 @@ public class VaadinClient extends com.vaadin.Application {
         protected Table m_table = this;
         protected Associations m_associations;
         
-        public ObjectPanel(Associations associations, final String name, final Window main, boolean hasEdit, boolean hasDeleteButton) {
+        public ObjectPanel(Associations associations, final String name, final Window main, boolean hasEdit) {
             super(name + "s");
             m_associations = associations;
             addContainerProperty(OBJECT_NAME, String.class, null);
