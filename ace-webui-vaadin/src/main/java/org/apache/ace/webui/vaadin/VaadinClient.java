@@ -108,6 +108,7 @@ import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.Notification;
 
 /*
 
@@ -211,14 +212,12 @@ public class VaadinClient extends com.vaadin.Application {
     }
     
     public void stop() {
-        System.out.println("STOP " + this);
         synchronized (this) {
         	m_dependenciesResolved = false;
         }
     }
     
     public void destroyDependencies() {
-        System.out.println("DESTROY " + this);
         m_sessionFactory.destroySession(m_sessionID);
         FileUtils.removeDirectoryWithContent(m_sessionDir);
     }
@@ -500,10 +499,14 @@ public class VaadinClient extends com.vaadin.Application {
             public void buttonClick(ClickEvent event) {
                 try {
                     m_admin.checkout();
-                    System.out.println("checkout");
                     updateTableData();
                 }
                 catch (IOException e) {
+                    getMainWindow().showNotification(
+                        "Retrieve failed",
+                        "Failed to retrieve the data from the server.<br />" +
+                        "Reason: " + e.getMessage(),
+                        Notification.TYPE_ERROR_MESSAGE);
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -516,11 +519,13 @@ public class VaadinClient extends com.vaadin.Application {
             public void buttonClick(ClickEvent event) {
                 try {
                     m_admin.commit();
-                    System.out.println("commit");
                 }
                 catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    getMainWindow().showNotification(
+                        "Commit failed",
+                        "Failed to commit the changes to the server.<br />" +
+                        "Reason: " + e.getMessage(),
+                        Notification.TYPE_ERROR_MESSAGE);
                 }
             }
         });
@@ -530,12 +535,14 @@ public class VaadinClient extends com.vaadin.Application {
             public void buttonClick(ClickEvent event) {
                 try {
                     m_admin.revert();
-                    System.out.println("revert");
                     updateTableData();
                 }
                 catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    getMainWindow().showNotification(
+                        "Revert failed",
+                        "Failed to revert your changes.<br />" +
+                        "Reason: " + e.getMessage(),
+                        Notification.TYPE_ERROR_MESSAGE);
                 }
             }
         });
