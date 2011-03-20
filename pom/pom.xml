@@ -573,6 +573,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.ace</groupId>
+                <artifactId>org.apache.ace.nodelauncher.amazon</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ace</groupId>
                 <artifactId>org.apache.ace.webui</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>

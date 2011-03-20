@@ -39,19 +39,25 @@
             org.apache.ace.nodelauncher.amazon
         </private.package>
         <import.package>
-            !com.google.inject.internal.asm.util,
+            !com.google.*,
             !junit.*,
             !javax.mail.*,
+            !javax.inject.*,
+            !javax.ws.*,
             !com.jamesmurty.utils,
             !com.jcraft.jzlib,
             !javax.swing*,
+            !org.apache.commons.io.*,
+            !org.bouncycastle.*,
             !sun.misc,
+            !com.sun.*,
             *
         </import.package>
         <bundle.activator>
             org.apache.ace.nodelauncher.amazon.Activator
         </bundle.activator>
-        <embed.dependency>jclouds-*, ec2, aws-common, aws-ec2, jsch</embed.dependency>
+        <embed.dependency>*;scope=compile;groupId=!org.osgi|org.apache.felix|org.apache.ace</embed.dependency>
+        <embed.transitive>true</embed.transitive>
     </properties>
 
     <dependencies>
@@ -79,12 +85,6 @@
         </dependency>
         <dependency>
             <groupId>org.jclouds</groupId>
-            <artifactId>jclouds-blobstore</artifactId>
-            <version>1.0-beta-9b</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jclouds</groupId>
             <artifactId>jclouds-compute</artifactId>
             <version>1.0-beta-9b</version>
             <scope>compile</scope>
@@ -104,12 +104,6 @@
         <dependency>
             <groupId>org.jclouds.provider</groupId>
             <artifactId>aws-ec2</artifactId>
-            <version>1.0-beta-9b</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jclouds</groupId>
-            <artifactId>jclouds-loadbalancer</artifactId>
             <version>1.0-beta-9b</version>
             <scope>compile</scope>
         </dependency>
