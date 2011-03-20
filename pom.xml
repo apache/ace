@@ -115,6 +115,7 @@
         <module>ace-target-devserver</module>
 
         <module>ace-nodelauncher-api</module>
+        <module>ace-nodelauncher-amazon</module>
 
         <!-- not ready yet
         <module>ace-distribution-servlet</module>
