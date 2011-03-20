@@ -55,7 +55,7 @@ public class Activator extends DependencyActivatorBase {
             configure("org.apache.ace.identification.property", "gatewayID", System.getProperty("identification", "configuredGatewayID"));
             configure("org.apache.ace.scheduler", "auditlog", System.getProperty("syncinterval", "2000"), "org.apache.ace.deployment.task.DeploymentUpdateTask", System.getProperty("syncinterval", "2000"));
             if (!System.getProperties().containsKey("org.apache.felix.deploymentadmin.stopunaffectedbundle")) {
-                System.setProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", "true");
+                System.setProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", "false");
             }
             configureFactory("org.apache.ace.gateway.log.factory", "name", "auditlog");
             configureFactory("org.apache.ace.gateway.log.store.factory", "name", "auditlog");
