@@ -157,7 +157,6 @@ public class Associations {
             if (value != null) {
                 clear();
                 for (Object val : value) {
-                    System.out.println(" - " + m_table.getItem(val).getItemProperty(VaadinClient.OBJECT_NAME) + " " + val);
                     RepositoryObject lo = lookup(val);
                     if (lo != null) {
                         List related = null;

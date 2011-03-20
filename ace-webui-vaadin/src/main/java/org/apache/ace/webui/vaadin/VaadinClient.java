@@ -612,7 +612,6 @@ public class VaadinClient extends com.vaadin.Application {
                     protected void removeLinkFromRight(ArtifactObject object, RepositoryObject other) {
                         List<Artifact2GroupAssociation> associations = object.getAssociationsWith((GroupObject) other);
                         for (Artifact2GroupAssociation association : associations) {
-                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_artifact2GroupAssociationRepository.remove(association);
                         }
                         m_associations.removeAssociatedItem(object);
@@ -933,7 +932,6 @@ public class VaadinClient extends com.vaadin.Application {
                     protected void removeLinkFromRight(LicenseObject object, RepositoryObject other) {
                         List<License2GatewayAssociation> associations = object.getAssociationsWith((GatewayObject) other);
                         for (License2GatewayAssociation association : associations) {
-                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_license2GatewayAssociationRepository.remove(association);
                         }
                         m_associations.removeAssociatedItem(object);
@@ -1563,13 +1561,12 @@ public class VaadinClient extends com.vaadin.Application {
                 resources = (NodeList) xpath.evaluate("/repository/resource[@uri]", new InputSource(input), XPathConstants.NODESET);
             }
             catch (XPathExpressionException e) {
-                System.err.println("Error evaluating XPath expression.");
-                e.printStackTrace(System.err);
+                m_log.log(LogService.LOG_ERROR, "Error evaluating XPath expression.", e);
                 throw e;
             }
         }
         catch (IOException e) {
-            e.printStackTrace(System.err);
+            m_log.log(LogService.LOG_ERROR, "Error reading repository metadata.", e);
             throw e;
         }
         finally {
