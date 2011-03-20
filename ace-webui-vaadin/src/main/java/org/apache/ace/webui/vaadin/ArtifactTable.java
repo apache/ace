@@ -12,5 +12,6 @@ public class ArtifactTable extends Table {
         setSelectable(true);
         setMultiSelect(true);
         setImmediate(true);
+        setHeight("15em");
     }
 }

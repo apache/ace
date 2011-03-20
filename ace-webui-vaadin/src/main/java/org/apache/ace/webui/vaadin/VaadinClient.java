@@ -97,6 +97,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
@@ -174,7 +175,6 @@ public class VaadinClient extends com.vaadin.Application {
     }
     
     public void setupDependencies(Component component) {
-        System.out.println("SETUP " + this);
         m_sessionID = "" + generateSessionID();
         File dir = m_context.getDataFile(m_sessionID);
         dir.mkdir();
@@ -199,7 +199,6 @@ public class VaadinClient extends com.vaadin.Application {
     }
     
     public void start() {
-        System.out.println("START " + this);
         synchronized (this) {
         	m_dependenciesResolved = true;
         }
@@ -226,11 +225,7 @@ public class VaadinClient extends com.vaadin.Application {
     
     
     public void init() {
-        System.out.println("INIT " + this);
-        
         setTheme("ace");
-        
-        System.out.println("DR: " + areDependenciesResolved());
         if (!areDependenciesResolved()) {
         	final Window message = new Window("Apache ACE");
         	setMainWindow(message);
@@ -248,7 +243,7 @@ public class VaadinClient extends com.vaadin.Application {
             return;
         }
         
-        final Window main = new Window("Apache ACE (" + m_sessionID + ") " + this);
+        final Window main = new Window("Apache ACE");
         setMainWindow(main);
         main.getContent().setSizeFull();
         
@@ -355,26 +350,22 @@ public class VaadinClient extends com.vaadin.Application {
             @Override
             protected void associateFromRight(String left, String right) {
                 StatefulGatewayObject target = getTarget(right);
-                System.out.println("Target is " + target + " and is " + (target.isRegistered() ? "registered." : "not registered yet."));
                 if (!target.isRegistered()) {
                     target.register();
                     target.setAutoApprove(true);
                 }
                 m_license2GatewayAssociationRepository.create(getDistribution(left), target.getGatewayObject());
-                System.out.println("Associated!");
             }
         });
         m_targetsPanel.setDropHandler(new AssociationDropHandler(m_distributionsPanel, (Table) null) {
             @Override
             protected void associateFromLeft(String left, String right) {
                 StatefulGatewayObject target = getTarget(right);
-                System.out.println("Target is " + target + " and is " + (target.isRegistered() ? "registered." : "not registered yet."));
                 if (!target.isRegistered()) {
                     target.register();
                     target.setAutoApprove(true);
                 }
                 m_license2GatewayAssociationRepository.create(getDistribution(left), target.getGatewayObject());
-                System.out.println("Associated!");
             }
 
             @Override
@@ -416,7 +407,7 @@ public class VaadinClient extends com.vaadin.Application {
     
     public class LoginWindow extends Window {
         private TextField m_name;
-        private TextField m_password;
+        private PasswordField m_password;
         private Button m_loginButton;
         
         public LoginWindow() {
@@ -440,13 +431,12 @@ public class VaadinClient extends com.vaadin.Application {
                 setClosable(false);
                 setSizeFull();
                 m_name = new TextField("Name", "");
-                m_password = new TextField("Password", "");
-                m_password.setSecret(true);
+                m_password = new PasswordField("Password", "");
                 m_loginButton = new Button("Login");
                 addComponent(m_name);
                 addComponent(m_password);
                 addComponent(m_loginButton);
-                setComponentAlignment(m_loginButton, "center");
+                setComponentAlignment(m_loginButton, Alignment.BOTTOM_CENTER);
                 m_name.focus();
                 m_name.selectAll();
                 m_loginButton.addListener(new Button.ClickListener() {
@@ -641,7 +631,6 @@ public class VaadinClient extends com.vaadin.Application {
 		        featureWindow.setCaption("Edit " + objectName);
 		        featureWindow.setWidth("500px");
 
-		        // Configure the windws layout; by default a VerticalLayout
 		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
 		        layout.setMargin(true);
 		        layout.setSpacing(true);
@@ -677,7 +666,7 @@ public class VaadinClient extends com.vaadin.Application {
 		        // The components added to the window are actually added to the window's
 		        // layout; you can use either. Alignments are set using the layout
 		        layout.addComponent(close);
-		        layout.setComponentAlignment(close, "right");
+		        layout.setComponentAlignment(close, Alignment.BOTTOM_RIGHT);
 
 		        if (featureWindow.getParent() != null) {
 		            // window is already showing
@@ -737,7 +726,6 @@ public class VaadinClient extends com.vaadin.Application {
                 }
             }
             private void add(GroupObject feature) {
-                System.out.println("FEATURE-EVENT-ADD: " + feature);
                 Item item = addItem(feature.getName());
                 item.getItemProperty(OBJECT_NAME).setValue(feature.getName());
                 item.getItemProperty(OBJECT_DESCRIPTION).setValue(feature.getDescription());
@@ -746,7 +734,6 @@ public class VaadinClient extends com.vaadin.Application {
                     protected void removeLinkFromLeft(GroupObject object, RepositoryObject other) {
                         List<Artifact2GroupAssociation> associations = object.getAssociationsWith((ArtifactObject) other);
                         for (Artifact2GroupAssociation association : associations) {
-                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_artifact2GroupAssociationRepository.remove(association);
                         }
                         m_associations.removeAssociatedItem(object);
@@ -757,7 +744,6 @@ public class VaadinClient extends com.vaadin.Application {
                     protected void removeLinkFromRight(GroupObject object, RepositoryObject other) {
                         List<Group2LicenseAssociation> associations = object.getAssociationsWith((LicenseObject) other);
                         for (Group2LicenseAssociation association : associations) {
-                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_group2LicenseAssociationRepository.remove(association);
                         }
                         m_associations.removeAssociatedItem(object);
@@ -783,7 +769,6 @@ public class VaadinClient extends com.vaadin.Application {
 		        featureWindow.setCaption("Edit " + objectName);
 		        featureWindow.setWidth("500px");
 
-		        // Configure the windws layout; by default a VerticalLayout
 		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
 		        layout.setMargin(true);
 		        layout.setSpacing(true);
@@ -931,7 +916,6 @@ public class VaadinClient extends com.vaadin.Application {
                     protected void removeLinkFromLeft(LicenseObject object, RepositoryObject other) {
                         List<Group2LicenseAssociation> associations = object.getAssociationsWith((GroupObject) other);
                         for (Group2LicenseAssociation association : associations) {
-                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_group2LicenseAssociationRepository.remove(association);
                         }
                         m_associations.removeAssociatedItem(object);
@@ -968,7 +952,6 @@ public class VaadinClient extends com.vaadin.Application {
 		        featureWindow.setCaption("Edit " + objectName);
 		        featureWindow.setWidth("500px");
 
-		        // Configure the windws layout; by default a VerticalLayout
 		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
 		        layout.setMargin(true);
 		        layout.setSpacing(true);
@@ -1004,7 +987,7 @@ public class VaadinClient extends com.vaadin.Application {
 		        // The components added to the window are actually added to the window's
 		        // layout; you can use either. Alignments are set using the layout
 		        layout.addComponent(close);
-		        layout.setComponentAlignment(close, "right");
+		        layout.setComponentAlignment(close, Alignment.BOTTOM_RIGHT);
 
 		        if (featureWindow.getParent() != null) {
 		            // window is already showing
@@ -1072,7 +1055,6 @@ public class VaadinClient extends com.vaadin.Application {
                     protected void removeLinkFromLeft(StatefulGatewayObject object, RepositoryObject other) {
                         List<License2GatewayAssociation> associations = object.getAssociationsWith((LicenseObject) other);
                         for (License2GatewayAssociation association : associations) {
-                            System.out.println("> " + association.getLeft() + " <-> " + association.getRight());
                             m_license2GatewayAssociationRepository.remove(association);
                         }
                         m_associations.removeAssociatedItem(object);
@@ -1098,26 +1080,15 @@ public class VaadinClient extends com.vaadin.Application {
             }
 			@Override
 			public void showEditWindow(String objectName, final NamedObject object, Window main) {
-				System.out.println("NO: " + object);
 		        final Window featureWindow = new Window();
 		        featureWindow.setModal(true);
 		        featureWindow.setCaption("Edit " + objectName + ": " + object.getName());
 		        featureWindow.setWidth("500px");
 
-		        // Configure the windws layout; by default a VerticalLayout
 		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
 		        layout.setMargin(true);
 		        layout.setSpacing(true);
 
-//		        final TextField name = new TextField("name");
-//		        final TextField description = new TextField("description");
-//
-//		        name.setValue(object.getName());
-//		        description.setValue(object.getDescription());
-//
-//		        layout.addComponent(name);
-//		        layout.addComponent(description);
-		        
 		        TabSheet tabs = new TabSheet();
 		        tabs.setHeight("350px");
                 Map<String, Object> context = new HashMap<String, Object>();
@@ -1140,7 +1111,7 @@ public class VaadinClient extends com.vaadin.Application {
 		        // The components added to the window are actually added to the window's
 		        // layout; you can use either. Alignments are set using the layout
 		        layout.addComponent(close);
-		        layout.setComponentAlignment(close, "right");
+		        layout.setComponentAlignment(close, Alignment.BOTTOM_RIGHT);
 
 		        if (featureWindow.getParent() != null) {
 		            // window is already showing
@@ -1150,8 +1121,6 @@ public class VaadinClient extends com.vaadin.Application {
 		            // window
 		            main.getWindow().addWindow(featureWindow);
 		        }
-//		        name.setReadOnly(true);
-//		        description.focus();
 		    }
         };
     }
@@ -1168,24 +1137,17 @@ public class VaadinClient extends com.vaadin.Application {
         public void drop(DragAndDropEvent event) {
             Transferable transferable = event.getTransferable();
             TargetDetails targetDetails = event.getTargetDetails();
-            System.out.println("F: " + transferable);
             if (transferable instanceof TableTransferable) {
                 TableTransferable tt = (TableTransferable) transferable;
                 Object fromItemId = tt.getItemId();
-                System.out.println("FF: " + fromItemId);
                 // get the active selection, but only if we drag from the same table
-                
                 Set<?> selection = m_associations.isActiveTable(tt.getSourceComponent()) ? m_associations.getActiveSelection() : null;
-                
-                System.out.println("T: " + targetDetails.getClass().getName());
                 if (targetDetails instanceof AbstractSelectTargetDetails) {
                     AbstractSelectTargetDetails ttd = (AbstractSelectTargetDetails) targetDetails;
                     Object toItemId = ttd.getItemIdOver();
-                    System.out.println("TT: " + toItemId);
                     if (tt.getSourceComponent().equals(m_left)) {
                         if (selection != null) {
                             for (Object item : selection) {
-                                System.out.println("FS: " + item);
                                 associateFromLeft((String) item, (String) toItemId);
                             }
                         }
@@ -1196,7 +1158,6 @@ public class VaadinClient extends com.vaadin.Application {
                     else if (tt.getSourceComponent().equals(m_right)) {
                         if (selection != null) {
                             for (Object item : selection) {
-                                System.out.println("FS: " + item);
                                 associateFromRight((String) toItemId, (String) item);
                             }
                         }
@@ -1212,7 +1173,6 @@ public class VaadinClient extends com.vaadin.Application {
         }
 
         public AcceptCriterion getAcceptCriterion() {
-//            return AcceptAll.get();
             return new Or(VerticalLocationIs.MIDDLE);
         }
 
@@ -1327,17 +1287,14 @@ public class VaadinClient extends com.vaadin.Application {
     }
     
     private StatefulGatewayObject getTarget(String name) {
-        System.out.println("getTarget(" + name + ")");
         try {
             List<StatefulGatewayObject> list = m_statefulTargetRepository.get(m_context.createFilter("(" + StatefulGatewayObject.KEY_ID + "=" + name + ")"));
             if (list.size() == 1) {
-                System.out.println("getTarget returning " + list.get(0));
                 return list.get(0);
             }
         }
         catch (InvalidSyntaxException e) {
         }
-        System.out.println("getTarget returning NULL!!!!");
         return null;
     }
 
@@ -1395,11 +1352,8 @@ public class VaadinClient extends com.vaadin.Application {
                     public void itemClick(ItemClickEvent event) {
                         if (event.isDoubleClick()) {
                             String itemId = (String) event.getItemId();
-                            System.out.println("IID: " + itemId);
                             RepositoryObject object = getFromId(itemId);
-                            System.out.println("ROB: " + object);
                             NamedObject namedObject = m_associations.getNamedObject(object);
-                            System.out.println("NOB: " + namedObject);
 							showEditWindow(name, namedObject, main);
                         }
                     }
@@ -1468,7 +1422,6 @@ public class VaadinClient extends com.vaadin.Application {
             uploadArtifact.addListener(new Upload.SucceededListener() {
     			
     			public void uploadSucceeded(SucceededEvent event) {
-    				System.out.println("upload succeeded: " + event.getFilename());
     				try {
     					URL artifact = m_file.toURI().toURL();
     		            Item item = uploadedArtifacts.addItem(artifact);
@@ -1586,7 +1539,7 @@ public class VaadinClient extends com.vaadin.Application {
             url = new URL(obrBase, "repository.xml");
         }
         catch (MalformedURLException e) {
-            System.err.println("Error retrieving repository.xml from " + obrBase);
+            m_log.log(LogService.LOG_ERROR, "Error retrieving repository.xml from " + obrBase);
             throw e;
         }
 
@@ -1648,7 +1601,7 @@ public class VaadinClient extends com.vaadin.Application {
         // remove all urls we already know
         m_obrList.removeAll(fromRepository);
         if (m_obrList.isEmpty()) {
-            System.err.println("No data in obr...");
+            m_log.log(LogService.LOG_INFO, "No new data in OBR.");
             return;
         }
 
