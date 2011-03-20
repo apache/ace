@@ -114,6 +114,8 @@
         <module>ace-target-devgateway</module>
         <module>ace-target-devserver</module>
 
+        <module>ace-nodelauncher-api</module>
+
         <!-- not ready yet
         <module>ace-distribution-servlet</module>
         -->
