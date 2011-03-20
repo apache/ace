@@ -56,20 +56,6 @@ public class Activator extends DependencyActivatorBase {
             .setImplementation(VaadinServlet.class)
         );
         
-        // show events
-//        manager.add(createComponent()
-//            .setImplementation(new EventHandler() {
-//                public void handleEvent(Event event) {
-//                    System.out.print("EVENT: " + event.getTopic());
-//                    for (String key : event.getPropertyNames()) {
-//                        System.out.print(" " + key + "=" + event.getProperty(key));
-//                    }
-//                    System.out.println();
-//                }
-//            })
-//            .setInterface(EventHandler.class.getName(), new Properties() {{ put(EventConstants.EVENT_TOPIC, "*"); }} )
-//        );
-        
         // shows off components that are contributed by extensions
         manager.add(createComponent()
             .setInterface(UIExtensionFactory.class.getName(), new Properties() {{ put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET); }})

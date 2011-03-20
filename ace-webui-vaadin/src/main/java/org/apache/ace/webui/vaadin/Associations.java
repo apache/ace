@@ -59,19 +59,15 @@ public class Associations {
                 if (propertyId == null) {
                     // no propertyId, styling row
                     for (RepositoryObject o : m_associatedItems) {
-                        System.out.println("cellrenderer probing: " + o);
                         if (equals(itemId, o)) {
-                            System.out.println(" -> associated");
                             return "associated";
                         }
                     }
                     for (RepositoryObject o : m_relatedItems) {
                         if (equals(itemId, o)) {
-                            System.out.println(" -> related");
                             return "related";
                         }
                     }
-                    System.out.println("cellrenderer: unrelated");
                 }
                 return null;
             }
@@ -138,10 +134,7 @@ public class Associations {
         public void valueChange(ValueChangeEvent event) {
             
             if (m_activeSelection != null && m_activeTable != null) {
-                if (m_activeTable.equals(m_table)) {
-                    System.out.println("SAME TABLE!");
-                }
-                else {
+                if (!m_activeTable.equals(m_table)) {
                     for (Object val : m_activeSelection) {
                         m_activeTable.unselect(val);
                     }
@@ -157,87 +150,41 @@ public class Associations {
             // in multiselect mode, a Set of itemIds is returned,
             // in singleselect mode the itemId is returned directly
             Set<?> value = (Set<?>) event.getProperty().getValue();
-            if (null == value || value.size() == 0) {
-//                    selected.setValue("No selection");
-            } else {
-//                    selected.setValue("Selected: " + table.getValue());
-            }
 
             // remember the active selection too
             m_activeSelection = value;
 
-            if (value == null) {
-                System.out.println("no selection");
-            }
-            else {
-                System.out.println("selection:");
-
+            if (value != null) {
                 clear();
-
                 for (Object val : value) {
                     System.out.println(" - " + m_table.getItem(val).getItemProperty(VaadinClient.OBJECT_NAME) + " " + val);
                     RepositoryObject lo = lookup(val);
-                    System.out.println("lookup(" + val + ") returned " + lo);
                     if (lo != null) {
                         List related = null;
                         for (int i = 0; i < m_left.length; i++) {
                             if (i == 0) {
                                 related = getRelated(lo, m_left[i]);
-                                System.out.println("left associated:");
-                                for (Object o : related) {
-                                    System.out.println(" -> " + o);
-                                }
                                 m_associatedItems.addAll(related);
                             }
                             else {
                                 related = getRelated(related, m_left[i]);
-                                System.out.println("left related:");
-                                for (Object o : related) {
-                                    System.out.println(" -> " + o);
-                                }
                                 m_relatedItems.addAll(related);
                             }
                         }
                         for (int i = 0; i < m_right.length; i++) {
                             if (i == 0) {
                                 related = getRelated(lo, m_right[i]);
-                                System.out.println("right associated:");
-                                for (Object o : related) {
-                                    System.out.println(" -> " + o);
-                                }
                                 m_associatedItems.addAll(related);
                             }
                             else {
                                 related = getRelated(related, m_right[i]);
-                                System.out.println("right related:");
-                                for (Object o : related) {
-                                    System.out.println(" -> " + o);
-                                }
                                 m_relatedItems.addAll(related);
                             }
                         }
                     }
-                    System.out.println("summarizing associated:");
-                    for (RepositoryObject ro : m_associatedItems) {
-                        System.out.println("** " + ro);
-                    }
-                    System.out.println("summarizing related:");
-                    for (RepositoryObject ro : m_relatedItems) {
-                        System.out.println("** " + ro);
-                    }
-                    
+
                     for (Table t : m_tablesToRefresh) {
-                        System.out.println("refreshing " + t);
                         t.requestRepaint();
-                    }
-                    
-                    System.out.println("summarizing associated:");
-                    for (RepositoryObject ro : m_associatedItems) {
-                        System.out.println("** " + ro);
-                    }
-                    System.out.println("summarizing related:");
-                    for (RepositoryObject ro : m_relatedItems) {
-                        System.out.println("** " + ro);
                     }
                 }
             }
@@ -245,7 +192,6 @@ public class Associations {
 
         public RepositoryObject lookup(Object value) {
             for (RepositoryObject object : m_repository.get()) {
-                System.out.println("..." + object);
                 if (object instanceof StatefulGatewayObject) {
                     StatefulGatewayObject sgo = (StatefulGatewayObject) object;
                     if (sgo.isRegistered()) {
@@ -257,10 +203,8 @@ public class Associations {
                 }
                 if (object != null) {
                     NamedObject namedObject = getNamedObject(object);
-                    System.out.println("..." + namedObject);
                     if (namedObject != null) {
                         if (namedObject.getName().equals(value)) {
-                            System.out.println("Found: " + namedObject.getName());
                             return object;
                         }
                     }

@@ -1,5 +1,6 @@
 package org.apache.ace.webui.vaadin;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -39,14 +40,13 @@ public abstract class AbstractAddWindow extends Window {
         // The components added to the window are actually added to the window's
         // layout; you can use either. Alignments are set using the layout
         layout.addComponent(close);
-        layout.setComponentAlignment(close, "right");
+        layout.setComponentAlignment(close, Alignment.BOTTOM_RIGHT);
     }
 
     public void show() {
         if (getParent() != null) {
             // window is already showing
-            m_main.getWindow().showNotification(
-                    "Window is already open");
+            m_main.getWindow().showNotification("Window is already open");
         } else {
             // Open the subwindow by adding it to the parent
             // window
