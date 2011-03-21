@@ -33,13 +33,6 @@ public class Activator extends DependencyActivatorBase {
         for (int i = 0; i < m_activators.length; i++) {
             BundleActivator a = m_activators[i];
             a.start(context);
-//            if (a instanceof DependencyActivatorBase) {
-//                DependencyActivatorBase dab = (DependencyActivatorBase) a;
-//                dab.init(context, manager);
-//            }
-//            else {
-//                a.start(context);
-//            }
         }
         
         manager.add(createComponent()
@@ -51,14 +44,27 @@ public class Activator extends DependencyActivatorBase {
     
     public void start() {
         try {
-            configure("org.apache.ace.discovery.property", "serverURL", System.getProperty("discovery", "http://localhost:8080"));
-            configure("org.apache.ace.identification.property", "gatewayID", System.getProperty("identification", "configuredGatewayID"));
-            configure("org.apache.ace.scheduler", "auditlog", System.getProperty("syncinterval", "2000"), "org.apache.ace.deployment.task.DeploymentUpdateTask", System.getProperty("syncinterval", "2000"));
-            if (!System.getProperties().containsKey("org.apache.felix.deploymentadmin.stopunaffectedbundle")) {
-                System.setProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", "false");
-            }
+            String server = System.getProperty("discovery", "http://localhost:8080");
+            configure("org.apache.ace.discovery.property", "serverURL", server);
+            String targetId = System.getProperty("identification", "configuredGatewayID");
+            configure("org.apache.ace.identification.property", "gatewayID", targetId);
+            String syncInterval = System.getProperty("syncinterval", "2000");
+            configure("org.apache.ace.scheduler",
+                    "auditlog", syncInterval,
+                    "org.apache.ace.deployment.task.DeploymentUpdateTask", syncInterval);
+
+            String stopUnaffectedBundles = System.getProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", "false");
+            System.setProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", stopUnaffectedBundles);
+
             configureFactory("org.apache.ace.gateway.log.factory", "name", "auditlog");
             configureFactory("org.apache.ace.gateway.log.store.factory", "name", "auditlog");
+
+            System.out.println("Started management agent.\n"
+                    + "  Target ID: " + targetId + "\n"
+                    + "  Server   : " + server + "\n"
+                    + "  Sync interval: " + syncInterval + " ms\n"
+                    + "  Unaffected bundles will " + ("false".equals(stopUnaffectedBundles) ? "not " : "")
+                    + "be stopped during deployment.");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -71,17 +77,14 @@ public class Activator extends DependencyActivatorBase {
         if (properties == null) {
             properties = new Properties();
         }
-        System.out.println("props=" + properties);
         boolean changed = false;
         for (int i = 0; i < params.length; i += 2) {
-            System.out.println("key=" + params[i] + " value=" + params[i + 1]);
             if (!params[i + 1].equals(properties.get(params[i]))) {
                 properties.put(params[i], params[i + 1]);
                 changed = true;
             }
         }
         if (changed) {
-            System.out.println("Updating " + pid);
             conf.update(properties);
         }
     }
@@ -100,13 +103,8 @@ public class Activator extends DependencyActivatorBase {
             }
         }
         if (changed) {
-            System.out.println("Updating factory " + pid);
             conf.update(properties);
         }
-    }
-    
-    public void stop() {
-        
     }
 
     @Override
@@ -114,13 +112,6 @@ public class Activator extends DependencyActivatorBase {
         for (int i = 0; i < m_activators.length; i++) {
             BundleActivator a = m_activators[i];
             a.stop(context);
-//            if (a instanceof DependencyActivatorBase) {
-//                DependencyActivatorBase dab = (DependencyActivatorBase) a;
-//                dab.destroy(context, manager);
-//            }
-//            else {
-//                a.stop(context);
-//            }
         }
     }
 }
