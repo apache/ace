@@ -120,10 +120,11 @@
 
     <properties>
         <!-- Default OSGi statements -->
-        <import.package></import.package>
+        <import.package>*</import.package>
         <export.package></export.package>
         <private.package></private.package>
         <embed.dependency></embed.dependency>
+        <embed.transitive>false</embed.transitive>
         <bundle.activator></bundle.activator>
         <deployment.providesresourceprocessor></deployment.providesresourceprocessor>
 
@@ -221,6 +222,7 @@
                         <Import-Package>${import.package}</Import-Package>
                         <Private-Package>${private.package}</Private-Package>
                         <Embed-Dependency>${embed.dependency}</Embed-Dependency>
+                        <Embed-Transitive>${embed.transitive}</Embed-Transitive>
                         <Bundle-Activator>${bundle.activator}</Bundle-Activator>
                         <Deployment-ProvidesResourceProcessor>${deployment.providesresourceprocessor}</Deployment-ProvidesResourceProcessor>
                     </instructions>
