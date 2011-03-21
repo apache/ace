@@ -135,7 +135,7 @@ public class NodePanel extends Panel {
     }
 
     private class StatusGetter extends LockedRunner {
-        public void run() {
+        public void doRun() {
             try {
                 Properties properties = m_factory.getCloudService().getProperties(m_targetId);
                 if (properties != null) {
