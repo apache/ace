@@ -273,6 +273,21 @@
             <artifactId>vaadin</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.nodelauncher.api</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.nodelauncher.ui</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.nodelauncher.amazon</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <!-- work in progress, not done yet
           <dependency>
               <groupId>${project.groupId}</groupId>
