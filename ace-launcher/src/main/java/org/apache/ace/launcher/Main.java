@@ -40,6 +40,11 @@ import java.util.regex.Pattern;
  */
 public class Main {
     public static void main(String[] args) throws Exception {
+        if (helpNecessary()) {
+            showHelp();
+            return;
+        }
+
         FrameworkFactory factory = (FrameworkFactory) Class.forName("org.apache.felix.framework.FrameworkFactory").newInstance();
 
         List activators = new ArrayList();
@@ -57,6 +62,25 @@ public class Main {
         frameworkProperties.putAll(findFrameworkProperties(args));
 
         factory.newFramework(frameworkProperties).start();
+    }
+
+    private static boolean helpNecessary() {
+        return (System.getProperty("identification") == null) || (System.getProperty("discovery") == null);
+    }
+
+    private static void showHelp() {
+        System.out.println("Apache ACE Launcher\n"
+                + "Usage:\n"
+                + "  java -jar -Didentification=<id> -Ddiscovery=<ace-server> ace-launcher.jar <options>\n"
+                + "  in which\n"
+                + "    - <id> is the name of the target (targetID)\n"
+                + "    - <ace-server> is a URL to the ACE server this target should connect to\n"
+                + "    - <options> is a set of startup options\n"
+                + "The options:\n"
+                + "  fwOption: a framework option, to pass into the OSGi framework to be created. This option can be repeated."
+                + "Example:\n"
+                + "  java -jar -Didentification=MyTarget -Ddiscovery=http://provisioning.company.com:8080 ace-launcher.jar "
+                + "fwOption=org.osgi.framework.system.packages.extra=sun.misc,com.sun.management");
     }
 
     static Map findFrameworkProperties(String[] args) {
