@@ -107,6 +107,8 @@
 
         <module>ace-webui-vaadin</module>
 
+        <module>ace-tageditor</module>
+
         <module>ace-nodelauncher-api</module>
         <module>ace-nodelauncher-amazon</module>
         <module>ace-nodelauncher-ui</module>
@@ -182,6 +184,7 @@
                 <module>ace-log</module>
                 <module>ace-log-servlet</module>
                 <module>ace-webui</module>
+                <module>ace-tageditor</module>
             </modules>
         </profile>
         <profile>

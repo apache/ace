@@ -594,6 +594,11 @@
                 <artifactId>org.apache.ace.webui.vaadin</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.ace</groupId>
+                <artifactId>org.apache.ace.tageditor</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Commons -->
             <dependency>
