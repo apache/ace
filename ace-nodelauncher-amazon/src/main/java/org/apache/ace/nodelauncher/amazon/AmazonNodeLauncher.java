@@ -149,10 +149,10 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         }
         script.append("wget ").append(new URL(m_server, "/obr/ace-launcher.jar")).append(" ;");
 
-        script.append("nohup java -Ddiscovery=").append(m_server.toExternalForm()).append(" ");
-        script.append("-Didentification=").append(id).append(" ");
+        script.append("nohup java -jar ace-launcher.jar ");
+        script.append("discovery=").append(m_server.toExternalForm()).append(" ");
+        script.append("identification=").append(id).append(" ");
         script.append(m_vmOptions).append(" ");
-        script.append("-jar ace-launcher.jar ");
         script.append(m_launcherArguments);
         return script.toString();
     }

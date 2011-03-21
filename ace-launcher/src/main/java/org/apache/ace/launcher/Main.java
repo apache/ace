@@ -28,23 +28,67 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A simple launcher, that launches the embedded Felix together with a management agent. It accepts the following
- * command line arguments,
- * <ul>
- * <li><tt>--fwOption=key=value</tt> framework options to be passed to the launched framework. This argument can be used
- * multiple times.</li>
- * </ul>
- * <br>
- * Furthermore, it inherits all system properties that the self-contained Management Agent accepts. 
- *
+ * A simple launcher, that launches the embedded Felix together with a management agent.
  */
 public class Main {
-    public static void main(String[] args) throws Exception {
-        if (helpNecessary()) {
-            showHelp();
-            return;
+
+    private Argument m_identification = new KeyValueArgument() {
+        public void handle(String key, String value) {
+            if (key.equals("identification")) {
+                System.setProperty("identification", value);
+            }
         }
 
+        public String getDescription() {
+            return "identification: sets the target ID to use";
+        }
+    };
+
+    private Argument m_discovery = new KeyValueArgument() {
+        public void handle(String key, String value) {
+            if (key.equals("discovery")) {
+                System.setProperty("discovery", value);
+            }
+        }
+
+        public String getDescription() {
+            return "discovery: sets the ACE server to connect to";
+        }
+    };
+
+    private Argument m_help = new Argument() {
+        public void handle(String argument) {
+            if (argument.equals("help")) {
+                showHelp();
+                System.exit(0);
+            }
+        }
+
+        public String getDescription() {
+            return "help: prints this help message";
+        }
+    };
+
+    private FrameworkOption m_fwOptionHandler = new FrameworkOption();
+
+    private final List<Argument> m_arguments = Arrays.asList(m_identification,
+            m_discovery,
+            m_fwOptionHandler,
+            m_help);
+
+    public static void main(String[] args) throws Exception {
+        new Main(args).run();
+    }
+
+    public Main(String[] args) {
+        for (String arg : args) {
+            for (Argument argument : m_arguments) {
+                argument.handle(arg);
+            }
+        }
+    }
+
+    public void run() throws Exception {
         FrameworkFactory factory = (FrameworkFactory) Class.forName("org.apache.felix.framework.FrameworkFactory").newInstance();
 
         List activators = new ArrayList();
@@ -59,39 +103,63 @@ public class Main {
                 + "org.osgi.service.metatype;version=\"1.1\","
                 + "org.apache.ace.log;version=\"0.8.0\"");
 
-        frameworkProperties.putAll(findFrameworkProperties(args));
+        frameworkProperties.putAll(m_fwOptionHandler.getProperties());
 
         factory.newFramework(frameworkProperties).start();
     }
 
-    private static boolean helpNecessary() {
-        return (System.getProperty("identification") == null) || (System.getProperty("discovery") == null);
-    }
-
-    private static void showHelp() {
+    private void showHelp() {
         System.out.println("Apache ACE Launcher\n"
                 + "Usage:\n"
-                + "  java -jar -Didentification=<id> -Ddiscovery=<ace-server> ace-launcher.jar <options>\n"
-                + "  in which\n"
-                + "    - <id> is the name of the target (targetID)\n"
-                + "    - <ace-server> is a URL to the ACE server this target should connect to\n"
-                + "    - <options> is a set of startup options\n"
-                + "The options:\n"
-                + "  fwOption: a framework option, to pass into the OSGi framework to be created. This option can be repeated."
-                + "Example:\n"
-                + "  java -jar -Didentification=MyTarget -Ddiscovery=http://provisioning.company.com:8080 ace-launcher.jar "
+                + "  java -jar ace-launcher.jar [identification=<id>] [discovery=<ace-server>] [options...]");
+
+        System.out.println("All known options are,");
+        for (Argument argument : m_arguments) {
+            System.out.println("  " + argument.getDescription());
+        }
+
+        System.out.println("Example:\n"
+                + "  java -jar ace-launcher.jar identification=MyTarget discovery=http://provisioning.company.com:8080 "
                 + "fwOption=org.osgi.framework.system.packages.extra=sun.misc,com.sun.management");
     }
 
-    static Map findFrameworkProperties(String[] args) {
-        Pattern pattern = Pattern.compile("--(\\w*)=([.\\w]*)=(.*)");
-        Map result = new HashMap();
-        for (String arg : args) {
-            Matcher m = pattern.matcher(arg);
-            if (m.matches() && m.group(1).equals("fwOption")) {
-                result.put(m.group(2), m.group(3));
+    private interface Argument {
+        void handle(String argument);
+        String getDescription();
+    }
+
+    private static abstract class KeyValueArgument implements Argument {
+        public void handle(String argument) {
+            Pattern pattern = Pattern.compile("(\\w*)=(.*)");
+            Matcher m = pattern.matcher(argument);
+            if (m.matches()) {
+                handle(m.group(1), m.group(2));
             }
         }
-        return result;
+
+        protected abstract void handle(String key, String value);
+    }
+
+    private static class FrameworkOption extends KeyValueArgument {
+        private Properties m_properties = new Properties();
+        @Override
+        protected void handle(String key, String value) {
+            if (key.equals("fwOption")) {
+                Pattern pattern = Pattern.compile("([^=]*)=(.*)");
+                Matcher m = pattern.matcher(value);
+                if (!m.matches()) {
+                    throw new IllegalArgumentException(value + " is not a valid framework option.");
+                }
+                m_properties.put(m.group(1), m.group(2));
+            }
+        }
+
+        public String getDescription() {
+            return "fwOption: sets framework options for the OSGi framework to be created. This argument may be repeated";
+        }
+
+        public Properties getProperties() {
+            return m_properties;
+        }
     }
 }
