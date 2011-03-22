@@ -104,6 +104,16 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
      */
     public static final String LAUNCHER_ARGUMENTS = "launcherArguments";
     
+    /**
+     * Configuration key: Extra ports to open on the nodes, besides the default ones (see DEFAULT_PORTS).
+     */
+    public static final String EXTRA_PORTS = "extraPorts";
+    
+    /**
+     * Default set of ports to open on a node.
+     */
+    public static final int[] DEFAULT_PORTS = new int[] {22, 80, 8080};
+    
     private URL m_server;
     private String m_amiId; 
     private String m_location;
@@ -113,6 +123,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     private String m_vmOptions;
     private String m_nodeBootstrap;
     private String m_launcherArguments;
+    private String m_extraPorts;
 
     private ComputeServiceContext m_computeServiceContext;
     
@@ -131,7 +142,9 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
                 .locationId(m_location)
                 .build();
         
-        template.getOptions().as(EC2TemplateOptions.class).inboundPorts(22, 80, 8080);
+        int[] extraPorts = parseExtraPorts(m_extraPorts);
+        int[] inboundPorts = mergePorts(DEFAULT_PORTS, extraPorts);
+        template.getOptions().as(EC2TemplateOptions.class).inboundPorts(inboundPorts);
         template.getOptions().blockOnComplete(false);
 
         Set<? extends NodeMetadata> tag = computeService.createNodesInGroup(m_tagPrefix + id, 1, template);
@@ -140,6 +153,27 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         computeService.runScriptOnNodesMatching(runningInGroup(m_tagPrefix + id),
                 Statements.exec(buildStartupScript(id)),
                 RunScriptOptions.Builder.blockOnComplete(false));
+    }
+    
+    int[] mergePorts(int[] first, int[] last) {
+        int[] result = new int[first.length + last.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = (i < first.length) ? first[i] : last[i - first.length];
+        }
+        return result;
+    }
+    
+    int[] parseExtraPorts(String extraPorts) {
+        extraPorts = extraPorts.trim();
+        if (extraPorts.isEmpty()) {
+            return new int[] {};
+        }
+        String[] ports = extraPorts.split(",");
+        int[] result = new int[ports.length];
+        for (int i = 0; i < ports.length; i++) {
+            result[i] = Integer.parseInt(ports[i].trim());
+        }
+        return result;
     }
 
     private String buildStartupScript(String id) throws MalformedURLException {
@@ -203,6 +237,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             String nodeBootstrap = getConfigProperty(properties, NODE_BOOTSTRAP, "");
             String tagPrefix = getConfigProperty(properties, TAG_PREFIX, "");
             String launcherArguments = getConfigProperty(properties, LAUNCHER_ARGUMENTS, "");
+            String extraPorts = getConfigProperty(properties, EXTRA_PORTS, "");
 
             m_server = server;
             m_amiId = amiId;
@@ -213,6 +248,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             m_vmOptions = vmOptions;
             m_nodeBootstrap = nodeBootstrap;
             m_launcherArguments = launcherArguments;
+            m_extraPorts = extraPorts;
         }
     }
 
