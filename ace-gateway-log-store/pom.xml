@@ -39,7 +39,7 @@
             org.apache.ace.gateway.log.store;version=${project.version}
         </export.package>
         <import.package>
-            !org.apache.ace.gateway.log.store,
+            org.apache.ace.gateway.log.store;version=${project.version},
             org.apache.ace.identification;version=${project.version},
             org.apache.ace.log;version=${project.version},
             *
