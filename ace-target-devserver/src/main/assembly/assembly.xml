@@ -17,6 +17,14 @@
             </includes>
             <filtered>true</filtered>
         </fileSet>
+        <fileSet>
+            <directory>store</directory>
+            <outputDirectory>store</outputDirectory>
+            <includes>
+                <include>**</include>
+            </includes>
+            <filtered>true</filtered>
+        </fileSet>
     </fileSets>
 
     <files>
