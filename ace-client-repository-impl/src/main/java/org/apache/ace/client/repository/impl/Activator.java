@@ -132,7 +132,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         String filter = "(" + SessionFactory.SERVICE_SID + "=" + sessionID + ")";
         topic.put(EventConstants.EVENT_FILTER, filter);
         topic.put(SessionFactory.SERVICE_SID, sessionID);
-        StatefulGatewayRepositoryImpl statefulGatewayRepositoryImpl = new StatefulGatewayRepositoryImpl();
+        StatefulGatewayRepositoryImpl statefulGatewayRepositoryImpl = new StatefulGatewayRepositoryImpl(sessionID);
         sd.m_service2 = createComponent()
             .setInterface(new String[] { StatefulGatewayRepository.class.getName(), EventHandler.class.getName() }, topic)
             .setImplementation(statefulGatewayRepositoryImpl)

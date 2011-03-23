@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.RepositoryUtil;
+import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
@@ -73,6 +74,11 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
     private BundleHelper m_bundleHelper; /*Injected by dependency manager*/
     //TODO: Make the concurrencyLevel of this concurrent hashmap settable?
     private Map<String, StatefulGatewayObjectImpl> m_repository = new ConcurrentHashMap<String, StatefulGatewayObjectImpl>();
+    private final String m_sessionID;
+
+    public StatefulGatewayRepositoryImpl(String sessionID) {
+        m_sessionID = sessionID;
+    }
 
     public StatefulGatewayObject create(Map<String, String> attributes, Map<String, String> tags) throws IllegalArgumentException {
         throw new UnsupportedOperationException("Creating StatefulGatewayObjects is not supported.");
@@ -324,6 +330,7 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
      */
     void notifyChanged(StatefulGatewayObject sgoi, String topic, Properties additionalProperties) {
         additionalProperties.put(RepositoryObject.EVENT_ENTITY, sgoi);
+        additionalProperties.put(SessionFactory.SERVICE_SID, m_sessionID);
         m_eventAdmin.postEvent(new Event(topic, (Dictionary) additionalProperties));
     }
 
