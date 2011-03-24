@@ -23,15 +23,28 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.felix.dm.DependencyManager;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.UserAdmin;
 
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
 
-public class VaadinServlet extends AbstractApplicationServlet {
-	private static final long serialVersionUID = 1L;
-	private volatile DependencyManager m_manager;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Dictionary;
+
+public class VaadinServlet extends AbstractApplicationServlet implements ManagedService {
+    private static final long serialVersionUID = 1L;
+    public static final String PID = "org.apache.ace.webui.vaadin";
+    public static final String ACE_HOST = "aceHost";
+    public static final String OBR_URL = "obrUrl";
+
+    private volatile DependencyManager m_manager;
+
+    private volatile URL m_aceHost;
+    private volatile URL m_obrUrl;
     
     @Override
     protected Class<? extends Application> getApplicationClass() {
@@ -40,7 +53,7 @@ public class VaadinServlet extends AbstractApplicationServlet {
 
     @Override
     protected Application getNewApplication(HttpServletRequest request)	throws ServletException {
-        Application application = new VaadinClient();
+        Application application = new VaadinClient(m_aceHost, m_obrUrl);
         m_manager.add(m_manager.createComponent()
             .setImplementation(application)
             .setCallbacks("setupDependencies", "start", "stop", "destroyDependencies")
@@ -59,4 +72,37 @@ public class VaadinServlet extends AbstractApplicationServlet {
         );
         return application;
     }
+
+    public void updated(Dictionary dictionary) throws ConfigurationException {
+        System.out.println("There's a config! "+ dictionary);
+        if (dictionary != null) {
+            URL aceHost;
+            try {
+                String aceHostString = (String) dictionary.get(ACE_HOST);
+                if (aceHostString == null) {
+                    throw new ConfigurationException(ACE_HOST, "Missing property");
+                }
+                aceHost = new URL(aceHostString);
+            }
+            catch (MalformedURLException e) {
+                throw new ConfigurationException(ACE_HOST, "Is not a valid URL", e);
+            }
+
+            URL obrUrl;
+            try {
+                String obrUrlString = (String) dictionary.get(OBR_URL);
+                if (obrUrlString == null) {
+                    throw new ConfigurationException(OBR_URL, "Missing property");
+                }
+                obrUrl = new URL(obrUrlString);
+            }
+            catch (MalformedURLException e) {
+                throw new ConfigurationException(OBR_URL, "Is not a valid URL", e);
+            }
+
+            m_aceHost = aceHost;
+            m_obrUrl = obrUrl;
+        }
+    }
+
 }

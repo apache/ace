@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -134,9 +135,10 @@ public class VaadinClient extends com.vaadin.Application {
     private static String shopRepo = "shop";
     private static String deployRepo = "deployment";
     private static String customerName = "apache";
-    private static String hostName = "http://localhost:8080";
     private static String endpoint = "/repository";
-    private static String obr = "http://localhost:8080/obr/";
+
+    private URL m_aceHost;
+    private URL m_obrUrl;
 
     private volatile DependencyManager m_manager;
     private volatile BundleContext m_context;
@@ -167,11 +169,16 @@ public class VaadinClient extends com.vaadin.Application {
     
     private boolean m_dynamicRelations = true;
 	private File m_sessionDir; // private folder for session info
-	private boolean m_dependenciesResolved = false;
+	private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
 
     // basic session ID generator
     private static long generateSessionID() {
         return SESSION_ID++;
+    }
+
+    public VaadinClient(URL aceHost, URL obrUrl) {
+        m_aceHost = aceHost;
+        m_obrUrl = obrUrl;
     }
     
     public void setupDependencies(Component component) {
@@ -199,21 +206,12 @@ public class VaadinClient extends com.vaadin.Application {
     }
     
     public void start() {
-        synchronized (this) {
-        	m_dependenciesResolved = true;
-        }
-    }
-    
-    public boolean areDependenciesResolved() {
-        synchronized (this) {
-        	return m_dependenciesResolved;
-        }
+        System.out.println("Starting " + m_sessionID);
+        m_dependenciesResolved.set(true);
     }
     
     public void stop() {
-        synchronized (this) {
-        	m_dependenciesResolved = false;
-        }
+        m_dependenciesResolved.set(false);
     }
     
     public void destroyDependencies() {
@@ -224,7 +222,7 @@ public class VaadinClient extends com.vaadin.Application {
     
     public void init() {
         setTheme("ace");
-        if (!areDependenciesResolved()) {
+        if (!m_dependenciesResolved.get()) {
         	final Window message = new Window("Apache ACE");
         	setMainWindow(message);
             message.getContent().setSizeFull();
@@ -402,7 +400,7 @@ public class VaadinClient extends com.vaadin.Application {
         });
         return addArtifactButton;
     }
-    
+
     public class LoginWindow extends Window {
         private TextField m_name;
         private PasswordField m_password;
@@ -465,10 +463,10 @@ public class VaadinClient extends com.vaadin.Application {
             }
             RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
             
-            context.addShopRepository(new URL(hostName + endpoint), customerName, shopRepo, true)
-                .setObrBase(new URL(obr))
-                .addGatewayRepository(new URL(hostName + endpoint), customerName, gatewayRepo, true)
-                .addDeploymentRepository(new URL(hostName + endpoint), customerName, deployRepo, true);
+            context.addShopRepository(new URL(m_aceHost, endpoint), customerName, shopRepo, true)
+                .setObrBase(m_obrUrl)
+                .addGatewayRepository(new URL(m_aceHost, endpoint), customerName, gatewayRepo, true)
+                .addDeploymentRepository(new URL(m_aceHost, endpoint), customerName, deployRepo, true);
             m_admin.login(context);
             m_admin.checkout();
             return true;
@@ -1285,19 +1283,17 @@ public class VaadinClient extends com.vaadin.Application {
     }
     
     public void getBundles(Table table) throws Exception {
-        getBundles(table, "http://localhost:8080/obr/");
+        getBundles(table, m_obrUrl);
     }
     
-    public void getBundles(Table table, String obrBaseUrl) throws Exception {
-        URL obrBase = new URL(obrBaseUrl);
-        
+    public void getBundles(Table table, URL obrBaseUrl) throws Exception {
         // retrieve the repository.xml as a stream
         URL url = null;
         try {
-            url = new URL(obrBase, "repository.xml");
+            url = new URL(obrBaseUrl, "repository.xml");
         }
         catch (MalformedURLException e) {
-            m_log.log(LogService.LOG_ERROR, "Error retrieving repository.xml from " + obrBase);
+            m_log.log(LogService.LOG_ERROR, "Error retrieving repository.xml from " + obrBaseUrl);
             throw e;
         }
 
@@ -1349,7 +1345,7 @@ public class VaadinClient extends com.vaadin.Application {
         artifactObjects.addAll(m_artifactRepository.getResourceProcessors());
         for (ArtifactObject ao : artifactObjects) {
             String artifactURL = ao.getURL();
-            if (artifactURL.startsWith(obrBase.toExternalForm())) {
+            if (artifactURL.startsWith(obrBaseUrl.toExternalForm())) {
                 // we now know this artifact comes from the OBR we are querying, so we are interested.
                 fromRepository.add(new OBREntry(ao.getName(), ao.getAttribute(BundleHelper.KEY_VERSION), new File(artifactURL).getName()));
             }
@@ -1389,7 +1385,7 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     public ArtifactObject importBundle(OBREntry bundle) throws IOException {
-        return m_artifactRepository.importArtifact(new URL(new URL(obr), bundle.getUri()), false);
+        return m_artifactRepository.importArtifact(new URL(m_obrUrl, bundle.getUri()), false);
     }
     
     public ArtifactObject importBundle(URL artifact) throws IOException {

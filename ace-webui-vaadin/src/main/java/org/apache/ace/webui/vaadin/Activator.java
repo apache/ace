@@ -55,6 +55,7 @@ public class Activator extends DependencyActivatorBase {
         manager.add(createComponent()
             .setInterface(HttpServlet.class.getName(), props)
             .setImplementation(VaadinServlet.class)
+            .add(createConfigurationDependency().setPid(VaadinServlet.PID))
         );
         
         // shows off components that are contributed by extensions
