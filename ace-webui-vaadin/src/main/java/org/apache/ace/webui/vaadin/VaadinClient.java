@@ -99,7 +99,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.ProgressIndicator;
-import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.TableTransferable;
 import com.vaadin.ui.TextField;
@@ -551,35 +550,19 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private ObjectPanel createArtifactsPanel(Window main) {
-        return new ObjectPanel(m_associations, "Artifact", main, true) {
+        return new ObjectPanel(m_associations, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, main, true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getArtifact(id);
             }
-            private void init(Component component) {
-                populate();
-                DependencyManager dm = component.getDependencyManager();
-                component.add(dm.createServiceDependency()
-                    .setInstanceBound(true)
-                    .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT + ")")
-                    .setCallbacks("addExtension", "removeExtension")
-                );
-            }
-            private List<UIExtensionFactory> m_factories = new ArrayList<UIExtensionFactory>();
-            public void addExtension(UIExtensionFactory factory) {
-                m_factories.add(factory);
-                populate();
-            }
-            public void removeExtension(UIExtensionFactory factory) {
-                m_factories.remove(factory);
-                populate();
-            }
+
             public void populate() {
                 removeAllItems();
                 for (ArtifactObject artifact : m_artifactRepository.get()) {
                     add(artifact);
                 }
             }
+
             public void handleEvent(org.osgi.service.event.Event event) {
                 ArtifactObject artifact = (ArtifactObject) event.getProperty(ArtifactObject.EVENT_ENTITY);
                 String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
@@ -593,11 +576,13 @@ public class VaadinClient extends com.vaadin.Application {
                     change(artifact);
                 }
             }
+
             private void add(ArtifactObject artifact) {
                 String resourceProcessorPID = artifact.getAttribute(BundleHelper.KEY_RESOURCE_PROCESSOR_PID);
                 if (resourceProcessorPID != null) {
                 	// if it's a resource processor we don't add it to our list, as resource processors don't
                 	// show up there (you can query for them separately)
+
                 	return;
                 }
                 Item item = addItem(artifact.getName());
@@ -630,38 +615,16 @@ public class VaadinClient extends com.vaadin.Application {
             private void remove(ArtifactObject artifact) {
                 removeItem(artifact.getName());
             }
-
-            @Override
-            public void showEditWindow(final NamedObject object, Window main) {
-                new EditWindow(object, main, m_factories).show();
-            }
         };
     }
 
     private ObjectPanel createFeaturesPanel(Window main) {
-        return new ObjectPanel(m_associations, "Feature", main, true) {
+        return new ObjectPanel(m_associations, "Feature", UIExtensionFactory.EXTENSION_POINT_VALUE_FEATURE, main, true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getFeature(id);
             }
-            private void init(Component component) {
-                populate();
-                DependencyManager dm = component.getDependencyManager();
-                component.add(dm.createServiceDependency()
-                    .setInstanceBound(true)
-                    .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_FEATURE + ")")
-                    .setCallbacks("addExtension", "removeExtension")
-                );
-            }
-            private List<UIExtensionFactory> m_factories = new ArrayList<UIExtensionFactory>();
-            public void addExtension(UIExtensionFactory factory) {
-                m_factories.add(factory);
-                populate();
-            }
-            public void removeExtension(UIExtensionFactory factory) {
-                m_factories.remove(factory);
-                populate();
-            }
+
             public void populate() {
                 removeAllItems();
                 for (GroupObject feature : m_featureRepository.get()) {
@@ -718,11 +681,6 @@ public class VaadinClient extends com.vaadin.Application {
             private void remove(GroupObject go) {
                 removeItem(go.getName());
             }
-
-            @Override
-            public void showEditWindow(final NamedObject object, Window main) {
-                new EditWindow(object, main, m_factories);
-            }
          };
     }
 
@@ -771,29 +729,12 @@ public class VaadinClient extends com.vaadin.Application {
     
     
     private ObjectPanel createDistributionsPanel(Window main) {
-        return new ObjectPanel(m_associations, "Distribution", main, true) {
+        return new ObjectPanel(m_associations, "Distribution", UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION, main, true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getDistribution(id);
             }
-            private void init(Component component) {
-                populate();
-                DependencyManager dm = component.getDependencyManager();
-                component.add(dm.createServiceDependency()
-                    .setInstanceBound(true)
-                    .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION + ")")
-                    .setCallbacks("addExtension", "removeExtension")
-                );
-            }
-            private List<UIExtensionFactory> m_factories = new ArrayList<UIExtensionFactory>();
-            public void addExtension(UIExtensionFactory factory) {
-                m_factories.add(factory);
-                populate();
-            }
-            public void removeExtension(UIExtensionFactory factory) {
-                m_factories.remove(factory);
-                populate();
-            }
+
             public void populate() {
                 removeAllItems();
                 for (LicenseObject distribution : m_distributionRepository.get()) {
@@ -850,44 +791,23 @@ public class VaadinClient extends com.vaadin.Application {
             private void remove(LicenseObject distribution) {
                 removeItem(distribution.getName());
             }
-            
-            @Override
-            public void showEditWindow(final NamedObject object, Window main) {
-                new EditWindow(object, main, m_factories);
-            }
         };
     }
 
     private ObjectPanel createTargetsPanel(Window main) {
-        return new ObjectPanel(m_associations, "Target", main, true) {
+        return new ObjectPanel(m_associations, "Target", UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET, main, true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getTarget(id);
             }
-            private void init(Component component) {
-                populate();
-                DependencyManager dm = component.getDependencyManager();
-                component.add(dm.createServiceDependency()
-                    .setInstanceBound(true)
-                    .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET + ")")
-                    .setCallbacks("addExtension", "removeExtension")
-                );
-            }
-            private List<UIExtensionFactory> m_factories = new ArrayList<UIExtensionFactory>();
-            public void addExtension(UIExtensionFactory factory) {
-                m_factories.add(factory);
-                populate();
-            }
-            public void removeExtension(UIExtensionFactory factory) {
-                m_factories.remove(factory);
-                populate();
-            }
+
             public void populate() {
                 removeAllItems();
                 for (StatefulGatewayObject statefulTarget : m_statefulTargetRepository.get()) {
                     add(statefulTarget);
                 }
             }
+
             public void handleEvent(org.osgi.service.event.Event event) {
                 StatefulGatewayObject statefulTarget = (StatefulGatewayObject) event.getProperty(StatefulGatewayObject.EVENT_ENTITY);
                 String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
@@ -932,11 +852,6 @@ public class VaadinClient extends com.vaadin.Application {
             }
             private void remove(StatefulGatewayObject statefulTarget) {
                 removeItem(statefulTarget.getID());
-            }
-
-            @Override
-            public void showEditWindow(final NamedObject object, Window main) {
-                new EditWindow(object, main, m_factories);
             }
         };
     }
@@ -1150,10 +1065,13 @@ public class VaadinClient extends com.vaadin.Application {
         public static final String ACTIONS = "actions";
         protected Table m_table = this;
         protected Associations m_associations;
-        
-        public ObjectPanel(Associations associations, final String name, final Window main, boolean hasEdit) {
+        private List<UIExtensionFactory> m_extensionFactories = new ArrayList<UIExtensionFactory>();
+        private final String m_extensionPoint;
+
+        public ObjectPanel(Associations associations, final String name, String extensionPoint, final Window main, boolean hasEdit) {
             super(name + "s");
             m_associations = associations;
+            m_extensionPoint = extensionPoint;
             addContainerProperty(OBJECT_NAME, String.class, null);
             addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
             addContainerProperty(ACTIONS, HorizontalLayout.class, null);
@@ -1176,9 +1094,33 @@ public class VaadinClient extends com.vaadin.Application {
                 });
             }
         }
+
+        private void init(Component component) {
+            populate();
+            DependencyManager dm = component.getDependencyManager();
+            component.add(dm.createServiceDependency()
+                .setInstanceBound(true)
+                .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + m_extensionPoint + ")")
+                .setCallbacks("addExtension", "removeExtension")
+            );
+        }
+
+        public void addExtension(UIExtensionFactory factory) {
+            m_extensionFactories.add(factory);
+            populate();
+        }
+
+        public void removeExtension(UIExtensionFactory factory) {
+            m_extensionFactories.remove(factory);
+            populate();
+        }
+
+        private void showEditWindow(NamedObject object, Window main) {
+            new EditWindow(object, main, m_extensionFactories);
+        }
+
         public abstract void populate();
         protected abstract RepositoryObject getFromId(String id);
-        public abstract void showEditWindow(NamedObject object, Window main);
     }
 
     private class AddArtifactWindow extends Window {

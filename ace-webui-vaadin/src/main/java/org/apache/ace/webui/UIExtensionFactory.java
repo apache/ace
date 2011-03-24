@@ -28,10 +28,10 @@ import com.vaadin.ui.Component;
  */
 public interface UIExtensionFactory {
     public static final String EXTENSION_POINT_KEY = "extension_point";
-    public static final Object EXTENSION_POINT_VALUE_ARTIFACT = "artifact";
-    public static final Object EXTENSION_POINT_VALUE_FEATURE = "feature";
-    public static final Object EXTENSION_POINT_VALUE_DISTRIBUTION = "distribution";
-    public static final Object EXTENSION_POINT_VALUE_TARGET = "target";
+    public static final String EXTENSION_POINT_VALUE_ARTIFACT = "artifact";
+    public static final String EXTENSION_POINT_VALUE_FEATURE = "feature";
+    public static final String EXTENSION_POINT_VALUE_DISTRIBUTION = "distribution";
+    public static final String EXTENSION_POINT_VALUE_TARGET = "target";
     
     /**
      * Creates a UI component for use in the extension point. The contents of the
