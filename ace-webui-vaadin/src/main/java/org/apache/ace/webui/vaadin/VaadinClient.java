@@ -630,61 +630,11 @@ public class VaadinClient extends com.vaadin.Application {
             private void remove(ArtifactObject artifact) {
                 removeItem(artifact.getName());
             }
-			@Override
-			public void showEditWindow(String objectName, final NamedObject object, Window main) {
-		        final Window featureWindow = new Window();
-		        featureWindow.setModal(true);
-		        featureWindow.setCaption("Edit " + objectName);
-		        featureWindow.setWidth("500px");
 
-		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
-		        layout.setMargin(true);
-		        layout.setSpacing(true);
-
-		        final TextField name = new TextField("name");
-		        final TextField description = new TextField("description");
-
-		        name.setValue(object.getName());
-		        description.setValue(object.getDescription());
-
-		        layout.addComponent(name);
-		        layout.addComponent(description);
-		        
-		        TabSheet tabs = new TabSheet();
-		        tabs.setHeight("350px");
-                Map<String, Object> context = new HashMap<String, Object>();
-                context.put("object", object);
-                for (UIExtensionFactory factory : m_factories) {
-                    com.vaadin.ui.Component component = factory.create(context);
-                    tabs.addTab(component);
-                }
-		        layout.addComponent(tabs);
-
-		        Button close = new Button("Ok", new Button.ClickListener() {
-		            // inline click-listener
-		            public void buttonClick(ClickEvent event) {
-		                // close the window by removing it from the parent window
-		                (featureWindow.getParent()).removeWindow(featureWindow);
-		                // create the feature
-		                object.setDescription((String) description.getValue());
-		            }
-		        });
-		        // The components added to the window are actually added to the window's
-		        // layout; you can use either. Alignments are set using the layout
-		        layout.addComponent(close);
-		        layout.setComponentAlignment(close, Alignment.BOTTOM_RIGHT);
-
-		        if (featureWindow.getParent() != null) {
-		            // window is already showing
-		            main.getWindow().showNotification("Window is already open");
-		        } else {
-		            // Open the subwindow by adding it to the parent
-		            // window
-		            main.getWindow().addWindow(featureWindow);
-		        }
-		        name.setReadOnly(true);
-		        description.focus();
-		    }
+            @Override
+            public void showEditWindow(final NamedObject object, Window main) {
+                new EditWindow(object, main, m_factories).show();
+            }
         };
     }
 
@@ -768,61 +718,11 @@ public class VaadinClient extends com.vaadin.Application {
             private void remove(GroupObject go) {
                 removeItem(go.getName());
             }
-			@Override
-			public void showEditWindow(String objectName, final NamedObject object, Window main) {
-		        final Window featureWindow = new Window();
-		        featureWindow.setModal(true);
-		        featureWindow.setCaption("Edit " + objectName);
-		        featureWindow.setWidth("500px");
 
-		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
-		        layout.setMargin(true);
-		        layout.setSpacing(true);
-
-		        final TextField name = new TextField("name");
-		        final TextField description = new TextField("description");
-
-		        name.setValue(object.getName());
-		        description.setValue(object.getDescription());
-
-		        layout.addComponent(name);
-		        layout.addComponent(description);
-		        
-		        TabSheet tabs = new TabSheet();
-		        tabs.setHeight("350px");
-                Map<String, Object> context = new HashMap<String, Object>();
-                context.put("object", object);
-                for (UIExtensionFactory factory : m_factories) {
-                    com.vaadin.ui.Component component = factory.create(context);
-                    tabs.addTab(component);
-                }
-		        layout.addComponent(tabs);
-
-		        Button close = new Button("Ok", new Button.ClickListener() {
-		            // inline click-listener
-		            public void buttonClick(ClickEvent event) {
-		                // close the window by removing it from the parent window
-		                (featureWindow.getParent()).removeWindow(featureWindow);
-		                // create the feature
-		                object.setDescription((String) description.getValue());
-		            }
-		        });
-		        // The components added to the window are actually added to the window's
-		        // layout; you can use either. Alignments are set using the layout
-		        layout.addComponent(close);
-		        layout.setComponentAlignment(close, "right");
-
-		        if (featureWindow.getParent() != null) {
-		            // window is already showing
-		            main.getWindow().showNotification("Window is already open");
-		        } else {
-		            // Open the subwindow by adding it to the parent
-		            // window
-		            main.getWindow().addWindow(featureWindow);
-		        }
-		        name.setReadOnly(true);
-		        description.focus();
-		    }
+            @Override
+            public void showEditWindow(final NamedObject object, Window main) {
+                new EditWindow(object, main, m_factories);
+            }
          };
     }
 
@@ -950,61 +850,11 @@ public class VaadinClient extends com.vaadin.Application {
             private void remove(LicenseObject distribution) {
                 removeItem(distribution.getName());
             }
-			@Override
-			public void showEditWindow(String objectName, final NamedObject object, Window main) {
-		        final Window featureWindow = new Window();
-		        featureWindow.setModal(true);
-		        featureWindow.setCaption("Edit " + objectName);
-		        featureWindow.setWidth("500px");
-
-		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
-		        layout.setMargin(true);
-		        layout.setSpacing(true);
-
-		        final TextField name = new TextField("name");
-		        final TextField description = new TextField("description");
-
-		        name.setValue(object.getName());
-		        description.setValue(object.getDescription());
-
-		        layout.addComponent(name);
-		        layout.addComponent(description);
-		        
-		        TabSheet tabs = new TabSheet();
-		        tabs.setHeight("350px");
-                Map<String, Object> context = new HashMap<String, Object>();
-                context.put("object", object);
-                for (UIExtensionFactory factory : m_factories) {
-                    com.vaadin.ui.Component component = factory.create(context);
-                    tabs.addTab(component);
-                }
-		        layout.addComponent(tabs);
-
-		        Button close = new Button("Ok", new Button.ClickListener() {
-		            // inline click-listener
-		            public void buttonClick(ClickEvent event) {
-		                // close the window by removing it from the parent window
-		                (featureWindow.getParent()).removeWindow(featureWindow);
-		                // create the feature
-		                object.setDescription((String) description.getValue());
-		            }
-		        });
-		        // The components added to the window are actually added to the window's
-		        // layout; you can use either. Alignments are set using the layout
-		        layout.addComponent(close);
-		        layout.setComponentAlignment(close, Alignment.BOTTOM_RIGHT);
-
-		        if (featureWindow.getParent() != null) {
-		            // window is already showing
-		            main.getWindow().showNotification("Window is already open");
-		        } else {
-		            // Open the subwindow by adding it to the parent
-		            // window
-		            main.getWindow().addWindow(featureWindow);
-		        }
-		        name.setReadOnly(true);
-		        description.focus();
-		    }
+            
+            @Override
+            public void showEditWindow(final NamedObject object, Window main) {
+                new EditWindow(object, main, m_factories);
+            }
         };
     }
 
@@ -1083,50 +933,11 @@ public class VaadinClient extends com.vaadin.Application {
             private void remove(StatefulGatewayObject statefulTarget) {
                 removeItem(statefulTarget.getID());
             }
-			@Override
-			public void showEditWindow(String objectName, final NamedObject object, Window main) {
-		        final Window featureWindow = new Window();
-		        featureWindow.setModal(true);
-		        featureWindow.setCaption("Edit " + objectName + ": " + object.getName());
-		        featureWindow.setWidth("500px");
 
-		        VerticalLayout layout = (VerticalLayout) featureWindow.getContent();
-		        layout.setMargin(true);
-		        layout.setSpacing(true);
-
-		        TabSheet tabs = new TabSheet();
-		        tabs.setHeight("350px");
-                Map<String, Object> context = new HashMap<String, Object>();
-                context.put("object", object);
-                for (UIExtensionFactory factory : m_factories) {
-                    com.vaadin.ui.Component component = factory.create(context);
-                    tabs.addTab(component);
-                }
-		        layout.addComponent(tabs);
-
-		        Button close = new Button("Ok", new Button.ClickListener() {
-		            // inline click-listener
-		            public void buttonClick(ClickEvent event) {
-		                // close the window by removing it from the parent window
-		                (featureWindow.getParent()).removeWindow(featureWindow);
-		                // create the feature
-//		                object.setDescription((String) description.getValue());
-		            }
-		        });
-		        // The components added to the window are actually added to the window's
-		        // layout; you can use either. Alignments are set using the layout
-		        layout.addComponent(close);
-		        layout.setComponentAlignment(close, Alignment.BOTTOM_RIGHT);
-
-		        if (featureWindow.getParent() != null) {
-		            // window is already showing
-		            main.getWindow().showNotification("Window is already open");
-		        } else {
-		            // Open the subwindow by adding it to the parent
-		            // window
-		            main.getWindow().addWindow(featureWindow);
-		        }
-		    }
+            @Override
+            public void showEditWindow(final NamedObject object, Window main) {
+                new EditWindow(object, main, m_factories);
+            }
         };
     }
 
@@ -1359,7 +1170,7 @@ public class VaadinClient extends com.vaadin.Application {
                             String itemId = (String) event.getItemId();
                             RepositoryObject object = getFromId(itemId);
                             NamedObject namedObject = m_associations.getNamedObject(object);
-							showEditWindow(name, namedObject, main);
+                            showEditWindow(namedObject, main);
                         }
                     }
                 });
@@ -1367,7 +1178,7 @@ public class VaadinClient extends com.vaadin.Application {
         }
         public abstract void populate();
         protected abstract RepositoryObject getFromId(String id);
-        public abstract void showEditWindow(String name, NamedObject object, Window main);
+        public abstract void showEditWindow(NamedObject object, Window main);
     }
 
     private class AddArtifactWindow extends Window {
