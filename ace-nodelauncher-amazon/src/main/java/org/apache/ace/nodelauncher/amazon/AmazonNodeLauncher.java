@@ -212,7 +212,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     private NodeMetadata getNodeMetadataForRunningNodeWithTag(String tag) {
         for (ComputeMetadata node : m_computeServiceContext.getComputeService().listNodes()) {
             NodeMetadata candidate = m_computeServiceContext.getComputeService().getNodeMetadata(node.getId());
-            if (candidate.getGroup().equals(tag) && candidate.getState().equals(NodeState.RUNNING)) {
+            if (tag.equals(candidate.getGroup()) && candidate.getState().equals(NodeState.RUNNING)) {
                 return candidate;
             }
         }

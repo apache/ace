@@ -1114,7 +1114,7 @@ public class VaadinClient extends com.vaadin.Application {
         }
 
         private void showEditWindow(NamedObject object, Window main) {
-            new EditWindow(object, main, m_extensionFactories);
+            new EditWindow(object, main, m_extensionFactories).show();
         }
 
         public abstract void populate();
