@@ -49,7 +49,7 @@ import static org.jclouds.compute.predicates.NodePredicates.runningInGroup;
  * about this.<br><br>
  *
  * After the node has been started up, this service will install a management agent on it. For this
- * to work, there should be an ace-launcer in the OBR of the server the node should connect to.
+ * to work, there should be an ace-launcher in the OBR of the server the node should connect to.
  */
 public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     public static final String PID = "org.apache.ace.nodelauncher.amazon";
@@ -110,6 +110,11 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     public static final String EXTRA_PORTS = "extraPorts";
     
     /**
+     * Configuration key: Should we run the process as root?
+     */
+    public static final String RUN_AS_ROOT = "runAsRoot";
+
+    /**
      * Default set of ports to open on a node.
      */
     public static final int[] DEFAULT_PORTS = new int[] {22, 80, 8080};
@@ -124,6 +129,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     private String m_nodeBootstrap;
     private String m_launcherArguments;
     private String m_extraPorts;
+    private boolean m_runAsRoot;
 
     private ComputeServiceContext m_computeServiceContext;
     
@@ -146,6 +152,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         int[] inboundPorts = mergePorts(DEFAULT_PORTS, extraPorts);
         template.getOptions().as(EC2TemplateOptions.class).inboundPorts(inboundPorts);
         template.getOptions().blockOnComplete(false);
+        template.getOptions().runAsRoot(m_runAsRoot);
 
         Set<? extends NodeMetadata> tag = computeService.createNodesInGroup(m_tagPrefix + id, 1, template);
         System.out.println("In case you need it, this is the key to ssh to " + id + ":\n"
@@ -238,6 +245,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             String tagPrefix = getConfigProperty(properties, TAG_PREFIX, "");
             String launcherArguments = getConfigProperty(properties, LAUNCHER_ARGUMENTS, "");
             String extraPorts = getConfigProperty(properties, EXTRA_PORTS, "");
+            String runAsRoot = getConfigProperty(properties, RUN_AS_ROOT, "false");
 
             m_server = server;
             m_amiId = amiId;
@@ -249,6 +257,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             m_nodeBootstrap = nodeBootstrap;
             m_launcherArguments = launcherArguments;
             m_extraPorts = extraPorts;
+            m_runAsRoot = "true".equals(runAsRoot);
         }
     }
 
