@@ -41,6 +41,9 @@
             org.apache.ace.client.repository.stateful;version=${project.version},
             *
         </import.package>
+        <private.package>
+            org.apache.ace.client.automation
+        </private.package>
     </properties>
 
     <dependencies>
