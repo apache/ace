@@ -211,7 +211,7 @@
                 <module>ace-webconsole-plugin</module>
                 <module>ace-log</module>
                 <module>ace-log-servlet</module>
-                <module>ace-webui</module>
+                <module>ace-webui-vaadin</module>
                 <module>ace-tageditor</module>
             </modules>
         </profile>
