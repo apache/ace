@@ -41,9 +41,12 @@
         <import.package>
             !org.apache.ace.deployment.provider.filebased,
             org.apache.ace.deployment.provider;version=${project.version},
-            org.apache.ace.deployment.provider.impl;version=${project.version},
             *
         </import.package>
+        <private.package>
+            org.apache.ace.deployment.provider.filebased,
+            org.apache.ace.deployment.provider.impl
+        </private.package>
         <bundle.activator>org.apache.ace.deployment.provider.filebased.Activator</bundle.activator>
     </properties>
 
