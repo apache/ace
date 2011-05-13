@@ -103,7 +103,7 @@ public class Options {
         }
 
         public static MavenArtifactProvisionOption repositoryExt() {
-            return maven("org.apache.ace.repository.exy");
+            return maven("org.apache.ace.repository.ext");
         }
 
         public static MavenArtifactProvisionOption repositoryImpl() {
@@ -155,7 +155,7 @@ public class Options {
         }
 
         public static MavenArtifactProvisionOption deploymentProviderFilebased() {
-            return maven("org.apache.ace;deployment.provider.filebased");
+            return maven("org.apache.ace.deployment.provider.filebased");
         }
 
         public static MavenArtifactProvisionOption log() {
