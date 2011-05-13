@@ -321,14 +321,5 @@
             <artifactId>org.apache.ace.nodelauncher.amazon</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- work in progress, not done yet
-          <dependency>
-              <groupId>${project.groupId}</groupId>
-              <artifactId>ace-distribution-servlet</artifactId>
-              <version>${project.version}</version>
-              <scope>runtime</scope>
-          </dependency>
-          -->
     </dependencies>
-
 </project>
