@@ -120,8 +120,6 @@
         <module>ace-target-devgateway</module>
         <module>ace-target-devserver</module>
 
-        <module>ace-consolelogger</module>
-
         <module>ace-integrationtests</module>
     </modules>
 
