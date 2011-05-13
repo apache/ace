@@ -38,9 +38,9 @@ Building
 
 1) Change to the top level directory of Apache ACE source distribution.
 2) Run
-        $> mvn
+        $> mvn install
    This will compile Apache ACE and run all of the tests.
    You can run
-        $> mvn -Dmaven.test.skip=true
+        $> mvn -Dmaven.test.skip=true install
     This will compile Apache ACE without running the tests.
 3) The distributions will be available under "assembly/target" directory.
