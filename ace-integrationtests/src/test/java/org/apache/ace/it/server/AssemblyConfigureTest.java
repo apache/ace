@@ -32,6 +32,6 @@ public class AssemblyConfigureTest
     {
         System.setProperty( "java.protocol.handler.pkgs", "org.ops4j.pax.url" );
         // TODO avoid to use hard coded version
-        Option[] options = AssemblyConfigure.get( "ace-gateway","mvn:org.apache.ace/org.apache.ace.target.devgateway/0.8.0-SNAPSHOT/zip/distribution" );
+        Option[] options = AssemblyConfigure.get( "ace-gateway","mvn:org.apache.ace/org.apache.ace.target.devgateway/0.8.0-incubator/zip/distribution" );
     }
 }
