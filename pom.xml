@@ -116,6 +116,8 @@
         <module>ace-managementagent</module>
         <module>ace-launcher</module>
 
+        <module>ace-features</module>
+
         <module>ace-target-defaults</module>
         <module>ace-target-devgateway</module>
         <module>ace-target-devserver</module>
