@@ -30,7 +30,7 @@
     <groupId>org.apache.ace</groupId>
     <artifactId>ace-pom</artifactId>
     <name>Apache ACE :: POM</name>
-    <version>0.8.0-incubator</version>
+    <version>0.8.0-incubator-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2009</inceptionYear>
 
