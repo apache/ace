@@ -34,11 +34,11 @@
         <bundle>mvn:org.apache.ace/org.apache.ace.repository.api/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.httplistener/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.server.log.store/${project.version}</bundle>
+        <bundle>mvn:org.knopflerfish.bundle/useradmin/${knopflerfish.version}</bundle>
     </feature>
 
     <feature name="ace-client" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">ace-common</feature>
-        <bundle>mvn:org.knopflerfish.bundle/useradmin/${knopflerfish.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.client.repository.api/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.client.repository.helper.base/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.client.repository.helper.bundle/${project.version}</bundle>
