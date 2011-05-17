@@ -30,7 +30,7 @@
     <groupId>org.apache.ace</groupId>
     <artifactId>ace-pom</artifactId>
     <name>Apache ACE :: POM</name>
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.0-incubator-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2009</inceptionYear>
 
@@ -120,12 +120,12 @@
     <properties>
         <!-- Default OSGi statements -->
         <import.package>*</import.package>
-        <export.package />
-        <private.package />
-        <embed.dependency />
+        <export.package></export.package>
+        <private.package></private.package>
+        <embed.dependency></embed.dependency>
         <embed.transitive>false</embed.transitive>
-        <bundle.activator />
-        <deployment.providesresourceprocessor />
+        <bundle.activator></bundle.activator>
+        <deployment.providesresourceprocessor></deployment.providesresourceprocessor>
 
         <commons-collections.version>3.2.1</commons-collections.version>
         <commons-lang.version>2.4</commons-lang.version>
