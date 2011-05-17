@@ -30,7 +30,7 @@
     <groupId>org.apache.ace</groupId>
     <artifactId>ace-pom</artifactId>
     <name>Apache ACE :: POM</name>
-    <version>0.8.0-incubator-SNAPSHOT</version>
+    <version>0.8.0-incubator</version>
     <packaging>pom</packaging>
     <inceptionYear>2009</inceptionYear>
 
@@ -112,20 +112,20 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/pom</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/pom</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/tags/ace-pom-0.8.0-incubator</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/tags/ace-pom-0.8.0-incubator</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/tags/ace-pom-0.8.0-incubator</url>
     </scm>
 
     <properties>
         <!-- Default OSGi statements -->
         <import.package>*</import.package>
-        <export.package></export.package>
-        <private.package></private.package>
-        <embed.dependency></embed.dependency>
+        <export.package />
+        <private.package />
+        <embed.dependency />
         <embed.transitive>false</embed.transitive>
-        <bundle.activator></bundle.activator>
-        <deployment.providesresourceprocessor></deployment.providesresourceprocessor>
+        <bundle.activator />
+        <deployment.providesresourceprocessor />
 
         <commons-collections.version>3.2.1</commons-collections.version>
         <commons-lang.version>2.4</commons-lang.version>
