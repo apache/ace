@@ -112,9 +112,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/ace-pom-0.8.0-incubator</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/ace-pom-0.8.0-incubator</developerConnection>
-        <url>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/ace-pom-0.8.0-incubator</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/tags/ace-pom-0.8.0-incubator</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/tags/ace-pom-0.8.0-incubator</developerConnection>
+        <url>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/tags/ace-pom-0.8.0-incubator</url>
     </scm>
 
     <properties>
