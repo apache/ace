@@ -21,7 +21,8 @@
 
     <feature name="ace-common" version="${project.version}" resolver="(obr)">
         <feature>eventadmin</feature>
-        <!-- TODO add OSGi compendium dependency -->
+        <feature>http</feature>
+        <bundle>mvn:org.apache.felix/org.apache.felix.metatype/${felix.metatype.version}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.dependencymanager/${felix.dependencymanager.version}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.dependencymanager.shell/${felix.dependencymanager.version}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.deploymentadmin/${felix.deploymentadmin.version}</bundle>
@@ -30,13 +31,14 @@
         <bundle>mvn:org.apache.ace/org.apache.ace.log.servlet/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.consolelogger/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.range.api/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.repository.api/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.httplistener/${project.version}</bundle>
-        <bundle>mvn:org.apache.ace/org.apache.ace.resourceprocessor.useradmin/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.server.log.store/${project.version}</bundle>
-        <bundle>mvn:org.apache.ace/org.apache.ace.tageditor/${project.version}</bundle>
     </feature>
 
     <feature name="ace-client" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">ace-common</feature>
+        <bundle>mvn:org.knopflerfish.bundle/useradmin/${knopflerfish.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.client.repository.api/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.client.repository.helper.base/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.client.repository.helper.bundle/${project.version}</bundle>
@@ -45,6 +47,7 @@
     </feature>
 
     <feature name="ace-configurator" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">ace-common</feature>
         <bundle>mvn:org.apache.ace/org.apache.ace.configurator/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.configurator.serveruseradmin/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.configurator.useradmin.task/${project.version}</bundle>
@@ -58,6 +61,7 @@
         <bundle>mvn:org.apache.ace/org.apache.ace.deployment.provider.repositorybased/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.deployment.servlet/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.deployment.streamgenerator/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.resourceprocessor.useradmin/${project.version}</bundle>
     </feature>
 
     <feature name="ace-discovery" version="${project.version}" resolver="(obr)">
@@ -78,7 +82,6 @@
     </feature>
 
     <feature name="ace-repository" version="${project.version}" resolver="(obr)">
-        <bundle>mvn:org.apache.ace/org.apache.ace.repository.api/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.repository.impl/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.repository.servlet/${project.version}</bundle>
     </feature>
@@ -91,6 +94,7 @@
         <feature>war</feature>
         <bundle>mvn:com.vaadin/vaadin/${vaadin.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.webconsole.plugin/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.tageditor/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.webui.vaadin/${project.version}</bundle>
     </feature>
 

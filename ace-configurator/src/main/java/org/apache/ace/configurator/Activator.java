@@ -31,7 +31,7 @@ public class Activator extends DependencyActivatorBase {
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         manager.add(createComponent()
             .setImplementation(new Configurator(new File(
-                getProperty(context.getProperty(Activator.class.getPackage().getName() + ".CONFIG_DIR"), "conf")),
+                getProperty(context.getProperty(Activator.class.getPackage().getName() + ".CONFIG_DIR"), "etc/ace")),
                 getProperty(context.getProperty(Activator.class.getPackage().getName() + ".POLL_INTERVAL"), 2000),
                 getProperty(context.getProperty(Activator.class.getPackage().getName() + ".RECONFIG"), true)))
             .add(createServiceDependency()

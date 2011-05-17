@@ -137,6 +137,7 @@
         <felix.eventadmin.version>1.2.8</felix.eventadmin.version>
         <felix.framework.version>3.0.8</felix.framework.version>
         <felix.maven-bundle-plugin.version>2.3.4</felix.maven-bundle-plugin.version>
+        <felix.metatype.version>1.0.4</felix.metatype.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
         <felix.shell.version>1.4.2</felix.shell.version>
         <junit.version>4.4</junit.version>

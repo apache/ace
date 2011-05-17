@@ -79,6 +79,10 @@ public class Configurator implements Runnable {
      * values will not be overwritten, only new values (for a given pid) will be added.
      */
     public Configurator(File dir, long pollInterval, boolean reconfig) {
+        // create the config directory if it doesn't exist
+        if ((dir != null) && (!dir.exists())) {
+            dir.mkdirs();
+        }
         if ((dir == null) || !dir.isDirectory() || (pollInterval < 0)) {
             throw new IllegalArgumentException("Bad arguments; either not an existing directory or an invalid interval.");
         }
