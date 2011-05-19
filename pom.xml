@@ -31,7 +31,6 @@
     <version>0.8.0-incubator</version>
     <packaging>pom</packaging>
     <name>Apache ACE :: Reactor</name>
-<!--
     <modules>
         <module>pom</module>
         <module>ace-util</module>
@@ -124,7 +123,7 @@
 
         <module>ace-integrationtests</module>
     </modules>
--->
+
     <build>
         <plugins>
             <plugin>
