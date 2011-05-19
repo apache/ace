@@ -32,7 +32,7 @@
     <packaging>bundle</packaging>
     <version>0.8.0-incubator-SNAPSHOT</version>
     <name>Apache ACE :: Deployment :: Provider :: API</name>
-    <description></description>
+    <description />
     
     <properties>
         <export.package>
@@ -43,4 +43,10 @@
         </import.package>
     </properties>
 
+
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.deployment.provider.api-0.8.0-incubator</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.deployment.provider.api-0.8.0-incubator</developerConnection>
+    <url>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.deployment.provider.api-0.8.0-incubator</url>
+  </scm>
 </project>

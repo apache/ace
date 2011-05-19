@@ -30,6 +30,7 @@
 
     <artifactId>org.apache.ace.launcher</artifactId>
 
+    <version>0.8.0-incubator-SNAPSHOT</version>
     <name>Apache ACE :: Launcher</name>
 
     <build>

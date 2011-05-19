@@ -28,6 +28,7 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
+    <version>0.8.0-incubator-SNAPSHOT</version>
     <artifactId>org.apache.ace.target.defaults</artifactId>
 
     <name>Apache ACE :: Target :: Defaults</name>
