@@ -28,7 +28,7 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.0-incubator</version>
+    <version>0.8.1-incubator-SNAPSHOT</version>
     <artifactId>org.apache.ace.deployment.task</artifactId>
     <packaging>bundle</packaging>
 
@@ -36,9 +36,9 @@
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.deployment.task-0.8.0-incubator</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.deployment.task-0.8.0-incubator</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.deployment.task-0.8.0-incubator</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-task</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-task</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-task</url>
     </scm>
 
     <properties>
