@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!--
+        Licensed to the Apache Software Foundation (ASF) under one or more
+        contributor license agreements.  See the NOTICE file distributed with
+        this work for additional information regarding copyright ownership.
+        The ASF licenses this file to You under the Apache License, Version 2.0
+        (the "License"); you may not use this file except in compliance with
+        the License.  You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    -->
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>8</version>
+    </parent>
+
+    <groupId>org.apache.ace</groupId>
+    <artifactId>ace-reactor</artifactId>
+    <version>0.8.0-incubator</version>
+    <packaging>pom</packaging>
+    <name>Apache ACE :: Reactor</name>
+<!--
+    <modules>
+        <module>pom</module>
+        <module>ace-util</module>
+
+        <module>ace-range-api</module>
+
+        <module>ace-repository-api</module>
+        <module>ace-repository-ext</module>
+        <module>ace-repository-impl</module>
+        <module>ace-repository-servlet</module>
+        <module>ace-repository-task</module>
+
+        <module>ace-consolelogger</module>
+        <module>ace-log</module>
+
+        <module>ace-discovery-api</module>
+        <module>ace-discovery-property</module>
+        <module>ace-discovery-upnp</module>
+
+        <module>ace-identification-api</module>
+        <module>ace-identification-property</module>
+        <module>ace-identification-ifconfig</module>
+
+        <module>ace-scheduler-api</module>
+        <module>ace-scheduler</module>
+
+        <module>ace-client-repository-api</module>
+        <module>ace-client-repository-impl</module>
+        <module>ace-client-repository-helper-base</module>
+        <module>ace-client-repository-helper-bundle</module>
+        <module>ace-client-repository-helper-configuration</module>
+        <module>ace-client-repository-helper-user</module>
+        <module>ace-client-automation</module>
+
+        <module>ace-deployment-provider-api</module>
+        <module>ace-deployment-streamgenerator</module>
+        <module>ace-deployment-servlet</module>
+        <module>ace-deployment-provider-base</module>
+        <module>ace-deployment-provider-filebased</module>
+        <module>ace-deployment-provider-repositorybased</module>
+
+        <module>ace-deployment-api</module>
+        <module>ace-deployment-deploymentadmin</module>
+        <module>ace-deployment-task</module>
+
+        <module>ace-httplistener</module>
+
+        <module>ace-server-log-store</module>
+        <module>ace-log-servlet</module>
+        <module>ace-log-task</module>
+        <module>ace-log-listener</module>
+
+        <module>ace-obr-metadata</module>
+        <module>ace-obr-storage</module>
+        <module>ace-obr-servlet</module>
+
+        <module>ace-configurator-serveruseradmin</module>
+        <module>ace-resourceprocessor-useradmin</module>
+        <module>ace-configurator-useradmin-task</module>
+
+        <module>ace-client-repository-useradmin</module>
+
+        <module>ace-server-action</module>
+        <module>ace-server-action-popupmessage</module>
+
+        <module>ace-location-upnp</module>
+        <module>ace-webconsole-plugin</module>
+
+        <module>ace-configurator</module>
+
+        <module>ace-gateway-log</module>
+        <module>ace-gateway-log-store</module>
+
+        <module>ace-webui-vaadin</module>
+
+        <module>ace-tageditor</module>
+
+        <module>ace-nodelauncher-api</module>
+        <module>ace-nodelauncher-amazon</module>
+        <module>ace-nodelauncher-ui</module>
+
+        <module>ace-managementagent</module>
+        <module>ace-launcher</module>
+
+        <module>ace-features</module>
+
+        <module>ace-target-defaults</module>
+        <module>ace-target-devgateway</module>
+        <module>ace-target-devserver</module>
+
+        <module>ace-integrationtests</module>
+    </modules>
+-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>2.2.1</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>1.5</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>gateway</id>
+            <modules>
+                <module>pom</module>
+                <module>ace-deployment-provider-api</module>
+                <module>ace-util</module>
+                <module>ace-consolelogger</module>
+                <module>ace-log-listener</module>
+                <module>ace-gateway-log</module>
+                <module>ace-gateway-log-store</module>
+                <module>ace-log</module>
+                <module>ace-identification-api</module>
+                <module>ace-discovery-api</module>
+                <module>ace-discovery-property</module>
+                <module>ace-identification-property</module>
+                <module>ace-repository-api</module>
+                <module>ace-scheduler-api</module>
+                <module>ace-scheduler</module>
+                <module>ace-deployment-api</module>
+                <module>ace-deployment-task</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>server</id>
+            <modules>
+                <module>pom</module>
+                <module>ace-util</module>
+                <module>ace-client-repository-impl</module>
+                <module>ace-client-repository-helper-bundle</module>
+                <module>ace-configurator</module>
+                <module>ace-configurator-useradmin-task</module>
+                <module>ace-configurator-serveruseradmin</module>
+                <module>ace-consolelogger</module>
+                <module>ace-deployment-provider-repositorybased</module>
+                <module>ace-deployment-provider-api</module>
+                <module>ace-deployment-provider-base</module>
+                <module>ace-deployment-servlet</module>
+                <module>ace-deployment-streamgenerator</module>
+                <module>ace-discovery-api</module>
+                <module>ace-discovery-property</module>
+                <module>ace-httplistener</module>
+                <module>ace-obr-metadata</module>
+                <module>ace-obr-storage</module>
+                <module>ace-obr-servlet</module>
+                <module>ace-repository-api</module>
+                <module>ace-repository-servlet</module>
+                <module>ace-resourceprocessor-useradmin</module>
+                <module>ace-scheduler</module>
+                <module>ace-scheduler-api</module>
+                <module>ace-server-log-store</module>
+                <module>ace-webconsole-plugin</module>
+                <module>ace-log</module>
+                <module>ace-log-servlet</module>
+                <module>ace-webui-vaadin</module>
+                <module>ace-tageditor</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>targets</id>
+            <modules>
+                <!-- Targets (can be used by all Pax Tools) -->
+                <module>ace-target-devgateway</module>
+                <module>ace-target-devserver</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>development</id>
+            <modules>
+                <module>ace-managementagent</module>
+                <module>ace-launcher</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>it</id>
+            <modules>
+                <module>ace-integrationtests</module>
+            </modules>
+        </profile>
+    </profiles>
+
+</project>
