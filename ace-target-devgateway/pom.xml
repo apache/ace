@@ -27,7 +27,7 @@
         <version>0.8.0-incubator</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
-
+    <version>0.8.0-incubator-SNAPSHOT</version>
     <artifactId>org.apache.ace.target.devgateway</artifactId>
     <packaging>pom</packaging>
 
