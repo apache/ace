@@ -28,17 +28,17 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.0-incubator-SNAPSHOT</version>
+    <version>0.8.0-incubator</version>
     <artifactId>org.apache.ace.repository.impl</artifactId>
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Repository :: Impl</name>
-    <description></description>
+    <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-impl</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-impl</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-impl</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.repository.impl-0.8.0-incubator</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.repository.impl-0.8.0-incubator</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.repository.impl-0.8.0-incubator</url>
     </scm>
 
     <properties>
