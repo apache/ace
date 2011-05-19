@@ -30,8 +30,14 @@
 
     <version>0.8.0-incubator-SNAPSHOT</version>
     <artifactId>org.apache.ace.repository.ext</artifactId>
-
     <name>Apache ACE :: Repository :: Extensions</name>
+    <description></description>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-ext</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-ext</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-ext</url>
+    </scm>
 
     <dependencies>
         <dependency>

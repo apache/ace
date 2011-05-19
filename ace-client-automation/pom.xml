@@ -35,6 +35,12 @@
     <name>Apache ACE :: Client :: Automation</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-automation</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-automation</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-automation</url>
+    </scm>
+
     <properties>
         <import.package>
             org.apache.ace.client.repository;version=${project.version},

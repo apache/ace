@@ -34,6 +34,12 @@
 
     <name>Apache ACE :: Deployment :: DeploymentAdmin Based</name>
     <description></description>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-deploymentadmin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-deploymentadmin</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-deploymentadmin</url>
+    </scm>
     
     <properties>
         <import.package>

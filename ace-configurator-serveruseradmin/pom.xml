@@ -35,6 +35,12 @@
     <name>Apache ACE :: Configurator :: Server UserAdmin</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-configurator-serveruseradmin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-configurator-serveruseradmin</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-configurator-serveruseradmin</url>
+    </scm>
+
     <properties>
         <import.package>
             *

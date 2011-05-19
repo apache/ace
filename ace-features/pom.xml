@@ -32,6 +32,12 @@
     <packaging>pom</packaging>
     <name>Apache ACE :: Features</name>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-features</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-features</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-features</url>
+    </scm>
+
     <build>
         <resources>
             <resource>

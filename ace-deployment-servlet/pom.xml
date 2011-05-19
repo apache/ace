@@ -35,6 +35,12 @@
     <name>Apache ACE :: Deployment :: Servlet</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-servlet</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-servlet</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-servlet</url>
+    </scm>
+
     <properties>
         <import.package>
             org.apache.ace.deployment.provider;version=${project.version},

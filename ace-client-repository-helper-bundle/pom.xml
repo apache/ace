@@ -35,6 +35,12 @@
     <name>Apache ACE :: Client :: Repository :: Helper :: Bundle</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-bundle</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-bundle</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-bundle</url>
+    </scm>
+
     <properties>
         <import.package>
             org.apache.ace.client.repository;version=${project.version},

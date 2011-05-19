@@ -35,6 +35,12 @@
     <name>Apache ACE :: Identification :: Ifconfig</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-identification-ifconfig</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-identification-ifconfig</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-identification-ifconfig</url>
+    </scm>
+
     <properties>
         <import.package>
             org.apache.ace.identification;version=${project.version},

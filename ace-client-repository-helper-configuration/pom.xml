@@ -35,6 +35,12 @@
     <name>Apache ACE :: Client :: Repository :: Helper :: Configuration</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-configuration</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-configuration</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-configuration</url>
+    </scm>
+
     <properties>
         <bundle.activator>org.apache.ace.client.repository.helper.configuration.impl.Activator</bundle.activator>
         <export.package>

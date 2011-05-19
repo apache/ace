@@ -31,8 +31,14 @@
     <version>0.8.0-incubator-SNAPSHOT</version>
     <artifactId>org.apache.ace.deployment.provider.base</artifactId>
     <packaging>jar</packaging>
-
     <name>Apache ACE :: Deployment :: Provider :: Base (library)</name>
+    <description></description>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-provider-base</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-provider-base</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-provider-base</url>
+    </scm>
 
     <dependencies>
         <dependency>

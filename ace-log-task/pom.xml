@@ -35,6 +35,12 @@
     <name>Apache ACE :: Log :: Task</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-log-task</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-log-task</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-log-task</url>
+    </scm>
+
     <properties>
         <import.package>
             org.apache.ace.discovery;version=${project.version},

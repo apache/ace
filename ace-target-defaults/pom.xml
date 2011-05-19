@@ -34,6 +34,12 @@
     <name>Apache ACE :: Target :: Defaults</name>
     <description>Holds descriptors for certain ace launch configurations.</description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-defaults</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-defaults</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-defaults</url>
+    </scm>
+
     <build>
         <resources>
             <resource>

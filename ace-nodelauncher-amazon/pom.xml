@@ -35,6 +35,12 @@
     <name>Apache ACE :: NodeLauncher :: Amazon provider</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-nodelauncher-amazon</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-nodelauncher-amazon</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-nodelauncher-amazon</url>
+    </scm>
+
     <properties>
         <private.package>
             org.apache.ace.nodelauncher.amazon

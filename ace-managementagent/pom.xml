@@ -35,6 +35,12 @@
     <name>Apache ACE :: Management Agent</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-managementagent</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-managementagent</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-managementagent</url>
+    </scm>
+
     <properties>
         <export.package>
             org.osgi.service.cm;version="1.3",

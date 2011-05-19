@@ -32,6 +32,13 @@
 
     <version>0.8.0-incubator-SNAPSHOT</version>
     <name>Apache ACE :: Launcher</name>
+    <description></description>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-launcher</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-launcher</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-launcher</url>
+    </scm>
 
     <build>
         <plugins>

@@ -35,6 +35,12 @@
     <name>Apache ACE :: Tag Editor</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-tageditor</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-tageditor</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-tageditor</url>
+    </scm>
+
     <properties>
         <private.package>
             org.apache.ace.tageditor

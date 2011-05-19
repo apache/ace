@@ -35,6 +35,12 @@
     <name>Apache ACE :: Deployment :: Provider :: Filebased</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-provider-filebased</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-provider-filebased</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-provider-filebased</url>
+    </scm>
+
     <properties>
         <export.package>
             org.apache.ace.deployment.provider.filebased;version=${project.version}

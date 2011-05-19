@@ -32,6 +32,12 @@
     <artifactId>org.apache.ace.range.api</artifactId>
     <packaging>bundle</packaging>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-range-api</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-range-api</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-range-api</url>
+    </scm>
+
     <name>Apache ACE :: Range :: API</name>
     <description></description>
 

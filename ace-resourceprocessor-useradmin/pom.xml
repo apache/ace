@@ -35,6 +35,12 @@
     <name>Apache ACE :: Resourceprocessor :: UserAdmin</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-resourceprocessor-useradmin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-resourceprocessor-useradmin</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-resourceprocessor-useradmin</url>
+    </scm>
+
     <properties>
         <export.package>
             org.apache.ace.resourceprocessor.useradmin;version=${project.version}

@@ -35,6 +35,12 @@
     <name>Apache ACE :: Discovery :: Property Based</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-discovery-property</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-discovery-property</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-discovery-property</url>
+    </scm>
+
     <properties>
         <import.package>
             org.apache.ace.discovery;version=${project.version},

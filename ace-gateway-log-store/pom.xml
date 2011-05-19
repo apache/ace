@@ -34,6 +34,12 @@
 
     <name>Apache ACE :: Gateway :: Log :: Store</name>
     <description></description>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-gateway-log-store</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-gateway-log-store</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-gateway-log-store</url>
+    </scm>
     
     <properties>
         <export.package>

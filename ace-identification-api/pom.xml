@@ -34,6 +34,12 @@
 
     <name>Apache ACE :: Identification :: API</name>
     <description></description>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-identification-api</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-identification-api</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-identification-api</url>
+    </scm>
     
     <properties>
         <export.package>

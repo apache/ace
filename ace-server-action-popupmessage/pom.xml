@@ -35,6 +35,12 @@
     <name>Apache ACE :: Server :: Action :: Popup Message</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-server-action-popupmessage</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-server-action-popupmessage</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-server-action-popupmessage</url>
+    </scm>
+
     <properties>
         <export.package>
             org.apache.ace.server.action.popupmessage;version=${project.version}

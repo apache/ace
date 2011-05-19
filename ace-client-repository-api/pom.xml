@@ -35,6 +35,12 @@
     <name>Apache ACE :: Client :: Repository :: API</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-api</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-api</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-api</url>
+    </scm>
+
     <properties>
         <export.package>
             org.apache.ace.client.repository;version=${project.version},

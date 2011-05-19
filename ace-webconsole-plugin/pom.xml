@@ -34,6 +34,12 @@
 
     <name>Apache ACE :: Webconsole :: Plugin</name>
     <description></description>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-webconsole-plugin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-webconsole-plugin</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-webconsole-plugin</url>
+    </scm>
     
     <properties>
         <export.package>

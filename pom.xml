@@ -124,6 +124,12 @@
         <module>ace-integrationtests</module>
     </modules>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk</url>
+    </scm>
+
     <build>
         <plugins>
             <plugin>

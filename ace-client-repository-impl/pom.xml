@@ -35,6 +35,12 @@
     <name>Apache ACE :: Client :: Repository :: Implementation</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-impl</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-impl</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-impl</url>
+    </scm>
+
     <properties>
         <import.package>
 	        !javax.security.auth,

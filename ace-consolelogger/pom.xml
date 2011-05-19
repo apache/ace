@@ -35,6 +35,12 @@
     <name>Apache ACE :: ConsoleLogger</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-consolelogger</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-consolelogger</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-consolelogger</url>
+    </scm>
+
     <properties>
         <import.package>
             *

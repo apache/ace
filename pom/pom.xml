@@ -112,9 +112,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/pom</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/pom</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/pom</url>
     </scm>
 
     <properties>
@@ -174,13 +174,6 @@
     <build>
 
         <plugins>
-             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <configuration>
-                    <tagBase>https://svn.apache.org/repos/asf/incubator/ace/releases</tagBase>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>ianal-maven-plugin</artifactId>
@@ -282,6 +275,7 @@
                   <artifactId>maven-release-plugin</artifactId>
                   <version>2.1</version>
                   <configuration>
+                     <tagBase>https://svn.apache.org/repos/asf/incubator/ace/releases</tagBase>
                      <preparationGoals>clean install</preparationGoals>
                      <goals>deploy</goals>
                      <arguments>-Prelease,deploy</arguments>

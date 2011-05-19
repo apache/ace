@@ -34,6 +34,12 @@
 
     <name>Apache ACE :: Log</name>
     <description></description>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-log</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-log</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-log</url>
+    </scm>
     
     <properties>
         <export.package>

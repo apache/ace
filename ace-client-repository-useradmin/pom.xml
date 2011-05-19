@@ -35,6 +35,12 @@
     <name>Apache ACE :: Client :: Repository :: UserAdmin</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-useradmin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-useradmin</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-useradmin</url>
+    </scm>
+
     <properties>
         <export.package>
             org.apache.ace.client.repositoryuseradmin;version=${project.version}

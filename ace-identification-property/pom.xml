@@ -34,6 +34,12 @@
 
     <name>Apache ACE :: Identification :: Property Based</name>
     <description></description>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-identification-property</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-identification-property</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-identification-property</url>
+    </scm>
     
     <properties>
         <import.package>

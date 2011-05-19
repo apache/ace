@@ -32,6 +32,13 @@
     <packaging>pom</packaging>
 
     <name>Apache ACE :: Target :: Dev Gateway</name>
+    <description></description>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devgateway</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devgateway</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devgateway</url>
+    </scm>
 
     <build>
         <plugins>

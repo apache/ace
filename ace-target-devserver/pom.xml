@@ -33,6 +33,13 @@
     <packaging>pom</packaging>
 
     <name>Apache ACE :: Target :: Dev Server</name>
+    <description></description>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver</url>
+    </scm>
 
     <build>
         <plugins>

@@ -35,6 +35,12 @@
     <name>Apache ACE :: Web UI :: Vaadin</name>
     <description></description>
 
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-webui-vaadin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-webui-vaadin</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-webui-vaadin</url>
+    </scm>
+
     <properties>
         <export.package>
             org.apache.ace.webui;version=${project.version}
