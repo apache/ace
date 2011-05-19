@@ -37,7 +37,7 @@
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-util</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver</developerConnection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-util</developerConnection>
         <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver</url>
     </scm>
 
