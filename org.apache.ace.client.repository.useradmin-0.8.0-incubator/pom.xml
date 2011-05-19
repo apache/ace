@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!--
+
+        Licensed to the Apache Software Foundation (ASF) under one or more
+        contributor license agreements.  See the NOTICE file distributed with
+        this work for additional information regarding copyright ownership.
+        The ASF licenses this file to You under the Apache License, Version 2.0
+        (the "License"); you may not use this file except in compliance with
+        the License.  You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    -->
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.ace</groupId>
+        <artifactId>ace-pom</artifactId>
+        <version>0.8.0-incubator</version>
+        <relativePath>../pom/pom.xml</relativePath>
+    </parent>
+
+    <version>0.8.0-incubator</version>
+    <artifactId>org.apache.ace.client.repository.useradmin</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>Apache ACE :: Client :: Repository :: UserAdmin</name>
+    <description />
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.client.repository.useradmin-0.8.0-incubator</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.client.repository.useradmin-0.8.0-incubator</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.client.repository.useradmin-0.8.0-incubator</url>
+    </scm>
+
+    <properties>
+        <export.package>
+            org.apache.ace.client.repositoryuseradmin;version=${project.version}
+        </export.package>
+        <import.package>
+            !org.apache.ace.client.repositoryuseradmin,
+            !javax.security.auth,
+	        !javax.swing.plaf,
+	        !javax.xml.parsers,
+	        !javax.xml.stream,
+	        !javax.xml.transform.sax,
+	        !net.sf.cglib.proxy,
+	        !nu.xom,
+	        !org.codehaus.jettison.mapped,
+	        !org.dom4j,
+	        !org.dom4j.io,
+	        !org.dom4j.tree,
+	        !org.jdom,
+	        !org.jdom.input,
+	        !org.joda.time,
+	        !org.joda.time.format,
+	        !org.w3c.dom,
+	        !org.xml.sax,
+	        !org.xml.sax.helpers,
+	        !sun.misc,
+	        !sun.reflect,
+	        *
+        </import.package>
+        <private.package>
+            org.apache.ace.client.repositoryuseradmin.impl,
+            org.apache.ace.repository.ext,
+            org.apache.ace.repository.ext.impl
+        </private.package>
+        <bundle.activator>org.apache.ace.client.repositoryuseradmin.impl.Activator</bundle.activator>
+        <embed.dependency>xstream, xpp3</embed.dependency>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.repository.api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.repository.helper.base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.range.api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.repository.api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.repository.ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.server.log.store</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.dependencymanager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
