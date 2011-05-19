@@ -31,14 +31,14 @@
     <artifactId>org.apache.ace.repository.api</artifactId>
     <packaging>bundle</packaging>
 
-    <version>0.8.0-incubator</version>
+    <version>0.8.1-incubator-SNAPSHOT</version>
     <name>Apache ACE :: Repository :: API</name>
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.repository.api-0.8.0-incubator</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.repository.api-0.8.0-incubator</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.repository.api-0.8.0-incubator</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-api</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-api</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-api</url>
     </scm>
 
     <properties>
