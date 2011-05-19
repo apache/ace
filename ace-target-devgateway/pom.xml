@@ -27,17 +27,17 @@
         <version>0.8.0-incubator</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
-    <version>0.8.0-incubator-SNAPSHOT</version>
+    <version>0.8.0-incubator</version>
     <artifactId>org.apache.ace.target.devgateway</artifactId>
     <packaging>pom</packaging>
 
     <name>Apache ACE :: Target :: Dev Gateway</name>
-    <description></description>
+    <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devgateway</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devgateway</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devgateway</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.target.devgateway-0.8.0-incubator</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.target.devgateway-0.8.0-incubator</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.target.devgateway-0.8.0-incubator</url>
     </scm>
 
     <build>
