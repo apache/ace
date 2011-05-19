@@ -31,14 +31,14 @@
     <artifactId>org.apache.ace.resourceprocessor.useradmin</artifactId>
     <packaging>bundle</packaging>
 
-    <version>0.8.0-incubator</version>
+    <version>0.8.1-incubator-SNAPSHOT</version>
     <name>Apache ACE :: Resourceprocessor :: UserAdmin</name>
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.resourceprocessor.useradmin-0.8.0-incubator</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.resourceprocessor.useradmin-0.8.0-incubator</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.resourceprocessor.useradmin-0.8.0-incubator</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-resourceprocessor-useradmin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-resourceprocessor-useradmin</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-resourceprocessor-useradmin</url>
     </scm>
 
     <properties>
