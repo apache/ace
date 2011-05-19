@@ -28,17 +28,17 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.0-incubator-SNAPSHOT</version>
+    <version>0.8.0-incubator</version>
     <artifactId>org.apache.ace.gateway.log</artifactId>
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Gateway :: Log</name>
-    <description></description>
+    <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-gateway-log</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-gateway-log</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-gateway-log</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.gateway.log-0.8.0-incubator</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.gateway.log-0.8.0-incubator</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.gateway.log-0.8.0-incubator</url>
     </scm>
     
     <properties>
