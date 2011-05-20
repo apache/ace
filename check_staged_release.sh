@@ -1,7 +1,7 @@
 #!/bin/sh
 
 STAGING=${1}
-DOWNLOAD=${2:-/tmp/felix-staging}
+DOWNLOAD=${2:-/tmp/ace-staging}
 mkdir ${DOWNLOAD} 2>/dev/null
 
 # The following code automatically imports the signing KEYS, but it may actually be
