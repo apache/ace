@@ -54,8 +54,14 @@ public class EditWindow extends Window {
         Map<String, Object> context = new HashMap<String, Object>();
         context.put("object", object);
         for (UIExtensionFactory factory : factories) {
-            com.vaadin.ui.Component component = factory.create(context);
-            tabs.addTab(component);
+            try {
+                com.vaadin.ui.Component component = factory.create(context);
+                tabs.addTab(component);
+            } catch (Throwable ex) {
+                // We ignore extension factories that throw exceptions
+                // TODO: log this or something
+                ex.printStackTrace();
+            }
         }
         layout.addComponent(tabs);
 
