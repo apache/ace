@@ -34,7 +34,7 @@ public class Associations {
     }
     
     public boolean isActiveTable(Table table) {
-    	return m_activeTable.equals(table);
+    	return (m_activeTable != null) ? m_activeTable.equals(table) : false;
     }
     
     public Set<?> getActiveSelection() {

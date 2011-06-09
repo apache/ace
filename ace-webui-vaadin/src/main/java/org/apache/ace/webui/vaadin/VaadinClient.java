@@ -71,6 +71,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
+import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.w3c.dom.NamedNodeMap;
@@ -127,9 +128,9 @@ TODO:
  */
 public class VaadinClient extends com.vaadin.Application {
     public static final String OBJECT_NAME = "name";
-	public static final String OBJECT_DESCRIPTION = "description";
+    public static final String OBJECT_DESCRIPTION = "description";
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private static long SESSION_ID = 12345;
     private static String gatewayRepo = "gateway";
     private static String shopRepo = "shop";
@@ -168,8 +169,13 @@ public class VaadinClient extends com.vaadin.Application {
     private GridLayout m_grid;
     
     private boolean m_dynamicRelations = true;
-	private File m_sessionDir; // private folder for session info
-	private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
+    private File m_sessionDir; // private folder for session info
+    private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
+    private HorizontalLayout m_artifactToolbar;
+    private Button m_featureToolbar;
+    private Button m_distributionToolbar;
+    private Button m_targetToolbar;
+    private Window m_mainWindow;
 
     // basic session ID generator
     private static long generateSessionID() {
@@ -223,8 +229,8 @@ public class VaadinClient extends com.vaadin.Application {
     public void init() {
         setTheme("ace");
         if (!m_dependenciesResolved.get()) {
-        	final Window message = new Window("Apache ACE");
-        	setMainWindow(message);
+            final Window message = new Window("Apache ACE");
+            setMainWindow(message);
             message.getContent().setSizeFull();
             Label richText = new Label(
                 "<h1>Apache ACE User Interface</h1>" +
@@ -239,22 +245,35 @@ public class VaadinClient extends com.vaadin.Application {
             return;
         }
         
-        final Window main = new Window("Apache ACE");
-        setMainWindow(main);
-        main.getContent().setSizeFull();
+        m_mainWindow = new Window("Apache ACE");
+        setMainWindow(m_mainWindow);
+        m_mainWindow.getContent().setSizeFull();
         
-        m_grid = new GridLayout(4, 4);
+        LoginWindow loginWindow = new LoginWindow();
+        m_mainWindow.getWindow().addWindow(loginWindow);
+        loginWindow.center();
+    }
+
+    private void initGrid(User user) {
+        Authorization auth = m_userAdmin.getAuthorization(user);
+        int count = 0;
+        for (String role : new String[]{"viewBundle", "viewGroup", "viewLicense", "viewGateway"}) {
+            if (auth.hasRole(role)) {
+                count++;
+            }
+        }
+        m_grid = new GridLayout(count, 4);
         m_grid.setSpacing(true);
 
         m_grid.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         m_grid.setHeight(100, Sizeable.UNITS_PERCENTAGE);
 
-        m_grid.addComponent(createToolbar(), 0, 0, 3, 0);
+        m_grid.addComponent(createToolbar(), 0, 0, count -1, 0);
 
-        m_artifactsPanel = createArtifactsPanel(main);
-        m_grid.addComponent(m_artifactsPanel, 0, 2);
-        HorizontalLayout artifactToolbar = new HorizontalLayout();
-        artifactToolbar.addComponent(createAddArtifactButton(main));
+        m_artifactsPanel = createArtifactsPanel(m_mainWindow);
+       
+        m_artifactToolbar = new HorizontalLayout();
+        m_artifactToolbar.addComponent(createAddArtifactButton(m_mainWindow));
         CheckBox dynamicCheckBox = new CheckBox("Dynamic Links");
         dynamicCheckBox.setImmediate(true);
         dynamicCheckBox.setValue(Boolean.TRUE);
@@ -263,21 +282,40 @@ public class VaadinClient extends com.vaadin.Application {
                 m_dynamicRelations = event.getButton().booleanValue();
             }
         });
-        artifactToolbar.addComponent(dynamicCheckBox);
+        m_artifactToolbar.addComponent(dynamicCheckBox);
         
-        m_grid.addComponent(artifactToolbar, 0, 1);
+        count = 0;
+        if (auth.hasRole("viewBundle")) {
+            m_grid.addComponent(m_artifactsPanel, count, 2);
+            m_grid.addComponent(m_artifactToolbar, count, 1);
+            count++;
+        }
 
-        m_featuresPanel = createFeaturesPanel(main);
-        m_grid.addComponent(m_featuresPanel, 1, 2);
-        m_grid.addComponent(createAddFeatureButton(main), 1, 1);
+        m_featuresPanel = createFeaturesPanel(m_mainWindow);
+        m_featureToolbar = createAddFeatureButton(m_mainWindow);
         
-        m_distributionsPanel = createDistributionsPanel(main);
-        m_grid.addComponent(m_distributionsPanel, 2, 2);
-        m_grid.addComponent(createAddDistributionButton(main), 2, 1);
+        if (auth.hasRole("viewGroup")) {
+            m_grid.addComponent(m_featuresPanel, count, 2);
+            m_grid.addComponent(m_featureToolbar, count, 1);
+            count++;
+        }
+        
+        m_distributionsPanel = createDistributionsPanel(m_mainWindow);
+        m_distributionToolbar = createAddDistributionButton(m_mainWindow);
+        
+        if (auth.hasRole("viewLicense")) {
+            m_grid.addComponent(m_distributionsPanel, count, 2);
+            m_grid.addComponent(m_distributionToolbar, count, 1);
+            count++;
+        }
 
-        m_targetsPanel = createTargetsPanel(main);
-        m_grid.addComponent(m_targetsPanel, 3, 2);
-        m_grid.addComponent(createAddTargetButton(main), 3, 1); 
+        m_targetsPanel = createTargetsPanel(m_mainWindow);
+        m_targetToolbar = createAddTargetButton(m_mainWindow);
+        
+        if (auth.hasRole("viewGateway")) {
+            m_grid.addComponent(m_targetsPanel, count, 2);
+            m_grid.addComponent(m_targetToolbar, count, 1);
+        }
         
         m_grid.setRowExpandRatio(2, 1.0f);
         
@@ -373,12 +411,7 @@ public class VaadinClient extends com.vaadin.Application {
         addListener(m_featuresPanel, GroupObject.TOPIC_ALL);
         addListener(m_distributionsPanel, LicenseObject.TOPIC_ALL);
         addListener(m_targetsPanel, StatefulGatewayObject.TOPIC_ALL);
-        
-        main.addComponent(m_grid);
-        
-        LoginWindow loginWindow = new LoginWindow();
-        main.getWindow().addWindow(loginWindow);
-        loginWindow.center();
+        m_mainWindow.addComponent(m_grid);
     }
 
     private Button createAddTargetButton(final Window main) {
@@ -450,8 +483,8 @@ public class VaadinClient extends com.vaadin.Application {
         }
     }
 
-	private boolean login(String username, String password) {
-		try {
+    private boolean login(String username, String password) {
+        try {
             User user = m_userAdmin.getUser("username", username);
             if (user == null) {
                 return false;
@@ -468,6 +501,7 @@ public class VaadinClient extends com.vaadin.Application {
                 .addGatewayRepository(new URL(m_aceHost, endpoint), customerName, gatewayRepo, true)
                 .addDeploymentRepository(new URL(m_aceHost, endpoint), customerName, deployRepo, true);
             m_admin.login(context);
+            initGrid(user);
             m_admin.checkout();
             return true;
         }
@@ -475,7 +509,8 @@ public class VaadinClient extends com.vaadin.Application {
             e.printStackTrace();
             return false;
         }
-	}
+    }
+ 
     
     private void addListener(final Object implementation, final String topic) {
         m_manager.add(m_manager.createComponent()
