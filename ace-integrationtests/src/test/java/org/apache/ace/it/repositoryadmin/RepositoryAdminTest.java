@@ -42,6 +42,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.container.def.options.CleanCachesOption;
 import org.ops4j.pax.exam.container.def.options.VMOption;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.framework.Constants;
@@ -83,6 +84,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         return options(
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
             new VMOption("-ea"),
+            new CleanCachesOption(),
             provision(
                 Osgi.compendium(),
                 Felix.dependencyManager(),
@@ -1312,6 +1314,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         // Create a JAR file which looks like a resource processor supplying bundle.
         attributes.putValue(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, "someProcessor");
+        attributes.putValue(BundleHelper.KEY_VERSION, "1.0.0.processor");
 
         temp = File.createTempFile("org.apache.ace.test", ".jar");
         temp.deleteOnExit();
@@ -1935,11 +1938,11 @@ class MockArtifactHelper implements ArtifactHelper {
         return null;
     }
     public String[] getDefiningKeys() {
-        return new String[] {ArtifactObject.KEY_URL};
+        return new String[]{ArtifactObject.KEY_URL};
     }
 
     public String[] getMandatoryAttributes() {
-        return new String[] {ArtifactObject.KEY_URL};
+        return new String[]{ArtifactObject.KEY_URL};
     }
 
     public <TYPE extends ArtifactObject> String getAssociationFilter(TYPE obj, Map<String, String> properties) {
