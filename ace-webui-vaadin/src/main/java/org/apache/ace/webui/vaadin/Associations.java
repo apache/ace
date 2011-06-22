@@ -72,7 +72,7 @@ public class Associations {
                 return null;
             }
             public boolean equals(Object itemId, RepositoryObject object) {
-                return (getNamedObject(object).getName().equals(itemId));
+                return (getNamedObject(object).getDefinition().equals(itemId));
             }
     	};
     }
@@ -203,7 +203,7 @@ public class Associations {
                 if (object != null) {
                     NamedObject namedObject = getNamedObject(object);
                     if (namedObject != null) {
-                        if (namedObject.getName().equals(value)) {
+                        if (namedObject.getDefinition().equals(value)) {
                             return object;
                         }
                     }

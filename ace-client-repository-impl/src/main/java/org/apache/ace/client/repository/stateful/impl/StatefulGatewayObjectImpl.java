@@ -571,10 +571,7 @@ public class StatefulGatewayObjectImpl implements StatefulGatewayObject {
     }
 
     public String getDefinition() {
-        synchronized(m_lock) {
-            ensureGatewayPresent();
-            return m_gatewayObject.getDefinition();
-        }
+        return "gateway-" + KEY_ID + "-" + getID();
     }
 
     private class ExtendedEnumeration<T> implements Enumeration<T> {

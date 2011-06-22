@@ -1935,11 +1935,11 @@ class MockArtifactHelper implements ArtifactHelper {
         return null;
     }
     public String[] getDefiningKeys() {
-        return new String[0];
+        return new String[] {ArtifactObject.KEY_URL};
     }
 
     public String[] getMandatoryAttributes() {
-        return new String[0];
+        return new String[] {ArtifactObject.KEY_URL};
     }
 
     public <TYPE extends ArtifactObject> String getAssociationFilter(TYPE obj, Map<String, String> properties) {

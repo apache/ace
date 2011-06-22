@@ -55,12 +55,11 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
     }
 
     private static String[] completeMandatoryAttributes(String[] mandatory) {
-        String[] result = new String[mandatory.length + 2];
+        String[] result = new String[mandatory.length + 1];
         for (int i = 0; i < mandatory.length; i++) {
             result[i] = mandatory[i];
         }
         result[mandatory.length] = KEY_MIMETYPE;
-        result[mandatory.length + 1 ] = KEY_URL;
         return result;
     }
 
@@ -94,15 +93,7 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
 
     @Override
     String[] getDefiningKeys() {
-        String[] fromHelper = getHelper().getDefiningKeys();
-
-        String[] result = new String[fromHelper.length + 1];
-        for (int i = 0; i < fromHelper.length; i++) {
-            result[i] = fromHelper[i];
-        }
-        result[fromHelper.length] = KEY_URL;
-
-        return result;
+        return getHelper().getDefiningKeys().clone();
     }
 
     public String getURL() {

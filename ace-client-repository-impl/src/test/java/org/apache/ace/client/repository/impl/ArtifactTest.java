@@ -153,11 +153,11 @@ class MockHelper implements ArtifactHelper {
     }
 
     public String[] getDefiningKeys() {
-        return new String[0];
+        return new String[]{ArtifactObject.KEY_URL};
     }
 
     public String[] getMandatoryAttributes() {
-        return new String[0];
+        return new String[]{ArtifactObject.KEY_URL};
     }
 
     public boolean canUse(ArtifactObject object) {

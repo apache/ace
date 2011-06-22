@@ -55,4 +55,13 @@ public interface ArtifactRecognizer
      * <code>false</code> otherwise.
      */
     public boolean canHandle(String mimetype);
+    
+    /**
+     * Returns a preferred extension for the file name if a new one is created.
+     * 
+     * @param artifact The url to the artifact.
+     * 
+     * @return The extension that is preferred or an empty string if there is none.
+     */
+    public String getExtension(URL artifact);
 }

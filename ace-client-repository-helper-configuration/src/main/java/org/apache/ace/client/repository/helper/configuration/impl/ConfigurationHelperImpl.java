@@ -42,10 +42,17 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
 
     public Map<String, String> extractMetaData(URL artifact) throws IllegalArgumentException {
         Map<String, String> result = new HashMap<String, String>();
-        result.put(KEY_FILENAME, new File(artifact.getFile()).getName());
         result.put(ArtifactObject.KEY_PROCESSOR_PID, PROCESSOR);
         result.put(ArtifactObject.KEY_MIMETYPE, MIMETYPE);
-        result.put(ArtifactObject.KEY_ARTIFACT_NAME, result.get(KEY_FILENAME));
+        String name = new File(artifact.getFile()).getName();
+        String key = KEY_FILENAME + "-";
+        int idx = name.indexOf(key);
+        if (idx > -1) {
+            int endIdx = name.indexOf("-", idx + key.length());
+            name = name.substring(idx + key.length(), (endIdx > -1) ? endIdx : (name.length() - getExtension(artifact).length()));
+        }
+        result.put(ArtifactObject.KEY_ARTIFACT_NAME, name);
+        result.put(KEY_FILENAME, name);
         return result;
     }
 
@@ -100,4 +107,9 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
     public ArtifactPreprocessor getPreprocessor() {
         return VELOCITY_ARTIFACT_PREPROCESSOR;
     }
+    
+    public String getExtension(URL artifact) {
+        return ".xml";
+    }
+    
 }

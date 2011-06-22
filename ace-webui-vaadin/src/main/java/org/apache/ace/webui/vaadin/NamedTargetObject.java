@@ -37,4 +37,8 @@ class NamedTargetObject implements NamedObject {
     public RepositoryObject getObject() {
         return m_target;
     }
+    
+    public String getDefinition() {
+        return m_target.getDefinition();
+    }
 }

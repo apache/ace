@@ -7,4 +7,5 @@ public interface NamedObject {
     String getDescription();
     void setDescription(String description);
     RepositoryObject getObject();
+    public String getDefinition();
 }

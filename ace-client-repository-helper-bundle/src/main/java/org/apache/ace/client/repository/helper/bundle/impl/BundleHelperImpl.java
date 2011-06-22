@@ -275,4 +275,8 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
     public ArtifactPreprocessor getPreprocessor() {
         return null;
     }
+    
+    public String getExtension(URL artifact) {
+        return ".jar";
+    }
 }

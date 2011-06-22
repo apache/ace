@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -141,7 +142,15 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
     @Override
     ArtifactObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
         ArtifactHelper helper = getHelper(attributes.get(ArtifactObject.KEY_MIMETYPE));
-        return new ArtifactObjectImpl(helper.checkAttributes(attributes), helper.getMandatoryAttributes(), tags, this, this);
+        ArtifactObjectImpl ao = new ArtifactObjectImpl(helper.checkAttributes(attributes), helper.getMandatoryAttributes(), tags, this, this);
+        if ((ao.getAttribute("upload") != null) && (m_obrBase != null)){
+            try {
+                ao.addAttribute(ArtifactObject.KEY_URL, new URL(m_obrBase, ao.getDefinition() + ao.getAttribute("upload")).toString());
+            } catch (MalformedURLException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        return ao;
     }
 
     @Override
@@ -346,22 +355,38 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         Map<String, String> tags = new HashMap<String, String>();
 
         helper.checkAttributes(attributes);
-
-        URL location;
-        if (upload) {
-            location = upload(artifact, mimetype);
-        }
-        else {
-            location = artifact;
-        }
-
-        attributes.put(ArtifactObject.KEY_URL, location.toString());
         attributes.put(ArtifactObject.KEY_ARTIFACT_DESCRIPTION, "");
         if (overwrite) {
             attributes.put(ArtifactObject.KEY_MIMETYPE, mimetype);
         }
 
-        return create(attributes, tags);
+        String artifactURL = artifact.toString();
+        
+        attributes.put(ArtifactObject.KEY_URL, artifactURL);
+        
+        if (upload) {
+            attributes.put("upload", recognizer.getExtension(artifact));
+        }
+
+        ArtifactObject result = create(attributes, tags);
+        
+        if (upload) {
+            try {
+                upload(artifact, result.getDefinition() + attributes.get("upload"), mimetype);
+            } catch (IOException ex) {
+                remove(result);
+                throw ex;
+            }
+            finally {
+                try {
+                    attributes.remove("upload");
+                } catch (Exception ex) {
+                    // Not much we can do
+                }
+            }
+        }
+        return result;
+        
     }
 
     /**
@@ -407,7 +432,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
      * @return The persistent URL of this artifact.
      * @throws IOException for any problem uploading the artifact.
      */
-    private URL upload(URL artifact, String mimetype) throws IOException {
+    private URL upload(URL artifact, String definition, String mimetype) throws IOException {
         if (m_obrBase == null) {
             throw new IOException("There is no storage available for this artifact.");
         }
@@ -417,7 +442,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         URL url = null;
         try {
             input = artifact.openStream();
-            url = new URL(m_obrBase, new File(artifact.getFile()).getName());
+            url = new URL(m_obrBase, definition);
             URLConnection connection = url.openConnection();
             connection.setDoOutput(true);
             connection.setDoInput(true);

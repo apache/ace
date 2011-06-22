@@ -511,6 +511,7 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
             if (bundleVersion != null) {
                 directives.put(BundleHelper.KEY_VERSION, bundleVersion);
             }
+            
             directives.put(DeploymentArtifact.DIRECTIVE_KEY_BASEURL, bundle.getURL());
             result.add(m_deploymentRepository.createDeploymentArtifact(bundle.getURL(), directives));
         }

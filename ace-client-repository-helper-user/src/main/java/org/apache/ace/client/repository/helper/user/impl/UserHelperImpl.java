@@ -45,7 +45,14 @@ public class UserHelperImpl implements ArtifactRecognizer, UserAdminHelper {
         Map<String, String> result = new HashMap<String, String>();
         result.put(ArtifactObject.KEY_PROCESSOR_PID, PROCESSOR);
         result.put(ArtifactObject.KEY_MIMETYPE, MIMETYPE);
-        result.put(ArtifactObject.KEY_ARTIFACT_NAME, new File(artifact.getFile()).getName());
+        String name = new File(artifact.getFile()).getName();
+        String key = ArtifactObject.KEY_ARTIFACT_NAME + "-";
+        int idx = name.indexOf(key);
+        if (idx > -1) {
+            int endIdx = name.indexOf("-", idx + key.length());
+            name = name.substring(idx + key.length(), (endIdx > -1) ? endIdx : (name.length() - getExtension(artifact).length()));
+        }
+        result.put(ArtifactObject.KEY_ARTIFACT_NAME, name);
         return result;
     }
 
@@ -103,5 +110,9 @@ public class UserHelperImpl implements ArtifactRecognizer, UserAdminHelper {
     private final static VelocityArtifactPreprocessor VELOCITY_ARTIFACT_PREPROCESSOR = new VelocityArtifactPreprocessor();
     public ArtifactPreprocessor getPreprocessor() {
         return VELOCITY_ARTIFACT_PREPROCESSOR;
+    }
+    
+    public String getExtension(URL artifact) {
+        return ".xml";
     }
 }
