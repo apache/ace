@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.ace.obr.metadata.MetadataGenerator;
 import org.apache.ace.obr.storage.BundleStore;
 import org.apache.ace.obr.storage.file.constants.OBRFileStoreConstants;
+import org.apache.commons.io.FileUtils;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
@@ -66,31 +67,24 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
     public synchronized boolean put(String fileName, InputStream data) throws IOException {
         File file = new File(m_dir, fileName);
+        boolean success = false;
         if (!file.exists()) {
-            FileOutputStream output = null;
             File tempFile = null;
-            boolean success = false;
             try {
                 tempFile = File.createTempFile("obr", ".tmp");
-                output = new FileOutputStream(tempFile);
-                byte[] buffer = new byte[BUFFER_SIZE];
-                for (int count = data.read(buffer); count != -1; count = data.read(buffer)) {
-                    output.write(buffer, 0, count);
-                }
-                success = true;
+                // the reason for first writing to a temporary file is that we want to minimize
+                // the window where someone could be looking at a "partial" file that is still being
+                // uploaded
+                FileUtils.copyInputStreamToFile(data, tempFile);
+                FileUtils.moveFile(tempFile, file);
             }
-            finally {
-                if (output != null) {
-                    output.flush();
-                    output.close();
-                }
+            catch (IOException e) {
+                // if anything goes wrong while reading from the input stream or
+                // moving the file, delete the temporary file
+                tempFile.delete();
             }
-            if (success) {
-                tempFile.renameTo(file);
-            }
-            return success;
         }
-        return false;
+        return success;
     }
 
     public synchronized boolean remove(String fileName) throws IOException {

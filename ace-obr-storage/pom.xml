@@ -52,7 +52,8 @@
         </import.package>
         <private.package>
             org.apache.ace.obr.storage.file,
-            org.apache.ace.obr.storage.file.constants
+            org.apache.ace.obr.storage.file.constants,
+            org.apache.commons.io
         </private.package>
         <bundle.activator>
             org.apache.ace.obr.storage.file.Activator
@@ -80,6 +81,10 @@
             <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.0.1</version>
+        </dependency>
     </dependencies>
-
 </project>
