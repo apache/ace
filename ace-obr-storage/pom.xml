@@ -47,6 +47,7 @@
         </export.package>
         <import.package>
             !org.apache.ace.obr.storage,
+            !org.apache.commons.io.*,
             org.apache.ace.obr.metadata;version=${project.version},
             *
         </import.package>
