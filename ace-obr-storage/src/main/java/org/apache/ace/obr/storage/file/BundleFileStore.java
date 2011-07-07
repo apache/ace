@@ -77,6 +77,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
                 // uploaded
                 FileUtils.copyInputStreamToFile(data, tempFile);
                 FileUtils.moveFile(tempFile, file);
+                success = true;
             }
             catch (IOException e) {
                 // if anything goes wrong while reading from the input stream or
