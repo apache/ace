@@ -54,6 +54,10 @@ public class VaadinResourceHandler {
                 public URL getResource(String name) {
                     URL resource = null;
                     String prefix = "/VAADIN/";
+                    // fix for ACE-156
+                    if (!name.startsWith("/")) {
+                        name = "/" + name;
+                    }
                     if (name.startsWith(prefix)) {
                     	String originalName = name.replace("/ace/", "/reindeer/");
                         resource = getClass().getResource(originalName);
