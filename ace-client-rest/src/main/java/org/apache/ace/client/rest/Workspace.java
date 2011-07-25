@@ -24,9 +24,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
+import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.GatewayRepository;
@@ -144,27 +146,7 @@ public class Workspace {
         try {
             List list = null;
             Filter filter = FrameworkUtil.createFilter(entityId);
-            if (ARTIFACT.equals(entityType)) {
-                list = m_artifactRepository.get(filter);
-            }
-            if (ARTIFACT2FEATURE.equals(entityType)) {
-                list = m_artifact2FeatureAssociationRepository.get(filter);
-            }
-            if (FEATURE.equals(entityType)) {
-                list = m_featureRepository.get(filter);
-            }
-            if (FEATURE2DISTRIBUTION.equals(entityType)) {
-                list = m_feature2DistributionAssociationRepository.get(filter);
-            }
-            if (DISTRIBUTION.equals(entityType)) {
-                list = m_distributionRepository.get(filter);
-            }
-            if (DISTRIBUTION2TARGET.equals(entityType)) {
-                list = m_distribution2TargetAssociationRepository.get(filter);
-            }
-            if (TARGET.equals(entityType)) {
-                list = m_statefulTargetRepository.get(filter);
-            }
+            list = getObjectRepository(entityType).get(filter);
             if (list != null && list.size() == 1) {
                 return (RepositoryObject) list.get(0);
             }
@@ -176,28 +158,7 @@ public class Workspace {
     }
 
     public List<RepositoryObject> getRepositoryObjects(String entityType) {
-        List list = null;
-        if (ARTIFACT.equals(entityType)) {
-            list = m_artifactRepository.get();
-        }
-        if (ARTIFACT2FEATURE.equals(entityType)) {
-            list = m_artifact2FeatureAssociationRepository.get();
-        }
-        if (FEATURE.equals(entityType)) {
-            list = m_featureRepository.get();
-        }
-        if (FEATURE2DISTRIBUTION.equals(entityType)) {
-            list = m_feature2DistributionAssociationRepository.get();
-        }
-        if (DISTRIBUTION.equals(entityType)) {
-            list = m_distributionRepository.get();
-        }
-        if (DISTRIBUTION2TARGET.equals(entityType)) {
-            list = m_distribution2TargetAssociationRepository.get();
-        }
-        if (TARGET.equals(entityType)) {
-            list = m_statefulTargetRepository.get();
-        }
+        List list = getObjectRepository(entityType).get();
         if (list != null) {
             return list;
         }
@@ -207,29 +168,46 @@ public class Workspace {
     }
 
     public RepositoryObject addRepositoryObject(String entityType, Map<String, String> attributes, Map<String, String> tags) throws IllegalArgumentException{
+        return getObjectRepository(entityType).create(attributes, tags);
+    }
+    
+    public void deleteRepositoryObject(String entityType, String entityId) {
+        RepositoryObject result = null;
+        try {
+            List list = null;
+            Filter filter = FrameworkUtil.createFilter(entityId);
+            ObjectRepository objectRepository = getObjectRepository(entityType);
+            list = objectRepository.get(filter);
+            if (list != null && list.size() == 1) {
+                objectRepository.remove((RepositoryObject) list.get(0));
+            }
+        }
+        catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private ObjectRepository getObjectRepository(String entityType) {
         if (ARTIFACT.equals(entityType)) {
-            return m_artifactRepository.create(attributes, tags);
+            return m_artifactRepository;
         }
         if (ARTIFACT2FEATURE.equals(entityType)) {
-            // TODO this is a fairly low level way to create associations
-            return m_artifact2FeatureAssociationRepository.create(attributes, tags);
+            return m_artifact2FeatureAssociationRepository;
         }
         if (FEATURE.equals(entityType)) {
-            return m_featureRepository.create(attributes, tags);
+            return m_featureRepository;
         }
         if (FEATURE2DISTRIBUTION.equals(entityType)) {
-            // TODO this is a fairly low level way to create associations
-            return m_feature2DistributionAssociationRepository.create(attributes, tags);
+            return m_feature2DistributionAssociationRepository;
         }
         if (DISTRIBUTION.equals(entityType)) {
-            return m_distributionRepository.create(attributes, tags);
+            return m_distributionRepository;
         }
         if (DISTRIBUTION2TARGET.equals(entityType)) {
-            // TODO this is a fairly low level way to create associations
-            return m_distribution2TargetAssociationRepository.create(attributes, tags);
+            return m_distribution2TargetAssociationRepository;
         }
         if (TARGET.equals(entityType)) {
-            return m_targetRepository.create(attributes, tags);
+            return m_targetRepository;
         }
         throw new IllegalArgumentException("Unknown entity type: " + entityType);
     }

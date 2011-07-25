@@ -22,9 +22,11 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -45,6 +47,7 @@ import com.google.gson.JsonPrimitive;
  * Servlet that offers a REST client API.
  */
 public class RESTClientServlet extends HttpServlet {
+    private static final long serialVersionUID = 5210711248294238039L;
     /** Alias that redirects to the latest version automatically. */
     private static final String LATEST_FOLDER = "latest";
     /** Name of the folder where working copies are kept. */
@@ -61,8 +64,8 @@ public class RESTClientServlet extends HttpServlet {
     
     public RESTClientServlet() {
         m_gson = (new GsonBuilder())
-        .registerTypeHierarchyAdapter(RepositoryObject.class, new RepositoryObjectSerializer())
-        .create();
+            .registerTypeHierarchyAdapter(RepositoryObject.class, new RepositoryObjectSerializer())
+            .create();
     }
     
     @Override
@@ -71,6 +74,7 @@ public class RESTClientServlet extends HttpServlet {
         if (pathElements == null || pathElements.length == 0) {
             // TODO return a list of versions
             resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Not implemented: list of versions");
+            return;
         }
         else {
             if (pathElements.length == 1) {
@@ -78,6 +82,7 @@ public class RESTClientServlet extends HttpServlet {
                     // TODO redirect to latest version
                     // resp.sendRedirect("notImplemented" /* to latest version */);
                     resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Not implemented: redirect to latest version");
+                    return;
                 }
             }
             else if (pathElements.length == 3) {
@@ -94,6 +99,7 @@ public class RESTClientServlet extends HttpServlet {
                         return;
                     }
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
+                    return;
                 }
             }
             else if (pathElements.length == 4) {
@@ -104,16 +110,19 @@ public class RESTClientServlet extends HttpServlet {
                         String entityId = pathElements[3];
                         RepositoryObject repositoryObject = workspace.getRepositoryObject(entityType, entityId);
                         if (repositoryObject == null) {
-                            // TODO not found
                             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository object of type " + entityType + " and identity " + entityId + " not found.");
+                            return;
                         }
                         
                         resp.getWriter().println(m_gson.toJson(repositoryObject));
                         return;
                     }
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
+                    return;
                 }
             }
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
     }
 
@@ -138,7 +147,7 @@ public class RESTClientServlet extends HttpServlet {
                     }
                     m_sessionFactory.createSession(sessionID);
                     m_dm.add(component);
-                    resp.sendRedirect(WORK_FOLDER + "/" + sessionID);
+                    resp.sendRedirect(buildPathFromElements(WORK_FOLDER, sessionID));
                     return;
                 }
             }
@@ -169,7 +178,7 @@ public class RESTClientServlet extends HttpServlet {
                         try {
                             RepositoryValueObject data = m_gson.fromJson(req.getReader(), RepositoryValueObject.class);
                             RepositoryObject object = workspace.addRepositoryObject(pathElements[2], data.attributes, data.tags);
-                            resp.sendRedirect(WORK_FOLDER + "/" + pathElements[1] + "/" + pathElements[2] + "/" + URLEncoder.encode(object.getAssociationFilter(null), "UTF-8"));
+                            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], object.getAssociationFilter(null)));
                             return;
                         }
                         catch (IllegalArgumentException e) {
@@ -177,9 +186,12 @@ public class RESTClientServlet extends HttpServlet {
                         }
                     }
                     resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not add entity of type " + pathElements[2]);
+                    return;
                 }
             }
         }
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        return;
     }
 
     @Override
@@ -188,15 +200,28 @@ public class RESTClientServlet extends HttpServlet {
         if (pathElements != null) {
             if (pathElements.length == 4) {
                 if (pathElements[0].equals(WORK_FOLDER)) {
-                    long id = Long.parseLong(pathElements[1]);
-                    // TODO check if pE[2] is one of the entities we know
-                    long entityId = Long.parseLong(pathElements[3]);
-                    // TODO check if pE[3] is a valid entity id, update it if it is
+                    Workspace workspace = getWorkspace(pathElements[1]);
+                    if (workspace != null) {
+                        try {
+                            RepositoryValueObject data = m_gson.fromJson(req.getReader(), RepositoryValueObject.class);
+                            RepositoryObject object = workspace.getRepositoryObject(pathElements[2], pathElements[3]);
+                            updateObjectWithData(object, data);
+                            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], pathElements[3]));
+                            return;
+                        }
+                        catch (IllegalArgumentException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not add entity of type " + pathElements[2]);
+                    return;
                 }
             }
         }
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        return;
     }
-    
+
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String[] pathElements = getPathElements(req);
@@ -214,21 +239,39 @@ public class RESTClientServlet extends HttpServlet {
                         // TODO delete the work area
                         m_dm.remove(component);
                         m_sessionFactory.destroySession(id);
+                        return;
                     }
                     else {
-                        // return error
+                        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not delete work area.");
+                        return;
                     }
                 }
             }
             else if (pathElements.length == 4) {
                 if (WORK_FOLDER.equals(pathElements[0])) {
-                    long id = Long.parseLong(pathElements[1]);
-                    // TODO check if pE[2] is one of the entities we know
-                    long entityId = Long.parseLong(pathElements[3]);
-                    // TODO check if pE[3] is a valid entity id and delete it if it is
+                    String id = pathElements[1];
+                    String entityType = pathElements[2];
+                    String entityId = pathElements[3];
+                    
+                    Workspace workspace;
+                    Component component;
+                    synchronized (m_workspaces) {
+                        workspace = m_workspaces.get(id);
+                    }
+                    if (workspace != null) {
+                        workspace.deleteRepositoryObject(entityType, entityId);
+                        return;
+                    }
+                    else {
+                        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not find work area.");
+                        return;
+                    }
+                    
                 }
             }
         }
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        return;
     }
 
     private Workspace getWorkspace(String id) {
@@ -238,9 +281,38 @@ public class RESTClientServlet extends HttpServlet {
         }
         return workspace;
     }
+    
+    /**
+     * Builds a URL path from the supplied elements. Each individual element is URL encoded.
+     * 
+     * @param elements the elements
+     * @return the URL path
+     */
+    private String buildPathFromElements(String... elements) {
+        StringBuilder result = new StringBuilder();
+        for (String element : elements) {
+            if (result.length() > 0) {
+                result.append('/');
+            }
+            try {
+                result.append(URLEncoder.encode(element, "UTF-8"));
+            }
+            catch (UnsupportedEncodingException e) {} // ignored on purpose, any JVM must support UTF-8
+        }
+        return result.toString();
+    }
 
+    /**
+     * Returns the separate path parts from the request, and URL decodes them.
+     * 
+     * @param req the request
+     * @return the separate path parts
+     */
     private String[] getPathElements(HttpServletRequest req) {
         String path = req.getPathInfo();
+        if (path == null) {
+            return new String[0];
+        }
         if (path.startsWith("/") && path.length() > 1) {
             path = path.substring(1);
         }
@@ -255,5 +327,42 @@ public class RESTClientServlet extends HttpServlet {
         }
         catch (UnsupportedEncodingException e) {}
         return pathElements;
+    }
+
+    private void updateObjectWithData(RepositoryObject repositoryObject, RepositoryValueObject valueObject) {
+        // first handle the attributes
+        for (Entry<String, String> attribute : valueObject.attributes.entrySet()) {
+            String key = attribute.getKey();
+            String value = attribute.getValue();
+            // only add/update the attribute if it actually changed
+            if (!value.equals(repositoryObject.getAttribute(key))) {
+                repositoryObject.addAttribute(key, value);
+            }
+        }
+        Enumeration<String> keys = repositoryObject.getAttributeKeys();
+        while (keys.hasMoreElements()) {
+            String key = keys.nextElement();
+            if (!valueObject.attributes.containsKey(key)) {
+                // TODO since we cannot remove keys right now, we null them
+                repositoryObject.addAttribute(key, null);
+            }
+        }
+        // now handle the tags in a similar way
+        for (Entry<String, String> attribute : valueObject.tags.entrySet()) {
+            String key = attribute.getKey();
+            String value = attribute.getValue();
+            // only add/update the tag if it actually changed
+            if (!value.equals(repositoryObject.getTag(key))) {
+                repositoryObject.addTag(key, value);
+            }
+        }
+        keys = repositoryObject.getTagKeys();
+        while (keys.hasMoreElements()) {
+            String key = keys.nextElement();
+            if (!valueObject.tags.containsKey(key)) {
+                // TODO since we cannot remove keys right now, we null them
+                repositoryObject.addTag(key, null);
+            }
+        }
     }
 }
