@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,8 @@ import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -46,21 +49,42 @@ import com.google.gson.JsonPrimitive;
 /**
  * Servlet that offers a REST client API.
  */
-public class RESTClientServlet extends HttpServlet {
+public class RESTClientServlet extends HttpServlet implements ManagedService {
     private static final long serialVersionUID = 5210711248294238039L;
     /** Alias that redirects to the latest version automatically. */
     private static final String LATEST_FOLDER = "latest";
     /** Name of the folder where working copies are kept. */
     private static final String WORK_FOLDER = "work";
-    
+    /** URL of the repository to talk to. */
+    private static final String KEY_REPOSITORY_URL = "repository.url";
+    /** URL of the OBR to talk to. */
+    private static final String KEY_OBR_URL = "obr.url";
+    /** Name of the customer. */
+    private static final String KEY_CUSTOMER_NAME = "customer.name";
+    /** Name of the store repository. */
+    private static final String KEY_STORE_REPOSITORY_NAME = "store.repository.name";
+    /** Name of the license repository. */
+    private static final String KEY_LICENSE_REPOSITORY_NAME = "license.repository.name";
+    /** Name of the deployment repository. */
+    private static final String KEY_DEPLOYMENT_REPOSITORY_NAME = "deployment.repository.name";
+    /** Name of the user to log in as. */
+    private static final String KEY_USER_NAME = "user.name";
+
     private static long m_sessionID = 1;
-    
+
     private volatile DependencyManager m_dm;
     private volatile SessionFactory m_sessionFactory;
-    
+
     private final Map<String, Workspace> m_workspaces = new HashMap<String, Workspace>();
     private final Map<String, Component> m_workspaceComponents = new HashMap<String, Component>();
     private Gson m_gson;
+    private String m_repositoryURL;
+    private String m_obrURL;
+    private String m_customerName;
+    private String m_storeRepositoryName;
+    private String m_licenseRepositoryName;
+    private String m_deploymentRepositoryName;
+    private String m_serverUser;
     
     public RESTClientServlet() {
         m_gson = (new GsonBuilder())
@@ -138,9 +162,7 @@ public class RESTClientServlet extends HttpServlet {
                     Component component;
                     synchronized (m_workspaces) {
                         sessionID = "rest-" + m_sessionID++;
-                        // TODO OBR with or without trailing slash?
-                        // TODO this needs to come from configuration
-                        workspace = new Workspace(sessionID, "http://localhost:8080/repository", "http://localhost:8080/obr", "apache", "shop", "gateway", "deployment", "d");
+                        workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, m_customerName, m_storeRepositoryName, m_licenseRepositoryName, m_deploymentRepositoryName, m_serverUser);
                         m_workspaces.put(sessionID, workspace);
                         component = m_dm.createComponent().setImplementation(workspace);
                         m_workspaceComponents.put(sessionID, component);
@@ -266,7 +288,6 @@ public class RESTClientServlet extends HttpServlet {
                         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not find work area.");
                         return;
                     }
-                    
                 }
             }
         }
@@ -288,14 +309,14 @@ public class RESTClientServlet extends HttpServlet {
      * @param elements the elements
      * @return the URL path
      */
-    private String buildPathFromElements(String... elements) {
+    String buildPathFromElements(String... elements) {
         StringBuilder result = new StringBuilder();
         for (String element : elements) {
             if (result.length() > 0) {
                 result.append('/');
             }
             try {
-                result.append(URLEncoder.encode(element, "UTF-8"));
+                result.append(URLEncoder.encode(element, "UTF-8").replaceAll("\\+", "%20"));
             }
             catch (UnsupportedEncodingException e) {} // ignored on purpose, any JVM must support UTF-8
         }
@@ -308,7 +329,7 @@ public class RESTClientServlet extends HttpServlet {
      * @param req the request
      * @return the separate path parts
      */
-    private String[] getPathElements(HttpServletRequest req) {
+    String[] getPathElements(HttpServletRequest req) {
         String path = req.getPathInfo();
         if (path == null) {
             return new String[0];
@@ -322,7 +343,7 @@ public class RESTClientServlet extends HttpServlet {
         String[] pathElements = path.split("/");
         try {
             for (int i = 0; i < pathElements.length; i++) {
-                pathElements[i] = URLDecoder.decode(pathElements[i], "UTF-8");
+                pathElements[i] = URLDecoder.decode(pathElements[i].replaceAll("%20", "\\+"), "UTF-8");
             }
         }
         catch (UnsupportedEncodingException e) {}
@@ -364,5 +385,28 @@ public class RESTClientServlet extends HttpServlet {
                 repositoryObject.addTag(key, null);
             }
         }
+    }
+
+    public void updated(Dictionary properties) throws ConfigurationException {
+        // Note that configuration changes are only applied to new work areas, started after the
+        // configuration was changed. No attempt is done to "fix" existing work areas, although we
+        // might consider flushing/invalidating them.
+        m_repositoryURL = getProperty(properties, KEY_REPOSITORY_URL, "http://localhost:8080/repository");
+        m_obrURL = getProperty(properties, KEY_OBR_URL, "http://localhost:8080/obr");
+        m_customerName = getProperty(properties, KEY_CUSTOMER_NAME, "apache");
+        m_storeRepositoryName = getProperty(properties, KEY_STORE_REPOSITORY_NAME, "shop");
+        m_licenseRepositoryName = getProperty(properties, KEY_LICENSE_REPOSITORY_NAME, "gateway");
+        m_deploymentRepositoryName = getProperty(properties, KEY_DEPLOYMENT_REPOSITORY_NAME, "deployment");
+        m_serverUser = getProperty(properties, KEY_USER_NAME, "d");
+    }
+    
+    String getProperty(Dictionary properties, String key, String defaultValue) {
+        if (properties != null) {
+            Object value = properties.get(key);
+            if (value != null && value instanceof String) {
+                return (String) value;
+            }
+        }
+        return defaultValue;
     }
 }
