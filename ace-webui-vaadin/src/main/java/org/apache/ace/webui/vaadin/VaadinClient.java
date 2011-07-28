@@ -489,9 +489,7 @@ public class VaadinClient extends com.vaadin.Application {
             if (user == null) {
                 return false;
             }
-            Dictionary credentials = user.getCredentials();
-            String userPassword = (String) credentials.get("password");
-            if (!password.equals(userPassword)) {
+            if (!user.hasCredential("password", password)) {
                 return false;
             }
             RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
