@@ -48,13 +48,13 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 public class Workspace {
-    private static final String ARTIFACT = "artifact";
-    private static final String ARTIFACT2FEATURE = "artifact2feature";
-    private static final String FEATURE = "feature";
-    private static final String FEATURE2DISTRIBUTION = "feature2distribution";
-    private static final String DISTRIBUTION = "distribution";
-    private static final String DISTRIBUTION2TARGET = "distribution2target";
-    private static final String TARGET = "target";
+    static final String ARTIFACT = "artifact";
+    static final String ARTIFACT2FEATURE = "artifact2feature";
+    static final String FEATURE = "feature";
+    static final String FEATURE2DISTRIBUTION = "feature2distribution";
+    static final String DISTRIBUTION = "distribution";
+    static final String DISTRIBUTION2TARGET = "distribution2target";
+    static final String TARGET = "target";
     private final String m_sessionID;
     private final String m_repositoryURL;
     private final String m_obrURL;
@@ -158,7 +158,7 @@ public class Workspace {
         return result;
     }
     
-    public String getRepositoryObjectIdentity(RepositoryObject object) {
+    public static String getRepositoryObjectIdentity(RepositoryObject object) {
         if (object instanceof StatefulGatewayObject) {
             return ((StatefulGatewayObject) object).getGatewayObject().getAssociationFilter(null);
         }
