@@ -36,6 +36,7 @@ import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepos
 import org.apache.ace.client.repository.repository.GroupRepository;
 import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
 import org.apache.ace.client.repository.repository.LicenseRepository;
+import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
 import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
@@ -156,6 +157,15 @@ public class Workspace {
         }
         return result;
     }
+    
+    public String getRepositoryObjectIdentity(RepositoryObject object) {
+        if (object instanceof StatefulGatewayObject) {
+            return ((StatefulGatewayObject) object).getGatewayObject().getAssociationFilter(null);
+        }
+        else {
+            return object.getAssociationFilter(null);
+        }
+    }
 
     public List<RepositoryObject> getRepositoryObjects(String entityType) {
         List list = getObjectRepository(entityType).get();
@@ -168,7 +178,12 @@ public class Workspace {
     }
 
     public RepositoryObject addRepositoryObject(String entityType, Map<String, String> attributes, Map<String, String> tags) throws IllegalArgumentException{
-        return getObjectRepository(entityType).create(attributes, tags);
+        if (TARGET.equals(entityType)) {
+            return ((StatefulGatewayRepository) getObjectRepository(TARGET)).preregister(attributes, tags);
+        }
+        else {
+            return getObjectRepository(entityType).create(attributes, tags);
+        }
     }
     
     public void deleteRepositoryObject(String entityType, String entityId) {
@@ -207,7 +222,7 @@ public class Workspace {
             return m_distribution2TargetAssociationRepository;
         }
         if (TARGET.equals(entityType)) {
-            return m_targetRepository;
+            return m_statefulTargetRepository;
         }
         throw new IllegalArgumentException("Unknown entity type: " + entityType);
     }

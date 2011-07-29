@@ -117,7 +117,8 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                         List<RepositoryObject> objects = workspace.getRepositoryObjects(pathElements[2]);
                         JsonArray result = new JsonArray();
                         for (RepositoryObject ro : objects) {
-                            result.add(new JsonPrimitive(URLEncoder.encode(ro.getAssociationFilter(null), "UTF-8")));
+                            String identity = workspace.getRepositoryObjectIdentity(ro);
+                            result.add(new JsonPrimitive(URLEncoder.encode(identity, "UTF-8")));
                         }
                         resp.getWriter().println(m_gson.toJson(result));
                         return;
@@ -200,7 +201,8 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                         try {
                             RepositoryValueObject data = m_gson.fromJson(req.getReader(), RepositoryValueObject.class);
                             RepositoryObject object = workspace.addRepositoryObject(pathElements[2], data.attributes, data.tags);
-                            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], object.getAssociationFilter(null)));
+                            String identity = workspace.getRepositoryObjectIdentity(object);
+                            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], identity));
                             return;
                         }
                         catch (IllegalArgumentException e) {
