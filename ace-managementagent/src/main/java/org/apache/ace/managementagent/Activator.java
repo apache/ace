@@ -28,11 +28,22 @@ public class Activator extends DependencyActivatorBase {
     
     private volatile ConfigurationAdmin m_config;
     
+    private boolean m_quiet = Boolean.parseBoolean(System.getProperty("quiet", "false"));
+    
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         for (int i = 0; i < m_activators.length; i++) {
             BundleActivator a = m_activators[i];
-            a.start(context);
+            // start the bundle unless there is a system property with the same package name as
+            // the package that the bundle activator is part of that has the value 'disabled'
+            // example use case: turn off the embedded scheduler
+            String packageName = a.getClass().getPackage().getName();
+            if (!"disabled".equals(System.getProperty(packageName))) {
+                a.start(context);
+            }
+            else if (!m_quiet) {
+                System.out.println("Not starting activator " + packageName + ".");
+            }
         }
         
         manager.add(createComponent()
@@ -59,12 +70,14 @@ public class Activator extends DependencyActivatorBase {
             configureFactory("org.apache.ace.gateway.log.factory", "name", "auditlog");
             configureFactory("org.apache.ace.gateway.log.store.factory", "name", "auditlog");
 
-            System.out.println("Started management agent.\n"
-                    + "  Target ID: " + targetId + "\n"
-                    + "  Server   : " + server + "\n"
-                    + "  Sync interval: " + syncInterval + " ms\n"
-                    + "  Unaffected bundles will " + ("false".equals(stopUnaffectedBundles) ? "not " : "")
-                    + "be stopped during deployment.");
+            if (!m_quiet) {
+                System.out.println("Started management agent.\n"
+                        + "  Target ID    : " + targetId + "\n"
+                        + "  Server       : " + server + "\n"
+                        + "  Sync interval: " + syncInterval + " ms\n"
+                        + "  Unaffected bundles will " + ("false".equals(stopUnaffectedBundles) ? "not " : "")
+                        + "be stopped during deployment.");
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
