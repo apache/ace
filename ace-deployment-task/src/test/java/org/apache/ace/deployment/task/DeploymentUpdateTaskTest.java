@@ -42,6 +42,7 @@ import org.testng.annotations.Test;
 
 public class DeploymentUpdateTaskTest {
 
+    private DeploymentTaskBase m_task;
     private DeploymentUpdateTask m_deploymentTask;
     private MockDeploymentService m_mockDeploymentService;
 
@@ -57,24 +58,26 @@ public class DeploymentUpdateTaskTest {
         m_mockDeploymentService = new MockDeploymentService();
         m_correctVersionInstalled = false;
         m_installCalled = false;
-        m_deploymentTask = new DeploymentUpdateTask();
+        m_task = new DeploymentTaskBase();
+        m_deploymentTask = new DeploymentUpdateTask(m_task);
         TestUtils.configureObject(m_deploymentTask, LogService.class);
-        TestUtils.configureObject(m_deploymentTask, Identification.class);
-        TestUtils.configureObject(m_deploymentTask, Discovery.class);
-        TestUtils.configureObject(m_deploymentTask, Deployment.class, m_mockDeploymentService);
+        TestUtils.configureObject(m_task, LogService.class);
+        TestUtils.configureObject(m_task, Identification.class);
+        TestUtils.configureObject(m_task, Discovery.class);
+        TestUtils.configureObject(m_task, Deployment.class, m_mockDeploymentService);
     }
 
     @Test(groups = { UNIT })
     public synchronized void testGetHighestLocalVersion() {
         prepareMockEnvironment(new Version[] {m_version1, m_version2, m_version3}, null, null, null);
-        Version highestVersion = m_deploymentTask.getHighestLocalVersion();
+        Version highestVersion = m_task.getHighestLocalVersion();
         assert highestVersion.equals(m_version3) : "Highest local version is incorrect, expected " + m_version3.toString() + " but got " + highestVersion.toString();
     }
 
     @Test(groups = { UNIT })
     public synchronized void testGetHighestRemoteVersion() throws MalformedURLException, IOException {
         URL[] urls = prepareMockEnvironment(null, new Version[] {m_version1, m_version2, m_version3}, null, null);
-        Version highestVersion = m_deploymentTask.getHighestRemoteVersion(urls[0]);
+        Version highestVersion = m_task.getHighestRemoteVersion(urls[0]);
         assert highestVersion.equals(m_version3) : "Highest remote version is incorrect, expected " + m_version3.toString() + " but got " + highestVersion.toString();
     }
 

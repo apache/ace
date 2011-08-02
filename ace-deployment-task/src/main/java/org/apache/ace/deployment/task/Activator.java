@@ -22,6 +22,7 @@ import java.util.Dictionary;
 import java.util.Properties;
 
 import org.apache.ace.deployment.Deployment;
+import org.apache.ace.deployment.service.DeploymentService;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.identification.Identification;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
@@ -42,23 +43,31 @@ public class Activator extends DependencyActivatorBase {
         checkProperties.put(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY, "Task that checks for updates for gateway on the server.");
         checkProperties.put(SchedulerConstants.SCHEDULER_NAME_KEY, DeploymentCheckTask.class.getName());
         checkProperties.put(SchedulerConstants.SCHEDULER_RECIPE, "5000");
+        
+        DeploymentTaskBase task = new DeploymentTaskBase();
+        DeploymentUpdateTask updateTask = new DeploymentUpdateTask(task);
+        DeploymentCheckTask checkTask = new DeploymentCheckTask(task);
 
         manager.add(createComponent()
-            .setInterface(Runnable.class.getName(), updateProperties)
-            .setImplementation(DeploymentUpdateTask.class)
+            .setInterface(DeploymentService.class.getName(), null)
+            .setImplementation(task)
             .add(createServiceDependency().setService(Deployment.class).setRequired(true))
             .add(createServiceDependency().setService(Identification.class).setRequired(true))
             .add(createServiceDependency().setService(Discovery.class).setRequired(true))
-             .add(createServiceDependency().setService(EventAdmin.class).setRequired(false))
+            .add(createServiceDependency().setService(EventAdmin.class).setRequired(false))
+            .add(createServiceDependency().setService(LogService.class).setRequired(false)));
+
+        manager.add(createComponent()
+            .setInterface(Runnable.class.getName(), updateProperties)
+            .setImplementation(updateTask)
+            .add(createServiceDependency().setService(DeploymentService.class).setRequired(true).setAutoConfig(false))
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
 
         manager.add(createComponent()
             .setInterface(Runnable.class.getName(), checkProperties)
-            .setImplementation(DeploymentCheckTask.class)
-            .add(createServiceDependency().setService(Deployment.class).setRequired(true))
-            .add(createServiceDependency().setService(Identification.class).setRequired(true))
-            .add(createServiceDependency().setService(Discovery.class).setRequired(true))
-             .add(createServiceDependency().setService(EventAdmin.class).setRequired(false))
+            .setImplementation(checkTask)
+            .add(createServiceDependency().setService(DeploymentService.class).setRequired(true).setAutoConfig(false))
+            .add(createServiceDependency().setService(EventAdmin.class).setRequired(false))
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
     }
 

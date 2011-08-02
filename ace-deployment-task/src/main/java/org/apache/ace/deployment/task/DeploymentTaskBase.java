@@ -22,13 +22,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import org.apache.ace.deployment.Deployment;
+import org.apache.ace.deployment.service.DeploymentService;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.identification.Identification;
 import org.osgi.framework.Version;
@@ -36,9 +42,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
-public class DeploymentTaskBase
-{
-
+public class DeploymentTaskBase implements DeploymentService {
     private final String TOPIC_DEPLOYMENTPACKAGE_INSTALL = "org/apache/ace/deployment/INSTALL";
 
     // injected by dependencymanager
@@ -51,11 +55,10 @@ public class DeploymentTaskBase
     /**
      * Installs the version specified by the highestRemoteVersion.
      *
-     * @param url Base URL for retrieving a specific version
      * @param highestRemoteVersion The version to retrieve and install
      * @param highestLocalVersion The current version or <code>null</code> in case of none.
      */
-    public void installVersion(URL url, Version highestRemoteVersion, Version highestLocalVersion) throws IOException, Exception {
+    public void installVersion(Version highestRemoteVersion, Version highestLocalVersion) throws IOException, Exception {
         InputStream inputStream = null;
         m_log.log(LogService.LOG_INFO, "Installing version: " + highestRemoteVersion);
         try {
@@ -63,7 +66,7 @@ public class DeploymentTaskBase
             if (highestLocalVersion != null) {
                 version += "?current=" + highestLocalVersion.toString();
             }
-            URL dataURL = new URL(url, version);
+            URL dataURL = new URL(getURL(), version);
             inputStream = dataURL.openStream();
 
             // Post event for auditlog
@@ -105,38 +108,72 @@ public class DeploymentTaskBase
      *
      * @param url The URL to be used to retrieve the versions available on the remote.
      * @return The highest version available on the remote or <code>null</code> if no versions were available or the remote could not be reached.
+     * @throws IOException 
      */
-    public Version getHighestRemoteVersion(URL url) {
-        BufferedReader bufReader = null;
-        try {
-            bufReader = new BufferedReader(new InputStreamReader(url.openStream()));
-
-            List versions = new ArrayList();
-            for (String versionString = bufReader.readLine(); versionString != null; versionString = bufReader.readLine()) {
-                try {
-                    Version version = Version.parseVersion(versionString);
-                    if (version != Version.emptyVersion) {
-                        versions.add(version);
-                    }
-                }
-                catch (IllegalArgumentException iae) {
-                    m_log.log(LogService.LOG_WARNING, "Received malformed version, ignoring: " + versionString);
-                }
-            }
-            return getHighestVersion(versions);
-        }
-        catch (IOException ioe) {
+    public Version getHighestRemoteVersion() throws IOException {
+        return getHighestRemoteVersion(getURL());
+    }
+    
+    public Version getHighestRemoteVersion(URL url) throws IOException {
+        SortedSet<Version> versions = getRemoteVersions(url);
+        return versions == null || versions.isEmpty() ? null : versions.last();
+    }
+    
+    private URL getURL() {
+        URL host = m_discovery.discover();
+        if (host == null) {
             return null;
         }
-        finally {
-            if (bufReader != null) {
-                try {
-                    bufReader.close();
+        String gatewayID = m_identification.getID();
+        try {
+            return new URL(host, "deployment/" + gatewayID + "/versions/");
+        }
+        catch (MalformedURLException e) {
+            m_log.log(LogService.LOG_WARNING, "Malformed URL", e);
+            return null;
+        }
+    }
+    
+    public SortedSet<Version> getRemoteVersions() throws IOException {
+        return getRemoteVersions(getURL());
+    }
+    
+    public SortedSet<Version> getRemoteVersions(URL url) throws IOException {
+        BufferedReader bufReader = null;
+        if (url != null) {
+            try {
+                bufReader = new BufferedReader(new InputStreamReader(url.openStream()));
+    
+                SortedSet<Version> versions =  new TreeSet<Version>();
+                for (String versionString = bufReader.readLine(); versionString != null; versionString = bufReader.readLine()) {
+                    try {
+                        Version version = Version.parseVersion(versionString);
+                        if (version != Version.emptyVersion) {
+                            versions.add(version);
+                        }
+                    }
+                    catch (IllegalArgumentException iae) {
+                        m_log.log(LogService.LOG_WARNING, "Received malformed version, ignoring: " + versionString);
+                    }
                 }
-                catch (Exception ex) {
-                    // not much we can do
+                return versions;
+            }
+            catch (IOException ioe) {
+                return null;
+            }
+            finally {
+                if (bufReader != null) {
+                    try {
+                        bufReader.close();
+                    }
+                    catch (Exception ex) {
+                        // not much we can do
+                    }
                 }
             }
+        }
+        else {
+            return null;
         }
     }
 
@@ -152,6 +189,14 @@ public class DeploymentTaskBase
             }
         }
         return highestVersion;
+    }
+
+    public Version getLocalVersion() {
+        return getHighestLocalVersion();
+    }
+
+    public void update(Version toVersion) throws Exception {
+        installVersion(toVersion, getLocalVersion());
     }
 
 }

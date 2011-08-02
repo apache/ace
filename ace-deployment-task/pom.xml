@@ -48,6 +48,9 @@
             org.apache.ace.identification;version=${project.version},
             *
         </import.package>
+        <export.package>
+            org.apache.ace.deployment.service;version=${project.version}
+        </export.package>
         <private.package>
             org.apache.ace.deployment.task
         </private.package>

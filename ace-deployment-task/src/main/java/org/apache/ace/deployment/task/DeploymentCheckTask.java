@@ -19,39 +19,43 @@
 package org.apache.ace.deployment.task;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Dictionary;
 import java.util.Properties;
+
 import org.osgi.framework.Version;
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 /**
  * Task that checks for a new version and sends out an event if there is a new version. It does not actually
  * download or install it.
  */
-public class DeploymentCheckTask extends DeploymentTaskBase implements Runnable {
+public class DeploymentCheckTask implements Runnable {
     private static final String TOPIC_UPDATE_AVAILABLE = "org/apache/ace/deployment/UPDATEAVAILABLE";
+    
+    private final DeploymentTaskBase m_task;
+    
+    private volatile LogService m_log;
+    private volatile EventAdmin m_eventAdmin;
+    
+    public DeploymentCheckTask(DeploymentTaskBase task) {
+        m_task = task;
+    }
 
     /**
      * When run a check is made if a higher version is available on the remote. If so, send out an event.
      */
     public void run() {
         try {
-            String gatewayID = m_identification.getID();
-            URL host = m_discovery.discover();
-
-            Version highestLocalVersion = getHighestLocalVersion();
-
-            if (host == null) {
+            Version highestLocalVersion = m_task.getHighestLocalVersion();
+            Version highestRemoteVersion = m_task.getHighestRemoteVersion();
+            if (highestRemoteVersion == null) {
                 //expected if there's no discovered
                 //ps or relay server
                 m_log.log(LogService.LOG_INFO, "Highest remote: unknown / Highest local: " + highestLocalVersion);
                 return;
             }
-
-            URL url = new URL(host, "deployment/" + gatewayID + "/versions/");
-            Version highestRemoteVersion = getHighestRemoteVersion(url);
             m_log.log(LogService.LOG_INFO, "Highest remote: " + highestRemoteVersion + " / Highest local: " + highestLocalVersion);
             if ((highestRemoteVersion != null) && ((highestLocalVersion == null) || (highestRemoteVersion.compareTo(highestLocalVersion) > 0))) {
                 Properties properties = new Properties();
