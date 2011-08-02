@@ -19,13 +19,15 @@
 package org.apache.ace.deployment.task;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
@@ -67,7 +69,13 @@ public class DeploymentTaskBase implements DeploymentService {
                 version += "?current=" + highestLocalVersion.toString();
             }
             URL dataURL = new URL(getURL(), version);
-            inputStream = dataURL.openStream();
+            if ("file".equals(dataURL.getProtocol())) {
+                File file = urlToFile(dataURL);
+                inputStream = new FileInputStream(file);
+            }
+            else {
+                inputStream = dataURL.openStream();
+            }
 
             // Post event for auditlog
             Dictionary properties = new Properties();
@@ -137,37 +145,72 @@ public class DeploymentTaskBase implements DeploymentService {
     public SortedSet<Version> getRemoteVersions() throws IOException {
         return getRemoteVersions(getURL());
     }
+
+    private File urlToFile(URL url) {
+        File file;
+        // See: http://weblogs.java.net/blog/kohsuke/archive/2007/04/how_to_convert.html
+        // makes a best effort to convert a file URL to a File
+        try {
+            file = new File(url.toURI());
+        }
+        catch (URISyntaxException e) {
+            file = new File(url.getPath());
+        }
+        return file;
+    }
     
     public SortedSet<Version> getRemoteVersions(URL url) throws IOException {
         BufferedReader bufReader = null;
         if (url != null) {
-            try {
-                bufReader = new BufferedReader(new InputStreamReader(url.openStream()));
-    
-                SortedSet<Version> versions =  new TreeSet<Version>();
-                for (String versionString = bufReader.readLine(); versionString != null; versionString = bufReader.readLine()) {
-                    try {
-                        Version version = Version.parseVersion(versionString);
-                        if (version != Version.emptyVersion) {
-                            versions.add(version);
+            if ("file".equals(url.getProtocol())) {
+                File file = urlToFile(url);
+                if (file.isDirectory()) {
+                    File[] files = file.listFiles();
+                    SortedSet<Version> versions = new TreeSet<Version>();
+                    for (File f : files) {
+                        try {
+                            Version v = new Version(f.getName());
+                            versions.add(v);
+                        }
+                        catch (IllegalArgumentException e) {
+                            // if the file is not a valid version, we skip it
                         }
                     }
-                    catch (IllegalArgumentException iae) {
-                        m_log.log(LogService.LOG_WARNING, "Received malformed version, ignoring: " + versionString);
-                    }
+                    return versions;
                 }
-                return versions;
+                else {
+                    // it's not a directory, so we can only assume there are no versions?!
+                    return null;
+                }
             }
-            catch (IOException ioe) {
-                return null;
-            }
-            finally {
-                if (bufReader != null) {
-                    try {
-                        bufReader.close();
+            else {
+                try {
+                    bufReader = new BufferedReader(new InputStreamReader(url.openStream()));
+                    SortedSet<Version> versions =  new TreeSet<Version>();
+                    for (String versionString = bufReader.readLine(); versionString != null; versionString = bufReader.readLine()) {
+                        try {
+                            Version version = Version.parseVersion(versionString);
+                            if (version != Version.emptyVersion) {
+                                versions.add(version);
+                            }
+                        }
+                        catch (IllegalArgumentException iae) {
+                            m_log.log(LogService.LOG_WARNING, "Received malformed version, ignoring: " + versionString);
+                        }
                     }
-                    catch (Exception ex) {
-                        // not much we can do
+                    return versions;
+                }
+                catch (IOException ioe) {
+                    return null;
+                }
+                finally {
+                    if (bufReader != null) {
+                        try {
+                            bufReader.close();
+                        }
+                        catch (Exception ex) {
+                            // not much we can do
+                        }
                     }
                 }
             }
