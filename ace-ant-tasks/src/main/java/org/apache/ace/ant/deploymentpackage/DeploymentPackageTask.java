@@ -21,7 +21,10 @@ package org.apache.ace.ant.deploymentpackage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
@@ -61,6 +64,47 @@ public class DeploymentPackageTask extends MatchingTask {
     public void setDestination(File destination) {
         m_destination = destination;
     }
+    
+    List<OrderedInclude> orderedIncludes = new ArrayList<OrderedInclude>();
+    
+    public OrderedInclude createOrderedInclude() {
+        OrderedInclude i = new OrderedInclude();
+        orderedIncludes.add(i);
+        return i;
+    }
+    
+    public static class OrderedInclude {
+        private String m_name;
+        public OrderedInclude() {}
+        public void setName(String name) {
+            m_name = name;
+        }
+        public String getName() {
+            return m_name;
+        }
+    }
+    
+    private String[] findFiles(File dir, String pattern) {
+        List<String> found = new ArrayList<String>();
+        findFiles(dir, "", pattern, found);
+        return found.toArray(new String[found.size()]);
+    }
+    
+    private void findFiles(File base, String dir, String pattern, List<String> files) {
+        File[] entries = new File(base, dir).listFiles();
+        for (File f : entries) {
+            if (f.isDirectory()) {
+                String newDir = dir.equals("") ? f.getName() : dir + File.separator + f.getName();
+                findFiles(base, newDir, pattern, files);
+            }
+            else if (f.isFile()) {
+                File df = new File(dir, f.getName());
+                if (df.toString().matches(pattern)) {
+                    files.add(df.toString());
+                }
+            }
+        }
+    }
 
     public void execute() throws BuildException {
         if (m_dir == null) {
@@ -78,11 +122,25 @@ public class DeploymentPackageTask extends MatchingTask {
         log("dir = " + m_dir, Project.MSG_DEBUG);
         
         DirectoryScanner ds = getDirectoryScanner(m_dir);
-        String[] files = ds.getIncludedFiles();
-        for (int i = 0; i < files.length; i++) {
-            log("Found file: " + files[i]);
+        String[] unorderedIncludes = ds.getIncludedFiles();
+        List<String> files = new ArrayList<String>();
+        for (int i = 0; i < orderedIncludes.size(); i++) {
+            String pattern = orderedIncludes.get(i).getName();
+            String[] filez2 = findFiles(m_dir, pattern);
+            for (String f : filez2) {
+                files.add(f);
+            }
         }
-        
+        for (int i = 0; i < unorderedIncludes.length; i++) {
+            if (!files.contains(unorderedIncludes[i])) {
+                files.add(unorderedIncludes[i]);
+            }
+        }
+
+        for (String file : files) {
+            log("Found file: " + file);
+        }
+
         Manifest manifest = new Manifest();
         Attributes main = manifest.getMainAttributes();
         main.putValue("Manifest-Version", "1.0");

@@ -26,8 +26,9 @@
 	<target name="build">
 		<dp name="org.apache.ace.dp.sample" version="1.0.0" dir=".." destination="sample-dp.jar">
 			<!-- uses two completely arbitrary bundles -->
-			<include name="ace-log/target/org.apache.ace.log-0.8.1-incubator-SNAPSHOT.jar" />
-            <include name="ace-log-listener/target/org.apache.ace.log.listener-0.8.1-incubator-SNAPSHOT.jar" />
+            <orderedinclude name="ace-log-listener/target/org.apache.ace.log.listener-0.8.1-incubator-SNAPSHOT.jar" />
+			<orderedinclude name="ace-log/target/org.apache.ace.log-0.8.1-incubator-SNAPSHOT.jar" />
+			<include name="ace-range-api/target/*.jar" />
 		</dp>
 	</target>
 </project>
