@@ -33,10 +33,17 @@ import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 
+/**
+ * Ant task that creates a deployment package out of a set of bundles.
+ */
 public class DeploymentPackageTask extends MatchingTask {
+    /** The destination deployment package file. */
     private File m_destination;
+    /** The name of the deployment package. */
     private String m_name;
+    /** The version of the deployment package. */
     private String m_version;
+    /** The base directory to scan for files. */
     private File m_dir;
 
     public void setDir (File dir) {
@@ -73,7 +80,7 @@ public class DeploymentPackageTask extends MatchingTask {
         DirectoryScanner ds = getDirectoryScanner(m_dir);
         String[] files = ds.getIncludedFiles();
         for (int i = 0; i < files.length; i++) {
-            log("file: " + files[i]);
+            log("Found file: " + files[i]);
         }
         
         Manifest manifest = new Manifest();
@@ -84,11 +91,19 @@ public class DeploymentPackageTask extends MatchingTask {
 
         for (String file : files) {
             try {
+                log("Parsing manifest of: " + file);
                 JarInputStream jis = new JarInputStream(new FileInputStream(new File(m_dir, file)));
                 Manifest bundleManifest = jis.getManifest();
-                String bsn = bundleManifest.getMainAttributes().getValue("Bundle-SymbolicName");
-                String version = bundleManifest.getMainAttributes().getValue("Bundle-Version");
-                jis.close();
+                String bsn = "INVALID";
+                String version = "INVALID";
+                if (bundleManifest == null) {
+                    throw new BuildException("Not a valid manifest in: " + file);
+                }
+                else {
+                    bsn = bundleManifest.getMainAttributes().getValue("Bundle-SymbolicName");
+                    version = bundleManifest.getMainAttributes().getValue("Bundle-Version");
+                    jis.close();
+                }
                 Attributes a = new Attributes();
                 a.putValue("Bundle-SymbolicName", bsn);
                 a.putValue("Bundle-Version", version);
@@ -104,6 +119,7 @@ public class DeploymentPackageTask extends MatchingTask {
             output = new JarOutputStream(new FileOutputStream(m_destination), manifest);
             byte[] buffer = new byte[4096];
             for (String file : files) {
+                log("Writing to deployment package: " + file);
                 output.putNextEntry(new ZipEntry(file));
                 FileInputStream fis = new FileInputStream(new File(m_dir, file));
                 int bytes = fis.read(buffer);
