@@ -1,0 +1,11 @@
+<project name="test" default="build">
+    <taskdef name="dp" classname="org.apache.ace.ant.deploymentpackage.DeploymentPackageTask" classpath="target/org.apache.ace.ant.tasks-0.8.1-incubator-SNAPSHOT.jar" />
+	<target name="build">
+	    <echo message="Start..." />
+		<dp name="marrs" version="1.0.0" dir="/Users/marcel/Desktop/demo" destination="cool-dp.jar">
+			<include name="servicebased.host-1.0.0.jar" />
+            <include name="servicebased.triangle-1.0.0.jar" />
+		</dp>
+	    <echo message="Stop..." />
+	</target>
+</project>
