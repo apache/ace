@@ -19,12 +19,19 @@
 package org.apache.ace.client.rest;
 
 import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.log.AuditEvent;
+import org.apache.ace.log.LogEvent;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -78,12 +85,60 @@ public class RepositoryObjectSerializer implements JsonSerializer<RepositoryObje
             state.add("artifactsFromDeployment", artifactsFromDeployment);
             state.addProperty("lastInstallVersion", stateful.getLastInstallVersion());
             state.addProperty("lastInstallSuccess", stateful.getLastInstallSuccess());
-            /* TODO auditEvents probably also needs paging and maybe filtering / searching */
+            state.add("auditEvents", getAuditEvents(stateful));
             /* TODO getLicenses/AssocationsWith might not be that helpful since the data is also available in a different way */
             /* TODO some of this tends to show up as attributes as well, so we will need to do some filtering there */
             /* TODO some aspects of the state can be manipulated as well, we need to supply methods for that */
             result.add("state", state);
         }
         return result;
+    }
+
+    private JsonArray getAuditEvents(StatefulGatewayObject stateful) {
+        DateFormat format = SimpleDateFormat.getDateTimeInstance();
+        List<LogEvent> auditEvents = stateful.getAuditEvents();
+        JsonArray events = new JsonArray();
+        for (LogEvent e : auditEvents) {
+            JsonObject event = new JsonObject();
+            event.addProperty("logId", e.getLogID());
+            event.addProperty("id", e.getID());
+            event.addProperty("time", format.format(new Date(e.getTime())));
+            event.addProperty("type", toAuditEventType(e.getType()));
+            JsonObject eventProperties = new JsonObject();
+            Dictionary p = e.getProperties();
+            Enumeration keyEnumeration = p.keys();
+            while (keyEnumeration.hasMoreElements()) {
+                Object key = keyEnumeration.nextElement();
+                eventProperties.addProperty(key.toString(), p.get(key).toString());
+            }
+            event.add("properties", eventProperties);
+            events.add(event);
+        }
+        return events;
+    }
+
+    private String toAuditEventType(int type) {
+        switch (type) {
+            case AuditEvent.BUNDLE_INSTALLED: return "bundle installed";
+            case AuditEvent.BUNDLE_RESOLVED: return "bundle resolved";
+            case AuditEvent.BUNDLE_STARTED: return "bundle started";
+            case AuditEvent.BUNDLE_STOPPED: return "bundle stopped";
+            case AuditEvent.BUNDLE_UNRESOLVED: return "bundle unresolved";
+            case AuditEvent.BUNDLE_UPDATED: return "bundle updated";
+            case AuditEvent.BUNDLE_UNINSTALLED: return "bundle uninstalled";
+            case AuditEvent.BUNDLE_STARTING: return "bundle starting";
+            case AuditEvent.BUNDLE_STOPPING: return "bundle stopping";
+            case AuditEvent.FRAMEWORK_INFO: return "framework info";
+            case AuditEvent.FRAMEWORK_WARNING: return "framework warning";
+            case AuditEvent.FRAMEWORK_ERROR: return "framework error";
+            case AuditEvent.FRAMEWORK_REFRESH: return "framework refresh";
+            case AuditEvent.FRAMEWORK_STARTED: return "framework started";
+            case AuditEvent.FRAMEWORK_STARTLEVEL: return "framework startlevel";
+            case AuditEvent.DEPLOYMENTADMIN_INSTALL: return "deployment admin install";
+            case AuditEvent.DEPLOYMENTADMIN_UNINSTALL: return "deployment admin uninstall";
+            case AuditEvent.DEPLOYMENTADMIN_COMPLETE: return "deployment admin complete";
+            case AuditEvent.DEPLOYMENTCONTROL_INSTALL: return "deployment control install";
+            default: return Integer.toString(type);
+        }
     }
 }
