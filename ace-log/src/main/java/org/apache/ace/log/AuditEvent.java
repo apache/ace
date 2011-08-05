@@ -32,7 +32,6 @@ public interface AuditEvent
     public static final String KEY_MSG = "msg";
     public static final String KEY_TYPE = "type";
     public static final String KEY_SUCCESS = "success";
-    public static final long VALUE_FADIAN_LOGID = 0;
 
     public static final int BUNDLE_BASE = 0;
 
@@ -230,22 +229,4 @@ public interface AuditEvent
      * </dl>
      */
     public static final int DEPLOYMENTCONTROL_INSTALL = (DEPLOYMENTCONTROL_BASE + 1);
-
-    public static final int FADIAN_BASE = 4000;
-
-    /**
-     * This event is logged when a FADIAN device has completed it's network boot phase.
-     */
-    public static final int FADIAN_READYNETBOOT = (FADIAN_BASE + 1);
-
-    /**
-     * This event is logged when a FADIAN device has completed it's operating system phase.
-     */
-    public static final int FADIAN_READYOS = (FADIAN_BASE + 2);
-
-    /**
-     * This event is logged when a FADIAN device has completed it's middleware phase.
-     */
-    public static final int FADIAN_READYMIDDLEWARE = (FADIAN_BASE + 3);
-
 }
