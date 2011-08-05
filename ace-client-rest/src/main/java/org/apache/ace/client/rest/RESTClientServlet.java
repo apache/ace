@@ -119,7 +119,9 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                         JsonArray result = new JsonArray();
                         for (RepositoryObject ro : objects) {
                             String identity = workspace.getRepositoryObjectIdentity(ro);
-                            result.add(new JsonPrimitive(URLEncoder.encode(identity, "UTF-8")));
+                            if (identity != null) {
+                                result.add(new JsonPrimitive(URLEncoder.encode(identity, "UTF-8")));
+                            }
                         }
                         resp.getWriter().println(m_gson.toJson(result));
                         return;
@@ -203,7 +205,12 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                             RepositoryValueObject data = m_gson.fromJson(req.getReader(), RepositoryValueObject.class);
                             RepositoryObject object = workspace.addRepositoryObject(pathElements[2], data.attributes, data.tags);
                             String identity = workspace.getRepositoryObjectIdentity(object);
-                            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], identity));
+                            if (identity != null) {
+                                resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], identity));
+                            }
+                            else {
+                                // TODO decide what to do here, if this can happen at all
+                            }
                             return;
                         }
                         catch (IllegalArgumentException e) {

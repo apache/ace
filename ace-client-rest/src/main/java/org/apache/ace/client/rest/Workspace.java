@@ -160,7 +160,15 @@ public class Workspace {
     
     public static String getRepositoryObjectIdentity(RepositoryObject object) {
         if (object instanceof StatefulGatewayObject) {
-            return ((StatefulGatewayObject) object).getGatewayObject().getAssociationFilter(null);
+            StatefulGatewayObject statefulTarget = (StatefulGatewayObject) object;
+            if (statefulTarget.isRegistered()) {
+                return statefulTarget.getGatewayObject().getAssociationFilter(null);
+            }
+            else {
+                // TODO we're out of luck here, we cannot create an identity for the object
+                //      based on the association filter
+                return null;
+            }
         }
         else {
             return object.getAssociationFilter(null);
