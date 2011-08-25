@@ -360,6 +360,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.ace</groupId>
+                <artifactId>org.apache.ace.client.rest</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ace</groupId>
                 <artifactId>org.apache.ace.configurator</artifactId>
                 <version>${project.version}</version>
             </dependency>
