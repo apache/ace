@@ -8,10 +8,6 @@ echo "*** Creating new workspace..."
 WORK=`curl -s -d dummy_data -w %{redirect_url} http://localhost:8080/client/work`
 echo "Workspace is ${WORK}"
 
-# Add two random features (might fail, name is actually random)
-#curl -v -d "{ attributes: { name: 'feature-${RANDOM}', description: 'a random feature' }, tags: { generated: 'true'}}" ${WORK}/feature
-#curl -v -d "{ attributes: { name: 'feature-${RANDOM}', description: 'another random feature' }, tags: { generated: 'true'}}" ${WORK}/feature
-
 echo "*** Adding artifact, feature, distribution, target and all associations..."
 
 RND=$RANDOM
@@ -45,15 +41,6 @@ echo "Association is ${ASSOC3}"
 
 # Get a list of artifacts
 #curl ${WORK}/artifact
-#curl ${WORK}/artifact/%28%26%28Bundle-SymbolicName%3Dnet.luminis.android.desktop%29%28Bundle-Version%3D1.0.0%29%29
-
-# Add a random artifact (does not upload to OBR yet)
-#echo "*** Adding a new, random artifact..."
-#RND=$RANDOM
-#BSN=org.apache.bundle${RND}
-#VERSION=1.0.0
-#NAME=${BSN}-${VERSION}
-#curl -v -d "{attributes: { artifactName: '${NAME}' , mimetype: 'application/vnd.osgi.bundle', Bundle-Name: '${BSN}', Bundle-SymbolicName: '${BSN}', Bundle-Version: '${VERSION}', url: 'http://localhost:8080/obr/${NAME}.jar', artifactDescription: 'coolio', processorPid: '' }, tags: { generated: 'true' }}" ${WORK}/artifact
 
 # Commit the workspace
 echo "*** Committing workspace..."

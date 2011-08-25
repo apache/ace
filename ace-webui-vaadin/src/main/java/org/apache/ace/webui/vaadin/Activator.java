@@ -21,7 +21,7 @@ package org.apache.ace.webui.vaadin;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.servlet.http.HttpServlet;
+import javax.servlet.Servlet;
 
 import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
 import org.apache.ace.http.listener.constants.HttpConstants;
@@ -30,9 +30,6 @@ import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpService;
 
 import com.vaadin.ui.Component;
@@ -50,12 +47,11 @@ public class Activator extends DependencyActivatorBase {
             )
         );
         // register the main application for the ACE UI client
-        Properties props = new Properties();
-        props.put(HttpConstants.ENDPOINT, "/ace");
         manager.add(createComponent()
-            .setInterface(HttpServlet.class.getName(), props)
+            .setInterface(Servlet.class.getName(), null)
             .setImplementation(VaadinServlet.class)
-            .add(createConfigurationDependency().setPid(VaadinServlet.PID))
+            .add(createConfigurationDependency()
+                .setPid(VaadinServlet.PID).setPropagate(true))
         );
         
         // shows off components that are contributed by extensions

@@ -18,7 +18,7 @@
  */
 package org.apache.ace.repository.servlet;
 
-import javax.servlet.http.HttpServlet;
+import javax.servlet.Servlet;
 
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
@@ -32,7 +32,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         manager.add(createComponent()
-            .setInterface(HttpServlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), null)
             .setImplementation(RepositoryServlet.class)
             .add(createConfigurationDependency()
                 .setPropagate(true)
@@ -42,7 +42,7 @@ public class Activator extends DependencyActivatorBase {
                 .setRequired(false)));
 
         manager.add(createComponent()
-            .setInterface(HttpServlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), null)
             .setImplementation(RepositoryReplicationServlet.class)
             .add(createConfigurationDependency()
                 .setPropagate(true)

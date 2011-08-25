@@ -18,8 +18,27 @@
  */
 package org.apache.ace.it.http;
 
+import static org.apache.ace.it.Options.jetty;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.provision;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Dictionary;
+import java.util.Hashtable;
+
+import javax.servlet.Servlet;
+import javax.servlet.http.HttpServlet;
+
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
+import org.apache.ace.it.Options.Ace;
+import org.apache.ace.it.Options.Felix;
+import org.apache.ace.it.Options.Osgi;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
 import org.junit.Test;
@@ -29,21 +48,6 @@ import org.ops4j.pax.exam.container.def.options.VMOption;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.service.http.HttpService;
-import org.osgi.service.log.LogService;
-
-import javax.servlet.http.HttpServlet;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Dictionary;
-import java.util.Hashtable;
-
-import static org.apache.ace.it.Options.*;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.provision;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 @RunWith(JUnit4TestRunner.class)
 public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
@@ -69,7 +73,7 @@ public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
         dictionary.put(HttpConstants.ENDPOINT, "/echoServlet");
         m_echoServletService = m_dependencyManager.createComponent()
             .setImplementation(m_echoServlet)
-            .setInterface(HttpServlet.class.getName(), dictionary);
+            .setInterface(Servlet.class.getName(), dictionary);
 
         m_mockHttp = new MockHttpService();
         m_mockHttpService = m_dependencyManager.createComponent()

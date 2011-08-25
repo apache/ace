@@ -18,6 +18,7 @@
  */
 package org.apache.ace.obr.servlet;
 
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.ace.obr.storage.BundleStore;
@@ -32,7 +33,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         manager.add(createComponent()
-            .setInterface(HttpServlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), null)
             .setImplementation(BundleServlet.class)
             .add(createConfigurationDependency()
                 .setPropagate(true)

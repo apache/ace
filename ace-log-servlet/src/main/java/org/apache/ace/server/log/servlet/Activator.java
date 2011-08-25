@@ -23,9 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.servlet.http.HttpServlet;
+import javax.servlet.Servlet;
 
-import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.server.log.store.LogStore;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -74,17 +73,11 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         if ((name == null) || "".equals(name)) {
             throw new ConfigurationException(LOG_NAME, "Log name has to be specified.");
         }
-        String endpoint = (String) dict.get(HttpConstants.ENDPOINT);
-        if ((endpoint == null) || "".equals(endpoint)) {
-            throw new ConfigurationException(HttpConstants.ENDPOINT, "Servlet endpoint has to be specified.");
-        }
 
         Component service = m_instances.get(pid);
         if (service == null) {
-            Properties props = new Properties();
-            props.put(HttpConstants.ENDPOINT, endpoint);
             service = m_manager.createComponent()
-                .setInterface(HttpServlet.class.getName(), props)
+                .setInterface(Servlet.class.getName(), dict)
                 .setImplementation(new LogServlet(name))
                 .add(createServiceDependency().setService(LogService.class).setRequired(false))
                 .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + "))").setRequired(true));

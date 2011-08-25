@@ -18,7 +18,7 @@
  */
 package org.apache.ace.client.rest;
 
-import javax.servlet.http.HttpServlet;
+import javax.servlet.Servlet;
 
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -32,7 +32,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         manager.add(createComponent()
-            .setInterface(HttpServlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), null)
             .setImplementation(RESTClientServlet.class)
             .add(createServiceDependency()
                 .setService(SessionFactory.class)

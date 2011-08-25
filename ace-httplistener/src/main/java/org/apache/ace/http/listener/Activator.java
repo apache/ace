@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.Servlet;
-import javax.servlet.http.HttpServlet;
 
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -35,9 +34,9 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 /**
- * Service responsible for registrating HttpServlets at HttpServices.<p>
+ * Service responsible for registrating Servlets at HttpServices.<p>
  *
- * When a HttpServlet is being added or removed, the callback methods in this class are being
+ * When a Servlet is being added or removed, the callback methods in this class are being
  * called via the DependencyManager. A Servlet is being added to all HttpServices currently
  * available or removed from all available HttpServices.<p>
  *
@@ -66,18 +65,18 @@ public class Activator extends DependencyActivatorBase {
                 .setAutoConfig(false)
                 .setCallbacks("addHttpService", "removeHttpService"))
             .add(createServiceDependency()
-                .setService(HttpServlet.class)
+                .setService(Servlet.class)
                 .setAutoConfig(false)
-                .setCallbacks("addHttpServlet", "changeHttpServlet", "removeHttpServlet")));
+                .setCallbacks("addServlet", "changeServlet", "removeServlet")));
     }
 
     /**
-     * Callback method used in case a HttpServlet is being added. This Servlet is being added
+     * Callback method used in case a Servlet is being added. This Servlet is being added
      * to all available HttpServices under the endpoint configured via the Configurator.
      *
      * @param ref  reference to the Servlet
      */
-    public synchronized void addHttpServlet(ServiceReference ref) {
+    public synchronized void addServlet(ServiceReference ref) {
         // register servlet to all HttpServices
         String endpoint = (String)ref.getProperty(HttpConstants.ENDPOINT);
         m_servlets.put(ref, endpoint);
@@ -98,18 +97,24 @@ public class Activator extends DependencyActivatorBase {
         }
     }
 
-    public synchronized void changeHttpServlet(ServiceReference ref) {
+    /**
+     * Callback method used in case a Servlet is being changed. This Servlet is removed
+     * and then added again. 
+     *
+     * @param ref  reference to the Servlet
+     */
+    public synchronized void changeServlet(ServiceReference ref) {
         removeServlet(ref, m_servlets.get(ref));
-        addHttpServlet(ref);
+        addServlet(ref);
     }
 
     /**
-     * Callback method used in case a HttpServlet is being removed. This Servlet is being removed
+     * Callback method used in case a Servlet is being removed. This Servlet is being removed
      * from all available HttpServices using the endpoint configured via the Configurator.
      *
      * @param ref  reference to the Servlet
      */
-    public synchronized void removeHttpServlet(ServiceReference ref) {
+    public synchronized void removeServlet(ServiceReference ref) {
         // remove servlet from all HttpServices
         String endpoint = (String)ref.getProperty(HttpConstants.ENDPOINT);
         removeServlet(ref, endpoint);

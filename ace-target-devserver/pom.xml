@@ -186,6 +186,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.client.rest</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.configurator</artifactId>
             <scope>runtime</scope>
         </dependency>

@@ -18,7 +18,7 @@
  */
 package org.apache.ace.deployment.servlet;
 
-import javax.servlet.http.HttpServlet;
+import javax.servlet.Servlet;
 
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.streamgenerator.StreamGenerator;
@@ -33,7 +33,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         manager.add(createComponent()
-            .setInterface(HttpServlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), null)
             .setImplementation(DeploymentServlet.class)
             .add(createServiceDependency().setService(StreamGenerator.class).setRequired(true))
             .add(createServiceDependency().setService(DeploymentProvider.class).setRequired(true))
