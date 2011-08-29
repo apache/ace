@@ -15,28 +15,28 @@ BSN=org.apache.bundle${RND}
 VERSION=1.0.0
 NAME=${BSN}-${VERSION}
 ART=`curl -v -d "{attributes: { artifactName: '${NAME}' , mimetype: 'application/vnd.osgi.bundle', Bundle-Name: '${BSN}', Bundle-SymbolicName: '${BSN}', Bundle-Version: '${VERSION}', url: 'http://localhost:8080/obr/${NAME}.jar', artifactDescription: 'coolio', processorPid: '' }, tags: { generated: 'true' }}" -w %{redirect_url} ${WORK}/artifact`
-ARTID=`echo ${ART##*/} | perl -MURI::Escape -lne 'print uri_unescape($_)'`
+ARTID=`echo ${ART##*/}`
 echo "Artifact is ${ART} => ${ARTID}"
 
 FEAT=`curl -v -d "{ attributes: { name: 'feature-${RANDOM}', description: 'a feature' }, tags: {}}" -w %{redirect_url} ${WORK}/feature`
-FEATID=`echo ${FEAT##*/} | perl -MURI::Escape -lne 'print uri_unescape($_)'`
+FEATID=`echo ${FEAT##*/}`
 echo "Feature is ${FEAT} => ${FEATID}"
 
 DIST=`curl -v -d "{ attributes: { name: 'distribution-${RANDOM}', description: 'a distribution' }, tags: {}}" -w %{redirect_url} ${WORK}/distribution`
-DISTID=`echo ${DIST##*/} | perl -MURI::Escape -lne 'print uri_unescape($_)'`
+DISTID=`echo ${DIST##*/}`
 echo "Distribution is ${DIST} => ${DISTID}"
 
 TARGET=`curl -v -d "{ attributes: { id: 'target-${RANDOM}', autoapprove: 'true' }, tags: {}}" -w %{redirect_url} ${WORK}/target`
-TARGETID=`echo ${TARGET##*/} | perl -MURI::Escape -lne 'print uri_unescape($_)'`
+TARGETID=`echo ${TARGET##*/}`
 echo "Target is ${TARGET} => ${TARGETID}"
 
-ASSOC1=`curl -v -d "{ attributes: { leftEndpoint: '${ARTID}', leftCardinality: '1', rightEndpoint: '${FEATID}', rightCardinality: '1' }, tags: {}}" -w %{redirect_url} ${WORK}/artifact2feature`
+ASSOC1=`curl -v -d "{ attributes: { left: '${ARTID}', leftCardinality: '1', right: '${FEATID}', rightCardinality: '1' }, tags: {}}" -w %{redirect_url} ${WORK}/artifact2feature`
 echo "Association is ${ASSOC1}"
 
-ASSOC2=`curl -v -d "{ attributes: { leftEndpoint: '${FEATID}', leftCardinality: '1', rightEndpoint: '${DISTID}', rightCardinality: '1' }, tags: {}}" -w %{redirect_url} ${WORK}/feature2distribution`
+ASSOC2=`curl -v -d "{ attributes: { left: '${FEATID}', leftCardinality: '1', right: '${DISTID}', rightCardinality: '1' }, tags: {}}" -w %{redirect_url} ${WORK}/feature2distribution`
 echo "Association is ${ASSOC2}"
 
-ASSOC3=`curl -v -d "{ attributes: { leftEndpoint: '${DISTID}', leftCardinality: '1', rightEndpoint: '${TARGETID}', rightCardinality: '1' }, tags: {}}" -w %{redirect_url} ${WORK}/distribution2target`
+ASSOC3=`curl -v -d "{ attributes: { left: '${DISTID}', leftCardinality: '1', right: '${TARGETID}', rightCardinality: '1' }, tags: {}}" -w %{redirect_url} ${WORK}/distribution2target`
 echo "Association is ${ASSOC3}"
 
 # Get a list of artifacts

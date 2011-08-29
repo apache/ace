@@ -41,6 +41,14 @@ public interface ObjectRepository<T extends RepositoryObject> {
      * empty list will be returned.
      */
     public List<T> get(Filter filter);
+    /**
+     * Returns the entity in this repository that has the given definition.
+     * If none match, null will return. 
+     * 
+     * @param definition the definition of the entity to be returned
+     * @return The entity in this repository that has the given definition or <code>null</code> if none.
+     */
+    public T get(String definition);
 
     /**
      * Creates a new inhabitant based on the given attributes. The object

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.ace.client.repository.ObjectRepository;
@@ -47,6 +48,8 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
     protected BundleContext m_context; /* injected by dependency manager */
 
     private final List<T> m_repo = new CopyOnWriteArrayList<T>();
+    private final Map<String, T> m_index = new ConcurrentHashMap<String, T>();
+    
     private final ChangeNotifier m_notifier;
 
     private final String m_xmlNode;
@@ -91,6 +94,7 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         synchronized (m_repo) {
             if (!m_repo.contains(entity)) {
                 m_repo.add(entity);
+                m_index.put(entity.getDefinition(), entity);
                 result = true;
             }
         }
@@ -108,6 +112,7 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         boolean result = false;
         synchronized (m_repo) {
             if (m_repo.remove(entity)) {
+                m_index.remove(entity.getDefinition());
                 ((I) entity).setDeleted();
                 result = true;
             }
@@ -169,6 +174,10 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         return result;
     }
 
+    public T get(String definition) {
+    	return m_index.get(definition);
+    }
+    
     Filter createFilter(String filter) throws InvalidSyntaxException {
         return m_context.createFilter(filter);
     }

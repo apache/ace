@@ -1028,43 +1028,19 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private ArtifactObject getArtifact(String definition) {
-        List<ArtifactObject> list = m_artifactRepository.get();
-        for (ArtifactObject ao : list) {
-            if (ao.getDefinition().equals(definition)) {
-                return ao;
-            }
-        }
-        return null;
+        return m_artifactRepository.get(definition);
     }
 
     private GroupObject getFeature(String name) {
-        List<GroupObject> list = m_featureRepository.get();
-        for (GroupObject go : list) {
-            if (go.getDefinition().equals(name)) {
-                return go;
-            }
-        }
-        return null;
+        return m_featureRepository.get(name);
     }
     
     private LicenseObject getDistribution(String name) {
-        List<LicenseObject> list = m_distributionRepository.get();
-        for (LicenseObject lo : list) {
-            if (lo.getDefinition().equals(name)) {
-                return lo;
-            }
-        }
-        return null;
+        return m_distributionRepository.get(name);
     }
     
     private StatefulGatewayObject getTarget(String name) {
-        List<StatefulGatewayObject> list = m_statefulTargetRepository.get();
-        for (StatefulGatewayObject sgo : list) {
-            if (sgo.getDefinition().equals(name)) {
-                return sgo;
-            }
-        }
-        return null;
+        return m_statefulTargetRepository.get(name);
     }
 
     private void deleteFeature(String name) {

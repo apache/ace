@@ -74,6 +74,7 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
     private BundleHelper m_bundleHelper; /*Injected by dependency manager*/
     //TODO: Make the concurrencyLevel of this concurrent hashmap settable?
     private Map<String, StatefulGatewayObjectImpl> m_repository = new ConcurrentHashMap<String, StatefulGatewayObjectImpl>();
+    private Map<String, StatefulGatewayObjectImpl> m_index = new ConcurrentHashMap<String, StatefulGatewayObjectImpl>();
     private final String m_sessionID;
 
     public StatefulGatewayRepositoryImpl(String sessionID) {
@@ -104,6 +105,10 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
             }
             return result;
         }
+    }
+    
+    public StatefulGatewayObject get(String definition) {
+    	return m_index.get(definition);
     }
 
     public void remove(StatefulGatewayObject entity) {
@@ -209,6 +214,7 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
     boolean add(StatefulGatewayObjectImpl sgoi) {
         if (!m_repository.containsKey(sgoi)) {
             m_repository.put(sgoi.getID(), sgoi);
+            m_index.put(sgoi.getDefinition(), sgoi);
             notifyChanged(sgoi, StatefulGatewayObject.TOPIC_ADDED);
             return true;
         }

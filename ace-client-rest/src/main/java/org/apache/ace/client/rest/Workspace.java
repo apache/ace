@@ -21,8 +21,11 @@ package org.apache.ace.client.rest;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
@@ -142,57 +145,189 @@ public class Workspace {
         m_repositoryAdmin.commit();
     }
 
-    public RepositoryObject getRepositoryObject(String entityType, String entityId) {
-        RepositoryObject result = null;
-        try {
-            List list = null;
-            Filter filter = FrameworkUtil.createFilter(entityId);
-            list = getObjectRepository(entityType).get(filter);
-            if (list != null && list.size() == 1) {
-                return (RepositoryObject) list.get(0);
-            }
-        }
-        catch (InvalidSyntaxException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-    
-    public static String getRepositoryObjectIdentity(RepositoryObject object) {
-        if (object instanceof StatefulGatewayObject) {
-            StatefulGatewayObject statefulTarget = (StatefulGatewayObject) object;
-            if (statefulTarget.isRegistered()) {
-                return statefulTarget.getGatewayObject().getAssociationFilter(null);
-            }
-            else {
-                // TODO we're out of luck here, we cannot create an identity for the object
-                //      based on the association filter
-                return null;
-            }
-        }
-        else {
-            return object.getAssociationFilter(null);
-        }
-    }
+	public RepositoryObject getRepositoryObject(String entityType,
+			String entityId) {
+		return getObjectRepository(entityType).get(entityId);
+	}
 
-    public List<RepositoryObject> getRepositoryObjects(String entityType) {
-        List list = getObjectRepository(entityType).get();
-        if (list != null) {
-            return list;
-        }
-        else {
-            return Collections.EMPTY_LIST;
-        }
-    }
+	public static String getRepositoryObjectIdentity(RepositoryObject object) {
+		return object.getDefinition();
+	}
 
-    public RepositoryObject addRepositoryObject(String entityType, Map<String, String> attributes, Map<String, String> tags) throws IllegalArgumentException{
-        if (TARGET.equals(entityType)) {
-            return ((StatefulGatewayRepository) getObjectRepository(TARGET)).preregister(attributes, tags);
-        }
-        else {
-            return getObjectRepository(entityType).create(attributes, tags);
-        }
-    }
+	public List<RepositoryObject> getRepositoryObjects(String entityType) {
+		List list = getObjectRepository(entityType).get();
+		if (list != null) {
+			return list;
+		} else {
+			return Collections.EMPTY_LIST;
+		}
+	}
+
+	public RepositoryObject addRepositoryObject(String entityType,
+			Map<String, String> attributes, Map<String, String> tags)
+			throws IllegalArgumentException {
+		if (TARGET.equals(entityType)) {
+			return ((StatefulGatewayRepository) getObjectRepository(TARGET))
+					.preregister(attributes, tags);
+		} else {
+			if (ARTIFACT2FEATURE.equals(entityType)
+					|| FEATURE2DISTRIBUTION.equals(entityType)
+					|| DISTRIBUTION2TARGET.equals(entityType)) {
+				RepositoryObject left = getLeft(entityType,
+						attributes.get("left"));
+				RepositoryObject right = getRight(entityType,
+						attributes.get("right"));
+				if (left != null) {
+					if (left instanceof StatefulGatewayObject) {
+						if (((StatefulGatewayObject) left).isRegistered()) {
+							attributes.put("leftEndpoint",
+									((StatefulGatewayObject) left)
+											.getGatewayObject()
+											.getAssociationFilter(attributes));
+						}
+					} else {
+						attributes.put("leftEndpoint",
+								left.getAssociationFilter(attributes));
+					}
+				}
+				if (right != null) {
+					if (right instanceof StatefulGatewayObject) {
+						if (((StatefulGatewayObject) right).isRegistered()) {
+							attributes.put("rightEndpoint",
+									((StatefulGatewayObject) right)
+											.getGatewayObject()
+											.getAssociationFilter(attributes));
+						}
+					} else {
+						attributes.put("rightEndpoint",
+								right.getAssociationFilter(attributes));
+					}
+				}
+			}
+			return getObjectRepository(entityType).create(attributes, tags);
+		}
+	}
+
+	public void updateObjectWithData(String entityType, String entityId,
+			RepositoryValueObject valueObject) {
+		RepositoryObject repositoryObject = getRepositoryObject(entityType,
+				entityId);
+		// first handle the attributes
+		for (Entry<String, String> attribute : valueObject.attributes
+				.entrySet()) {
+			String key = attribute.getKey();
+			String value = attribute.getValue();
+			// only add/update the attribute if it actually changed
+			if (!value.equals(repositoryObject.getAttribute(key))) {
+				repositoryObject.addAttribute(key, value);
+			}
+		}
+		Enumeration<String> keys = repositoryObject.getAttributeKeys();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			if (!valueObject.attributes.containsKey(key)) {
+				// TODO since we cannot remove keys right now, we null them
+				repositoryObject.addAttribute(key, null);
+			}
+		}
+		if (ARTIFACT2FEATURE.equals(entityType)
+				|| FEATURE2DISTRIBUTION.equals(entityType)
+				|| DISTRIBUTION2TARGET.equals(entityType)) {
+			RepositoryObject left = getLeft(entityType,
+					repositoryObject.getAttribute("left"));
+			RepositoryObject right = getRight(entityType,
+					repositoryObject.getAttribute("right"));
+			if (left != null) {
+				if (left instanceof StatefulGatewayObject) {
+					if (((StatefulGatewayObject) left).isRegistered()) {
+						repositoryObject
+								.addAttribute(
+										"leftEndpoint",
+										((StatefulGatewayObject) left)
+												.getGatewayObject()
+												.getAssociationFilter(
+														getAttributes(((StatefulGatewayObject) left)
+																.getGatewayObject())));
+					}
+				} else {
+					repositoryObject.addAttribute("leftEndpoint",
+							left.getAssociationFilter(getAttributes(left)));
+				}
+			}
+			if (right != null) {
+				if (right instanceof StatefulGatewayObject) {
+					if (((StatefulGatewayObject) right).isRegistered()) {
+						repositoryObject
+								.addAttribute(
+										"rightEndpoint",
+										((StatefulGatewayObject) right)
+												.getGatewayObject()
+												.getAssociationFilter(
+														getAttributes(((StatefulGatewayObject) right)
+																.getGatewayObject())));
+					}
+				} else {
+					repositoryObject.addAttribute("rightEndpoint",
+							right.getAssociationFilter(getAttributes(right)));
+				}
+			}
+		}
+		// now handle the tags in a similar way
+		for (Entry<String, String> attribute : valueObject.tags.entrySet()) {
+			String key = attribute.getKey();
+			String value = attribute.getValue();
+			// only add/update the tag if it actually changed
+			if (!value.equals(repositoryObject.getTag(key))) {
+				repositoryObject.addTag(key, value);
+			}
+		}
+		keys = repositoryObject.getTagKeys();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			if (!valueObject.tags.containsKey(key)) {
+				// TODO since we cannot remove keys right now, we null them
+				repositoryObject.addTag(key, null);
+			}
+		}
+	}
+
+	private Map getAttributes(RepositoryObject object) {
+		Map result = new HashMap();
+		for (Enumeration<String> keys = object.getAttributeKeys(); keys
+				.hasMoreElements();) {
+			String key = keys.nextElement();
+			result.put(key, object.getAttribute(key));
+		}
+		return result;
+	}
+
+	public RepositoryObject getLeft(String entityType, String entityId) {
+		ObjectRepository repo = getObjectRepository(entityType);
+		if (ARTIFACT2FEATURE.equals(entityType)) {
+			return getObjectRepository(ARTIFACT).get(entityId);
+		}
+		if (FEATURE2DISTRIBUTION.equals(entityType)) {
+			return getObjectRepository(FEATURE).get(entityId);
+		}
+		if (DISTRIBUTION2TARGET.equals(entityType)) {
+			return getObjectRepository(DISTRIBUTION).get(entityId);
+		}
+		return null;
+	}
+
+	public RepositoryObject getRight(String entityType, String entityId) {
+		ObjectRepository repo = getObjectRepository(entityType);
+		if (ARTIFACT2FEATURE.equals(entityType)) {
+			return getObjectRepository(FEATURE).get(entityId);
+		}
+		if (FEATURE2DISTRIBUTION.equals(entityType)) {
+			return getObjectRepository(DISTRIBUTION).get(entityId);
+		}
+		if (DISTRIBUTION2TARGET.equals(entityType)) {
+			return getObjectRepository(TARGET).get(entityId);
+		}
+		return null;
+	}
     
     public void deleteRepositoryObject(String entityType, String entityId) {
         RepositoryObject result = null;

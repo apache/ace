@@ -190,26 +190,19 @@ public class Associations {
         }
 
         public RepositoryObject lookup(Object value) {
-            for (RepositoryObject object : m_repository.get()) {
-                if (object instanceof StatefulGatewayObject) {
-                    StatefulGatewayObject sgo = (StatefulGatewayObject) object;
-                    if (sgo.isRegistered()) {
-                        object = sgo.getGatewayObject();
-                    }
-                    else {
-                        object = null;
-                    }
-                }
-                if (object != null) {
-                    NamedObject namedObject = getNamedObject(object);
-                    if (namedObject != null) {
-                        if (namedObject.getDefinition().equals(value)) {
-                            return object;
-                        }
-                    }
-                }
+        	RepositoryObject object = null;
+        	if (value instanceof String) {
+				object = m_repository.get((String) value);
+				if (object instanceof StatefulGatewayObject) {
+					StatefulGatewayObject sgo = (StatefulGatewayObject) object;
+					if (sgo.isRegistered()) {
+						object = sgo.getGatewayObject();
+					} else {
+						object = null;
+					}
+				}
             }
-            return null;
+            return object;
         }
 		
     	

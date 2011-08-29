@@ -237,7 +237,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                         try {
                             RepositoryValueObject data = m_gson.fromJson(req.getReader(), RepositoryValueObject.class);
                             RepositoryObject object = workspace.getRepositoryObject(pathElements[2], pathElements[3]);
-                            updateObjectWithData(object, data);
+                            workspace.updateObjectWithData(pathElements[2], pathElements[2], data);
                             resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], pathElements[3]));
                             return;
                         }
@@ -358,43 +358,6 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
         catch (UnsupportedEncodingException e) {}
         return pathElements;
-    }
-
-    private void updateObjectWithData(RepositoryObject repositoryObject, RepositoryValueObject valueObject) {
-        // first handle the attributes
-        for (Entry<String, String> attribute : valueObject.attributes.entrySet()) {
-            String key = attribute.getKey();
-            String value = attribute.getValue();
-            // only add/update the attribute if it actually changed
-            if (!value.equals(repositoryObject.getAttribute(key))) {
-                repositoryObject.addAttribute(key, value);
-            }
-        }
-        Enumeration<String> keys = repositoryObject.getAttributeKeys();
-        while (keys.hasMoreElements()) {
-            String key = keys.nextElement();
-            if (!valueObject.attributes.containsKey(key)) {
-                // TODO since we cannot remove keys right now, we null them
-                repositoryObject.addAttribute(key, null);
-            }
-        }
-        // now handle the tags in a similar way
-        for (Entry<String, String> attribute : valueObject.tags.entrySet()) {
-            String key = attribute.getKey();
-            String value = attribute.getValue();
-            // only add/update the tag if it actually changed
-            if (!value.equals(repositoryObject.getTag(key))) {
-                repositoryObject.addTag(key, value);
-            }
-        }
-        keys = repositoryObject.getTagKeys();
-        while (keys.hasMoreElements()) {
-            String key = keys.nextElement();
-            if (!valueObject.tags.containsKey(key)) {
-                // TODO since we cannot remove keys right now, we null them
-                repositoryObject.addTag(key, null);
-            }
-        }
     }
 
     public void updated(Dictionary properties) throws ConfigurationException {
