@@ -28,14 +28,15 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
+    <groupId>org.apache.ace.karaf</groupId>
     <artifactId>apache-ace</artifactId>
     <packaging>pom</packaging>
-    <name>Apache ACE :: Features</name>
+    <name>Apache ACE :: Karaf Features</name>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-features</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-features</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-features</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-karaf-features</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-karaf-features</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-karaf-features</url>
     </scm>
 
     <build>
