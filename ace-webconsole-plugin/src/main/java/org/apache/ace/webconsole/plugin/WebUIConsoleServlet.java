@@ -35,6 +35,6 @@ public class WebUIConsoleServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
         // ACE WebUI is a full ajax UI, so rending this once should be enough:
-        httpServletResponse.getWriter().println("<iframe scrolling=\"no\" frameborder=\"0\" width=\"100%\" height=\"500pt\" src=\"/webui/webui-headless.html\" />");
+        httpServletResponse.getWriter().println("<iframe scrolling=\"no\" frameborder=\"0\" width=\"100%\" height=\"500pt\" src=\"/ace/webui\" />");
     }
 }

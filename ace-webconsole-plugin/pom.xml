@@ -49,6 +49,7 @@
             !org.apache.ace.webconsole.plugin,
             *
         </import.package>
+        <bundle.activator>org.apache.ace.webconsole.plugin.Activator</bundle.activator>
     </properties>
 
     <dependencies>
