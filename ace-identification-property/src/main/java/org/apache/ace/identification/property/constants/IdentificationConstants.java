@@ -18,8 +18,8 @@
  */
 package org.apache.ace.identification.property.constants;
 
-public interface IdentificationConstants
-{
+public interface IdentificationConstants {
     public static final String IDENTIFICATION_PID = "org.apache.ace.identification.property";
-    public static final String IDENTIFICATION_GATEWAYID_KEY = "gatewayID";
+    public static final String IDENTIFICATION_FACTORY_PID = "org.apache.ace.identification.property.factory";
+    public static final String IDENTIFICATION_TARGETID_KEY = "gatewayID";
 }

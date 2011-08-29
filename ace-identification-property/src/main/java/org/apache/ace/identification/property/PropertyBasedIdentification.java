@@ -28,31 +28,45 @@ import org.osgi.service.log.LogService;
 
 /**
  * Simple implementation of the <code>Identification</code> interface. Because
- * a gateway identification should not change during it's lifetime the user of this
+ * a target identification should not change during it's lifetime the user of this
  * implementation should set the ID only once.
  */
 public class PropertyBasedIdentification implements ManagedService, Identification {
+    private final Object LOCK = new Object();
     private volatile LogService m_log;
-    private String m_gatewayID;
+    private String m_targetID;
+    
+    public PropertyBasedIdentification() {
+    }
+    
+    public PropertyBasedIdentification(String id) {
+        setID(id);
+    }
 
-    public synchronized String getID() {
-        return m_gatewayID;
+    public String getID() {
+        synchronized (LOCK) {
+            return m_targetID;
+        }
+    }
+    
+    public void setID(String id) {
+        synchronized (LOCK) {
+            if (m_targetID != null) {
+                m_log.log(LogService.LOG_WARNING, "Target ID is being changed from " + m_targetID + " to " + id);
+            }
+            m_targetID = id;
+        }
     }
 
     public void updated(Dictionary dictionary) throws ConfigurationException {
         if (dictionary != null) {
-            String id = (String) dictionary.get(IdentificationConstants.IDENTIFICATION_GATEWAYID_KEY);
+            String id = (String) dictionary.get(IdentificationConstants.IDENTIFICATION_TARGETID_KEY);
             if ((id == null) || (id.length() == 0)) {
                 // illegal config
-                throw new ConfigurationException(IdentificationConstants.IDENTIFICATION_GATEWAYID_KEY, "Illegal gateway ID supplied");
-            }
-            if (m_gatewayID != null) {
-                m_log.log(LogService.LOG_WARNING, "Gateway ID is being changed from " + m_gatewayID + " to " + id);
+                throw new ConfigurationException(IdentificationConstants.IDENTIFICATION_TARGETID_KEY, "Illegal target ID supplied");
             }
             // legal config, set configuration
-            synchronized (this) {
-                m_gatewayID = id;
-            }
+            setID(id);
         }
     }
 }

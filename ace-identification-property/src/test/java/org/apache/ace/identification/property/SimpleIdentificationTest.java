@@ -49,7 +49,7 @@ public class SimpleIdentificationTest {
     public void testSimpleIdentification() throws Exception {
         m_identification.updated(
             new Properties() {
-                {put(IdentificationConstants.IDENTIFICATION_GATEWAYID_KEY, TEST_ID);}
+                {put(IdentificationConstants.IDENTIFICATION_TARGETID_KEY, TEST_ID);}
             });
         assert TEST_ID.equals(m_identification.getID()) : "gateway ID does not match configured gateway ID";
     }

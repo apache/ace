@@ -18,6 +18,7 @@
  */
 package org.apache.ace.identification.property;
 
+import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -29,35 +30,35 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.apache.ace.identification.property.constants.IdentificationConstants;
-import org.junit.Test;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
+import org.testng.annotations.Test;
 
 public class PropertyBasedIdentificationTest {
-    @Test
+    @Test(groups = { UNIT })
     public void getIdWithoutUpdate() {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
         assertThat( basedIdentification.getID(), is( nullValue() ) );
     }
 
-    @Test
+    @Test(groups = { UNIT })
     public void getIdWithUpdate() throws ConfigurationException {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
         Dictionary dict = new Hashtable();
-        dict.put( IdentificationConstants.IDENTIFICATION_GATEWAYID_KEY, "myGatewayId" );
+        dict.put( IdentificationConstants.IDENTIFICATION_TARGETID_KEY, "myGatewayId" );
         basedIdentification.updated( dict );
         assertThat( basedIdentification.getID(), is( equalTo( "myGatewayId" ) ) );
     }
 
-    @Test
+    @Test(groups = { UNIT })
     public void getIdOverwrite() throws ConfigurationException {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
         injectServices( basedIdentification );
 
         Dictionary dict = new Hashtable();
-        dict.put( IdentificationConstants.IDENTIFICATION_GATEWAYID_KEY, "oldId" );
+        dict.put( IdentificationConstants.IDENTIFICATION_TARGETID_KEY, "oldId" );
         Dictionary dict2 = new Hashtable();
-        dict2.put( IdentificationConstants.IDENTIFICATION_GATEWAYID_KEY, "newId" );
+        dict2.put( IdentificationConstants.IDENTIFICATION_TARGETID_KEY, "newId" );
 
         basedIdentification.updated( dict );
         basedIdentification.updated( dict2 );
