@@ -18,8 +18,8 @@
  */
 package org.apache.ace.discovery.property.constants;
 
-public interface DiscoveryConstants
-{
+public interface DiscoveryConstants {
     public static final String DISCOVERY_PID = "org.apache.ace.discovery.property";
+    public static final String DISCOVERY_FACTORY_PID = "org.apache.ace.discovery.property.factory";
     public static final String DISCOVERY_URL_KEY = "serverURL";
 }

@@ -15,6 +15,7 @@
  */
 package org.apache.ace.discovery.property;
 
+import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -27,18 +28,18 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.apache.ace.discovery.property.constants.DiscoveryConstants;
-import org.junit.Test;
 import org.osgi.service.cm.ConfigurationException;
+import org.testng.annotations.Test;
 
 public class PropertyBasedDiscoveryTest {
-    @Test
+    @Test(groups = { UNIT })
     public void discoverWithoutPropertyUpdate() {
         PropertyBasedDiscovery discovery = new PropertyBasedDiscovery();
         URL url = discovery.discover();
         assertThat(url, is(nullValue()));
     }
 
-    @Test
+    @Test(groups = { UNIT })
     public void discoverWithPropertyUpdate() throws ConfigurationException, URISyntaxException {
         PropertyBasedDiscovery discovery = new PropertyBasedDiscovery();
         Dictionary dict = new Hashtable();

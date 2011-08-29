@@ -36,14 +36,43 @@ import org.osgi.service.log.LogService;
  * in <code>GatewayConstants.DISCOVERY_DEFAULT_URL</code> will be used.
  */
 public class PropertyBasedDiscovery implements Discovery, ManagedService {
-
+    private final Object LOCK = new Object();
     public volatile LogService m_log; /* will be injected by dependencymanager */
     private URL m_serverURL; /* managed by configadmin */
+
+    public PropertyBasedDiscovery() {
+    }
+    
+    public PropertyBasedDiscovery(String url) {
+        try {
+            setURL(url);
+        }
+        catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Cannot create instance, invalid URL argument", e);
+        }
+    }
+    
+    public URL getURL() {
+        synchronized (LOCK) {
+            return m_serverURL;
+        }
+    }
+    
+    public void setURL(String id) throws MalformedURLException {
+        setURL(new URL(id));
+    }
+    
+    public void setURL(URL id) {
+        synchronized (LOCK) {
+            m_serverURL = id;
+        }
+    }
+    
 
     public synchronized void updated(Dictionary dictionary) throws ConfigurationException {
         try {
             if(dictionary != null) {
-                m_serverURL = new URL((String) dictionary.get(DiscoveryConstants.DISCOVERY_URL_KEY));
+                setURL(new URL((String) dictionary.get(DiscoveryConstants.DISCOVERY_URL_KEY)));
             }
         }
         catch (MalformedURLException e) {
@@ -52,6 +81,6 @@ public class PropertyBasedDiscovery implements Discovery, ManagedService {
     }
 
     public synchronized URL discover() {
-        return m_serverURL;
+        return getURL();
     }
 }
