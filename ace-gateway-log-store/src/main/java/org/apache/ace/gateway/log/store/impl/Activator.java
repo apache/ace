@@ -36,12 +36,12 @@ import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
-
+    private static final String MA_NAME = "ma";
     private static final String LOG_NAME = "name";
 
     private DependencyManager m_manager;
     private BundleContext m_context;
-    private final Map m_instances = new HashMap(); // String -> Service
+    private final Map /*<String, Component>*/ m_instances = new HashMap();
     private volatile LogService m_log;
 
     public void init(BundleContext context, DependencyManager manager) throws Exception {
@@ -52,15 +52,22 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(this)
-            .add(createServiceDependency().setService(LogService.class).setRequired(false)));
+            .add(createServiceDependency()
+                .setService(LogService.class)
+                .setRequired(false)
+            )
+        );
     }
 
     public void destroy(BundleContext context, DependencyManager manager) throws Exception {
         // Nothing we need to do
     }
 
-    public synchronized void deleted(String pid) {
-        Component log = (Component) m_instances.remove(pid);
+    public void deleted(String pid) {
+        Component log;
+        synchronized (m_instances) {
+            log = (Component) m_instances.remove(pid);
+        }
         if (log != null) {
             m_manager.remove(log);
             delete(new File(m_context.getDataFile(""), pid));
@@ -81,25 +88,43 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         root.delete();
     }
 
-    public synchronized void updated(String pid, Dictionary dict) throws ConfigurationException {
+    public void updated(String pid, Dictionary dict) throws ConfigurationException {
+        String ma = (String) dict.get(MA_NAME);
         String name = (String) dict.get(LOG_NAME);
         if ((name == null) || "".equals(name)) {
             throw new ConfigurationException(LOG_NAME, "Log name has to be specified.");
         }
 
-        Component service = (Component) m_instances.get(pid);
-        if (service == null) {
-            Properties props = new Properties();
-            props.put(LOG_NAME, name);
-            File baseDir = new File(m_context.getDataFile(""), pid);
-            service = m_manager.createComponent()
-                .setInterface(LogStore.class.getName(), props)
-                .setImplementation(new LogStoreImpl(baseDir))
-                .add(createServiceDependency().setService(Identification.class).setRequired(true))
-                .add(createServiceDependency().setService(LogService.class).setRequired(false));
-            m_instances.put(pid, service);
-            m_manager.add(service);
-        } else {
+        boolean needToAddComponent = false;
+        Component component;
+        synchronized (m_instances) {
+            component = (Component) m_instances.get(pid);
+            if (component == null) {
+                Properties props = new Properties();
+                props.put(LOG_NAME, name);
+                if ((ma != null) && (ma.length() > 0)) {
+                    props.put(MA_NAME, ma);
+                }
+                File baseDir = new File(m_context.getDataFile(""), pid);
+                component = m_manager.createComponent()
+                    .setInterface(LogStore.class.getName(), props)
+                    .setImplementation(new LogStoreImpl(baseDir))
+                    .add(createServiceDependency()
+                        .setService(Identification.class)
+                        .setRequired(true)
+                    )
+                    .add(createServiceDependency()
+                        .setService(LogService.class)
+                        .setRequired(false)
+                    );
+                m_instances.put(pid, component);
+                needToAddComponent = true;
+            }
+        }
+        if (needToAddComponent) {
+            m_manager.add(component);
+        }
+        else {
             m_log.log(LogService.LOG_INFO, "Ignoring configuration update because factory instance was already configured: " + name);
         }
     }
