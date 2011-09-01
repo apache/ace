@@ -19,6 +19,7 @@
 package org.apache.ace.client.repository.stateful.impl;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -468,6 +470,7 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
 
         Map<ArtifactObject, String> bundles = new HashMap<ArtifactObject, String>();
         Map<ArtifactObject, String> artifacts = new HashMap<ArtifactObject, String>();
+        Map<ArtifactObject, Map<GroupObject, List<LicenseObject>>> path = new HashMap<ArtifactObject, Map<GroupObject,List<LicenseObject>>>();
 
         // First, find all basic bundles and artifacts. An while we're traversing the
         // tree of objects, build the tree of properties.
@@ -481,6 +484,17 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
                         else {
                             artifacts.put(artifact, artifact.getProcessorPID());
                         }
+                        Map<GroupObject, List<LicenseObject>> groupToLicense = path.get(artifact);
+                        if (groupToLicense == null) {
+                        	groupToLicense = new HashMap<GroupObject, List<LicenseObject>>();
+                        	path.put(artifact, groupToLicense);
+                        }
+                        List<LicenseObject> licenses = groupToLicense.get(group);
+                        if (licenses == null) {
+                        	licenses = new ArrayList<LicenseObject>();
+                        	groupToLicense.put(group, licenses);
+                        }
+                        licenses.add(license);
                     }
                 }
             }
@@ -519,6 +533,12 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
             }
             
             directives.put(DeploymentArtifact.DIRECTIVE_KEY_BASEURL, bundle.getURL());
+            
+            String repositoryPath = getRepositoryPath(bundle, path);
+            if (repositoryPath != null) {
+            	directives.put(DeploymentArtifact.REPOSITORY_PATH, repositoryPath);
+            }
+            
             result.add(m_deploymentRepository.createDeploymentArtifact(bundle.getURL(), directives));
         }
 
@@ -526,10 +546,32 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
             Map<String, String> directives = new HashMap<String, String>();
             directives.put(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, artifact.getProcessorPID());
             directives.put(DeploymentArtifact.DIRECTIVE_KEY_BASEURL, artifact.getURL());
+            
+            String repositoryPath = getRepositoryPath(artifact, path);
+            if (repositoryPath != null) {
+            	directives.put(DeploymentArtifact.REPOSITORY_PATH, repositoryPath);
+            }
             result.add(m_deploymentRepository.createDeploymentArtifact(m_artifactRepository.preprocessArtifact(artifact, go, gatewayID, version), directives));
         }
 
         return result.toArray(new DeploymentArtifact[result.size()]);
+    }
+    
+    private String getRepositoryPath(ArtifactObject artifact, Map<ArtifactObject, Map<GroupObject, List<LicenseObject>>> path) {
+    	StringBuilder builder = new StringBuilder();
+        Map<GroupObject, List<LicenseObject>> groupToLicense = path.get(artifact);
+        if (groupToLicense != null) {
+	        for (Entry<GroupObject, List<LicenseObject>> entry : groupToLicense.entrySet()) {
+	        	for (LicenseObject l : entry.getValue()) {
+	        		builder.append(entry.getKey().getName()).append(';').append(l.getName()).append(',');
+	        	}
+	        }
+        }
+        else {
+        	return null;
+        }
+        builder.setLength(builder.length() - 1);
+        return builder.toString();
     }
 
     /**

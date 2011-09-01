@@ -42,6 +42,8 @@ public interface DeploymentArtifact {
      */
     public static final String DIRECTIVE_KEY_BASEURL = "Base-Url";
 
+	public static final String REPOSITORY_PATH = "ACE-RepositoryPath";
+
     /**
      * @return the URL for this deployment artifact.
      */

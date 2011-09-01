@@ -186,7 +186,11 @@ public class ArtifactDataImpl implements ArtifactData {
                 a.putValue(CUSTOMIZER, "true");
             }
         }
-
+        
+        String path = m_directives.get(DeploymentArtifact.REPOSITORY_PATH);
+        if (path != null) {
+        	a.putValue(DeploymentArtifact.REPOSITORY_PATH, path);
+        }
         if (!hasChanged() && fixPackage) {
             a.putValue("DeploymentPackage-Missing", "true");
         }
