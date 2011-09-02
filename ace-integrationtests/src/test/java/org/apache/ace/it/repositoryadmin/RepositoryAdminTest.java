@@ -69,6 +69,8 @@ import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+import junit.framework.Assert;
+
 import static org.apache.ace.client.repository.RepositoryObject.PRIVATE_TOPIC_ROOT;
 import static org.apache.ace.client.repository.RepositoryObject.PUBLIC_TOPIC_ROOT;
 import static org.apache.ace.client.repository.RepositoryObject.WorkingState;
@@ -1113,11 +1115,13 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         assert toDeploy.length == 3 : "We expect to find three artifacts to deploy, but we find: " + toDeploy.length;
         DeploymentArtifact bundle1 = toDeploy[0];
-        assert bundle1.getUrl().equals(b1.getURL()) && (bundle1.getKeys().length == 2) : "The first artifact in the list should be bundle1, but it is '" + toDeploy[0].toString() + "'";
+        Assert.assertEquals(b1.getURL(), bundle1.getUrl());
         DeploymentArtifact bundle2 = toDeploy[1];
-        assert bundle2.getUrl().equals(b2.getURL()) && (bundle2.getKeys().length == 3) && bundle2.getDirective(DeploymentArtifact.DIRECTIVE_ISCUSTOMIZER).equals("true"): "The first artifact in the list should be bundle1, but it is '" + toDeploy[0].toString() + "'";
+        Assert.assertEquals(b2.getURL(), bundle2.getUrl());
+        Assert.assertEquals("true", bundle2.getDirective(DeploymentArtifact.DIRECTIVE_ISCUSTOMIZER));
         DeploymentArtifact artifact1 = toDeploy[2];
-        assert artifact1.getUrl().equals(a1.getURL()) && (artifact1.getKeys().length == 2) && artifact1.getDirective(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID).equals("my.processor.pid"): "The first artifact in the list should be bundle1, but it is '" + toDeploy[0].toString() + "'";
+        Assert.assertEquals(a1.getURL(), artifact1.getUrl());
+        Assert.assertEquals("my.processor.pid", artifact1.getDirective(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID));
 
         cleanUp();
 
