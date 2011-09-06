@@ -75,8 +75,7 @@ public class LogSyncTask implements Runnable {
 
         Connection sendConnection = null;
         try {
-            sendConnection = new Connection(new URL(host, m_endpoint + "/"
-                    + COMMAND_SEND));
+            sendConnection = new Connection(new URL(host, m_endpoint + "/" + COMMAND_SEND));
             long[] logIDs = m_LogStore.getLogIDs();
             for (int i = 0; i < logIDs.length; i++) {
                 Connection queryConnection = new Connection(new URL(host,
