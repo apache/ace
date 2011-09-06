@@ -298,15 +298,19 @@ public class StatefulGatewayObjectImpl implements StatefulGatewayObject {
 
             List<LogEvent> newEvents = m_repository.getAuditEvents(newDescriptors);
             for (int position = newEvents.size() - 1; position >= 0; position--) {
-                String currentVersion = (String) newEvents.get(position).getProperties().get(AuditEvent.KEY_VERSION);
-                if (newEvents.get(position).getType() == AuditEvent.DEPLOYMENTCONTROL_INSTALL) {
+                LogEvent event = newEvents.get(position);
+                
+                // TODO we need to check here if the deployment package is actually the right one
+                
+                String currentVersion = (String) event.getProperties().get(AuditEvent.KEY_VERSION);
+                if (event.getType() == AuditEvent.DEPLOYMENTCONTROL_INSTALL) {
                     addStatusAttribute(KEY_LAST_INSTALL_VERSION, currentVersion);
                     setProvisioningState(ProvisioningState.InProgress);
                     sendNewAuditlog(newDescriptors);
                     m_processedAuditEvents = allDescriptors;
                     return;
                 }
-                else if (newEvents.get(position).getType() == AuditEvent.DEPLOYMENTADMIN_COMPLETE) {
+                else if (event.getType() == AuditEvent.DEPLOYMENTADMIN_COMPLETE) {
                     addStatusAttribute(KEY_LAST_INSTALL_VERSION, currentVersion);
                     if ((currentVersion != null) && currentVersion.equals(getStatusAttribute(KEY_ACKNOWLEDGED_INSTALL_VERSION))) {
                         setProvisioningState(ProvisioningState.Idle);
@@ -315,7 +319,7 @@ public class StatefulGatewayObjectImpl implements StatefulGatewayObject {
                         return;
                     }
                     else {
-                        String value = (String) newEvents.get(position).getProperties().get(AuditEvent.KEY_SUCCESS);
+                        String value = (String) event.getProperties().get(AuditEvent.KEY_SUCCESS);
                         addStatusAttribute(KEY_LAST_INSTALL_SUCCESS, value);
                         if (Boolean.parseBoolean(value)) {
                             setProvisioningState(ProvisioningState.OK);
