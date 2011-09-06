@@ -344,7 +344,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
         // configure discovery bundle
         setProperty(DiscoveryConstants.DISCOVERY_PID, new Object[][] { { DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + TestConstants.PORT } });
         // configure identification bundle
-        setProperty(IdentificationConstants.IDENTIFICATION_PID, new Object[][] { { IdentificationConstants.IDENTIFICATION_GATEWAYID_KEY, GWID } });
+        setProperty(IdentificationConstants.IDENTIFICATION_PID, new Object[][] { { IdentificationConstants.IDENTIFICATION_TARGETID_KEY, GWID } });
         // configure scheduler
         setProperty(SchedulerConstants.SCHEDULER_PID, new Object[][] {
             { "org.apache.ace.gateway.auditlog.task.AuditLogSyncTask", POLL_INTERVAL },
