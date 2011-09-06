@@ -90,12 +90,14 @@ public class LogIntegrationTest extends IntegrationTestBase {
         configure(DiscoveryConstants.DISCOVERY_PID,
                 DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + TestConstants.PORT);
         configure(IdentificationConstants.IDENTIFICATION_PID,
-                IdentificationConstants.IDENTIFICATION_GATEWAYID_KEY, GWID);
+                IdentificationConstants.IDENTIFICATION_TARGETID_KEY, GWID);
 
         configureFactory("org.apache.ace.gateway.log.store.factory",
                 "name", "auditlog");
         configureFactory("org.apache.ace.gateway.log.factory",
                 "name", "auditlog");
+        configureFactory("org.apache.ace.gateway.log.sync.factory",
+            "name", "auditlog");
 
         configure("org.apache.ace.deployment.servlet",
                 HttpConstants.ENDPOINT, DEPLOYMENT);
