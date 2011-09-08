@@ -74,6 +74,10 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     public void updated(String pid, Dictionary dict) throws ConfigurationException {
         String ma = (String) dict.get(MA_NAME);
         String id = (String) dict.get(DiscoveryConstants.DISCOVERY_URL_KEY);
+        
+        if (id == null) {
+            throw new ConfigurationException(DiscoveryConstants.DISCOVERY_URL_KEY, "Must be specified");
+        }
 
         boolean needToAddComponent = false;
         Component component;
