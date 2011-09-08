@@ -1,6 +1,7 @@
 package org.apache.ace.managementagent;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Properties;
 
@@ -12,6 +13,8 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 public class Activator extends DependencyActivatorBase {
+    private static final String[] PROTOTYPE_ARRAY = new String[] {};
+
     private BundleActivator[] m_activators = new BundleActivator[] {
         new org.apache.ace.deployment.deploymentadmin.Activator(),
         new org.apache.ace.deployment.task.Activator(),
@@ -55,29 +58,64 @@ public class Activator extends DependencyActivatorBase {
     
     public void start() {
         try {
-            String server = System.getProperty("discovery", "http://localhost:8080");
-            configure("org.apache.ace.discovery.property", "serverURL", server);
-            String targetId = System.getProperty("identification", "configuredGatewayID");
-            configure("org.apache.ace.identification.property", "gatewayID", targetId);
             String syncInterval = System.getProperty("syncinterval", "2000");
-            configure("org.apache.ace.scheduler",
-                    "auditlog", syncInterval,
-                    "org.apache.ace.deployment.task.DeploymentUpdateTask", syncInterval);
-
-            String stopUnaffectedBundles = System.getProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", "false");
-            System.setProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", stopUnaffectedBundles);
-
             configureFactory("org.apache.ace.gateway.log.factory", "name", "auditlog");
             configureFactory("org.apache.ace.gateway.log.store.factory", "name", "auditlog");
+            configure("org.apache.ace.scheduler", "org.apache.ace.deployment.task.DeploymentUpdateTask", syncInterval);
+            String stopUnaffectedBundles = System.getProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", "false");
+            System.setProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", stopUnaffectedBundles);
+            String agents = System.getProperty("agents");
+            if (agents != null) {
+                // format: a,b,c;d,e,f
+                // a=name, b=id, c=url
+                String[] definitions = agents.split(";");
+                StringBuffer instances = new StringBuffer();
+                
+                for (String definition : definitions) {
+                    String[] args = definition.split(",");
+                    if (args.length != 3) {
+                        System.err.println("Each agent definition needs to consist of 3 parts: name, identification and discovery, and not: " + definition);
+                        System.exit(20);
+                    }
+                    String ma = args[0];
+                    String id = args[1];
+                    String url = args[2];
+                    
+                    configureFactory("org.apache.ace.identification.property.factory", "ma", ma, "gatewayID", id);
+                    configureFactory("org.apache.ace.discovery.property.factory", "ma", ma, "serverURL", url);
+                    configureFactory("org.apache.ace.gateway.log.sync.factory", "ma", ma, "name", "auditlog");
+                    configureFactory("org.apache.ace.deployment.factory", "ma", ma);
+                    configure("org.apache.ace.scheduler", "ma=" + ma + ";name=auditlog", syncInterval);
+                    instances.append(
+                        "  Instance     : " + ma + "\n" +
+                        "    Target ID  : " + id + "\n" +
+                        "    Server     : " + url + "\n");
+                }
 
-            if (!m_quiet) {
-                System.out.println("Started management agent.\n"
+                if (!m_quiet) {
+                    System.out.println("Started management agent instances.\n" +
+                        instances.toString() +
+                        "  Sync interval: " + syncInterval + " ms\n" +
+                        "  Unaffected bundles will " + ("false".equals(stopUnaffectedBundles) ? "not " : "") + "be stopped during deployment.");
+                }
+            }
+            else {
+                String server = System.getProperty("discovery", "http://localhost:8080");
+                configure("org.apache.ace.discovery.property", "serverURL", server);
+                String targetId = System.getProperty("identification", "configuredGatewayID");
+                configure("org.apache.ace.identification.property", "gatewayID", targetId);
+                configureFactory("org.apache.ace.gateway.log.sync.factory", "name", "auditlog");
+                configure("org.apache.ace.scheduler", "auditlog", syncInterval);
+                if (!m_quiet) {
+                    System.out.println("Started management agent.\n"
                         + "  Target ID    : " + targetId + "\n"
                         + "  Server       : " + server + "\n"
                         + "  Sync interval: " + syncInterval + " ms\n"
                         + "  Unaffected bundles will " + ("false".equals(stopUnaffectedBundles) ? "not " : "")
                         + "be stopped during deployment.");
+                }
             }
+
         }
         catch (Exception e) {
             e.printStackTrace();
