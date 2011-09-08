@@ -54,6 +54,10 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         for (Component component : components) {
             m_manager.add(component);
         }
+        manager.add(createComponent()
+            .setInterface(ManagedServiceFactory.class.getName(), new Properties() {{ put(Constants.SERVICE_PID, "org.apache.ace.deployment.factory"); }} )
+            .setImplementation(this)
+        );
     }
 
     private List<Component> createServices(String ma) {

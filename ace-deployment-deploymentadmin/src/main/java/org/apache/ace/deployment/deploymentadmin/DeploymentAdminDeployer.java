@@ -55,9 +55,6 @@ public class DeploymentAdminDeployer implements Deployment {
 
     public Object[] list() {
         // DeploymentAdmin spec says this call should never return null
-        // TODO this will return all deployment packages and their versions (dependent code 
-        //      just takes all versions and finds the highest, which does not make sense if
-        //      there is more than one DP)
         return m_admin.listDeploymentPackages();
     }
 }

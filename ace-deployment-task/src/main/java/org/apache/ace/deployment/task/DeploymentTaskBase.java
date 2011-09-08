@@ -106,7 +106,9 @@ public class DeploymentTaskBase implements DeploymentService {
         Object[] installedPackages = m_deployer.list();
         List versions = new ArrayList();
         for (int i = 0; i < installedPackages.length; i++) {
-            versions.add(m_deployer.getVersion(installedPackages[i]));
+            if (m_deployer.getName(installedPackages[i]).equals(m_identification.getID())) {
+                versions.add(m_deployer.getVersion(installedPackages[i]));
+            }
         }
         return getHighestVersion(versions);
     }
