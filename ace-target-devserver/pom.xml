@@ -229,6 +229,16 @@
             <artifactId>org.apache.ace.deployment.streamgenerator</artifactId>
             <scope>runtime</scope>
         </dependency>
+         <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.deployment.verifier</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.deployment.verifier.ui</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.discovery.api</artifactId>

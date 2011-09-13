@@ -77,7 +77,8 @@
         <module>ace-deployment-api</module>
         <module>ace-deployment-deploymentadmin</module>
         <module>ace-deployment-task</module>
-
+        <module>ace-deployment-verifier</module>
+        <module>ace-deployment-verifier-ui</module>
         <module>ace-httplistener</module>
 
         <module>ace-server-log-store</module>
