@@ -67,9 +67,7 @@ public class LogSyncTask implements Runnable {
         if (host == null) {
             // expected if there's no discovered
             // ps or relay server
-            m_log.log(LogService.LOG_WARNING,
-                    "Unable to synchronize log with remote (endpoint="
-                            + m_endpoint + ") - none available");
+            m_log.log(LogService.LOG_WARNING, "Unable to synchronize log with remote (endpoint=" + m_endpoint + ") - none available");
             return;
         }
 
@@ -80,18 +78,17 @@ public class LogSyncTask implements Runnable {
             for (int i = 0; i < logIDs.length; i++) {
                 Connection queryConnection = new Connection(new URL(host,
                         m_endpoint + "/" + COMMAND_QUERY + "?"
-                                + PARAMETER_GATEWAYID + "=" + gatewayID + "&"
-                                + PARAMETER_LOGID + "=" + logIDs[i]));
+                            + PARAMETER_GATEWAYID + "=" + gatewayID + "&"
+                            + PARAMETER_LOGID + "=" + logIDs[i]));
                 // TODO: make sure no actual call is made using sendConnection
                 // when there's nothing to sync
-                synchronizeLog(logIDs[i], queryConnection.getInputStream(),
-                        sendConnection);
+                synchronizeLog(logIDs[i], queryConnection.getInputStream(), sendConnection);
             }
-        } catch (IOException e) {
-            m_log.log(LogService.LOG_ERROR,
-                    "Unable to (fully) synchronize log with remote (endpoint="
-                            + m_endpoint + ")", e);
-        } finally {
+        }
+        catch (IOException e) {
+            m_log.log(LogService.LOG_ERROR, "Unable to (fully) synchronize log with remote (endpoint=" + m_endpoint + ")", e);
+        }
+        finally {
             if (sendConnection != null) {
                 sendConnection.close();
             }
@@ -114,8 +111,7 @@ public class LogSyncTask implements Runnable {
      *             If synchronization could not be completed due to an I/O
      *             failure.
      */
-    protected void synchronizeLog(long logID, InputStream queryInput,
-            Connection sendConnection) throws IOException {
+    protected void synchronizeLog(long logID, InputStream queryInput, Connection sendConnection) throws IOException {
         long highestLocal = m_LogStore.getHighestID(logID);
         if (highestLocal == 0) {
             // No events, no need to synchronize
@@ -126,23 +122,23 @@ public class LogSyncTask implements Runnable {
         SortedRangeSet delta = remoteRange.diffDest(localRange);
         RangeIterator rangeIterator = delta.iterator();
         BufferedWriter writer = null;
-        writer = new BufferedWriter(new OutputStreamWriter(
-                sendConnection.getOutputStream()));
+        writer = new BufferedWriter(new OutputStreamWriter(sendConnection.getOutputStream()));
         if (rangeIterator.hasNext()) {
             long lowest = rangeIterator.next();
             long highest = delta.getHigh();
             if (lowest <= highest) {
-                List events = m_LogStore.get(logID, lowest,
-                        highestLocal > highest ? highest : highestLocal);
+                List events = m_LogStore.get(logID, lowest, highestLocal > highest ? highest : highestLocal);
                 Iterator iter = events.iterator();
                 while (iter.hasNext()) {
                     LogEvent current = (LogEvent) iter.next();
-                    while ((current.getID() > lowest)
-                            && rangeIterator.hasNext()) {
+                    while ((current.getID() > lowest) && rangeIterator.hasNext()) {
                         lowest = rangeIterator.next();
                     }
                     if (current.getID() == lowest) {
-                        writer.write(current.toRepresentation() + "\n");
+                        // before we send the LogEvent to the other side, we fill out the
+                        // appropriate identification
+                        LogEvent event = new LogEvent(m_identification.getID(), current);
+                        writer.write(event.toRepresentation() + "\n");
                     }
                 }
             }
@@ -160,8 +156,7 @@ public class LogSyncTask implements Runnable {
      * @throws java.io.IOException
      *             If no range could be determined due to an I/O failure.
      */
-    protected LogDescriptor getDescriptor(InputStream queryInput)
-            throws IOException {
+    protected LogDescriptor getDescriptor(InputStream queryInput) throws IOException {
         BufferedReader queryReader = null;
         try {
             queryReader = new BufferedReader(new InputStreamReader(queryInput));
@@ -171,13 +166,11 @@ public class LogSyncTask implements Runnable {
                     return new LogDescriptor(rangeString);
                 } 
                 catch (IllegalArgumentException iae) {
-                    throw new IOException(
-                            "Could not determine highest remote event id, received malformed event range ("
-                                    + rangeString + ")");
+                    throw new IOException("Could not determine highest remote event id, received malformed event range (" + rangeString + ")");
                 }
-            } else {
-                throw new IOException(
-                        "Could not construct LogDescriptor from stream because stream is empty");
+            }
+            else {
+                throw new IOException("Could not construct LogDescriptor from stream because stream is empty");
             }
         } 
         finally {

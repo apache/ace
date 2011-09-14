@@ -42,20 +42,25 @@ import org.testng.annotations.Test;
 
 public class LogSyncTaskTest {
 
+    private static final String GW_ID = "gwID";
     private LogSyncTask m_task;
 
     @BeforeMethod(alwaysRun = true)
     protected void setUp() throws Exception {
         m_task = new LogSyncTask("testlog");
         TestUtils.configureObject(m_task, LogService.class);
-        TestUtils.configureObject(m_task, Identification.class);
+        TestUtils.configureObject(m_task, Identification.class, new Identification() {
+            public String getID() {
+                return GW_ID;
+            }
+        });
         TestUtils.configureObject(m_task, Discovery.class);
         TestUtils.configureObject(m_task, LogStore.class);
     }
 
     @Test(groups = { UNIT })
     public synchronized void getRange() throws Exception {
-        final LogDescriptor range = new LogDescriptor("gwID", 1, new SortedRangeSet("1-10"));
+        final LogDescriptor range = new LogDescriptor(GW_ID, 1, new SortedRangeSet("1-10"));
         m_task.getDescriptor(new InputStream() {
             int m_count = 0;
             byte[] m_bytes = (range.toRepresentation() + "\n").getBytes();
@@ -74,8 +79,8 @@ public class LogSyncTaskTest {
 
     @Test(groups = { UNIT })
     public synchronized void synchronizeLog() throws Exception {
-        final LogDescriptor range = new LogDescriptor("gwID", 1, new SortedRangeSet(new long[] {0}));
-        final LogEvent event = new LogEvent("gwID", 1, 1, 1, 1, new Properties());
+        final LogDescriptor range = new LogDescriptor(GW_ID, 1, new SortedRangeSet(new long[] {0}));
+        final LogEvent event = new LogEvent(GW_ID, 1, 1, 1, 1, new Properties());
         final List<LogEvent> events = new ArrayList<LogEvent>();
         events.add(event);
 
