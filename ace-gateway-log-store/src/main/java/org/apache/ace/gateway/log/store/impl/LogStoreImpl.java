@@ -251,12 +251,9 @@ public class LogStoreImpl implements LogStore {
      * @throws java.io.IOException
      *             in case of any IO error.
      */
-    public synchronized LogEvent put(int type, Dictionary props)
-            throws IOException {
+    public synchronized LogEvent put(int type, Dictionary props) throws IOException {
         try {
-            LogEvent result = new LogEvent(m_identification.getID(),
-                    m_store.getId(), getNextID(), System.currentTimeMillis(),
-                    type, props);
+            LogEvent result = new LogEvent(null, m_store.getId(), getNextID(), System.currentTimeMillis(), type, props);
             m_store.append(result.getID(), result.toRepresentation().getBytes());
             return result;
         } 
