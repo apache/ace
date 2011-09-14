@@ -56,6 +56,18 @@ public class Main {
         }
     };
 
+    private Argument m_agents = new KeyValueArgument() {
+        public void handle(String key, String value) {
+            if (key.equals("agents")) {
+                System.setProperty("agents", value);
+            }
+        }
+
+        public String getDescription() {
+            return "agents: configures multiple management agents: agent-id,identification,discovery[;agent-id,identification,discovery]*";
+        }
+    };
+
     private Argument m_help = new Argument() {
         public void handle(String argument) {
             if (argument.equals("help")) {
@@ -71,10 +83,12 @@ public class Main {
 
     private FrameworkOption m_fwOptionHandler = new FrameworkOption();
 
-    private final List<Argument> m_arguments = Arrays.asList(m_identification,
-            m_discovery,
-            m_fwOptionHandler,
-            m_help);
+    private final List<Argument> m_arguments = Arrays.asList(
+        m_identification,
+        m_discovery,
+        m_agents,
+        m_fwOptionHandler,
+        m_help);
 
     public static void main(String[] args) throws Exception {
         new Main(args).run();
