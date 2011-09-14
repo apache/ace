@@ -62,7 +62,11 @@ public class DeploymentUpdateTaskTest {
         m_deploymentTask = new DeploymentUpdateTask(m_task);
         TestUtils.configureObject(m_deploymentTask, LogService.class);
         TestUtils.configureObject(m_task, LogService.class);
-        TestUtils.configureObject(m_task, Identification.class);
+        TestUtils.configureObject(m_task, Identification.class, new Identification() {
+            public String getID() {
+                return "test";
+            }
+        });
         TestUtils.configureObject(m_task, Discovery.class);
         TestUtils.configureObject(m_task, Deployment.class, m_mockDeploymentService);
     }
@@ -137,7 +141,7 @@ public class DeploymentUpdateTaskTest {
         Version m_expectedInstallVersion = Version.emptyVersion;
 
         public String getName(Object object) throws IllegalArgumentException {
-            return ((Version) object).toString();
+            return "test";
         }
 
         public void setExpectedInstallVersion(Version version) {
