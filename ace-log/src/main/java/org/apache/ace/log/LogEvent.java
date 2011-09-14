@@ -28,7 +28,6 @@ import org.apache.ace.util.Codec;
  * Log event from a specific gateway and log.
  */
 public class LogEvent implements Comparable {
-
     private final String m_gatewayID;
     private final long m_logID;
     private final long m_id;
@@ -36,14 +35,17 @@ public class LogEvent implements Comparable {
     private final int m_type;
     private final Dictionary m_properties;
 
-    public LogEvent(String gatewayID, long logID, long id, long time,
-        int type, Dictionary properties) {
+    public LogEvent(String gatewayID, long logID, long id, long time, int type, Dictionary properties) {
         m_gatewayID = gatewayID;
         m_logID = logID;
         m_id = id;
         m_time = time;
         m_type = type;
         m_properties = properties;
+    }
+
+    public LogEvent(String gatewayID, LogEvent source) {
+        this(gatewayID, source.getLogID(), source.getID(), source.getTime(), source.getType(), source.getProperties());
     }
 
     public LogEvent(String representation) {
