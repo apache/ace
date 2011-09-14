@@ -43,6 +43,9 @@ public class Codec
                     else if (c == 'r') {
                         result.append('\r');
                     }
+                    else if (c == 'e') {
+                        return null;
+                    }
                     else {
                         throw new IllegalArgumentException("Unknown escape character: " + c);
                     }
@@ -59,6 +62,9 @@ public class Codec
     }
 
     public static String encode(String source) {
+        if (source == null) {
+            return "$e";
+        }
         StringBuffer result = new StringBuffer();
         StringCharacterIterator sci = new StringCharacterIterator(source);
         for (char c = sci.current(); c != CharacterIterator.DONE; c = sci.next()) {
