@@ -316,6 +316,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.server.log.ui</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.webui.vaadin</artifactId>
             <scope>runtime</scope>
         </dependency>

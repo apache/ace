@@ -82,6 +82,7 @@
         <module>ace-httplistener</module>
 
         <module>ace-server-log-store</module>
+        <module>ace-server-log-ui</module>
         <module>ace-log-servlet</module>
         <module>ace-log-task</module>
         <module>ace-log-listener</module>
