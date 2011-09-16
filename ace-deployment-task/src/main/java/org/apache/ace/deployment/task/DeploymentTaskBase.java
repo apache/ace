@@ -134,9 +134,8 @@ public class DeploymentTaskBase implements DeploymentService {
         if (host == null) {
             return null;
         }
-        String gatewayID = m_identification.getID();
         try {
-            return new URL(host, "deployment/" + gatewayID + "/versions/");
+            return new URL(host, "deployment/" + m_identification.getID() + "/versions/");
         }
         catch (MalformedURLException e) {
             m_log.log(LogService.LOG_WARNING, "Malformed URL", e);
