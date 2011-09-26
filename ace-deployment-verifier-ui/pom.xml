@@ -48,6 +48,9 @@
         <bundle.activator>
             org.apache.ace.deployment.verifier.ui.Activator
         </bundle.activator>
+        <import.package>
+            org.osgi.framework;version="[1.5,2)",*
+        </import.package>
     </properties>
 
     <dependencies>
@@ -58,6 +61,7 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
