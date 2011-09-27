@@ -28,10 +28,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
+import org.osgi.framework.*;
 
 public class VaadinResourceHandler {
     private volatile HttpService m_http;
     private HttpContext m_context;
+	private BundleContext m_bundleContext;
     
     public void start() {
         m_context = m_http.createDefaultHttpContext();
@@ -58,9 +60,9 @@ public class VaadinResourceHandler {
                     if (!name.startsWith("/")) {
                         name = "/" + name;
                     }
-                    if (name.startsWith(prefix)) {
+					if (name.startsWith(prefix)) {
                     	String originalName = name.replace("/ace/", "/reindeer/");
-                        resource = getClass().getResource(originalName);
+                        resource = m_bundleContext.getBundle().getEntry(originalName);
                         if (resource == null) {
                             // try to find the resource in the Vaadin bundle instead
                             resource = com.vaadin.Application.class.getResource(originalName);
