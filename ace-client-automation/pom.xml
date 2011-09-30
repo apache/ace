@@ -33,7 +33,7 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Client :: Automation</name>
-    <description />
+    <description>Client bundle that automatically registers new targets that connect with the server, approves outgoing changes and turns on automatic approval of future updates.</description>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-automation</connection>
