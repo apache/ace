@@ -33,7 +33,7 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Client :: Repository :: API</name>
-    <description />
+    <description>Client API for working with Apache ACE from code, a script or a UI.</description>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-api</connection>
