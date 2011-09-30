@@ -33,7 +33,7 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Deployment :: Task</name>
-    <description />
+    <description>This bundle is responsible for checking the deployment server for updates and for synchronizing the local instance with the server.</description>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-task</connection>

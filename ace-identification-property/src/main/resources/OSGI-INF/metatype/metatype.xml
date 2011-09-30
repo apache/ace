@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0"
+    localization="OSGI-INF/metatype/metatype">
+  <metatype:OCD id="org.apache.ace.identification.property" name="%service.name">
+    <metatype:AD id="gatewayID" type="String" name="%gatewayID.name" description="%gatewayID.desc"/>
+  </metatype:OCD>
+  <metatype:Designate pid="org.apache.ace.identification.property">
+    <metatype:Object ocdref="org.apache.ace.identification.property"/>
+  </metatype:Designate>
+  <metatype:Designate pid="org.apache.ace.identification.property.factory">
+    <metatype:Object ocdref="org.apache.ace.identification.property"/>
+  </metatype:Designate>
+</metatype:MetaData>

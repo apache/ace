@@ -52,7 +52,7 @@ public class LogSyncConfigurator implements ManagedServiceFactory {
             String filterForIdentification;
             String schedulerName;
             String description;
-            if (ma == null) {
+            if (ma == null || "".equals(ma)) {
                 filterString = "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + "))";
                 filterForDiscovery = "(&("+Constants.OBJECTCLASS+"="+Discovery.class.getName()+")(!(ma=*)))";
                 filterForIdentification = "(&("+Constants.OBJECTCLASS+"="+Identification.class.getName()+")(!(ma=*)))";

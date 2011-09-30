@@ -30,8 +30,9 @@ public class Activator extends DependencyActivatorBase {
 	@Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
 
-	    //we need these to construct the actual presentation url for the service
-		int port = Integer.valueOf(context.getProperty("org.osgi.service.http.port"));
+    //we need these to construct the actual presentation url for the service
+		String httpPort = context.getProperty("org.osgi.service.http.port");
+		int port = (httpPort != null ? Integer.valueOf(httpPort) : 8080);
 		String host = HostUtil.getHost();
 
 		ProvisioningDevice psDevice = new ProvisioningDevice(host, port);

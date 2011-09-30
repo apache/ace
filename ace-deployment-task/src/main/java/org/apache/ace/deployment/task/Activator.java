@@ -73,7 +73,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         String discoveryFilter;
         String deploymentFilter;
 
-        if (ma == null) {
+        if (ma == null || "".equals(ma)) {
             updateSchedulerName = DeploymentUpdateTask.class.getName();
             updateDescription = "Task that synchronizes the artifacts (bundles, resources) installed on this target with the server.";
             checkSchedulerName = DeploymentCheckTask.class.getName();
