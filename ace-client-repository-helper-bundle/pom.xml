@@ -33,7 +33,7 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: Client :: Repository :: Helper :: Bundle</name>
-    <description />
+    <description>Artifact recognizer and helper for bundles.</description>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-bundle</connection>
