@@ -23,12 +23,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.ace.deployment.processor.DeploymentProcessor;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.streamgenerator.StreamGenerator;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
@@ -38,17 +43,16 @@ import org.osgi.service.log.LogService;
  * of data containing the DeploymentPackage (or fix package) for a specific gateway and version.
  */
 public class DeploymentServlet extends HttpServlet implements ManagedService {
-
     private static final long serialVersionUID = 1L;
-
     public static final String CURRENT = "current";
+    public static final String PROCESSOR = "processor";
     public static final String VERSIONS = "versions";
     public static final String DP_MIMETYPE = "application/vnd.osgi.dp";
     public static final String TEXT_MIMETYPE = "text/plain";
-
     private volatile LogService m_log;                  /* injected by dependency manager */
     private volatile StreamGenerator m_streamGenerator; /* injected by dependency manager */
     private volatile DeploymentProvider m_provider;     /* injected by dependency manager */
+    private final ConcurrentHashMap<String, DeploymentProcessor> m_processors = new ConcurrentHashMap<String, DeploymentProcessor>();
 
     /**
      * Responds to GET requests sent to this endpoint, the response depends on the requested path:
@@ -76,7 +80,6 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
                 String version = pathElements[3];
                 handlePackageDelivery(gatewayID, version, versions, request, response);
             }
-
         }
         catch (AceRestException e) {
             m_log.log(LogService.LOG_WARNING, e.getMessage(), e);
@@ -113,13 +116,12 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
     private void handlePackageDelivery(final String gatewayID, final String version, final List<String> versions, final HttpServletRequest request, final HttpServletResponse response) throws AceRestException {
         ServletOutputStream output = null;
 
-        response.setContentType(TEXT_MIMETYPE);
         try {
-            output = response.getOutputStream();
             if (!versions.contains(version)) {
                 throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown version (" + version + ")");
             }
             String current = request.getParameter(CURRENT);
+            String processor = request.getParameter(PROCESSOR);
 
             InputStream inputStream;
             if (current != null) {
@@ -129,7 +131,18 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
                 inputStream = m_streamGenerator.getDeploymentPackage(gatewayID, version);
             }
 
+            if (processor != null) {
+                DeploymentProcessor deploymentProcessor = m_processors.get(processor);
+                if (deploymentProcessor != null) {
+                    deploymentProcessor.process(inputStream, request, response);
+                    return;
+                }
+                else {
+                    throw new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not find a deployment processor called: " + processor);
+                }
+            }
             response.setContentType(DP_MIMETYPE);
+            output = response.getOutputStream();
             byte[] buffer = new byte[1024 * 32];
             for (int bytesRead = inputStream.read(buffer); bytesRead != -1; bytesRead = inputStream.read(buffer)) {
                 output.write(buffer, 0, bytesRead);
@@ -199,5 +212,23 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
     @SuppressWarnings( "unchecked" )
     public void updated(Dictionary settings) throws ConfigurationException {
         // Nothing needs to be done - handled by DependencyManager
+    }
+
+    public void addProcessor(ServiceReference ref, DeploymentProcessor processor) {
+        String key = (String) ref.getProperty(PROCESSOR);
+        if (key == null) {
+            m_log.log(LogService.LOG_WARNING, "Deployment processor ignored, required service property '" + PROCESSOR + "' is missing.");
+            return;
+        }
+        m_processors.putIfAbsent(key, processor);
+    }
+
+    public void removeProcessor(ServiceReference ref, DeploymentProcessor processor) {
+        String key = (String) ref.getProperty(PROCESSOR);
+        if (key == null) {
+            // we do not log this here again, we already did so in 'addProcessor'
+            return;
+        }
+        m_processors.remove(key);
     }
 }

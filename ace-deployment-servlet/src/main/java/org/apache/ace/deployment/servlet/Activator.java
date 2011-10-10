@@ -20,6 +20,7 @@ package org.apache.ace.deployment.servlet;
 
 import javax.servlet.Servlet;
 
+import org.apache.ace.deployment.processor.DeploymentProcessor;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.streamgenerator.StreamGenerator;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -35,10 +36,12 @@ public class Activator extends DependencyActivatorBase {
         manager.add(createComponent()
             .setInterface(Servlet.class.getName(), null)
             .setImplementation(DeploymentServlet.class)
+            .add(createConfigurationDependency().setPropagate(true).setPid(PID))
             .add(createServiceDependency().setService(StreamGenerator.class).setRequired(true))
             .add(createServiceDependency().setService(DeploymentProvider.class).setRequired(true))
+            .add(createServiceDependency().setService(DeploymentProcessor.class).setRequired(false).setCallbacks("addProcessor", "removeProcessor"))
             .add(createServiceDependency().setService(LogService.class).setRequired(false))
-            .add(createConfigurationDependency().setPropagate(true).setPid(PID)));
+        );
     }
 
     @Override
