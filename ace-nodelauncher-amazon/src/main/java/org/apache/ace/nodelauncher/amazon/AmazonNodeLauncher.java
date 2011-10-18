@@ -135,7 +135,6 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     
     public void start() {
         Properties props = new Properties();
-        props.put(EC2Constants.PROPERTY_EC2_AMI_OWNERS, "");
         m_computeServiceContext = new ComputeServiceContextFactory().createContext("aws-ec2",
                 m_accessKeyId, m_secretAccessKey, (List) Arrays.asList(new JschSshClientModule()), props);
     }
