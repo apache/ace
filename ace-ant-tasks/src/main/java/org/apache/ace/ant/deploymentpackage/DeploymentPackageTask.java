@@ -173,19 +173,22 @@ public class DeploymentPackageTask extends MatchingTask {
         }
 
         JarOutputStream output = null;
+        FileInputStream fis = null;
         try {
             output = new JarOutputStream(new FileOutputStream(m_destination), manifest);
             byte[] buffer = new byte[4096];
             for (String file : files) {
                 log("Writing to deployment package: " + file);
                 output.putNextEntry(new ZipEntry(file));
-                FileInputStream fis = new FileInputStream(new File(m_dir, file));
+                fis = new FileInputStream(new File(m_dir, file));
                 int bytes = fis.read(buffer);
                 while (bytes != -1) {
                     output.write(buffer, 0, bytes);
                     bytes = fis.read(buffer);
                 }
                 output.closeEntry();
+                fis.close();
+                fis = null;
             }
         }
         catch (Exception e) {
@@ -198,6 +201,14 @@ public class DeploymentPackageTask extends MatchingTask {
                 }
                 catch (IOException e) {
                     throw new BuildException("Could not close deployment package " + m_destination + ".", e);
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                }
+                catch (IOException e) {
+                    throw new BuildException("Could not close file " + fis + ".", e);
                 }
             }
         }
