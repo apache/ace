@@ -114,6 +114,8 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
      */
     public static final String RUN_AS_ROOT = "runAsRoot";
 
+    public static final String HARDWARE_ID = "hardwareId";
+
     /**
      * Default set of ports to open on a node.
      */
@@ -122,6 +124,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     private URL m_server;
     private String m_amiId; 
     private String m_location;
+    private String m_hardwareId;
     private String m_accessKeyId;
     private String m_secretAccessKey;
     private String m_tagPrefix;
@@ -130,6 +133,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     private String m_launcherArguments;
     private String m_extraPorts;
     private boolean m_runAsRoot;
+
 
     private ComputeServiceContext m_computeServiceContext;
     
@@ -143,7 +147,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         ComputeService computeService = m_computeServiceContext.getComputeService();
         Template template = computeService.templateBuilder()
                 .imageId(m_location + "/" + m_amiId)
-                .hardwareId(InstanceType.C1_MEDIUM)
+                .hardwareId(m_hardwareId)
                 .locationId(m_location)
                 .build();
         
@@ -236,6 +240,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             }
             String amiId = getConfigProperty(properties, AMI_ID);
             String location = getConfigProperty(properties, LOCATION);
+            String hardwareId = getConfigProperty(properties, HARDWARE_ID, InstanceType.C1_MEDIUM);
             String accessKeyId = getConfigProperty(properties, ACCESS_KEY_ID);
             String secretAccessKey = getConfigProperty(properties, SECRET_ACCESS_KEY);
 
@@ -249,6 +254,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             m_server = server;
             m_amiId = amiId;
             m_location = location;
+            m_hardwareId = hardwareId;
             m_accessKeyId = accessKeyId;
             m_secretAccessKey = secretAccessKey;
             m_tagPrefix = tagPrefix;
