@@ -61,7 +61,6 @@ public class LogSyncTask implements Runnable {
      * locally.
      */
     public void run() {
-        String gatewayID = m_identification.getID();
         URL host = m_discovery.discover();
 
         if (host == null) {
@@ -70,7 +69,13 @@ public class LogSyncTask implements Runnable {
             m_log.log(LogService.LOG_WARNING, "Unable to synchronize log with remote (endpoint=" + m_endpoint + ") - none available");
             return;
         }
+        
+    	if ("file".equals(host.getProtocol())) {
+    		// if the discovery URL is a file, we cannot sync, so we silently return here
+    		return;
+    	}
 
+    	String gatewayID = m_identification.getID();
         Connection sendConnection = null;
         try {
             sendConnection = new Connection(new URL(host, m_endpoint + "/" + COMMAND_SEND));
