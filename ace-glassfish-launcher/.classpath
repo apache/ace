@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
+	<classpathentry excluding="**/*.java" kind="src" path="src/main/resources"/>
+	<classpathentry excluding="**/*.java" kind="src" path="target/maven-shared-archive-resources"/>
+	<classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/concurrent/concurrent/1.3.4/concurrent-1.3.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/4.4/junit-4.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-artifact/2.0/maven-artifact-2.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/mockito/mockito-all/1.8.1/mockito-all-1.8.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.deployment.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.deployment.api-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.deployment.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.deployment.api-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.deployment.deploymentadmin/0.8.1-incubator-SNAPSHOT/org.apache.ace.deployment.deploymentadmin-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.deployment.deploymentadmin/0.8.1-incubator-SNAPSHOT/org.apache.ace.deployment.deploymentadmin-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.deployment.provider.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.deployment.provider.api-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.deployment.provider.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.deployment.provider.api-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.deployment.task/0.8.1-incubator-SNAPSHOT/org.apache.ace.deployment.task-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.deployment.task/0.8.1-incubator-SNAPSHOT/org.apache.ace.deployment.task-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.discovery.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.discovery.api-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.discovery.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.discovery.api-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.discovery.property/0.8.1-incubator-SNAPSHOT/org.apache.ace.discovery.property-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.discovery.property/0.8.1-incubator-SNAPSHOT/org.apache.ace.discovery.property-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.gateway.log/0.8.1-incubator-SNAPSHOT/org.apache.ace.gateway.log-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.gateway.log/0.8.1-incubator-SNAPSHOT/org.apache.ace.gateway.log-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.gateway.log.store/0.8.1-incubator-SNAPSHOT/org.apache.ace.gateway.log.store-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.gateway.log.store/0.8.1-incubator-SNAPSHOT/org.apache.ace.gateway.log.store-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.identification.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.identification.api-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.identification.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.identification.api-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.identification.property/0.8.1-incubator-SNAPSHOT/org.apache.ace.identification.property-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.identification.property/0.8.1-incubator-SNAPSHOT/org.apache.ace.identification.property-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.log/0.8.1-incubator-SNAPSHOT/org.apache.ace.log-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.log/0.8.1-incubator-SNAPSHOT/org.apache.ace.log-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.log.listener/0.8.1-incubator-SNAPSHOT/org.apache.ace.log.listener-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.log.listener/0.8.1-incubator-SNAPSHOT/org.apache.ace.log.listener-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.managementagent/0.8.1-incubator-SNAPSHOT/org.apache.ace.managementagent-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.managementagent/0.8.1-incubator-SNAPSHOT/org.apache.ace.managementagent-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.range.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.range.api-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.range.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.range.api-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.scheduler/0.8.1-incubator-SNAPSHOT/org.apache.ace.scheduler-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.scheduler/0.8.1-incubator-SNAPSHOT/org.apache.ace.scheduler-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.scheduler.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.scheduler.api-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.scheduler.api/0.8.1-incubator-SNAPSHOT/org.apache.ace.scheduler.api-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/ace/org.apache.ace.util/0.8.1-incubator-SNAPSHOT/org.apache.ace.util-0.8.1-incubator-SNAPSHOT.jar" sourcepath="M2_REPO/org/apache/ace/org.apache.ace.util/0.8.1-incubator-SNAPSHOT/org.apache.ace.util-0.8.1-incubator-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/felix/org.apache.felix.configadmin/1.2.8/org.apache.felix.configadmin-1.2.8.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/felix/org.apache.felix.dependencymanager/3.0.0/org.apache.felix.dependencymanager-3.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/felix/org.apache.felix.deploymentadmin/0.9.0/org.apache.felix.deploymentadmin-0.9.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/felix/org.apache.felix.eventadmin/1.2.8/org.apache.felix.eventadmin-1.2.8.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/felix/org.apache.felix.framework/3.0.8/org.apache.felix.framework-3.0.8.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/osgi/org.osgi.compendium/4.2.0/org.osgi.compendium-4.2.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/osgi/org.osgi.core/4.2.0/org.osgi.core-4.2.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-utils/1.0.4/plexus-utils-1.0.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/surefire/surefire-api/2.5/surefire-api-2.5.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/surefire/surefire-testng/2.5/surefire-testng-2.5.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/testng/testng/5.7/testng-5.7-jdk15.jar"/>
+	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

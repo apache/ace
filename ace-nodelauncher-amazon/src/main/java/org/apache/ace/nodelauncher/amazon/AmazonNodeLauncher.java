@@ -29,7 +29,6 @@ import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.ec2.compute.options.EC2TemplateOptions;
 import org.jclouds.ec2.domain.InstanceType;
-import org.jclouds.ec2.reference.EC2Constants;
 import org.jclouds.scriptbuilder.domain.Statements;
 import org.jclouds.ssh.jsch.config.JschSshClientModule;
 import org.osgi.service.cm.ConfigurationException;
@@ -120,7 +119,13 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
      * Default set of ports to open on a node.
      */
     public static final int[] DEFAULT_PORTS = new int[] {22, 80, 8080};
-    
+
+    public static final String ACE_LAUNCHER = "aceLauncher";
+
+    public static final String ADDITIONAL_OBR_DOWNLOADS = "additionalObrDownloads";
+
+    public static final String EXERNAL_DOWNLOAD_URLS = "externalDownloadUrls";
+
     private URL m_server;
     private String m_amiId; 
     private String m_location;
@@ -133,6 +138,10 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     private String m_launcherArguments;
     private String m_extraPorts;
     private boolean m_runAsRoot;
+    private String m_aceLauncher;
+    private String m_additionalObrDownloads;
+    private String m_externalDownloadUrls;
+
 
 
     private ComputeServiceContext m_computeServiceContext;
@@ -191,9 +200,18 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         if (m_nodeBootstrap != null) {
             script.append(m_nodeBootstrap).append(" ; ");
         }
-        script.append("wget ").append(new URL(m_server, "/obr/ace-launcher.jar")).append(" ;");
 
-        script.append("nohup java -jar ace-launcher.jar ");
+        script.append("wget ").append(new URL(m_server, "/obr/" + m_aceLauncher)).append(" ;");
+
+        for(String additonalDownload : m_additionalObrDownloads.split(",")) {
+            script.append("wget ").append(new URL(m_server, "/obr/" + additonalDownload.trim())).append(" ;");
+        }
+
+        for(String additonalDownload : m_externalDownloadUrls.split(",")) {
+            script.append("wget ").append(additonalDownload.trim()).append(" ;");
+        }
+
+        script.append("nohup java -jar ").append(m_aceLauncher).append(" ");
         script.append("discovery=").append(m_server.toExternalForm()).append(" ");
         script.append("identification=").append(id).append(" ");
         script.append(m_vmOptions).append(" ");
@@ -250,6 +268,9 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             String launcherArguments = getConfigProperty(properties, LAUNCHER_ARGUMENTS, "");
             String extraPorts = getConfigProperty(properties, EXTRA_PORTS, "");
             String runAsRoot = getConfigProperty(properties, RUN_AS_ROOT, "false");
+            String aceLauncher = getConfigProperty(properties, ACE_LAUNCHER, "ace-launcher.jar");
+            String additionalObrDownloads = getConfigProperty(properties, ADDITIONAL_OBR_DOWNLOADS);
+            String externalDownloadUrls = getConfigProperty(properties, EXERNAL_DOWNLOAD_URLS);
 
             m_server = server;
             m_amiId = amiId;
@@ -263,6 +284,9 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             m_launcherArguments = launcherArguments;
             m_extraPorts = extraPorts;
             m_runAsRoot = "true".equals(runAsRoot);
+            m_aceLauncher = aceLauncher;
+            m_additionalObrDownloads = additionalObrDownloads;
+            m_externalDownloadUrls = externalDownloadUrls;
         }
     }
 

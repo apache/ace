@@ -126,6 +126,7 @@
         <module>ace-target-devserver</module>
 
         <module>ace-integrationtests</module>
+        <module>ace-glassfish-launcher</module>
     </modules>
 
     <scm>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <!--
 
@@ -33,11 +34,12 @@
     <packaging>bundle</packaging>
 
     <name>Apache ACE :: NodeLauncher :: Amazon provider</name>
-    <description />
+    <description/>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-nodelauncher-amazon</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-nodelauncher-amazon</developerConnection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-nodelauncher-amazon
+        </developerConnection>
         <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-nodelauncher-amazon</url>
     </scm>
 
@@ -84,17 +86,27 @@
             <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.nodelauncher.api</artifactId>
         </dependency>
-       <dependency>
+        <dependency>
             <groupId>org.jclouds.driver</groupId>
             <artifactId>jclouds-jsch</artifactId>
             <version>1.2.1</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jclouds</groupId>
+            <artifactId>jclouds-allcompute</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.11</version>
+        </dependency>
          <dependency>
-        <groupId>org.jclouds</groupId>
-        <artifactId>jclouds-allcompute</artifactId>
-        <version>1.2.1</version>
-   </dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.5.11</version>
+        </dependency>
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>

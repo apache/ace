@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <!--
 
@@ -33,11 +34,12 @@
     <packaging>pom</packaging>
 
     <name>Apache ACE :: Target :: Dev Server</name>
-    <description />
+    <description/>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver</developerConnection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver
+        </developerConnection>
         <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver</url>
     </scm>
 
@@ -64,32 +66,48 @@
             </plugin>
 
 
-			<plugin>
-			        <groupId>org.apache.maven.plugins</groupId>
-			        <artifactId>maven-dependency-plugin</artifactId>
-			        <executions>
-			          <execution>
-			            <id>copy</id>
-			            <phase>generate-resources</phase>
-			            <goals>
-			              <goal>copy</goal>
-			            </goals>
-			            <configuration>
-			              <artifactItems>
-					<artifactItem>
-			                  <groupId>${pom.groupId}</groupId>
-			                  <artifactId>org.apache.ace.launcher</artifactId>
-			                  <type>jar</type>
-			                  <overWrite>true</overWrite>
-			                  <outputDirectory>${project.basedir}/store</outputDirectory>
-					  <destFileName>ace-launcher.jar</destFileName>
-			                </artifactItem>
-			              </artifactItems>
-			            </configuration>
-			          </execution>
-			        </executions>
-			      </plugin>
-			
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${pom.groupId}</groupId>
+                                    <artifactId>org.apache.ace.launcher</artifactId>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.basedir}/store</outputDirectory>
+                                    <destFileName>ace-launcher.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>${pom.groupId}</groupId>
+                                    <artifactId>ace-glassfish-launcher</artifactId>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.basedir}/store</outputDirectory>
+                                    <destFileName>ace-glassfish-launcher.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>${pom.groupId}</groupId>
+                                    <artifactId>org.apache.ace.managementagent</artifactId>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.basedir}/store</outputDirectory>
+                                    <destFileName>ace-managementagent.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -229,7 +247,7 @@
             <artifactId>org.apache.ace.deployment.streamgenerator</artifactId>
             <scope>runtime</scope>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.deployment.verifier</artifactId>
             <scope>runtime</scope>
