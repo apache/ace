@@ -84,9 +84,11 @@ import com.vaadin.event.Transferable;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.TargetDetails;
+import com.vaadin.event.dd.acceptcriteria.AcceptAll;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.event.dd.acceptcriteria.Or;
 import com.vaadin.terminal.Sizeable;
+import com.vaadin.terminal.StreamVariable;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.AbstractSelect.AbstractSelectTargetDetails;
 import com.vaadin.ui.AbstractSelect.VerticalLocationIs;
@@ -94,8 +96,11 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.DragAndDropWrapper;
+import com.vaadin.ui.DragAndDropWrapper.WrapperTransferable;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Html5File;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.ProgressIndicator;
@@ -1174,13 +1179,110 @@ public class VaadinClient extends com.vaadin.Application {
     		        return fos;
     	        }
     		});
+    		
+            final DragAndDropWrapper finalUploadedArtifacts = new DragAndDropWrapper(uploadedArtifacts);
+    		
+    		final StreamVariable html5uploadStreamVariable =  new StreamVariable() {
+            	FileOutputStream fos = null;
+				public OutputStream getOutputStream() {
+					return fos;
+				}
+
+				public boolean listenProgress() {
+					return false;
+				}
+
+				public void streamingStarted(
+						StreamingStartEvent event) {
+    		        try {
+    		        	m_file = new File(m_sessionDir, event.getFileName()); 
+    		        	if (m_file.exists()) {
+    		        		throw new IOException("Uploaded file already exists: " + event.getFileName());
+    		        	}
+    		            fos = new FileOutputStream(m_file);
+    		        }
+    		        catch (final IOException e) {
+                        getMainWindow().showNotification(
+                            "Upload artifact failed",
+                            "File " + m_file.getName() + "<br />could not be accepted on the server.<br />" +
+                            "Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
+                        m_log.log(LogService.LOG_ERROR, "Upload of " + m_file.getAbsolutePath() + " failed.", e);
+    		            fos= null;
+    		        }
+				}
+
+				public void streamingFinished(
+						StreamingEndEvent event) {
+					try {
+    					URL artifact = m_file.toURI().toURL();
+    		            Item item = uploadedArtifacts.addItem(artifact);
+    		            item.getItemProperty("symbolic name").setValue(m_file.getName());
+    		            item.getItemProperty("version").setValue("");
+    					m_uploadedArtifacts.add(m_file);
+    					fos.close();
+					} catch (IOException e) {
+						getMainWindow().showNotification(
+	                            "Upload artifact processing failed",
+	                            "<br />Reason: " + e.getMessage(),
+	                            Notification.TYPE_ERROR_MESSAGE);
+	                        m_log.log(LogService.LOG_ERROR, "Processing of " + m_file.getAbsolutePath() + " failed.", e);
+					} finally {
+						fos=null;
+					}
+				}
+
+				public void streamingFailed(
+						StreamingErrorEvent event) {
+					getMainWindow().showNotification(
+                            "Upload artifact failed",
+                            "File " + m_file.getName() + "<br />could not be accepted on the server.<br />" +
+                            "Reason: " + event.getException().getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
+					m_log.log(LogService.LOG_ERROR, "Upload of "+ event.getFileName() + " failed.");
+					m_file.delete();
+					fos=null;
+				}
+
+				public boolean isInterrupted() {
+					return fos==null;
+				}
+
+				public void onProgress(StreamingProgressEvent event) {
+					// Do nothing, no progress indicator (yet ?)
+				}
+            	
+            };
             
+    		final DropHandler html5uploadDropHandler = new DropHandler() {
+
+				public void drop(DragAndDropEvent dropEvent) {
+					 // expecting this to be an html5 drag
+		            WrapperTransferable tr = (WrapperTransferable) dropEvent
+		                    .getTransferable();
+		            Html5File[] files = tr.getFiles();
+		            if (files != null) {
+		                for (final Html5File html5File : files) {
+		                    html5File.setStreamVariable(html5uploadStreamVariable);
+		                }
+		            }
+				}
+
+				public AcceptCriterion getAcceptCriterion() {
+					// TODO only accept .jar files ?
+					return  AcceptAll.get();
+				}
+    			
+    		};
+    		
+            finalUploadedArtifacts.setDropHandler(html5uploadDropHandler);
+                        
             this.addListener(new Window.CloseListener()  {
 				public void windowClose(CloseEvent e) {
 					for (File artifact : m_uploadedArtifacts) {
 						artifact.delete();
 					}
-				}
+				}           	
             });
                         
             artifacts.setCaption("Artifacts in repository");
@@ -1230,7 +1332,7 @@ public class VaadinClient extends com.vaadin.Application {
             layout.addComponent(search);
             layout.addComponent(artifacts);
             layout.addComponent(uploadArtifact);
-            layout.addComponent(uploadedArtifacts);
+            layout.addComponent(finalUploadedArtifacts);
 
             Button close = new Button("Add", new Button.ClickListener() {
                 // inline click-listener
