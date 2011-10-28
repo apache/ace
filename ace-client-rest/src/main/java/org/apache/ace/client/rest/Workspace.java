@@ -168,8 +168,21 @@ public class Workspace {
         }
         else {
             if (ARTIFACT2FEATURE.equals(entityType) || FEATURE2DISTRIBUTION.equals(entityType) || DISTRIBUTION2TARGET.equals(entityType)) {
-                RepositoryObject left = getLeft(entityType, attributes.get("left"));
-                RepositoryObject right = getRight(entityType, attributes.get("right"));
+
+                String leftAttribute = attributes.get("left");
+                String rightAttribute = attributes.get("right");
+
+                RepositoryObject left = null;
+                if(leftAttribute != null) {
+                    left = getLeft(entityType, leftAttribute);
+                }
+
+                RepositoryObject right = null;
+                if(rightAttribute != null) {
+                    right = getRight(entityType, rightAttribute);
+                }
+
+
                 if (left != null) {
                     if (left instanceof StatefulGatewayObject) {
                         if (((StatefulGatewayObject) left).isRegistered()) {
@@ -215,8 +228,19 @@ public class Workspace {
             }
         }
         if (ARTIFACT2FEATURE.equals(entityType) || FEATURE2DISTRIBUTION.equals(entityType) || DISTRIBUTION2TARGET.equals(entityType)) {
-            RepositoryObject left = getLeft(entityType, repositoryObject.getAttribute("left"));
-            RepositoryObject right = getRight(entityType, repositoryObject.getAttribute("right"));
+            String leftAttribute = repositoryObject.getAttribute("left");
+            String rightAttribute = repositoryObject.getAttribute("right");
+
+            RepositoryObject left = null;
+            if (leftAttribute != null) {
+                left = getLeft(entityType, leftAttribute);
+            }
+
+            RepositoryObject right = null;
+            if (rightAttribute != null) {
+                right = getRight(entityType, rightAttribute);
+            }
+
             if (left != null) {
                 if (left instanceof StatefulGatewayObject) {
                     if (((StatefulGatewayObject) left).isRegistered()) {
