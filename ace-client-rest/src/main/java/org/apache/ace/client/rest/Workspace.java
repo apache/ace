@@ -296,18 +296,9 @@ public class Workspace {
     
     public void deleteRepositoryObject(String entityType, String entityId) {
         RepositoryObject result = null;
-        try {
-            List list = null;
-            Filter filter = FrameworkUtil.createFilter(entityId);
             ObjectRepository objectRepository = getObjectRepository(entityType);
-            list = objectRepository.get(filter);
-            if (list != null && list.size() == 1) {
-                objectRepository.remove((RepositoryObject) list.get(0));
-            }
-        }
-        catch (InvalidSyntaxException e) {
-            e.printStackTrace();
-        }
+            RepositoryObject repositoryObject = objectRepository.get(entityId);
+            objectRepository.remove(repositoryObject);
     }
 
     private ObjectRepository getObjectRepository(String entityType) {
