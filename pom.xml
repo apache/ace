@@ -118,6 +118,7 @@
 
         <module>ace-managementagent</module>
         <module>ace-launcher</module>
+        <module>ace-glassfish-launcher</module>
 
         <module>ace-karaf-features</module>
 
@@ -126,7 +127,6 @@
         <module>ace-target-devserver</module>
 
         <module>ace-integrationtests</module>
-        <module>ace-glassfish-launcher</module>
     </modules>
 
     <scm>
