@@ -470,6 +470,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.ace</groupId>
+                <artifactId>org.apache.ace.http.redirector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ace</groupId>
                 <artifactId>org.apache.ace.identification.api</artifactId>
                 <version>${project.version}</version>
             </dependency>

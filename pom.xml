@@ -80,6 +80,7 @@
         <module>ace-deployment-verifier</module>
         <module>ace-deployment-verifier-ui</module>
         <module>ace-httplistener</module>
+        <module>ace-http-redirector</module>
 
         <module>ace-server-log-store</module>
         <module>ace-server-log-ui</module>
@@ -205,6 +206,7 @@
                 <module>ace-discovery-api</module>
                 <module>ace-discovery-property</module>
                 <module>ace-httplistener</module>
+                <module>ace-http-redirector</module>
                 <module>ace-obr-metadata</module>
                 <module>ace-obr-storage</module>
                 <module>ace-obr-servlet</module>
