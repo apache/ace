@@ -27,7 +27,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +66,6 @@ import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
@@ -1177,6 +1175,14 @@ public class VaadinClient extends com.vaadin.Application {
     	        }
     		});
             
+            this.addListener(new Window.CloseListener()  {
+				public void windowClose(CloseEvent e) {
+					for (File artifact : m_uploadedArtifacts) {
+						artifact.delete();
+					}
+				}
+            });
+                        
             artifacts.setCaption("Artifacts in repository");
             uploadedArtifacts.setCaption("Uploaded artifacts");
             uploadedArtifacts.setSelectable(false);
@@ -1229,8 +1235,6 @@ public class VaadinClient extends com.vaadin.Application {
             Button close = new Button("Add", new Button.ClickListener() {
                 // inline click-listener
                 public void buttonClick(ClickEvent event) {
-                    // close the window by removing it from the parent window
-                    (AddArtifactWindow.this.getParent()).removeWindow(AddArtifactWindow.this);
                     List<ArtifactObject> added = new ArrayList<ArtifactObject>();
                     // TODO add the selected artifacts
                     for (Object id : artifacts.getItemIds()) {
@@ -1270,6 +1274,8 @@ public class VaadinClient extends com.vaadin.Application {
                     		artifact.delete();
                     	}
                     }
+                    // close the window by removing it from the parent window
+                    (AddArtifactWindow.this.getParent()).removeWindow(AddArtifactWindow.this);
                     // TODO: make a decision here
                     // so now we have enough information to show a list of imported artifacts (added)
                     // but do we want to show this list or do we just assume the user will see the new
