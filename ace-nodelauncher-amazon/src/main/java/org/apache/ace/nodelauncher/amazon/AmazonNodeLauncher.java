@@ -290,17 +290,15 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         }
     }
 
-    private String getConfigProperty(@SuppressWarnings("rawtypes") Dictionary settings, String id)
-            throws ConfigurationException {
+    private String getConfigProperty(@SuppressWarnings("rawtypes") Dictionary settings, String id) throws ConfigurationException {
         return getConfigProperty(settings, id, null);
     }
 
-    private String getConfigProperty(@SuppressWarnings("rawtypes") Dictionary settings, String id, String defaultValue)
-            throws ConfigurationException {
+    private String getConfigProperty(@SuppressWarnings("rawtypes") Dictionary settings, String id, String defaultValue) throws ConfigurationException {
         String result = (String) settings.get(id);
         if (result == null) {
             if (defaultValue == null) {
-            throw new ConfigurationException(id, "key missing");
+                throw new ConfigurationException(id, "key missing");
             }
             else {
                 return defaultValue;
