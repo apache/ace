@@ -1,6 +1,7 @@
 package org.apache.ace.managementagent;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Properties;
@@ -81,9 +82,15 @@ public class Activator extends DependencyActivatorBase {
                     String id = args[1];
                     String url = args[2];
                     
+                    boolean isFileUrl = "file".equals((new URL(url)).getProtocol());
+                    
                     configureFactory("org.apache.ace.identification.property.factory", "ma", ma, "gatewayID", id);
                     configureFactory("org.apache.ace.discovery.property.factory", "ma", ma, "serverURL", url);
-                    configureFactory("org.apache.ace.gateway.log.sync.factory", "ma", ma, "name", "auditlog");
+                    // if discovery points to the local filesystem, it's no use trying to sync the audit log
+                    // to a server (we are keeping the local log in case someone wants to retrieve it)
+                    if (!isFileUrl) {
+                        configureFactory("org.apache.ace.gateway.log.sync.factory", "ma", ma, "name", "auditlog");
+                    }
                     configureFactory("org.apache.ace.deployment.factory", "ma", ma);
                     configure("org.apache.ace.scheduler", "ma=" + ma + ";name=auditlog", syncInterval);
                     instances.append(
@@ -102,9 +109,12 @@ public class Activator extends DependencyActivatorBase {
             else {
                 String server = System.getProperty("discovery", "http://localhost:8080");
                 configure("org.apache.ace.discovery.property", "serverURL", server);
+                boolean isFileUrl = "file".equals((new URL(server)).getProtocol());
                 String targetId = System.getProperty("identification", "configuredGatewayID");
                 configure("org.apache.ace.identification.property", "gatewayID", targetId);
-                configureFactory("org.apache.ace.gateway.log.sync.factory", "name", "auditlog");
+                if (!isFileUrl) {
+                    configureFactory("org.apache.ace.gateway.log.sync.factory", "name", "auditlog");
+                }
                 configure("org.apache.ace.scheduler", "auditlog", syncInterval);
                 if (!m_quiet) {
                     System.out.println("Started management agent.\n"
