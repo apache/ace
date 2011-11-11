@@ -52,6 +52,7 @@
         </import.package>
         <private.package>
             org.apache.ace.webui.vaadin,
+            org.apache.ace.webui.domain,
             org.apache.ace.test.utils
         </private.package>
         <bundle.activator>

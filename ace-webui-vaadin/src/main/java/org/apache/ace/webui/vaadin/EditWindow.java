@@ -21,6 +21,7 @@ package org.apache.ace.webui.vaadin;
 import com.vaadin.ui.*;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.domain.NamedTargetObject;
 
 import java.util.HashMap;
 import java.util.List;
@@ -70,8 +71,12 @@ public class EditWindow extends Window {
             public void buttonClick(Button.ClickEvent event) {
                 // close the window by removing it from the parent window
                 getParent().removeWindow(EditWindow.this);
-                // create the feature
-                object.setDescription((String) description.getValue());
+                if (object instanceof NamedTargetObject) {
+                    // do nothing
+                }
+                else {
+                    object.setDescription((String) description.getValue());
+                }
             }
         });
         // The components added to the window are actually added to the window's

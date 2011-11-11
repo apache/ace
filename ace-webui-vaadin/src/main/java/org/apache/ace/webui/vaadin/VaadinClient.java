@@ -19,13 +19,8 @@
 package org.apache.ace.webui.vaadin;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,11 +28,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
@@ -63,6 +53,7 @@ import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.domain.OBREntry;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
@@ -72,10 +63,6 @@ import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import com.vaadin.data.Item;
 import com.vaadin.event.ItemClickEvent;
@@ -84,39 +71,26 @@ import com.vaadin.event.Transferable;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.TargetDetails;
-import com.vaadin.event.dd.acceptcriteria.AcceptAll;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.event.dd.acceptcriteria.Or;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.terminal.StreamVariable;
-import com.vaadin.terminal.UserError;
 import com.vaadin.ui.AbstractSelect.AbstractSelectTargetDetails;
 import com.vaadin.ui.AbstractSelect.VerticalLocationIs;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.DragAndDropWrapper;
-import com.vaadin.ui.DragAndDropWrapper.WrapperTransferable;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Html5File;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.TableTransferable;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.FailedEvent;
-import com.vaadin.ui.Upload.SucceededEvent;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 
 /*
 
-TODO:
+ TODO:
  - Add buttons to remove associations (think about how we can better visualize this)
  - Add buttons to remove objects
  - Handle ui updates better
@@ -129,6 +103,7 @@ TODO:
  - Add an editor that appears on double clicking on an item in a table (done)
  - Add buttons to create new items in all of the tables (done for those that make sense)
  */
+@SuppressWarnings("serial")
 public class VaadinClient extends com.vaadin.Application {
     public static final String OBJECT_NAME = "name";
     public static final String OBJECT_DESCRIPTION = "description";
@@ -167,10 +142,10 @@ public class VaadinClient extends com.vaadin.Application {
     private List<GroupObject> m_features;
     private List<StatefulGatewayObject> m_targets;
     private final Associations m_associations = new Associations();
-    
+
     private List<OBREntry> m_obrList;
     private GridLayout m_grid;
-    
+
     private boolean m_dynamicRelations = true;
     private File m_sessionDir; // private folder for session info
     private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
@@ -189,7 +164,7 @@ public class VaadinClient extends com.vaadin.Application {
         m_aceHost = aceHost;
         m_obrUrl = obrUrl;
     }
-    
+
     public void setupDependencies(Component component) {
         m_sessionID = "" + generateSessionID();
         File dir = m_context.getDataFile(m_sessionID);
@@ -205,54 +180,59 @@ public class VaadinClient extends com.vaadin.Application {
         addDependency(component, License2GatewayAssociationRepository.class);
         addDependency(component, StatefulGatewayRepository.class);
     }
-    
+
+    //@formatter:off
     private void addDependency(Component component, Class service) {
         component.add(m_manager.createServiceDependency()
             .setService(service, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
             .setRequired(true)
-            .setInstanceBound(true)
-        );
+            .setInstanceBound(true));
     }
-    
+    //@formatter:on
+
     public void start() {
         System.out.println("Starting " + m_sessionID);
         m_dependenciesResolved.set(true);
     }
-    
+
     public void stop() {
         m_dependenciesResolved.set(false);
     }
-    
+
     public void destroyDependencies() {
         m_sessionFactory.destroySession(m_sessionID);
         FileUtils.removeDirectoryWithContent(m_sessionDir);
     }
-    
-    
+
     public void init() {
         setTheme("ace");
         if (!m_dependenciesResolved.get()) {
             final Window message = new Window("Apache ACE");
             setMainWindow(message);
             message.getContent().setSizeFull();
-            Label richText = new Label(
-                "<h1>Apache ACE User Interface</h1>" +
-                "<p>Due to missing component dependencies on the server, probably due to misconfiguration, " +
-                "the user interface cannot be properly started. Please contact your server administrator. " +
-                "You can retry accessing the user interface by <a href=\"?restartApplication\">following this link</a>.</p>"
-            );
-            // TODO we might want to add some more details here as to what's missing
+            Label richText =
+                new Label(
+                    "<h1>Apache ACE User Interface</h1>"
+                        + "<p>Due to missing component dependencies on the server, probably due to misconfiguration, "
+                        + "the user interface cannot be properly started. Please contact your server administrator. "
+                        + "You can retry accessing the user interface by <a href=\"?restartApplication\">following this link</a>.</p>");
+            // TODO we might want to add some more details here as to what's
+            // missing
             // on the other hand, the user probably can't fix that anyway
             richText.setContentMode(Label.CONTENT_XHTML);
             message.addComponent(richText);
             return;
         }
-        
+
         m_mainWindow = new Window("Apache ACE");
         setMainWindow(m_mainWindow);
         m_mainWindow.getContent().setSizeFull();
-        
-        LoginWindow loginWindow = new LoginWindow();
+
+        LoginWindow loginWindow = new LoginWindow(m_log, new LoginWindow.LoginFunction() {
+            public boolean login(String name, String password) {
+                return VaadinClient.this.login(name, password);
+            }
+        });
         m_mainWindow.getWindow().addWindow(loginWindow);
         loginWindow.center();
     }
@@ -260,7 +240,7 @@ public class VaadinClient extends com.vaadin.Application {
     private void initGrid(User user) {
         Authorization auth = m_userAdmin.getAuthorization(user);
         int count = 0;
-        for (String role : new String[]{"viewBundle", "viewGroup", "viewLicense", "viewGateway"}) {
+        for (String role : new String[] { "viewBundle", "viewGroup", "viewLicense", "viewGateway" }) {
             if (auth.hasRole(role)) {
                 count++;
             }
@@ -271,10 +251,10 @@ public class VaadinClient extends com.vaadin.Application {
         m_grid.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         m_grid.setHeight(100, Sizeable.UNITS_PERCENTAGE);
 
-        m_grid.addComponent(createToolbar(), 0, 0, count -1, 0);
+        m_grid.addComponent(createToolbar(), 0, 0, count - 1, 0);
 
         m_artifactsPanel = createArtifactsPanel(m_mainWindow);
-       
+
         m_artifactToolbar = new HorizontalLayout();
         m_artifactToolbar.addComponent(createAddArtifactButton(m_mainWindow));
         CheckBox dynamicCheckBox = new CheckBox("Dynamic Links");
@@ -286,7 +266,7 @@ public class VaadinClient extends com.vaadin.Application {
             }
         });
         m_artifactToolbar.addComponent(dynamicCheckBox);
-        
+
         count = 0;
         if (auth.hasRole("viewBundle")) {
             m_grid.addComponent(m_artifactsPanel, count, 2);
@@ -296,16 +276,16 @@ public class VaadinClient extends com.vaadin.Application {
 
         m_featuresPanel = createFeaturesPanel(m_mainWindow);
         m_featureToolbar = createAddFeatureButton(m_mainWindow);
-        
+
         if (auth.hasRole("viewGroup")) {
             m_grid.addComponent(m_featuresPanel, count, 2);
             m_grid.addComponent(m_featureToolbar, count, 1);
             count++;
         }
-        
+
         m_distributionsPanel = createDistributionsPanel(m_mainWindow);
         m_distributionToolbar = createAddDistributionButton(m_mainWindow);
-        
+
         if (auth.hasRole("viewLicense")) {
             m_grid.addComponent(m_distributionsPanel, count, 2);
             m_grid.addComponent(m_distributionToolbar, count, 1);
@@ -314,22 +294,31 @@ public class VaadinClient extends com.vaadin.Application {
 
         m_targetsPanel = createTargetsPanel(m_mainWindow);
         m_targetToolbar = createAddTargetButton(m_mainWindow);
-        
+
         if (auth.hasRole("viewGateway")) {
             m_grid.addComponent(m_targetsPanel, count, 2);
             m_grid.addComponent(m_targetToolbar, count, 1);
         }
-        
+
         m_grid.setRowExpandRatio(2, 1.0f);
-        
+
         ProgressIndicator progress = new ProgressIndicator(0f);
         progress.setPollingInterval(500);
         m_grid.addComponent(progress, 0, 3);
 
-        m_artifactsPanel.addListener(m_associations.createSelectionListener(m_artifactsPanel, m_artifactRepository, new Class[] {}, new Class[] { GroupObject.class, LicenseObject.class, GatewayObject.class }, new Table[] { m_featuresPanel, m_distributionsPanel, m_targetsPanel }));
-        m_featuresPanel.addListener(m_associations.createSelectionListener(m_featuresPanel, m_featureRepository, new Class[] { ArtifactObject.class }, new Class[] { LicenseObject.class, GatewayObject.class }, new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }));
-        m_distributionsPanel.addListener(m_associations.createSelectionListener(m_distributionsPanel, m_distributionRepository, new Class[] { GroupObject.class, ArtifactObject.class }, new Class[] { GatewayObject.class }, new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
-        m_targetsPanel.addListener(m_associations.createSelectionListener(m_targetsPanel, m_statefulTargetRepository, new Class[] { LicenseObject.class, GroupObject.class, ArtifactObject.class}, new Class[] {}, new Table[] { m_artifactsPanel, m_featuresPanel, m_distributionsPanel }));
+        m_artifactsPanel.addListener(m_associations.createSelectionListener(m_artifactsPanel, m_artifactRepository,
+            new Class[] {}, new Class[] { GroupObject.class, LicenseObject.class, GatewayObject.class },
+            new Table[] { m_featuresPanel, m_distributionsPanel, m_targetsPanel }));
+        m_featuresPanel.addListener(m_associations.createSelectionListener(m_featuresPanel, m_featureRepository,
+            new Class[] { ArtifactObject.class }, new Class[] { LicenseObject.class, GatewayObject.class },
+            new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }));
+        m_distributionsPanel
+            .addListener(m_associations.createSelectionListener(m_distributionsPanel, m_distributionRepository,
+                new Class[] { GroupObject.class, ArtifactObject.class }, new Class[] { GatewayObject.class },
+                new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
+        m_targetsPanel.addListener(m_associations.createSelectionListener(m_targetsPanel, m_statefulTargetRepository,
+            new Class[] { LicenseObject.class, GroupObject.class, ArtifactObject.class }, new Class[] {},
+            new Table[] { m_artifactsPanel, m_featuresPanel, m_distributionsPanel }));
 
         m_artifactsPanel.setDropHandler(new AssociationDropHandler((Table) null, m_featuresPanel) {
             @Override
@@ -339,8 +328,10 @@ public class VaadinClient extends com.vaadin.Application {
             @Override
             protected void associateFromRight(String left, String right) {
                 ArtifactObject artifact = getArtifact(left);
-                // if you drop on a resource processor, and try to get it, you will get null
-                // because you cannot associate anything with a resource processor so we check
+                // if you drop on a resource processor, and try to get it, you
+                // will get null
+                // because you cannot associate anything with a resource
+                // processor so we check
                 // for null here
                 if (artifact != null) {
                     if (m_dynamicRelations) {
@@ -358,8 +349,10 @@ public class VaadinClient extends com.vaadin.Application {
             @Override
             protected void associateFromLeft(String left, String right) {
                 ArtifactObject artifact = getArtifact(left);
-                // if you drop on a resource processor, and try to get it, you will get null
-                // because you cannot associate anything with a resource processor so we check
+                // if you drop on a resource processor, and try to get it, you
+                // will get null
+                // because you cannot associate anything with a resource
+                // processor so we check
                 // for null here
                 if (artifact != null) {
                     if (m_dynamicRelations) {
@@ -417,76 +410,7 @@ public class VaadinClient extends com.vaadin.Application {
         m_mainWindow.addComponent(m_grid);
     }
 
-    private Button createAddTargetButton(final Window main) {
-        Button addTargetButton = new Button("Add target...");
-        addTargetButton.addListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                new AddTargetWindow(main).show();
-            }
-        });
-        return addTargetButton;
-    }
-
-    private Button createAddArtifactButton(final Window main) {
-        Button addArtifactButton = new Button("Add artifact...");
-        addArtifactButton.addListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                showAddArtifactDialog(main);
-            }
-        });
-        return addArtifactButton;
-    }
-
-    public class LoginWindow extends Window {
-        private TextField m_name;
-        private PasswordField m_password;
-        private Button m_loginButton;
-        
-        public LoginWindow() {
-            super("Apache ACE Login");
-            setResizable(false);
-            setModal(true);
-            setWidth("15em");
-            
-            LoginPanel p = new LoginPanel();
-            setContent(p);
-        }
-        
-        public void closeWindow() {
-            getParent().removeWindow(this);
-        }
-        
-        public class LoginPanel extends VerticalLayout {
-            public LoginPanel() {
-                setSpacing(true);
-                setMargin(true);
-                setClosable(false);
-                setSizeFull();
-                m_name = new TextField("Name", "");
-                m_password = new PasswordField("Password", "");
-                m_loginButton = new Button("Login");
-                addComponent(m_name);
-                addComponent(m_password);
-                addComponent(m_loginButton);
-                setComponentAlignment(m_loginButton, Alignment.BOTTOM_CENTER);
-                m_name.focus();
-                m_name.selectAll();
-                m_loginButton.addListener(new Button.ClickListener() {
-                    public void buttonClick(ClickEvent event) {
-                        if (login((String) m_name.getValue(), (String) m_password.getValue())) {
-                            closeWindow();
-                        }
-                        else {
-                            // TODO provide some feedback, login failed, for now don't close the login window
-                            m_loginButton.setComponentError(new UserError("Invalid username or password."));
-                        }
-                    }
-                });
-            }
-        }
-    }
-
-    private boolean login(String username, String password) {
+    boolean login(String username, String password) {
         try {
             User user = m_userAdmin.getUser("username", username);
             if (user == null) {
@@ -496,11 +420,13 @@ public class VaadinClient extends com.vaadin.Application {
                 return false;
             }
             RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
-            
+
+            //@formatter:off
             context.addShopRepository(new URL(m_aceHost, endpoint), customerName, shopRepo, true)
                 .setObrBase(m_obrUrl)
                 .addGatewayRepository(new URL(m_aceHost, endpoint), customerName, gatewayRepo, true)
                 .addDeploymentRepository(new URL(m_aceHost, endpoint), customerName, deployRepo, true);
+          //@formatter:on
             m_admin.login(context);
             initGrid(user);
             m_admin.checkout();
@@ -511,16 +437,14 @@ public class VaadinClient extends com.vaadin.Application {
             return false;
         }
     }
- 
-    
+
     private void addListener(final Object implementation, final String topic) {
-        m_manager.add(m_manager.createComponent()
-            .setInterface(EventHandler.class.getName(), new Properties() {{
+        m_manager.add(m_manager.createComponent().setInterface(EventHandler.class.getName(), new Properties() {
+            {
                 put(EventConstants.EVENT_TOPIC, topic);
                 put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
-            }})
-            .setImplementation(implementation)
-        );
+            }
+        }).setImplementation(implementation));
     }
 
     private GridLayout createToolbar() {
@@ -535,10 +459,8 @@ public class VaadinClient extends com.vaadin.Application {
                     updateTableData();
                 }
                 catch (IOException e) {
-                    getMainWindow().showNotification(
-                        "Retrieve failed",
-                        "Failed to retrieve the data from the server.<br />" +
-                        "Reason: " + e.getMessage(),
+                    getMainWindow().showNotification("Retrieve failed",
+                        "Failed to retrieve the data from the server.<br />" + "Reason: " + e.getMessage(),
                         Notification.TYPE_ERROR_MESSAGE);
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -554,10 +476,8 @@ public class VaadinClient extends com.vaadin.Application {
                     m_admin.commit();
                 }
                 catch (IOException e) {
-                    getMainWindow().showNotification(
-                        "Commit failed",
-                        "Failed to commit the changes to the server.<br />" +
-                        "Reason: " + e.getMessage(),
+                    getMainWindow().showNotification("Commit failed",
+                        "Failed to commit the changes to the server.<br />" + "Reason: " + e.getMessage(),
                         Notification.TYPE_ERROR_MESSAGE);
                 }
             }
@@ -571,10 +491,8 @@ public class VaadinClient extends com.vaadin.Application {
                     updateTableData();
                 }
                 catch (IOException e) {
-                    getMainWindow().showNotification(
-                        "Revert failed",
-                        "Failed to revert your changes.<br />" +
-                        "Reason: " + e.getMessage(),
+                    getMainWindow().showNotification("Revert failed",
+                        "Failed to revert your changes.<br />" + "Reason: " + e.getMessage(),
                         Notification.TYPE_ERROR_MESSAGE);
                 }
             }
@@ -584,7 +502,8 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private ObjectPanel createArtifactsPanel(Window main) {
-        return new ObjectPanel(m_associations, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, main, true) {
+        return new ObjectPanel(m_associations, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, main,
+            true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getArtifact(id);
@@ -614,10 +533,11 @@ public class VaadinClient extends com.vaadin.Application {
             private void add(ArtifactObject artifact) {
                 String resourceProcessorPID = artifact.getAttribute(BundleHelper.KEY_RESOURCE_PROCESSOR_PID);
                 if (resourceProcessorPID != null) {
-                	// if it's a resource processor we don't add it to our list, as resource processors don't
-                	// show up there (you can query for them separately)
+                    // if it's a resource processor we don't add it to our list,
+                    // as resource processors don't
+                    // show up there (you can query for them separately)
 
-                	return;
+                    return;
                 }
                 Item item = addItem(artifact.getDefinition());
                 if (item != null) {
@@ -626,11 +546,13 @@ public class VaadinClient extends com.vaadin.Application {
                     HorizontalLayout buttons = new HorizontalLayout();
                     Button removeLinkButton = new RemoveLinkButton<ArtifactObject>(artifact, null, m_featuresPanel) {
                         @Override
-                        protected void removeLinkFromLeft(ArtifactObject object, RepositoryObject other) {}
-                        
+                        protected void removeLinkFromLeft(ArtifactObject object, RepositoryObject other) {
+                        }
+
                         @Override
                         protected void removeLinkFromRight(ArtifactObject object, RepositoryObject other) {
-                            List<Artifact2GroupAssociation> associations = object.getAssociationsWith((GroupObject) other);
+                            List<Artifact2GroupAssociation> associations = object
+                                .getAssociationsWith((GroupObject) other);
                             for (Artifact2GroupAssociation association : associations) {
                                 m_artifact2GroupAssociationRepository.remove(association);
                             }
@@ -639,16 +561,19 @@ public class VaadinClient extends com.vaadin.Application {
                         }
                     };
                     buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton<ArtifactObject, ArtifactRepository>(artifact, m_artifactRepository));
+                    buttons.addComponent(new RemoveItemButton<ArtifactObject, ArtifactRepository>(artifact,
+                        m_artifactRepository));
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
+
             private void change(ArtifactObject artifact) {
                 Item item = getItem(artifact.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
                 }
             }
+
             private void remove(ArtifactObject artifact) {
                 removeItem(artifact.getDefinition());
             }
@@ -668,6 +593,7 @@ public class VaadinClient extends com.vaadin.Application {
                     add(feature);
                 }
             }
+
             public void handleEvent(org.osgi.service.event.Event event) {
                 GroupObject feature = (GroupObject) event.getProperty(GroupObject.EVENT_ENTITY);
                 String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
@@ -681,25 +607,29 @@ public class VaadinClient extends com.vaadin.Application {
                     change(feature);
                 }
             }
+
             private void add(GroupObject feature) {
                 Item item = addItem(feature.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_NAME).setValue(feature.getName());
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue(feature.getDescription());
-                    Button removeLinkButton = new RemoveLinkButton<GroupObject>(feature, m_artifactsPanel, m_distributionsPanel) {
+                    Button removeLinkButton = new RemoveLinkButton<GroupObject>(feature, m_artifactsPanel,
+                        m_distributionsPanel) {
                         @Override
                         protected void removeLinkFromLeft(GroupObject object, RepositoryObject other) {
-                            List<Artifact2GroupAssociation> associations = object.getAssociationsWith((ArtifactObject) other);
+                            List<Artifact2GroupAssociation> associations = object
+                                .getAssociationsWith((ArtifactObject) other);
                             for (Artifact2GroupAssociation association : associations) {
                                 m_artifact2GroupAssociationRepository.remove(association);
                             }
                             m_associations.removeAssociatedItem(object);
                             m_table.requestRepaint();
                         }
-    
+
                         @Override
                         protected void removeLinkFromRight(GroupObject object, RepositoryObject other) {
-                            List<Group2LicenseAssociation> associations = object.getAssociationsWith((LicenseObject) other);
+                            List<Group2LicenseAssociation> associations = object
+                                .getAssociationsWith((LicenseObject) other);
                             for (Group2LicenseAssociation association : associations) {
                                 m_group2LicenseAssociationRepository.remove(association);
                             }
@@ -709,20 +639,23 @@ public class VaadinClient extends com.vaadin.Application {
                     };
                     HorizontalLayout buttons = new HorizontalLayout();
                     buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton<GroupObject, GroupRepository>(feature, m_featureRepository));
+                    buttons.addComponent(new RemoveItemButton<GroupObject, GroupRepository>(feature,
+                        m_featureRepository));
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
+
             private void change(GroupObject go) {
                 Item item = getItem(go.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue(go.getDescription());
                 }
             }
+
             private void remove(GroupObject go) {
                 removeItem(go.getDefinition());
             }
-         };
+        };
     }
 
     public abstract class RemoveLinkButton<REPO_OBJECT extends RepositoryObject> extends Button {
@@ -734,18 +667,18 @@ public class VaadinClient extends com.vaadin.Application {
                 public void buttonClick(ClickEvent event) {
                     Set<?> selection = m_associations.getActiveSelection();
                     if (selection != null) {
-	                    if (m_associations.isActiveTable(toLeft)) {
+                        if (m_associations.isActiveTable(toLeft)) {
                             for (Object item : selection) {
                                 RepositoryObject selected = m_associations.lookupInActiveSelection(item);
                                 removeLinkFromLeft(object, selected);
                             }
-	                    }
-	                    else if (m_associations.isActiveTable(toRight)) {
+                        }
+                        else if (m_associations.isActiveTable(toRight)) {
                             for (Object item : selection) {
                                 RepositoryObject selected = m_associations.lookupInActiveSelection(item);
                                 removeLinkFromRight(object, selected);
                             }
-	                    }
+                        }
                     }
                 }
             });
@@ -755,7 +688,7 @@ public class VaadinClient extends com.vaadin.Application {
 
         protected abstract void removeLinkFromRight(REPO_OBJECT object, RepositoryObject other);
     }
-    
+
     public class RemoveItemButton<REPO_OBJECT extends RepositoryObject, REPO extends ObjectRepository> extends Button {
         public RemoveItemButton(final REPO_OBJECT object, final REPO repository) {
             super("x");
@@ -767,10 +700,10 @@ public class VaadinClient extends com.vaadin.Application {
             });
         }
     }
-    
-    
+
     private ObjectPanel createDistributionsPanel(Window main) {
-        return new ObjectPanel(m_associations, "Distribution", UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION, main, true) {
+        return new ObjectPanel(m_associations, "Distribution", UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION,
+            main, true) {
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getDistribution(id);
@@ -782,6 +715,7 @@ public class VaadinClient extends com.vaadin.Application {
                     add(distribution);
                 }
             }
+
             public void handleEvent(org.osgi.service.event.Event event) {
                 LicenseObject distribution = (LicenseObject) event.getProperty(LicenseObject.EVENT_ENTITY);
                 String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
@@ -795,25 +729,29 @@ public class VaadinClient extends com.vaadin.Application {
                     change(distribution);
                 }
             }
+
             private void add(LicenseObject distribution) {
                 Item item = addItem(distribution.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_NAME).setValue(distribution.getName());
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
-                    Button removeLinkButton = new RemoveLinkButton<LicenseObject>(distribution, m_featuresPanel, m_targetsPanel) {
+                    Button removeLinkButton = new RemoveLinkButton<LicenseObject>(distribution, m_featuresPanel,
+                        m_targetsPanel) {
                         @Override
                         protected void removeLinkFromLeft(LicenseObject object, RepositoryObject other) {
-                            List<Group2LicenseAssociation> associations = object.getAssociationsWith((GroupObject) other);
+                            List<Group2LicenseAssociation> associations = object
+                                .getAssociationsWith((GroupObject) other);
                             for (Group2LicenseAssociation association : associations) {
                                 m_group2LicenseAssociationRepository.remove(association);
                             }
                             m_associations.removeAssociatedItem(object);
                             m_table.requestRepaint();
                         }
-    
+
                         @Override
                         protected void removeLinkFromRight(LicenseObject object, RepositoryObject other) {
-                            List<License2GatewayAssociation> associations = object.getAssociationsWith((GatewayObject) other);
+                            List<License2GatewayAssociation> associations = object
+                                .getAssociationsWith((GatewayObject) other);
                             for (License2GatewayAssociation association : associations) {
                                 m_license2GatewayAssociationRepository.remove(association);
                             }
@@ -823,16 +761,19 @@ public class VaadinClient extends com.vaadin.Application {
                     };
                     HorizontalLayout buttons = new HorizontalLayout();
                     buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton<LicenseObject, LicenseRepository>(distribution, m_distributionRepository));
+                    buttons.addComponent(new RemoveItemButton<LicenseObject, LicenseRepository>(distribution,
+                        m_distributionRepository));
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
+
             private void change(LicenseObject distribution) {
                 Item item = getItem(distribution.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
                 }
             }
+
             private void remove(LicenseObject distribution) {
                 removeItem(distribution.getDefinition());
             }
@@ -854,7 +795,8 @@ public class VaadinClient extends com.vaadin.Application {
             }
 
             public void handleEvent(org.osgi.service.event.Event event) {
-                StatefulGatewayObject statefulTarget = (StatefulGatewayObject) event.getProperty(StatefulGatewayObject.EVENT_ENTITY);
+                StatefulGatewayObject statefulTarget = (StatefulGatewayObject) event
+                    .getProperty(StatefulGatewayObject.EVENT_ENTITY);
                 String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
                 if (StatefulGatewayObject.TOPIC_ADDED.equals(topic)) {
                     add(statefulTarget);
@@ -866,39 +808,48 @@ public class VaadinClient extends com.vaadin.Application {
                     change(statefulTarget);
                 }
             }
+
             private void add(StatefulGatewayObject statefulTarget) {
                 Item item = addItem(statefulTarget.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_NAME).setValue(statefulTarget.getID());
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue("");
-                    Button removeLinkButton = new RemoveLinkButton<StatefulGatewayObject>(statefulTarget, m_distributionsPanel, null) {
+                    Button removeLinkButton = new RemoveLinkButton<StatefulGatewayObject>(statefulTarget,
+                        m_distributionsPanel, null) {
                         @Override
                         protected void removeLinkFromLeft(StatefulGatewayObject object, RepositoryObject other) {
-                            List<License2GatewayAssociation> associations = object.getAssociationsWith((LicenseObject) other);
+                            List<License2GatewayAssociation> associations = object
+                                .getAssociationsWith((LicenseObject) other);
                             for (License2GatewayAssociation association : associations) {
                                 m_license2GatewayAssociationRepository.remove(association);
                             }
                             m_associations.removeAssociatedItem(object);
                             m_table.requestRepaint();
                         }
-    
+
                         @Override
                         protected void removeLinkFromRight(StatefulGatewayObject object, RepositoryObject other) {
                         }
                     };
                     HorizontalLayout buttons = new HorizontalLayout();
                     buttons.addComponent(removeLinkButton);
-                    // next line commented out because removing stateful targets currently is not possible
-                    //buttons.addComponent(new RemoveItemButton<StatefulGatewayObject, StatefulGatewayRepository>(statefulTarget, m_statefulTargetRepository));
+                    // next line commented out because removing stateful targets
+                    // currently is not possible
+                    // buttons.addComponent(new
+                    // RemoveItemButton<StatefulGatewayObject,
+                    // StatefulGatewayRepository>(statefulTarget,
+                    // m_statefulTargetRepository));
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
+
             private void change(StatefulGatewayObject statefulTarget) {
                 Item item = getItem(statefulTarget.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue("");
-                } 
+                }
             }
+
             private void remove(StatefulGatewayObject statefulTarget) {
                 removeItem(statefulTarget.getDefinition());
             }
@@ -920,8 +871,10 @@ public class VaadinClient extends com.vaadin.Application {
             if (transferable instanceof TableTransferable) {
                 TableTransferable tt = (TableTransferable) transferable;
                 Object fromItemId = tt.getItemId();
-                // get the active selection, but only if we drag from the same table
-                Set<?> selection = m_associations.isActiveTable(tt.getSourceComponent()) ? m_associations.getActiveSelection() : null;
+                // get the active selection, but only if we drag from the same
+                // table
+                Set<?> selection = m_associations.isActiveTable(tt.getSourceComponent()) ? m_associations
+                    .getActiveSelection() : null;
                 if (targetDetails instanceof AbstractSelectTargetDetails) {
                     AbstractSelectTargetDetails ttd = (AbstractSelectTargetDetails) targetDetails;
                     Object toItemId = ttd.getItemIdOver();
@@ -945,8 +898,10 @@ public class VaadinClient extends com.vaadin.Application {
                             associateFromRight((String) toItemId, (String) fromItemId);
                         }
                     }
-                    // TODO add to highlighting (it's probably easiest to recalculate the whole
-                    // set of related and associated items here, see SelectionListener, or to manually
+                    // TODO add to highlighting (it's probably easiest to
+                    // recalculate the whole
+                    // set of related and associated items here, see
+                    // SelectionListener, or to manually
                     // figure out the changes in all cases
                 }
             }
@@ -957,63 +912,105 @@ public class VaadinClient extends com.vaadin.Application {
         }
 
         protected abstract void associateFromLeft(String left, String right);
+
         protected abstract void associateFromRight(String left, String right);
     }
 
+    /**
+     * Create a button to show a pop window for adding new features.
+     * 
+     * @param main Main Window
+     * @return Button
+     */
+    private Button createAddArtifactButton(final Window main) {
+        Button button = new Button("Add artifact...");
+        button.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                showAddArtifactDialog(main);
+            }
+        });
+        return button;
+    }
+
+    /***
+     * Create a button to show popup window for adding a new feature. On success
+     * this calls the createFeature() method.
+     * 
+     * @param main Main Window
+     * @return Button
+     */
     private Button createAddFeatureButton(final Window main) {
         Button button = new Button("Add Feature...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                new AddFeatureWindow(main).show();
+                GenericAddWindow addFeatureWindow = new GenericAddWindow(main, "Add Feature");
+                addFeatureWindow.setOkListeren(new GenericAddWindow.AddFunction() {
+
+                    public void create(String name, String description) {
+                        createFeature(name, description);
+                    }
+                });
+                addFeatureWindow.show();
             }
         });
         return button;
     }
 
+    /**
+     * Create a button to show a popup window for adding a new distribution. On
+     * success this calls the createDistribution() method.
+     * 
+     * @param main Main Window
+     * @return Button
+     */
     private Button createAddDistributionButton(final Window main) {
         Button button = new Button("Add Distribution...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                new AddDistributionWindow(main).show();
+                GenericAddWindow addDistributionWindow = new GenericAddWindow(main, "Add Distribution");
+                addDistributionWindow.setOkListeren(new GenericAddWindow.AddFunction() {
+
+                    public void create(String name, String description) {
+                        createDistribution(name, description);
+                    }
+                });
+                addDistributionWindow.show();
+            }
+        });
+
+        return button;
+    }
+
+    /**
+     * Create a button to show a popup window for adding a new target. On
+     * success this calls the createTarget() method
+     * 
+     * @param main Main Window
+     * @return Button
+     */
+    private Button createAddTargetButton(final Window main) {
+        Button button = new Button("Add target...");
+        button.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                GenericAddWindow addTargetWindow = new GenericAddWindow(main, "Add Target");
+                addTargetWindow.setOkListeren(new GenericAddWindow.AddFunction() {
+
+                    public void create(String name, String description) {
+                        createTarget(name, description);
+                    }
+                });
+                addTargetWindow.show();
             }
         });
         return button;
     }
 
-    private class AddFeatureWindow extends AbstractAddWindow {
-        public AddFeatureWindow(Window main) {
-            super(main, "Add Feature");
-        }
-
-        @Override
-        protected void create(String name, String description) {
-            createFeature(name, description);
-        }
-
-    }
-
-    private class AddDistributionWindow extends AbstractAddWindow {
-        public AddDistributionWindow(Window main) {
-            super(main, "Add Distribution");
-        }
-
-        @Override
-        protected void create(String name, String description) {
-            createDistribution(name, description);
-        }
-    }
-    
-    private class AddTargetWindow extends AbstractAddWindow {
-        public AddTargetWindow(Window main) {
-            super(main, "Add Target");
-        }
-
-        @Override
-        protected void create(String name, String description) {
-            createTarget(name, description);
-        }
-    }
-
+    /**
+     * Create a new feature (GroupObject) in the feature repository
+     * 
+     * @param name Name of the new feature
+     * @param description Description of the new feature
+     */
     private void createFeature(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(GroupObject.KEY_NAME, name);
@@ -1021,13 +1018,35 @@ public class VaadinClient extends com.vaadin.Application {
         Map<String, String> tags = new HashMap<String, String>();
         m_featureRepository.create(attributes, tags);
     }
-    
+
+    /**
+     * Create a new Target (StatefulGatewayObject) in the statefulTargetRepository
+     * 
+     * @param name Name of the new Target
+     * @param description Description of the new Target
+     * 
+     *        TODO description is not persisted. Should we remote it?
+     */
     private void createTarget(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(StatefulGatewayObject.KEY_ID, name);
         attributes.put(GatewayObject.KEY_AUTO_APPROVE, "true");
         Map<String, String> tags = new HashMap<String, String>();
         m_statefulTargetRepository.preregister(attributes, tags);
+    }
+
+    /**
+     * Create a new Distribution (LicenseObject) in the distributionRepository
+     * 
+     * @param name Name of the new Distribution (LicenseObject)
+     * @param description Description of the new Distribution
+     */
+    private void createDistribution(String name, String description) {
+        Map<String, String> attributes = new HashMap<String, String>();
+        attributes.put(LicenseObject.KEY_NAME, name);
+        attributes.put(LicenseObject.KEY_DESCRIPTION, description);
+        Map<String, String> tags = new HashMap<String, String>();
+        m_distributionRepository.create(attributes, tags);
     }
 
     private ArtifactObject getArtifact(String definition) {
@@ -1037,11 +1056,11 @@ public class VaadinClient extends com.vaadin.Application {
     private GroupObject getFeature(String name) {
         return m_featureRepository.get(name);
     }
-    
+
     private LicenseObject getDistribution(String name) {
         return m_distributionRepository.get(name);
     }
-    
+
     private StatefulGatewayObject getTarget(String name) {
         return m_statefulTargetRepository.get(name);
     }
@@ -1054,21 +1073,12 @@ public class VaadinClient extends com.vaadin.Application {
         }
     }
 
-    private void createDistribution(String name, String description) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put(LicenseObject.KEY_NAME, name);
-        attributes.put(LicenseObject.KEY_DESCRIPTION, description);
-        Map<String, String> tags = new HashMap<String, String>();
-        m_distributionRepository.create(attributes, tags);
-    }
-
     private void updateTableData() {
         m_artifactsPanel.populate();
         m_featuresPanel.populate();
         m_distributionsPanel.populate();
         m_targetsPanel.populate();
     }
-    
 
     @Override
     public void close() {
@@ -1077,7 +1087,6 @@ public class VaadinClient extends com.vaadin.Application {
         // TODO: clean up the ace client session?
     }
 
-
     public abstract class ObjectPanel extends Table implements EventHandler {
         public static final String ACTIONS = "actions";
         protected Table m_table = this;
@@ -1085,7 +1094,8 @@ public class VaadinClient extends com.vaadin.Application {
         private List<UIExtensionFactory> m_extensionFactories = new ArrayList<UIExtensionFactory>();
         private final String m_extensionPoint;
 
-        public ObjectPanel(Associations associations, final String name, String extensionPoint, final Window main, boolean hasEdit) {
+        public ObjectPanel(Associations associations, final String name, String extensionPoint, final Window main,
+            boolean hasEdit) {
             super(name + "s");
             m_associations = associations;
             m_extensionPoint = extensionPoint;
@@ -1115,11 +1125,12 @@ public class VaadinClient extends com.vaadin.Application {
         private void init(Component component) {
             populate();
             DependencyManager dm = component.getDependencyManager();
-            component.add(dm.createServiceDependency()
+            component.add(dm
+                .createServiceDependency()
                 .setInstanceBound(true)
-                .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + m_extensionPoint + ")")
-                .setCallbacks("addExtension", "removeExtension")
-            );
+                .setService(UIExtensionFactory.class,
+                    "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + m_extensionPoint + ")")
+                .setCallbacks("addExtension", "removeExtension"));
         }
 
         public void addExtension(UIExtensionFactory factory) {
@@ -1137,264 +1148,13 @@ public class VaadinClient extends com.vaadin.Application {
         }
 
         public abstract void populate();
+
         protected abstract RepositoryObject getFromId(String id);
     }
 
-    private class AddArtifactWindow extends Window {
-    	private File m_file;
-    	private List<File> m_uploadedArtifacts = new ArrayList<File>();
-    	
-    	public AddArtifactWindow(final Window main) {
-    		super();
-            setModal(true);
-            setCaption("Add artifact");
-            setWidth("50em");
-            
-            VerticalLayout layout = (VerticalLayout) getContent();
-            layout.setMargin(true);
-            layout.setSpacing(true);
-
-            final TextField search = new TextField("search");
-            final Table artifacts = new ArtifactTable(main);
-            final Table uploadedArtifacts = new ArtifactTable(main);
-            final Upload uploadArtifact = new Upload("Upload Artifact", new Upload.Receiver() {
-    			public OutputStream receiveUpload(String filename, String MIMEType) {
-    				FileOutputStream fos = null;
-    		        try {
-    		        	m_file = new File(m_sessionDir, filename); 
-    		        	if (m_file.exists()) {
-    		        		throw new IOException("Uploaded file already exists.");
-    		        	}
-    		            fos = new FileOutputStream(m_file);
-    		        }
-    		        catch (final IOException e) {
-                        getMainWindow().showNotification(
-                            "Upload artifact failed",
-                            "File " + m_file.getName() + "<br />could not be accepted on the server.<br />" +
-                            "Reason: " + e.getMessage(),
-                            Notification.TYPE_ERROR_MESSAGE);
-                        m_log.log(LogService.LOG_ERROR, "Upload of " + m_file.getAbsolutePath() + " failed.", e);
-    		            return null;
-    		        }
-    		        return fos;
-    	        }
-    		});
-    		
-            final DragAndDropWrapper finalUploadedArtifacts = new DragAndDropWrapper(uploadedArtifacts);
-    		
-    		final StreamVariable html5uploadStreamVariable =  new StreamVariable() {
-            	FileOutputStream fos = null;
-				public OutputStream getOutputStream() {
-					return fos;
-				}
-
-				public boolean listenProgress() {
-					return false;
-				}
-
-				public void streamingStarted(
-						StreamingStartEvent event) {
-    		        try {
-    		        	m_file = new File(m_sessionDir, event.getFileName()); 
-    		        	if (m_file.exists()) {
-    		        		throw new IOException("Uploaded file already exists: " + event.getFileName());
-    		        	}
-    		            fos = new FileOutputStream(m_file);
-    		        }
-    		        catch (final IOException e) {
-                        getMainWindow().showNotification(
-                            "Upload artifact failed",
-                            "File " + m_file.getName() + "<br />could not be accepted on the server.<br />" +
-                            "Reason: " + e.getMessage(),
-                            Notification.TYPE_ERROR_MESSAGE);
-                        m_log.log(LogService.LOG_ERROR, "Upload of " + m_file.getAbsolutePath() + " failed.", e);
-    		            fos= null;
-    		        }
-				}
-
-				public void streamingFinished(
-						StreamingEndEvent event) {
-					try {
-    					URL artifact = m_file.toURI().toURL();
-    		            Item item = uploadedArtifacts.addItem(artifact);
-    		            item.getItemProperty("symbolic name").setValue(m_file.getName());
-    		            item.getItemProperty("version").setValue("");
-    					m_uploadedArtifacts.add(m_file);
-    					fos.close();
-					} catch (IOException e) {
-						getMainWindow().showNotification(
-	                            "Upload artifact processing failed",
-	                            "<br />Reason: " + e.getMessage(),
-	                            Notification.TYPE_ERROR_MESSAGE);
-	                        m_log.log(LogService.LOG_ERROR, "Processing of " + m_file.getAbsolutePath() + " failed.", e);
-					} finally {
-						fos=null;
-					}
-				}
-
-				public void streamingFailed(
-						StreamingErrorEvent event) {
-					getMainWindow().showNotification(
-                            "Upload artifact failed",
-                            "File " + m_file.getName() + "<br />could not be accepted on the server.<br />" +
-                            "Reason: " + event.getException().getMessage(),
-                            Notification.TYPE_ERROR_MESSAGE);
-					m_log.log(LogService.LOG_ERROR, "Upload of "+ event.getFileName() + " failed.");
-					m_file.delete();
-					fos=null;
-				}
-
-				public boolean isInterrupted() {
-					return fos==null;
-				}
-
-				public void onProgress(StreamingProgressEvent event) {
-					// Do nothing, no progress indicator (yet ?)
-				}
-            	
-            };
-            
-    		final DropHandler html5uploadDropHandler = new DropHandler() {
-
-				public void drop(DragAndDropEvent dropEvent) {
-					 // expecting this to be an html5 drag
-		            WrapperTransferable tr = (WrapperTransferable) dropEvent
-		                    .getTransferable();
-		            Html5File[] files = tr.getFiles();
-		            if (files != null) {
-		                for (final Html5File html5File : files) {
-		                    html5File.setStreamVariable(html5uploadStreamVariable);
-		                }
-		            }
-				}
-
-				public AcceptCriterion getAcceptCriterion() {
-					// TODO only accept .jar files ?
-					return  AcceptAll.get();
-				}
-    			
-    		};
-    		
-            finalUploadedArtifacts.setDropHandler(html5uploadDropHandler);
-                        
-            this.addListener(new Window.CloseListener()  {
-				public void windowClose(CloseEvent e) {
-					for (File artifact : m_uploadedArtifacts) {
-						artifact.delete();
-					}
-				}           	
-            });
-                        
-            artifacts.setCaption("Artifacts in repository");
-            uploadedArtifacts.setCaption("Uploaded artifacts");
-            uploadedArtifacts.setSelectable(false);
-            
-            search.setValue("");
-            try {
-                getBundles(artifacts);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-            uploadArtifact.setImmediate(true);
-            
-            uploadArtifact.addListener(new Upload.SucceededListener() {
-    			
-    			public void uploadSucceeded(SucceededEvent event) {
-    				try {
-    					URL artifact = m_file.toURI().toURL();
-    		            Item item = uploadedArtifacts.addItem(artifact);
-    		            item.getItemProperty("symbolic name").setValue(m_file.getName());
-    		            item.getItemProperty("version").setValue("");
-    					m_uploadedArtifacts.add(m_file);
-					}
-    				catch (IOException e) {
-                        getMainWindow().showNotification(
-                            "Upload artifact processing failed",
-                            "<br />Reason: " + e.getMessage(),
-                            Notification.TYPE_ERROR_MESSAGE);
-                        m_log.log(LogService.LOG_ERROR, "Processing of " + m_file.getAbsolutePath() + " failed.", e);
-					}
-    			}
-    		});
-            uploadArtifact.addListener(new Upload.FailedListener() {
-    			public void uploadFailed(FailedEvent event) {
-                    getMainWindow().showNotification(
-                        "Upload artifact failed",
-                        "File " + event.getFilename() + "<br />could not be uploaded to the server.<br />" +
-                        "Reason: " + event.getReason().getMessage(),
-                        Notification.TYPE_ERROR_MESSAGE);
-                    m_log.log(LogService.LOG_ERROR, "Upload of " + event.getFilename() + " size " + event.getLength() + " type " + event.getMIMEType() + " failed.", event.getReason());
-    			}
-    		});
-
-            layout.addComponent(search);
-            layout.addComponent(artifacts);
-            layout.addComponent(uploadArtifact);
-            layout.addComponent(finalUploadedArtifacts);
-
-            Button close = new Button("Add", new Button.ClickListener() {
-                // inline click-listener
-                public void buttonClick(ClickEvent event) {
-                    List<ArtifactObject> added = new ArrayList<ArtifactObject>();
-                    // TODO add the selected artifacts
-                    for (Object id : artifacts.getItemIds()) {
-                        if (artifacts.isSelected(id)) {
-                            for (OBREntry e : m_obrList) {
-                                if (e.getUri().equals(id)) {
-                                    try {
-                                        ArtifactObject ao = importBundle(e);
-                                        added.add(ao);
-                                    }
-                                    catch (Exception e1) {
-                                        getMainWindow().showNotification(
-                                            "Import artifact failed",
-                                            "Artifact " + e.getSymbolicName() + " " + e.getVersion() + "<br />could not be imported into the repository.<br />" +
-                                            "Reason: " + e1.getMessage(),
-                                            Notification.TYPE_ERROR_MESSAGE);
-                                        m_log.log(LogService.LOG_ERROR, "Import of " + e.getSymbolicName() + " " + e.getVersion() + " failed.", e1);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    for (File artifact : m_uploadedArtifacts) {
-                    	try {
-                    		ArtifactObject ao = importBundle(artifact.toURI().toURL());
-                            added.add(ao);
-						}
-                    	catch (Exception e) {
-                            getMainWindow().showNotification(
-                                "Import artifact failed",
-                                "Artifact " + artifact.getAbsolutePath() + "<br />could not be imported into the repository.<br />" +
-                                "Reason: " + e.getMessage(),
-                                Notification.TYPE_ERROR_MESSAGE);
-                            m_log.log(LogService.LOG_ERROR, "Import of " + artifact.getAbsolutePath() + " failed.", e);
-						}
-                    	finally {
-                    		artifact.delete();
-                    	}
-                    }
-                    // close the window by removing it from the parent window
-                    (AddArtifactWindow.this.getParent()).removeWindow(AddArtifactWindow.this);
-                    // TODO: make a decision here
-                    // so now we have enough information to show a list of imported artifacts (added)
-                    // but do we want to show this list or do we just assume the user will see the new
-                    // artifacts in the left most column? do we also report failures? or only report
-                    // if there were failures?
-                }
-            });
-            // The components added to the window are actually added to the window's
-            // layout; you can use either. Alignments are set using the layout
-            layout.addComponent(close);
-            layout.setComponentAlignment(close, Alignment.MIDDLE_RIGHT);
-            search.focus();
-    	}
-    }
-    
     private void showAddArtifactDialog(final Window main) {
-        final AddArtifactWindow featureWindow = new AddArtifactWindow(main);
+        final AddArtifactWindow featureWindow = new AddArtifactWindow(main, m_log, m_sessionDir, m_obrList, m_obrUrl,
+            m_artifactRepository);
         if (featureWindow.getParent() != null) {
             // window is already showing
             main.getWindow().showNotification("Window is already open");
@@ -1404,119 +1164,5 @@ public class VaadinClient extends com.vaadin.Application {
             // window
             main.getWindow().addWindow(featureWindow);
         }
-    }
-    
-    public void getBundles(Table table) throws Exception {
-        getBundles(table, m_obrUrl);
-    }
-    
-    public void getBundles(Table table, URL obrBaseUrl) throws Exception {
-        // retrieve the repository.xml as a stream
-        URL url = null;
-        try {
-            url = new URL(obrBaseUrl, "repository.xml");
-        }
-        catch (MalformedURLException e) {
-            m_log.log(LogService.LOG_ERROR, "Error retrieving repository.xml from " + obrBaseUrl);
-            throw e;
-        }
-
-        InputStream input = null;
-        NodeList resources = null;
-        try {
-            URLConnection connection = url.openConnection();
-            connection.setUseCaches(false); //We always want the newest repository.xml file.
-            input = connection.getInputStream();
-
-            try {
-                XPath xpath = XPathFactory.newInstance().newXPath();
-                // this XPath expressing will find all 'resource' elements which have an attribute 'uri'.
-                resources = (NodeList) xpath.evaluate("/repository/resource[@uri]", new InputSource(input), XPathConstants.NODESET);
-            }
-            catch (XPathExpressionException e) {
-                m_log.log(LogService.LOG_ERROR, "Error evaluating XPath expression.", e);
-                throw e;
-            }
-        }
-        catch (IOException e) {
-            m_log.log(LogService.LOG_ERROR, "Error reading repository metadata.", e);
-            throw e;
-        }
-        finally {
-            if (input != null) {
-                try {
-                    input.close();
-                }
-                catch (IOException e) {
-                    // too bad, no worries.
-                }
-            }
-        }
-
-        m_obrList = new ArrayList<OBREntry>();
-        for (int nResource = 0; nResource < resources.getLength(); nResource++) {
-            Node resource = resources.item(nResource);
-            NamedNodeMap attr = resource.getAttributes();
-            String uri = getNamedItemText(attr, "uri");
-            String symbolicname = getNamedItemText(attr, "symbolicname");
-            String version = getNamedItemText(attr, "version");
-            m_obrList.add(new OBREntry(symbolicname, version, uri));
-        }
-        
-        // Create a list of filenames from the ArtifactRepository
-        List<OBREntry> fromRepository = new ArrayList<OBREntry>();
-        List<ArtifactObject> artifactObjects = m_artifactRepository.get();
-        artifactObjects.addAll(m_artifactRepository.getResourceProcessors());
-        for (ArtifactObject ao : artifactObjects) {
-            String artifactURL = ao.getURL();
-            if (artifactURL.startsWith(obrBaseUrl.toExternalForm())) {
-                // we now know this artifact comes from the OBR we are querying, so we are interested.
-                fromRepository.add(new OBREntry(ao.getName(), ao.getAttribute(BundleHelper.KEY_VERSION), new File(artifactURL).getName()));
-            }
-        }
-
-        // remove all urls we already know
-        m_obrList.removeAll(fromRepository);
-        if (m_obrList.isEmpty()) {
-            m_log.log(LogService.LOG_INFO, "No new data in OBR.");
-            return;
-        }
-
-        // Create a list of all bundle names
-        for (OBREntry s : m_obrList) {
-            String uri = s.getUri();
-            String symbolicName = s.getSymbolicName();
-            String version = s.getVersion();
-            try {
-                Item item = table.addItem(uri);
-                if (symbolicName == null || symbolicName.length() == 0) {
-                    item.getItemProperty("symbolic name").setValue(uri);
-                }
-                else {
-                    item.getItemProperty("symbolic name").setValue(symbolicName);
-                }
-                item.getItemProperty("version").setValue(version);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
-    
-    private static String getNamedItemText(NamedNodeMap attr, String name) {
-        Node namedItem = attr.getNamedItem(name);
-        if (namedItem == null) {
-            return null;
-        }
-        else {
-            return namedItem.getTextContent();
-        }
-    }
-
-    public ArtifactObject importBundle(OBREntry bundle) throws IOException {
-        return m_artifactRepository.importArtifact(new URL(m_obrUrl, bundle.getUri()), false);
-    }
-    
-    public ArtifactObject importBundle(URL artifact) throws IOException {
-		return m_artifactRepository.importArtifact(artifact, true);
     }
 }
