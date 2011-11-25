@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
-        <version>9</version>
+        <version>10</version>
     </parent>
 
     <groupId>org.apache.ace</groupId>
@@ -151,7 +151,7 @@
         <pax.swissbox.version>1.2.0</pax.swissbox.version>
         <pax.web.version>0.7.2</pax.web.version>
         <servlet-api.version>2.4</servlet-api.version>
-        <surefire.testng.version>2.5</surefire.testng.version>
+        <surefire.testng.version>2.9</surefire.testng.version>
         <vaadin.version>6.5.1</vaadin.version>
         <velocity.version>1.6.2</velocity.version>
         <xpp3.version>1.1.4c</xpp3.version>
