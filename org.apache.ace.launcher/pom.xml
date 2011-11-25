@@ -21,23 +21,18 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.ace</groupId>
-        <artifactId>ace-pom</artifactId>
-        <version>0.8.0-incubator</version>
-        <relativePath>../pom/pom.xml</relativePath>
-    </parent>
+    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
 
     <artifactId>org.apache.ace.launcher</artifactId>
 
-    <version>0.8.0-incubator</version>
+    <version>0.8.1-incubator-SNAPSHOT</version>
     <name>Apache ACE :: Launcher</name>
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.launcher-0.8.0-incubator</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.launcher-0.8.0-incubator</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.launcher-0.8.0-incubator</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.launcher</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.launcher</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.launcher</url>
     </scm>
 
     <build>
@@ -69,8 +64,7 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.managementagent</artifactId>
             <exclusions>
                 <exclusion>

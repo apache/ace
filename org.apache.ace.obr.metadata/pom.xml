@@ -21,14 +21,9 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.ace</groupId>
-        <artifactId>ace-pom</artifactId>
-        <version>0.8.0-incubator</version>
-        <relativePath>../pom/pom.xml</relativePath>
-    </parent>
+    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
 
-    <version>0.8.0-incubator</version>
+    <version>0.8.1-incubator-SNAPSHOT</version>
     <artifactId>org.apache.ace.obr.metadata</artifactId>
     <packaging>bundle</packaging>
 
@@ -36,9 +31,9 @@
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.obr.metadata-0.8.0-incubator</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.obr.metadata-0.8.0-incubator</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.obr.metadata-0.8.0-incubator</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.obr.metadata</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.obr.metadata</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.obr.metadata</url>
     </scm>
 
     <properties>
@@ -81,12 +76,10 @@
             <groupId>net.sf.kxml</groupId>
             <artifactId>kxml2</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.util</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.deployment.provider.base</artifactId>
         </dependency>
     </dependencies>

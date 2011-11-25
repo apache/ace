@@ -21,14 +21,9 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.ace</groupId>
-        <artifactId>ace-pom</artifactId>
-        <version>0.8.0-incubator</version>
-        <relativePath>../pom/pom.xml</relativePath>
-    </parent>
+    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
 
-    <version>0.8.0-incubator</version>
+    <version>0.8.1-incubator-SNAPSHOT</version>
     <artifactId>org.apache.ace.obr.servlet</artifactId>
     <packaging>bundle</packaging>
 
@@ -36,9 +31,9 @@
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.obr.servlet-0.8.0-incubator</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.obr.servlet-0.8.0-incubator</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.obr.servlet-0.8.0-incubator</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.obr.servlet</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.obr.servlet</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.obr.servlet</url>
     </scm>
 
     <properties>
@@ -55,12 +50,10 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.obr.metadata</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.obr.storage</artifactId>
         </dependency>
         <dependency>
@@ -79,8 +72,7 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.util</artifactId>
         </dependency>
     </dependencies>

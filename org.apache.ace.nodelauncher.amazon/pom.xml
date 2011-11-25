@@ -21,14 +21,9 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.ace</groupId>
-        <artifactId>ace-pom</artifactId>
-        <version>0.8.0-incubator</version>
-        <relativePath>../pom/pom.xml</relativePath>
-    </parent>
+    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
 
-    <version>0.8.0-incubator</version>
+    <version>0.8.1-incubator-SNAPSHOT</version>
     <artifactId>org.apache.ace.nodelauncher.amazon</artifactId>
     <packaging>bundle</packaging>
 
@@ -36,9 +31,9 @@
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.nodelauncher.amazon-0.8.0-incubator</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.nodelauncher.amazon-0.8.0-incubator</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.nodelauncher.amazon-0.8.0-incubator</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.nodelauncher.amazon</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.nodelauncher.amazon</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.nodelauncher.amazon</url>
     </scm>
 
     <properties>
@@ -80,8 +75,7 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.nodelauncher.api</artifactId>
         </dependency>
         <dependency>
@@ -132,8 +126,7 @@
             <version>0.1.44-1</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.util</artifactId>
         </dependency>
     </dependencies>
