@@ -21,7 +21,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
+    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator-SNAPSHOT</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
 
     <version>0.8.1-incubator-SNAPSHOT</version>
     <artifactId>org.apache.ace.client.repository.useradmin</artifactId>
@@ -74,22 +74,22 @@
     </properties>
 
     <dependencies>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
             <artifactId>org.apache.ace.client.repository.api</artifactId>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
             <artifactId>org.apache.ace.client.repository.helper.base</artifactId>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
             <artifactId>org.apache.ace.range.api</artifactId>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
             <artifactId>org.apache.ace.repository.api</artifactId>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
             <artifactId>org.apache.ace.repository.ext</artifactId>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
             <artifactId>org.apache.ace.server.log.store</artifactId>
         </dependency>
         <dependency>
