@@ -24,7 +24,7 @@
 
   <groupId>org.apache.ace</groupId>
   <artifactId>org.apache.ace.release.full.reactor</artifactId>
-  <version>0.8.1-incubator-SNAPSHOT</version>
+  <version>${project.version}</version>
   <packaging>pom</packaging>
 
   <name>Apache ACE :: Release :: Full source release reactor</name>
