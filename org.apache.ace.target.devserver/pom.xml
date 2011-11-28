@@ -23,7 +23,7 @@
 
     <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
 
-    <version>0.8.2-incubator-SNAPSHOT</version>
+    <version>0.8.1-incubator-SNAPSHOT</version>
     <artifactId>org.apache.ace.target.devserver</artifactId>
     <packaging>pom</packaging>
 
@@ -169,7 +169,7 @@
             <artifactId>org.apache.ace.client.repository.helper.configuration</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.client.repository.helper.base</artifactId>
             <scope>runtime</scope>
         </dependency>
