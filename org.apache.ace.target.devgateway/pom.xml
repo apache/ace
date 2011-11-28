@@ -21,8 +21,8 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator-SNAPSHOT</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
+    <version>0.8.1-incubator</version>
     <artifactId>org.apache.ace.target.devgateway</artifactId>
     <packaging>pom</packaging>
 
@@ -30,9 +30,9 @@
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.target.devgateway</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.target.devgateway</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.target.devgateway</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.target.devgateway-0.8.1-incubator</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.target.devgateway-0.8.1-incubator</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.target.devgateway-0.8.1-incubator</url>
     </scm>
 
     <build>
@@ -100,63 +100,63 @@
             <artifactId>org.apache.felix.deploymentadmin</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.consolelogger</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.log.listener</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.gateway.log</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.gateway.log.store</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.range.api</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.log</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.discovery.api</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.discovery.property</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.identification.api</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.identification.property</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.scheduler</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.configurator</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.deployment.api</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.deployment.deploymentadmin</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.deployment.task</artifactId>
             <scope>runtime</scope>
         </dependency>
