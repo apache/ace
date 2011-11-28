@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <!--
 
@@ -25,11 +24,11 @@
   <parent>
     <groupId>org.apache.ace</groupId>
     <artifactId>ace-pom</artifactId>
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-incubator</version>
     <relativePath>../pom/pom.xml</relativePath>
   </parent>
 
-  <version>0.8.1-incubator-SNAPSHOT</version>
+  <version>0.8.1-incubator</version>
   <artifactId>org.apache.ace.release.full</artifactId>
   <packaging>pom</packaging>
 
@@ -37,9 +36,9 @@
   <description />
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/ace-release-full</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/ace-release-full</developerConnection>
-    <url>http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/ace-release-full</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.release.full-0.8.1-incubator</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.release.full-0.8.1-incubator</developerConnection>
+    <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.release.full-0.8.1-incubator</url>
   </scm>
 
   <properties>
@@ -116,381 +115,381 @@
     <dependency>
      <groupId>org.apache.ace</groupId>
       <artifactId>ace-pom</artifactId>
-      <version>${ace-pom.version}</version>
+      <version>0.8.1-incubator</version>
       <classifier>source-release</classifier>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.client.automation</artifactId>
-      <version>${org.apache.ace.client.automation.version}</version>
+      <version>0.8.1-incubator</version>
       <classifier>source-release</classifier>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.client.repository.api</artifactId>
-      <version>${org.apache.ace.client.repository.api.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.client.repository.helper.base</artifactId>
-      <version>${org.apache.ace.client.repository.helper.base.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.client.repository.helper.bundle</artifactId>
-      <version>${org.apache.ace.client.repository.helper.bundle.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.client.repository.helper.configuration</artifactId>
-      <version>${org.apache.ace.client.repository.helper.configuration.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.client.repository.helper.user</artifactId>
-      <version>${org.apache.ace.client.repository.helper.user.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.client.repository.impl</artifactId>
-      <version>${org.apache.ace.client.repository.impl.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.client.repository.useradmin</artifactId>
-      <version>${org.apache.ace.client.repository.useradmin.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.configurator</artifactId>
-      <version>${org.apache.ace.configurator.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.configurator.serveruseradmin</artifactId>
-      <version>${org.apache.ace.configurator.serveruseradmin.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.configurator.useradmin.task</artifactId>
-      <version>${org.apache.ace.configurator.useradmin.task.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.consolelogger</artifactId>
-      <version>${org.apache.ace.consolelogger.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.deployment.api</artifactId>
-      <version>${org.apache.ace.deployment.api.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.deployment.deploymentadmin</artifactId>
-      <version>${org.apache.ace.deployment.deploymentadmin.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.deployment.provider.api</artifactId>
-      <version>${org.apache.ace.deployment.provider.api.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.deployment.provider.base</artifactId>
-      <version>${org.apache.ace.deployment.provider.base.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.deployment.provider.filebased</artifactId>
-      <version>${org.apache.ace.deployment.provider.filebased.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.deployment.provider.repositorybased</artifactId>
-      <version>${org.apache.ace.deployment.provider.repositorybased.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.deployment.servlet</artifactId>
-      <version>${org.apache.ace.deployment.servlet.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.deployment.streamgenerator</artifactId>
-      <version>${org.apache.ace.deployment.streamgenerator.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.deployment.task</artifactId>
-      <version>${org.apache.ace.deployment.task.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.discovery.api</artifactId>
-      <version>${org.apache.ace.discovery.api.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.discovery.property</artifactId>
-      <version>${org.apache.ace.discovery.property.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.discovery.upnp</artifactId>
-      <version>${org.apache.ace.discovery.upnp.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.gateway.log</artifactId>
-      <version>${org.apache.ace.gateway.log.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.gateway.log.store</artifactId>
-      <version>${org.apache.ace.gateway.log.store.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.httplistener</artifactId>
-      <version>${org.apache.ace.httplistener.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.identification.api</artifactId>
-      <version>${org.apache.ace.identification.api.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.identification.ifconfig</artifactId>
-      <version>${org.apache.ace.identification.ifconfig.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.identification.property</artifactId>
-      <version>${org.apache.ace.identification.property.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.launcher</artifactId>
-      <version>${org.apache.ace.launcher.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.location.upnp</artifactId>
-      <version>${org.apache.ace.location.upnp.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.log</artifactId>
-      <version>${org.apache.ace.log.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.log.listener</artifactId>
-      <version>${org.apache.ace.log.listener.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.log.servlet</artifactId>
-      <version>${org.apache.ace.log.servlet.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.log.task</artifactId>
-      <version>${org.apache.ace.log.task.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.managementagent</artifactId>
-      <version>${org.apache.ace.managementagent.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.nodelauncher.amazon</artifactId>
-      <version>${org.apache.ace.nodelauncher.amazon.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.nodelauncher.api</artifactId>
-      <version>${org.apache.ace.nodelauncher.api.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.nodelauncher.ui</artifactId>
-      <version>${org.apache.ace.nodelauncher.ui.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.obr.metadata</artifactId>
-      <version>${org.apache.ace.obr.metadata.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.obr.servlet</artifactId>
-      <version>${org.apache.ace.obr.servlet.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.obr.storage</artifactId>
-      <version>${org.apache.ace.obr.storage.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.range.api</artifactId>
-      <version>${org.apache.ace.range.api.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.repository.api</artifactId>
-      <version>${org.apache.ace.repository.api.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.repository.ext</artifactId>
-      <version>${org.apache.ace.repository.ext.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.repository.impl</artifactId>
-      <version>${org.apache.ace.repository.impl.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.repository.servlet</artifactId>
-      <version>${org.apache.ace.repository.servlet.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.repository.task</artifactId>
-      <version>${org.apache.ace.repository.task.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.resourceprocessor.useradmin</artifactId>
-      <version>${org.apache.ace.resourceprocessor.useradmin.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.scheduler</artifactId>
-      <version>${org.apache.ace.scheduler.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.scheduler.api</artifactId>
-      <version>${org.apache.ace.scheduler.api.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.server.action</artifactId>
-      <version>${org.apache.ace.server.action.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.server.action.popupmessage</artifactId>
-      <version>${org.apache.ace.server.action.popupmessage.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.server.log.store</artifactId>
-      <version>${org.apache.ace.server.log.store.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.tageditor</artifactId>
-      <version>${org.apache.ace.tageditor.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.target.defaults</artifactId>
-      <version>${org.apache.ace.target.defaults.version}</version> 
+      <version>0.8.1-incubator</version> 
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.target.devgateway</artifactId>
-      <version>${org.apache.ace.target.devgateway.version}</version>
+      <version>0.8.1-incubator</version>
 <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.target.devserver</artifactId>
-      <version>${org.apache.ace.target.devserver.version}</version>
+      <version>0.8.1-incubator</version>
 <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.util</artifactId>
-      <version>${org.apache.ace.util.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.webconsole.plugin</artifactId>
-      <version>${org.apache.ace.webconsole.plugin.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.ace</groupId>
       <artifactId>org.apache.ace.webui.vaadin</artifactId>
-      <version>${org.apache.ace.webui.vaadin.version}</version>
+      <version>0.8.1-incubator</version>
       <type>zip</type><classifier>source-release</classifier>
     </dependency>
   </dependencies>
