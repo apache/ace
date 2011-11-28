@@ -23,14 +23,14 @@
 
     <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
 
-    <version>0.8.1-incubator</version>
+    <version>0.8.2-incubator-SNAPSHOT</version>
     <artifactId>org.apache.ace.range.api</artifactId>
     <packaging>bundle</packaging>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.range.api-0.8.1-incubator</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.range.api-0.8.1-incubator</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.range.api-0.8.1-incubator</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.range.api</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.range.api</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.range.api</url>
     </scm>
 
     <name>Apache ACE :: Range :: API</name>
