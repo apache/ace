@@ -521,7 +521,7 @@
             <id>create-target</id>
             <phase>package</phase>
             <goals>
-              <goal>single</goal>
+              <goal>attached</goal>
             </goals>
             <configuration>
               <descriptors>
