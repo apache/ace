@@ -28,7 +28,7 @@
     <relativePath>../pom/pom.xml</relativePath>
   </parent>
 
-  <version>0.8.2-incubator-SNAPSHOT</version>
+  <version>0.8.1-incubator-SNAPSHOT</version>
   <artifactId>org.apache.ace.release.full</artifactId>
   <packaging>pom</packaging>
 
@@ -520,7 +520,7 @@
             <id>create-target</id>
             <phase>package</phase>
             <goals>
-              <goal>attached</goal>
+              <goal>single</goal>
             </goals>
             <configuration>
               <descriptors>
