@@ -21,12 +21,13 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
+    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator-SNAPSHOT</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
 
     <artifactId>org.apache.ace.launcher</artifactId>
 
-    <version>0.8.2-incubator-SNAPSHOT</version>
+    <version>0.8.1-incubator-SNAPSHOT</version>
     <name>Apache ACE :: Launcher</name>
+    <packaging>jar</packaging>
     <description />
 <packaging>jar</packaging>
     <scm>
@@ -37,6 +38,40 @@
 
     <build>
         <plugins>
+                    <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>copy-dependencies</id>
+                    <phase>prepare-package</phase>
+                    <goals>
+                        <goal>copy-dependencies</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        <overWriteReleases>false</overWriteReleases>
+                        <overWriteSnapshots>false</overWriteSnapshots>
+                        <overWriteIfNewer>true</overWriteIfNewer>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+                <archive>
+                    <manifest>
+                        <addClasspath>true</addClasspath>
+                        <classpathPrefix>lib/</classpathPrefix>
+                        <mainClass>org.apache.ace.launcher.Main</mainClass>
+                    </manifest>
+                </archive>
+            </configuration>
+        </plugin>
+        
+        <!-- 
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
@@ -60,11 +95,12 @@
                     </execution>
                 </executions>
             </plugin>
+             -->
         </plugins>
     </build>
 
     <dependencies>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
             <artifactId>org.apache.ace.managementagent</artifactId>
             <exclusions>
                 <exclusion>
