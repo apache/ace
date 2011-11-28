@@ -5,7 +5,7 @@
     <format>zip</format>
     <format>tar.gz</format>
   </formats>
-  <includeBaseDirectory>false</includeBaseDirectory>
+  <baseDirectory>ace-full-source-release</baseDirectory>
   <fileSets>
     <fileSet>
       <directory>${project.basedir}</directory>
