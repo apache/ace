@@ -24,11 +24,11 @@
   <parent>
     <groupId>org.apache.ace</groupId>
     <artifactId>ace-pom</artifactId>
-    <version>0.8.1-incubator</version>
+    <version>0.8.1-incubator-SNAPSHOT</version>
     <relativePath>../pom/pom.xml</relativePath>
   </parent>
 
-  <version>0.8.2-incubator-SNAPSHOT</version>
+  <version>0.8.1-incubator-SNAPSHOT</version>
   <artifactId>org.apache.ace.release.full</artifactId>
   <packaging>pom</packaging>
 
@@ -515,6 +515,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2-beta-5</version>
         <executions>
           <execution>
             <id>create-target</id>
