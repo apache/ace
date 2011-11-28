@@ -21,9 +21,9 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator-SNAPSHOT</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
+    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-incubator</version>
     <artifactId>org.apache.ace.gateway.log.store</artifactId>
     <packaging>bundle</packaging>
 
@@ -31,9 +31,9 @@
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.gateway.log.store</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.gateway.log.store</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.gateway.log.store</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.gateway.log.store-0.8.1-incubator</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.gateway.log.store-0.8.1-incubator</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.gateway.log.store-0.8.1-incubator</url>
     </scm>
     
     <properties>
@@ -55,10 +55,10 @@
     </properties>
 
     <dependencies>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.log</artifactId>
         </dependency>
-         <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+         <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.identification.api</artifactId>
         </dependency>
         <dependency>
