@@ -74,7 +74,7 @@
 					<artifactItem>
 			                  <groupId>${pom.groupId}</groupId>
 			                  <artifactId>org.apache.ace.launcher</artifactId>
-							  <version>0.8.1-incubator-SNAPSHOT</version>
+							  <version>0.8.1-incubator</version>
 			                  <type>jar</type>
 			                  <overWrite>true</overWrite>
 			                  <outputDirectory>${project.basedir}/store</outputDirectory>
