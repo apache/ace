@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!--
+
+        Licensed to the Apache Software Foundation (ASF) under one or more
+        contributor license agreements.  See the NOTICE file distributed with
+        this work for additional information regarding copyright ownership.
+        The ASF licenses this file to You under the Apache License, Version 2.0
+        (the "License"); you may not use this file except in compliance with
+        the License.  You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    -->
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.apache.ace</groupId>
+  <artifactId>org.apache.ace.release.full.reactor</artifactId>
+  <version>0.8.1-incubator-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>Apache ACE :: Release :: Full source release reactor</name>
+  <description />
+
+  <modules>
+    <module>ace-pom-${ace-pom.version}</module>
+    <module>org.apache.ace.client.automation-${org.apache.ace.client.automation.version}</module>
+    <module>org.apache.ace.client.repository.api-${org.apache.ace.client.repository.api.version}</module>
+    <module>org.apache.ace.client.repository.helper.base-${org.apache.ace.client.repository.helper.base.version}</module>
+    <module>org.apache.ace.client.repository.helper.bundle-${org.apache.ace.client.repository.helper.bundle.version}</module>
+    <module>org.apache.ace.client.repository.helper.configuration-${org.apache.ace.client.repository.helper.configuration.version}</module>
+    <module>org.apache.ace.client.repository.helper.user-${org.apache.ace.client.repository.helper.user.version}</module>
+    <module>org.apache.ace.client.repository.impl-${org.apache.ace.client.repository.impl.version}</module>
+    <module>org.apache.ace.client.repository.useradmin-${org.apache.ace.client.repository.useradmin.version}</module>
+    <module>org.apache.ace.configurator-${org.apache.ace.configurator.version}</module>
+    <module>org.apache.ace.configurator.serveruseradmin-${org.apache.ace.configurator.serveruseradmin.version}</module>
+    <module>org.apache.ace.configurator.useradmin.task-${org.apache.ace.configurator.useradmin.task.version}</module>
+    <module>org.apache.ace.consolelogger-${org.apache.ace.consolelogger.version}</module>
+    <module>org.apache.ace.deployment.api-${org.apache.ace.deployment.api.version}</module>
+    <module>org.apache.ace.deployment.deploymentadmin-${org.apache.ace.deployment.deploymentadmin.version}</module>
+    <module>org.apache.ace.deployment.provider.api-${org.apache.ace.deployment.provider.api.version}</module>
+    <module>org.apache.ace.deployment.provider.base-${org.apache.ace.deployment.provider.base.version}</module>
+    <module>org.apache.ace.deployment.provider.filebased-${org.apache.ace.deployment.provider.filebased.version}</module>
+    <module>org.apache.ace.deployment.provider.repositorybased-${org.apache.ace.deployment.provider.repositorybased.version}</module>
+    <module>org.apache.ace.deployment.servlet-${org.apache.ace.deployment.servlet.version}</module>
+    <module>org.apache.ace.deployment.streamgenerator-${org.apache.ace.deployment.streamgenerator.version}</module>
+    <module>org.apache.ace.deployment.task-${org.apache.ace.deployment.task.version}</module>
+    <module>org.apache.ace.discovery.api-${org.apache.ace.discovery.api.version}</module>
+    <module>org.apache.ace.discovery.property-${org.apache.ace.discovery.property.version}</module>
+    <module>org.apache.ace.discovery.upnp-${org.apache.ace.discovery.upnp.version}</module>
+    <module>org.apache.ace.gateway.log-${org.apache.ace.gateway.log.version}</module>
+    <module>org.apache.ace.gateway.log.store-${org.apache.ace.gateway.log.store.version}</module>
+    <module>org.apache.ace.httplistener-${org.apache.ace.httplistener.version}</module>
+    <module>org.apache.ace.identification.api-${org.apache.ace.identification.api.version}</module>
+    <module>org.apache.ace.identification.ifconfig-${org.apache.ace.identification.ifconfig.version}</module>
+    <module>org.apache.ace.identification.property-${org.apache.ace.identification.property.version}</module>
+    <module>org.apache.ace.launcher-${org.apache.ace.launcher.version}</module>
+    <module>org.apache.ace.location.upnp-${org.apache.ace.location.upnp.version}</module>
+    <module>org.apache.ace.log-${org.apache.ace.log.version}</module>
+    <module>org.apache.ace.log.listener-${org.apache.ace.log.listener.version}</module>
+    <module>org.apache.ace.log.servlet-${org.apache.ace.log.servlet.version}</module>
+    <module>org.apache.ace.log.task-${org.apache.ace.log.task.version}</module>
+    <module>org.apache.ace.managementagent-${org.apache.ace.managementagent.version}</module>
+    <module>org.apache.ace.nodelauncher.amazon-${org.apache.ace.nodelauncher.amazon.version}</module>
+    <module>org.apache.ace.nodelauncher.api-${org.apache.ace.nodelauncher.api.version}</module>
+    <module>org.apache.ace.nodelauncher.ui-${org.apache.ace.nodelauncher.ui.version}</module>
+    <module>org.apache.ace.obr.metadata-${org.apache.ace.obr.metadata.version}</module>
+    <module>org.apache.ace.obr.servlet-${org.apache.ace.obr.servlet.version}</module>
+    <module>org.apache.ace.obr.storage-${org.apache.ace.obr.storage.version}</module>
+    <module>org.apache.ace.range.api-${org.apache.ace.range.api.version}</module>
+    <module>org.apache.ace.repository.api-${org.apache.ace.repository.api.version}</module>
+    <module>org.apache.ace.repository.ext-${org.apache.ace.repository.ext.version}</module>
+    <module>org.apache.ace.repository.impl-${org.apache.ace.repository.impl.version}</module>
+    <module>org.apache.ace.repository.servlet-${org.apache.ace.repository.servlet.version}</module>
+    <module>org.apache.ace.repository.task-${org.apache.ace.repository.task.version}</module>
+    <module>org.apache.ace.resourceprocessor.useradmin-${org.apache.ace.resourceprocessor.useradmin.version}</module>
+    <module>org.apache.ace.scheduler-${org.apache.ace.scheduler.version}</module>
+    <module>org.apache.ace.scheduler.api-${org.apache.ace.scheduler.api.version}</module>
+    <module>org.apache.ace.server.action-${org.apache.ace.server.action.version}</module>
+    <module>org.apache.ace.server.action.popupmessage-${org.apache.ace.server.action.popupmessage.version}</module>
+    <module>org.apache.ace.server.log.store-${org.apache.ace.server.log.store.version}</module>
+    <module>org.apache.ace.tageditor-${org.apache.ace.tageditor.version}</module>
+    <module>org.apache.ace.target.defaults-${org.apache.ace.target.defaults.version}</module>
+    <module>org.apache.ace.target.devgateway-${org.apache.ace.target.devgateway.version}</module>
+    <module>org.apache.ace.target.devserver-${org.apache.ace.target.devserver.version}</module>
+    <module>org.apache.ace.util-${org.apache.ace.util.version}</module>
+    <module>org.apache.ace.webconsole.plugin-${org.apache.ace.webconsole.plugin.version}</module>
+    <module>org.apache.ace.webui.vaadin-${org.apache.ace.webui.vaadin.version}</module>
+  </modules>
+</project>
