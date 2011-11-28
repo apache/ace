@@ -30,7 +30,7 @@
     <groupId>org.apache.ace</groupId>
     <artifactId>ace-pom</artifactId>
     <name>Apache ACE :: POM</name>
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-incubator</version>
     <packaging>pom</packaging>
     <inceptionYear>2009</inceptionYear>
 
@@ -112,9 +112,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/ace-pom</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/ace-pom</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/ace-pom</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/ace-pom-0.8.1-incubator</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/ace-pom-0.8.1-incubator</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/ace-pom-0.8.1-incubator</url>
     </scm>
 
     <properties>
