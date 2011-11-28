@@ -27,7 +27,7 @@
 
     <version>0.8.1-incubator-SNAPSHOT</version>
     <name>Apache ACE :: Launcher</name>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <description />
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.launcher</connection>
@@ -37,65 +37,19 @@
 
     <build>
         <plugins>
-                    <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-                <execution>
-                    <id>copy-dependencies</id>
-                    <phase>prepare-package</phase>
-                    <goals>
-                        <goal>copy-dependencies</goal>
-                    </goals>
-                    <configuration>
-                        <includeScope>compile</includeScope>
-                        <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                        <overWriteReleases>false</overWriteReleases>
-                        <overWriteSnapshots>false</overWriteSnapshots>
-                        <overWriteIfNewer>true</overWriteIfNewer>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <configuration>
-                <archive>
-                    <manifest>
-                        <addClasspath>true</addClasspath>
-                        <classpathPrefix>lib/</classpathPrefix>
-                        <mainClass>org.apache.ace.launcher.Main</mainClass>
-                    </manifest>
-                </archive>
-            </configuration>
-        </plugin>
-        
-        <!-- 
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>make-my-jar-with-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <archive>
-                                <manifest>
-                                    <mainClass>org.apache.ace.launcher.Main</mainClass>
-                                </manifest>
-                            </archive>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-             -->
+  <plugin>
+    <groupId>org.apache.felix</groupId>
+    <artifactId>maven-bundle-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+      <instructions>
+         <Private-Package>org.apache.ace.launcher.*</Private-Package>
+         <Main-Class>org.apache.ace.launcher.Main</Main-Class>
+         <Embed-Dependency>*;scope=compile;inline=true;</Embed-Dependency>
+         <Embed-Transitive>true</Embed-Transitive>
+      </instructions>
+    </configuration>
+  </plugin>
         </plugins>
     </build>
 
