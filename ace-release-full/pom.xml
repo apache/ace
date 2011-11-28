@@ -28,7 +28,7 @@
     <relativePath>../pom/pom.xml</relativePath>
   </parent>
 
-  <version>0.8.1-incubator-SNAPSHOT</version>
+  <version>0.8.1-incubator</version>
   <artifactId>org.apache.ace.release.full</artifactId>
   <packaging>pom</packaging>
 
@@ -36,9 +36,9 @@
   <description />
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/ace-release-full</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/ace-release-full</developerConnection>
-    <url>http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/ace-release-full</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.release.full-0.8.1-incubator</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.release.full-0.8.1-incubator</developerConnection>
+    <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.release.full-0.8.1-incubator</url>
   </scm>
 
   <properties>
