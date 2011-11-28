@@ -29,7 +29,6 @@
     <name>Apache ACE :: Launcher</name>
     <packaging>jar</packaging>
     <description />
-<packaging>jar</packaging>
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.launcher</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.launcher</developerConnection>
