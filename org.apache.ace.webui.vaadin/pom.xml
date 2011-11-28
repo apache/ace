@@ -21,9 +21,9 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator-SNAPSHOT</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
+    <parent><groupId>org.apache.ace</groupId><artifactId>ace-pom</artifactId><version>0.8.1-incubator</version><relativePath>../ace-pom/pom.xml</relativePath></parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-incubator</version>
     <artifactId>org.apache.ace.webui.vaadin</artifactId>
     <packaging>bundle</packaging>
 
@@ -31,9 +31,9 @@
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.webui.vaadin</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.webui.vaadin</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/branches/0.8.1-RC/org.apache.ace.webui.vaadin</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.webui.vaadin-0.8.1-incubator</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.webui.vaadin-0.8.1-incubator</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/ace/releases/org.apache.ace.webui.vaadin-0.8.1-incubator</url>
     </scm>
 
     <properties>
@@ -71,10 +71,10 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.client.repository.api</artifactId>
         </dependency>
-        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator-SNAPSHOT</version>
+        <dependency><groupId>org.apache.ace</groupId><version>0.8.1-incubator</version>
             <artifactId>org.apache.ace.httplistener</artifactId>
         </dependency>
         <dependency>
