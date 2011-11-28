@@ -8,6 +8,17 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
+      <directory>${project.basedir}</directory>
+      <includes>
+        <include>README*</include>
+        <include>LICENSE*</include>
+        <include>NOTICE*</include>
+        <include>DISCLAIMER*</include>
+      </includes>
+      <outputDirectory>.</outputDirectory>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+    <fileSet>
       <directory>src/main/resources</directory>
       <outputDirectory>.</outputDirectory>
       <includes>
