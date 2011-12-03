@@ -18,6 +18,9 @@
  */
 package org.apache.ace.nodelauncher.amazon;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.io.Files;
+import com.google.inject.Module;
 import org.apache.ace.nodelauncher.NodeLauncher;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
@@ -27,15 +30,18 @@ import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeState;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.options.RunScriptOptions;
+import org.jclouds.domain.Credentials;
 import org.jclouds.ec2.compute.options.EC2TemplateOptions;
 import org.jclouds.ec2.domain.InstanceType;
 import org.jclouds.scriptbuilder.domain.Statements;
-import org.jclouds.ssh.jsch.config.JschSshClientModule;
+import org.jclouds.sshj.config.SshjSshClientModule;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.*;
 
 import static org.jclouds.compute.predicates.NodePredicates.runningInGroup;
@@ -43,10 +49,10 @@ import static org.jclouds.compute.predicates.NodePredicates.runningInGroup;
 /**
  * Simple NodeLauncher implementation that launches nodes based on a given AMI in Amazon EC2.
  * We expect the AMI we launch to have a java on its path, at least after bootstrap.<br><br>
- * 
+ * <p/>
  * This service is configured using Config Admin; see the constants in the class for more information
  * about this.<br><br>
- *
+ * <p/>
  * After the node has been started up, this service will install a management agent on it. For this
  * to work, there should be an ace-launcher in the OBR of the server the node should connect to.
  */
@@ -81,6 +87,13 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     public static final String SECRET_ACCESS_KEY = "secretAccessKey";
 
     /**
+     * Configuration key: The (optional) name of an existing keypair to use when creating a new node. If you
+     * do not specify it, a new keypair will be created. Specifying an existing keypair makes it easier to
+     * for example log into each node with SSH using your existing keypair.
+     */
+    public static final String KEYPAIR = "keypair";
+
+    /**
      * Configuration key: A prefix to use for all nodes launched by this service. You can use this (a) allow
      * multiple nodes with the same ID, but launcher from different NodeLauncher services, or (b) to more
      * easily identify your nodes in the AWS management console.
@@ -102,17 +115,20 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
      * the possible options.
      */
     public static final String LAUNCHER_ARGUMENTS = "launcherArguments";
-    
+
     /**
      * Configuration key: Extra ports to open on the nodes, besides the default ones (see DEFAULT_PORTS).
      */
     public static final String EXTRA_PORTS = "extraPorts";
-    
+
     /**
      * Configuration key: Should we run the process as root?
      */
     public static final String RUN_AS_ROOT = "runAsRoot";
 
+    /**
+     * Configuration key: The hardware ID to use for the node.
+     */
     public static final String HARDWARE_ID = "hardwareId";
 
     /**
@@ -120,18 +136,39 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
      */
     public static final int[] DEFAULT_PORTS = new int[] {22, 80, 8080};
 
+    /**
+     * Configuration key: The (optional) name of the JAR to launch to
+     * bootstrap the OSGi framework (or whatever you want to run on the
+     * node).
+     */
     public static final String ACE_LAUNCHER = "aceLauncher";
 
+    /**
+     * Configuration key: An additional list of artifacts that must be
+     * downloaded from the OBR when bootstrapping.
+     */
     public static final String ADDITIONAL_OBR_DOWNLOADS = "additionalObrDownloads";
 
-    public static final String EXERNAL_DOWNLOAD_URLS = "externalDownloadUrls";
+    /**
+     * Configuration key: An additional list of URLs that must be downloaded when
+     * bootstrapping.
+     */
+    public static final String EXTERNAL_DOWNLOAD_URLS = "externalDownloadUrls";
+    
+    /**
+     * Configuration key: The (optional) private key file, which you must install on
+     * the ACE server locally if you want it to be used when creating new nodes.
+     */
+    private static final String PRIVATE_KEY_FILE = "privateKeyFile";
 
     private URL m_server;
-    private String m_amiId; 
+    private String m_amiId;
     private String m_location;
     private String m_hardwareId;
     private String m_accessKeyId;
     private String m_secretAccessKey;
+    private String m_keypair;
+    private String m_privateKeyFile;
     private String m_tagPrefix;
     private String m_vmOptions;
     private String m_nodeBootstrap;
@@ -143,37 +180,45 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     private String m_externalDownloadUrls;
 
 
-
     private ComputeServiceContext m_computeServiceContext;
-    
+
     public void start() {
         Properties props = new Properties();
-        m_computeServiceContext = new ComputeServiceContextFactory().createContext("aws-ec2",
-                m_accessKeyId, m_secretAccessKey, (List) Arrays.asList(new JschSshClientModule()), props);
+        m_computeServiceContext = new ComputeServiceContextFactory().createContext("aws-ec2", m_accessKeyId, m_secretAccessKey, ImmutableSet.<Module> of(new SshjSshClientModule()), props);
     }
 
     public void start(String id) throws Exception {
         ComputeService computeService = m_computeServiceContext.getComputeService();
         Template template = computeService.templateBuilder()
-                .imageId(m_location + "/" + m_amiId)
-                .hardwareId(m_hardwareId)
-                .locationId(m_location)
-                .build();
-        
+            .imageId(m_location + "/" + m_amiId)
+            .hardwareId(m_hardwareId)
+            .locationId(m_location)
+            .build();
+
         int[] extraPorts = parseExtraPorts(m_extraPorts);
         int[] inboundPorts = mergePorts(DEFAULT_PORTS, extraPorts);
         template.getOptions().as(EC2TemplateOptions.class).inboundPorts(inboundPorts);
         template.getOptions().blockOnComplete(false);
         template.getOptions().runAsRoot(m_runAsRoot);
 
+        if (useConfiguredKeyPair()) {
+            template.getOptions().as(EC2TemplateOptions.class).keyPair(m_keypair);
+            template.getOptions().overrideCredentialsWith(new Credentials("ec2-user", Files.toString(new File(m_privateKeyFile), Charset.defaultCharset())));
+        }
+
         Set<? extends NodeMetadata> tag = computeService.createNodesInGroup(m_tagPrefix + id, 1, template);
-        System.out.println("In case you need it, this is the key to ssh to " + id + ":\n"
-                + tag.iterator().next().getCredentials().credential);
+        if (!useConfiguredKeyPair()) {
+            System.out.println("In case you need it, this is the key to ssh to " + id + ":\n" + tag.iterator().next().getCredentials().credential);
+        }
         computeService.runScriptOnNodesMatching(runningInGroup(m_tagPrefix + id),
-                Statements.exec(buildStartupScript(id)),
-                RunScriptOptions.Builder.blockOnComplete(false));
+            Statements.exec(buildStartupScript(id)),
+            RunScriptOptions.Builder.blockOnComplete(false));
     }
-    
+
+    private boolean useConfiguredKeyPair() {
+        return m_keypair != null && m_keypair.length() > 0;
+    }
+
     int[] mergePorts(int[] first, int[] last) {
         int[] result = new int[first.length + last.length];
         for (int i = 0; i < result.length; i++) {
@@ -181,11 +226,11 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         }
         return result;
     }
-    
+
     int[] parseExtraPorts(String extraPorts) {
         extraPorts = extraPorts.trim();
         if (extraPorts.isEmpty()) {
-            return new int[] {};
+            return new int[]{};
         }
         String[] ports = extraPorts.split(",");
         int[] result = new int[ports.length];
@@ -202,15 +247,12 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         }
 
         script.append("wget ").append(new URL(m_server, "/obr/" + m_aceLauncher)).append(" ;");
-
-        for(String additonalDownload : m_additionalObrDownloads.split(",")) {
+        for (String additonalDownload : m_additionalObrDownloads.split(",")) {
             script.append("wget ").append(new URL(m_server, "/obr/" + additonalDownload.trim())).append(" ;");
         }
-
-        for(String additonalDownload : m_externalDownloadUrls.split(",")) {
+        for (String additonalDownload : m_externalDownloadUrls.split(",")) {
             script.append("wget ").append(additonalDownload.trim()).append(" ;");
         }
-
         script.append("nohup java -jar ").append(m_aceLauncher).append(" ");
         script.append("discovery=").append(m_server.toExternalForm()).append(" ");
         script.append("identification=").append(id).append(" ");
@@ -222,10 +264,10 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     public void stop(String id) {
         m_computeServiceContext.getComputeService().destroyNodesMatching(runningInGroup(m_tagPrefix + id));
     }
-    
+
     public Properties getProperties(String id) throws Exception {
         Properties result = new Properties();
-        
+
         NodeMetadata nodeMetadata = getNodeMetadataForRunningNodeWithTag(m_tagPrefix + id);
         if (nodeMetadata == null) {
             return null;
@@ -233,7 +275,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         result.put("id", id);
         result.put("node-id", nodeMetadata.getId());
         result.put("ip", nodeMetadata.getPublicAddresses().iterator().next());
-        
+
         return result;
     }
 
@@ -261,7 +303,8 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             String hardwareId = getConfigProperty(properties, HARDWARE_ID, InstanceType.C1_MEDIUM);
             String accessKeyId = getConfigProperty(properties, ACCESS_KEY_ID);
             String secretAccessKey = getConfigProperty(properties, SECRET_ACCESS_KEY);
-
+            String keyPair = getConfigProperty(properties, KEYPAIR, "");
+            String privateKeyFile = getConfigProperty(properties, PRIVATE_KEY_FILE, "");
             String vmOptions = getConfigProperty(properties, VM_OPTIONS, "");
             String nodeBootstrap = getConfigProperty(properties, NODE_BOOTSTRAP, "");
             String tagPrefix = getConfigProperty(properties, TAG_PREFIX, "");
@@ -270,7 +313,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             String runAsRoot = getConfigProperty(properties, RUN_AS_ROOT, "false");
             String aceLauncher = getConfigProperty(properties, ACE_LAUNCHER, "ace-launcher.jar");
             String additionalObrDownloads = getConfigProperty(properties, ADDITIONAL_OBR_DOWNLOADS);
-            String externalDownloadUrls = getConfigProperty(properties, EXERNAL_DOWNLOAD_URLS);
+            String externalDownloadUrls = getConfigProperty(properties, EXTERNAL_DOWNLOAD_URLS);
 
             m_server = server;
             m_amiId = amiId;
@@ -278,6 +321,8 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             m_hardwareId = hardwareId;
             m_accessKeyId = accessKeyId;
             m_secretAccessKey = secretAccessKey;
+            m_keypair = keyPair;
+            m_privateKeyFile = privateKeyFile;
             m_tagPrefix = tagPrefix;
             m_vmOptions = vmOptions;
             m_nodeBootstrap = nodeBootstrap;
