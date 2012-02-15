@@ -100,6 +100,10 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
         return getAttribute(KEY_URL);
     }
 
+    public String getResourceId() {
+        return getAttribute(KEY_RESOURCE_ID);
+    }
+
     public String getMimetype() {
         return getAttribute(KEY_MIMETYPE);
     }

@@ -41,7 +41,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
+import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
@@ -101,6 +103,7 @@ public class RepositoryBasedProviderTest {
 
     private ArtifactData RESOURCEPROCESSOR1;
     private ArtifactData ARTIFACT1;
+    private ArtifactData ARTIFACT2;
 
     @SuppressWarnings("serial")
     @BeforeMethod(alwaysRun = true)
@@ -155,6 +158,10 @@ public class RepositoryBasedProviderTest {
         attr = new HashMap<String, String>();
         attr.put(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid");
         ARTIFACT1 = new ArtifactDataImpl(FileUtils.createTempFile(m_tempDirectory).toURI().toURL(), attr, false);
+        attr = new HashMap<String, String>();
+        attr.put(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid");
+        attr.put(DeploymentArtifact.DIRECTIVE_KEY_RESOURCE_ID, "Artifact2");
+        ARTIFACT2 = new ArtifactDataImpl(FileUtils.createTempFile(m_tempDirectory).toURI().toURL(), attr, false);
     }
 
     private String generateValidTestXml() {
@@ -194,7 +201,7 @@ public class RepositoryBasedProviderTest {
         versions.appendChild(generateDeploymentVersion(doc, EMPTYVERSIONGATEWAY, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
         versions.appendChild(generateDeploymentVersion(doc, EMPTYVERSIONGATEWAY, VERSION2));
 
-        versions.appendChild(generateDeploymentVersion(doc, RESOURCEGATEWAY, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}, new String[] {RESOURCEPROCESSOR1.getUrl().toString(), DeploymentArtifact.DIRECTIVE_ISCUSTOMIZER, "true", BundleHelper.KEY_SYMBOLICNAME, RESOURCEPROCESSOR1.getSymbolicName(), BundleHelper.KEY_VERSION, RESOURCEPROCESSOR1.getVersion()}, new String[] {ARTIFACT1.getUrl().toString(), DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid"}));
+        versions.appendChild(generateDeploymentVersion(doc, RESOURCEGATEWAY, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}, new String[] {RESOURCEPROCESSOR1.getUrl().toString(), DeploymentArtifact.DIRECTIVE_ISCUSTOMIZER, "true", BundleHelper.KEY_SYMBOLICNAME, RESOURCEPROCESSOR1.getSymbolicName(), BundleHelper.KEY_VERSION, RESOURCEPROCESSOR1.getVersion()}, new String[] {ARTIFACT1.getUrl().toString(), DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid"}, new String[] {ARTIFACT2.getUrl().toString(), DeploymentArtifact.DIRECTIVE_KEY_RESOURCE_ID, "Artifact2", DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid" }));
 
         // transform the document to string
         TransformerFactory tFactory = TransformerFactory.newInstance();
@@ -528,7 +535,7 @@ public class RepositoryBasedProviderTest {
 
         Collection<ArtifactData> bundleData = m_backend.getBundleData(RESOURCEGATEWAY, versions.get(0));
 
-        assert bundleData.size() == 3 : "Expected three bundle to be found, but found " + bundleData.size();
+        assert bundleData.size() == 4 : "Expected four bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
             ArtifactData data = it.next();
@@ -538,6 +545,10 @@ public class RepositoryBasedProviderTest {
                 // fine
             } else if (data.equals(ARTIFACT1)) {
                 // fine
+            } else if (data.equals(ARTIFACT2)) {
+                // check the filename
+                assert data.getFilename().equals("Artifact2");
+                assert data.getProcessorPid().equals("my.processor.pid");
             } else {
                 assert false : "Unknown bundle found";
             }

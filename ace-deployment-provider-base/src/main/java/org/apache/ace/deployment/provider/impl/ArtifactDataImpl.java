@@ -66,6 +66,10 @@ public class ArtifactDataImpl implements ArtifactData {
         this(url, null, null, null, directives, hasChanged);
     }
 
+    public ArtifactDataImpl(String filename, URL url, Map<String, String> directives, boolean hasChanged) {
+        this(url, null, null, filename, directives, hasChanged);
+    }
+
     /**
      * Constructs an ArtifactDataImpl object.
      * @param filename The filename of the bundle. If passed, it must only contain characters [A-Za-z0-9._-]; can be null.

@@ -19,7 +19,6 @@
 package org.apache.ace.client.repository.stateful.impl;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -546,6 +545,9 @@ public class StatefulGatewayRepositoryImpl implements StatefulGatewayRepository,
             Map<String, String> directives = new HashMap<String, String>();
             directives.put(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, artifact.getProcessorPID());
             directives.put(DeploymentArtifact.DIRECTIVE_KEY_BASEURL, artifact.getURL());
+            if (artifact.getResourceId() != null) {
+                directives.put(DeploymentArtifact.DIRECTIVE_KEY_RESOURCE_ID, artifact.getResourceId());
+            }
             
             String repositoryPath = getRepositoryPath(artifact, path);
             if (repositoryPath != null) {

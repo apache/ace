@@ -33,6 +33,11 @@ public interface ArtifactObject extends RepositoryObject {
      */
     public static final String KEY_URL = "url";
     /**
+     * Attribute key, stating the unique name for this resource. Different versions of the same logical resource
+     * can share the same Id.
+     */
+    public static final String KEY_RESOURCE_ID = "resourceId";
+    /**
      * Key to be used in the <code>ArtifactObject</code>'s attributes.
      * Indicates the PID of the resource processor that should be used to process this artifact.
      * For a bundle, it is empty.
@@ -89,6 +94,10 @@ public interface ArtifactObject extends RepositoryObject {
      * Returns the URL to this artifact.
      */
     public String getURL();
+    /**
+     * Returns a ResourceId, if that has been customized. 
+     */
+    public String getResourceId();
     /**
      * Return a descriptive name for this object. May return <code>null</code>.
      */

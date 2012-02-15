@@ -41,7 +41,9 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathVariableResolver;
 
+import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
+import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.DeploymentProvider;
@@ -219,7 +221,8 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
             }
             else {
                 // it is an artifact.
-                result.add(new ArtifactDataImpl(pair.getUrl(), directives, true));
+                String filename = directives.remove(DeploymentArtifact.DIRECTIVE_KEY_RESOURCE_ID);
+                result.add(new ArtifactDataImpl(filename, pair.getUrl(), directives, true));
             }
 
         }

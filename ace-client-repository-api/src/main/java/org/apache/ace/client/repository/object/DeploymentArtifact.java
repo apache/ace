@@ -37,6 +37,12 @@ public interface DeploymentArtifact {
     public static final String DIRECTIVE_KEY_PROCESSORID = "Resource-Processor";
 
     /**
+     * Key, intended to be used for artifacts which have a resourceID that's different
+     * from their generated name (based on URL).
+     */
+    public static final String DIRECTIVE_KEY_RESOURCE_ID = "Resource-ID";
+
+    /**
      * Key, intended to be used for matching processed (see ArtifactPreprocessor) to their
      * 'original' one.
      */

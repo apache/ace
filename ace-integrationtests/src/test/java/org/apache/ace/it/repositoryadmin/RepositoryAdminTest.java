@@ -1066,7 +1066,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         // Empty tag map to be reused througout test
         final Map<String, String> tags = new HashMap<String, String>();
 
-        // First, create a bundle and an artifact, but do not provide a processor for the artifact.
+        // First, create a bundle and two artifacts, but do not provide a processor for the artifacts.
         ArtifactObject b1 = createBasicBundleObject("bundle1");
         Map<String, String> attr = new HashMap<String, String>();
         attr.put(ArtifactObject.KEY_URL, "http://myobject");
@@ -1074,6 +1074,14 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         attr.put(ArtifactHelper.KEY_MIMETYPE, "mymime");
 
         ArtifactObject a1 = m_artifactRepository.create(attr, tags);
+
+        attr = new HashMap<String, String>();
+        attr.put(ArtifactObject.KEY_URL, "http://myotherobject");
+        attr.put(ArtifactObject.KEY_PROCESSOR_PID, "my.processor.pid");
+        attr.put(ArtifactObject.KEY_RESOURCE_ID, "mymime");
+        attr.put(ArtifactHelper.KEY_MIMETYPE, "mymime");
+
+        ArtifactObject a2 = m_artifactRepository.create(attr, tags);
 
         GroupObject g = createBasicGroupObject("group");
         LicenseObject l = createBasicLicenseObject("license");
@@ -1085,6 +1093,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         m_artifact2groupRepository.create(b1, g);
         m_artifact2groupRepository.create(a1, g);
+        m_artifact2groupRepository.create(a2, g);
 
         m_group2licenseRepository.create(g, l);
 
@@ -1113,7 +1122,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         DeploymentArtifact[] toDeploy = dep.getDeploymentArtifacts();
 
-        assert toDeploy.length == 3 : "We expect to find three artifacts to deploy, but we find: " + toDeploy.length;
+        assert toDeploy.length == 4 : "We expect to find four artifacts to deploy, but we find: " + toDeploy.length;
         DeploymentArtifact bundle1 = toDeploy[0];
         Assert.assertEquals(b1.getURL(), bundle1.getUrl());
         DeploymentArtifact bundle2 = toDeploy[1];
@@ -1122,6 +1131,10 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         DeploymentArtifact artifact1 = toDeploy[2];
         Assert.assertEquals(a1.getURL(), artifact1.getUrl());
         Assert.assertEquals("my.processor.pid", artifact1.getDirective(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID));
+        DeploymentArtifact artifact2 = toDeploy[3];
+        Assert.assertEquals(a2.getURL(), artifact2.getUrl());
+        Assert.assertEquals("my.processor.pid", artifact2.getDirective(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID));
+        Assert.assertEquals(a2.getResourceId(), artifact2.getDirective(DeploymentArtifact.DIRECTIVE_KEY_RESOURCE_ID));
 
         cleanUp();
 
