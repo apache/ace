@@ -24,12 +24,12 @@ import java.util.Properties;
 import javax.servlet.Servlet;
 
 import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
-import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.service.http.HttpService;
 
 import com.vaadin.ui.Component;
@@ -45,38 +45,43 @@ public class Activator extends DependencyActivatorBase {
                 .setService(HttpService.class)
                 .setRequired(true)
             )
-        );
+            );
         // register the main application for the ACE UI client
         manager.add(createComponent()
             .setInterface(Servlet.class.getName(), null)
             .setImplementation(VaadinServlet.class)
             .add(createConfigurationDependency()
                 .setPid(VaadinServlet.PID).setPropagate(true))
-        );
-        
+            );
+
+        Properties props = new Properties();
+        props.put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET);
+        props.put(Constants.SERVICE_RANKING, Integer.valueOf(100));
+
         // shows off components that are contributed by extensions
         manager.add(createComponent()
-            .setInterface(UIExtensionFactory.class.getName(), new Properties() {{ put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET); }})
+            .setInterface(UIExtensionFactory.class.getName(), props)
             .setImplementation(new UIExtensionFactory() {
                 public Component create(Map<String, Object> context) {
-                    final NamedObject object = (NamedObject) context.get("object");
                     VerticalLayout vl = new VerticalLayout();
                     vl.setCaption("Info");
                     final NamedObject namedObject = (NamedObject) context.get("object");
                     final StatefulGatewayObject target = (StatefulGatewayObject) namedObject.getObject();
-                    Label info = new Label("Target ID: " + namedObject.getName() + "<br />" +
-                		"Installed version: " + target.getLastInstallVersion() + "<br />" +
-        				"Available version: " + target.getCurrentVersion() + "<br />" +
-						"Provisioning state: " + target.getProvisioningState() + "<br />" +
-						"Registration state: " + target.getRegistrationState());
-                    info.setContentMode(Label.CONTENT_XHTML);
+                    Label info = new Label(
+                        "Target ID          : " + namedObject.getName() + "\n" +
+                        "Installed version  : " + (target.getLastInstallVersion() == null ? "(none)" : target.getLastInstallVersion()) + "\n" +
+                        "Available version  : " + target.getCurrentVersion() + "\n" +
+                        "Store state        : " + target.getStoreState() + "\n" +
+                        "Provisioning state : " + target.getProvisioningState() + "\n" +
+                        "Registration state : " + target.getRegistrationState());
+                    info.setContentMode(Label.CONTENT_PREFORMATTED);
                     vl.addComponent(info);
                     return vl;
                 }
             })
-        );
+            );
     }
-    
+
     @Override
     public void destroy(BundleContext context, DependencyManager manager) throws Exception {
     }

@@ -20,8 +20,10 @@ package org.apache.ace.webui.vaadin;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,9 +56,12 @@ import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.ace.webui.domain.OBREntry;
+import org.apache.ace.webui.vaadin.component.ConfirmationDialog;
+import org.apache.ace.webui.vaadin.component.MainActionToolbar;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
@@ -181,14 +186,15 @@ public class VaadinClient extends com.vaadin.Application {
         addDependency(component, StatefulGatewayRepository.class);
     }
 
-    //@formatter:off
+    // @formatter:off
     private void addDependency(Component component, Class service) {
         component.add(m_manager.createServiceDependency()
             .setService(service, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
             .setRequired(true)
             .setInstanceBound(true));
     }
-    //@formatter:on
+
+    // @formatter:on
 
     public void start() {
         System.out.println("Starting " + m_sessionID);
@@ -421,12 +427,12 @@ public class VaadinClient extends com.vaadin.Application {
             }
             RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
 
-            //@formatter:off
+            // @formatter:off
             context.addShopRepository(new URL(m_aceHost, endpoint), customerName, shopRepo, true)
                 .setObrBase(m_obrUrl)
                 .addGatewayRepository(new URL(m_aceHost, endpoint), customerName, gatewayRepo, true)
                 .addDeploymentRepository(new URL(m_aceHost, endpoint), customerName, deployRepo, true);
-          //@formatter:on
+            // @formatter:on
             m_admin.login(context);
             initGrid(user);
             m_admin.checkout();
@@ -448,57 +454,36 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private GridLayout createToolbar() {
-        GridLayout toolbar = new GridLayout(3, 1);
-        toolbar.setSpacing(true);
+        MainActionToolbar mainActionToolbar = new MainActionToolbar() {
+            @Override
+            protected RepositoryAdmin getRepositoryAdmin() {
+                return m_admin;
+            }
 
-        Button retrieveButton = new Button("Retrieve");
-        retrieveButton.addListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                try {
-                    m_admin.checkout();
-                    updateTableData();
-                }
-                catch (IOException e) {
-                    getMainWindow().showNotification("Retrieve failed",
-                        "Failed to retrieve the data from the server.<br />" + "Reason: " + e.getMessage(),
-                        Notification.TYPE_ERROR_MESSAGE);
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            @Override
+            protected void doAfterRevert() throws IOException {
+                updateTableData();
             }
-        });
-        toolbar.addComponent(retrieveButton, 0, 0);
 
-        Button storeButton = new Button("Store");
-        storeButton.addListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                try {
-                    m_admin.commit();
-                }
-                catch (IOException e) {
-                    getMainWindow().showNotification("Commit failed",
-                        "Failed to commit the changes to the server.<br />" + "Reason: " + e.getMessage(),
-                        Notification.TYPE_ERROR_MESSAGE);
-                }
+            @Override
+            protected void doAfterRetrieve() throws IOException {
+                updateTableData();
             }
-        });
-        toolbar.addComponent(storeButton, 1, 0);
-        Button revertButton = new Button("Revert");
-        revertButton.addListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                try {
-                    m_admin.revert();
-                    updateTableData();
-                }
-                catch (IOException e) {
-                    getMainWindow().showNotification("Revert failed",
-                        "Failed to revert your changes.<br />" + "Reason: " + e.getMessage(),
-                        Notification.TYPE_ERROR_MESSAGE);
-                }
+
+            @Override
+            protected void doAfterCommit() throws IOException {
+                // Nop
             }
-        });
-        toolbar.addComponent(revertButton, 2, 0);
-        return toolbar;
+
+            private void updateTableData() {
+                m_artifactsPanel.populate();
+                m_featuresPanel.populate();
+                m_distributionsPanel.populate();
+                m_targetsPanel.populate();
+            }
+        };
+        addListener(mainActionToolbar, RepositoryObject.PUBLIC_TOPIC_ROOT.concat(RepositoryObject.TOPIC_ALL_SUFFIX));
+        return mainActionToolbar;
     }
 
     private ObjectPanel createArtifactsPanel(Window main) {
@@ -1071,13 +1056,6 @@ public class VaadinClient extends com.vaadin.Application {
             m_featureRepository.remove(feature);
             // TODO cleanup links?
         }
-    }
-
-    private void updateTableData() {
-        m_artifactsPanel.populate();
-        m_featuresPanel.populate();
-        m_distributionsPanel.populate();
-        m_targetsPanel.populate();
     }
 
     @Override
