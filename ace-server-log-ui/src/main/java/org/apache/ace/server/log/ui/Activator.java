@@ -20,34 +20,35 @@ package org.apache.ace.server.log.ui;
 
 import java.util.Properties;
 
-import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
 import org.apache.ace.server.log.store.LogStore;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
 
-	@Override
-	public void init(BundleContext context, DependencyManager manager)
-			throws Exception {
-		manager.add(createComponent().setInterface(
-                UIExtensionFactory.class.getName(), new Properties() {
-                    {
-                        put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET);
-                    }
-                }).setImplementation(LogViewerExtension.class)
-                .add(createServiceDependency()
-                		.setService(LogStore.class)
-                		.setRequired(true)));
-	}
+    @Override
+    public void init(BundleContext context, DependencyManager manager) throws Exception {
+        Properties props = new Properties();
+        props.put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET);
+        props.put(Constants.SERVICE_RANKING, Integer.valueOf(10));
+        
+        manager.add(createComponent().setInterface(UIExtensionFactory.class.getName(), props)
+            .setImplementation(LogViewerExtension.class)
+            .add(createServiceDependency()
+                .setService(LogStore.class)
+                .setRequired(true))
+            .add(createServiceDependency()
+                .setService(LogService.class)
+                .setRequired(false))
+                );
+    }
 
-	@Override
-	public void destroy(BundleContext context, DependencyManager manager)
-			throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-
+    @Override
+    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
+        // Nop
+    }
 }
