@@ -47,12 +47,14 @@ public class DeploymentUpdateTask implements Runnable {
             Version highestLocalVersion = m_task.getHighestLocalVersion();
             Version highestRemoteVersion = m_task.getHighestRemoteVersion();
             if (highestRemoteVersion == null) {
-                //expected if there's no discovered
-                //ps or relay server
-                m_log.log(LogService.LOG_INFO, "Highest remote: unknown / Highest local: " + highestLocalVersion);
+                // expected if there's no discovered ps or relay server
+                // ACE-220: lower log level; not of real interest...
+                m_log.log(LogService.LOG_DEBUG, "Highest remote: unknown / Highest local: " + highestLocalVersion);
                 return;
             }
-            m_log.log(LogService.LOG_INFO, "Highest remote: " + highestRemoteVersion + " / Highest local: " + highestLocalVersion);
+            // ACE-220: lower log level; not of real interest...
+            m_log.log(LogService.LOG_DEBUG, "Highest remote: " + highestRemoteVersion + " / Highest local: " + highestLocalVersion);
+            
             if ((highestRemoteVersion != null) && ((highestLocalVersion == null) || (highestRemoteVersion.compareTo(highestLocalVersion) > 0))) {
                 // no local version or local version lower than remote, install the update
                 m_task.installVersion(highestRemoteVersion, highestLocalVersion);
