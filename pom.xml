@@ -110,6 +110,7 @@
         <module>ace-gateway-log-store</module>
 
         <module>ace-webui-vaadin</module>
+        <module>ace-target-mgmt-ui</module>
 
         <module>ace-tageditor</module>
 
