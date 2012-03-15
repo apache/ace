@@ -56,7 +56,6 @@ import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.ace.webui.domain.OBREntry;
-import org.apache.ace.webui.vaadin.component.ConfirmationDialog;
 import org.apache.ace.webui.vaadin.component.MainActionToolbar;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
@@ -91,7 +90,6 @@ import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.TableTransferable;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
 
 /*
 
@@ -148,7 +146,6 @@ public class VaadinClient extends com.vaadin.Application {
     private List<StatefulGatewayObject> m_targets;
     private final Associations m_associations = new Associations();
 
-    private List<OBREntry> m_obrList;
     private GridLayout m_grid;
 
     private boolean m_dynamicRelations = true;
@@ -253,16 +250,15 @@ public class VaadinClient extends com.vaadin.Application {
         }
         m_grid = new GridLayout(count, 4);
         m_grid.setSpacing(true);
-
-        m_grid.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        m_grid.setHeight(100, Sizeable.UNITS_PERCENTAGE);
+        m_grid.setSizeFull();
 
         m_grid.addComponent(createToolbar(), 0, 0, count - 1, 0);
 
         m_artifactsPanel = createArtifactsPanel(m_mainWindow);
 
         m_artifactToolbar = new HorizontalLayout();
-        m_artifactToolbar.addComponent(createAddArtifactButton(m_mainWindow));
+        m_artifactToolbar.addComponent(createAddArtifactButton());
+
         CheckBox dynamicCheckBox = new CheckBox("Dynamic Links");
         dynamicCheckBox.setImmediate(true);
         dynamicCheckBox.setValue(Boolean.TRUE);
@@ -907,11 +903,11 @@ public class VaadinClient extends com.vaadin.Application {
      * @param main Main Window
      * @return Button
      */
-    private Button createAddArtifactButton(final Window main) {
+    private Button createAddArtifactButton() {
         Button button = new Button("Add artifact...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                showAddArtifactDialog(main);
+                showAddArtifactDialog();
             }
         });
         return button;
@@ -1201,17 +1197,27 @@ public class VaadinClient extends com.vaadin.Application {
         protected abstract RepositoryObject getFromId(String id);
     }
 
-    private void showAddArtifactDialog(final Window main) {
-        final AddArtifactWindow featureWindow = new AddArtifactWindow(main, m_log, m_sessionDir, m_obrList, m_obrUrl,
-            m_artifactRepository);
+    private void showAddArtifactDialog() {
+        final AddArtifactWindow featureWindow = new AddArtifactWindow(m_sessionDir, m_obrUrl) {
+            @Override
+            protected ArtifactRepository getArtifactRepository() {
+                return m_artifactRepository;
+            }
+
+            @Override
+            protected LogService getLogger() {
+                return m_log;
+            }
+        };
+        
         if (featureWindow.getParent() != null) {
             // window is already showing
-            main.getWindow().showNotification("Window is already open");
+            getMainWindow().showNotification("Window is already open");
         }
         else {
             // Open the subwindow by adding it to the parent
             // window
-            main.getWindow().addWindow(featureWindow);
+            getMainWindow().addWindow(featureWindow);
         }
     }
 }
