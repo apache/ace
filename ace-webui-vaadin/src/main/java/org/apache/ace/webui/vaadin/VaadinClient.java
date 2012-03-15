@@ -1064,12 +1064,56 @@ public class VaadinClient extends com.vaadin.Application {
         // when the session times out
         // TODO: clean up the ace client session?
     }
+    
+    private static class UIExtensionFactoryHolder implements Comparable<UIExtensionFactoryHolder> {
+        private final ServiceReference m_serviceRef;
+        private final WeakReference<UIExtensionFactory> m_extensionFactory;
+        
+        public UIExtensionFactoryHolder(ServiceReference serviceRef, UIExtensionFactory extensionFactory) {
+            m_serviceRef = serviceRef;
+            m_extensionFactory = new WeakReference<UIExtensionFactory>(extensionFactory);
+        }
 
+        public int compareTo(UIExtensionFactoryHolder o) {
+            ServiceReference thatServiceRef = o.m_serviceRef;
+            ServiceReference thisServiceRef = m_serviceRef;
+            // Sort in reverse order so that the highest rankings come first...
+            return thatServiceRef.compareTo(thisServiceRef);
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (!(obj instanceof UIExtensionFactoryHolder)) {
+                return false;
+            }
+            UIExtensionFactoryHolder other = (UIExtensionFactoryHolder) obj;
+            return m_serviceRef.equals(other.m_serviceRef);
+        }
+        
+        /**
+         * @return the {@link UIExtensionFactory}, can be <code>null</code> if it has been GC'd before this method call.
+         */
+        public UIExtensionFactory getUIExtensionFactory() {
+            return m_extensionFactory.get();
+        }
+
+        @Override
+        public int hashCode() {
+            return m_serviceRef.hashCode() ^ m_extensionFactory.hashCode();
+        }
+    }
+    
     public abstract class ObjectPanel extends Table implements EventHandler {
         public static final String ACTIONS = "actions";
         protected Table m_table = this;
         protected Associations m_associations;
-        private List<UIExtensionFactory> m_extensionFactories = new ArrayList<UIExtensionFactory>();
+        private List<UIExtensionFactoryHolder> m_extensionFactories = new ArrayList<UIExtensionFactoryHolder>();
         private final String m_extensionPoint;
 
         public ObjectPanel(Associations associations, final String name, String extensionPoint, final Window main,
@@ -1111,18 +1155,45 @@ public class VaadinClient extends com.vaadin.Application {
                 .setCallbacks("addExtension", "removeExtension"));
         }
 
-        public void addExtension(UIExtensionFactory factory) {
-            m_extensionFactories.add(factory);
+        public void addExtension(ServiceReference ref, UIExtensionFactory factory) {
+        	synchronized (m_extensionFactories) {
+        		m_extensionFactories.add(new UIExtensionFactoryHolder(ref, factory));
+			}
             populate();
         }
 
-        public void removeExtension(UIExtensionFactory factory) {
-            m_extensionFactories.remove(factory);
+        public void removeExtension(ServiceReference ref, UIExtensionFactory factory) {
+        	synchronized (m_extensionFactories) {
+        		m_extensionFactories.remove(new UIExtensionFactoryHolder(ref, factory));
+        	}
             populate();
         }
 
         private void showEditWindow(NamedObject object, Window main) {
-            new EditWindow(object, main, m_extensionFactories).show();
+            List<UIExtensionFactory> extensions = getExtensionFactories();
+            new EditWindow(object, main, extensions).show();
+        }
+
+        /**
+         * @return a list of current extension factories, properly ordered, never <code>null</code>.
+         */
+        private List<UIExtensionFactory> getExtensionFactories() {
+            List<UIExtensionFactory> extensions;
+            synchronized (m_extensionFactories) {
+                // Sort the list of extension factories...
+                Collections.sort(m_extensionFactories);
+                
+                // Walk through the holders and fetch the extension factories one by one...
+                extensions = new ArrayList<UIExtensionFactory>(m_extensionFactories.size());
+                for (UIExtensionFactoryHolder holder : m_extensionFactories) {
+                    UIExtensionFactory extensionFactory = holder.getUIExtensionFactory();
+                    // Make sure only to use non-GCd factories...
+                    if (extensionFactory != null) {
+                        extensions.add(extensionFactory);
+                    }
+                }
+            }
+            return extensions;
         }
 
         public abstract void populate();
