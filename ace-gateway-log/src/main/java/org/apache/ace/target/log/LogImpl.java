@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.gateway.log;
+package org.apache.ace.target.log;
 
 import java.io.IOException;
 import java.util.Dictionary;
-import org.apache.ace.gateway.log.store.LogStore;
 import org.apache.ace.log.Log;
 import org.apache.ace.log.LogEvent;
+import org.apache.ace.target.log.store.LogStore;
 import org.osgi.service.log.LogService;
 
 public class LogImpl implements Log {

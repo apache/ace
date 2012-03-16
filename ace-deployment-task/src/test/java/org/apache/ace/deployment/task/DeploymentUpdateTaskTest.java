@@ -32,8 +32,8 @@ import java.net.URLStreamHandler;
 
 import org.apache.ace.deployment.Deployment;
 import org.apache.ace.discovery.Discovery;
-import org.apache.ace.gateway.log.store.LogStore;
 import org.apache.ace.identification.Identification;
+import org.apache.ace.target.log.store.LogStore;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.framework.Version;
 import org.osgi.service.log.LogService;

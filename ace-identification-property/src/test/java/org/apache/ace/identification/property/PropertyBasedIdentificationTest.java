@@ -45,9 +45,9 @@ public class PropertyBasedIdentificationTest {
     public void getIdWithUpdate() throws ConfigurationException {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
         Dictionary dict = new Hashtable();
-        dict.put( IdentificationConstants.IDENTIFICATION_TARGETID_KEY, "myGatewayId" );
+        dict.put( IdentificationConstants.IDENTIFICATION_TARGETID_KEY, "myTargetId" );
         basedIdentification.updated( dict );
-        assertThat( basedIdentification.getID(), is( equalTo( "myGatewayId" ) ) );
+        assertThat( basedIdentification.getID(), is( equalTo( "myTargetId" ) ) );
     }
 
     @Test(groups = { UNIT })

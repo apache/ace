@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.gateway.log.store;
+package org.apache.ace.target.log.store;
 
 import java.io.IOException;
 import java.util.Dictionary;
@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.ace.log.LogEvent;
 
 /**
- * Server log store interface for the gateways. Implementations of this service interface provide a persisted storage for
+ * Server log store interface for the targets. Implementations of this service interface provide a persisted storage for
  * log data.
  */
 public interface LogStore

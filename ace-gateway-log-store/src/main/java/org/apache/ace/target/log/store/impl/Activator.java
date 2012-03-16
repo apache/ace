@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.gateway.log.store.impl;
+package org.apache.ace.target.log.store.impl;
 
 import java.io.File;
 import java.util.Dictionary;
@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.ace.gateway.log.store.LogStore;
 import org.apache.ace.identification.Identification;
+import org.apache.ace.target.log.store.LogStore;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;

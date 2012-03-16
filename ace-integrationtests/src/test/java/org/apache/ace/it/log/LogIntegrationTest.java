@@ -52,7 +52,7 @@ import static org.apache.ace.it.Options.jetty;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
 /**
- * Integration tests for the audit log. Both a server and a gateway are setup
+ * Integration tests for the audit log. Both a server and a target are setup
  * on the same machine. The audit log is run and we check if it is indeed
  * replicated to the server.
  */
@@ -80,8 +80,8 @@ public class LogIntegrationTest extends IntegrationTestBase {
                 Ace.logServlet(),
                 Ace.serverLogStore(),
                 Ace.logTask(),
-                Ace.gatewayLog(),
-                Ace.gatewayLogStore()
+                Ace.targetLog(),
+                Ace.targetLogStore()
             )
         );
     }
@@ -90,13 +90,13 @@ public class LogIntegrationTest extends IntegrationTestBase {
         configure(DiscoveryConstants.DISCOVERY_PID,
                 DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + TestConstants.PORT);
         configure(IdentificationConstants.IDENTIFICATION_PID,
-                IdentificationConstants.IDENTIFICATION_TARGETID_KEY, GWID);
+                IdentificationConstants.IDENTIFICATION_TARGETID_KEY, TARGET_ID);
 
-        configureFactory("org.apache.ace.gateway.log.store.factory",
+        configureFactory("org.apache.ace.target.log.store.factory",
                 "name", "auditlog");
-        configureFactory("org.apache.ace.gateway.log.factory",
+        configureFactory("org.apache.ace.target.log.factory",
                 "name", "auditlog");
-        configureFactory("org.apache.ace.gateway.log.sync.factory",
+        configureFactory("org.apache.ace.target.log.sync.factory",
             "name", "auditlog");
 
         configure("org.apache.ace.deployment.servlet",
@@ -125,7 +125,7 @@ public class LogIntegrationTest extends IntegrationTestBase {
     private static final String DEPLOYMENT = "/deployment";
 
     public static final String HOST = "localhost";
-    public static final String GWID = "gw-id";
+    public static final String TARGET_ID = "target-id";
 
     private volatile Log m_auditLog;
     private volatile LogStore m_serverStore;
@@ -153,7 +153,7 @@ public class LogIntegrationTest extends IntegrationTestBase {
             // get and evaluate results (note that there is some concurrency that might interfere with this test)
             List<LogDescriptor> ranges2 = m_serverStore.getDescriptors();
             if (ranges2.size() > 0) {
-//              assert ranges2.size() == 1 : "We should still have audit log events for one gateway on the server, but found " + ranges2.size();
+//              assert ranges2.size() == 1 : "We should still have audit log events for one target on the server, but found " + ranges2.size();
                 LogDescriptor range = ranges2.get(0);
                 List<LogEvent> events = m_serverStore.get(range);
                 if (events.size() > 1) {
@@ -189,22 +189,22 @@ public class LogIntegrationTest extends IntegrationTestBase {
         assert result.size() > 1 : "We expect at least two logs on the server.";
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=42");
-        assert result.size() == 1 : "Gateway 42 has a single audit log event.";
+        assert result.size() == 1 : "Target 42 has a single audit log event.";
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47");
-        assert result.size() == 3 : "Gateway 47 has 3 audit log events.";
+        assert result.size() == 3 : "Target 47 has 3 audit log events.";
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=1");
-        assert result.size() == 1 : "Gateway 47, logid 1 has 1 audit log event.";
+        assert result.size() == 1 : "Target 47, logid 1 has 1 audit log event.";
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=2");
-        assert result.size() == 2 : "Gateway 47, logid 2 has 2 audit log events.";
+        assert result.size() == 2 : "Target 47, logid 2 has 2 audit log events.";
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=2&range=1");
-        assert result.size() == 1 : "Gateway 47, logid 2, range 1 has 1 audit log event.";
+        assert result.size() == 1 : "Target 47, logid 2, range 1 has 1 audit log event.";
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=2&range=3,5");
-        assert result.size() == 0 : "Gateway 47, logid 2, range 3,5 has 0 audit log event.";
+        assert result.size() == 0 : "Target 47, logid 2, range 3,5 has 0 audit log event.";
     }
 
     private List<String> getResponse(String request) throws IOException {

@@ -32,7 +32,7 @@
     <artifactId>org.apache.ace.gateway.log</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Gateway :: Log</name>
+    <name>Apache ACE :: Target :: Log</name>
     <description />
 
     <scm>
@@ -46,11 +46,11 @@
             *
         </import.package>
         <private.package>
-            org.apache.ace.gateway.log,
-            org.apache.ace.gateway.log.task
+            org.apache.ace.target.log,
+            org.apache.ace.target.log.task
         </private.package>
         <bundle.activator>
-            org.apache.ace.gateway.log.Activator
+            org.apache.ace.target.log.Activator
         </bundle.activator>
     </properties>
 

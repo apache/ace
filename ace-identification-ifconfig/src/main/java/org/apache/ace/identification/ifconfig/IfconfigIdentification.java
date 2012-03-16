@@ -41,19 +41,19 @@ public class IfconfigIdentification implements Identification {
 
     private volatile LogService m_log; // injected by dependency manager
 
-    private String m_gatewayID = null;
+    private String m_targetID = null;
 
     public synchronized String getID() {
-        if (m_gatewayID == null) {
+        if (m_targetID == null) {
             BufferedReader reader = null;
             try {
                 Process process = Runtime.getRuntime().exec(IFCONFIG_COMMAND);
                 InputStream inputStream = process.getInputStream();
                 reader = new BufferedReader(new InputStreamReader(inputStream));
-                m_gatewayID = parseIfconfigOutput(reader).toLowerCase();
+                m_targetID = parseIfconfigOutput(reader).toLowerCase();
             }
             catch (IOException ioe) {
-                m_log.log(LogService.LOG_WARNING, "Unable to determine ifconfig based mac-address gateway identification.", ioe);
+                m_log.log(LogService.LOG_WARNING, "Unable to determine ifconfig based mac-address target identification.", ioe);
                 return null;
             }
             finally {
@@ -67,7 +67,7 @@ public class IfconfigIdentification implements Identification {
                 }
             }
         }
-        return m_gatewayID;
+        return m_targetID;
     }
 
     /**

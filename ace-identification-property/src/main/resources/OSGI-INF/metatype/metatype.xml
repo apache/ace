@@ -2,7 +2,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0"
     localization="OSGI-INF/metatype/metatype">
   <metatype:OCD id="org.apache.ace.identification.property" name="%service.name">
-    <metatype:AD id="gatewayID" type="String" name="%gatewayID.name" description="%gatewayID.desc"/>
+    <metatype:AD id="targetID" type="String" name="%targetID.name" description="%targetID.desc"/>
   </metatype:OCD>
   <metatype:Designate pid="org.apache.ace.identification.property">
     <metatype:Object ocdref="org.apache.ace.identification.property"/>

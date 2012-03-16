@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.gateway.log;
+package org.apache.ace.target.log;
 
 import java.util.Properties;
 
@@ -32,14 +32,14 @@ public class Activator extends DependencyActivatorBase {
         Properties props;
 
         props = new Properties();
-        props.put(Constants.SERVICE_PID, "org.apache.ace.gateway.log.factory");
+        props.put(Constants.SERVICE_PID, "org.apache.ace.target.log.factory");
         manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(LogConfigurator.class)
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
 
         props = new Properties();
-        props.put(Constants.SERVICE_PID, "org.apache.ace.gateway.log.sync.factory");
+        props.put(Constants.SERVICE_PID, "org.apache.ace.target.log.sync.factory");
         manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(LogSyncConfigurator.class)

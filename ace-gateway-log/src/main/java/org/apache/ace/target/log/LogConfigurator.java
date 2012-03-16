@@ -1,12 +1,12 @@
-package org.apache.ace.gateway.log;
+package org.apache.ace.target.log;
 
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.ace.gateway.log.store.LogStore;
 import org.apache.ace.log.Log;
+import org.apache.ace.target.log.store.LogStore;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.Constants;
@@ -44,7 +44,7 @@ public class LogConfigurator implements ManagedServiceFactory {
             Properties props = new Properties();
             props.put(LOG_NAME, name);
             String filterString;
-            filterString = "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + "))";
+            filterString = "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=" + name + "))";
 
             Component log = m_manager.createComponent()
                 .setInterface(Log.class.getName(), props)

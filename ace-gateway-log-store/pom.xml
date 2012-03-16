@@ -32,7 +32,7 @@
     <artifactId>org.apache.ace.gateway.log.store</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Gateway :: Log :: Store</name>
+    <name>Apache ACE :: Target :: Log :: Store</name>
     <description />
 
     <scm>
@@ -43,19 +43,19 @@
     
     <properties>
         <export.package>
-            org.apache.ace.gateway.log.store;version=${project.version}
+            org.apache.ace.target.log.store;version=${project.version}
         </export.package>
         <import.package>
-            org.apache.ace.gateway.log.store;version=${project.version},
+            org.apache.ace.target.log.store;version=${project.version},
             org.apache.ace.identification;version=${project.version},
             org.apache.ace.log;version=${project.version},
             *
         </import.package>
         <private.package>
-            org.apache.ace.gateway.log.store.impl
+            org.apache.ace.target.log.store.impl
         </private.package>
         <bundle.activator>
-            org.apache.ace.gateway.log.store.impl.Activator
+            org.apache.ace.target.log.store.impl.Activator
         </bundle.activator>
     </properties>
 

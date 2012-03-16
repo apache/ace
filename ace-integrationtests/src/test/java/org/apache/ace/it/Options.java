@@ -178,12 +178,12 @@ public class Options {
             return maven("org.apache.ace.log.task");
         }
 
-        public static MavenArtifactProvisionOption gatewayLog() {
-            return maven("org.apache.ace.gateway.log");
+        public static MavenArtifactProvisionOption targetLog() {
+            return maven("org.apache.ace.gateway.log"); // TODO rename!
         }
 
-        public static MavenArtifactProvisionOption gatewayLogStore() {
-            return maven("org.apache.ace.gateway.log.store");
+        public static MavenArtifactProvisionOption targetLogStore() {
+            return maven("org.apache.ace.gateway.log.store"); // TODO rename!
         }
 
         public static MavenArtifactProvisionOption obrMetadata() {

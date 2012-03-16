@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 public class SimpleIdentificationTest {
     private PropertyBasedIdentification m_identification;
 
-    private static final String TEST_ID = "testGatewayID";
+    private static final String TEST_ID = "testTargetID";
 
     @BeforeTest(alwaysRun = true)
     protected void setUp() throws Exception {
@@ -51,6 +51,6 @@ public class SimpleIdentificationTest {
             new Properties() {
                 {put(IdentificationConstants.IDENTIFICATION_TARGETID_KEY, TEST_ID);}
             });
-        assert TEST_ID.equals(m_identification.getID()) : "gateway ID does not match configured gateway ID";
+        assert TEST_ID.equals(m_identification.getID()) : "target ID does not match configured target ID";
     }
 }

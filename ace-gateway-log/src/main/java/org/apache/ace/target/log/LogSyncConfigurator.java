@@ -1,4 +1,4 @@
-package org.apache.ace.gateway.log;
+package org.apache.ace.target.log;
 
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -6,10 +6,10 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.ace.discovery.Discovery;
-import org.apache.ace.gateway.log.store.LogStore;
-import org.apache.ace.gateway.log.task.LogSyncTask;
 import org.apache.ace.identification.Identification;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
+import org.apache.ace.target.log.store.LogStore;
+import org.apache.ace.target.log.task.LogSyncTask;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.Constants;
@@ -53,21 +53,21 @@ public class LogSyncConfigurator implements ManagedServiceFactory {
             String schedulerName;
             String description;
             if (ma == null || "".equals(ma)) {
-                filterString = "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + "))";
-                filterForDiscovery = "(&("+Constants.OBJECTCLASS+"="+Discovery.class.getName()+")(!(ma=*)))";
-                filterForIdentification = "(&("+Constants.OBJECTCLASS+"="+Identification.class.getName()+")(!(ma=*)))";
+                filterString = "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=" + name + "))";
+                filterForDiscovery = "(&(" + Constants.OBJECTCLASS + "=" + Discovery.class.getName() + ")(!(ma=*)))";
+                filterForIdentification = "(&(" + Constants.OBJECTCLASS + "=" + Identification.class.getName() + ")(!(ma=*)))";
                 schedulerName = name;
-                description = "Task that synchronizes log store with id=" + name + " on the gateway and server";
+                description = "Task that synchronizes log store with id=" + name + " on the target and server";
             }
             else {
                 // if there is more than one management agent ("ma" is specified) then still it's very well possible that there's only
                 // one log, so either bind to this one global log (assuming ma is not specified for it) or a ma-specific log (ma is
                 // specified)
-                filterString = "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + ")(|(ma=" + ma + ")(!(ma=*))))";
-                filterForDiscovery = "(&("+Constants.OBJECTCLASS+"="+Discovery.class.getName()+")(ma=" + ma + "))";
-                filterForIdentification = "(&("+Constants.OBJECTCLASS+"="+Identification.class.getName()+")(ma=" + ma + "))";
+                filterString = "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=" + name + ")(|(ma=" + ma + ")(!(ma=*))))";
+                filterForDiscovery = "(&(" + Constants.OBJECTCLASS + "=" + Discovery.class.getName() + ")(ma=" + ma + "))";
+                filterForIdentification = "(&(" + Constants.OBJECTCLASS+"=" + Identification.class.getName() + ")(ma=" + ma + "))";
                 schedulerName = "ma=" + ma + ";name=" + name;
-                description = "Task that synchronizes log store with id=" + name + " and ma=" + ma + " on the gateway and server";
+                description = "Task that synchronizes log store with id=" + name + " and ma=" + ma + " on the target and server";
                 properties.put(MA_NAME, ma);
             }
 

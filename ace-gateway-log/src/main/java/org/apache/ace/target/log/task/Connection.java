@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.gateway.log.task;
+package org.apache.ace.target.log.task;
 
 import java.io.IOException;
 import java.io.InputStream;

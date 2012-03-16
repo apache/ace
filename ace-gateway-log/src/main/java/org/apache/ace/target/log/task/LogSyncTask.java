@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.gateway.log.task;
+package org.apache.ace.target.log.task;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -29,19 +29,19 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.ace.discovery.Discovery;
-import org.apache.ace.gateway.log.store.LogStore;
 import org.apache.ace.identification.Identification;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.range.SortedRangeSet;
+import org.apache.ace.target.log.store.LogStore;
 import org.osgi.service.log.LogService;
 
 public class LogSyncTask implements Runnable {
 
     private static final String COMMAND_QUERY = "query";
     private static final String COMMAND_SEND = "send";
-    private static final String PARAMETER_GATEWAYID = "gwid";
+    private static final String PARAMETER_TARGETID = "tid";
     private static final String PARAMETER_LOGID = "logid";
 
     // injected by dependencymanager
@@ -75,7 +75,7 @@ public class LogSyncTask implements Runnable {
     		return;
     	}
 
-    	String gatewayID = m_identification.getID();
+    	String targetId = m_identification.getID();
         Connection sendConnection = null;
         try {
             sendConnection = new Connection(new URL(host, m_endpoint + "/" + COMMAND_SEND));
@@ -83,7 +83,7 @@ public class LogSyncTask implements Runnable {
             for (int i = 0; i < logIDs.length; i++) {
                 Connection queryConnection = new Connection(new URL(host,
                         m_endpoint + "/" + COMMAND_QUERY + "?"
-                            + PARAMETER_GATEWAYID + "=" + gatewayID + "&"
+                            + PARAMETER_TARGETID + "=" + targetId + "&"
                             + PARAMETER_LOGID + "=" + logIDs[i]));
                 // TODO: make sure no actual call is made using sendConnection
                 // when there's nothing to sync
@@ -102,7 +102,7 @@ public class LogSyncTask implements Runnable {
 
     /**
      * Synchronizes a single log (there can be multiple log/logid's per
-     * gateway).
+     * target).
      * 
      * @param logID
      *            ID of the log to synchronize.

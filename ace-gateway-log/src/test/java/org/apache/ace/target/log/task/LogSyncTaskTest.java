@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.gateway.log.task;
+package org.apache.ace.target.log.task;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
@@ -30,11 +30,13 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.ace.discovery.Discovery;
-import org.apache.ace.gateway.log.store.LogStore;
 import org.apache.ace.identification.Identification;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
 import org.apache.ace.range.SortedRangeSet;
+import org.apache.ace.target.log.store.LogStore;
+import org.apache.ace.target.log.task.Connection;
+import org.apache.ace.target.log.task.LogSyncTask;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.log.LogService;
 import org.testng.annotations.BeforeMethod;
