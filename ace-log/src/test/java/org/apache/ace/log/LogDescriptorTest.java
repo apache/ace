@@ -34,7 +34,7 @@ public class LogDescriptorTest {
     @Test(groups = { UNIT })
     public void deserializeDescriptor() {
         LogDescriptor descriptor = new LogDescriptor("gwid,1,2-3");
-        assert descriptor.getTargetID().equals("gwid") : "Gateway ID not correctly parsed.";
+        assert descriptor.getTargetID().equals("gwid") : "Target ID not correctly parsed.";
         assert descriptor.getLogID() == 1 : "Log ID not correctly parsed.";
         assert descriptor.getRangeSet().toRepresentation().equals("2-3") : "There should be nothing in the diff between the set in the descriptor and the check-set.";
     }
@@ -42,7 +42,7 @@ public class LogDescriptorTest {
     @Test(groups = { UNIT })
     public void deserializeMultiRangeDescriptor() {
         LogDescriptor descriptor = new LogDescriptor("gwid,1,1-4$k6$k8$k10-20");
-        assert descriptor.getTargetID().equals("gwid") : "Gateway ID not correctly parsed.";
+        assert descriptor.getTargetID().equals("gwid") : "Target ID not correctly parsed.";
         assert descriptor.getLogID() == 1 : "Log ID not correctly parsed.";
         String representation = descriptor.getRangeSet().toRepresentation();
         assert representation.equals("1-4,6,8,10-20") : "There should be nothing in the diff between the set in the descriptor and the check-set, but we parsed: " + representation;
@@ -52,7 +52,7 @@ public class LogDescriptorTest {
     public void deserializeMultiRangeDescriptorWithFunnyGWID() {
         String line = "gw$$id,1,1-4$k6$k8$k10-20";
         LogDescriptor descriptor = new LogDescriptor(line);
-        assert descriptor.getTargetID().equals("gw$id") : "Gateway ID not correctly parsed.";
+        assert descriptor.getTargetID().equals("gw$id") : "Target ID not correctly parsed.";
         assert descriptor.getLogID() == 1 : "Log ID not correctly parsed.";
         assert line.equals(descriptor.toRepresentation()) : "Converting the line back to the representation failed.";
         String representation = descriptor.getRangeSet().toRepresentation();
