@@ -243,7 +243,7 @@ public class VaadinClient extends com.vaadin.Application {
     private void initGrid(User user) {
         Authorization auth = m_userAdmin.getAuthorization(user);
         int count = 0;
-        for (String role : new String[] { "viewBundle", "viewGroup", "viewLicense", "viewTarget" }) {
+        for (String role : new String[] { "viewArtifact", "viewFeature", "viewDistribution", "viewTarget" }) {
             if (auth.hasRole(role)) {
                 count++;
             }
@@ -270,7 +270,7 @@ public class VaadinClient extends com.vaadin.Application {
         m_artifactToolbar.addComponent(dynamicCheckBox);
 
         count = 0;
-        if (auth.hasRole("viewBundle")) {
+        if (auth.hasRole("viewArtifact")) {
             m_grid.addComponent(m_artifactsPanel, count, 2);
             m_grid.addComponent(m_artifactToolbar, count, 1);
             count++;
@@ -279,7 +279,7 @@ public class VaadinClient extends com.vaadin.Application {
         m_featuresPanel = createFeaturesPanel(m_mainWindow);
         m_featureToolbar = createAddFeatureButton(m_mainWindow);
 
-        if (auth.hasRole("viewGroup")) {
+        if (auth.hasRole("viewFeature")) {
             m_grid.addComponent(m_featuresPanel, count, 2);
             m_grid.addComponent(m_featureToolbar, count, 1);
             count++;
@@ -288,7 +288,7 @@ public class VaadinClient extends com.vaadin.Application {
         m_distributionsPanel = createDistributionsPanel(m_mainWindow);
         m_distributionToolbar = createAddDistributionButton(m_mainWindow);
 
-        if (auth.hasRole("viewLicense")) {
+        if (auth.hasRole("viewDistribution")) {
             m_grid.addComponent(m_distributionsPanel, count, 2);
             m_grid.addComponent(m_distributionToolbar, count, 1);
             count++;
