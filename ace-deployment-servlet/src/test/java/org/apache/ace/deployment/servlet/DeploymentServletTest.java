@@ -96,13 +96,13 @@ public class DeploymentServletTest {
 
         // create mock deployment provider
         m_provider = new DeploymentProvider() {
-            public List<ArtifactData> getBundleData(String gatewayId, String version) throws IllegalArgumentException {
+            public List<ArtifactData> getBundleData(String targetId, String version) throws IllegalArgumentException {
                 return null; // not used
             }
-            public List<ArtifactData> getBundleData(String gatewayId, String versionFrom, String versionTo) throws IllegalArgumentException {
+            public List<ArtifactData> getBundleData(String targetId, String versionFrom, String versionTo) throws IllegalArgumentException {
                 return null; // not used
             }
-            public List<String> getVersions(String gatewayId) throws IllegalArgumentException {
+            public List<String> getVersions(String targetId) throws IllegalArgumentException {
                 if (m_providerVersions == null) {
                     throw new IllegalArgumentException();
                 }
@@ -122,7 +122,6 @@ public class DeploymentServletTest {
             @SuppressWarnings("unused")
             public String getPathInfo() {
                 return m_requestPathInfo;
-//                "/" + m_requestGatewayID + "/versions/" + m_requestRequestedVersion;
             }
         });
 
@@ -163,8 +162,8 @@ public class DeploymentServletTest {
     }
 
     @Test(groups = { UNIT })
-    public void getDataForExistingGateway() throws Exception {
-        m_requestPathInfo = "/GW1/versions/2.0.0";
+    public void getDataForExistingTarget() throws Exception {
+        m_requestPathInfo = "/T1/versions/2.0.0";
         m_generatorResultStream = new ByteArrayInputStream(new byte[10]);
         m_providerVersions = new ArrayList<String>();
         m_providerVersions.add("2.0.0");
@@ -173,13 +172,13 @@ public class DeploymentServletTest {
         // make sure the request went fine
         assert m_responseStatus == HttpServletResponse.SC_OK : "We should have got response code " + HttpServletResponse.SC_OK + " and we got " + m_responseStatus;
         assert m_responseOutputStream.size() == 10 : "We should have got a (dummy) deployment package of 10 bytes.";
-        assert m_generatorId.equals("GW1") : "Wrong gateway ID.";
+        assert m_generatorId.equals("T1") : "Wrong target ID.";
         assert m_generatorToVersion.equals("2.0.0") : "Wrong version.";
     }
 
     @Test(groups = { UNIT })
-    public void getFixPackageForExistingGateway() throws Exception {
-        m_requestPathInfo = "/GW1/versions/2.0.0";
+    public void getFixPackageForExistingTarget() throws Exception {
+        m_requestPathInfo = "/T1/versions/2.0.0";
         m_requestCurrentParameter = "1.0.0";
         m_generatorResultStream = new ByteArrayInputStream(new byte[10]);
         m_providerVersions = new ArrayList<String>();
@@ -189,14 +188,14 @@ public class DeploymentServletTest {
         // make sure the request went fine
         assert m_responseStatus == HttpServletResponse.SC_OK : "We should have got response code " + HttpServletResponse.SC_OK + " and we got " + m_responseStatus;
         assert m_responseOutputStream.size() == 10 : "We should have got a (dummy) deployment package of 10 bytes.";
-        assert m_generatorId.equals("GW1") : "Wrong gateway ID.";
+        assert m_generatorId.equals("T1") : "Wrong target ID.";
         assert m_generatorToVersion.equals("2.0.0") : "Wrong version.";
         assert m_generatorFromVersion.equals("1.0.0") : "Wrong current version.";
     }
 
     @Test(groups = { UNIT })
-    public void getDataForNonExistingGateway() throws Exception {
-        m_requestPathInfo = "/GW?/versions/2.0.0";
+    public void getDataForNonExistingTarget() throws Exception {
+        m_requestPathInfo = "/T?/versions/2.0.0";
         m_servlet.doGet(m_request, m_response);
         assert m_responseStatus == HttpServletResponse.SC_NOT_FOUND : "We should have gotten response code" + HttpServletResponse.SC_NOT_FOUND + ", actual code: " + m_responseStatus;
     }
@@ -215,8 +214,8 @@ public class DeploymentServletTest {
 
 
     @Test(groups = { UNIT })
-    public void getVersionsExistingGateway() throws Exception {
-        m_requestPathInfo = "/GW1/versions";
+    public void getVersionsExistingTarget() throws Exception {
+        m_requestPathInfo = "/T1/versions";
         m_providerVersions = new ArrayList<String>();
         m_providerVersions.add("2.0.0");
         m_servlet.doGet(m_request, m_response);
@@ -224,8 +223,8 @@ public class DeploymentServletTest {
     }
 
     @Test(groups = { UNIT })
-    public void getVersionsNonExistingGateway() throws Exception {
-        m_requestPathInfo = "/GW1/versions";
+    public void getVersionsNonExistingTarget() throws Exception {
+        m_requestPathInfo = "/T1/versions";
         m_servlet.doGet(m_request, m_response);
         assert "".equals(m_responseOutputStream.toString()) : "Expected to get an empty response";
     }
