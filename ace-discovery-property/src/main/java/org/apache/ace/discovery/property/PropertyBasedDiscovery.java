@@ -33,7 +33,7 @@ import org.osgi.service.log.LogService;
  * the Provisioning Server by implementing the <code>ManagedService</code> and having the
  * location configured by <code>ConfigurationAdmin</code>. If no configuration or a <code>null</code>
  * configuration has been supplied by <code>ConfigurationAdmin</code> the location stored
- * in <code>GatewayConstants.DISCOVERY_DEFAULT_URL</code> will be used.
+ * in <code>TargetConstants.DISCOVERY_DEFAULT_URL</code> will be used.
  */
 public class PropertyBasedDiscovery implements Discovery, ManagedService {
     private final Object LOCK = new Object();
