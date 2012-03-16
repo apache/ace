@@ -77,7 +77,7 @@ public class LogStoreImpl implements LogStore {
         BufferedReader in = null;
         try {
             File log = new File(new File(m_dir,
-                    gatewayIDToFilename(descriptor.getTargetID())),
+                    targetIDToFilename(descriptor.getTargetID())),
                     String.valueOf(descriptor.getLogID()));
             if (!log.isFile()) {
                 return result;
@@ -122,17 +122,17 @@ public class LogStoreImpl implements LogStore {
     /**
      * @see org.apache.ace.server.log.store.LogStore#getDescriptor(String, long)
      */
-    public synchronized LogDescriptor getDescriptor(String gatewayID, long logID)
+    public synchronized LogDescriptor getDescriptor(String targetID, long logID)
             throws IOException {
         Long high = m_fileToID.get(new File(new File(m_dir,
-                gatewayIDToFilename(gatewayID)), String.valueOf(logID))
+                targetIDToFilename(targetID)), String.valueOf(logID))
                 .getAbsolutePath());
         if (high != null) {
             Range r = new Range(1, high);
-            return new LogDescriptor(gatewayID, logID, new SortedRangeSet(
+            return new LogDescriptor(targetID, logID, new SortedRangeSet(
                     r.toRepresentation()));
         }
-        List<LogEvent> events = get(new LogDescriptor(gatewayID, logID,
+        List<LogEvent> events = get(new LogDescriptor(targetID, logID,
                 SortedRangeSet.FULL_SET));
 
         long[] idsArray = new long[events.size()];
@@ -140,22 +140,22 @@ public class LogStoreImpl implements LogStore {
         for (LogEvent e : events) {
             idsArray[i++] = e.getID();
         }
-        return new LogDescriptor(gatewayID, logID, new SortedRangeSet(idsArray));
+        return new LogDescriptor(targetID, logID, new SortedRangeSet(idsArray));
     }
 
     /**
      * @see org.apache.ace.server.log.store.LogStore#getDescriptors(String)
      */
-    public List<LogDescriptor> getDescriptors(String gatewayID)
+    public List<LogDescriptor> getDescriptors(String targetID)
             throws IOException {
-        File dir = new File(m_dir, gatewayIDToFilename(gatewayID));
+        File dir = new File(m_dir, targetIDToFilename(targetID));
         List<LogDescriptor> result = new ArrayList<LogDescriptor>();
         if (!dir.isDirectory()) {
             return result;
         }
 
         for (String name : notNull(dir.list())) {
-            result.add(getDescriptor(gatewayID, Long.parseLong(name)));
+            result.add(getDescriptor(targetID, Long.parseLong(name)));
         }
 
         return result;
@@ -167,7 +167,7 @@ public class LogStoreImpl implements LogStore {
     public List<LogDescriptor> getDescriptors() throws IOException {
         List<LogDescriptor> result = new ArrayList<LogDescriptor>();
         for (String name : notNull(m_dir.list())) {
-            result.addAll(getDescriptors(filenameToGatewayID(name)));
+            result.addAll(getDescriptors(filenameToTargetID(name)));
         }
         return result;
     }
@@ -177,9 +177,9 @@ public class LogStoreImpl implements LogStore {
      */
     public void put(List<LogEvent> events) throws IOException {
         Map<String, Map<Long, List<LogEvent>>> sorted = sort(events);
-        for (String gatewayID : sorted.keySet()) {
-            for (Long logID : sorted.get(gatewayID).keySet()) {
-                put(gatewayID, logID, sorted.get(gatewayID).get(logID));
+        for (String targetID : sorted.keySet()) {
+            for (Long logID : sorted.get(targetID).keySet()) {
+                put(targetID, logID, sorted.get(targetID).get(logID));
             }
         }
     }
@@ -187,16 +187,16 @@ public class LogStoreImpl implements LogStore {
     /**
      * Add a list of events to the log of the given ids.
      * 
-     * @param gatewayID
-     *            the id of the gateway to append to its log.
+     * @param targetID
+     *            the id of the target to append to its log.
      * @param logID
-     *            the id of the given gateway log.
+     *            the id of the given target log.
      * @param list
      *            a list of events to store.
      * @throws java.io.IOException
      *             in case of any error.
      */
-    protected synchronized void put(String gatewayID, Long logID,
+    protected synchronized void put(String targetID, Long logID,
             List<LogEvent> list) throws IOException {
         if ((list == null) || (list.size() == 0)) {
             // nothing to add, so return
@@ -206,7 +206,7 @@ public class LogStoreImpl implements LogStore {
         // 1. we can append events at the end of the existing file
         // 2. we need to insert events in the existing file (meaning we have to
         // rewrite basically the whole file)
-        String file = new File(new File(m_dir, gatewayIDToFilename(gatewayID)),
+        String file = new File(new File(m_dir, targetIDToFilename(targetID)),
                 String.valueOf(logID)).getAbsolutePath();
         Long highest = m_fileToID.get(file);
         boolean cached = false;
@@ -217,7 +217,7 @@ public class LogStoreImpl implements LogStore {
         }
         List<LogEvent> events = null;
         if (!cached) {
-            events = get(new LogDescriptor(gatewayID, logID,
+            events = get(new LogDescriptor(targetID, logID,
                     SortedRangeSet.FULL_SET));
 
             // remove duplicates first
@@ -231,7 +231,7 @@ public class LogStoreImpl implements LogStore {
 
         PrintWriter out = null;
         try {
-            File dir = new File(m_dir, gatewayIDToFilename(gatewayID));
+            File dir = new File(m_dir, targetIDToFilename(targetID));
             if (!dir.isDirectory() && !dir.mkdirs()) {
                 throw new IOException("Unable to create backup store.");
             }
@@ -281,29 +281,29 @@ public class LogStoreImpl implements LogStore {
 
     /**
      * Sort the given list of events into a map of maps according to the
-     * gatewayID and the logID of each event.
+     * targetID and the logID of each event.
      * 
      * @param events
      *            a list of events to sort.
-     * @return a map of maps that maps gateway ids to a map that maps log ids to
+     * @return a map of maps that maps target ids to a map that maps log ids to
      *         a list of events that have those ids.
      */
     @SuppressWarnings("boxing")
     protected Map<String, Map<Long, List<LogEvent>>> sort(List<LogEvent> events) {
         Map<String, Map<Long, List<LogEvent>>> result = new HashMap<String, Map<Long, List<LogEvent>>>();
         for (LogEvent event : events) {
-            Map<Long, List<LogEvent>> gateway = result
+            Map<Long, List<LogEvent>> target = result
                     .get(event.getTargetID());
 
-            if (gateway == null) {
-                gateway = new HashMap<Long, List<LogEvent>>();
-                result.put(event.getTargetID(), gateway);
+            if (target == null) {
+                target = new HashMap<Long, List<LogEvent>>();
+                result.put(event.getTargetID(), target);
             }
 
-            List<LogEvent> list = gateway.get(event.getLogID());
+            List<LogEvent> list = target.get(event.getLogID());
             if (list == null) {
                 list = new ArrayList<LogEvent>();
-                gateway.put(event.getLogID(), list);
+                target.put(event.getLogID(), list);
             }
 
             list.add(event);
@@ -322,7 +322,7 @@ public class LogStoreImpl implements LogStore {
         return target;
     }
 
-    private static String filenameToGatewayID(String filename) {
+    private static String filenameToTargetID(String filename) {
         byte[] bytes = new byte[filename.length() / 2];
         for (int i = 0; i < (filename.length() / 2); i++) {
             String hexValue = filename.substring(i * 2, (i + 1) * 2);
@@ -339,11 +339,11 @@ public class LogStoreImpl implements LogStore {
         return result;
     }
 
-    private static String gatewayIDToFilename(String gatewayID) {
+    private static String targetIDToFilename(String targetID) {
         StringBuilder result = new StringBuilder();
 
         try {
-            for (Byte b : gatewayID.getBytes("UTF-8")) {
+            for (Byte b : targetID.getBytes("UTF-8")) {
                 String hexValue = Integer.toHexString(b.intValue());
                 if (hexValue.length() % 2 == 0) {
                     result.append(hexValue);

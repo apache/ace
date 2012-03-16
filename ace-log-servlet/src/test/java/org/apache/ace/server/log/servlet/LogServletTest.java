@@ -42,9 +42,9 @@ import org.testng.annotations.Test;
 public class LogServletTest {
 
     private LogServlet m_logServlet;
-    private LogDescriptor m_range = new LogDescriptor("gwID", 123, new SortedRangeSet("1-3"));
-    private LogEvent m_event1 = new LogEvent("gwID", 123, 1, 888888, 1, new Properties());
-    private LogEvent m_event2 = new LogEvent("gwID", 123, 2, 888888, 2, new Properties());
+    private LogDescriptor m_range = new LogDescriptor("tID", 123, new SortedRangeSet("1-3"));
+    private LogEvent m_event1 = new LogEvent("tID", 123, 1, 888888, 1, new Properties());
+    private LogEvent m_event2 = new LogEvent("tID", 123, 2, 888888, 2, new Properties());
     private MockLogStore m_mockStore;
 
     @BeforeMethod(alwaysRun = true)
@@ -116,7 +116,7 @@ public class LogServletTest {
             }
             return events;
         }
-        public List<LogDescriptor> getDescriptors(String gatewayID) {
+        public List<LogDescriptor> getDescriptors(String targetID) {
             return null;
         }
         public List<LogDescriptor> getDescriptors() {
@@ -124,7 +124,7 @@ public class LogServletTest {
             ranges.add(m_range);
             return ranges;
         }
-        public LogDescriptor getDescriptor(String gatewayID, long logID) throws IOException {
+        public LogDescriptor getDescriptor(String targetID, long logID) throws IOException {
             return m_range;
         }
         public void put(List<LogEvent> events) throws IOException {

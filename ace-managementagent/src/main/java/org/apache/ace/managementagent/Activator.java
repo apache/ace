@@ -60,8 +60,8 @@ public class Activator extends DependencyActivatorBase {
     public void start() {
         try {
             String syncInterval = System.getProperty("syncinterval", "2000");
-            configureFactory("org.apache.ace.gateway.log.factory", "name", "auditlog");
-            configureFactory("org.apache.ace.gateway.log.store.factory", "name", "auditlog");
+            configureFactory("org.apache.ace.target.log.factory", "name", "auditlog");
+            configureFactory("org.apache.ace.target.log.store.factory", "name", "auditlog");
             configure("org.apache.ace.scheduler", "org.apache.ace.deployment.task.DeploymentUpdateTask", syncInterval);
             String stopUnaffectedBundles = System.getProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", "false");
             System.setProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", stopUnaffectedBundles);
@@ -84,12 +84,12 @@ public class Activator extends DependencyActivatorBase {
                     
                     boolean isFileUrl = "file".equals((new URL(url)).getProtocol());
                     
-                    configureFactory("org.apache.ace.identification.property.factory", "ma", ma, "gatewayID", id);
+                    configureFactory("org.apache.ace.identification.property.factory", "ma", ma, "targetID", id);
                     configureFactory("org.apache.ace.discovery.property.factory", "ma", ma, "serverURL", url);
                     // if discovery points to the local filesystem, it's no use trying to sync the audit log
                     // to a server (we are keeping the local log in case someone wants to retrieve it)
                     if (!isFileUrl) {
-                        configureFactory("org.apache.ace.gateway.log.sync.factory", "ma", ma, "name", "auditlog");
+                        configureFactory("org.apache.ace.target.log.sync.factory", "ma", ma, "name", "auditlog");
                     }
                     configureFactory("org.apache.ace.deployment.factory", "ma", ma);
                     configure("org.apache.ace.scheduler", "ma=" + ma + ";name=auditlog", syncInterval);
@@ -110,10 +110,10 @@ public class Activator extends DependencyActivatorBase {
                 String server = System.getProperty("discovery", "http://localhost:8080");
                 configure("org.apache.ace.discovery.property", "serverURL", server);
                 boolean isFileUrl = "file".equals((new URL(server)).getProtocol());
-                String targetId = System.getProperty("identification", "configuredGatewayID");
-                configure("org.apache.ace.identification.property", "gatewayID", targetId);
+                String targetId = System.getProperty("identification", "defaultTargetID");
+                configure("org.apache.ace.identification.property", "targetID", targetId);
                 if (!isFileUrl) {
-                    configureFactory("org.apache.ace.gateway.log.sync.factory", "name", "auditlog");
+                    configureFactory("org.apache.ace.target.log.sync.factory", "name", "auditlog");
                 }
                 configure("org.apache.ace.scheduler", "auditlog", syncInterval);
                 if (!m_quiet) {

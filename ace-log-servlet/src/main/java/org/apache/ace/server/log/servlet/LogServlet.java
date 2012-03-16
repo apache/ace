@@ -43,15 +43,15 @@ import org.osgi.service.log.LogService;
  *
  * Querying existing audit log event id's:
  * http://host:port/auditlog/query - Return all known event ranges
- * http://host:port/auditlog/query?gwid=myid&logid=123712636323 - Return the event range belonging to the specified gateway and log id
+ * http://host:port/auditlog/query?tid=myid&logid=123712636323 - Return the event range belonging to the specified target and log id
  *
  * Accepting new audit log events:
  * http://host:port/auditlog/send - Gets a new log event and puts it in the store, the event is inside the request and should be a formatted as done in <code>LogEvent.toRepresentation()</code>.
  *
  * Querying existing audit log events:
  * http://host:port/auditlog/receive - Return all known events
- * http://host:port/auditlog/receive?gwid=myid - Return all known events belonging to the specified gateway ID
- * http://host:port/auditlog/receive?gwid=myid&logid=2374623874 - Return all known events belonging to the specified gateway ID
+ * http://host:port/auditlog/receive?tid=myid - Return all known events belonging to the specified target ID
+ * http://host:port/auditlog/receive?tid=myid&logid=2374623874 - Return all known events belonging to the specified target ID
  *
  * If the request is not correctly formatted or other problems arise error code <code>HttpServletResponse.SC_NOT_FOUND</code> will be sent in the response.
  */
@@ -68,7 +68,7 @@ public class LogServlet extends HttpServlet {
     private static final String RECEIVE = "/receive";
 
     // url parameter keys
-    private static final String GWID_KEY = "gwid";
+    private static final String TARGETID_KEY = "tid";
     private static final String FILTER_KEY = "filter";
     private static final String LOGID_KEY = "logid";
     private static final String RANGE_KEY = "range";
@@ -102,21 +102,21 @@ public class LogServlet extends HttpServlet {
         // 'query' and 'receive' calls are GET calls
 
         String path = request.getPathInfo();
-        String gatewayID = request.getParameter(GWID_KEY);
+        String targetID = request.getParameter(TARGETID_KEY);
         String logID = request.getParameter(LOGID_KEY);
         String filter = request.getParameter(FILTER_KEY);
         String range = request.getParameter(RANGE_KEY);
 
-        m_log.log(LogService.LOG_DEBUG, "Log servlet called: path(" + path + ") gatewayID(" + gatewayID + ") logID(" + logID + ") range( " + range + ") filter(" + filter +")");
+        m_log.log(LogService.LOG_DEBUG, "Log servlet called: path(" + path + ") targetID(" + targetID + ") logID(" + logID + ") range( " + range + ") filter(" + filter +")");
         response.setContentType(TEXT_MIMETYPE);
 
         ServletOutputStream output = null;
         try {
             output = response.getOutputStream();
-            if (QUERY.equals(path) && !handleQuery(gatewayID, logID, filter, output)) {
+            if (QUERY.equals(path) && !handleQuery(targetID, logID, filter, output)) {
                 sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Unable to interpret query");
             }
-            else if (RECEIVE.equals(path) && !handleReceive(gatewayID, logID, range, filter, output)) {
+            else if (RECEIVE.equals(path) && !handleReceive(targetID, logID, range, filter, output)) {
                 sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Unable to interpret receive query");
             }
         }
@@ -136,15 +136,15 @@ public class LogServlet extends HttpServlet {
     }
 
     // Handle a call to the query 'command'
-    protected boolean handleQuery(String gatewayID, String logID, String filter, ServletOutputStream output) throws IOException {
-        if ((gatewayID != null) && (logID != null)) {
-            // gateway and log id are specified, return only the range that matches these id's
-            LogDescriptor range = m_store.getDescriptor(gatewayID, Long.parseLong(logID));
+    protected boolean handleQuery(String targetID, String logID, String filter, ServletOutputStream output) throws IOException {
+        if ((targetID != null) && (logID != null)) {
+            // target and log id are specified, return only the range that matches these id's
+            LogDescriptor range = m_store.getDescriptor(targetID, Long.parseLong(logID));
             output.print(range.toRepresentation());
             return true;
         }
-        else if ((gatewayID == null) && (logID == null)) {
-            // no gateway or log id has been specified, return all ranges
+        else if ((targetID == null) && (logID == null)) {
+            // no target or log id has been specified, return all ranges
             List<LogDescriptor> ranges = m_store.getDescriptors();
             for (LogDescriptor range : ranges) {
                 output.print(range.toRepresentation() + "\n");
@@ -155,28 +155,28 @@ public class LogServlet extends HttpServlet {
     }
 
     // Handle a call to the receive 'command'
-    protected boolean handleReceive(String gatewayID, String logID, String range, String filter, ServletOutputStream output) throws IOException {
-        if ((gatewayID != null) && (logID != null)) {
-            // gateway and log id are specified, return only the events that are in the range that matches these id's
+    protected boolean handleReceive(String targetID, String logID, String range, String filter, ServletOutputStream output) throws IOException {
+        if ((targetID != null) && (logID != null)) {
+            // target and log id are specified, return only the events that are in the range that matches these id's
             if (range != null) {
-                LogDescriptor storeDescriptor = m_store.getDescriptor(gatewayID, Long.parseLong(logID));
+                LogDescriptor storeDescriptor = m_store.getDescriptor(targetID, Long.parseLong(logID));
                 outputRange(output, new LogDescriptor(storeDescriptor.getTargetID(), storeDescriptor.getLogID(), new SortedRangeSet(range)));
             }
             else {
-                outputRange(output, m_store.getDescriptor(gatewayID, Long.parseLong(logID)));
+                outputRange(output, m_store.getDescriptor(targetID, Long.parseLong(logID)));
             }
             return true;
         }
-        else if ((gatewayID != null) && (logID == null)) {
-            // gateway id is specified, log id is not, return all events that belong to the specified gateway id
-            List<LogDescriptor> descriptors = m_store.getDescriptors(gatewayID);
+        else if ((targetID != null) && (logID == null)) {
+            // target id is specified, log id is not, return all events that belong to the specified target id
+            List<LogDescriptor> descriptors = m_store.getDescriptors(targetID);
             for (LogDescriptor descriptor : descriptors) {
                 outputRange(output, descriptor);
             }
             return true;
         }
-        else if ((gatewayID == null) && (logID == null)) {
-            // no gateway or log id has been specified, return all events
+        else if ((targetID == null) && (logID == null)) {
+            // no target or log id has been specified, return all events
             List<LogDescriptor> descriptors = m_store.getDescriptors();
             for (LogDescriptor descriptor : descriptors) {
                 outputRange(output, descriptor);
