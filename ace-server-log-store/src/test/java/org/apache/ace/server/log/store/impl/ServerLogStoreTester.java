@@ -62,10 +62,10 @@ public class ServerLogStoreTester {
         List<LogDescriptor> ranges = m_logStore.getDescriptors();
         assert ranges.isEmpty() : "New store should have no ranges.";
         List<LogEvent> events = new ArrayList<LogEvent>();
-        for (String gateway : new String[] { "g1", "g2", "g3" }) {
+        for (String target : new String[] { "g1", "g2", "g3" }) {
             for (long log : new long[] { 1, 2, 3, 5 }) {
                 for (long id : new long[] { 1, 2, 3, 20 }) {
-                    events.add(new LogEvent(gateway, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new Properties() {
+                    events.add(new LogEvent(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new Properties() {
                         {
                             put("test", "bar");
                         }
@@ -95,13 +95,13 @@ public class ServerLogStoreTester {
 
     @Test( groups = { TestUtils.UNIT } )
     public void testLogWithSpecialCharacters() throws IOException {
-        String gatewayID = "myga\0teway";
-        LogEvent event = new LogEvent(gatewayID, 1, 1, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new Properties());
+        String targetID = "myta\0rget";
+        LogEvent event = new LogEvent(targetID, 1, 1, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new Properties());
         List<LogEvent> events = new ArrayList<LogEvent>();
         events.add(event);
         m_logStore.put(events);
         assert m_logStore.getDescriptors().size() == 1 : "Incorrect amount of ranges returned from store: expected 1, found " + m_logStore.getDescriptors().size();
-        assert m_logStore.getDescriptors(gatewayID).size() == 1 : "We expect to find a single event: expected 1, found " + m_logStore.getDescriptors(gatewayID).size();
+        assert m_logStore.getDescriptors(targetID).size() == 1 : "We expect to find a single event: expected 1, found " + m_logStore.getDescriptors(targetID).size();
     }
 
     private void delete(File root) {

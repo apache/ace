@@ -58,12 +58,12 @@ public interface LogStore
     /**
      * Get the range for the given id and the given log.
      *
-     * @param gatewayID the id for which to return the log range.
+     * @param targetID the id for which to return the log range.
      * @param logID the log id for which to return the range.
      * @return the range for the given id and the given log.
      * @throws java.io.IOException in case of any error.
      */
-    public LogDescriptor getDescriptor(String gatewayID, long logID) throws IOException;
+    public LogDescriptor getDescriptor(String targetID, long logID) throws IOException;
 
     /**
      * Store the given events. The implementation does not have to be transactional i.e., it might throw an exception and still
@@ -77,11 +77,11 @@ public interface LogStore
     /**
      * Get the ranges of all logs of the given id.
      *
-     * @param gatewayID the id for which to return the log ranges.
+     * @param targetID the id for which to return the log ranges.
      * @return a list of the ranges of all logs for the given id.
      * @throws java.io.IOException in case of any error.
      */
-    public List<LogDescriptor> getDescriptors(String gatewayID) throws IOException;
+    public List<LogDescriptor> getDescriptors(String targetID) throws IOException;
 
     /**
      * Get the ranges of all logs of all ids in this store.
