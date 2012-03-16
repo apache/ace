@@ -23,11 +23,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -36,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
-import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.service.cm.ConfigurationException;
@@ -64,8 +61,8 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     private static final String KEY_CUSTOMER_NAME = "customer.name";
     /** Name of the store repository. */
     private static final String KEY_STORE_REPOSITORY_NAME = "store.repository.name";
-    /** Name of the license repository. */
-    private static final String KEY_LICENSE_REPOSITORY_NAME = "license.repository.name";
+    /** Name of the distribution repository. */
+    private static final String KEY_DISTRIBUTION_REPOSITORY_NAME = "distribution.repository.name";
     /** Name of the deployment repository. */
     private static final String KEY_DEPLOYMENT_REPOSITORY_NAME = "deployment.repository.name";
     /** Name of the user to log in as. */
@@ -83,7 +80,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     private String m_obrURL;
     private String m_customerName;
     private String m_storeRepositoryName;
-    private String m_licenseRepositoryName;
+    private String m_distributionRepositoryName;
     private String m_deploymentRepositoryName;
     private String m_serverUser;
     
@@ -118,7 +115,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                         List<RepositoryObject> objects = workspace.getRepositoryObjects(pathElements[2]);
                         JsonArray result = new JsonArray();
                         for (RepositoryObject ro : objects) {
-                            String identity = workspace.getRepositoryObjectIdentity(ro);
+                            String identity = Workspace.getRepositoryObjectIdentity(ro);
                             if (identity != null) {
                                 result.add(new JsonPrimitive(URLEncoder.encode(identity, "UTF-8")));
                             }
@@ -166,7 +163,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                     Component component;
                     synchronized (m_workspaces) {
                         sessionID = "rest-" + m_sessionID++;
-                        workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, m_customerName, m_storeRepositoryName, m_licenseRepositoryName, m_deploymentRepositoryName, m_serverUser);
+                        workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, m_customerName, m_storeRepositoryName, m_distributionRepositoryName, m_deploymentRepositoryName, m_serverUser);
                         m_workspaces.put(sessionID, workspace);
                         component = m_dm.createComponent().setImplementation(workspace);
                         m_workspaceComponents.put(sessionID, component);
@@ -204,7 +201,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                         try {
                             RepositoryValueObject data = m_gson.fromJson(req.getReader(), RepositoryValueObject.class);
                             RepositoryObject object = workspace.addRepositoryObject(pathElements[2], data.attributes, data.tags);
-                            String identity = workspace.getRepositoryObjectIdentity(object);
+                            String identity = Workspace.getRepositoryObjectIdentity(object);
                             if (identity != null) {
                                 resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], identity));
                             }
@@ -236,7 +233,6 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                     if (workspace != null) {
                         try {
                             RepositoryValueObject data = m_gson.fromJson(req.getReader(), RepositoryValueObject.class);
-                            RepositoryObject object = workspace.getRepositoryObject(pathElements[2], pathElements[3]);
                             workspace.updateObjectWithData(pathElements[2], pathElements[2], data);
                             resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], pathElements[3]));
                             return;
@@ -286,7 +282,6 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                     String entityId = pathElements[3];
                     
                     Workspace workspace;
-                    Component component;
                     synchronized (m_workspaces) {
                         workspace = m_workspaces.get(id);
                     }
@@ -368,7 +363,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         m_obrURL = getProperty(properties, KEY_OBR_URL, "http://localhost:8080/obr");
         m_customerName = getProperty(properties, KEY_CUSTOMER_NAME, "apache");
         m_storeRepositoryName = getProperty(properties, KEY_STORE_REPOSITORY_NAME, "shop");
-        m_licenseRepositoryName = getProperty(properties, KEY_LICENSE_REPOSITORY_NAME, "gateway");
+        m_distributionRepositoryName = getProperty(properties, KEY_DISTRIBUTION_REPOSITORY_NAME, "target"); // TODO default was: gateway, shouldn't this be distribution?
         m_deploymentRepositoryName = getProperty(properties, KEY_DEPLOYMENT_REPOSITORY_NAME, "deployment");
         m_serverUser = getProperty(properties, KEY_USER_NAME, "d");
     }

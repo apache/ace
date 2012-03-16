@@ -33,18 +33,15 @@ import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
-import org.apache.ace.client.repository.repository.TargetRepository;
-import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
-import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
 import org.apache.ace.client.repository.repository.DistributionRepository;
+import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
+import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
-import org.osgi.framework.Filter;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -62,7 +59,7 @@ public class Workspace {
     private final String m_obrURL;
     private final String m_customerName;
     private final String m_storeRepositoryName;
-    private final String m_licenseRepositoryName;
+    private final String m_distributionRepositoryName;
     private final String m_deploymentRepositoryName;
     private final String m_serverUser;
     private volatile DependencyManager m_manager;
@@ -71,20 +68,19 @@ public class Workspace {
     private volatile FeatureRepository m_featureRepository;
     private volatile DistributionRepository m_distributionRepository;
     private volatile StatefulTargetRepository m_statefulTargetRepository;
-    private volatile TargetRepository m_targetRepository;
     private volatile Artifact2FeatureAssociationRepository m_artifact2FeatureAssociationRepository;
     private volatile Feature2DistributionAssociationRepository m_feature2DistributionAssociationRepository;
     private volatile Distribution2TargetAssociationRepository m_distribution2TargetAssociationRepository;
     private volatile UserAdmin m_userAdmin;
     private volatile LogService m_log;
 
-    public Workspace(String sessionID, String repositoryURL, String obrURL, String customerName, String storeRepositoryName, String licenseRepositoryName, String deploymentRepositoryName, String serverUser) {
+    public Workspace(String sessionID, String repositoryURL, String obrURL, String customerName, String storeRepositoryName, String distributionRepositoryName, String deploymentRepositoryName, String serverUser) {
         m_sessionID = sessionID;
         m_repositoryURL = repositoryURL;
         m_obrURL = obrURL;
         m_customerName = customerName;
         m_storeRepositoryName = storeRepositoryName;
-        m_licenseRepositoryName = licenseRepositoryName;
+        m_distributionRepositoryName = distributionRepositoryName;
         m_deploymentRepositoryName = deploymentRepositoryName;
         m_serverUser = serverUser;
     }
@@ -125,7 +121,7 @@ public class Workspace {
             m_repositoryAdmin.login(m_repositoryAdmin.createLoginContext(user)
                 .setObrBase(new URL(m_obrURL))
                 .addShopRepository(new URL(m_repositoryURL), m_customerName, m_storeRepositoryName, true)
-                .addTargetRepository(new URL(m_repositoryURL), m_customerName, m_licenseRepositoryName, true)
+                .addTargetRepository(new URL(m_repositoryURL), m_customerName, m_distributionRepositoryName, true)
                 .addDeploymentRepository(new URL(m_repositoryURL), m_customerName, m_deploymentRepositoryName, true)
                 );
             m_repositoryAdmin.checkout();
