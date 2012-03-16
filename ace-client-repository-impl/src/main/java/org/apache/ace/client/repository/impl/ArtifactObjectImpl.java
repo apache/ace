@@ -68,12 +68,12 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
         m_repo = repo;
     }
 
-    public List<FeatureObject> getGroups() {
+    public List<FeatureObject> getFeatures() {
         return getAssociations(FeatureObject.class);
     }
 
-    public List<Artifact2FeatureAssociation> getAssociationsWith(FeatureObject group) {
-        return getAssociationsWith(group, FeatureObject.class, Artifact2FeatureAssociation.class);
+    public List<Artifact2FeatureAssociation> getAssociationsWith(FeatureObject feature) {
+        return getAssociationsWith(feature, FeatureObject.class, Artifact2FeatureAssociation.class);
     }
 
     @Override

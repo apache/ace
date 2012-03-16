@@ -10,24 +10,20 @@ import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.DistributionObject;
 
 /**
- * 
  * This PropertyResolver first tries to resolve the key in the
  * current repository object. If not found, it looks for the key
  * in its children. 
- * 
- * @author dennisg
- *
  */
-public class RepoPropertyResolver implements PropertyResolver {
+public class RepositoryPropertyResolver implements PropertyResolver {
 	
-	private final RepositoryObject m_repo;
+	private final RepositoryObject m_repositoryObject;
 	
-	public RepoPropertyResolver(RepositoryObject obj) {
-		m_repo = obj;
+	public RepositoryPropertyResolver(RepositoryObject repositoryObject) {
+		m_repositoryObject = repositoryObject;
 	}
 	
     public String get(String key) {
-		return get(key, m_repo);
+		return get(key, m_repositoryObject);
     }
 
     private String get(String key, RepositoryObject ro) {
@@ -57,7 +53,7 @@ public class RepoPropertyResolver implements PropertyResolver {
     }
 
     protected List<? extends RepositoryObject> getChildren() {
-    	return getChildren(m_repo);
+    	return getChildren(m_repositoryObject);
     }
     
     protected List<? extends RepositoryObject> getChildren(RepositoryObject ob) {
@@ -65,7 +61,7 @@ public class RepoPropertyResolver implements PropertyResolver {
             return ((TargetObject) ob).getDistributions();
         }
         else if (ob instanceof DistributionObject) {
-            return ((DistributionObject) ob).getGroups();
+            return ((DistributionObject) ob).getFeatures();
         }
         else if (ob instanceof FeatureObject) {
             return ((FeatureObject) ob).getArtifacts();
@@ -84,5 +80,3 @@ public class RepoPropertyResolver implements PropertyResolver {
         return null;
     }	
 }
-
-

@@ -65,12 +65,12 @@ import org.testng.annotations.Test;
 public class ModelTest {
 
     private ArtifactRepositoryImpl m_artifactRepository;
-    private GroupRepositoryImpl m_groupRepository;
-    private Artifact2GroupAssociationRepositoryImpl m_artifact2groupRepository;
-    private LicenseRepositoryImpl m_licenseRepository;
-    private Group2LicenseAssociationRepositoryImpl m_group2licenseRepository;
-    private GatewayRepositoryImpl m_gatewayRepository;
-    private License2GatewayAssociationRepositoryImpl m_license2gatewayRepository;
+    private FeatureRepositoryImpl m_groupRepository;
+    private Artifact2FeatureAssociationRepositoryImpl m_artifact2groupRepository;
+    private DistributionRepositoryImpl m_licenseRepository;
+    private Feature2DistributionAssociationRepositoryImpl m_group2licenseRepository;
+    private TargetRepositoryImpl m_gatewayRepository;
+    private Distribution2TargetAssociationRepositoryImpl m_license2gatewayRepository;
     private DeploymentVersionRepositoryImpl m_deploymentVersionRepository;
     private RepositoryAdminImpl m_repositoryAdmin;
 
@@ -92,17 +92,17 @@ public class ModelTest {
         TestUtils.configureObject(m_artifactRepository, LogService.class);
         TestUtils.configureObject(m_artifactRepository, BundleContext.class, bc);
         m_artifactRepository.addHelper(BundleHelper.MIMETYPE, m_bundleHelper);
-        m_groupRepository = new GroupRepositoryImpl(notifier);
+        m_groupRepository = new FeatureRepositoryImpl(notifier);
         TestUtils.configureObject(m_groupRepository, BundleContext.class, bc);
-        m_artifact2groupRepository = new Artifact2GroupAssociationRepositoryImpl(m_artifactRepository, m_groupRepository, notifier);
+        m_artifact2groupRepository = new Artifact2FeatureAssociationRepositoryImpl(m_artifactRepository, m_groupRepository, notifier);
         TestUtils.configureObject(m_artifact2groupRepository, BundleContext.class, bc);
-        m_licenseRepository = new LicenseRepositoryImpl(notifier);
+        m_licenseRepository = new DistributionRepositoryImpl(notifier);
         TestUtils.configureObject(m_licenseRepository, BundleContext.class, bc);
-        m_group2licenseRepository = new Group2LicenseAssociationRepositoryImpl(m_groupRepository, m_licenseRepository, notifier);
+        m_group2licenseRepository = new Feature2DistributionAssociationRepositoryImpl(m_groupRepository, m_licenseRepository, notifier);
         TestUtils.configureObject(m_group2licenseRepository, BundleContext.class, bc);
-        m_gatewayRepository = new GatewayRepositoryImpl(notifier);
+        m_gatewayRepository = new TargetRepositoryImpl(notifier);
         TestUtils.configureObject(m_gatewayRepository, BundleContext.class, bc);
-        m_license2gatewayRepository = new License2GatewayAssociationRepositoryImpl(m_licenseRepository, m_gatewayRepository, notifier);
+        m_license2gatewayRepository = new Distribution2TargetAssociationRepositoryImpl(m_licenseRepository, m_gatewayRepository, notifier);
         TestUtils.configureObject(m_license2gatewayRepository, BundleContext.class, bc);
         m_deploymentVersionRepository = new DeploymentVersionRepositoryImpl(notifier);
         TestUtils.configureObject(m_deploymentVersionRepository, BundleContext.class, bc);
@@ -145,7 +145,7 @@ public class ModelTest {
         }
 
         // Even though the bundle is not yet associated to a group, try to get its groups.
-        List<FeatureObject> groups = b.getGroups();
+        List<FeatureObject> groups = b.getFeatures();
 
         assert groups.size() == 0 : "The bundle is not associated, so it should not return any groups.";
 
@@ -346,8 +346,8 @@ public class ModelTest {
         assert (b2g4.getRight().size() == 1) && b2g4.getRight().contains(g3) : "The right side of the fourth association should be group 3.";
 
         // Check the wiring: what is wired to what?
-        List<FeatureObject> b1groups = b1.getGroups();
-        List<FeatureObject> b2groups = b2.getGroups();
+        List<FeatureObject> b1groups = b1.getFeatures();
+        List<FeatureObject> b2groups = b2.getFeatures();
 
         List<ArtifactObject> g1bundles = g1.getArtifacts();
         List<ArtifactObject> g2bundles = g2.getArtifacts();
@@ -384,8 +384,8 @@ public class ModelTest {
 
         m_artifact2groupRepository.remove(b2g4);
 
-        b1groups = b1.getGroups();
-        b2groups = b2.getGroups();
+        b1groups = b1.getFeatures();
+        b2groups = b2.getFeatures();
         g1bundles = g1.getArtifacts();
         g2bundles = g2.getArtifacts();
         g3bundles = g3.getArtifacts();
@@ -421,8 +421,8 @@ public class ModelTest {
         assert g1.getArtifacts().size() == 0 : "Group 1 should not be associated with any bundles; it is associated with " + g1.getArtifacts().size() + ".";
         assert g1.getDistributions().size() == 1 : "Group 1 should be associated with exactly one license; it is associated with " + g1.getDistributions().size() + ".";
 
-        assert l1.getGroups().size() == 1 : "License 1 should be associated with exactly one group; it is associated with " + l1.getGroups().size() + ".";
-        assert l1.getGateways().size() == 0 : "License 1 should not be associated with any gateways; it is associated with " + l1.getGateways().size() + ".";
+        assert l1.getFeatures().size() == 1 : "License 1 should be associated with exactly one group; it is associated with " + l1.getFeatures().size() + ".";
+        assert l1.getTargets().size() == 0 : "License 1 should not be associated with any gateways; it is associated with " + l1.getTargets().size() + ".";
     }
 
     /**
@@ -438,8 +438,8 @@ public class ModelTest {
         TargetObject g1 = createBasicGatewayObject("gateway1");
         m_license2gatewayRepository.create(l1, g1);
 
-        assert l1.getGroups().size() == 0 : "License 1 should not be associated with any groups; it is associated with " + l1.getGroups().size() + ".";
-        assert l1.getGateways().size() == 1 : "License 1 should be associated with exactly one gateway; it is associated with " + l1.getGateways().size() + ".";
+        assert l1.getFeatures().size() == 0 : "License 1 should not be associated with any groups; it is associated with " + l1.getFeatures().size() + ".";
+        assert l1.getTargets().size() == 1 : "License 1 should be associated with exactly one gateway; it is associated with " + l1.getTargets().size() + ".";
 
         assert g1.getDistributions().size() == 1 : "Gateway 1 should be associated with exactly one license; it is associated with " + g1.getDistributions().size() + ".";
     }
@@ -589,13 +589,13 @@ public class ModelTest {
         assert !bg.getRight().contains(g2) : "g2 should not be on the right side of the association.";
         assert bg.getRight().contains(g3) : "g3 should be on the right side of the association.";
 
-        List<FeatureObject> foundGroups = b1.getGroups();
+        List<FeatureObject> foundGroups = b1.getFeatures();
         assert foundGroups.size() == 2 : "b1 should be associated with two groups.";
         assert foundGroups.contains(g1) : "b1 should be associated with g1";
         assert !foundGroups.contains(g2) : "b1 not should be associated with g2";
         assert foundGroups.contains(g3) : "b1 should be associated with g3";
 
-        foundGroups = b3.getGroups();
+        foundGroups = b3.getFeatures();
         assert foundGroups.size() == 0 : "b3 should not be associated with any groups.";
 
         List<ArtifactObject> foundBundles = g3.getArtifacts();
@@ -630,7 +630,7 @@ public class ModelTest {
         props.put(Association.RIGHT_CARDINALITY, "3");
 
         Artifact2FeatureAssociation bg = m_artifact2groupRepository.create(props, tags);
-        assert b1.getGroups().size() == 3 : "The bundle should be associated to three groups.";
+        assert b1.getFeatures().size() == 3 : "The bundle should be associated to three groups.";
         assert (g1.getArtifacts().size() == 1) && g1.getArtifacts().contains(b1) : "g1 should be associated to only b1.";
         assert (g2.getArtifacts().size() == 1) && g2.getArtifacts().contains(b1) : "g1 should be associated to only b1.";
         assert (g3.getArtifacts().size() == 1) && g3.getArtifacts().contains(b1) : "g1 should be associated to only b1.";

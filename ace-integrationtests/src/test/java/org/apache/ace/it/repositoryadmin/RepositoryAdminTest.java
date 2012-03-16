@@ -220,8 +220,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         assert (gtl.getRight().size() == 1) && gtl.getRight().contains(l1) : "The right side of the GtL-association should be l1.";
         assert bg.isSatisfied() : "The bundlegroup association should be satisfied.";
         assert gtl.isSatisfied() : "The group2license association should be satisfied.";
-        assert b1.getGroups().size() == 1 : "Bundle b1 should be associated to one group.";
-        assert l1.getGroups().size() == 1 : "License l1 should be associated to one group.";
+        assert b1.getFeatures().size() == 1 : "Bundle b1 should be associated to one group.";
+        assert l1.getFeatures().size() == 1 : "License l1 should be associated to one group.";
 
         //remove the group
         runAndWaitForEvent(new Callable<Object>() {
@@ -234,8 +234,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         assert !gtl.isSatisfied() : "The bundlegroup association shouldn not be satisfied.";
         assert !bg.isSatisfied() : "The group2license assocation should not be satisfied.";
 
-        assert b1.getGroups().size() == 0 : "Bundle b1 shouldn't be associated to any group, but is associated to " + b1.getGroups();
-        assert l1.getGroups().size() == 0 : "License l1 shouldn't be associated to any group.";
+        assert b1.getFeatures().size() == 0 : "Bundle b1 shouldn't be associated to any group, but is associated to " + b1.getFeatures();
+        assert l1.getFeatures().size() == 0 : "License l1 shouldn't be associated to any group.";
 
         cleanUp();
     }
@@ -255,7 +255,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         assert (bg.getLeft().size() == 1) && bg.getLeft().contains(b1) : "The left side of the association should now be b1; we find " + bg.getLeft().size() + " bundles on the left side of the association.";
         assert (bg.getRight().size() == 1) && bg.getRight().contains(g1) : "The right side of the association should now be g1.";
-        assert b1.getGroups().get(0) == g1 : "b1 should be assocated with g1";
+        assert b1.getFeatures().get(0) == g1 : "b1 should be assocated with g1";
         assert g1.getArtifacts().get(0) == b1 : "g1 should be assocated with b1";
 
         final ArtifactObject b2 = runAndWaitForEvent(new Callable<ArtifactObject>() {
@@ -267,8 +267,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         assert (bg.getLeft().size() == 1) && !bg.getLeft().contains(b1) : "The left side of the association should no longer be b1; we find " + bg.getLeft().size() + " bundles.";
         assert (bg.getLeft().size() == 1) && bg.getLeft().contains(b2) : "The left side of the association should now be b2.";
         assert (bg.getRight().size() == 1) && bg.getRight().contains(g1) : "The right side of the association should now be g1.";
-        assert b1.getGroups().size() == 0 : "b1 should not be associated with any group.";
-        assert b2.getGroups().get(0) == g1 : "b2 should now be assocation with g1";
+        assert b1.getFeatures().size() == 0 : "b1 should not be associated with any group.";
+        assert b2.getFeatures().get(0) == g1 : "b2 should now be assocation with g1";
         assert g1.getArtifacts().get(0) == b2 : "g1 should be assocation with b2";
         assert g1.getArtifacts().size() == 1 : "g1 should be associated with one bundle";
 
@@ -278,9 +278,9 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         assert (bg.getLeft().size() == 1) && bg.getLeft().contains(b2) : "The left side of the association should now be b2.";
         assert (bg.getLeft().size() == 1) && !bg.getLeft().contains(b3) : "The left side of the association should not be b3.";
         assert (bg.getRight().size() == 1) && bg.getRight().contains(g1) : "The right side of the association should now be g1.";
-        assert b1.getGroups().size() == 0 : "b1 should not be associated with any group.";
-        assert b2.getGroups().get(0) == g1 : "b2 should now be assocation with g1";
-        assert b3.getGroups().size() == 0 : "b3 should not be associated with any group.";
+        assert b1.getFeatures().size() == 0 : "b1 should not be associated with any group.";
+        assert b2.getFeatures().get(0) == g1 : "b2 should now be assocation with g1";
+        assert b3.getFeatures().size() == 0 : "b3 should not be associated with any group.";
         assert g1.getArtifacts().get(0) == b2 : "g1 should be assocation with b2";
         assert g1.getArtifacts().size() == 1 : "g1 should be associated with one bundle";
 
@@ -291,10 +291,10 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         assert (bg.getLeft().size() == 1) && bg.getLeft().contains(b2) : "The left side of the association should now be b2.";
         assert (bg.getLeft().size() == 1) && !bg.getLeft().contains(b3) : "The left side of the association should not be b3.";
         assert (bg.getRight().size() == 1) && bg.getRight().contains(g1) : "The right side of the association should now be g1.";
-        assert b1.getGroups().size() == 0 : "b1 should not be associated with any group.";
-        assert b15.getGroups().size() == 0 : "b15 should not be associated with any group.";
-        assert b2.getGroups().get(0) == g1 : "b2 should now be assocation with g1";
-        assert b3.getGroups().size() == 0 : "b3 should not be associated with any group.";
+        assert b1.getFeatures().size() == 0 : "b1 should not be associated with any group.";
+        assert b15.getFeatures().size() == 0 : "b15 should not be associated with any group.";
+        assert b2.getFeatures().get(0) == g1 : "b2 should now be assocation with g1";
+        assert b3.getFeatures().size() == 0 : "b3 should not be associated with any group.";
         assert g1.getArtifacts().get(0) == b2 : "g1 should be assocation with b2";
         assert g1.getArtifacts().size() == 1 : "g1 should be associated with one bundle";
 
@@ -311,9 +311,9 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         assert (bg.getLeft().size() == 1) && bg.getLeft().contains(b15) : "The left side of the association should now be b15.";
         assert (bg.getLeft().size() == 1) && !bg.getLeft().contains(b3) : "The left side of the association should not be b3.";
         assert (bg.getRight().size() == 1) && bg.getRight().contains(g1) : "The right side of the association should now be g1.";
-        assert b1.getGroups().size() == 0 : "b1 should not be associated with any group.";
-        assert b15.getGroups().get(0) == g1 : "b15 should now be assocation with g1";
-        assert b3.getGroups().size() == 0 : "b3 should not be associated with any group.";
+        assert b1.getFeatures().size() == 0 : "b1 should not be associated with any group.";
+        assert b15.getFeatures().get(0) == g1 : "b15 should now be assocation with g1";
+        assert b3.getFeatures().size() == 0 : "b3 should not be associated with any group.";
         assert g1.getArtifacts().get(0) == b15 : "g1 should be assocation with b15";
         assert g1.getArtifacts().size() == 1 : "g1 should be associated with one bundle";
 

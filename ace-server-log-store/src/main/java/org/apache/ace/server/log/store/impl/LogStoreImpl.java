@@ -77,7 +77,7 @@ public class LogStoreImpl implements LogStore {
         BufferedReader in = null;
         try {
             File log = new File(new File(m_dir,
-                    gatewayIDToFilename(descriptor.getGatewayID())),
+                    gatewayIDToFilename(descriptor.getTargetID())),
                     String.valueOf(descriptor.getLogID()));
             if (!log.isFile()) {
                 return result;

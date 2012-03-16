@@ -77,8 +77,8 @@ public class ServerLogStoreTester {
         assert m_logStore.getDescriptors().size() == 3 * 4 : "Incorrect amount of ranges returned from store";
         List<LogEvent> stored = new ArrayList<LogEvent>();
         for (LogDescriptor range : m_logStore.getDescriptors()) {
-            for (LogDescriptor range2 : m_logStore.getDescriptors(range.getGatewayID())) {
-                stored.addAll(m_logStore.get(m_logStore.getDescriptor(range2.getGatewayID(), range2.getLogID())));
+            for (LogDescriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
+                stored.addAll(m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getLogID())));
             }
         }
 

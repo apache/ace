@@ -21,39 +21,39 @@ package org.apache.ace.client.repository.impl;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
-import org.apache.ace.client.repository.object.ArtifactObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
 import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the GroupObject. For 'what it does', see GroupObject,
+ * Implementation class for the DistributionObject. For 'what it does', see DistributionObject,
  * for 'how it works', see RepositoryObjectImpl.
  */
-public class GroupObjectImpl extends RepositoryObjectImpl<FeatureObject> implements FeatureObject {
-    private final static String XML_NODE = "group";
+public class DistributionObjectImpl extends RepositoryObjectImpl<DistributionObject> implements DistributionObject {
+    private final static String XML_NODE = "distribution";
 
-    GroupObjectImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier) {
+    DistributionObjectImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier) {
         super(checkAttributes(attributes, KEY_NAME), tags, notifier, XML_NODE);
     }
 
-    GroupObjectImpl(Map<String, String> attributes, ChangeNotifier notifier) {
+    DistributionObjectImpl(Map<String, String> attributes, ChangeNotifier notifier) {
         super(checkAttributes(attributes, KEY_NAME), notifier, XML_NODE);
     }
 
-    GroupObjectImpl(HierarchicalStreamReader reader, ChangeNotifier notifier) {
+    DistributionObjectImpl(HierarchicalStreamReader reader, ChangeNotifier notifier) {
         super(reader, notifier, XML_NODE);
     }
 
-    public List<ArtifactObject> getArtifacts() {
-        return getAssociations(ArtifactObject.class);
+    public List<TargetObject> getTargets() {
+        return getAssociations(TargetObject.class);
     }
 
-    public List<DistributionObject> getDistributions() {
-        return getAssociations(DistributionObject.class);
+    public List<FeatureObject> getFeatures() {
+        return getAssociations(FeatureObject.class);
     }
 
     public String getDescription() {
@@ -72,12 +72,12 @@ public class GroupObjectImpl extends RepositoryObjectImpl<FeatureObject> impleme
         addAttribute(KEY_NAME, name);
     }
 
-    public List<Artifact2FeatureAssociation> getAssociationsWith(ArtifactObject artifact) {
-        return getAssociationsWith(artifact, ArtifactObject.class, Artifact2FeatureAssociation.class);
+    public List<Feature2DistributionAssociation> getAssociationsWith(FeatureObject feature) {
+        return getAssociationsWith(feature, FeatureObject.class, Feature2DistributionAssociation.class);
     }
 
-    public List<Feature2DistributionAssociation> getAssociationsWith(DistributionObject license) {
-        return getAssociationsWith(license, DistributionObject.class, Feature2DistributionAssociation.class);
+    public List<Distribution2TargetAssociation> getAssociationsWith(TargetObject target) {
+        return getAssociationsWith(target, TargetObject.class, Distribution2TargetAssociation.class);
     }
 
     private static String[] DEFINING_KEYS = new String[] {KEY_NAME};

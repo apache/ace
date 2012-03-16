@@ -28,26 +28,26 @@ import org.osgi.framework.InvalidSyntaxException;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 /**
- * Implementation class for the License2GatewayAssociationRepository. For 'what it does', see License2GatewayAssociationRepository,
+ * Implementation class for the Distribution2TargetAssociationRepository. For 'what it does', see Distribution2TargetAssociationRepository,
  * for 'how it works', see AssociationRepositoryImpl.
  */
 
-public class License2GatewayAssociationRepositoryImpl extends AssociationRepositoryImpl<DistributionObject, TargetObject, License2GatewayAssociationImpl, Distribution2TargetAssociation> implements Distribution2TargetAssociationRepository {
-    private final static String XML_NODE = "licenses2gateways";
+public class Distribution2TargetAssociationRepositoryImpl extends AssociationRepositoryImpl<DistributionObject, TargetObject, Distribution2TargetAssociationImpl, Distribution2TargetAssociation> implements Distribution2TargetAssociationRepository {
+    private final static String XML_NODE = "distributions2targets";
 
-    private final LicenseRepositoryImpl m_licenseRepository;
-    private final GatewayRepositoryImpl m_gatewayRepository;
+    private final DistributionRepositoryImpl m_distributionRepository;
+    private final TargetRepositoryImpl m_targetRepository;
 
-    public License2GatewayAssociationRepositoryImpl(LicenseRepositoryImpl licenseRepository, GatewayRepositoryImpl gatewayRepository, ChangeNotifier notifier) {
+    public Distribution2TargetAssociationRepositoryImpl(DistributionRepositoryImpl distributionRepository, TargetRepositoryImpl targetRepository, ChangeNotifier notifier) {
         super(notifier, XML_NODE);
-        m_licenseRepository = licenseRepository;
-        m_gatewayRepository = gatewayRepository;
+        m_distributionRepository = distributionRepository;
+        m_targetRepository = targetRepository;
     }
 
     @Override
-    License2GatewayAssociationImpl createNewInhabitant(Map<String, String> attributes) {
+    Distribution2TargetAssociationImpl createNewInhabitant(Map<String, String> attributes) {
         try {
-            return new License2GatewayAssociationImpl(attributes, this, m_licenseRepository, m_gatewayRepository);
+            return new Distribution2TargetAssociationImpl(attributes, this, m_distributionRepository, m_targetRepository);
         }
         catch (InvalidSyntaxException e) {
             throw new IllegalArgumentException("Unable to create association: ", e);
@@ -55,9 +55,9 @@ public class License2GatewayAssociationRepositoryImpl extends AssociationReposit
     }
 
     @Override
-    License2GatewayAssociationImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
+    Distribution2TargetAssociationImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
         try {
-            return new License2GatewayAssociationImpl(attributes, tags, this, m_licenseRepository, m_gatewayRepository);
+            return new Distribution2TargetAssociationImpl(attributes, tags, this, m_distributionRepository, m_targetRepository);
         }
         catch (InvalidSyntaxException e) {
             throw new IllegalArgumentException("Unable to create association: ", e);
@@ -65,23 +65,23 @@ public class License2GatewayAssociationRepositoryImpl extends AssociationReposit
     }
 
     @Override
-    License2GatewayAssociationImpl createNewInhabitant(HierarchicalStreamReader reader) {
+    Distribution2TargetAssociationImpl createNewInhabitant(HierarchicalStreamReader reader) {
         try {
-            return new License2GatewayAssociationImpl(reader, this, m_licenseRepository, m_gatewayRepository);
+            return new Distribution2TargetAssociationImpl(reader, this, m_distributionRepository, m_targetRepository);
         }
         catch (InvalidSyntaxException e) {
             throw new IllegalArgumentException("Unable to create association: ", e);
         }
     }
 
-    public Distribution2TargetAssociation createDistribution2TargetFilter(DistributionObject license, String gatewayFilter) {
+    public Distribution2TargetAssociation createDistribution2TargetFilter(DistributionObject distribution, String targetFilter) {
         try {
-            m_gatewayRepository.createFilter(gatewayFilter);
+            m_targetRepository.createFilter(targetFilter);
         }
         catch (InvalidSyntaxException ise) {
-            throw new IllegalArgumentException("Gateway filter '" + gatewayFilter + "' cannot be parsed into a valid Filter.", ise);
+            throw new IllegalArgumentException("Target filter '" + targetFilter + "' cannot be parsed into a valid Filter.", ise);
         }
 
-        return create(license.getAssociationFilter(null), gatewayFilter);
+        return create(distribution.getAssociationFilter(null), targetFilter);
     }
 }

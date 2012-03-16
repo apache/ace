@@ -28,21 +28,21 @@ import org.apache.ace.client.repository.object.DistributionObject;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the GatewayObject. For 'what it does', see GatewayObject,
+ * Implementation class for the TargetObject. For 'what it does', see TargetObject,
  * for 'how it works', see RepositoryObjectImpl.
  */
-public class GatewayObjectImpl extends RepositoryObjectImpl<TargetObject> implements TargetObject {
-    private final static String XML_NODE = "gateway";
+public class TargetObjectImpl extends RepositoryObjectImpl<TargetObject> implements TargetObject {
+    private final static String XML_NODE = "target";
 
-    GatewayObjectImpl(Map<String, String> attributes, ChangeNotifier notifier) {
+    TargetObjectImpl(Map<String, String> attributes, ChangeNotifier notifier) {
         super(checkAttributes(attributes, KEY_ID), notifier, XML_NODE);
     }
 
-    GatewayObjectImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier) {
+    TargetObjectImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier) {
         super(checkAttributes(attributes, KEY_ID), tags, notifier, XML_NODE);
     }
 
-    GatewayObjectImpl(HierarchicalStreamReader reader, ChangeNotifier notifier) {
+    TargetObjectImpl(HierarchicalStreamReader reader, ChangeNotifier notifier) {
         super(reader, notifier, XML_NODE);
         if(getAttribute(KEY_AUTO_APPROVE) == null) {
             addAttribute(KEY_AUTO_APPROVE, String.valueOf(false));
@@ -57,8 +57,8 @@ public class GatewayObjectImpl extends RepositoryObjectImpl<TargetObject> implem
         return getAttribute(KEY_ID);
     }
 
-    public List<Distribution2TargetAssociation> getAssociationsWith(DistributionObject license) {
-        return getAssociationsWith(license, DistributionObject.class, Distribution2TargetAssociation.class);
+    public List<Distribution2TargetAssociation> getAssociationsWith(DistributionObject distribution) {
+        return getAssociationsWith(distribution, DistributionObject.class, Distribution2TargetAssociation.class);
     }
 
     private static String[] DEFINING_KEYS = new String[] {KEY_ID};
@@ -79,6 +79,5 @@ public class GatewayObjectImpl extends RepositoryObjectImpl<TargetObject> implem
 
     public void setAutoApprove(boolean approve) {
        addAttribute(KEY_AUTO_APPROVE, String.valueOf(approve));
-
     }
 }

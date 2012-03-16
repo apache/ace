@@ -38,7 +38,7 @@ import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
-import org.apache.ace.client.repository.stateful.impl.StatefulGatewayRepositoryImpl;
+import org.apache.ace.client.repository.stateful.impl.StatefulTargetRepositoryImpl;
 import org.apache.ace.server.log.store.LogStore;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -132,7 +132,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         String filter = "(" + SessionFactory.SERVICE_SID + "=" + sessionID + ")";
         topic.put(EventConstants.EVENT_FILTER, filter);
         topic.put(SessionFactory.SERVICE_SID, sessionID);
-        StatefulGatewayRepositoryImpl statefulGatewayRepositoryImpl = new StatefulGatewayRepositoryImpl(sessionID);
+        StatefulTargetRepositoryImpl statefulGatewayRepositoryImpl = new StatefulTargetRepositoryImpl(sessionID);
         sd.m_service2 = createComponent()
             .setInterface(new String[] { StatefulTargetRepository.class.getName(), EventHandler.class.getName() }, topic)
             .setImplementation(statefulGatewayRepositoryImpl)

@@ -21,39 +21,39 @@ package org.apache.ace.client.repository.impl;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.TargetObject;
+import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
+import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
 import org.apache.ace.client.repository.object.FeatureObject;
-import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the LicenseObject. For 'what it does', see LicenseObject,
+ * Implementation class for the FeatureObject. For 'what it does', see FeatureObject,
  * for 'how it works', see RepositoryObjectImpl.
  */
-public class LicenseObjectImpl extends RepositoryObjectImpl<DistributionObject> implements DistributionObject {
-    private final static String XML_NODE = "license";
+public class FeatureObjectImpl extends RepositoryObjectImpl<FeatureObject> implements FeatureObject {
+    private final static String XML_NODE = "feature";
 
-    LicenseObjectImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier) {
+    FeatureObjectImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier) {
         super(checkAttributes(attributes, KEY_NAME), tags, notifier, XML_NODE);
     }
 
-    LicenseObjectImpl(Map<String, String> attributes, ChangeNotifier notifier) {
+    FeatureObjectImpl(Map<String, String> attributes, ChangeNotifier notifier) {
         super(checkAttributes(attributes, KEY_NAME), notifier, XML_NODE);
     }
 
-    LicenseObjectImpl(HierarchicalStreamReader reader, ChangeNotifier notifier) {
+    FeatureObjectImpl(HierarchicalStreamReader reader, ChangeNotifier notifier) {
         super(reader, notifier, XML_NODE);
     }
 
-    public List<TargetObject> getGateways() {
-        return getAssociations(TargetObject.class);
+    public List<ArtifactObject> getArtifacts() {
+        return getAssociations(ArtifactObject.class);
     }
 
-    public List<FeatureObject> getGroups() {
-        return getAssociations(FeatureObject.class);
+    public List<DistributionObject> getDistributions() {
+        return getAssociations(DistributionObject.class);
     }
 
     public String getDescription() {
@@ -72,12 +72,12 @@ public class LicenseObjectImpl extends RepositoryObjectImpl<DistributionObject> 
         addAttribute(KEY_NAME, name);
     }
 
-    public List<Feature2DistributionAssociation> getAssociationsWith(FeatureObject group) {
-        return getAssociationsWith(group, FeatureObject.class, Feature2DistributionAssociation.class);
+    public List<Artifact2FeatureAssociation> getAssociationsWith(ArtifactObject artifact) {
+        return getAssociationsWith(artifact, ArtifactObject.class, Artifact2FeatureAssociation.class);
     }
 
-    public List<Distribution2TargetAssociation> getAssociationsWith(TargetObject gateway) {
-        return getAssociationsWith(gateway, TargetObject.class, Distribution2TargetAssociation.class);
+    public List<Feature2DistributionAssociation> getAssociationsWith(DistributionObject distribution) {
+        return getAssociationsWith(distribution, DistributionObject.class, Feature2DistributionAssociation.class);
     }
 
     private static String[] DEFINING_KEYS = new String[] {KEY_NAME};

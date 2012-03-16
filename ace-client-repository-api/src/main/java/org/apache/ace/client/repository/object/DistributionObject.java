@@ -41,13 +41,13 @@ public interface DistributionObject extends RepositoryObject {
      * Returns all <code>FeatureObject</code>s this object is associated with. If there
      * are none, an empty list will be returned.
      */
-    public List<FeatureObject> getGroups();
+    public List<FeatureObject> getFeatures();
     
     /**
      * Returns all <code>TargetObject</code>s this object is associated with. If there
      * are none, an empty list will be returned.
      */
-    public List<TargetObject> getGateways();
+    public List<TargetObject> getTargets();
 
     /**
      * Returns all associations this distribution has with a given feature.

@@ -62,7 +62,7 @@ public class LogServletTest {
     @Test(groups = { UNIT })
     public void queryLog() throws Exception {
         MockServletOutputStream output = new MockServletOutputStream();
-        boolean result = m_logServlet.handleQuery(m_range.getGatewayID(), String.valueOf(m_range.getLogID()), null, output);
+        boolean result = m_logServlet.handleQuery(m_range.getTargetID(), String.valueOf(m_range.getLogID()), null, output);
         assert result;
         assert m_range.toRepresentation().equals(output.m_text);
         output.m_text = "";
@@ -74,14 +74,14 @@ public class LogServletTest {
     @Test(groups = { UNIT })
     public void receiveLog() throws Exception {
         MockServletOutputStream output = new MockServletOutputStream();
-        boolean result = m_logServlet.handleReceive(m_range.getGatewayID(), String.valueOf(m_range.getLogID()), "1", null, output);
+        boolean result = m_logServlet.handleReceive(m_range.getTargetID(), String.valueOf(m_range.getLogID()), "1", null, output);
         assert result;
         String expected = m_event1.toRepresentation() + "\n";
         String actual = output.m_text;
         assert expected.equals(actual) : "We expected '" + expected + "', but received '" + actual + "'";
 
         output = new MockServletOutputStream();
-        result = m_logServlet.handleReceive(m_range.getGatewayID(), String.valueOf(m_range.getLogID()), null , null, output);
+        result = m_logServlet.handleReceive(m_range.getTargetID(), String.valueOf(m_range.getLogID()), null , null, output);
         assert result;
         expected = m_event1.toRepresentation() + "\n" + m_event2.toRepresentation() + "\n";
         actual = output.m_text;

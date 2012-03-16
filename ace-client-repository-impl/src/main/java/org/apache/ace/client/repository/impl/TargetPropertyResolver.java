@@ -25,15 +25,14 @@ import org.apache.ace.client.repository.helper.PropertyResolver;
 import org.apache.ace.client.repository.object.TargetObject;
 
 /**
- *
  * Top-level property resolver, also able to return collections
  * of distributions, features and artifacts linked to this target
  * repository object.
  */
-public class GatewayPropertyResolver extends RepoPropertyResolver {
+public class TargetPropertyResolver extends RepositoryPropertyResolver {
 
-    public GatewayPropertyResolver(TargetObject go) {
-        super(go);
+    public TargetPropertyResolver(TargetObject to) {
+        super(to);
     }
 
     public Collection<PropertyResolver> getDistributions() {
@@ -42,7 +41,7 @@ public class GatewayPropertyResolver extends RepoPropertyResolver {
         List<RepositoryObject> distributions = (List<RepositoryObject>)getChildren();
 
         for (RepositoryObject repo : distributions) {
-            list.add(new RepoPropertyResolver(repo));
+            list.add(new RepositoryPropertyResolver(repo));
         }
 
         return list;
@@ -58,7 +57,7 @@ public class GatewayPropertyResolver extends RepoPropertyResolver {
         }
 
         for (RepositoryObject repo : features) {
-            list.add(new RepoPropertyResolver(repo));
+            list.add(new RepositoryPropertyResolver(repo));
         }
         return list;
     }
@@ -77,11 +76,9 @@ public class GatewayPropertyResolver extends RepoPropertyResolver {
             artifacts.addAll(getChildren(repositoryObject));
         }
 
-
         for (RepositoryObject repo : artifacts) {
-            list.add(new RepoPropertyResolver(repo));
+            list.add(new RepositoryPropertyResolver(repo));
         }
         return list;
     }
-
 }

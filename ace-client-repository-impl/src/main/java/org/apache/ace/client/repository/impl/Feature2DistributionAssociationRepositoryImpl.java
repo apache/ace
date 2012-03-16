@@ -32,22 +32,22 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * Implementation class for the Group2LicenseAssociationRepository. For 'what it does', see Group2LicenseAssociationRepository,
  * for 'how it works', see AssociationRepositoryImpl.
  */
-public class Group2LicenseAssociationRepositoryImpl extends AssociationRepositoryImpl<FeatureObject, DistributionObject, Group2LicenseAssociationImpl, Feature2DistributionAssociation> implements Feature2DistributionAssociationRepository {
-    private final static String XML_NODE = "groups2licenses";
+public class Feature2DistributionAssociationRepositoryImpl extends AssociationRepositoryImpl<FeatureObject, DistributionObject, Feature2DistributionAssociationImpl, Feature2DistributionAssociation> implements Feature2DistributionAssociationRepository {
+    private final static String XML_NODE = "features2distributions";
 
-    private final GroupRepositoryImpl m_groupRepository;
-    private final LicenseRepositoryImpl m_licenseRepository;
+    private final FeatureRepositoryImpl m_featureRepository;
+    private final DistributionRepositoryImpl m_distributionRepository;
 
-    public Group2LicenseAssociationRepositoryImpl(GroupRepositoryImpl groupRepository, LicenseRepositoryImpl licenseRepository, ChangeNotifier notifier) {
+    public Feature2DistributionAssociationRepositoryImpl(FeatureRepositoryImpl featureRepository, DistributionRepositoryImpl distributionRepository, ChangeNotifier notifier) {
         super(notifier, XML_NODE);
-        m_groupRepository = groupRepository;
-        m_licenseRepository = licenseRepository;
+        m_featureRepository = featureRepository;
+        m_distributionRepository = distributionRepository;
     }
 
     @Override
-    Group2LicenseAssociationImpl createNewInhabitant(Map<String, String> attributes) {
+    Feature2DistributionAssociationImpl createNewInhabitant(Map<String, String> attributes) {
         try {
-            return new Group2LicenseAssociationImpl(attributes, this, m_groupRepository, m_licenseRepository);
+            return new Feature2DistributionAssociationImpl(attributes, this, m_featureRepository, m_distributionRepository);
         }
         catch (InvalidSyntaxException e) {
             throw new IllegalArgumentException("Unable to create association: ", e);
@@ -55,9 +55,9 @@ public class Group2LicenseAssociationRepositoryImpl extends AssociationRepositor
     }
 
     @Override
-    Group2LicenseAssociationImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
+    Feature2DistributionAssociationImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
         try {
-            return new Group2LicenseAssociationImpl(attributes, tags, this, m_groupRepository, m_licenseRepository);
+            return new Feature2DistributionAssociationImpl(attributes, tags, this, m_featureRepository, m_distributionRepository);
         }
         catch (InvalidSyntaxException e) {
             throw new IllegalArgumentException("Unable to create association: ", e);
@@ -65,9 +65,9 @@ public class Group2LicenseAssociationRepositoryImpl extends AssociationRepositor
     }
 
     @Override
-    Group2LicenseAssociationImpl createNewInhabitant(HierarchicalStreamReader reader) {
+    Feature2DistributionAssociationImpl createNewInhabitant(HierarchicalStreamReader reader) {
         try {
-            return new Group2LicenseAssociationImpl(reader, this, m_groupRepository, m_licenseRepository);
+            return new Feature2DistributionAssociationImpl(reader, this, m_featureRepository, m_distributionRepository);
         }
         catch (InvalidSyntaxException e) {
             throw new IllegalArgumentException("Unable to create association: ", e);

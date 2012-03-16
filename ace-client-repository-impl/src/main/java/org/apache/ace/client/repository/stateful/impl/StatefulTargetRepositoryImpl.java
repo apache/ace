@@ -61,35 +61,35 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
 
 /**
- * Implements the StatefulGatewayRepository. If an <code>AuditLogStore</code> is present,
+ * Implements the StatefulTargetRepository. If an <code>AuditLogStore</code> is present,
  * it will be used; it is assumed that the auditlog store is up to date.
  */
-public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, EventHandler {
+public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, EventHandler {
     private BundleContext m_context; /*Injected by dependency manager*/
     private ArtifactRepository m_artifactRepository; /*Injected by dependency manager*/
-    private TargetRepository m_gatewayRepository; /*Injected by dependency manager*/
+    private TargetRepository m_targetRepository; /*Injected by dependency manager*/
     private DeploymentVersionRepository m_deploymentRepository; /*Injected by dependency manager*/
     private LogStore m_auditLogStore; /*Injected by dependency manager*/
     private EventAdmin m_eventAdmin; /*Injected by dependency manager*/
     private LogService m_log; /*Injected by dependency manager*/
     private BundleHelper m_bundleHelper; /*Injected by dependency manager*/
     //TODO: Make the concurrencyLevel of this concurrent hashmap settable?
-    private Map<String, StatefulGatewayObjectImpl> m_repository = new ConcurrentHashMap<String, StatefulGatewayObjectImpl>();
-    private Map<String, StatefulGatewayObjectImpl> m_index = new ConcurrentHashMap<String, StatefulGatewayObjectImpl>();
+    private Map<String, StatefulTargetObjectImpl> m_repository = new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
+    private Map<String, StatefulTargetObjectImpl> m_index = new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
     private final String m_sessionID;
 
-    public StatefulGatewayRepositoryImpl(String sessionID) {
+    public StatefulTargetRepositoryImpl(String sessionID) {
         m_sessionID = sessionID;
     }
 
     public StatefulTargetObject create(Map<String, String> attributes, Map<String, String> tags) throws IllegalArgumentException {
-        throw new UnsupportedOperationException("Creating StatefulGatewayObjects is not supported.");
+        throw new UnsupportedOperationException("Creating StatefulTargetObjects is not supported.");
     }
 
     public List<StatefulTargetObject> get() {
         synchronized(m_repository) {
             List<StatefulTargetObject> result = new ArrayList<StatefulTargetObject>();
-            for (StatefulGatewayObjectImpl sgoi : m_repository.values()) {
+            for (StatefulTargetObjectImpl sgoi : m_repository.values()) {
                 result.add(sgoi);
             }
             return result;
@@ -113,24 +113,24 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
     }
 
     public void remove(StatefulTargetObject entity) {
-        throw new UnsupportedOperationException("Removing StatefulGatewayObjects is not supported.");
+        throw new UnsupportedOperationException("Removing StatefulTargetObjects is not supported.");
     }
 
     public StatefulTargetObject preregister(Map<String, String> attributes, Map<String, String> tags) {
         synchronized(m_repository) {
-            TargetObject go = m_gatewayRepository.create(attributes, tags);
-            return createStateful(go.getID());
+            TargetObject to = m_targetRepository.create(attributes, tags);
+            return createStateful(to.getID());
         }
     }
 
-    public void unregister(String gatewayID) {
+    public void unregister(String targetID) {
         synchronized(m_repository) {
-            TargetObject go = getGatewayObject(gatewayID);
-            if (go == null) {
-                throw new IllegalArgumentException(gatewayID + " does not represent a GatewayObject.");
+            TargetObject to = getTargetObject(targetID);
+            if (to == null) {
+                throw new IllegalArgumentException(targetID + " does not represent a TargetObject.");
             }
             else {
-                m_gatewayRepository.remove(go);
+                m_targetRepository.remove(to);
                 // No need to inform the stateful representation; this will be done by the event handler.
             }
         }
@@ -141,54 +141,54 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
     }
 
     /**
-     * Gets the <code>GatewayObject</code> which is identified by the <code>gatewayID</code>.
-     * @param gatewayID A string representing a gateway ID.
-     * @return The <code>GatewayObject</code> from the <code>GatewayRepository</code> which has the given
+     * Gets the <code>TargetObject</code> which is identified by the <code>targetID</code>.
+     * @param targetID A string representing a target ID.
+     * @return The <code>TargetObject</code> from the <code>TargetRepository</code> which has the given
      * ID, or <code>null</code> if none can be found.
      */
-    TargetObject getGatewayObject(String gatewayID) {
+    TargetObject getTargetObject(String targetID) {
 //        synchronized(m_repository) {
             try {
-                List<TargetObject> gateways = m_gatewayRepository.get(m_context.createFilter("(" + TargetObject.KEY_ID + "=" + RepositoryUtil.escapeFilterValue(gatewayID) + ")"));
-                if ((gateways != null) && (gateways.size() == 1)) {
-                    return gateways.get(0);
+                List<TargetObject> targets = m_targetRepository.get(m_context.createFilter("(" + TargetObject.KEY_ID + "=" + RepositoryUtil.escapeFilterValue(targetID) + ")"));
+                if ((targets != null) && (targets.size() == 1)) {
+                    return targets.get(0);
                 }
                 else {
                     return null;
                 }
             }
             catch (InvalidSyntaxException e) {
-                // The filter syntax is illegal, probably a bad gateway ID.
+                // The filter syntax is illegal, probably a bad target ID.
                 return null;
             }
 //        }
     }
 
     /**
-     * Gets the stateful representation of the given gateway ID.
-     * @param gatewayID A string representing a gateway ID.
-     * @return The <code>StatefulGatewayObjectImpl</code> which handles the given ID,
+     * Gets the stateful representation of the given target ID.
+     * @param targetID A string representing a target ID.
+     * @return The <code>StatefulTargetyObjectImpl</code> which handles the given ID,
      * or <code>null</code> if none can be found.
      */
-    StatefulGatewayObjectImpl getStatefulGatewayObject(String gatewayID) {
+    StatefulTargetObjectImpl getStatefulTargetObject(String targetID) {
         synchronized(m_repository) {
-            return m_repository.get(gatewayID);
+            return m_repository.get(targetID);
         }
     }
 
     /**
-     * Creates and registers a new stateful gateway object based on the given ID.
-     * @param gatewayID A string representing a gateway ID.
+     * Creates and registers a new stateful target object based on the given ID.
+     * @param targetID A string representing a target ID.
      * @return The newly created and registered <code>StatefulGatewayObjectImpl</code>.
      */
-    private StatefulGatewayObjectImpl createStateful(String gatewayID) {
+    private StatefulTargetObjectImpl createStateful(String targetID) {
         synchronized(m_repository) {
-            StatefulGatewayObjectImpl result = new StatefulGatewayObjectImpl(this, gatewayID);
+            StatefulTargetObjectImpl result = new StatefulTargetObjectImpl(this, targetID);
             if (add(result)) {
                 return result;
             }
             else {
-                throw new IllegalArgumentException("The StateGatewayObject " + gatewayID + " already exists.");
+                throw new IllegalArgumentException("The StateTargetObject " + targetID + " already exists.");
             }
         }
     }
@@ -196,9 +196,9 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
     /**
      * Removes the given entity from this object's repository, and notifies
      * interested parties of this.
-     * @param entity The StatefulGatewayObjectImpl to be removed.
+     * @param entity The StatefulTargetObjectImpl to be removed.
      */
-    void removeStateful(StatefulGatewayObjectImpl entity) {
+    void removeStateful(StatefulTargetObjectImpl entity) {
         synchronized(m_repository) {
             m_repository.remove(entity.getID());
             notifyChanged(entity, StatefulTargetObject.TOPIC_REMOVED);
@@ -208,15 +208,15 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
     /**
      * Adds the given stateful object to this object's repository, and notifies
      * interested parties of this change.
-     * @param sgoi A <code>StatefulGatewayObjectImpl</code> to be registered.
+     * @param stoi A <code>StatefulTargetObjectImpl</code> to be registered.
      * @return <code>true</code> when this object has been added to the repository
      * and listeners have been notified, <code>false</code> otherwise.
      */
-    boolean add(StatefulGatewayObjectImpl sgoi) {
-        if (!m_repository.containsKey(sgoi)) {
-            m_repository.put(sgoi.getID(), sgoi);
-            m_index.put(sgoi.getDefinition(), sgoi);
-            notifyChanged(sgoi, StatefulTargetObject.TOPIC_ADDED);
+    boolean add(StatefulTargetObjectImpl stoi) {
+        if (!m_repository.containsKey(stoi)) {
+            m_repository.put(stoi.getID(), stoi);
+            m_index.put(stoi.getDefinition(), stoi);
+            notifyChanged(stoi, StatefulTargetObject.TOPIC_ADDED);
             return true;
         }
         return false;
@@ -234,24 +234,24 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
     };
 
     /**
-     * Gets all auditlog events which are related to a given gateway ID.
-     * @param gatewayID A string representing a gateway ID.
-     * @return a list of <code>AuditEvent</code>s related to this gateway ID,
+     * Gets all auditlog events which are related to a given target ID.
+     * @param targetID A string representing a target ID.
+     * @return a list of <code>AuditEvent</code>s related to this target ID,
      * ordered in the order they happened. If no events can be found, and empty list will be returned.
      */
-    List<LogEvent> getAuditEvents(String gatewayID) {
-        return getAuditEvents(getAllDescriptors(gatewayID));
+    List<LogEvent> getAuditEvents(String targetID) {
+        return getAuditEvents(getAllDescriptors(targetID));
     }
 
     /**
-     * Gets all auditlog descriptors which are related to a given gateway.
-     * @param gatewayID The gateway ID
+     * Gets all auditlog descriptors which are related to a given target.
+     * @param targetID The target ID
      * @return A list of LogDescriptors, in no particular order.
      */
-    List<LogDescriptor> getAllDescriptors(String gatewayID) {
+    List<LogDescriptor> getAllDescriptors(String targetID) {
         List<LogDescriptor> result = new ArrayList<LogDescriptor>();
         try {
-            List<LogDescriptor> descriptors = m_auditLogStore.getDescriptors(gatewayID);
+            List<LogDescriptor> descriptors = m_auditLogStore.getDescriptors(targetID);
             if (descriptors != null) {
                 result = descriptors;
             }
@@ -264,11 +264,11 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
     }
 
     /**
-     * Gets all audit log events for a gateway is has not yet 'seen'.
+     * Gets all audit log events for a target is has not yet 'seen'.
      * @param all A list of all <code>LogDescriptor</code> from which to filter
      * the new ones.
      * @param seen A list of <code>LogDescriptor</code> objects, which indicate
-     * the items the gateway has already processed.
+     * the items the target has already processed.
      * @return All AuditLog events that are in the audit store, but are not identified
      * by <code>oldDescriptors</code>, ordered by 'happened-before'.
      */
@@ -296,8 +296,8 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
         for (LogDescriptor s : all) {
             LogDescriptor diffs = s;
             for (LogDescriptor d : seen) {
-                if ((s.getLogID() == d.getLogID()) && (s.getGatewayID().equals(d.getGatewayID()))) {
-                    diffs = new LogDescriptor(s.getGatewayID(), s.getLogID(), d.getRangeSet().diffDest(s.getRangeSet()));
+                if ((s.getLogID() == d.getLogID()) && (s.getTargetID().equals(d.getTargetID()))) {
+                    diffs = new LogDescriptor(s.getTargetID(), s.getLogID(), d.getRangeSet().diffDest(s.getRangeSet()));
                 }
             }
             descriptors.add(diffs);
@@ -308,46 +308,46 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
     /**
      * See {@link DeploymentRepository#getDeploymentVersion(java.lang.String)}.
      */
-    DeploymentVersionObject getMostRecentDeploymentVersion(String gatewayID) {
-        return m_deploymentRepository.getMostRecentDeploymentVersion(gatewayID);
+    DeploymentVersionObject getMostRecentDeploymentVersion(String targetID) {
+        return m_deploymentRepository.getMostRecentDeploymentVersion(targetID);
     }
 
     /**
-     * Based on the information in this stateful object, creates a <code>GatewayObject</code>
-     * in the <code>GatewayRepository</code>.
-     * This function is intended to be used for gateways which are not yet represented
-     * in the <code>GatewayRepository</code>; if they already are, an <code>IllegalArgumentException</code>
+     * Based on the information in this stateful object, creates a <code>TargetObject</code>
+     * in the <code>TargetRepository</code>.
+     * This function is intended to be used for targets which are not yet represented
+     * in the <code>TargetRepository</code>; if they already are, an <code>IllegalArgumentException</code>
      * will be thrown.
-     * @param gatewayID A string representing the ID of the new gateway.
+     * @param targetID A string representing the ID of the new target.
      */
-    void register(String gatewayID) {
+    void register(String targetID) {
         Map<String, String> attr = new HashMap<String, String>();
-        attr.put(TargetObject.KEY_ID, gatewayID);
+        attr.put(TargetObject.KEY_ID, targetID);
         Map<String, String> tags = new HashMap<String, String>();
-        m_gatewayRepository.create(attr, tags);
-        getStatefulGatewayObject(gatewayID).updateGatewayObject(false);
+        m_targetRepository.create(attr, tags);
+        getStatefulTargetObject(targetID).updateTargetObject(false);
     }
 
     /**
-     * Notifies interested parties of a change to a <code>StatefulGatewayObject</code>.
-     * @param sgoi The <code>StatefulGatewayObject</code> which has changed.
+     * Notifies interested parties of a change to a <code>StatefulTargetObject</code>.
+     * @param stoi The <code>StatefulTargetObject</code> which has changed.
      * @param topic A topic string for posting the event.
      * @param additionalProperties A Properties event, already containing some extra properties. If
      * RepositoryObject.EVENT_ENTITY is used, it will be overwritten.
      */
-    void notifyChanged(StatefulTargetObject sgoi, String topic, Properties additionalProperties) {
-        additionalProperties.put(RepositoryObject.EVENT_ENTITY, sgoi);
+    void notifyChanged(StatefulTargetObject stoi, String topic, Properties additionalProperties) {
+        additionalProperties.put(RepositoryObject.EVENT_ENTITY, stoi);
         additionalProperties.put(SessionFactory.SERVICE_SID, m_sessionID);
         m_eventAdmin.postEvent(new Event(topic, (Dictionary) additionalProperties));
     }
 
     /**
-     * Notifies interested parties of a change to a <code>StatefulGatewayObject</code>.
-     * @param sgoi The <code>StatefulGatewayObject</code> which has changed.
+     * Notifies interested parties of a change to a <code>StatefulTargetObject</code>.
+     * @param stoi The <code>StatefulTargetObject</code> which has changed.
      * @param topic A topic string for posting the event.
      */
-    void notifyChanged(StatefulTargetObject sgoi, String topic) {
-        notifyChanged(sgoi, topic, new Properties());
+    void notifyChanged(StatefulTargetObject stoi, String topic) {
+        notifyChanged(stoi, topic, new Properties());
     }
 
     /**
@@ -355,45 +355,45 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
      */
     private void populate() {
         synchronized(m_repository) {
-            List<StatefulGatewayObjectImpl> touched = new ArrayList<StatefulGatewayObjectImpl>();
-            touched.addAll(parseGatewayRepository());
+            List<StatefulTargetObjectImpl> touched = new ArrayList<StatefulTargetObjectImpl>();
+            touched.addAll(parseTargetRepository());
             touched.addAll(parseAuditLog());
 
             // Now, it is possible we have not touched all objects. Find out which these are, and make
             // them check whether they should still exist.
-            List<StatefulGatewayObjectImpl> all = new ArrayList<StatefulGatewayObjectImpl>(m_repository.values());
+            List<StatefulTargetObjectImpl> all = new ArrayList<StatefulTargetObjectImpl>(m_repository.values());
             all.removeAll(touched);
-            for (StatefulGatewayObjectImpl sgoi : all) {
-                sgoi.updateGatewayObject(false);
-                sgoi.updateDeploymentVersions(null);
-                sgoi.updateAuditEvents(true);
+            for (StatefulTargetObjectImpl stoi : all) {
+                stoi.updateTargetObject(false);
+                stoi.updateDeploymentVersions(null);
+                stoi.updateAuditEvents(true);
             }
             // Furthermore, for all those we _did_ see, we need to make sure their deployment versions
             // are up to date.
-            for (StatefulGatewayObjectImpl sgoi : touched) {
-                sgoi.updateDeploymentVersions(null);
-                sgoi.updateGatewayObject(true);
+            for (StatefulTargetObjectImpl stoi : touched) {
+                stoi.updateDeploymentVersions(null);
+                stoi.updateTargetObject(true);
             }
         }
     }
 
     /**
-     * Checks all inhabitants of the <code>GatewayRepository</code> to see
+     * Checks all inhabitants of the <code>TargetRepository</code> to see
      * whether we already have a stateful representation of them.
      * @param needsVerify states whether the objects which are 'touched' by this
      * actions should verify their existence.
-     * @return A list of all the gateway objects that have been touched by this action.
+     * @return A list of all the target objects that have been touched by this action.
      */
-    private List<StatefulGatewayObjectImpl> parseGatewayRepository() {
-        List<StatefulGatewayObjectImpl> result = new ArrayList<StatefulGatewayObjectImpl>();
-        for (TargetObject go : m_gatewayRepository.get()) {
-            StatefulGatewayObjectImpl sgoi = getStatefulGatewayObject(go.getID());
-            if (sgoi == null) {
-                result.add(createStateful(go.getID()));
+    private List<StatefulTargetObjectImpl> parseTargetRepository() {
+        List<StatefulTargetObjectImpl> result = new ArrayList<StatefulTargetObjectImpl>();
+        for (TargetObject to : m_targetRepository.get()) {
+            StatefulTargetObjectImpl stoi = getStatefulTargetObject(to.getID());
+            if (stoi == null) {
+                result.add(createStateful(to.getID()));
             }
             else {
-                result.add(sgoi);
-                sgoi.updateGatewayObject(false);
+                result.add(stoi);
+                stoi.updateTargetObject(false);
             }
         }
         return result;
@@ -401,12 +401,12 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
 
     /**
      * Checks the audit log to see whether we already have a
-     * stateful object for all gateways mentioned there.
+     * stateful object for all targets mentioned there.
      * @param needsVerify states whether the objects which are 'touched' by this
      * actions should verify their existence.
      */
-    private List<StatefulGatewayObjectImpl> parseAuditLog() {
-        List<StatefulGatewayObjectImpl> result = new ArrayList<StatefulGatewayObjectImpl>();
+    private List<StatefulTargetObjectImpl> parseAuditLog() {
+        List<StatefulTargetObjectImpl> result = new ArrayList<StatefulTargetObjectImpl>();
         List<LogDescriptor> descriptors = null;
         try {
             descriptors = m_auditLogStore.getDescriptors();
@@ -415,28 +415,28 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
             // Not much to do.
         }
         if (descriptors == null) {
-            // There is no audit log available, or it failed getting the logdescriptors.
+            // There is no audit log available, or it failed getting the log descriptors.
             return result;
         }
 
-        Set<String> gatewayIDs = new HashSet<String>();
+        Set<String> targetIDs = new HashSet<String>();
         for (LogDescriptor l : descriptors) {
-            gatewayIDs.add(l.getGatewayID());
+            targetIDs.add(l.getTargetID());
         }
 
         /* Note: the parsing of the audit log and the creation/notification of the
          * stateful objects has been separated, to prevent calling updateAuditEvents()
-         * multiple times on gateways which have more than one log.
+         * multiple times on targets which have more than one log.
          */
         synchronized(m_repository) {
-            for (String gatewayID : gatewayIDs) {
-                StatefulGatewayObjectImpl sgoi = getStatefulGatewayObject(gatewayID);
-                if (sgoi == null) {
-                    result.add(createStateful(gatewayID));
+            for (String targetID : targetIDs) {
+                StatefulTargetObjectImpl stoi = getStatefulTargetObject(targetID);
+                if (stoi == null) {
+                    result.add(createStateful(targetID));
                 }
                 else {
-                    result.add(sgoi);
-                    sgoi.updateAuditEvents(false);
+                    result.add(stoi);
+                    stoi.updateAuditEvents(false);
                 }
             }
         }
@@ -444,28 +444,28 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
     }
 
     /**
-     * Approves the changes that will happen to the gateway based on the
+     * Approves the changes that will happen to the target based on the
      * changes in the shop by generating a new deployment version.
-     * @param gatewayID A string representing a gateway ID.
+     * @param targetID A string representing a target ID.
      * @return The version identifier of the new deployment package.
      * @throws java.io.IOException When there is a problem generating the deployment version.
      */
-    String approve(String gatewayID) throws IOException {
-        return generateDeploymentVersion(gatewayID).getVersion();
+    String approve(String targetID) throws IOException {
+        return generateDeploymentVersion(targetID).getVersion();
     }
 
     /**
      * Generates an array of bundle URLs which have to be deployed on
-     * the gateway, given the current state of the shop.
+     * the target, given the current state of the shop.
      * TODO: In the future, we want to add support for multiple shops.
-     * TODO: Is this prone to concurrency issues with changes license- and
-     * group objects?
-     * @param gatewayID A string representing a gateway.
+     * TODO: Is this prone to concurrency issues with changes distribution- and
+     * feature objects?
+     * @param targetID A string representing a target.
      * @return An array of artifact URLs.
      * @throws java.io.IOException When there is a problem processing an artifact for deployment.
      */
-    DeploymentArtifact[] getNecessaryDeploymentArtifacts(String gatewayID, String version) throws IOException {
-        TargetObject go = getGatewayObject(gatewayID);
+    DeploymentArtifact[] getNecessaryDeploymentArtifacts(String targetID, String version) throws IOException {
+        TargetObject to = getTargetObject(targetID);
 
         Map<ArtifactObject, String> bundles = new HashMap<ArtifactObject, String>();
         Map<ArtifactObject, String> artifacts = new HashMap<ArtifactObject, String>();
@@ -473,27 +473,27 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
 
         // First, find all basic bundles and artifacts. An while we're traversing the
         // tree of objects, build the tree of properties.
-        if (go != null) {
-            for (DistributionObject license : go.getDistributions()) {
-                for (FeatureObject group : license.getGroups()) {
-                    for (ArtifactObject artifact : group.getArtifacts()) {
+        if (to != null) {
+            for (DistributionObject distribution : to.getDistributions()) {
+                for (FeatureObject feature : distribution.getFeatures()) {
+                    for (ArtifactObject artifact : feature.getArtifacts()) {
                         if (m_bundleHelper.canUse(artifact)) {
                             bundles.put(artifact, m_bundleHelper.getResourceProcessorPIDs(artifact));
                         }
                         else {
                             artifacts.put(artifact, artifact.getProcessorPID());
                         }
-                        Map<FeatureObject, List<DistributionObject>> groupToLicense = path.get(artifact);
-                        if (groupToLicense == null) {
-                        	groupToLicense = new HashMap<FeatureObject, List<DistributionObject>>();
-                        	path.put(artifact, groupToLicense);
+                        Map<FeatureObject, List<DistributionObject>> featureToDistribution = path.get(artifact);
+                        if (featureToDistribution == null) {
+                        	featureToDistribution = new HashMap<FeatureObject, List<DistributionObject>>();
+                        	path.put(artifact, featureToDistribution);
                         }
-                        List<DistributionObject> licenses = groupToLicense.get(group);
-                        if (licenses == null) {
-                        	licenses = new ArrayList<DistributionObject>();
-                        	groupToLicense.put(group, licenses);
+                        List<DistributionObject> distributions = featureToDistribution.get(feature);
+                        if (distributions == null) {
+                        	distributions = new ArrayList<DistributionObject>();
+                        	featureToDistribution.put(feature, distributions);
                         }
-                        licenses.add(license);
+                        distributions.add(distribution);
                     }
                 }
             }
@@ -553,7 +553,7 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
             if (repositoryPath != null) {
             	directives.put(DeploymentArtifact.REPOSITORY_PATH, repositoryPath);
             }
-            result.add(m_deploymentRepository.createDeploymentArtifact(m_artifactRepository.preprocessArtifact(artifact, go, gatewayID, version), directives));
+            result.add(m_deploymentRepository.createDeploymentArtifact(m_artifactRepository.preprocessArtifact(artifact, to, targetID, version), directives));
         }
 
         return result.toArray(new DeploymentArtifact[result.size()]);
@@ -561,11 +561,11 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
     
     private String getRepositoryPath(ArtifactObject artifact, Map<ArtifactObject, Map<FeatureObject, List<DistributionObject>>> path) {
     	StringBuilder builder = new StringBuilder();
-        Map<FeatureObject, List<DistributionObject>> groupToLicense = path.get(artifact);
-        if (groupToLicense != null) {
-	        for (Entry<FeatureObject, List<DistributionObject>> entry : groupToLicense.entrySet()) {
-	        	for (DistributionObject l : entry.getValue()) {
-	        		builder.append(entry.getKey().getName()).append(';').append(l.getName()).append(',');
+        Map<FeatureObject, List<DistributionObject>> featureToDistribution = path.get(artifact);
+        if (featureToDistribution != null) {
+	        for (Entry<FeatureObject, List<DistributionObject>> entry : featureToDistribution.entrySet()) {
+	        	for (DistributionObject distribution : entry.getValue()) {
+	        		builder.append(entry.getKey().getName()).append(';').append(distribution.getName()).append(',');
 	        	}
 	        }
         }
@@ -577,21 +577,21 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
     }
 
     /**
-     * Quick method to find all artifacts that need to be deployed to a gateway.
+     * Quick method to find all artifacts that need to be deployed to a target.
     */
-    ArtifactObject[] getNecessaryArtifacts(String gatewayID) {
+    ArtifactObject[] getNecessaryArtifacts(String targetID) {
         List<ArtifactObject> result = new ArrayList<ArtifactObject>();
-        TargetObject go = getGatewayObject(gatewayID);
+        TargetObject to = getTargetObject(targetID);
 
         Map<String, ArtifactObject> allProcessors = new HashMap<String, ArtifactObject>();
         for (ArtifactObject bundle : m_artifactRepository.getResourceProcessors()) {
             allProcessors.put(m_bundleHelper.getResourceProcessorPIDs(bundle), bundle);
         }
 
-        if (go != null) {
-            for (DistributionObject license : go.getDistributions()) {
-                for (FeatureObject group : license.getGroups()) {
-                    for (ArtifactObject artifact : group.getArtifacts()) {
+        if (to != null) {
+            for (DistributionObject distribution : to.getDistributions()) {
+                for (FeatureObject feature : distribution.getFeatures()) {
+                    for (ArtifactObject artifact : feature.getArtifacts()) {
                         result.add(artifact);
                         if (!m_bundleHelper.canUse(artifact)) {
                             ArtifactObject processor = allProcessors.get(artifact.getProcessorPID());
@@ -610,19 +610,19 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
     }
 
     /**
-     * Generates a new deployment version for the the given gateway,
-     * based on the bundles it is linked to by the licenses it is
+     * Generates a new deployment version for the the given target,
+     * based on the artifacts it is linked to by the distributions it is
      * associated to.
-     * @param gatewayID A string representing a gateway.
-     * @return A new DeploymentVersionObject, representing this new version for the gateway.
+     * @param targetID A string representing a target.
+     * @return A new DeploymentVersionObject, representing this new version for the target.
      * @throws java.io.IOException When there is a problem determining the artifacts to be deployed.
      */
-    DeploymentVersionObject generateDeploymentVersion(String gatewayID) throws IOException {
+    DeploymentVersionObject generateDeploymentVersion(String targetID) throws IOException {
         Map<String, String> attr = new HashMap<String, String>();
-        attr.put(DeploymentVersionObject.KEY_TARGETID, gatewayID);
+        attr.put(DeploymentVersionObject.KEY_TARGETID, targetID);
         Map<String, String> tags = new HashMap<String, String>();
 
-        DeploymentVersionObject mostRecentDeploymentVersion = getMostRecentDeploymentVersion(gatewayID);
+        DeploymentVersionObject mostRecentDeploymentVersion = getMostRecentDeploymentVersion(targetID);
         String nextVersion;
         if (mostRecentDeploymentVersion == null) {
             nextVersion = nextVersion(null);
@@ -633,14 +633,14 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
         attr.put(DeploymentVersionObject.KEY_VERSION, nextVersion);
 
         synchronized(m_repository) {
-            DeploymentVersionObject result = m_deploymentRepository.create(attr, tags, getNecessaryDeploymentArtifacts(gatewayID, nextVersion));
+            DeploymentVersionObject result = m_deploymentRepository.create(attr, tags, getNecessaryDeploymentArtifacts(targetID, nextVersion));
 
-            StatefulGatewayObjectImpl sgoi = getStatefulGatewayObject(gatewayID);
-            if (sgoi == null) {
-                createStateful(gatewayID);
+            StatefulTargetObjectImpl stoi = getStatefulTargetObject(targetID);
+            if (stoi == null) {
+                createStateful(targetID);
             }
             else {
-                sgoi.updateDeploymentVersions(result);
+                stoi.updateDeploymentVersions(result);
             }
 
             return result;
@@ -672,12 +672,12 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
         if (event.getTopic().equals(TargetObject.TOPIC_ADDED) || event.getTopic().equals(TargetObject.TOPIC_REMOVED)) {
             synchronized(m_repository) {
                 String id = ((TargetObject) event.getProperty(RepositoryObject.EVENT_ENTITY)).getID();
-                StatefulGatewayObjectImpl sgoi = getStatefulGatewayObject(id);
-                if (sgoi == null) {
+                StatefulTargetObjectImpl stoi = getStatefulTargetObject(id);
+                if (stoi == null) {
                     createStateful(id);
                 }
                 else {
-                    sgoi.updateGatewayObject(true);
+                    stoi.updateTargetObject(true);
                 }
             }
         }
@@ -685,12 +685,12 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
             synchronized(m_repository) {
                 DeploymentVersionObject deploymentVersionObject = ((DeploymentVersionObject) event.getProperty(RepositoryObject.EVENT_ENTITY));
                 String id = deploymentVersionObject.getTargetID();
-                StatefulGatewayObjectImpl sgoi = getStatefulGatewayObject(id);
-                if (sgoi == null) {
+                StatefulTargetObjectImpl stoi = getStatefulTargetObject(id);
+                if (stoi == null) {
                     createStateful(id);
                 }
                 else {
-                    sgoi.updateDeploymentVersions(deploymentVersionObject);
+                    stoi.updateDeploymentVersions(deploymentVersionObject);
                 }
             }
         }
@@ -706,16 +706,16 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
         }
         else {
             // Something else has changed; however, the entire shop may have an influence on
-            // any gateway, so recheck everything.
+            // any target, so recheck everything.
             synchronized(m_repository) {
-                for (StatefulGatewayObjectImpl sgoi : m_repository.values()) {
-                    sgoi.determineStatus();
+                for (StatefulTargetObjectImpl stoi : m_repository.values()) {
+                    stoi.determineStatus();
                 }
             }
         }
     }
 
-    boolean needsNewVersion(ArtifactObject artifact, String gatewayID, String version) {
-        return m_artifactRepository.needsNewVersion(artifact, getGatewayObject(gatewayID), gatewayID, version);
+    boolean needsNewVersion(ArtifactObject artifact, String targetID, String version) {
+        return m_artifactRepository.needsNewVersion(artifact, getTargetObject(targetID), targetID, version);
     }
 }

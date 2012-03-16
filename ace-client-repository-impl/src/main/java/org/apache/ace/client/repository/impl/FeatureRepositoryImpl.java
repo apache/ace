@@ -20,34 +20,34 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.repository.TargetRepository;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.repository.FeatureRepository;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the GatewayRepository. For 'what it does', see GatewayRepository,
+ * Implementation class for the FeatureRepository. For 'what it does', see FeatureRepository,
  * for 'how it works', see ObjectRepositoryImpl.
  */
-public class GatewayRepositoryImpl extends ObjectRepositoryImpl<GatewayObjectImpl, TargetObject> implements TargetRepository {
-    private final static String XML_NODE = "gateways";
+public class FeatureRepositoryImpl extends ObjectRepositoryImpl<FeatureObjectImpl, FeatureObject> implements FeatureRepository {
+    private final static String XML_NODE = "features";
 
-    public GatewayRepositoryImpl(ChangeNotifier notifier) {
+    public FeatureRepositoryImpl(ChangeNotifier notifier) {
         super(notifier, XML_NODE);
     }
 
     @Override
-    GatewayObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
-        return new GatewayObjectImpl(attributes, tags, this);
+    FeatureObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
+        return new FeatureObjectImpl(attributes, tags, this);
     }
 
     @Override
-    GatewayObjectImpl createNewInhabitant(Map<String, String> attributes) {
-        return new GatewayObjectImpl(attributes, this);
+    FeatureObjectImpl createNewInhabitant(Map<String, String> attributes) {
+        return new FeatureObjectImpl(attributes, this);
     }
 
     @Override
-    GatewayObjectImpl createNewInhabitant(HierarchicalStreamReader reader) {
-        return new GatewayObjectImpl(reader, this);
+    FeatureObjectImpl createNewInhabitant(HierarchicalStreamReader reader) {
+        return new FeatureObjectImpl(reader, this);
     }
 }

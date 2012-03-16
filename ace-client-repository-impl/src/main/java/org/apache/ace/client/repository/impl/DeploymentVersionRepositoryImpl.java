@@ -34,7 +34,7 @@ import org.osgi.framework.Version;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the GatewayRepository. For 'what it does', see GatewayRepository,
+ * Implementation class for the TargetRepository. For 'what it does', see TargetRepository,
  * for 'how it works', see ObjectRepositoryImpl.
  * TODO: For now, this class reuses the functionality of ObjectRepositoryImpl. In the future, it
  * might be useful to create a custom implementation for performance reasons.
@@ -91,21 +91,21 @@ public class DeploymentVersionRepositoryImpl extends ObjectRepositoryImpl<Deploy
         }
     };
 
-    public List<DeploymentVersionObject> getDeploymentVersions(String gatewayID) {
+    public List<DeploymentVersionObject> getDeploymentVersions(String targetID) {
         List<DeploymentVersionObject> result = null;
             try {
-                result = get(createFilter("(" + DeploymentVersionObject.KEY_TARGETID + "=" + RepositoryUtil.escapeFilterValue(gatewayID) + ")"));
+                result = get(createFilter("(" + DeploymentVersionObject.KEY_TARGETID + "=" + RepositoryUtil.escapeFilterValue(targetID) + ")"));
                 Collections.sort(result, versionComparator);
             }
             catch (InvalidSyntaxException e) {
-                // Too bad, probably an illegal gatewayID.
+                // Too bad, probably an illegal targetID.
                 result = new ArrayList<DeploymentVersionObject>();
             }
         return result;
     }
 
-    public DeploymentVersionObject getMostRecentDeploymentVersion(String gatewayID) {
-        List<DeploymentVersionObject> versions = getDeploymentVersions(gatewayID);
+    public DeploymentVersionObject getMostRecentDeploymentVersion(String targetID) {
+        List<DeploymentVersionObject> versions = getDeploymentVersions(targetID);
         DeploymentVersionObject result = null;
         if ((versions != null) && (versions.size() > 0)) {
             result = versions.get(versions.size() - 1);

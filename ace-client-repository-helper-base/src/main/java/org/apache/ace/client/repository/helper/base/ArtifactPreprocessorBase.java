@@ -174,7 +174,7 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
         return new URL(obrBase, name);
     }
 
-    public abstract String preprocess(String url, PropertyResolver props, String gatewayID, String version, URL obrBase) throws IOException;
+    public abstract String preprocess(String url, PropertyResolver props, String targetID, String version, URL obrBase) throws IOException;
 
-    public abstract boolean needsNewVersion(String url, PropertyResolver props, String gatewayID, String fromVersion);
+    public abstract boolean needsNewVersion(String url, PropertyResolver props, String targetID, String fromVersion);
 }

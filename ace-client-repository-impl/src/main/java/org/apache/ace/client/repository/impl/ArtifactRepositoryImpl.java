@@ -70,7 +70,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
     /**
      * Custom comparator which sorts service references by service rank, highest rank first.
      */
-    private static Comparator<ServiceReference> SERVICE_RANK_COMPARATOR = new Comparator<ServiceReference>() {
+    private static Comparator<ServiceReference> SERVICE_RANK_COMPARATOR = new Comparator<ServiceReference>() { // TODO ServiceReferences are comparable by default now
         public int compare(ServiceReference o1, ServiceReference o2) {
             int rank1 = 0;
             int rank2 = 0;
@@ -110,7 +110,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
 
     @Override
     public List<ArtifactObject> get(Filter filter) {
-        // Note that this excludes any Bundle artifacts which are resource processors.
+        // Note that this excludes any bundle artifacts which are resource processors.
         try {
             Filter extendedFilter = createFilter("(&" + filter.toString() + "(!(" + BundleHelper.KEY_RESOURCE_PROCESSOR_PID + "=*)))");
             return super.get(extendedFilter);
@@ -497,23 +497,23 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         m_obrBase = obrBase;
     }
 
-    public String preprocessArtifact(ArtifactObject artifact, TargetObject gateway, String gatewayID, String version) throws IOException {
+    public String preprocessArtifact(ArtifactObject artifact, TargetObject target, String targetID, String version) throws IOException {
         ArtifactPreprocessor preprocessor = getHelper(artifact.getMimetype()).getPreprocessor();
         if (preprocessor == null) {
             return artifact.getURL();
         }
         else {
-            return preprocessor.preprocess(artifact.getURL(), new GatewayPropertyResolver(gateway), gatewayID, version, m_obrBase);
+            return preprocessor.preprocess(artifact.getURL(), new TargetPropertyResolver(target), targetID, version, m_obrBase);
         }
     }
 
-    public boolean needsNewVersion(ArtifactObject artifact, TargetObject gateway, String gatewayID, String fromVersion) {
+    public boolean needsNewVersion(ArtifactObject artifact, TargetObject target, String targetID, String fromVersion) {
         ArtifactPreprocessor preprocessor = getHelper(artifact.getMimetype()).getPreprocessor();
         if (preprocessor == null) {
             return false;
         }
         else {
-            return preprocessor.needsNewVersion(artifact.getURL(), new GatewayPropertyResolver(gateway), gatewayID, fromVersion);
+            return preprocessor.needsNewVersion(artifact.getURL(), new TargetPropertyResolver(target), targetID, fromVersion);
         }
     }
     

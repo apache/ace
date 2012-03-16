@@ -20,34 +20,34 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.FeatureObject;
-import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.repository.DistributionRepository;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the GroupRepository. For 'what it does', see GroupRepository,
+ * Implementation class for the LicenseRepository. For 'what it does', see LicenseRepository,
  * for 'how it works', see ObjectRepositoryImpl.
  */
-public class GroupRepositoryImpl extends ObjectRepositoryImpl<GroupObjectImpl, FeatureObject> implements FeatureRepository {
-    private final static String XML_NODE = "groups";
+public class DistributionRepositoryImpl extends ObjectRepositoryImpl<DistributionObjectImpl, DistributionObject> implements DistributionRepository {
+    private final static String XML_NODE = "distributions";
 
-    public GroupRepositoryImpl(ChangeNotifier notifier) {
+    public DistributionRepositoryImpl(ChangeNotifier notifier) {
         super(notifier, XML_NODE);
     }
 
     @Override
-    GroupObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
-        return new GroupObjectImpl(attributes, tags, this);
+    DistributionObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
+        return new DistributionObjectImpl(attributes, tags, this);
     }
 
     @Override
-    GroupObjectImpl createNewInhabitant(Map<String, String> attributes) {
-        return new GroupObjectImpl(attributes, this);
+    DistributionObjectImpl createNewInhabitant(Map<String, String> attributes) {
+        return new DistributionObjectImpl(attributes, this);
     }
 
     @Override
-    GroupObjectImpl createNewInhabitant(HierarchicalStreamReader reader) {
-        return new GroupObjectImpl(reader, this);
+    DistributionObjectImpl createNewInhabitant(HierarchicalStreamReader reader) {
+        return new DistributionObjectImpl(reader, this);
     }
 }

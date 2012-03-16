@@ -73,7 +73,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
     }
 
     @Override
-    public String preprocess(String url, PropertyResolver props, String gatewayID, String version, URL obrBase) throws IOException {
+    public String preprocess(String url, PropertyResolver props, String targetID, String version, URL obrBase) throws IOException {
         init();
         // first, get the original data.
         byte[] input = null;
@@ -92,11 +92,11 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         }
         else {
             try {
-                String name = getFilename(url, gatewayID, version);
+                String name = getFilename(url, targetID, version);
                 OutputStream output = upload(name, obrBase);
                 output.write(result);
                 output.close();
-                setHashForVersion(url, gatewayID, version, hash(result));
+                setHashForVersion(url, targetID, version, hash(result));
                 return determineNewUrl(name, obrBase).toString();
             }
             catch (IOException ioe) {
@@ -105,19 +105,19 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         }
     }
 
-    private String getFilename(String url, String gatewayID, String version) throws MalformedURLException {
-        return new File(new URL(url).getFile()).getName() + "-" + gatewayID + "-" + version;
+    private String getFilename(String url, String targetID, String version) throws MalformedURLException {
+        return new File(new URL(url).getFile()).getName() + "-" + targetID + "-" + version;
     }
 
-    private String getFullUrl(String url, String gatewayID, String version) throws MalformedURLException {
-        return url + "-" + gatewayID + "-" + version;
+    private String getFullUrl(String url, String targetID, String version) throws MalformedURLException {
+        return url + "-" + targetID + "-" + version;
     }
 
-    private String getHashForVersion(String url, String gateway, String version) {
+    private String getHashForVersion(String url, String target, String version) {
         String key = new StringBuilder().append('[')
         .append(url)
         .append("][")
-        .append(gateway)
+        .append(target)
         .append("][")
         .append(version)
         .append(']').toString();
@@ -128,7 +128,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         else {
             byte[] processedTemplate;
             try {
-                processedTemplate = getBytesFromUrl(getFullUrl(url, gateway, version));
+                processedTemplate = getBytesFromUrl(getFullUrl(url, target, version));
             }
             catch (IOException e) {
                 // we cannot retrieve the artifact, so we cannot say anything about it.
@@ -141,11 +141,11 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         }
     }
 
-    private void setHashForVersion(String url, String gateway, String version, String hash) {
+    private void setHashForVersion(String url, String target, String version, String hash) {
         String key = new StringBuilder().append('[')
         .append(url)
         .append("][")
-        .append(gateway)
+        .append(target)
         .append("][")
         .append(version)
         .append(']').toString();
@@ -196,7 +196,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
     }
 
     @Override
-    public boolean needsNewVersion(String url, PropertyResolver props, String gatewayID, String fromVersion) {
+    public boolean needsNewVersion(String url, PropertyResolver props, String targetID, String fromVersion) {
         try {
             init();
         }
@@ -226,7 +226,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         String newHash = hash(result);
 
         // find the hash for the previous version
-        String oldHash = getHashForVersion(url, gatewayID, fromVersion);
+        String oldHash = getHashForVersion(url, targetID, fromVersion);
 
         // Note: we do not cache any previously created processed templates, since the call that asks us to approve a new version
         // may cross a pending needsNewVersion call.

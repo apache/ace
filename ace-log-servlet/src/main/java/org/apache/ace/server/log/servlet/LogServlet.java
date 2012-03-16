@@ -160,7 +160,7 @@ public class LogServlet extends HttpServlet {
             // gateway and log id are specified, return only the events that are in the range that matches these id's
             if (range != null) {
                 LogDescriptor storeDescriptor = m_store.getDescriptor(gatewayID, Long.parseLong(logID));
-                outputRange(output, new LogDescriptor(storeDescriptor.getGatewayID(), storeDescriptor.getLogID(), new SortedRangeSet(range)));
+                outputRange(output, new LogDescriptor(storeDescriptor.getTargetID(), storeDescriptor.getLogID(), new SortedRangeSet(range)));
             }
             else {
                 outputRange(output, m_store.getDescriptor(gatewayID, Long.parseLong(logID)));

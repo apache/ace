@@ -80,7 +80,7 @@ public class LogDescriptor {
      *
      * @return Unique gateway identifier.
      */
-    public String getGatewayID() {
+    public String getTargetID() {
         return m_gatewayID;
     }
 

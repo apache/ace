@@ -181,7 +181,7 @@ public class LogSyncTask implements Runnable, LogSync {
                  * simply be ignored.
                  */
                 receiveConnection = new Connection(new URL(host, m_endpoint + "/" + COMMAND_RECEIVE + "?" + GWID_KEY +
-                    "=" + l.getGatewayID() + "&" + LOGID_KEY + "=" + l.getLogID() + "&" + RANGE_KEY + "=" + l.getRangeSet().toRepresentation()));
+                    "=" + l.getTargetID() + "&" + LOGID_KEY + "=" + l.getLogID() + "&" + RANGE_KEY + "=" + l.getRangeSet().toRepresentation()));
                 InputStream receiveInput = receiveConnection.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(receiveInput));
                 readLogs(reader);
@@ -229,10 +229,10 @@ public class LogSyncTask implements Runnable, LogSync {
         for (LogDescriptor s : source) {
             LogDescriptor diffs = s;
             for (LogDescriptor d : destination) {
-                if ((s.getLogID() == d.getLogID()) && (s.getGatewayID().equals(d.getGatewayID()))) {
+                if ((s.getLogID() == d.getLogID()) && (s.getTargetID().equals(d.getTargetID()))) {
                     SortedRangeSet rangeDiff = d.getRangeSet().diffDest(s.getRangeSet());
                     if (!isEmptyRangeSet(rangeDiff)) {
-                        diffs = new LogDescriptor(s.getGatewayID(), s.getLogID(), rangeDiff);
+                        diffs = new LogDescriptor(s.getTargetID(), s.getLogID(), rangeDiff);
                     }
                     else {
                         diffs = null;

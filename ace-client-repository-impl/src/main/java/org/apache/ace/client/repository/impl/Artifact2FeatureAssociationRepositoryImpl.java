@@ -29,25 +29,25 @@ import org.osgi.framework.InvalidSyntaxException;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the Artifact2GroupAssociationRepository. For 'what it does', see Artifact2GroupAssociationRepository,
+ * Implementation class for the Artifact2FeatureAssociationRepository. For 'what it does', see Artifact2FeatureAssociationRepository,
  * for 'how it works', see AssociationRepositoryImpl.
  */
-public class Artifact2GroupAssociationRepositoryImpl extends AssociationRepositoryImpl<ArtifactObject, FeatureObject, Artifact2GroupAssociationImpl, Artifact2FeatureAssociation> implements Artifact2FeatureAssociationRepository {
-    private final static String XML_NODE = "artifacts2groups";
+public class Artifact2FeatureAssociationRepositoryImpl extends AssociationRepositoryImpl<ArtifactObject, FeatureObject, Artifact2FeatureAssociationImpl, Artifact2FeatureAssociation> implements Artifact2FeatureAssociationRepository {
+    private final static String XML_NODE = "artifacts2features";
 
-    private final ArtifactRepositoryImpl m_bundleRepository;
-    private final GroupRepositoryImpl m_groupRepository;
+    private final ArtifactRepositoryImpl m_artifactRepository;
+    private final FeatureRepositoryImpl m_featureRepository;
 
-    public Artifact2GroupAssociationRepositoryImpl(ArtifactRepositoryImpl bundleRepository, GroupRepositoryImpl groupRepository, ChangeNotifier notifier) {
+    public Artifact2FeatureAssociationRepositoryImpl(ArtifactRepositoryImpl artifactRepository, FeatureRepositoryImpl featureRepository, ChangeNotifier notifier) {
         super(notifier, XML_NODE);
-        m_bundleRepository = bundleRepository;
-        m_groupRepository = groupRepository;
+        m_artifactRepository = artifactRepository;
+        m_featureRepository = featureRepository;
     }
 
     @Override
-    Artifact2GroupAssociationImpl createNewInhabitant(Map<String, String> attributes) {
+    Artifact2FeatureAssociationImpl createNewInhabitant(Map<String, String> attributes) {
         try {
-            return new Artifact2GroupAssociationImpl(attributes, this, m_bundleRepository, m_groupRepository);
+            return new Artifact2FeatureAssociationImpl(attributes, this, m_artifactRepository, m_featureRepository);
         }
         catch (InvalidSyntaxException e) {
             throw new IllegalArgumentException("Unable to create association: ", e);
@@ -55,9 +55,9 @@ public class Artifact2GroupAssociationRepositoryImpl extends AssociationReposito
     }
 
     @Override
-    Artifact2GroupAssociationImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
+    Artifact2FeatureAssociationImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
         try {
-            return new Artifact2GroupAssociationImpl(attributes, tags, this, m_bundleRepository, m_groupRepository);
+            return new Artifact2FeatureAssociationImpl(attributes, tags, this, m_artifactRepository, m_featureRepository);
         }
         catch (InvalidSyntaxException e) {
             throw new IllegalArgumentException("Unable to create association: ", e);
@@ -65,9 +65,9 @@ public class Artifact2GroupAssociationRepositoryImpl extends AssociationReposito
     }
 
     @Override
-    Artifact2GroupAssociationImpl createNewInhabitant(HierarchicalStreamReader reader) {
+    Artifact2FeatureAssociationImpl createNewInhabitant(HierarchicalStreamReader reader) {
         try {
-            return new Artifact2GroupAssociationImpl(reader, this, m_bundleRepository, m_groupRepository);
+            return new Artifact2FeatureAssociationImpl(reader, this, m_artifactRepository, m_featureRepository);
         }
         catch (InvalidSyntaxException e) {
             throw new IllegalArgumentException("Unable to create association: ", e);

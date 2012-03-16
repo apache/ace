@@ -20,34 +20,34 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.DistributionObject;
-import org.apache.ace.client.repository.repository.DistributionRepository;
+import org.apache.ace.client.repository.object.TargetObject;
+import org.apache.ace.client.repository.repository.TargetRepository;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the LicenseRepository. For 'what it does', see LicenseRepository,
+ * Implementation class for the TargetRepository. For 'what it does', see TargetRepository,
  * for 'how it works', see ObjectRepositoryImpl.
  */
-public class LicenseRepositoryImpl extends ObjectRepositoryImpl<LicenseObjectImpl, DistributionObject> implements DistributionRepository {
-    private final static String XML_NODE = "licenses";
+public class TargetRepositoryImpl extends ObjectRepositoryImpl<TargetObjectImpl, TargetObject> implements TargetRepository {
+    private final static String XML_NODE = "targets";
 
-    public LicenseRepositoryImpl(ChangeNotifier notifier) {
+    public TargetRepositoryImpl(ChangeNotifier notifier) {
         super(notifier, XML_NODE);
     }
 
     @Override
-    LicenseObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
-        return new LicenseObjectImpl(attributes, tags, this);
+    TargetObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
+        return new TargetObjectImpl(attributes, tags, this);
     }
 
     @Override
-    LicenseObjectImpl createNewInhabitant(Map<String, String> attributes) {
-        return new LicenseObjectImpl(attributes, this);
+    TargetObjectImpl createNewInhabitant(Map<String, String> attributes) {
+        return new TargetObjectImpl(attributes, this);
     }
 
     @Override
-    LicenseObjectImpl createNewInhabitant(HierarchicalStreamReader reader) {
-        return new LicenseObjectImpl(reader, this);
+    TargetObjectImpl createNewInhabitant(HierarchicalStreamReader reader) {
+        return new TargetObjectImpl(reader, this);
     }
 }

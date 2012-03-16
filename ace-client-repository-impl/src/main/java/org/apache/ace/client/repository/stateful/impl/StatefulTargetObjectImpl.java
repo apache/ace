@@ -49,10 +49,10 @@ import org.apache.ace.log.LogEvent;
  * parent <code>StatefulGatewayRepository</code>. Once created, it will handle its own lifecyle
  * and remove itself once is existence is no longer necessary.
  */
-public class StatefulGatewayObjectImpl implements StatefulTargetObject {
-    private final StatefulGatewayRepositoryImpl m_repository;
+public class StatefulTargetObjectImpl implements StatefulTargetObject {
+    private final StatefulTargetRepositoryImpl m_repository;
     private final Object m_lock = new Object();
-    private TargetObject m_gatewayObject;
+    private TargetObject m_targetObject;
     private List<LogDescriptor> m_processedAuditEvents = new ArrayList<LogDescriptor>();
     private Map<String, String> m_attributes = new HashMap<String, String>();
     /** This boolean is used to suppress STATUS_CHANGED events during the creation of the object.*/
@@ -62,12 +62,12 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
      * Creates a new <code>StatefulGatewayObjectImpl</code>. After creation, it will have the
      * most recent data available, and has verified its own reasons for existence.
      * @param repository The parent repository of this object.
-     * @param gatewayID A string representing a gateway ID.
+     * @param targetID A string representing a target ID.
      */
-    StatefulGatewayObjectImpl(StatefulGatewayRepositoryImpl repository, String gatewayID) {
+    StatefulTargetObjectImpl(StatefulTargetRepositoryImpl repository, String targetID) {
         m_repository = repository;
-        addStatusAttribute(KEY_ID, gatewayID);
-        updateGatewayObject(false);
+        addStatusAttribute(KEY_ID, targetID);
+        updateTargetObject(false);
         updateAuditEvents(false);
         updateDeploymentVersions(null);
         verifyExistence();
@@ -105,14 +105,14 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
 
     public boolean isRegistered() {
         synchronized(m_lock) {
-            return (m_gatewayObject != null);
+            return (m_targetObject != null);
         }
     }
 
     public TargetObject getTargetObject() {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            return m_gatewayObject;
+            ensureTargetPresent();
+            return m_targetObject;
         }
     }
 
@@ -172,13 +172,13 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
     }
 
     /**
-     * Signals this object that there has been a change to the <code>GatewayObject</code> it represents.
+     * Signals this object that there has been a change to the <code>TargetObject</code> it represents.
      * @param needsVerify States whether this update should make the object check for its
      * reasons for existence.
      */
-    void updateGatewayObject(boolean needsVerify) {
+    void updateTargetObject(boolean needsVerify) {
         synchronized(m_lock) {
-            m_gatewayObject = m_repository.getGatewayObject(getID());
+            m_targetObject = m_repository.getTargetObject(getID());
             determineRegistrationState();
             if (needsVerify) {
                 verifyExistence();
@@ -203,7 +203,7 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
 
     /**
      * Signals this object that a new deployment version has been created in relation
-     * to the gatewayID this object manages.
+     * to the targetID this object manages.
      */
     void updateDeploymentVersions(DeploymentVersionObject deploymentVersionObject) {
         synchronized(m_lock) {
@@ -215,7 +215,7 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
     /**
      * Based on the information about a <code>GatewayObject</code>, the
      * <code>AuditEvent</code>s available, and the deployment information that
-     * the parent repository can give, determines the status of this gateway.
+     * the parent repository can give, determines the status of this target.
      */
     void determineStatus() {
         determineRegistrationState();
@@ -388,15 +388,15 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
     }
 
     /**
-     * Verifies that this object should still be around. If the gateway is represents
-     * shows up in at least the gateway repository or the auditlog, it has a reason
+     * Verifies that this object should still be around. If the target is represents
+     * shows up in at least the target repository or the auditlog, it has a reason
      * to exists; if not, it doesn't. When it is no longer necessary, it will remove itself
      * from the parent repository.
      * @return Whether or not this object should still exist.
      */
     boolean verifyExistence() {
         synchronized(m_lock) {
-            if ((m_gatewayObject == null) && ((m_processedAuditEvents == null) || m_processedAuditEvents.isEmpty())) {
+            if ((m_targetObject == null) && ((m_processedAuditEvents == null) || m_processedAuditEvents.isEmpty())) {
                 m_repository.removeStateful(this);
                 return false;
             }
@@ -406,12 +406,12 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
 
     /**
      * Helper method for the delegate methods below: most of these delegate their calls to a
-     * <code>GatewayObject</code>, but in order to do so, one must be present.
+     * <code>TargetObject</code>, but in order to do so, one must be present.
      */
-    private void ensureGatewayPresent() {
-        if ((m_gatewayObject == null)) {
-            throw new IllegalStateException("This StatefulGatewayObject is not backed by a GatewayObject.");
-            // NOTE: we do not check the isDeleted state; the GatewayObject itself will notify the user of this.
+    private void ensureTargetPresent() {
+        if ((m_targetObject == null)) {
+            throw new IllegalStateException("This StatefulTargetObject is not backed by a TargetObject.");
+            // NOTE: we do not check the isDeleted state; the TargetObject itself will notify the user of this.
         }
     }
 
@@ -420,7 +420,7 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
         if ((o == null) || !(o instanceof StatefulTargetObject)) {
             return false;
         }
-        return getID() == ((StatefulTargetObject) o).getID();
+        return getID().equals(((StatefulTargetObject) o).getID());
     }
 
     private void addStatusAttribute(String key, String value) {
@@ -432,7 +432,7 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
     }
 
     /* ******************
-     * Delegates to GatewayObject
+     * Delegates to TargetObject
      */
 
     public String getID() {
@@ -443,31 +443,31 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
         return !verifyExistence();
     }
 
-    public List<Distribution2TargetAssociation> getAssociationsWith(DistributionObject license) {
+    public List<Distribution2TargetAssociation> getAssociationsWith(DistributionObject distribution) {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            return m_gatewayObject.getAssociationsWith(license);
+            ensureTargetPresent();
+            return m_targetObject.getAssociationsWith(distribution);
         }
     }
 
     public List<DistributionObject> getDistributions() {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            return m_gatewayObject.getDistributions();
+            ensureTargetPresent();
+            return m_targetObject.getDistributions();
         }
     }
 
     public String addAttribute(String key, String value) {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            return m_gatewayObject.addAttribute(key, value);
+            ensureTargetPresent();
+            return m_targetObject.addAttribute(key, value);
         }
     }
 
     public String addTag(String key, String value) {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            return m_gatewayObject.addTag(key, value);
+            ensureTargetPresent();
+            return m_targetObject.addTag(key, value);
         }
     }
 
@@ -477,8 +477,8 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
             if (Arrays.binarySearch(KEYS_ALL, key) >= 0) {
                 return getStatusAttribute(key);
             }
-            ensureGatewayPresent();
-            return m_gatewayObject.getAttribute(key);
+            ensureTargetPresent();
+            return m_targetObject.getAttribute(key);
         }
     }
 
@@ -489,8 +489,8 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
                 statusKeys.add(s);
             }
             Enumeration<String> attributeKeys = null;
-            if (m_gatewayObject != null) {
-                attributeKeys = m_gatewayObject.getAttributeKeys();
+            if (m_targetObject != null) {
+                attributeKeys = m_targetObject.getAttributeKeys();
             }
             return new ExtendedEnumeration<String>(attributeKeys, statusKeys, true);
         }
@@ -499,28 +499,28 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
     public Dictionary<String, Object> getDictionary() {
         // build our own dictionary
         synchronized(m_lock) {
-            return new StatefulGatewayObjectDictionary();
+            return new StatefulTargetObjectDictionary();
         }
     }
 
     public String getTag(String key) {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            return m_gatewayObject.getTag(key);
+            ensureTargetPresent();
+            return m_targetObject.getTag(key);
         }
     }
 
     public Enumeration<String> getTagKeys() {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            return m_gatewayObject.getTagKeys();
+            ensureTargetPresent();
+            return m_targetObject.getTagKeys();
         }
     }
 
     public boolean getAutoApprove() {
         synchronized(m_lock) {
-            if (m_gatewayObject != null) {
-                return m_gatewayObject.getAutoApprove();
+            if (m_targetObject != null) {
+                return m_targetObject.getAutoApprove();
             }
             else {
                 return false;
@@ -531,51 +531,51 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
 
     public void setAutoApprove(boolean approve) {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            m_gatewayObject.setAutoApprove(approve);
+            ensureTargetPresent();
+            m_targetObject.setAutoApprove(approve);
         }
     }
 
     @SuppressWarnings("unchecked")
     public <T extends Associatable> void add(Association association, Class<T> clazz) {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            m_gatewayObject.add(association, clazz);
+            ensureTargetPresent();
+            m_targetObject.add(association, clazz);
         }
     }
 
     public <T extends Associatable> List<T> getAssociations(Class<T> clazz) {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            return m_gatewayObject.getAssociations(clazz);
+            ensureTargetPresent();
+            return m_targetObject.getAssociations(clazz);
         }
     }
 
     @SuppressWarnings("unchecked")
     public <T extends Associatable, A extends Association> List<A> getAssociationsWith(Associatable other, Class<T> clazz, Class<A> associationType) {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            return m_gatewayObject.getAssociationsWith(other, clazz, associationType);
+            ensureTargetPresent();
+            return m_targetObject.getAssociationsWith(other, clazz, associationType);
         }
     }
 
     public <T extends Associatable> boolean isAssociated(Object obj, Class<T> clazz) {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            return m_gatewayObject.isAssociated(obj, clazz);
+            ensureTargetPresent();
+            return m_targetObject.isAssociated(obj, clazz);
         }
     }
 
     @SuppressWarnings("unchecked")
     public <T extends Associatable> void remove(Association association, Class<T> clazz) {
         synchronized(m_lock) {
-            ensureGatewayPresent();
-            m_gatewayObject.remove(association, clazz);
+            ensureTargetPresent();
+            m_targetObject.remove(association, clazz);
         }
     }
 
     public String getDefinition() {
-        return "gateway-" + KEY_ID + "-" + getID();
+        return "target-" + KEY_ID + "-" + getID();
     }
 
     private class ExtendedEnumeration<T> implements Enumeration<T> {
@@ -616,12 +616,12 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
         }
     }
 
-    private class StatefulGatewayObjectDictionary extends Dictionary<String, Object> {
+    private class StatefulTargetObjectDictionary extends Dictionary<String, Object> {
         private final Dictionary<String, Object> m_dict;
 
-        StatefulGatewayObjectDictionary() {
-            if (m_gatewayObject != null) {
-                m_dict = m_gatewayObject.getDictionary();
+        StatefulTargetObjectDictionary() {
+            if (m_targetObject != null) {
+                m_dict = m_targetObject.getDictionary();
             }
             else {
                 m_dict = null;
@@ -648,8 +648,8 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
                     return getStatusAttribute((String) key);
                 }
             }
-            String tag = m_gatewayObject.getTag((String)key);
-            String attr = m_gatewayObject.getAttribute((String)key);
+            String tag = m_targetObject.getTag((String)key);
+            String attr = m_targetObject.getAttribute((String)key);
             if (tag == null) {
                 return attr;
             }
@@ -703,15 +703,15 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
     }
 
     public String getAssociationFilter(Map<String, String> properties) {
-        throw new UnsupportedOperationException("A StatefulGatewayObject cannot return a filter; use the underlying GatewayObject instead.");
+        throw new UnsupportedOperationException("A StatefulTargetObject cannot return a filter; use the underlying TargetObject instead.");
     }
 
     public int getCardinality(Map<String, String> properties) {
-        throw new UnsupportedOperationException("A StatefulGatewayObject cannot return a cardinality; use the underlying GatewayObject instead.");
+        throw new UnsupportedOperationException("A StatefulTargetObject cannot return a cardinality; use the underlying TargetObject instead.");
     }
 
     @SuppressWarnings("unchecked")
     public Comparator getComparator() {
-        throw new UnsupportedOperationException("A StatefulGatewayObject cannot return a comparator; use the underlying GatewayObject instead.");
+        throw new UnsupportedOperationException("A StatefulTargetObject cannot return a comparator; use the underlying TargetObject instead.");
     }
 }
