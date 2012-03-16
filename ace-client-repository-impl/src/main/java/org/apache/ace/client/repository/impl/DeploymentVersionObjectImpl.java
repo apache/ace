@@ -39,7 +39,7 @@ public class DeploymentVersionObjectImpl extends RepositoryObjectImpl<Deployment
 
     /**
      * Creates a new <code>DeploymentVersionObjectImpl</code>.
-     * @param attributes A map of attributes; must include <code>KEY_GATEWAYID</code>, <code>KEY_VERSION</code>.
+     * @param attributes A map of attributes; must include <code>KEY_TARGETID</code>, <code>KEY_VERSION</code>.
      * @param deploymentArtifacts A (possibly empty) array of DeploymentArtifacts.
      * @param notifier A change notifier to be used by this object.
      */

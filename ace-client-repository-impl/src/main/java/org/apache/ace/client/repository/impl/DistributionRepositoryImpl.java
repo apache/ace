@@ -26,7 +26,7 @@ import org.apache.ace.client.repository.repository.DistributionRepository;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the LicenseRepository. For 'what it does', see LicenseRepository,
+ * Implementation class for the DistributionRepository. For 'what it does', see DistributionRepository,
  * for 'how it works', see ObjectRepositoryImpl.
  */
 public class DistributionRepositoryImpl extends ObjectRepositoryImpl<DistributionObjectImpl, DistributionObject> implements DistributionRepository {

@@ -29,7 +29,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the Group2LicenseAssociationRepository. For 'what it does', see Group2LicenseAssociationRepository,
+ * Implementation class for the Feature2DistributionAssociationRepository. For 'what it does', see Feature2DistributionAssociationRepository,
  * for 'how it works', see AssociationRepositoryImpl.
  */
 public class Feature2DistributionAssociationRepositoryImpl extends AssociationRepositoryImpl<FeatureObject, DistributionObject, Feature2DistributionAssociationImpl, Feature2DistributionAssociation> implements Feature2DistributionAssociationRepository {
