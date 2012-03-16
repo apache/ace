@@ -16,23 +16,22 @@
  */
 package org.apache.ace.it.server;
 
+import static junit.framework.Assert.fail;
+import static org.ops4j.pax.exam.CoreOptions.felix;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.OptionUtils.combine;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.BeforeClass;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.ops4j.pax.exam.Inject;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-
-import static junit.framework.Assert.*;
-import static org.ops4j.pax.exam.CoreOptions.*;
-import static org.ops4j.pax.exam.OptionUtils.*;
-import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.*;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 /**
  * @author Toni Menzel
@@ -52,7 +51,7 @@ public class MinimalGatewayTest
                 felix().version( "3.0.2" )
             ),
             // TODO avoid to use hard coded version
-            AssemblyConfigure.get( "ace-gateway", "mvn:org.apache.ace/org.apache.ace.target.devgateway/0.8.1-SNAPSHOT/zip/distribution" )
+            AssemblyConfigure.get( "ace-target", "mvn:org.apache.ace/org.apache.ace.target.devgateway/0.8.1-SNAPSHOT/zip/distribution" )
 
         );
     }
