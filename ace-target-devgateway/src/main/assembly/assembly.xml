@@ -6,7 +6,7 @@
         <format>dir</format>
         <format>zip</format>
     </formats>
-    <baseDirectory>ace-gateway</baseDirectory>
+    <baseDirectory>ace-target</baseDirectory>
 
     <fileSets>
 <fileSet>

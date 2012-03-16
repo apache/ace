@@ -28,10 +28,11 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
     <version>0.8.1-SNAPSHOT</version>
+    <!-- TODO rename to devtarget -->
     <artifactId>org.apache.ace.target.devgateway</artifactId>
     <packaging>pom</packaging>
 
-    <name>Apache ACE :: Target :: Dev Gateway</name>
+    <name>Apache ACE :: Target :: Dev Target</name>
     <description />
 
     <scm>
