@@ -40,7 +40,7 @@ import org.apache.ace.client.repository.impl.RepositoryAdminLoginContextImpl.Rep
 import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.Group2LicenseAssociation;
 import org.apache.ace.client.repository.object.GroupObject;
 import org.apache.ace.client.repository.object.License2GatewayAssociation;
@@ -48,7 +48,7 @@ import org.apache.ace.client.repository.object.LicenseObject;
 import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
-import org.apache.ace.client.repository.repository.GatewayRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepository;
 import org.apache.ace.client.repository.repository.GroupRepository;
 import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
@@ -165,7 +165,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             m_artifact2GroupAssociationRepositoryImpl = new Artifact2GroupAssociationRepositoryImpl(m_artifactRepositoryImpl, m_groupRepositoryImpl, m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, Artifact2GroupAssociation.TOPIC_ENTITY_ROOT, m_sessionID));
             m_licenseRepositoryImpl = new LicenseRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, LicenseObject.TOPIC_ENTITY_ROOT, m_sessionID));
             m_group2LicenseAssociationRepositoryImpl = new Group2LicenseAssociationRepositoryImpl(m_groupRepositoryImpl, m_licenseRepositoryImpl, m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, Group2LicenseAssociation.TOPIC_ENTITY_ROOT, m_sessionID));
-            m_gatewayRepositoryImpl = new GatewayRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, GatewayObject.TOPIC_ENTITY_ROOT, m_sessionID));
+            m_gatewayRepositoryImpl = new GatewayRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, TargetObject.TOPIC_ENTITY_ROOT, m_sessionID));
             m_license2GatewayAssociationRepositoryImpl = new License2GatewayAssociationRepositoryImpl(m_licenseRepositoryImpl, m_gatewayRepositoryImpl, m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, License2GatewayAssociation.TOPIC_ENTITY_ROOT, m_sessionID));
             m_deploymentVersionRepositoryImpl = new DeploymentVersionRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, DeploymentVersionObject.TOPIC_ENTITY_ROOT, m_sessionID));
         }
@@ -192,8 +192,8 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         m_services.add(registerRepository(GroupRepository.class, m_groupRepositoryImpl, new String[] {}));
         m_services.add(registerRepository(Group2LicenseAssociationRepository.class, m_group2LicenseAssociationRepositoryImpl, new String[] {createPrivateObjectTopic(GroupObject.TOPIC_ENTITY_ROOT), createPrivateObjectTopic(LicenseObject.TOPIC_ENTITY_ROOT)}));
         m_services.add(registerRepository(LicenseRepository.class, m_licenseRepositoryImpl, new String[] {}));
-        m_services.add(registerRepository(License2GatewayAssociationRepository.class, m_license2GatewayAssociationRepositoryImpl, new String[] {createPrivateObjectTopic(LicenseObject.TOPIC_ENTITY_ROOT), createPrivateObjectTopic(GatewayObject.TOPIC_ENTITY_ROOT)}));
-        m_services.add(registerRepository(GatewayRepository.class, m_gatewayRepositoryImpl, new String[] {}));
+        m_services.add(registerRepository(License2GatewayAssociationRepository.class, m_license2GatewayAssociationRepositoryImpl, new String[] {createPrivateObjectTopic(LicenseObject.TOPIC_ENTITY_ROOT), createPrivateObjectTopic(TargetObject.TOPIC_ENTITY_ROOT)}));
+        m_services.add(registerRepository(TargetRepository.class, m_gatewayRepositoryImpl, new String[] {}));
         m_services.add(registerRepository(DeploymentVersionRepository.class, m_deploymentVersionRepositoryImpl, new String[] {}));
 
         // prepare the results.
@@ -205,7 +205,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         result.put(Group2LicenseAssociationRepository.class, m_group2LicenseAssociationRepositoryImpl);
         result.put(LicenseRepository.class, m_licenseRepositoryImpl);
         result.put(License2GatewayAssociationRepository.class, m_license2GatewayAssociationRepositoryImpl);
-        result.put(GatewayRepository.class, m_gatewayRepositoryImpl);
+        result.put(TargetRepository.class, m_gatewayRepositoryImpl);
         result.put(DeploymentVersionRepository.class, m_deploymentVersionRepositoryImpl);
 
         return result;

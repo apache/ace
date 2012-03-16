@@ -23,7 +23,7 @@ import org.apache.ace.client.repository.Association;
 /**
  * Interface to a License2GatewayAssociation. Most functionality is defined by the generic Association.
  */
-public interface License2GatewayAssociation extends Association<LicenseObject, GatewayObject> {
+public interface License2GatewayAssociation extends Association<LicenseObject, TargetObject> {
     public static final String TOPIC_ENTITY_ROOT = License2GatewayAssociation.class.getSimpleName() + "/";
 
     public static final String TOPIC_ADDED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ADDED_SUFFIX;

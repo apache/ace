@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Properties;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
-import org.apache.ace.client.repository.object.GatewayObject;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
-import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
+import org.apache.ace.client.repository.object.TargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -39,16 +39,15 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
- * Automatic gateway operator, when configured will automatically register, approve, auto-approve
- * and commit gateways to the repository. An LDAP filter can be used to filter for the correct gateways
- *
+ * Automatic target operator, when configured will automatically register, approve, auto-approve
+ * and commit targets to the repository. An LDAP filter can be used to filter for the correct targets.
  */
-public class AutoGatewayOperator implements ManagedService {
+public class AutoTargetOperator implements ManagedService {
 
     public static final String PID = "org.apache.ace.client.automation";
     public static final String SCHEDULER_NAME = "org.apache.ace.client.processauditlog";
 
-    private volatile StatefulGatewayRepository m_statefulGatewayRepos;
+    private volatile StatefulTargetRepository m_statefulTargetRepos;
     private volatile RepositoryAdmin m_reposAdmin;
     private volatile UserAdmin m_userAdmin;
     private volatile BundleContext m_bundleContext;
@@ -73,7 +72,7 @@ public class AutoGatewayOperator implements ManagedService {
 
             RepositoryAdminLoginContext loginContext = m_reposAdmin.createLoginContext(user);
             loginContext.addShopRepository(url, customerName, getConfigValue( ConfigItem.STORE_REPOSITORY), false)
-            .addGatewayRepository(url, customerName, getConfigValue( ConfigItem.GATEWAY_REPOSITORY), true)
+            .addTargetRepository(url, customerName, getConfigValue( ConfigItem.TARGET_REPOSITORY), true)
             .addDeploymentRepository(url, customerName, getConfigValue( ConfigItem.DEPLOYMENT_REPOSITORY), true);
             m_reposAdmin.login(loginContext);
 
@@ -115,19 +114,19 @@ public class AutoGatewayOperator implements ManagedService {
         public void process() {
             // perform synchronous model actions
             synchronized(m_lock) {
-                m_statefulGatewayRepos.refresh();
+                m_statefulTargetRepos.refresh();
                 boolean changed = false;
                 try {
                     checkoutModel();
-                    changed |=registerGateways();
-                    changed |=approveGateways();
-                    changed |=setAutoApprove();
+                    changed |= registerTargets();
+                    changed |= approveTargets();
+                    changed |= setAutoApprove();
                 }
                 catch (IOException ioe) {
                     m_log.log(LogService.LOG_WARNING, "Checkout of model failed.", ioe);
                 }
                 catch (InvalidSyntaxException ise) {
-                    m_log.log(LogService.LOG_WARNING, "Illegal register gateway filter.", ise);
+                    m_log.log(LogService.LOG_WARNING, "Illegal register target filter.", ise);
                 }
 
                 // Commit any changes
@@ -154,13 +153,13 @@ public class AutoGatewayOperator implements ManagedService {
         }
     }
 
-    private boolean registerGateways() throws InvalidSyntaxException {
+    private boolean registerTargets() throws InvalidSyntaxException {
         boolean changed = false;
-        String filter = "(&" + getConfigValue( ConfigItem.REGISTER_GW_FILTER) +
-        "(" + StatefulGatewayObject.KEY_REGISTRATION_STATE + "=" + StatefulGatewayObject.RegistrationState.Unregistered + "))";
-        List<StatefulGatewayObject> sgos =  m_statefulGatewayRepos.get(m_bundleContext.createFilter(filter));
-        for (StatefulGatewayObject sgo : sgos) {
-            sgo.register();
+        String filter = "(&" + getConfigValue( ConfigItem.REGISTER_TARGET_FILTER) +
+        "(" + StatefulTargetObject.KEY_REGISTRATION_STATE + "=" + StatefulTargetObject.RegistrationState.Unregistered + "))";
+        List<StatefulTargetObject> stos =  m_statefulTargetRepos.get(m_bundleContext.createFilter(filter));
+        for (StatefulTargetObject sto : stos) {
+            sto.register();
             changed = true;
         }
         return changed;
@@ -168,26 +167,26 @@ public class AutoGatewayOperator implements ManagedService {
 
     private boolean setAutoApprove() throws InvalidSyntaxException {
         boolean changed = false;
-        String filter = "(&" + getConfigValue( ConfigItem.AUTO_APPROVE_GW_FILTER) +
-        "(" + StatefulGatewayObject.KEY_REGISTRATION_STATE + "=" + StatefulGatewayObject.RegistrationState.Registered + ")" +
-        "(!(" + GatewayObject.KEY_AUTO_APPROVE + "=true)))";
+        String filter = "(&" + getConfigValue( ConfigItem.AUTO_APPROVE_TARGET_FILTER) +
+        "(" + StatefulTargetObject.KEY_REGISTRATION_STATE + "=" + StatefulTargetObject.RegistrationState.Registered + ")" +
+        "(!(" + TargetObject.KEY_AUTO_APPROVE + "=true)))";
 
-        List<StatefulGatewayObject> sgos =  m_statefulGatewayRepos.get(m_bundleContext.createFilter(filter));
-        for (StatefulGatewayObject sgo : sgos) {
-                sgo.setAutoApprove(true);
+        List<StatefulTargetObject> stos =  m_statefulTargetRepos.get(m_bundleContext.createFilter(filter));
+        for (StatefulTargetObject sto : stos) {
+                sto.setAutoApprove(true);
                 changed = true;
             }
         return changed;
     }
 
-    private boolean approveGateways() throws InvalidSyntaxException {
+    private boolean approveTargets() throws InvalidSyntaxException {
         boolean changed = false;
-        String filter = "(&" + getConfigValue( ConfigItem.APPROVE_GW_FILTER) +
-        "(" + StatefulGatewayObject.KEY_STORE_STATE + "=" + StatefulGatewayObject.StoreState.Unapproved + "))";
+        String filter = "(&" + getConfigValue( ConfigItem.APPROVE_TARGET_FILTER) +
+        "(" + StatefulTargetObject.KEY_STORE_STATE + "=" + StatefulTargetObject.StoreState.Unapproved + "))";
 
-        List<StatefulGatewayObject> sgos =  m_statefulGatewayRepos.get(m_bundleContext.createFilter(filter));
-            for (StatefulGatewayObject sgo : sgos) {
-                sgo.approve();
+        List<StatefulTargetObject> stos =  m_statefulTargetRepos.get(m_bundleContext.createFilter(filter));
+            for (StatefulTargetObject sto : stos) {
+                sto.approve();
                 changed = true;
             }
         return changed;
@@ -216,16 +215,16 @@ public class AutoGatewayOperator implements ManagedService {
     }
 
     /**
-     *  Helper class used for gateway automation client configuration.
+     *  Helper class used for target automation client configuration.
      *  ENUM (itemname, errormessage, filter true/false)
      *
      */
     private enum ConfigItem {
-        REGISTER_GW_FILTER ("registerGatewayFilter", "Register gateway filter missing", true),
-        APPROVE_GW_FILTER ("approveGatewayFilter", "Approve gateway filter missing", true),
-        AUTO_APPROVE_GW_FILTER ("autoApproveGatewayFilter", "Auto approve config value missing", true),
+        REGISTER_TARGET_FILTER ("registerTargetFilter", "Register target filter missing", true),
+        APPROVE_TARGET_FILTER ("approveTargetFilter", "Approve target filter missing", true),
+        AUTO_APPROVE_TARGET_FILTER ("autoApproveTargetFilter", "Auto approve config value missing", true),
         COMMIT_REPO ("commitRepositories", "Commit value missing.", false),
-        GATEWAY_REPOSITORY ("gatewayRepository", "GatewayRepository id missing.", false),
+        TARGET_REPOSITORY ("targetRepository", "TargetRepository id missing.", false),
         DEPLOYMENT_REPOSITORY ("deploymentRepository", "DeploymentRepository id missing.", false),
         STORE_REPOSITORY ("storeRepository", "Store Repository id missing.", false),
         CUSTOMER_NAME ("customerName", "Customer name missing", false),

@@ -46,7 +46,7 @@ public interface LicenseObject extends RepositoryObject {
      * Returns all <code>GatewayObject</code>s this object is associated with. If there
      * are none, an empty list will be returned.
      */
-    public List<GatewayObject> getGateways();
+    public List<TargetObject> getGateways();
 
     /**
      * Returns all associations this license has with a given group.
@@ -55,7 +55,7 @@ public interface LicenseObject extends RepositoryObject {
     /**
      * Returns all associations this license has with a given gateway.
      */
-    public List<License2GatewayAssociation> getAssociationsWith(GatewayObject gateway);
+    public List<License2GatewayAssociation> getAssociationsWith(TargetObject gateway);
 
     /**
      * Returns the name of this bundle.

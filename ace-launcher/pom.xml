@@ -24,20 +24,20 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
     <artifactId>org.apache.ace.launcher</artifactId>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <name>Apache ACE :: Launcher</name>
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-launcher</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-launcher</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-launcher</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-launcher</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-launcher</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-launcher</url>
     </scm>
 
     <build>

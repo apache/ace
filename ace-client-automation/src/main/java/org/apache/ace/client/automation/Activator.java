@@ -20,8 +20,8 @@ package org.apache.ace.client.automation;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
-import org.apache.ace.client.repository.repository.GatewayRepository;
-import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
+import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
@@ -29,7 +29,7 @@ import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
- * Bundle activator for the gateway operator automation.
+ * Bundle activator for the target operator automation.
  */
 public class Activator extends DependencyActivatorBase {
     /**
@@ -38,11 +38,11 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         manager.add(createComponent()
-            .setImplementation(AutoGatewayOperator.class)
-            .add(createConfigurationDependency().setPid(AutoGatewayOperator.PID))
+            .setImplementation(AutoTargetOperator.class)
+            .add(createConfigurationDependency().setPid(AutoTargetOperator.PID))
             .add(createServiceDependency().setRequired(true).setService(UserAdmin.class))
-            .add(createServiceDependency().setRequired(true).setService(GatewayRepository.class))
-            .add(createServiceDependency().setRequired(true).setService(StatefulGatewayRepository.class))
+            .add(createServiceDependency().setRequired(true).setService(TargetRepository.class)) // TODO is this still used?
+            .add(createServiceDependency().setRequired(true).setService(StatefulTargetRepository.class))
             .add(createServiceDependency().setRequired(true).setService(DeploymentVersionRepository.class))
             .add(createServiceDependency().setRequired(true).setService(RepositoryAdmin.class))
             .add(createServiceDependency().setRequired(false).setService(LogService.class))

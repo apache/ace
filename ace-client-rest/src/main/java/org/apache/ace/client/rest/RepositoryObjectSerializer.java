@@ -29,7 +29,7 @@ import java.util.List;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.log.AuditEvent;
 import org.apache.ace.log.LogEvent;
 
@@ -63,8 +63,8 @@ public class RepositoryObjectSerializer implements JsonSerializer<RepositoryObje
         }
         result.add("tags", tags);
         // finally, if it's a target with state, add that as well
-        if (repositoryObject instanceof StatefulGatewayObject) {
-            StatefulGatewayObject stateful = (StatefulGatewayObject) repositoryObject;
+        if (repositoryObject instanceof StatefulTargetObject) {
+            StatefulTargetObject stateful = (StatefulTargetObject) repositoryObject;
             JsonObject state = new JsonObject();
             state.addProperty("registrationState", stateful.getRegistrationState().name());
             state.addProperty("provisioningState", stateful.getProvisioningState().name());
@@ -94,7 +94,7 @@ public class RepositoryObjectSerializer implements JsonSerializer<RepositoryObje
         return result;
     }
 
-    private JsonArray getAuditEvents(StatefulGatewayObject stateful) {
+    private JsonArray getAuditEvents(StatefulTargetObject stateful) {
         DateFormat format = SimpleDateFormat.getDateTimeInstance();
         List<LogEvent> auditEvents = stateful.getAuditEvents();
         JsonArray events = new JsonArray();

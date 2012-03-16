@@ -25,8 +25,8 @@ import org.apache.ace.client.repository.helper.PropertyResolver;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.*;
 import org.apache.ace.client.repository.repository.*;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
-import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.log.AuditEvent;
@@ -74,7 +74,7 @@ import junit.framework.Assert;
 import static org.apache.ace.client.repository.RepositoryObject.PRIVATE_TOPIC_ROOT;
 import static org.apache.ace.client.repository.RepositoryObject.PUBLIC_TOPIC_ROOT;
 import static org.apache.ace.client.repository.RepositoryObject.WorkingState;
-import static org.apache.ace.client.repository.stateful.StatefulGatewayObject.*;
+import static org.apache.ace.client.repository.stateful.StatefulTargetObject.*;
 import static org.apache.ace.it.Options.*;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
@@ -143,9 +143,9 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                     .add(createServiceDependency().setService(Group2LicenseAssociationRepository.class).setRequired(true))
                     .add(createServiceDependency().setService(LicenseRepository.class).setRequired(true))
                     .add(createServiceDependency().setService(License2GatewayAssociationRepository.class).setRequired(true))
-                    .add(createServiceDependency().setService(GatewayRepository.class).setRequired(true))
+                    .add(createServiceDependency().setService(TargetRepository.class).setRequired(true))
                     .add(createServiceDependency().setService(DeploymentVersionRepository.class).setRequired(true))
-                    .add(createServiceDependency().setService(StatefulGatewayRepository.class).setRequired(true))
+                    .add(createServiceDependency().setService(StatefulTargetRepository.class).setRequired(true))
                     .add(createServiceDependency().setService(LogStore.class, "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))").setRequired(true))
                     .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true))
         };
@@ -159,9 +159,9 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
     private volatile Group2LicenseAssociationRepository m_group2licenseRepository; /* Injected by dependency manager */
     private volatile LicenseRepository m_licenseRepository; /* Injected by dependency manager */
     private volatile License2GatewayAssociationRepository m_license2gatewayRepository; /* Injected by dependency manager */
-    private volatile GatewayRepository m_gatewayRepository; /* Injected by dependency manager */
+    private volatile TargetRepository m_gatewayRepository; /* Injected by dependency manager */
     private volatile DeploymentVersionRepository m_deploymentVersionRepository; /* Injected by dependency manager */
-    private volatile StatefulGatewayRepository m_statefulGatewayRepository; /* Injected by dependency manager */
+    private volatile StatefulTargetRepository m_statefulGatewayRepository; /* Injected by dependency manager */
     private volatile LogStore m_auditLogStore; /* Injected by dependency manager */
 
     public void cleanUp() throws IOException, InvalidSyntaxException, InterruptedException {
@@ -348,7 +348,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         final RepositoryAdminLoginContext loginContext1 = m_repositoryAdmin.createLoginContext(user1);
         loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext1.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
+        loginContext1.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
         m_repositoryAdmin.login(loginContext1);
 
         assert !m_repositoryAdmin.isCurrent() : "When first logging in without checking out, the repository cannot be current.";
@@ -428,7 +428,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         final RepositoryAdminLoginContext loginContext2 = m_repositoryAdmin.createLoginContext(user2);
         loginContext2.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext2.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
+        loginContext2.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
 
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
@@ -529,7 +529,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         RepositoryAdminLoginContext loginContext = m_repositoryAdmin.createLoginContext(user);
         loginContext.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
+        loginContext.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
         loginContext.addDeploymentRepository(new URL(HOST + ENDPOINT), "apache", "deployment", true);
         m_repositoryAdmin.login(loginContext);
 
@@ -538,9 +538,9 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 createBasicGatewayObject("testAutoApproveGateway");
                 return null;
             }
-        }, false, GatewayObject.TOPIC_ADDED, TOPIC_ADDED);
+        }, false, TargetObject.TOPIC_ADDED, TOPIC_ADDED);
 
-        final StatefulGatewayObject sgo = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(" + GatewayObject.KEY_ID + "=" + "testAutoApproveGateway)")).get(0);
+        final StatefulTargetObject sgo = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(" + TargetObject.KEY_ID + "=" + "testAutoApproveGateway)")).get(0);
 
         // Set up some deployment information for the gateway.
         final GroupObject g = runAndWaitForEvent(new Callable<GroupObject>() {
@@ -611,7 +611,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         RepositoryAdminLoginContext loginContext = m_repositoryAdmin.createLoginContext(user);
         loginContext.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
+        loginContext.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
         loginContext.addDeploymentRepository(new URL(HOST + ENDPOINT), "apache", "deployment", true);
         m_repositoryAdmin.login(loginContext);
 
@@ -643,15 +643,15 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         // register gateway with
         final Map<String, String> attr = new HashMap<String, String>();
-        attr.put(GatewayObject.KEY_ID, "a_gateway");
-        attr.put(GatewayObject.KEY_AUTO_APPROVE, String.valueOf(true));
+        attr.put(TargetObject.KEY_ID, "a_gateway");
+        attr.put(TargetObject.KEY_AUTO_APPROVE, String.valueOf(true));
         final Map<String, String> tags = new HashMap<String, String>();
 
-        final StatefulGatewayObject sgo = runAndWaitForEvent(new Callable<StatefulGatewayObject>() {
-            public StatefulGatewayObject call() throws Exception {
+        final StatefulTargetObject sgo = runAndWaitForEvent(new Callable<StatefulTargetObject>() {
+            public StatefulTargetObject call() throws Exception {
                 return m_statefulGatewayRepository.preregister(attr, tags);
             }
-        }, false, GatewayObject.TOPIC_ADDED, TOPIC_ADDED);
+        }, false, TargetObject.TOPIC_ADDED, TOPIC_ADDED);
 
         assert m_gatewayRepository.get().size() == 1 : "We expect to find exactly one gateway in the repository, but we find " + m_gatewayRepository.get().size();
         assert m_statefulGatewayRepository.get().size() == 1 : "We expect to find exactly one stateful gateway in the repository, but we find " + m_statefulGatewayRepository.get().size();
@@ -668,12 +668,12 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 m_statefulGatewayRepository.unregister(sgo.getID());
                 return null;
             }
-        }, false, GatewayObject.TOPIC_REMOVED, TOPIC_REMOVED);
+        }, false, TargetObject.TOPIC_REMOVED, TOPIC_REMOVED);
     }
 
     private void testStatefulCreateRemove() throws Exception {
         final Map<String, String> attr = new HashMap<String, String>();
-        attr.put(GatewayObject.KEY_ID, "myNewGateway1");
+        attr.put(TargetObject.KEY_ID, "myNewGateway1");
         final Map<String, String> tags = new HashMap<String, String>();
 
         try {
@@ -684,11 +684,11 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             // expected
         }
 
-        final StatefulGatewayObject sgo = runAndWaitForEvent(new Callable<StatefulGatewayObject>() {
-            public StatefulGatewayObject call() throws Exception {
+        final StatefulTargetObject sgo = runAndWaitForEvent(new Callable<StatefulTargetObject>() {
+            public StatefulTargetObject call() throws Exception {
                 return m_statefulGatewayRepository.preregister(attr, tags);
             }
-        }, false, GatewayObject.TOPIC_ADDED, TOPIC_ADDED);
+        }, false, TargetObject.TOPIC_ADDED, TOPIC_ADDED);
 
         assert m_gatewayRepository.get().size() == 1 : "We expect to find exactly one gateway in the repository, but we find " + m_gatewayRepository.get().size();
         assert m_statefulGatewayRepository.get().size() == 1 : "We expect to find exactly one stateful gateway in the repository, but we find " + m_statefulGatewayRepository.get().size();
@@ -709,7 +709,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 m_statefulGatewayRepository.unregister(sgo.getID());
                 return null;
             }
-        }, false, GatewayObject.TOPIC_REMOVED, TOPIC_REMOVED);
+        }, false, TargetObject.TOPIC_REMOVED, TOPIC_REMOVED);
 
         assert m_gatewayRepository.get().size() == 0 : "We expect to find no gateway in the repository, but we find " + m_gatewayRepository.get().size();
         assert m_statefulGatewayRepository.get().size() == 0 : "We expect to find no stateful gateway in the repository, but we find " + m_statefulGatewayRepository.get().size();
@@ -717,13 +717,13 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
     private void testStatefulApprove() throws Exception {
         final Map<String, String> attr = new HashMap<String, String>();
-        attr.put(GatewayObject.KEY_ID, "myNewGateway2");
+        attr.put(TargetObject.KEY_ID, "myNewGateway2");
         final Map<String, String> tags = new HashMap<String, String>();
-        final StatefulGatewayObject sgo = runAndWaitForEvent(new Callable<StatefulGatewayObject>() {
-            public StatefulGatewayObject call() throws Exception {
+        final StatefulTargetObject sgo = runAndWaitForEvent(new Callable<StatefulTargetObject>() {
+            public StatefulTargetObject call() throws Exception {
                 return m_statefulGatewayRepository.preregister(attr, tags);
             }
-        }, false, GatewayObject.TOPIC_ADDED, TOPIC_ADDED);
+        }, false, TargetObject.TOPIC_ADDED, TOPIC_ADDED);
 
         assert !sgo.needsApprove() : "Without any deployment versions, and no information in the shop, we should not need to approve.";
         assert sgo.getRegistrationState().equals(RegistrationState.Registered) : "We expect the registration state to be Registered, but it is " + sgo.getRegistrationState();
@@ -805,7 +805,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 m_statefulGatewayRepository.unregister(sgo.getID());
                 return null;
             }
-        }, false, GatewayObject.TOPIC_REMOVED, TOPIC_REMOVED);
+        }, false, TargetObject.TOPIC_REMOVED, TOPIC_REMOVED);
 
         assert m_statefulGatewayRepository.get().size() == 0;
     }
@@ -823,7 +823,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         int sgrSizeBefore = m_statefulGatewayRepository.get().size();
         m_statefulGatewayRepository.refresh();
         assert m_statefulGatewayRepository.get().size() == sgrSizeBefore + 1 : "After refresh, we expect " + (sgrSizeBefore + 1) + " gateway based on auditlogdata, but we find " + m_statefulGatewayRepository.get().size();
-        StatefulGatewayObject sgo = findStatefulGateway(":)");
+        StatefulTargetObject sgo = findStatefulGateway(":)");
         sgo.register();
         assert sgo.getRegistrationState().equals(RegistrationState.Registered) : "After registring our gateway, we assume it to be registered.";
         assert sgo.getProvisioningState().equals(ProvisioningState.Idle) : "We expect our object's provisioning state to be Idle, but it is " + m_statefulGatewayRepository.get().get(0).getProvisioningState();
@@ -842,7 +842,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         assert m_statefulGatewayRepository.get().size() == 0 : "Before audit log refresh, we expect nothing in the stateful repository, but we find " + m_statefulGatewayRepository.get().size();
         m_statefulGatewayRepository.refresh();
         assert m_statefulGatewayRepository.get().size() == 1 : "After refresh, we expect 1 gateway based on auditlogdata, but we find " + m_statefulGatewayRepository.get().size();
-        StatefulGatewayObject sgo = m_statefulGatewayRepository.get().get(0);
+        StatefulTargetObject sgo = m_statefulGatewayRepository.get().get(0);
         assert sgo.getProvisioningState().equals(ProvisioningState.Idle) : "We expect our object's provisioning state to be Idle, but it is " + m_statefulGatewayRepository.get().get(0).getProvisioningState();
 
         //fill auditlog with complete-data
@@ -907,14 +907,14 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
     private void testStatefulAuditAndRegister() throws Exception {
         //preregister gateway
         final Map<String, String> attr = new HashMap<String, String>();
-        attr.put(GatewayObject.KEY_ID, "myNewGateway3");
+        attr.put(TargetObject.KEY_ID, "myNewGateway3");
         final Map<String, String> tags = new HashMap<String, String>();
 
-        final StatefulGatewayObject sgo1 = runAndWaitForEvent(new Callable<StatefulGatewayObject>() {
-            public StatefulGatewayObject call() throws Exception {
+        final StatefulTargetObject sgo1 = runAndWaitForEvent(new Callable<StatefulTargetObject>() {
+            public StatefulTargetObject call() throws Exception {
                 return m_statefulGatewayRepository.preregister(attr, tags);
             }
-        }, false, GatewayObject.TOPIC_ADDED, TOPIC_ADDED);
+        }, false, TargetObject.TOPIC_ADDED, TOPIC_ADDED);
 
         //do checks
         assert sgo1.isRegistered() : "We just preregistered a gateway, so it should be registered.";
@@ -946,7 +946,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 return false;
             }
         }, false, TOPIC_ADDED);
-        final StatefulGatewayObject sgo2 = findStatefulGateway("myNewGateway4");
+        final StatefulTargetObject sgo2 = findStatefulGateway("myNewGateway4");
 
         //do checks
         assert sgo1.isRegistered() : "Adding auditlog data for a gateway does not influence its isRegistered().";
@@ -971,7 +971,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 m_statefulGatewayRepository.unregister(sgo1.getID());
                 return null;
             }
-        }, false, GatewayObject.TOPIC_REMOVED, TOPIC_STATUS_CHANGED);
+        }, false, TargetObject.TOPIC_REMOVED, TOPIC_STATUS_CHANGED);
 
         //do checks
         assert !sgo1.isRegistered() : "sgo1 is now only found in the auditlog, so it cannot be registered.";
@@ -997,7 +997,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 sgo2.register();
                 return null;
             }
-        }, false, GatewayObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
+        }, false, TargetObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
 
         //do checks
         assert !sgo1.isRegistered() : "sgo1 is now only found in the auditlog, so it cannot be in registered.";
@@ -1030,7 +1030,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 sgo1.register();
                 return m_license2gatewayRepository.create(l1, sgo1.getGatewayObject());
             }
-        }, false, License2GatewayAssociation.TOPIC_ADDED, GatewayObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
+        }, false, License2GatewayAssociation.TOPIC_ADDED, TargetObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
 
         // checks
         nrRegistered = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(" + KEY_REGISTRATION_STATE + "=" + RegistrationState.Registered + ")")).size();
@@ -1040,8 +1040,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         assert lgw1.isSatisfied() : "Both ends of license - stateful gw should be satisfied.";
     }
 
-    private StatefulGatewayObject findStatefulGateway(String gatewayID) throws InvalidSyntaxException {
-        for (StatefulGatewayObject sgo : m_statefulGatewayRepository.get()) {
+    private StatefulTargetObject findStatefulGateway(String gatewayID) throws InvalidSyntaxException {
+        for (StatefulTargetObject sgo : m_statefulGatewayRepository.get()) {
             if (sgo.getID().equals(gatewayID)) {
                 return sgo;
             }
@@ -1087,9 +1087,9 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         LicenseObject l = createBasicLicenseObject("license");
 
         attr = new HashMap<String, String>();
-        attr.put(GatewayObject.KEY_ID, "myGateway");
+        attr.put(TargetObject.KEY_ID, "myGateway");
 
-        StatefulGatewayObject sgo = m_statefulGatewayRepository.preregister(attr, tags);
+        StatefulTargetObject sgo = m_statefulGatewayRepository.preregister(attr, tags);
 
         m_artifact2groupRepository.create(b1, g);
         m_artifact2groupRepository.create(a1, g);
@@ -1223,8 +1223,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             }, false, RepositoryAdmin.TOPIC_REFRESH);
 
             assert m_statefulGatewayRepository.get().size() == initRepoSize + 1 : "After refresh, we expect 1 gateway based on auditlogdata, but we find " + m_statefulGatewayRepository.get().size();
-            List<StatefulGatewayObject> sgoList = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(id=anotherG*)"));
-            StatefulGatewayObject sgo = sgoList.get(0);
+            List<StatefulTargetObject> sgoList = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(id=anotherG*)"));
+            StatefulTargetObject sgo = sgoList.get(0);
             assert sgo != null : "Expected one (anotherGateway) in the list.";
 
             // should be registered and auto approved
@@ -1388,7 +1388,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         final RepositoryAdminLoginContext loginContext1 = m_repositoryAdmin.createLoginContext(user1);
         loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext1.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
+        loginContext1.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
         m_repositoryAdmin.login(loginContext1);
 
         GroupObject g1 = createBasicGroupObject("group1");
@@ -1423,7 +1423,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         final RepositoryAdminLoginContext loginContext1 = m_repositoryAdmin.createLoginContext(user1);
         loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext1.addGatewayRepository(new URL(HOST + ENDPOINT), "apache", "gateway", false);
+        loginContext1.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "gateway", false);
         m_repositoryAdmin.login(loginContext1);
 
         m_repositoryAdmin.checkout();
@@ -1520,7 +1520,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 ArtifactObject a1 = createBasicArtifactObject("myArtifact", "mymime", "myProcessor.pid");
                 GroupObject go = createBasicGroupObject("mygroup");
                 LicenseObject lo = createBasicLicenseObject("mylicense");
-                GatewayObject gwo = createBasicGatewayObject("templategateway");
+                TargetObject gwo = createBasicGatewayObject("templategateway");
                 m_artifact2groupRepository.create(b1, go);
                 // note that we do not associate b2: this is a resource processor, so it will be packed
                 // implicitly. It should not be available to a preprocessor either.
@@ -1531,7 +1531,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             }
         }, false, TOPIC_ADDED);
 
-        StatefulGatewayObject sgo = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(" + GatewayObject.KEY_ID + "=templategateway)")).get(0);
+        StatefulTargetObject sgo = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(" + TargetObject.KEY_ID + "=templategateway)")).get(0);
 
         // wait until needsApprove is true; depending on timing, this could have happened before or after the TOPIC_ADDED.
         int attempts = 0;
@@ -1582,7 +1582,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 ArtifactObject b2 = createBasicBundleObject("myProcessor", "1.0.0", "org.osgi.deployment.rp.autoconf");
                 GroupObject go = createBasicGroupObject("mygroup");
                 LicenseObject lo = createBasicLicenseObject("mylicense");
-                GatewayObject gwo = createBasicGatewayObject("templategateway2");
+                TargetObject gwo = createBasicGatewayObject("templategateway2");
                 m_artifact2groupRepository.create(b1, go);
                 // note that we do not associate b2: this is a resource processor, so it will be packed
                 // implicitly. It should not be available to a preprocessor either.
@@ -1595,7 +1595,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         ArtifactObject a1 = m_artifactRepository.importArtifact(noTemplateFile.toURI().toURL(), true);
         Artifact2GroupAssociation a2g = m_artifact2groupRepository.create(a1, go);
 
-        final StatefulGatewayObject sgo = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(" + GatewayObject.KEY_ID + "=templategateway2)")).get(0);
+        final StatefulTargetObject sgo = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(" + TargetObject.KEY_ID + "=templategateway2)")).get(0);
 
         // create a deploymentversion
         assert sgo.needsApprove() : "With the new assignments, the SGO should need approval.";
@@ -1764,9 +1764,9 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         return m_licenseRepository.create(attr, tags);
     }
 
-    private GatewayObject createBasicGatewayObject(String id) {
+    private TargetObject createBasicGatewayObject(String id) {
         Map<String, String> attr = new HashMap<String, String>();
-        attr.put(GatewayObject.KEY_ID, id);
+        attr.put(TargetObject.KEY_ID, id);
         Map<String, String> tags = new HashMap<String, String>();
 
         return m_gatewayRepository.create(attr, tags);

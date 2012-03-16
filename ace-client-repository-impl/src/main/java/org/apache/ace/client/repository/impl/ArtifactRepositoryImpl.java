@@ -39,7 +39,7 @@ import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.ArtifactRecognizer;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -497,7 +497,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         m_obrBase = obrBase;
     }
 
-    public String preprocessArtifact(ArtifactObject artifact, GatewayObject gateway, String gatewayID, String version) throws IOException {
+    public String preprocessArtifact(ArtifactObject artifact, TargetObject gateway, String gatewayID, String version) throws IOException {
         ArtifactPreprocessor preprocessor = getHelper(artifact.getMimetype()).getPreprocessor();
         if (preprocessor == null) {
             return artifact.getURL();
@@ -507,7 +507,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         }
     }
 
-    public boolean needsNewVersion(ArtifactObject artifact, GatewayObject gateway, String gatewayID, String fromVersion) {
+    public boolean needsNewVersion(ArtifactObject artifact, TargetObject gateway, String gatewayID, String fromVersion) {
         ArtifactPreprocessor preprocessor = getHelper(artifact.getMimetype()).getPreprocessor();
         if (preprocessor == null) {
             return false;

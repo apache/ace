@@ -7,10 +7,10 @@ import java.util.Set;
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.GroupObject;
 import org.apache.ace.client.repository.object.LicenseObject;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.domain.NamedArtifactObject;
 import org.apache.ace.webui.domain.NamedDistributionObject;
@@ -92,11 +92,11 @@ public class Associations {
         else if (object instanceof LicenseObject) {
             return new NamedDistributionObject((LicenseObject) object);
         }
-        else if (object instanceof StatefulGatewayObject) {
-            return new NamedTargetObject((StatefulGatewayObject) object);
+        else if (object instanceof StatefulTargetObject) {
+            return new NamedTargetObject((StatefulTargetObject) object);
         }
-        else if (object instanceof GatewayObject) {
-            return new NamedTargetObject((GatewayObject) object);
+        else if (object instanceof TargetObject) {
+            return new NamedTargetObject((TargetObject) object);
         }
         return null;
     }
@@ -200,8 +200,8 @@ public class Associations {
             RepositoryObject object = null;
             if (value instanceof String) {
                 object = m_repository.get((String) value);
-                if (object instanceof StatefulGatewayObject) {
-                    StatefulGatewayObject sgo = (StatefulGatewayObject) object;
+                if (object instanceof StatefulTargetObject) {
+                    StatefulTargetObject sgo = (StatefulTargetObject) object;
                     if (sgo.isRegistered()) {
                         object = sgo.getGatewayObject();
                     }

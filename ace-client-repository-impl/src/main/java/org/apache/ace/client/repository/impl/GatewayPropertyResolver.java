@@ -22,7 +22,7 @@ import java.util.*;
 
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.helper.PropertyResolver;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 
 /**
  *
@@ -32,7 +32,7 @@ import org.apache.ace.client.repository.object.GatewayObject;
  */
 public class GatewayPropertyResolver extends RepoPropertyResolver {
 
-    public GatewayPropertyResolver(GatewayObject go) {
+    public GatewayPropertyResolver(TargetObject go) {
         super(go);
     }
 

@@ -24,21 +24,21 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
     <artifactId>org.apache.ace.ant.tasks</artifactId>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <name>Apache ACE :: Ant Tasks</name>
     <description>Collection of Ant tasks for integrating Apache ACE into your development environment.</description>
     <packaging>jar</packaging>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-ant-tasks</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-ant-tasks</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-ant-tasks</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-ant-tasks</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-ant-tasks</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-ant-tasks</url>
     </scm>
 
     <dependencies>

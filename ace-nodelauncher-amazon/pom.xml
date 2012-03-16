@@ -25,11 +25,11 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <artifactId>org.apache.ace.nodelauncher.amazon</artifactId>
     <packaging>bundle</packaging>
 
@@ -37,10 +37,10 @@
     <description/>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-nodelauncher-amazon</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-nodelauncher-amazon
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-nodelauncher-amazon</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-nodelauncher-amazon
         </developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-nodelauncher-amazon</url>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-nodelauncher-amazon</url>
     </scm>
 
     <properties>

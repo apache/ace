@@ -1,27 +1,27 @@
 package org.apache.ace.webui.domain;
 
 import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.object.GatewayObject;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.webui.NamedObject;
 
 public class NamedTargetObject implements NamedObject {
     private final RepositoryObject m_target;
 
-    public NamedTargetObject(StatefulGatewayObject target) {
+    public NamedTargetObject(StatefulTargetObject target) {
         m_target = target;
     }
 
-    public NamedTargetObject(GatewayObject target) {
+    public NamedTargetObject(TargetObject target) {
         m_target = target;
     }
 
     public String getName() {
-        if (m_target instanceof StatefulGatewayObject) {
-            return ((StatefulGatewayObject) m_target).getID();
+        if (m_target instanceof StatefulTargetObject) {
+            return ((StatefulTargetObject) m_target).getID();
         }
-        else if (m_target instanceof GatewayObject) {
-            return ((GatewayObject) m_target).getID();
+        else if (m_target instanceof TargetObject) {
+            return ((TargetObject) m_target).getID();
         }
         return null;
     }

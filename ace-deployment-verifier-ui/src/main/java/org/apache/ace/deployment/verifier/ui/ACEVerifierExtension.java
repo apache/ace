@@ -32,9 +32,9 @@ import java.util.jar.JarInputStream;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.deployment.verifier.VerifierService;
 import org.apache.ace.deployment.verifier.VerifierService.VerifyEnvironment;
 import org.apache.ace.deployment.verifier.VerifierService.VerifyReporter;
@@ -63,10 +63,10 @@ public class ACEVerifierExtension implements UIExtensionFactory {
 
     public Component create(Map<String, Object> context) {
         RepositoryObject object = getRepositoryObjectFromContext(context);
-        if (object instanceof StatefulGatewayObject) {
-            StatefulGatewayObject statefulTarget = (StatefulGatewayObject) object;
+        if (object instanceof StatefulTargetObject) {
+            StatefulTargetObject statefulTarget = (StatefulTargetObject) object;
             if (statefulTarget.isRegistered()) {
-                String id = object.getAttribute(GatewayObject.KEY_ID);
+                String id = object.getAttribute(TargetObject.KEY_ID);
                 return new ManifestArea(id, (object.getAttribute("manifest") == null) ? Constants.BUNDLE_MANIFESTVERSION + ": " + "2" + "\n" + Constants.BUNDLE_SYMBOLICNAME + ": " + "org.apache.felix.framework" + "\n" + Constants.EXPORT_PACKAGE + ": " + VerifierService.SYSTEM_PACKAGES + "," + VerifierService.JRE_1_6_PACKAGES + "," + "org.osgi.service.cm;version=1.2,org.osgi.service.metatype;version=1.1.1,org.osgi.service.cm; version=1.3.0,org.osgi.service.deploymentadmin.spi; version=1.0.1,org.osgi.service.deploymentadmin; version=1.1.0" + "\n" : object.getAttribute("manifest"), object);
             }
         }

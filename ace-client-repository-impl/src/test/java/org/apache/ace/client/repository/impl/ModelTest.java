@@ -35,14 +35,14 @@ import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.Group2LicenseAssociation;
 import org.apache.ace.client.repository.object.GroupObject;
 import org.apache.ace.client.repository.object.LicenseObject;
 import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
-import org.apache.ace.client.repository.repository.GatewayRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepository;
 import org.apache.ace.client.repository.repository.GroupRepository;
 import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
@@ -116,7 +116,7 @@ public class ModelTest {
         repos.put(Group2LicenseAssociationRepository.class, m_group2licenseRepository);
         repos.put(LicenseRepository.class, m_licenseRepository);
         repos.put(License2GatewayAssociationRepository.class, m_license2gatewayRepository);
-        repos.put(GatewayRepository.class, m_gatewayRepository);
+        repos.put(TargetRepository.class, m_gatewayRepository);
         repos.put(DeploymentVersionRepository.class, m_deploymentVersionRepository);
 
         m_repositoryAdmin.initialize(repos);
@@ -435,7 +435,7 @@ public class ModelTest {
     public void testLicense2GatewayAssociations() {
         initializeRepositoryAdmin();
         LicenseObject l1 = createBasicLicenseObject("license1");
-        GatewayObject g1 = createBasicGatewayObject("gateway1");
+        TargetObject g1 = createBasicGatewayObject("gateway1");
         m_license2gatewayRepository.create(l1, g1);
 
         assert l1.getGroups().size() == 0 : "License 1 should not be associated with any groups; it is associated with " + l1.getGroups().size() + ".";
@@ -673,9 +673,9 @@ public class ModelTest {
         return m_licenseRepository.create(attr, tags);
     }
 
-    private GatewayObject createBasicGatewayObject(String id) {
+    private TargetObject createBasicGatewayObject(String id) {
         Map<String, String> attr = new HashMap<String, String>();
-        attr.put(GatewayObject.KEY_ID, id);
+        attr.put(TargetObject.KEY_ID, id);
         Map<String, String> tags = new HashMap<String, String>();
 
         return m_gatewayRepository.create(attr, tags);

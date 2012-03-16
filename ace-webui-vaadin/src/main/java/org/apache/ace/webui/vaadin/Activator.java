@@ -23,7 +23,7 @@ import java.util.Properties;
 
 import javax.servlet.Servlet;
 
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -66,7 +66,7 @@ public class Activator extends DependencyActivatorBase {
                     VerticalLayout vl = new VerticalLayout();
                     vl.setCaption("Info");
                     final NamedObject namedObject = (NamedObject) context.get("object");
-                    final StatefulGatewayObject target = (StatefulGatewayObject) namedObject.getObject();
+                    final StatefulTargetObject target = (StatefulTargetObject) namedObject.getObject();
                     Label info = new Label(
                         "Target ID          : " + namedObject.getName() + "\n" +
                         "Installed version  : " + (target.getLastInstallVersion() == null ? "(none)" : target.getLastInstallVersion()) + "\n" +

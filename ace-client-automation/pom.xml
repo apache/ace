@@ -24,11 +24,11 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <artifactId>org.apache.ace.client.automation</artifactId>
     <packaging>bundle</packaging>
 
@@ -36,9 +36,9 @@
     <description>Client bundle that automatically registers new targets that connect with the server, approves outgoing changes and turns on automatic approval of future updates.</description>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-automation</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-automation</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-automation</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-client-automation</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-client-automation</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-client-automation</url>
     </scm>
 
     <properties>

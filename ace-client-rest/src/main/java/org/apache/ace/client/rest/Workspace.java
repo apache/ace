@@ -33,13 +33,13 @@ import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
-import org.apache.ace.client.repository.repository.GatewayRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepository;
 import org.apache.ace.client.repository.repository.GroupRepository;
 import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
 import org.apache.ace.client.repository.repository.LicenseRepository;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
-import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.Filter;
@@ -70,8 +70,8 @@ public class Workspace {
     private volatile ArtifactRepository m_artifactRepository;
     private volatile GroupRepository m_featureRepository;
     private volatile LicenseRepository m_distributionRepository;
-    private volatile StatefulGatewayRepository m_statefulTargetRepository;
-    private volatile GatewayRepository m_targetRepository;
+    private volatile StatefulTargetRepository m_statefulTargetRepository;
+    private volatile TargetRepository m_targetRepository;
     private volatile Artifact2GroupAssociationRepository m_artifact2FeatureAssociationRepository;
     private volatile Group2LicenseAssociationRepository m_feature2DistributionAssociationRepository;
     private volatile License2GatewayAssociationRepository m_distribution2TargetAssociationRepository;
@@ -110,8 +110,8 @@ public class Workspace {
         addSessionDependency(component, ArtifactRepository.class, true);
         addSessionDependency(component, GroupRepository.class, true);
         addSessionDependency(component, LicenseRepository.class, true);
-        addSessionDependency(component, GatewayRepository.class, true);
-        addSessionDependency(component, StatefulGatewayRepository.class, true);
+        addSessionDependency(component, TargetRepository.class, true);
+        addSessionDependency(component, StatefulTargetRepository.class, true);
         addSessionDependency(component, Artifact2GroupAssociationRepository.class, true);
         addSessionDependency(component, Group2LicenseAssociationRepository.class, true);
         addSessionDependency(component, License2GatewayAssociationRepository.class, true);
@@ -125,7 +125,7 @@ public class Workspace {
             m_repositoryAdmin.login(m_repositoryAdmin.createLoginContext(user)
                 .setObrBase(new URL(m_obrURL))
                 .addShopRepository(new URL(m_repositoryURL), m_customerName, m_storeRepositoryName, true)
-                .addGatewayRepository(new URL(m_repositoryURL), m_customerName, m_licenseRepositoryName, true)
+                .addTargetRepository(new URL(m_repositoryURL), m_customerName, m_licenseRepositoryName, true)
                 .addDeploymentRepository(new URL(m_repositoryURL), m_customerName, m_deploymentRepositoryName, true)
                 );
             m_repositoryAdmin.checkout();
@@ -164,7 +164,7 @@ public class Workspace {
 
     public RepositoryObject addRepositoryObject(String entityType, Map<String, String> attributes, Map<String, String> tags) throws IllegalArgumentException {
         if (TARGET.equals(entityType)) {
-            return ((StatefulGatewayRepository) getObjectRepository(TARGET)).preregister(attributes, tags);
+            return ((StatefulTargetRepository) getObjectRepository(TARGET)).preregister(attributes, tags);
         }
         else {
             if (ARTIFACT2FEATURE.equals(entityType) || FEATURE2DISTRIBUTION.equals(entityType) || DISTRIBUTION2TARGET.equals(entityType)) {
@@ -184,9 +184,9 @@ public class Workspace {
 
 
                 if (left != null) {
-                    if (left instanceof StatefulGatewayObject) {
-                        if (((StatefulGatewayObject) left).isRegistered()) {
-                            attributes.put("leftEndpoint", ((StatefulGatewayObject) left).getGatewayObject().getAssociationFilter(attributes));
+                    if (left instanceof StatefulTargetObject) {
+                        if (((StatefulTargetObject) left).isRegistered()) {
+                            attributes.put("leftEndpoint", ((StatefulTargetObject) left).getGatewayObject().getAssociationFilter(attributes));
                         }
                     }
                     else {
@@ -194,9 +194,9 @@ public class Workspace {
                     }
                 }
                 if (right != null) {
-                    if (right instanceof StatefulGatewayObject) {
-                        if (((StatefulGatewayObject) right).isRegistered()) {
-                            attributes.put("rightEndpoint", ((StatefulGatewayObject) right).getGatewayObject().getAssociationFilter(attributes));
+                    if (right instanceof StatefulTargetObject) {
+                        if (((StatefulTargetObject) right).isRegistered()) {
+                            attributes.put("rightEndpoint", ((StatefulTargetObject) right).getGatewayObject().getAssociationFilter(attributes));
                         }
                     }
                     else {
@@ -242,9 +242,9 @@ public class Workspace {
             }
 
             if (left != null) {
-                if (left instanceof StatefulGatewayObject) {
-                    if (((StatefulGatewayObject) left).isRegistered()) {
-                        repositoryObject.addAttribute("leftEndpoint", ((StatefulGatewayObject) left).getGatewayObject().getAssociationFilter(getAttributes(((StatefulGatewayObject) left).getGatewayObject())));
+                if (left instanceof StatefulTargetObject) {
+                    if (((StatefulTargetObject) left).isRegistered()) {
+                        repositoryObject.addAttribute("leftEndpoint", ((StatefulTargetObject) left).getGatewayObject().getAssociationFilter(getAttributes(((StatefulTargetObject) left).getGatewayObject())));
                     }
                 }
                 else {
@@ -252,9 +252,9 @@ public class Workspace {
                 }
             }
             if (right != null) {
-                if (right instanceof StatefulGatewayObject) {
-                    if (((StatefulGatewayObject) right).isRegistered()) {
-                        repositoryObject.addAttribute("rightEndpoint", ((StatefulGatewayObject) right).getGatewayObject().getAssociationFilter(getAttributes(((StatefulGatewayObject) right).getGatewayObject())));
+                if (right instanceof StatefulTargetObject) {
+                    if (((StatefulTargetObject) right).isRegistered()) {
+                        repositoryObject.addAttribute("rightEndpoint", ((StatefulTargetObject) right).getGatewayObject().getAssociationFilter(getAttributes(((StatefulTargetObject) right).getGatewayObject())));
                     }
                 }
                 else {

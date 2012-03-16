@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
@@ -33,9 +33,9 @@
     <name>Apache ACE :: Integration Tests</name>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-integrationtests</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-integrationtests</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-integrationtests</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-integrationtests</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-integrationtests</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-integrationtests</url>
     </scm>
 
     <dependencies>

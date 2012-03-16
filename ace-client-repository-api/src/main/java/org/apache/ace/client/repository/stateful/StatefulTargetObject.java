@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.License2GatewayAssociation;
 import org.apache.ace.client.repository.object.LicenseObject;
 import org.apache.ace.log.LogEvent;
@@ -33,21 +33,21 @@ import org.apache.ace.log.LogEvent;
  * has, plus added functionality for gathering information from a deployment repository and,
  * optionally, from an AuditLog.
  */
-public interface StatefulGatewayObject extends RepositoryObject {
+public interface StatefulTargetObject extends RepositoryObject {
 
-    public static final String TOPIC_ADDED = StatefulGatewayObject.class.getName().replace('.', '/') + "/ADDED";
-    public static final String TOPIC_REMOVED = StatefulGatewayObject.class.getName().replace('.', '/') + "/REMOVED";
-    public static final String TOPIC_CHANGED = StatefulGatewayObject.class.getName().replace('.', '/') + "/CHANGED";
-    public static final String TOPIC_STATUS_CHANGED = StatefulGatewayObject.class.getName().replace('.', '/') + "/STATUS_CHANGED";
+    public static final String TOPIC_ADDED = StatefulTargetObject.class.getName().replace('.', '/') + "/ADDED";
+    public static final String TOPIC_REMOVED = StatefulTargetObject.class.getName().replace('.', '/') + "/REMOVED";
+    public static final String TOPIC_CHANGED = StatefulTargetObject.class.getName().replace('.', '/') + "/CHANGED";
+    public static final String TOPIC_STATUS_CHANGED = StatefulTargetObject.class.getName().replace('.', '/') + "/STATUS_CHANGED";
     /** Indicates a change to the audit events for the StatefulGatewayObject in "entity".*/
-    public static final String TOPIC_AUDITEVENTS_CHANGED = StatefulGatewayObject.class.getName().replace('.', '/') + "/AUDITEVENTS_CHANGED";
+    public static final String TOPIC_AUDITEVENTS_CHANGED = StatefulTargetObject.class.getName().replace('.', '/') + "/AUDITEVENTS_CHANGED";
     /** Key used in the event with topic <code>TOPIC_AUDITEVENTS_CHANGED</code>. Contains a List<LogDescriptor> containing all
      *  events we have not seen yet. NOTE: The first auditevent "change" causing the <code>StatefulGatewayObject</code> to
      *  be instantiated will trigger a <code>TOPIC_AUDITEVENTS_CHANGED</code> event *before* a <code>TOPIC_ADDED</code> event. */
     public static final String KEY_AUDITEVENTS = "auditevents";
-    public static final String TOPIC_ALL = StatefulGatewayObject.class.getName().replace('.', '/') + "/*";
+    public static final String TOPIC_ALL = StatefulTargetObject.class.getName().replace('.', '/') + "/*";
 
-    public final static String KEY_ID = GatewayObject.KEY_ID;
+    public final static String KEY_ID = TargetObject.KEY_ID;
     public final static String KEY_REGISTRATION_STATE = "KEY_REGISTRATION_STATE";
     public final static String KEY_STORE_STATE = "KEY_STORE_STATE";
     public final static String KEY_PROVISIONING_STATE = "KEY_PROVISIONING_STATE";
@@ -175,7 +175,7 @@ public interface StatefulGatewayObject extends RepositoryObject {
      * @return The <code>GatewayObject</code> linked to this <code>StatefulGatewayObject</code>; if none
      * is available, an <code>IllegalStateException</code> will be thrown.
      */
-    public GatewayObject getGatewayObject();
+    public TargetObject getGatewayObject();
 
     /**
      * Returns all <code>LicenseObject</code>s this object is associated with. If there

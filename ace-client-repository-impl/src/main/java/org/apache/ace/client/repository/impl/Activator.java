@@ -29,15 +29,15 @@ import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.Group2LicenseAssociation;
 import org.apache.ace.client.repository.object.GroupObject;
 import org.apache.ace.client.repository.object.License2GatewayAssociation;
 import org.apache.ace.client.repository.object.LicenseObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
-import org.apache.ace.client.repository.repository.GatewayRepository;
-import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
+import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.client.repository.stateful.impl.StatefulGatewayRepositoryImpl;
 import org.apache.ace.server.log.store.LogStore;
 import org.apache.felix.dm.Component;
@@ -126,7 +126,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
             Group2LicenseAssociation.TOPIC_ALL,
             LicenseObject.TOPIC_ALL,
             License2GatewayAssociation.TOPIC_ALL,
-            GatewayObject.TOPIC_ALL,
+            TargetObject.TOPIC_ALL,
             DeploymentVersionObject.TOPIC_ALL,
             RepositoryAdmin.TOPIC_REFRESH, RepositoryAdmin.TOPIC_LOGIN});
         String filter = "(" + SessionFactory.SERVICE_SID + "=" + sessionID + ")";
@@ -134,10 +134,10 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         topic.put(SessionFactory.SERVICE_SID, sessionID);
         StatefulGatewayRepositoryImpl statefulGatewayRepositoryImpl = new StatefulGatewayRepositoryImpl(sessionID);
         sd.m_service2 = createComponent()
-            .setInterface(new String[] { StatefulGatewayRepository.class.getName(), EventHandler.class.getName() }, topic)
+            .setInterface(new String[] { StatefulTargetRepository.class.getName(), EventHandler.class.getName() }, topic)
             .setImplementation(statefulGatewayRepositoryImpl)
             .add(createServiceDependency().setService(ArtifactRepository.class, filter).setRequired(true))
-            .add(createServiceDependency().setService(GatewayRepository.class, filter).setRequired(true))
+            .add(createServiceDependency().setService(TargetRepository.class, filter).setRequired(true))
             .add(createServiceDependency().setService(DeploymentVersionRepository.class, filter).setRequired(true))
             .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=auditlog))").setRequired(false))
             .add(createServiceDependency().setService(BundleHelper.class).setRequired(true))

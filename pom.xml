@@ -28,7 +28,7 @@
 
     <groupId>org.apache.ace</groupId>
     <artifactId>ace-reactor</artifactId>
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Apache ACE :: Reactor</name>
     <modules>
@@ -132,9 +132,9 @@
     </modules>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk</url>
     </scm>
 
     <build>

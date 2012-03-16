@@ -24,19 +24,19 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <artifactId>org.apache.ace.repository.ext</artifactId>
     <name>Apache ACE :: Repository :: Extensions</name>
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-ext</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-ext</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-ext</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-repository-ext</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-repository-ext</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-repository-ext</url>
     </scm>
 
     <dependencies>

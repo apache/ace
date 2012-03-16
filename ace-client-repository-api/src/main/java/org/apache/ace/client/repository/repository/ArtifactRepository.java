@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 
 /**
  * Interface to a ArtifactRepository. The functionality is defined by the generic AssociationRepository.
@@ -79,7 +79,7 @@ public interface ArtifactRepository extends ObjectRepository<ArtifactObject>{
 	 * @return A URL to a new, processed artifact, or to the original one, in case nothing needed to be processed.
      * @throws IOException Thrown if reading the original artifact goes wrong, or storing the processed one.
 	 */
-	public String preprocessArtifact(ArtifactObject artifact, GatewayObject gateway, String gatewayID, String version) throws IOException ;
+	public String preprocessArtifact(ArtifactObject artifact, TargetObject gateway, String gatewayID, String version) throws IOException ;
 
     /**
      * Indicates whether the template should be processed again, given the properties, and the version to which it
@@ -94,7 +94,7 @@ public interface ArtifactRepository extends ObjectRepository<ArtifactObject>{
      * @return Whether or not a new version has to be created.
      * @throws IOException
      */
-    public boolean needsNewVersion(ArtifactObject artifact, GatewayObject gateway, String gatewayID, String fromVersion);
+    public boolean needsNewVersion(ArtifactObject artifact, TargetObject gateway, String gatewayID, String fromVersion);
 
 	/**
 	 * Sets the OBR that this artifact repository should use to upload artifacts to.

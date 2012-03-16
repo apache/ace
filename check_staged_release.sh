@@ -7,7 +7,7 @@ mkdir ${DOWNLOAD} 2>/dev/null
 # The following code automatically imports the signing KEYS, but it may actually be
 # better to download them from a key server and/or let the user choose what keys
 # he wants to import.
-#wget --no-check-certificate -P "${DOWNLOAD}" http://svn.apache.org/repos/asf/incubator/ace/trunk/KEYS 
+#wget --no-check-certificate -P "${DOWNLOAD}" http://svn.apache.org/repos/asf/ace/trunk/KEYS 
 #gpg --import "${DOWNLOAD}/KEYS"
 
 if [ -z "${STAGING}" -o ! -d "${DOWNLOAD}" ]

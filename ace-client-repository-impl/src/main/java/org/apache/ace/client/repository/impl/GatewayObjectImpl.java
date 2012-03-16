@@ -21,7 +21,7 @@ package org.apache.ace.client.repository.impl;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.License2GatewayAssociation;
 import org.apache.ace.client.repository.object.LicenseObject;
 
@@ -31,7 +31,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * Implementation class for the GatewayObject. For 'what it does', see GatewayObject,
  * for 'how it works', see RepositoryObjectImpl.
  */
-public class GatewayObjectImpl extends RepositoryObjectImpl<GatewayObject> implements GatewayObject {
+public class GatewayObjectImpl extends RepositoryObjectImpl<TargetObject> implements TargetObject {
     private final static String XML_NODE = "gateway";
 
     GatewayObjectImpl(Map<String, String> attributes, ChangeNotifier notifier) {

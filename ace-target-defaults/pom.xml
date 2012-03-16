@@ -24,20 +24,20 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <artifactId>org.apache.ace.target.defaults</artifactId>
 
     <name>Apache ACE :: Target :: Defaults</name>
     <description>Holds descriptors for certain ace launch configurations.</description>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-defaults</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-defaults</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-defaults</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-target-defaults</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-target-defaults</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-target-defaults</url>
     </scm>
 
     <build>

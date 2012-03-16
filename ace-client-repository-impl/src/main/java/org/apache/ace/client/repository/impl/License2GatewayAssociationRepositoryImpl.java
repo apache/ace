@@ -20,7 +20,7 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.License2GatewayAssociation;
 import org.apache.ace.client.repository.object.LicenseObject;
 import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
@@ -32,7 +32,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * for 'how it works', see AssociationRepositoryImpl.
  */
 
-public class License2GatewayAssociationRepositoryImpl extends AssociationRepositoryImpl<LicenseObject, GatewayObject, License2GatewayAssociationImpl, License2GatewayAssociation> implements License2GatewayAssociationRepository {
+public class License2GatewayAssociationRepositoryImpl extends AssociationRepositoryImpl<LicenseObject, TargetObject, License2GatewayAssociationImpl, License2GatewayAssociation> implements License2GatewayAssociationRepository {
     private final static String XML_NODE = "licenses2gateways";
 
     private final LicenseRepositoryImpl m_licenseRepository;

@@ -24,11 +24,11 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <artifactId>org.apache.ace.log.servlet</artifactId>
     <packaging>bundle</packaging>
 
@@ -36,9 +36,9 @@
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-log-servlet</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-log-servlet</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-log-servlet</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-log-servlet</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-log-servlet</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-log-servlet</url>
     </scm>
 
     <properties>

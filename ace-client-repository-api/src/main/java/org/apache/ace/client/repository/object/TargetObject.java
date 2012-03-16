@@ -22,11 +22,11 @@ import java.util.List;
 
 import org.apache.ace.client.repository.RepositoryObject;
 
-public interface GatewayObject extends RepositoryObject {
+public interface TargetObject extends RepositoryObject {
     public static final String KEY_ID = "id";
     public static final String KEY_AUTO_APPROVE = "autoapprove";
 
-    public static final String TOPIC_ENTITY_ROOT = GatewayObject.class.getSimpleName() + "/";
+    public static final String TOPIC_ENTITY_ROOT = TargetObject.class.getSimpleName() + "/";
 
     public static final String TOPIC_ADDED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ADDED_SUFFIX;
     public static final String TOPIC_REMOVED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_REMOVED_SUFFIX;

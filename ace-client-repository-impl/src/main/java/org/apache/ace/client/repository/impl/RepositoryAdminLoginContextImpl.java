@@ -27,7 +27,7 @@ import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
-import org.apache.ace.client.repository.repository.GatewayRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepository;
 import org.apache.ace.client.repository.repository.GroupRepository;
 import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
@@ -68,9 +68,9 @@ class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginContext {
     }
 
     @SuppressWarnings("unchecked")
-    public RepositoryAdminLoginContext addGatewayRepository(URL repositoryLocation, String repositoryCustomer, String repositoryName, boolean writeAccess) {
+    public RepositoryAdminLoginContext addTargetRepository(URL repositoryLocation, String repositoryCustomer, String repositoryName, boolean writeAccess) {
         return addRepositories(repositoryLocation, repositoryCustomer, repositoryName, writeAccess,
-            GatewayRepository.class,
+            TargetRepository.class,
             License2GatewayAssociationRepository.class);
     }
 

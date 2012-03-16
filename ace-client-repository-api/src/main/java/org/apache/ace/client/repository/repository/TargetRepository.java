@@ -19,10 +19,10 @@
 package org.apache.ace.client.repository.repository;
 
 import org.apache.ace.client.repository.ObjectRepository;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 
 /**
  * Interface to a GatewayRepository. The functionality is defined by the generic AssociationRepository.
  */
-public interface GatewayRepository extends ObjectRepository<GatewayObject>{
+public interface TargetRepository extends ObjectRepository<TargetObject>{
 }

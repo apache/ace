@@ -24,11 +24,11 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <artifactId>org.apache.ace.client.repository.helper.base</artifactId>
     <packaging>bundle</packaging>
 
@@ -36,9 +36,9 @@
     <description>Base implementation and Apache Velocity based artifact preprocessor that allows you to create artifacts that have placeholders in them that can be replaced with entity specific values.</description>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-base</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-base</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-base</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-client-repository-helper-base</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-client-repository-helper-base</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-client-repository-helper-base</url>
     </scm>
 
     <properties>

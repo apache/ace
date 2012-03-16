@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
@@ -34,9 +34,9 @@
     <name>Apache ACE :: Karaf Features</name>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-karaf-features</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-karaf-features</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-karaf-features</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-karaf-features</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-karaf-features</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-karaf-features</url>
     </scm>
 
     <build>

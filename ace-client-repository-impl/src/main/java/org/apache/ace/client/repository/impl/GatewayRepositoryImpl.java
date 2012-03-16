@@ -20,8 +20,8 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.GatewayObject;
-import org.apache.ace.client.repository.repository.GatewayRepository;
+import org.apache.ace.client.repository.object.TargetObject;
+import org.apache.ace.client.repository.repository.TargetRepository;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
@@ -29,7 +29,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * Implementation class for the GatewayRepository. For 'what it does', see GatewayRepository,
  * for 'how it works', see ObjectRepositoryImpl.
  */
-public class GatewayRepositoryImpl extends ObjectRepositoryImpl<GatewayObjectImpl, GatewayObject> implements GatewayRepository {
+public class GatewayRepositoryImpl extends ObjectRepositoryImpl<GatewayObjectImpl, TargetObject> implements TargetRepository {
     private final static String XML_NODE = "gateways";
 
     public GatewayRepositoryImpl(ChangeNotifier notifier) {

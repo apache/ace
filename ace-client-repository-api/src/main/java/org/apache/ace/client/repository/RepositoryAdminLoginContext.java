@@ -67,7 +67,7 @@ public interface RepositoryAdminLoginContext
      * will be used.
      * @return this object, to allow chaining.
      */
-    public RepositoryAdminLoginContext addGatewayRepository(URL repositoryLocation, String repositoryCustomer, String repositoryName, boolean writeAccess);
+    public RepositoryAdminLoginContext addTargetRepository(URL repositoryLocation, String repositoryCustomer, String repositoryName, boolean writeAccess);
 
     /**
      * Adds a deployment repository to this login context.

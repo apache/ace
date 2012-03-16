@@ -25,7 +25,7 @@ import org.apache.ace.client.repository.ObjectRepository;
 /**
  * Represents a repository of <ode>StatefulGatewayObject</code>'s.
  */
-public interface StatefulGatewayRepository extends ObjectRepository<StatefulGatewayObject> {
+public interface StatefulTargetRepository extends ObjectRepository<StatefulTargetObject> {
 
     /**
      * Registers a gateway with given attributes. This will result in the creation
@@ -35,7 +35,7 @@ public interface StatefulGatewayRepository extends ObjectRepository<StatefulGate
      * @param attributes The attributes to create the <code>GatewayObject</code> with.
      * @return The newly registered gateway object.
      */
-    public StatefulGatewayObject preregister(Map<String, String> attributes, Map<String, String> tags);
+    public StatefulTargetObject preregister(Map<String, String> attributes, Map<String, String> tags);
 
     /**
      * Unregisters a gateway, removing it from the <code>GatewayRepository</code>. Note

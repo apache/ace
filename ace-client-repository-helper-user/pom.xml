@@ -24,11 +24,11 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <artifactId>org.apache.ace.client.repository.helper.user</artifactId>
     <packaging>bundle</packaging>
 
@@ -36,9 +36,9 @@
     <description>Artifact recognizer and helper for UserAdmin data.</description>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-user</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-user</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-client-repository-helper-user</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-client-repository-helper-user</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-client-repository-helper-user</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-client-repository-helper-user</url>
     </scm>
 
     <properties>

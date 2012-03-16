@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.nodelauncher.NodeLauncher;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
@@ -39,7 +39,7 @@ public class NodeLauncherPanelFactory implements UIExtensionFactory {
     
     public Panel create(Map<String, Object> context) {
         NamedObject namedObject = (NamedObject) context.get("object");
-        StatefulGatewayObject target = (StatefulGatewayObject) namedObject.getObject();
+        StatefulTargetObject target = (StatefulTargetObject) namedObject.getObject();
         return new NodePanel(this, target.getID());
     }
     

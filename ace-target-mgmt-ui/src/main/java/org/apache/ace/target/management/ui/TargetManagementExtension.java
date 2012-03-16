@@ -21,7 +21,7 @@ package org.apache.ace.target.management.ui;
 import java.util.Map;
 
 import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 
@@ -51,12 +51,12 @@ public class TargetManagementExtension implements UIExtensionFactory {
         result.setSizeFull();
 
         RepositoryObject object = getRepositoryObjectFromContext(context);
-        if (!(object instanceof StatefulGatewayObject)) {
+        if (!(object instanceof StatefulTargetObject)) {
             result.addComponent(new Label("This target is not a stateful gateway object."));
             return result;
         }
 
-        final StatefulGatewayObject target = (StatefulGatewayObject) object;
+        final StatefulTargetObject target = (StatefulTargetObject) object;
 
         CheckBox registerCB = new CheckBox("Registered?");
         registerCB.setImmediate(true);
@@ -107,7 +107,7 @@ public class TargetManagementExtension implements UIExtensionFactory {
      * @param target
      * @return
      */
-    private boolean hasUnapprovedChanges(StatefulGatewayObject target) {
+    private boolean hasUnapprovedChanges(StatefulTargetObject target) {
         String availableVersion = target.getCurrentVersion();
         String currentVersion = target.getLastInstallVersion();
         return (availableVersion != null) && !availableVersion.equals(currentVersion);

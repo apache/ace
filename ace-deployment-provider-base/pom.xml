@@ -24,20 +24,20 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <artifactId>org.apache.ace.deployment.provider.base</artifactId>
     <packaging>jar</packaging>
     <name>Apache ACE :: Deployment :: Provider :: Base (library)</name>
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-provider-base</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-provider-base</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-deployment-provider-base</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-deployment-provider-base</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-deployment-provider-base</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-deployment-provider-base</url>
     </scm>
 
     <dependencies>

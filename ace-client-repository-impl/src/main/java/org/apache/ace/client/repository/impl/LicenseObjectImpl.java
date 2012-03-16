@@ -21,7 +21,7 @@ package org.apache.ace.client.repository.impl;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.Group2LicenseAssociation;
 import org.apache.ace.client.repository.object.GroupObject;
 import org.apache.ace.client.repository.object.License2GatewayAssociation;
@@ -48,8 +48,8 @@ public class LicenseObjectImpl extends RepositoryObjectImpl<LicenseObject> imple
         super(reader, notifier, XML_NODE);
     }
 
-    public List<GatewayObject> getGateways() {
-        return getAssociations(GatewayObject.class);
+    public List<TargetObject> getGateways() {
+        return getAssociations(TargetObject.class);
     }
 
     public List<GroupObject> getGroups() {
@@ -76,8 +76,8 @@ public class LicenseObjectImpl extends RepositoryObjectImpl<LicenseObject> imple
         return getAssociationsWith(group, GroupObject.class, Group2LicenseAssociation.class);
     }
 
-    public List<License2GatewayAssociation> getAssociationsWith(GatewayObject gateway) {
-        return getAssociationsWith(gateway, GatewayObject.class, License2GatewayAssociation.class);
+    public List<License2GatewayAssociation> getAssociationsWith(TargetObject gateway) {
+        return getAssociationsWith(gateway, TargetObject.class, License2GatewayAssociation.class);
     }
 
     private static String[] DEFINING_KEYS = new String[] {KEY_NAME};

@@ -81,11 +81,11 @@ public class ProvisioningDevice extends HttpServlet implements UPnPDevice {
 
 		m_properties.put(UPnPDevice.FRIENDLY_NAME,"UPnP Provisioning Device");
 		m_properties.put(UPnPDevice.MANUFACTURER,"Apache ACE");
-		m_properties.put(UPnPDevice.MANUFACTURER_URL,"http://incubator.apache.org/ace/");
+		m_properties.put(UPnPDevice.MANUFACTURER_URL,"http://ace.apache.org/");
 		m_properties.put(UPnPDevice.MODEL_DESCRIPTION,"A device that is automagically locatable by targets.");
 		m_properties.put(UPnPDevice.MODEL_NAME,"Apache ACE Device");
 		m_properties.put(UPnPDevice.MODEL_NUMBER,"1.0");
-		m_properties.put(UPnPDevice.MODEL_URL,"http://incubator.apache/org/ace/upnp-models/");
+		m_properties.put(UPnPDevice.MODEL_URL,"http://ace.apache.org/upnp-models/");
 
         m_properties.put(UPnPDevice.PRESENTATION_URL, "http://" + m_host + ":" + m_port + BASE_URL);
 		m_properties.put(UPnPDevice.SERIAL_NUMBER,"123456789");

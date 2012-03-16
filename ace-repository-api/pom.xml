@@ -24,21 +24,21 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
     <artifactId>org.apache.ace.repository.api</artifactId>
     <packaging>bundle</packaging>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <name>Apache ACE :: Repository :: API</name>
     <description />
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-api</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-api</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-repository-api</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-repository-api</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-repository-api</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-repository-api</url>
     </scm>
 
     <properties>

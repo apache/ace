@@ -35,10 +35,10 @@ import org.apache.ace.client.repository.Association;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.License2GatewayAssociation;
 import org.apache.ace.client.repository.object.LicenseObject;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.log.AuditEvent;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
@@ -49,10 +49,10 @@ import org.apache.ace.log.LogEvent;
  * parent <code>StatefulGatewayRepository</code>. Once created, it will handle its own lifecyle
  * and remove itself once is existence is no longer necessary.
  */
-public class StatefulGatewayObjectImpl implements StatefulGatewayObject {
+public class StatefulGatewayObjectImpl implements StatefulTargetObject {
     private final StatefulGatewayRepositoryImpl m_repository;
     private final Object m_lock = new Object();
-    private GatewayObject m_gatewayObject;
+    private TargetObject m_gatewayObject;
     private List<LogDescriptor> m_processedAuditEvents = new ArrayList<LogDescriptor>();
     private Map<String, String> m_attributes = new HashMap<String, String>();
     /** This boolean is used to suppress STATUS_CHANGED events during the creation of the object.*/
@@ -92,7 +92,7 @@ public class StatefulGatewayObjectImpl implements StatefulGatewayObject {
     public String getCurrentVersion() {
         DeploymentVersionObject version = m_repository.getMostRecentDeploymentVersion(getID());
         if (version == null) {
-            return StatefulGatewayObject.UNKNOWN_VERSION;
+            return StatefulTargetObject.UNKNOWN_VERSION;
         }
         else {
             return version.getVersion();
@@ -109,7 +109,7 @@ public class StatefulGatewayObjectImpl implements StatefulGatewayObject {
         }
     }
 
-    public GatewayObject getGatewayObject() {
+    public TargetObject getGatewayObject() {
         synchronized(m_lock) {
             ensureGatewayPresent();
             return m_gatewayObject;
@@ -354,7 +354,7 @@ public class StatefulGatewayObjectImpl implements StatefulGatewayObject {
 
         if (containsData) {
             Properties props = new Properties();
-            props.put(StatefulGatewayObject.KEY_AUDITEVENTS, events);
+            props.put(StatefulTargetObject.KEY_AUDITEVENTS, events);
             m_repository.notifyChanged(this, TOPIC_AUDITEVENTS_CHANGED, props);
         }
     }
@@ -417,10 +417,10 @@ public class StatefulGatewayObjectImpl implements StatefulGatewayObject {
 
     @Override
     public boolean equals(Object o) {
-        if ((o == null) || !(o instanceof StatefulGatewayObject)) {
+        if ((o == null) || !(o instanceof StatefulTargetObject)) {
             return false;
         }
-        return getID() == ((StatefulGatewayObject) o).getID();
+        return getID() == ((StatefulTargetObject) o).getID();
     }
 
     private void addStatusAttribute(String key, String value) {

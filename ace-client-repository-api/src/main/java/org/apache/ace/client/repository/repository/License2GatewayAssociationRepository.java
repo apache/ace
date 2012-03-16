@@ -19,14 +19,14 @@
 package org.apache.ace.client.repository.repository;
 
 import org.apache.ace.client.repository.AssociationRepository;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.License2GatewayAssociation;
 import org.apache.ace.client.repository.object.LicenseObject;
 
 /**
  * Interface to a License2GatewayAssociationRepository. The functionality is defined by the generic AssociationRepository.
  */
-public interface License2GatewayAssociationRepository extends AssociationRepository<LicenseObject, GatewayObject, License2GatewayAssociation> {
+public interface License2GatewayAssociationRepository extends AssociationRepository<LicenseObject, TargetObject, License2GatewayAssociation> {
     /**
      * Creates an assocation from a given license to multiple gateways, which correspond to the given
      * filter string. For parameters to use in the filter, see <code>GatewayObject</code>'s <code>KEY_</code> constants.

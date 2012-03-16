@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 
@@ -41,8 +41,8 @@ public class ACETagEditorExtension implements UIExtensionFactory {
         final RepositoryObject sgo = getRepositoryObjectFromContext(context);
         VerticalLayout result = new VerticalLayout();
         result.setCaption("Tag Editor");
-        if (sgo instanceof StatefulGatewayObject) {
-            StatefulGatewayObject statefulTarget = (StatefulGatewayObject) sgo;
+        if (sgo instanceof StatefulTargetObject) {
+            StatefulTargetObject statefulTarget = (StatefulTargetObject) sgo;
             if (statefulTarget.isRegistered()) {
                 final Table table = new Table();
                 table.setWidth("100%");

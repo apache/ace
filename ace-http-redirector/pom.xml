@@ -24,11 +24,11 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <artifactId>org.apache.ace.http.redirector</artifactId>
     <packaging>bundle</packaging>
 
@@ -36,9 +36,9 @@
     <description>Redirects HTTP requests from one (local) URL to another. Multiple redirects can be configured via a managed service factory.</description>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-http-redirector</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-http-redirector</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-http-redirector</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-http-redirector</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-http-redirector</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-http-redirector</url>
     </scm>
 
     <properties>

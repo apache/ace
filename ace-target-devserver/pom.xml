@@ -25,11 +25,11 @@
     <parent>
         <groupId>org.apache.ace</groupId>
         <artifactId>ace-pom</artifactId>
-        <version>0.8.1-incubator-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-incubator-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <artifactId>org.apache.ace.target.devserver</artifactId>
     <packaging>pom</packaging>
 
@@ -37,10 +37,10 @@
     <description/>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-target-devserver</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-target-devserver
         </developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/ace/trunk/ace-target-devserver</url>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-target-devserver</url>
     </scm>
 
     <build>

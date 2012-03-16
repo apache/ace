@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.object.GatewayObject;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.log.AuditEvent;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
@@ -69,7 +69,7 @@ public class LogViewerExtension implements UIExtensionFactory {
      */
     public Component create(Map<String, Object> context) {
         RepositoryObject object = getRepositoryObjectFromContext(context);
-        if (object instanceof StatefulGatewayObject && !((StatefulGatewayObject) object).isRegistered()) {
+        if (object instanceof StatefulTargetObject && !((StatefulTargetObject) object).isRegistered()) {
             VerticalLayout result = new VerticalLayout();
             result.setCaption(CAPTION);
             result.addComponent(new Label("This target is not yet registered, so it has no log."));
@@ -101,7 +101,7 @@ public class LogViewerExtension implements UIExtensionFactory {
      * @throws IOException in case of I/O problems accessing the log store.
      */
     private void fillTable(RepositoryObject object, Table table) throws IOException {
-        String id = object.getAttribute(GatewayObject.KEY_ID);
+        String id = object.getAttribute(TargetObject.KEY_ID);
         List<LogDescriptor> desc = m_store.getDescriptors(id);
         if (desc != null) {
             for (LogDescriptor log : desc) {

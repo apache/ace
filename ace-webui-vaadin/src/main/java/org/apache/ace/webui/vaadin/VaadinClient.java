@@ -39,7 +39,7 @@ import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.client.repository.object.GatewayObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.Group2LicenseAssociation;
 import org.apache.ace.client.repository.object.GroupObject;
 import org.apache.ace.client.repository.object.License2GatewayAssociation;
@@ -50,8 +50,8 @@ import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepos
 import org.apache.ace.client.repository.repository.GroupRepository;
 import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
 import org.apache.ace.client.repository.repository.LicenseRepository;
-import org.apache.ace.client.repository.stateful.StatefulGatewayObject;
-import org.apache.ace.client.repository.stateful.StatefulGatewayRepository;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
@@ -129,7 +129,7 @@ public class VaadinClient extends com.vaadin.Application {
     private volatile ArtifactRepository m_artifactRepository;
     private volatile GroupRepository m_featureRepository;
     private volatile LicenseRepository m_distributionRepository;
-    private volatile StatefulGatewayRepository m_statefulTargetRepository;
+    private volatile StatefulTargetRepository m_statefulTargetRepository;
     private volatile Artifact2GroupAssociationRepository m_artifact2GroupAssociationRepository;
     private volatile Group2LicenseAssociationRepository m_group2LicenseAssociationRepository;
     private volatile License2GatewayAssociationRepository m_license2GatewayAssociationRepository;
@@ -143,7 +143,7 @@ public class VaadinClient extends com.vaadin.Application {
     private ObjectPanel m_targetsPanel;
     private List<ArtifactObject> m_artifacts;
     private List<GroupObject> m_features;
-    private List<StatefulGatewayObject> m_targets;
+    private List<StatefulTargetObject> m_targets;
     private final Associations m_associations = new Associations();
 
     private GridLayout m_grid;
@@ -180,7 +180,7 @@ public class VaadinClient extends com.vaadin.Application {
         addDependency(component, Artifact2GroupAssociationRepository.class);
         addDependency(component, Group2LicenseAssociationRepository.class);
         addDependency(component, License2GatewayAssociationRepository.class);
-        addDependency(component, StatefulGatewayRepository.class);
+        addDependency(component, StatefulTargetRepository.class);
     }
 
     // @formatter:off
@@ -309,14 +309,14 @@ public class VaadinClient extends com.vaadin.Application {
         m_grid.addComponent(progress, 0, 3);
 
         m_artifactsPanel.addListener(m_associations.createSelectionListener(m_artifactsPanel, m_artifactRepository,
-            new Class[] {}, new Class[] { GroupObject.class, LicenseObject.class, GatewayObject.class },
+            new Class[] {}, new Class[] { GroupObject.class, LicenseObject.class, TargetObject.class },
             new Table[] { m_featuresPanel, m_distributionsPanel, m_targetsPanel }));
         m_featuresPanel.addListener(m_associations.createSelectionListener(m_featuresPanel, m_featureRepository,
-            new Class[] { ArtifactObject.class }, new Class[] { LicenseObject.class, GatewayObject.class },
+            new Class[] { ArtifactObject.class }, new Class[] { LicenseObject.class, TargetObject.class },
             new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }));
         m_distributionsPanel
             .addListener(m_associations.createSelectionListener(m_distributionsPanel, m_distributionRepository,
-                new Class[] { GroupObject.class, ArtifactObject.class }, new Class[] { GatewayObject.class },
+                new Class[] { GroupObject.class, ArtifactObject.class }, new Class[] { TargetObject.class },
                 new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
         m_targetsPanel.addListener(m_associations.createSelectionListener(m_targetsPanel, m_statefulTargetRepository,
             new Class[] { LicenseObject.class, GroupObject.class, ArtifactObject.class }, new Class[] {},
@@ -381,7 +381,7 @@ public class VaadinClient extends com.vaadin.Application {
 
             @Override
             protected void associateFromRight(String left, String right) {
-                StatefulGatewayObject target = getTarget(right);
+                StatefulTargetObject target = getTarget(right);
                 if (!target.isRegistered()) {
                     target.register();
                     target.setAutoApprove(true);
@@ -392,7 +392,7 @@ public class VaadinClient extends com.vaadin.Application {
         m_targetsPanel.setDropHandler(new AssociationDropHandler(m_distributionsPanel, (Table) null) {
             @Override
             protected void associateFromLeft(String left, String right) {
-                StatefulGatewayObject target = getTarget(right);
+                StatefulTargetObject target = getTarget(right);
                 if (!target.isRegistered()) {
                     target.register();
                     target.setAutoApprove(true);
@@ -408,7 +408,7 @@ public class VaadinClient extends com.vaadin.Application {
         addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL);
         addListener(m_featuresPanel, GroupObject.TOPIC_ALL);
         addListener(m_distributionsPanel, LicenseObject.TOPIC_ALL);
-        addListener(m_targetsPanel, StatefulGatewayObject.TOPIC_ALL);
+        addListener(m_targetsPanel, StatefulTargetObject.TOPIC_ALL);
         m_mainWindow.addComponent(m_grid);
     }
 
@@ -426,7 +426,7 @@ public class VaadinClient extends com.vaadin.Application {
             // @formatter:off
             context.addShopRepository(new URL(m_aceHost, endpoint), customerName, shopRepo, true)
                 .setObrBase(m_obrUrl)
-                .addGatewayRepository(new URL(m_aceHost, endpoint), customerName, gatewayRepo, true)
+                .addTargetRepository(new URL(m_aceHost, endpoint), customerName, gatewayRepo, true)
                 .addDeploymentRepository(new URL(m_aceHost, endpoint), customerName, deployRepo, true);
             // @formatter:on
             m_admin.login(context);
@@ -732,7 +732,7 @@ public class VaadinClient extends com.vaadin.Application {
                         @Override
                         protected void removeLinkFromRight(LicenseObject object, RepositoryObject other) {
                             List<License2GatewayAssociation> associations = object
-                                .getAssociationsWith((GatewayObject) other);
+                                .getAssociationsWith((TargetObject) other);
                             for (License2GatewayAssociation association : associations) {
                                 m_license2GatewayAssociationRepository.remove(association);
                             }
@@ -770,35 +770,35 @@ public class VaadinClient extends com.vaadin.Application {
 
             public void populate() {
                 removeAllItems();
-                for (StatefulGatewayObject statefulTarget : m_statefulTargetRepository.get()) {
+                for (StatefulTargetObject statefulTarget : m_statefulTargetRepository.get()) {
                     add(statefulTarget);
                 }
             }
 
             public void handleEvent(org.osgi.service.event.Event event) {
-                StatefulGatewayObject statefulTarget = (StatefulGatewayObject) event
-                    .getProperty(StatefulGatewayObject.EVENT_ENTITY);
+                StatefulTargetObject statefulTarget = (StatefulTargetObject) event
+                    .getProperty(StatefulTargetObject.EVENT_ENTITY);
                 String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
-                if (StatefulGatewayObject.TOPIC_ADDED.equals(topic)) {
+                if (StatefulTargetObject.TOPIC_ADDED.equals(topic)) {
                     add(statefulTarget);
                 }
-                if (StatefulGatewayObject.TOPIC_REMOVED.equals(topic)) {
+                if (StatefulTargetObject.TOPIC_REMOVED.equals(topic)) {
                     remove(statefulTarget);
                 }
-                if (StatefulGatewayObject.TOPIC_CHANGED.equals(topic)) {
+                if (StatefulTargetObject.TOPIC_CHANGED.equals(topic)) {
                     change(statefulTarget);
                 }
             }
 
-            private void add(StatefulGatewayObject statefulTarget) {
+            private void add(StatefulTargetObject statefulTarget) {
                 Item item = addItem(statefulTarget.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_NAME).setValue(statefulTarget.getID());
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue("");
-                    Button removeLinkButton = new RemoveLinkButton<StatefulGatewayObject>(statefulTarget,
+                    Button removeLinkButton = new RemoveLinkButton<StatefulTargetObject>(statefulTarget,
                         m_distributionsPanel, null) {
                         @Override
-                        protected void removeLinkFromLeft(StatefulGatewayObject object, RepositoryObject other) {
+                        protected void removeLinkFromLeft(StatefulTargetObject object, RepositoryObject other) {
                             List<License2GatewayAssociation> associations = object
                                 .getAssociationsWith((LicenseObject) other);
                             for (License2GatewayAssociation association : associations) {
@@ -809,7 +809,7 @@ public class VaadinClient extends com.vaadin.Application {
                         }
 
                         @Override
-                        protected void removeLinkFromRight(StatefulGatewayObject object, RepositoryObject other) {
+                        protected void removeLinkFromRight(StatefulTargetObject object, RepositoryObject other) {
                         }
                     };
                     HorizontalLayout buttons = new HorizontalLayout();
@@ -824,14 +824,14 @@ public class VaadinClient extends com.vaadin.Application {
                 }
             }
 
-            private void change(StatefulGatewayObject statefulTarget) {
+            private void change(StatefulTargetObject statefulTarget) {
                 Item item = getItem(statefulTarget.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue("");
                 }
             }
 
-            private void remove(StatefulGatewayObject statefulTarget) {
+            private void remove(StatefulTargetObject statefulTarget) {
                 removeItem(statefulTarget.getDefinition());
             }
         };
@@ -1010,8 +1010,8 @@ public class VaadinClient extends com.vaadin.Application {
      */
     private void createTarget(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put(StatefulGatewayObject.KEY_ID, name);
-        attributes.put(GatewayObject.KEY_AUTO_APPROVE, "true");
+        attributes.put(StatefulTargetObject.KEY_ID, name);
+        attributes.put(TargetObject.KEY_AUTO_APPROVE, "true");
         Map<String, String> tags = new HashMap<String, String>();
         m_statefulTargetRepository.preregister(attributes, tags);
     }
@@ -1042,7 +1042,7 @@ public class VaadinClient extends com.vaadin.Application {
         return m_distributionRepository.get(name);
     }
 
-    private StatefulGatewayObject getTarget(String name) {
+    private StatefulTargetObject getTarget(String name) {
         return m_statefulTargetRepository.get(name);
     }
 
