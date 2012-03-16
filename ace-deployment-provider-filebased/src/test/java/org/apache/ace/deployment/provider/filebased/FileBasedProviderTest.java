@@ -53,9 +53,9 @@ public class FileBasedProviderTest {
     private final String VERSION4 = "4.0.0";
     private final String INVALIDVERSION = "Invalid.version.directory";
 
-    private final String GATEWAY = "gateway";
-    private final String MULTIPLEVERSIONGATEWAY = "multi-version-gateway";
-    private final String INVALIDVERSIONGATEWAY = "illegal-version-gateway";
+    private final String TARGET = "target";
+    private final String MULTIPLEVERSIONTARGET = "multi-version-target";
+    private final String INVALIDVERSIONTARGET = "illegal-version-target";
     private ArtifactData BUNDLE1;
     private ArtifactData BUNDLE3;
     private ArtifactData BUNDLE4;
@@ -89,38 +89,38 @@ public class FileBasedProviderTest {
     }
 
     /**
-     * Create the test gateways, versions and testbundles..
+     * Create the test targets, versions and testbundles..
      */
     private void setupSampleData() throws Exception {
-        File gateway = new File(m_tempDirectory, GATEWAY);
-        gateway.mkdirs();
-        File gatewayVersion1 = new File(gateway, VERSION1);
-        gatewayVersion1.mkdirs();
-        BUNDLE1 = generateBundle(FileUtils.createTempFile(gatewayVersion1), "Bundle1", "1.0.0");
+        File target = new File(m_tempDirectory, TARGET);
+        target.mkdirs();
+        File targetVersion1 = new File(target, VERSION1);
+        targetVersion1.mkdirs();
+        BUNDLE1 = generateBundle(FileUtils.createTempFile(targetVersion1), "Bundle1", "1.0.0");
 
-        File illegalVersionGateway = new File(m_tempDirectory, INVALIDVERSIONGATEWAY);
-        illegalVersionGateway.mkdirs();
-        File faultyVersion = new File(illegalVersionGateway, INVALIDVERSION);
+        File illegalVersionTarget = new File(m_tempDirectory, INVALIDVERSIONTARGET);
+        illegalVersionTarget.mkdirs();
+        File faultyVersion = new File(illegalVersionTarget, INVALIDVERSION);
         faultyVersion.mkdirs();
         // this bundle should never be accessed
         generateBundle(FileUtils.createTempFile(faultyVersion), "Bundle2", "2.0.0");
 
-        File multipleVersionGateway = new File(m_tempDirectory, MULTIPLEVERSIONGATEWAY);
-        multipleVersionGateway.mkdir();
-        File multipleVersionGatewayVersion1 = new File(multipleVersionGateway, VERSION1);
-        multipleVersionGatewayVersion1.mkdir();
-        BUNDLE3 = generateBundle(FileUtils.createTempFile(multipleVersionGatewayVersion1), "Bundle3", "3.0.0");
-        BUNDLE4 = generateBundle(FileUtils.createTempFile(multipleVersionGatewayVersion1), "Bundle4", "4.0.0");
-        File multipleVersionGatewayVersion2 = new File(multipleVersionGateway, VERSION2);
-        multipleVersionGatewayVersion2.mkdir();
-        BUNDLE4_1 = generateBundle(FileUtils.createTempFile(multipleVersionGatewayVersion2), "Bundle4", "4.1.0");
-        BUNDLE5 = generateBundle(FileUtils.createTempFile(multipleVersionGatewayVersion2), "Bundle5", "5.0.0");
-        File multipleVersionGatewayVersion3 = new File(multipleVersionGateway, VERSION3);
-        multipleVersionGatewayVersion3.mkdir();
-        File multipleVersionGatewayVersion4 = new File(multipleVersionGateway, VERSION4);
-        multipleVersionGatewayVersion4.mkdir();
-        BUNDLE3_2 = generateBundle(FileUtils.createTempFile(multipleVersionGatewayVersion4), "Bundle3", "3.0.0");
-        BUNDLE4_2 = generateBundle(FileUtils.createTempFile(multipleVersionGatewayVersion4), "Bundle4", "5.0.0");
+        File multipleVersionTarget = new File(m_tempDirectory, MULTIPLEVERSIONTARGET);
+        multipleVersionTarget.mkdir();
+        File multipleVersionTargetVersion1 = new File(multipleVersionTarget, VERSION1);
+        multipleVersionTargetVersion1.mkdir();
+        BUNDLE3 = generateBundle(FileUtils.createTempFile(multipleVersionTargetVersion1), "Bundle3", "3.0.0");
+        BUNDLE4 = generateBundle(FileUtils.createTempFile(multipleVersionTargetVersion1), "Bundle4", "4.0.0");
+        File multipleVersionTargetVersion2 = new File(multipleVersionTarget, VERSION2);
+        multipleVersionTargetVersion2.mkdir();
+        BUNDLE4_1 = generateBundle(FileUtils.createTempFile(multipleVersionTargetVersion2), "Bundle4", "4.1.0");
+        BUNDLE5 = generateBundle(FileUtils.createTempFile(multipleVersionTargetVersion2), "Bundle5", "5.0.0");
+        File multipleVersionTargetVersion3 = new File(multipleVersionTarget, VERSION3);
+        multipleVersionTargetVersion3.mkdir();
+        File multipleVersionTargetVersion4 = new File(multipleVersionTarget, VERSION4);
+        multipleVersionTargetVersion4.mkdir();
+        BUNDLE3_2 = generateBundle(FileUtils.createTempFile(multipleVersionTargetVersion4), "Bundle3", "3.0.0");
+        BUNDLE4_2 = generateBundle(FileUtils.createTempFile(multipleVersionTargetVersion4), "Bundle4", "5.0.0");
     }
 
     /**
@@ -128,7 +128,7 @@ public class FileBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testGetVersion() {
-        List<String> versions = m_backend.getVersions(GATEWAY);
+        List<String> versions = m_backend.getVersions(TARGET);
         assert versions.size() == 1 : "Expected one version to be found, but found " + versions.size();
         assert versions.get(0).equals(VERSION1) : "Expected version " + VERSION1 + " but found " + versions.get(0);
     }
@@ -139,7 +139,7 @@ public class FileBasedProviderTest {
     @Test(groups = { UNIT })
     public void testIllegalVersion() {
         // an illegal version should be silently ignored
-        List<String> versions = m_backend.getVersions(INVALIDVERSIONGATEWAY);
+        List<String> versions = m_backend.getVersions(INVALIDVERSIONTARGET);
         assert versions.isEmpty() : "Expected no versions to be found, but found " + versions.size();
     }
 
@@ -148,7 +148,7 @@ public class FileBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testMultipleVersions() {
-        List<String> versions = m_backend.getVersions(MULTIPLEVERSIONGATEWAY);
+        List<String> versions = m_backend.getVersions(MULTIPLEVERSIONTARGET);
         assert versions.size() == 4 : "Expected three version to be found, but found " + versions.size();
         // all versions should be in ascending order
         assert versions.get(0).equals(VERSION1) : "Expected version " + VERSION1 + " but found " + versions.get(0);
@@ -162,7 +162,7 @@ public class FileBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testSingleBundleSingleVersionBundleData() {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(GATEWAY, VERSION1);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(TARGET, VERSION1);
         assert bundleData.size() == 1 : "Expected one bundle to be found, but found " + bundleData.size();
         assert bundleData.contains(BUNDLE1) : "Expected to find bundle " + BUNDLE1.getSymbolicName();
     }
@@ -172,7 +172,7 @@ public class FileBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testMultipleBundleSingleVersionBundleData() {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION1);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         assert bundleData.contains(BUNDLE3) : "Expected to find bundle " + BUNDLE3.getSymbolicName();
         assert bundleData.contains(BUNDLE4) : "Expected to find bundle " + BUNDLE4.getSymbolicName();
@@ -184,8 +184,8 @@ public class FileBasedProviderTest {
     @Test(groups = { UNIT })
     public void testInvalidVersionBundleData() {
         try {
-            m_backend.getBundleData(INVALIDVERSIONGATEWAY, INVALIDVERSION);
-            assert false : "Expected an error because version " + INVALIDVERSION + " doesn't exist for gateway" + INVALIDVERSIONGATEWAY;
+            m_backend.getBundleData(INVALIDVERSIONTARGET, INVALIDVERSION);
+            assert false : "Expected an error because version " + INVALIDVERSION + " doesn't exist for target" + INVALIDVERSIONTARGET;
         } catch (IllegalArgumentException iae) {
             // expected, because the version doesn't exist
         }
@@ -196,7 +196,7 @@ public class FileBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testSingleUnchangedBundleMultipleVersions() {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(GATEWAY, VERSION1, VERSION1);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(TARGET, VERSION1, VERSION1);
         assert bundleData.size() == 1 : "Expect one bundle, got " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
@@ -210,7 +210,7 @@ public class FileBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testMultipleBundlesMultipleVersions() {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION1, VERSION1);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
@@ -224,7 +224,7 @@ public class FileBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testRemovedBundleMultipleVersions() {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION1, VERSION3);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION3);
         assert bundleData.size() == 0 : "Expected zero bundle to be found, but found " + bundleData.size();
     }
 
@@ -233,7 +233,7 @@ public class FileBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testAddedBundleMultipleVersions() {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION3, VERSION1);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION3, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
@@ -247,7 +247,7 @@ public class FileBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testSingleChangedBundleMultipleVersions() {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION1, VERSION4);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION4);
         assert bundleData.size() == 2 : "Expected one bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
@@ -267,7 +267,7 @@ public class FileBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testMultipleChangedBundlesMultipleVersions() {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION1, VERSION2);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION2);
         assert bundleData.size() == 2 : "Expected one bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
