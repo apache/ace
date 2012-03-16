@@ -37,15 +37,15 @@ public class Activator extends DependencyActivatorBase {
             .add(createServiceDependency()
                 .setService(SessionFactory.class)
                 .setRequired(true)
-                )
+            )
             .add(createConfigurationDependency()
                 .setPropagate(true)
                 .setPid(RESTCLIENT_PID)
-                )
+            )
             .add(createServiceDependency()
                 .setService(LogService.class)
                 .setRequired(false)
-                )
+            )
         );
     }
 
