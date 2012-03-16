@@ -48,7 +48,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         m_context = context;
         m_manager = manager;
         Properties props = new Properties();
-        props.put(Constants.SERVICE_PID, "org.apache.ace.gateway.log.store.factory");
+        props.put(Constants.SERVICE_PID, "org.apache.ace.target.log.store.factory");
         manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(this)

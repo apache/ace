@@ -188,22 +188,22 @@ public class LogIntegrationTest extends IntegrationTestBase {
         List<String> result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/query");
         assert result.size() > 1 : "We expect at least two logs on the server.";
 
-        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=42");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=42");
         assert result.size() == 1 : "Target 42 has a single audit log event.";
 
-        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=47");
         assert result.size() == 3 : "Target 47 has 3 audit log events.";
 
-        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=1");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=47&logid=1");
         assert result.size() == 1 : "Target 47, logid 1 has 1 audit log event.";
 
-        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=2");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=47&logid=2");
         assert result.size() == 2 : "Target 47, logid 2 has 2 audit log events.";
 
-        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=2&range=1");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=47&logid=2&range=1");
         assert result.size() == 1 : "Target 47, logid 2, range 1 has 1 audit log event.";
 
-        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?gwid=47&logid=2&range=3,5");
+        result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=47&logid=2&range=3,5");
         assert result.size() == 0 : "Target 47, logid 2, range 3,5 has 0 audit log event.";
     }
 
