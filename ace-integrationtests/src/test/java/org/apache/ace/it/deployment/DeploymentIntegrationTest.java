@@ -238,11 +238,11 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
                 put(EventConstants.EVENT_FILTER, "(successful=true)");
             }
         });
-        configureGateway();
+        configureTarget();
         configureServer();
         assert m_semaphore.tryAcquire(8, TimeUnit.SECONDS) : "Timed out while waiting for deployment to complete.";
         unconfigureServer();
-        unconfigureGateway();
+        unconfigureTarget();
         reg.unregister();
         m_bundleContext.removeBundleListener(this);
     }
@@ -250,11 +250,11 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
     private void executeTestWithFailingStream() throws IOException, InterruptedException {
         m_bundleContext.addBundleListener(this);
         registerDeploymentAdminProxy(new FailingDeploymentAdmin(m_deployment, 50));
-        configureGateway();
+        configureTarget();
         configureServer();
         assert m_semaphore.tryAcquire(8, TimeUnit.SECONDS) : "Timed out while waiting for deployment to abort.";
         unconfigureServer();
-        unconfigureGateway();
+        unconfigureTarget();
         unregisterDeploymentAdminProxy();
         m_bundleContext.removeBundleListener(this);
     }
@@ -340,19 +340,19 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
         }
     }
 
-    private void configureGateway() throws IOException {
+    private void configureTarget() throws IOException {
         // configure discovery bundle
         setProperty(DiscoveryConstants.DISCOVERY_PID, new Object[][] { { DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + TestConstants.PORT } });
         // configure identification bundle
         setProperty(IdentificationConstants.IDENTIFICATION_PID, new Object[][] { { IdentificationConstants.IDENTIFICATION_TARGETID_KEY, GWID } });
         // configure scheduler
         setProperty(SchedulerConstants.SCHEDULER_PID, new Object[][] {
-            { "org.apache.ace.gateway.auditlog.task.AuditLogSyncTask", POLL_INTERVAL },
+            { "org.apache.ace.target.auditlog.task.AuditLogSyncTask", POLL_INTERVAL },
             { "org.apache.ace.deployment.task.DeploymentUpdateTask", POLL_INTERVAL }
             });
     }
 
-    private void unconfigureGateway() throws IOException {
+    private void unconfigureTarget() throws IOException {
         m_config.getConfiguration(DiscoveryConstants.DISCOVERY_PID, null).delete();
         m_config.getConfiguration(IdentificationConstants.IDENTIFICATION_PID, null).delete();
         m_config.getConfiguration(SchedulerConstants.SCHEDULER_PID, null).delete();

@@ -42,7 +42,7 @@ public class LogEventTest {
     @Test(groups = { UNIT })
     public void deserializeLogEvent() {
         LogEvent e = new LogEvent("gwid$kgwid$n$r$$,1,2,3," + AuditEvent.FRAMEWORK_STARTED + ",a,1,b,2,c,3");
-        assert e.getGatewayID().equals("gwid,gwid\n\r$") : "Gateway ID is not correctly parsed";
+        assert e.getTargetID().equals("gwid,gwid\n\r$") : "Gateway ID is not correctly parsed";
         assert e.getLogID() == 1 : "Log ID is not correctly parsed";
         assert e.getID() == 2 : "ID is not correctly parsed";
         assert e.getTime() == 3 : "Time is not correctly parsed";

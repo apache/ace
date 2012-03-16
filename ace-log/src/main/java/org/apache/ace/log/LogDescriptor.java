@@ -27,32 +27,32 @@ import org.apache.ace.util.Codec;
 /**
  * Instances of this class represent a range of log events. Such a range is defined by:
  * <ul>
- * <li>A unique gateway ID</li>
- * <li>A log ID unique for this gateway</li>
+ * <li>A unique target ID</li>
+ * <li>A log ID unique for this target</li>
  * <li>A set of event IDs</li>
  * </ul>
  */
 public class LogDescriptor {
     private final SortedRangeSet m_rangeSet;
     private final long m_logID;
-    private final String m_gatewayID;
+    private final String m_targetID;
 
     /**
      * Create a log event range.
      *
-     * @param gatewayID The unique gateway ID
-     * @param logID The unique log ID for this gateway
+     * @param targetID The unique target ID
+     * @param logID The unique log ID for this target
      * @param rangeSet The set of event IDs
      */
-    public LogDescriptor(String gatewayID, long logID, SortedRangeSet rangeSet) {
-        m_gatewayID = gatewayID;
+    public LogDescriptor(String targetID, long logID, SortedRangeSet rangeSet) {
+        m_targetID = targetID;
         m_logID = logID;
         m_rangeSet = rangeSet;
     }
 
     /**
      * Create a log event range from a string representation. String representations
-     * should be formatted as "gatewayID,logID,eventIDs" where each substring is formatted
+     * should be formatted as "targetID,logID,eventIDs" where each substring is formatted
      * using <code>Codec.encode(string)</code> method.
      *
      * Throws an <code>IllegalArgumentException</code> when the string representation is not correctly formatted.
@@ -62,7 +62,7 @@ public class LogDescriptor {
     public LogDescriptor(String representation) {
         try {
             StringTokenizer st = new StringTokenizer(representation, ",");
-            m_gatewayID = Codec.decode(st.nextToken());
+            m_targetID = Codec.decode(st.nextToken());
             m_logID = Long.parseLong(st.nextToken());
             String rangeSet = "";
             if (st.hasMoreTokens()) {
@@ -76,18 +76,18 @@ public class LogDescriptor {
     }
 
     /**
-     * Get the unique gateway identifier.
+     * Get the unique target identifier.
      *
-     * @return Unique gateway identifier.
+     * @return Unique target identifier.
      */
     public String getTargetID() {
-        return m_gatewayID;
+        return m_targetID;
     }
 
     /**
-     * Get the unique log identifier for this gateway.
+     * Get the unique log identifier for this target.
      *
-     * @return Unique log identifier for this gateway.
+     * @return Unique log identifier for this target.
      */
     public long getLogID() {
         return m_logID;
@@ -110,7 +110,7 @@ public class LogDescriptor {
      */
     public String toRepresentation() {
         StringBuffer result = new StringBuffer();
-        result.append(Codec.encode(m_gatewayID));
+        result.append(Codec.encode(m_targetID));
         result.append(',');
         result.append(m_logID);
         result.append(',');

@@ -139,7 +139,7 @@
         <bundle>mvn:org.apache.ace/org.apache.ace.managementagent/${project.version}</bundle>
     </feature>
 
-    <feature name="ace-gateway" version="${project.version}" resolver="(obr)">
+    <feature name="ace-target" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.apache.ace/org.apache.ace.gateway.log/${project.version}</bundle>
         <bundle>mvn:org.apache.ace/org.apache.ace.gateway.log.store/${project.version}</bundle>
     </feature>

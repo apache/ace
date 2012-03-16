@@ -293,11 +293,11 @@ public class LogStoreImpl implements LogStore {
         Map<String, Map<Long, List<LogEvent>>> result = new HashMap<String, Map<Long, List<LogEvent>>>();
         for (LogEvent event : events) {
             Map<Long, List<LogEvent>> gateway = result
-                    .get(event.getGatewayID());
+                    .get(event.getTargetID());
 
             if (gateway == null) {
                 gateway = new HashMap<Long, List<LogEvent>>();
-                result.put(event.getGatewayID(), gateway);
+                result.put(event.getTargetID(), gateway);
             }
 
             List<LogEvent> list = gateway.get(event.getLogID());

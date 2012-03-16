@@ -113,7 +113,7 @@ public class VaadinClient extends com.vaadin.Application {
 
     private static final long serialVersionUID = 1L;
     private static long SESSION_ID = 12345;
-    private static String gatewayRepo = "gateway";
+    private static String targetRepo = "target";
     private static String shopRepo = "shop";
     private static String deployRepo = "deployment";
     private static String customerName = "apache";
@@ -132,7 +132,7 @@ public class VaadinClient extends com.vaadin.Application {
     private volatile StatefulTargetRepository m_statefulTargetRepository;
     private volatile Artifact2FeatureAssociationRepository m_artifact2GroupAssociationRepository;
     private volatile Feature2DistributionAssociationRepository m_group2LicenseAssociationRepository;
-    private volatile Distribution2TargetAssociationRepository m_license2GatewayAssociationRepository;
+    private volatile Distribution2TargetAssociationRepository m_license2TargetAssociationRepository;
     private volatile RepositoryAdmin m_admin;
     private volatile LogService m_log;
     private String m_sessionID;
@@ -243,7 +243,7 @@ public class VaadinClient extends com.vaadin.Application {
     private void initGrid(User user) {
         Authorization auth = m_userAdmin.getAuthorization(user);
         int count = 0;
-        for (String role : new String[] { "viewBundle", "viewGroup", "viewLicense", "viewGateway" }) {
+        for (String role : new String[] { "viewBundle", "viewGroup", "viewLicense", "viewTarget" }) {
             if (auth.hasRole(role)) {
                 count++;
             }
@@ -297,7 +297,7 @@ public class VaadinClient extends com.vaadin.Application {
         m_targetsPanel = createTargetsPanel(m_mainWindow);
         m_targetToolbar = createAddTargetButton(m_mainWindow);
 
-        if (auth.hasRole("viewGateway")) {
+        if (auth.hasRole("viewTarget")) {
             m_grid.addComponent(m_targetsPanel, count, 2);
             m_grid.addComponent(m_targetToolbar, count, 1);
         }
@@ -386,7 +386,7 @@ public class VaadinClient extends com.vaadin.Application {
                     target.register();
                     target.setAutoApprove(true);
                 }
-                m_license2GatewayAssociationRepository.create(getDistribution(left), target.getTargetObject());
+                m_license2TargetAssociationRepository.create(getDistribution(left), target.getTargetObject());
             }
         });
         m_targetsPanel.setDropHandler(new AssociationDropHandler(m_distributionsPanel, (Table) null) {
@@ -397,7 +397,7 @@ public class VaadinClient extends com.vaadin.Application {
                     target.register();
                     target.setAutoApprove(true);
                 }
-                m_license2GatewayAssociationRepository.create(getDistribution(left), target.getTargetObject());
+                m_license2TargetAssociationRepository.create(getDistribution(left), target.getTargetObject());
             }
 
             @Override
@@ -426,7 +426,7 @@ public class VaadinClient extends com.vaadin.Application {
             // @formatter:off
             context.addShopRepository(new URL(m_aceHost, endpoint), customerName, shopRepo, true)
                 .setObrBase(m_obrUrl)
-                .addTargetRepository(new URL(m_aceHost, endpoint), customerName, gatewayRepo, true)
+                .addTargetRepository(new URL(m_aceHost, endpoint), customerName, targetRepo, true)
                 .addDeploymentRepository(new URL(m_aceHost, endpoint), customerName, deployRepo, true);
             // @formatter:on
             m_admin.login(context);
@@ -734,7 +734,7 @@ public class VaadinClient extends com.vaadin.Application {
                             List<Distribution2TargetAssociation> associations = object
                                 .getAssociationsWith((TargetObject) other);
                             for (Distribution2TargetAssociation association : associations) {
-                                m_license2GatewayAssociationRepository.remove(association);
+                                m_license2TargetAssociationRepository.remove(association);
                             }
                             m_associations.removeAssociatedItem(object);
                             m_table.requestRepaint();
@@ -802,7 +802,7 @@ public class VaadinClient extends com.vaadin.Application {
                             List<Distribution2TargetAssociation> associations = object
                                 .getAssociationsWith((DistributionObject) other);
                             for (Distribution2TargetAssociation association : associations) {
-                                m_license2GatewayAssociationRepository.remove(association);
+                                m_license2TargetAssociationRepository.remove(association);
                             }
                             m_associations.removeAssociatedItem(object);
                             m_table.requestRepaint();
@@ -814,12 +814,6 @@ public class VaadinClient extends com.vaadin.Application {
                     };
                     HorizontalLayout buttons = new HorizontalLayout();
                     buttons.addComponent(removeLinkButton);
-                    // next line commented out because removing stateful targets
-                    // currently is not possible
-                    // buttons.addComponent(new
-                    // RemoveItemButton<StatefulGatewayObject,
-                    // StatefulGatewayRepository>(statefulTarget,
-                    // m_statefulTargetRepository));
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
@@ -1001,7 +995,7 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     /**
-     * Create a new Target (StatefulGatewayObject) in the statefulTargetRepository
+     * Create a new Target (StatefulTargetObject) in the statefulTargetRepository
      * 
      * @param name Name of the new Target
      * @param description Description of the new Target

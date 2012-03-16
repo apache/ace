@@ -25,18 +25,18 @@ import java.util.StringTokenizer;
 import org.apache.ace.util.Codec;
 
 /**
- * Log event from a specific gateway and log.
+ * Log event from a specific target and log.
  */
 public class LogEvent implements Comparable {
-    private final String m_gatewayID;
+    private final String m_targetID;
     private final long m_logID;
     private final long m_id;
     private final long m_time;
     private final int m_type;
     private final Dictionary m_properties;
 
-    public LogEvent(String gatewayID, long logID, long id, long time, int type, Dictionary properties) {
-        m_gatewayID = gatewayID;
+    public LogEvent(String targetID, long logID, long id, long time, int type, Dictionary properties) {
+        m_targetID = targetID;
         m_logID = logID;
         m_id = id;
         m_time = time;
@@ -44,14 +44,14 @@ public class LogEvent implements Comparable {
         m_properties = properties;
     }
 
-    public LogEvent(String gatewayID, LogEvent source) {
-        this(gatewayID, source.getLogID(), source.getID(), source.getTime(), source.getType(), source.getProperties());
+    public LogEvent(String targetID, LogEvent source) {
+        this(targetID, source.getLogID(), source.getID(), source.getTime(), source.getType(), source.getProperties());
     }
 
     public LogEvent(String representation) {
         try {
             StringTokenizer st = new StringTokenizer(representation, ",");
-            m_gatewayID = Codec.decode(st.nextToken());
+            m_targetID = Codec.decode(st.nextToken());
             m_logID = Long.parseLong(st.nextToken());
             m_id = Long.parseLong(st.nextToken());
             m_time = Long.parseLong(st.nextToken());
@@ -69,7 +69,7 @@ public class LogEvent implements Comparable {
 
     public String toRepresentation() {
         StringBuffer result = new StringBuffer();
-        result.append(Codec.encode(m_gatewayID));
+        result.append(Codec.encode(m_targetID));
         result.append(',');
         result.append(m_logID);
         result.append(',');
@@ -90,14 +90,14 @@ public class LogEvent implements Comparable {
     }
 
     /**
-     * Returns the unique ID of the gateway that created this event.
+     * Returns the unique ID of the target that created this event.
      */
-    public String getGatewayID() {
-        return m_gatewayID;
+    public String getTargetID() {
+        return m_targetID;
     }
 
     /**
-     * Returns the unique log ID of the log. This ID is unique within a gateway.
+     * Returns the unique log ID of the log. This ID is unique within a target.
      */
     public long getLogID() {
         return m_logID;
@@ -137,7 +137,7 @@ public class LogEvent implements Comparable {
         }
         if (o instanceof LogEvent) {
             LogEvent event = (LogEvent) o;
-            return m_gatewayID.equals(event.m_gatewayID)
+            return m_targetID.equals(event.m_targetID)
                 && m_logID == event.m_logID && m_id == event.m_id;
         }
 
@@ -145,12 +145,12 @@ public class LogEvent implements Comparable {
     }
 
     public int hashCode() {
-        return (int) (m_gatewayID.hashCode() + m_logID + m_id);
+        return (int) (m_targetID.hashCode() + m_logID + m_id);
     }
 
     public int compareTo(Object o) {
         LogEvent e = (LogEvent) o;
-        final int cmp = m_gatewayID.compareTo(e.m_gatewayID);
+        final int cmp = m_targetID.compareTo(e.m_targetID);
         if (cmp != 0) {
             return cmp;
         }
