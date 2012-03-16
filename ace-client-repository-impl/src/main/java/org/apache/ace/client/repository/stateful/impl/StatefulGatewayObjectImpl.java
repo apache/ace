@@ -36,8 +36,8 @@ import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
 import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.License2GatewayAssociation;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
+import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.log.AuditEvent;
 import org.apache.ace.log.LogDescriptor;
@@ -109,7 +109,7 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
         }
     }
 
-    public TargetObject getGatewayObject() {
+    public TargetObject getTargetObject() {
         synchronized(m_lock) {
             ensureGatewayPresent();
             return m_gatewayObject;
@@ -443,17 +443,17 @@ public class StatefulGatewayObjectImpl implements StatefulTargetObject {
         return !verifyExistence();
     }
 
-    public List<License2GatewayAssociation> getAssociationsWith(LicenseObject license) {
+    public List<Distribution2TargetAssociation> getAssociationsWith(DistributionObject license) {
         synchronized(m_lock) {
             ensureGatewayPresent();
             return m_gatewayObject.getAssociationsWith(license);
         }
     }
 
-    public List<LicenseObject> getLicenses() {
+    public List<DistributionObject> getDistributions() {
         synchronized(m_lock) {
             ensureGatewayPresent();
-            return m_gatewayObject.getLicenses();
+            return m_gatewayObject.getDistributions();
         }
     }
 

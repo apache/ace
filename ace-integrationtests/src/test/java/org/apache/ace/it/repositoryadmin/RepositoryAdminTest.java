@@ -138,11 +138,11 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                     .add(createServiceDependency().setService(HttpService.class).setRequired(true))
                     .add(createServiceDependency().setService(RepositoryAdmin.class).setRequired(true))
                     .add(createServiceDependency().setService(ArtifactRepository.class).setRequired(true))
-                    .add(createServiceDependency().setService(Artifact2GroupAssociationRepository.class).setRequired(true))
-                    .add(createServiceDependency().setService(GroupRepository.class).setRequired(true))
-                    .add(createServiceDependency().setService(Group2LicenseAssociationRepository.class).setRequired(true))
-                    .add(createServiceDependency().setService(LicenseRepository.class).setRequired(true))
-                    .add(createServiceDependency().setService(License2GatewayAssociationRepository.class).setRequired(true))
+                    .add(createServiceDependency().setService(Artifact2FeatureAssociationRepository.class).setRequired(true))
+                    .add(createServiceDependency().setService(FeatureRepository.class).setRequired(true))
+                    .add(createServiceDependency().setService(Feature2DistributionAssociationRepository.class).setRequired(true))
+                    .add(createServiceDependency().setService(DistributionRepository.class).setRequired(true))
+                    .add(createServiceDependency().setService(Distribution2TargetAssociationRepository.class).setRequired(true))
                     .add(createServiceDependency().setService(TargetRepository.class).setRequired(true))
                     .add(createServiceDependency().setService(DeploymentVersionRepository.class).setRequired(true))
                     .add(createServiceDependency().setService(StatefulTargetRepository.class).setRequired(true))
@@ -154,11 +154,11 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
     private volatile ConfigurationAdmin m_configAdmin; /* Injected by dependency manager */
     private volatile RepositoryAdmin m_repositoryAdmin; /* Injected by dependency manager */
     private volatile ArtifactRepository m_artifactRepository; /* Injected by dependency manager */
-    private volatile Artifact2GroupAssociationRepository m_artifact2groupRepository; /* Injected by dependency manager */
-    private volatile GroupRepository m_groupRepository; /* Injected by dependency manager */
-    private volatile Group2LicenseAssociationRepository m_group2licenseRepository; /* Injected by dependency manager */
-    private volatile LicenseRepository m_licenseRepository; /* Injected by dependency manager */
-    private volatile License2GatewayAssociationRepository m_license2gatewayRepository; /* Injected by dependency manager */
+    private volatile Artifact2FeatureAssociationRepository m_artifact2groupRepository; /* Injected by dependency manager */
+    private volatile FeatureRepository m_groupRepository; /* Injected by dependency manager */
+    private volatile Feature2DistributionAssociationRepository m_group2licenseRepository; /* Injected by dependency manager */
+    private volatile DistributionRepository m_licenseRepository; /* Injected by dependency manager */
+    private volatile Distribution2TargetAssociationRepository m_license2gatewayRepository; /* Injected by dependency manager */
     private volatile TargetRepository m_gatewayRepository; /* Injected by dependency manager */
     private volatile DeploymentVersionRepository m_deploymentVersionRepository; /* Injected by dependency manager */
     private volatile StatefulTargetRepository m_statefulGatewayRepository; /* Injected by dependency manager */
@@ -198,21 +198,21 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
     @Test
     public void testRemoveBundleGroup() throws Exception {
         final ArtifactObject b1 = createBasicBundleObject("thebundle","1", null);
-        final GroupObject g1 = createBasicGroupObject("thegroup");
+        final FeatureObject g1 = createBasicGroupObject("thegroup");
 
-        final Artifact2GroupAssociation bg = runAndWaitForEvent(new Callable<Artifact2GroupAssociation>() {
-            public Artifact2GroupAssociation call() throws Exception {
+        final Artifact2FeatureAssociation bg = runAndWaitForEvent(new Callable<Artifact2FeatureAssociation>() {
+            public Artifact2FeatureAssociation call() throws Exception {
                 return m_artifact2groupRepository.create("(&(" + BundleHelper.KEY_SYMBOLICNAME + "=thebundle)(|("+BundleHelper.KEY_VERSION+">=1)("+BundleHelper.KEY_VERSION+"=<3))(!("+BundleHelper.KEY_VERSION+"=3)))", "(name=thegroup)");
             }
-        }, false, Artifact2GroupAssociation.TOPIC_ADDED);
+        }, false, Artifact2FeatureAssociation.TOPIC_ADDED);
 
-        final LicenseObject l1 = createBasicLicenseObject("thelicense");
+        final DistributionObject l1 = createBasicLicenseObject("thelicense");
 
-        final Group2LicenseAssociation gtl = runAndWaitForEvent(new Callable<Group2LicenseAssociation>() {
-            public Group2LicenseAssociation call() throws Exception {
+        final Feature2DistributionAssociation gtl = runAndWaitForEvent(new Callable<Feature2DistributionAssociation>() {
+            public Feature2DistributionAssociation call() throws Exception {
                 return m_group2licenseRepository.create("(name=thegroup)","(name=thelicense)");
             }
-        }, false, Group2LicenseAssociation.TOPIC_ADDED);
+        }, false, Feature2DistributionAssociation.TOPIC_ADDED);
 
         assert (bg.getLeft().size() == 1) && bg.getLeft().contains(b1) : "The left side of the BG-association should be b1.";
         assert (bg.getRight().size() == 1) && bg.getRight().contains(g1) : "The right side of the BG-association should be g1.";
@@ -229,7 +229,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 m_groupRepository.remove(g1);
                 return null;
             }
-        }, false,Artifact2GroupAssociation.TOPIC_CHANGED, Group2LicenseAssociation.TOPIC_CHANGED);
+        }, false,Artifact2FeatureAssociation.TOPIC_CHANGED, Feature2DistributionAssociation.TOPIC_CHANGED);
 
         assert !gtl.isSatisfied() : "The bundlegroup association shouldn not be satisfied.";
         assert !bg.isSatisfied() : "The group2license assocation should not be satisfied.";
@@ -244,14 +244,14 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
     @Test
     public void testAssociationsWithMovingEndpoints () throws Exception {
         final ArtifactObject b1 = createBasicBundleObject("thebundle", "1", null);
-        final GroupObject g1 = createBasicGroupObject("thegroup");
-        final Artifact2GroupAssociation bg = runAndWaitForEvent(new Callable<Artifact2GroupAssociation>() {
-            public Artifact2GroupAssociation call() throws Exception {
+        final FeatureObject g1 = createBasicGroupObject("thegroup");
+        final Artifact2FeatureAssociation bg = runAndWaitForEvent(new Callable<Artifact2FeatureAssociation>() {
+            public Artifact2FeatureAssociation call() throws Exception {
                 Map<String, String> properties = new HashMap<String, String>();
                 properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "[1,3)");
                 return m_artifact2groupRepository.create(b1, properties, g1, null);
             }
-        }, false, Artifact2GroupAssociation.TOPIC_ADDED);
+        }, false, Artifact2FeatureAssociation.TOPIC_ADDED);
 
         assert (bg.getLeft().size() == 1) && bg.getLeft().contains(b1) : "The left side of the association should now be b1; we find " + bg.getLeft().size() + " bundles on the left side of the association.";
         assert (bg.getRight().size() == 1) && bg.getRight().contains(g1) : "The right side of the association should now be g1.";
@@ -262,7 +262,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             public ArtifactObject call() throws Exception {
                 return createBasicBundleObject("thebundle", "2", null);
             }
-        }, false, Artifact2GroupAssociation.TOPIC_CHANGED);
+        }, false, Artifact2FeatureAssociation.TOPIC_CHANGED);
 
         assert (bg.getLeft().size() == 1) && !bg.getLeft().contains(b1) : "The left side of the association should no longer be b1; we find " + bg.getLeft().size() + " bundles.";
         assert (bg.getLeft().size() == 1) && bg.getLeft().contains(b2) : "The left side of the association should now be b2.";
@@ -303,7 +303,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 m_artifactRepository.remove(b2);
                 return null;
             }
-        }, false, Artifact2GroupAssociation.TOPIC_CHANGED);
+        }, false, Artifact2FeatureAssociation.TOPIC_CHANGED);
 
         //note that we cannot test anything for b2: this has been removed, and now has no
         //defined state.
@@ -543,19 +543,19 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         final StatefulTargetObject sgo = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(" + TargetObject.KEY_ID + "=" + "testAutoApproveGateway)")).get(0);
 
         // Set up some deployment information for the gateway.
-        final GroupObject g = runAndWaitForEvent(new Callable<GroupObject>() {
-            public GroupObject call() throws Exception {
+        final FeatureObject g = runAndWaitForEvent(new Callable<FeatureObject>() {
+            public FeatureObject call() throws Exception {
                 ArtifactObject b = createBasicBundleObject("myBundle", "1.0", null);
-                GroupObject g = createBasicGroupObject("myGroup");
-                LicenseObject l = createBasicLicenseObject("myLicense");
+                FeatureObject g = createBasicGroupObject("myGroup");
+                DistributionObject l = createBasicLicenseObject("myLicense");
                 m_artifact2groupRepository.create(b, g);
                 m_group2licenseRepository.create(g, l);
-                m_license2gatewayRepository.create(l, sgo.getGatewayObject());
+                m_license2gatewayRepository.create(l, sgo.getTargetObject());
                 return g;
             }
-        }, false, ArtifactObject.TOPIC_ADDED, GroupObject.TOPIC_ADDED, LicenseObject.TOPIC_ADDED,
-                  Artifact2GroupAssociation.TOPIC_ADDED, Group2LicenseAssociation.TOPIC_ADDED,
-                  License2GatewayAssociation.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
+        }, false, ArtifactObject.TOPIC_ADDED, FeatureObject.TOPIC_ADDED, DistributionObject.TOPIC_ADDED,
+                  Artifact2FeatureAssociation.TOPIC_ADDED, Feature2DistributionAssociation.TOPIC_ADDED,
+                  Distribution2TargetAssociation.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
 
         assert sgo.needsApprove() : "We added some deployment information, so the gateway should need approval.";
 
@@ -578,7 +578,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 m_artifact2groupRepository.create(b, g);
                 return null;
             }
-        }, false, ArtifactObject.TOPIC_ADDED, Artifact2GroupAssociation.TOPIC_ADDED, TOPIC_STATUS_CHANGED, TOPIC_STATUS_CHANGED);
+        }, false, ArtifactObject.TOPIC_ADDED, Artifact2FeatureAssociation.TOPIC_ADDED, TOPIC_STATUS_CHANGED, TOPIC_STATUS_CHANGED);
 
       assert !sgo.needsApprove() : "With autoapprove on, adding new deployment information should still not need approval (at least, after the two CHANGED events).";
 
@@ -732,21 +732,21 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         final ArtifactObject b11 = createBasicBundleObject("bundle1", "1", null);
 
-        GroupObject g1 = createBasicGroupObject("group1");
-        GroupObject g2 = createBasicGroupObject("group2"); // note that this group is not associated to a bundle.
+        FeatureObject g1 = createBasicGroupObject("group1");
+        FeatureObject g2 = createBasicGroupObject("group2"); // note that this group is not associated to a bundle.
 
         createDynamicBundle2GroupAssociation(b11, g1);
 
-        final LicenseObject l1 = createBasicLicenseObject("license1");
+        final DistributionObject l1 = createBasicLicenseObject("license1");
 
         m_group2licenseRepository.create(g1, l1);
         m_group2licenseRepository.create(g2, l1);
 
-        runAndWaitForEvent(new Callable<License2GatewayAssociation>() {
-                public License2GatewayAssociation call() throws Exception {
-                    return m_license2gatewayRepository.create(l1, sgo.getGatewayObject());
+        runAndWaitForEvent(new Callable<Distribution2TargetAssociation>() {
+                public Distribution2TargetAssociation call() throws Exception {
+                    return m_license2gatewayRepository.create(l1, sgo.getTargetObject());
                 }
-            }, false, License2GatewayAssociation.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
+            }, false, Distribution2TargetAssociation.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
 
         assert sgo.needsApprove() : "We added information that influences our gateway, so we should need to approve it.";
         assert sgo.getRegistrationState().equals(RegistrationState.Registered) : "We expect the registration state to be Registered, but it is " + sgo.getRegistrationState();
@@ -772,7 +772,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             public ArtifactObject call() throws Exception {
                 return createBasicBundleObject("bundle1", "2", null);
             }
-        }, false, ArtifactObject.TOPIC_ADDED, Artifact2GroupAssociation.TOPIC_CHANGED, TOPIC_STATUS_CHANGED);
+        }, false, ArtifactObject.TOPIC_ADDED, Artifact2FeatureAssociation.TOPIC_CHANGED, TOPIC_STATUS_CHANGED);
 
         assert sgo.needsApprove() : "We added a new version of a bundle that is used by the gateway, so approval should be necessary.";
         assert sgo.getRegistrationState().equals(RegistrationState.Registered) : "We expect the registration state to be Registered, but it is " + sgo.getRegistrationState();
@@ -929,7 +929,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         //do checks
         assert sgo1.isRegistered() : "Adding auditlog data for a gateway does not influence its isRegistered().";
         try {
-            sgo1.getGatewayObject();
+            sgo1.getTargetObject();
         }
         catch (IllegalStateException ise) {
             assert false : "We should be able to get sgo1's gatewayObject.";
@@ -951,14 +951,14 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         //do checks
         assert sgo1.isRegistered() : "Adding auditlog data for a gateway does not influence its isRegistered().";
         try {
-            sgo1.getGatewayObject();
+            sgo1.getTargetObject();
         }
         catch (IllegalStateException ise) {
             assert false : "We should be able to get sgo1's gatewayObject.";
         }
         assert !sgo2.isRegistered() : "sgo2 is only found in the auditlog, so it cannot be in registered.";
         try {
-            sgo2.getGatewayObject();
+            sgo2.getTargetObject();
             assert false : "We should not be able to get sgo2's gatewayObject.";
         }
         catch (IllegalStateException ise) {
@@ -976,7 +976,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         //do checks
         assert !sgo1.isRegistered() : "sgo1 is now only found in the auditlog, so it cannot be registered.";
         try {
-            sgo1.getGatewayObject();
+            sgo1.getTargetObject();
             assert false : "We should not be able to get sgo1's gatewayObject.";
         }
         catch (IllegalStateException ise) {
@@ -984,7 +984,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         }
         assert !sgo2.isRegistered() : "sgo2 is only found in the auditlog, so it cannot be in registered.";
         try {
-            sgo2.getGatewayObject();
+            sgo2.getTargetObject();
             assert false : "We should not be able to get sgo2's gatewayObject.";
         }
         catch (IllegalStateException ise) {
@@ -1002,7 +1002,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         //do checks
         assert !sgo1.isRegistered() : "sgo1 is now only found in the auditlog, so it cannot be in registered.";
         try {
-            sgo1.getGatewayObject();
+            sgo1.getTargetObject();
             assert false : "We should not be able to get sgo1's gatewayObject.";
         }
         catch (IllegalStateException ise) {
@@ -1010,7 +1010,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         }
         assert sgo2.isRegistered() : "sgo2 has been registered.";
         try {
-            sgo2.getGatewayObject();
+            sgo2.getTargetObject();
         }
         catch (IllegalStateException ise) {
             assert false : "We should be able to get sgo2's gatewayObject.";
@@ -1020,23 +1020,23 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         assert nrRegistered == 1 : "We expect to filter out one registered gateway, but we find " + nrRegistered;
 
         // Finally, create a license object
-        final LicenseObject l1 = createBasicLicenseObject("thelicense");
+        final DistributionObject l1 = createBasicLicenseObject("thelicense");
 
         assert !sgo1.isRegistered() : "We just created a Staful GW object, is should not be registered";
 
         // register sgo1 again and create an association in 1 go
-        License2GatewayAssociation lgw1 = runAndWaitForEvent(new Callable<License2GatewayAssociation>() {
-            public License2GatewayAssociation call() throws Exception {
+        Distribution2TargetAssociation lgw1 = runAndWaitForEvent(new Callable<Distribution2TargetAssociation>() {
+            public Distribution2TargetAssociation call() throws Exception {
                 sgo1.register();
-                return m_license2gatewayRepository.create(l1, sgo1.getGatewayObject());
+                return m_license2gatewayRepository.create(l1, sgo1.getTargetObject());
             }
-        }, false, License2GatewayAssociation.TOPIC_ADDED, TargetObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
+        }, false, Distribution2TargetAssociation.TOPIC_ADDED, TargetObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
 
         // checks
         nrRegistered = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(" + KEY_REGISTRATION_STATE + "=" + RegistrationState.Registered + ")")).size();
         assert nrRegistered == 2 : "We expect to filter out two registered gateways, but we find " + nrRegistered;
         assert sgo1.isRegistered() : "A stateful gw object should be registered";
-        assert sgo1.isAssociated(l1, LicenseObject.class) : "The stateful gw object should be associated to thelicense.";
+        assert sgo1.isAssociated(l1, DistributionObject.class) : "The stateful gw object should be associated to thelicense.";
         assert lgw1.isSatisfied() : "Both ends of license - stateful gw should be satisfied.";
     }
 
@@ -1083,8 +1083,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         ArtifactObject a2 = m_artifactRepository.create(attr, tags);
 
-        GroupObject g = createBasicGroupObject("group");
-        LicenseObject l = createBasicLicenseObject("license");
+        FeatureObject g = createBasicGroupObject("group");
+        DistributionObject l = createBasicLicenseObject("license");
 
         attr = new HashMap<String, String>();
         attr.put(TargetObject.KEY_ID, "myGateway");
@@ -1097,7 +1097,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         m_group2licenseRepository.create(g, l);
 
-        m_license2gatewayRepository.create(l, sgo.getGatewayObject());
+        m_license2gatewayRepository.create(l, sgo.getTargetObject());
 
         try {
             sgo.approve();
@@ -1391,8 +1391,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         loginContext1.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "gateway", true);
         m_repositoryAdmin.login(loginContext1);
 
-        GroupObject g1 = createBasicGroupObject("group1");
-        LicenseObject l1 = createBasicLicenseObject("license1");
+        FeatureObject g1 = createBasicGroupObject("group1");
+        DistributionObject l1 = createBasicLicenseObject("license1");
 
         m_group2licenseRepository.create(g1, l1);
 
@@ -1462,8 +1462,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
     @Test
     public void testRepostoryLoginDoubleRepository() throws Exception {
         RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(new MockUser("user"));
-        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "shop", true, ArtifactRepository.class, Artifact2GroupAssociationRepository.class, GroupRepository.class);
-        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "deployment", true, GroupRepository.class, Group2LicenseAssociationRepository.class, LicenseRepository.class);
+        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "shop", true, ArtifactRepository.class, Artifact2FeatureAssociationRepository.class, FeatureRepository.class);
+        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "deployment", true, FeatureRepository.class, Feature2DistributionAssociationRepository.class, DistributionRepository.class);
         try {
             m_repositoryAdmin.login(context);
             assert false : "We tried to log in with two repositories that try to access the same repository service; this should not be allowed.";
@@ -1473,14 +1473,14 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         }
     }
 
-    private static interface newRepository extends ObjectRepository<LicenseObject> {}
+    private static interface newRepository extends ObjectRepository<DistributionObject> {}
 
     @SuppressWarnings("unchecked")
     @Test
     public void testRepostoryLoginRepositoryWithoutImplementation() throws Exception {
         RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(new MockUser("user"));
-        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "shop", true, ArtifactRepository.class, Artifact2GroupAssociationRepository.class, GroupRepository.class);
-        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "deployment", true, GroupRepository.class, Group2LicenseAssociationRepository.class, newRepository.class);
+        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "shop", true, ArtifactRepository.class, Artifact2FeatureAssociationRepository.class, FeatureRepository.class);
+        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "deployment", true, FeatureRepository.class, Feature2DistributionAssociationRepository.class, newRepository.class);
         try {
             m_repositoryAdmin.login(context);
             assert false : "We tried to log in with a repository for which no implementation is available; this should not be allowed.";
@@ -1518,8 +1518,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 ArtifactObject b1 = createBasicBundleObject("myBundle");
                 ArtifactObject b2 = createBasicBundleObject("myProcessor", "1.0.0", "myProcessor.pid");
                 ArtifactObject a1 = createBasicArtifactObject("myArtifact", "mymime", "myProcessor.pid");
-                GroupObject go = createBasicGroupObject("mygroup");
-                LicenseObject lo = createBasicLicenseObject("mylicense");
+                FeatureObject go = createBasicGroupObject("mygroup");
+                DistributionObject lo = createBasicLicenseObject("mylicense");
                 TargetObject gwo = createBasicGatewayObject("templategateway");
                 m_artifact2groupRepository.create(b1, go);
                 // note that we do not associate b2: this is a resource processor, so it will be packed
@@ -1576,12 +1576,12 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         File simpleTemplateFile = createFileWithContents("template", "xml", xmlHeader+simpleTemplate+xmlFooter);
 
         // create some tree from artifacts to a gateway
-        GroupObject go = runAndWaitForEvent(new Callable<GroupObject>() {
-            public GroupObject call() throws Exception {
+        FeatureObject go = runAndWaitForEvent(new Callable<FeatureObject>() {
+            public FeatureObject call() throws Exception {
                 ArtifactObject b1 = createBasicBundleObject("myBundle");
                 ArtifactObject b2 = createBasicBundleObject("myProcessor", "1.0.0", "org.osgi.deployment.rp.autoconf");
-                GroupObject go = createBasicGroupObject("mygroup");
-                LicenseObject lo = createBasicLicenseObject("mylicense");
+                FeatureObject go = createBasicGroupObject("mygroup");
+                DistributionObject lo = createBasicLicenseObject("mylicense");
                 TargetObject gwo = createBasicGatewayObject("templategateway2");
                 m_artifact2groupRepository.create(b1, go);
                 // note that we do not associate b2: this is a resource processor, so it will be packed
@@ -1593,7 +1593,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         }, false, TOPIC_ADDED);
 
         ArtifactObject a1 = m_artifactRepository.importArtifact(noTemplateFile.toURI().toURL(), true);
-        Artifact2GroupAssociation a2g = m_artifact2groupRepository.create(a1, go);
+        Artifact2FeatureAssociation a2g = m_artifact2groupRepository.create(a1, go);
 
         final StatefulTargetObject sgo = m_statefulGatewayRepository.get(m_bundleContext.createFilter("(" + TargetObject.KEY_ID + "=templategateway2)")).get(0);
 
@@ -1748,17 +1748,17 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         return m_artifactRepository.create(attr, tags);
     }
 
-    private GroupObject createBasicGroupObject(String name) {
+    private FeatureObject createBasicGroupObject(String name) {
         Map<String, String> attr = new HashMap<String, String>();
-        attr.put(GroupObject.KEY_NAME, name);
+        attr.put(FeatureObject.KEY_NAME, name);
         Map<String, String> tags = new HashMap<String, String>();
 
         return m_groupRepository.create(attr, tags);
     }
 
-    private LicenseObject createBasicLicenseObject(String name) {
+    private DistributionObject createBasicLicenseObject(String name) {
         Map<String, String> attr = new HashMap<String, String>();
-        attr.put(LicenseObject.KEY_NAME, name);
+        attr.put(DistributionObject.KEY_NAME, name);
         Map<String, String> tags = new HashMap<String, String>();
 
         return m_licenseRepository.create(attr, tags);
@@ -1774,7 +1774,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
     private DeploymentVersionObject createBasicDeploymentVersionObject(String gatewayID, String version, ArtifactObject... bundles) {
         Map<String, String> attr = new HashMap<String, String>();
-        attr.put(DeploymentVersionObject.KEY_GATEWAYID, gatewayID);
+        attr.put(DeploymentVersionObject.KEY_TARGETID, gatewayID);
         attr.put(DeploymentVersionObject.KEY_VERSION, version);
         Map<String, String> tags = new HashMap<String, String>();
 
@@ -1791,7 +1791,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         return m_deploymentVersionRepository.create(attr, tags, artifacts.toArray(new DeploymentArtifact[0]));
     }
 
-    private Artifact2GroupAssociation createDynamicBundle2GroupAssociation(ArtifactObject artifact, GroupObject group) {
+    private Artifact2FeatureAssociation createDynamicBundle2GroupAssociation(ArtifactObject artifact, FeatureObject group) {
         Map<String, String> properties = new HashMap<String, String>();
         properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
         return m_artifact2groupRepository.create(artifact, properties, group, null);

@@ -44,11 +44,11 @@ public class DeploymentVersionObjectImpl extends RepositoryObjectImpl<Deployment
      * @param notifier A change notifier to be used by this object.
      */
     DeploymentVersionObjectImpl(Map<String, String> attributes, ChangeNotifier notifier) {
-        super(checkAttributes(attributes, new String[] {KEY_GATEWAYID, KEY_VERSION}, new boolean[] {false, false}), notifier, XML_NODE);
+        super(checkAttributes(attributes, new String[] {KEY_TARGETID, KEY_VERSION}, new boolean[] {false, false}), notifier, XML_NODE);
     }
 
     DeploymentVersionObjectImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier) {
-        super(checkAttributes(attributes, new String[] {KEY_GATEWAYID, KEY_VERSION}, new boolean[] {false, false}), tags, notifier, XML_NODE);
+        super(checkAttributes(attributes, new String[] {KEY_TARGETID, KEY_VERSION}, new boolean[] {false, false}), tags, notifier, XML_NODE);
     }
 
     DeploymentVersionObjectImpl(HierarchicalStreamReader reader, ChangeNotifier notifier) {
@@ -93,14 +93,14 @@ public class DeploymentVersionObjectImpl extends RepositoryObjectImpl<Deployment
         writer.endNode();
     }
 
-    private static String[] DEFINING_KEYS = new String[] {KEY_GATEWAYID, KEY_VERSION};
+    private static String[] DEFINING_KEYS = new String[] {KEY_TARGETID, KEY_VERSION};
     @Override
     String[] getDefiningKeys() {
         return DEFINING_KEYS;
     }
 
-    public String getGatewayID() {
-        return getAttribute(KEY_GATEWAYID);
+    public String getTargetID() {
+        return getAttribute(KEY_TARGETID);
     }
 
     public String getVersion() {

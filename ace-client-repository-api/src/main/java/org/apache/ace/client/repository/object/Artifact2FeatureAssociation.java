@@ -21,10 +21,10 @@ package org.apache.ace.client.repository.object;
 import org.apache.ace.client.repository.Association;
 
 /**
- * Interface to a License2GatewayAssociation. Most functionality is defined by the generic Association.
+ * Interface to a Artifact2FeatureAssociation. Most functionality is defined by the generic Association.
  */
-public interface License2GatewayAssociation extends Association<LicenseObject, TargetObject> {
-    public static final String TOPIC_ENTITY_ROOT = License2GatewayAssociation.class.getSimpleName() + "/";
+public interface Artifact2FeatureAssociation extends Association<ArtifactObject, FeatureObject> {
+    public static final String TOPIC_ENTITY_ROOT = Artifact2FeatureAssociation.class.getSimpleName() + "/";
 
     public static final String TOPIC_ADDED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ADDED_SUFFIX;
     public static final String TOPIC_REMOVED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_REMOVED_SUFFIX;

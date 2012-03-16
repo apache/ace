@@ -8,8 +8,8 @@ import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.domain.NamedArtifactObject;
@@ -86,11 +86,11 @@ public class Associations {
         if (object instanceof ArtifactObject) {
             return new NamedArtifactObject((ArtifactObject) object);
         }
-        else if (object instanceof GroupObject) {
-            return new NamedFeatureObject((GroupObject) object);
+        else if (object instanceof FeatureObject) {
+            return new NamedFeatureObject((FeatureObject) object);
         }
-        else if (object instanceof LicenseObject) {
-            return new NamedDistributionObject((LicenseObject) object);
+        else if (object instanceof DistributionObject) {
+            return new NamedDistributionObject((DistributionObject) object);
         }
         else if (object instanceof StatefulTargetObject) {
             return new NamedTargetObject((StatefulTargetObject) object);
@@ -203,7 +203,7 @@ public class Associations {
                 if (object instanceof StatefulTargetObject) {
                     StatefulTargetObject sgo = (StatefulTargetObject) object;
                     if (sgo.isRegistered()) {
-                        object = sgo.getGatewayObject();
+                        object = sgo.getTargetObject();
                     }
                     else {
                         object = null;

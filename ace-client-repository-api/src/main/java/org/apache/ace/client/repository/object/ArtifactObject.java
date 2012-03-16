@@ -72,11 +72,11 @@ public interface ArtifactObject extends RepositoryObject {
      * Returns all <code>GroupObject</code>s this object is associated with. If there
      * are none, an empty list will be returned.
      */
-    public List<GroupObject> getGroups();
+    public List<FeatureObject> getGroups();
     /**
      * Returns all associations this artifact has with a given group.
      */
-    public List<Artifact2GroupAssociation> getAssociationsWith(GroupObject group);
+    public List<Artifact2FeatureAssociation> getAssociationsWith(FeatureObject group);
 
     /**
      * Returns the mimetype of this artifact.

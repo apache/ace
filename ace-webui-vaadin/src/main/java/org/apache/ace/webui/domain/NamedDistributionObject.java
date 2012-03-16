@@ -1,13 +1,13 @@
 package org.apache.ace.webui.domain;
 
 import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.webui.NamedObject;
 
 public class NamedDistributionObject implements NamedObject {
-    private final LicenseObject m_target;
+    private final DistributionObject m_target;
 
-    public NamedDistributionObject(LicenseObject target) {
+    public NamedDistributionObject(DistributionObject target) {
         m_target = target;
     }
 

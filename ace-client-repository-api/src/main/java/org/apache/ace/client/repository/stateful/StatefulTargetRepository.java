@@ -23,31 +23,31 @@ import java.util.Map;
 import org.apache.ace.client.repository.ObjectRepository;
 
 /**
- * Represents a repository of <ode>StatefulGatewayObject</code>'s.
+ * Represents a repository of <ode>StatefulTargetObject</code>'s.
  */
 public interface StatefulTargetRepository extends ObjectRepository<StatefulTargetObject> {
 
     /**
-     * Registers a gateway with given attributes. This will result in the creation
-     * of a <code>GatewayObject</code> in the <code>GatewayRepository</code>, and
-     * the creation of a <code>StatefulGatewayObject</code>, which will also be
+     * Registers a target with given attributes. This will result in the creation
+     * of a <code>TargetObject</code> in the <code>TargetRepository</code>, and
+     * the creation of a <code>StatefulTargetObject</code>, which will also be
      * returned.
-     * @param attributes The attributes to create the <code>GatewayObject</code> with.
-     * @return The newly registered gateway object.
+     * @param attributes The attributes to create the <code>TargetObject</code> with.
+     * @return The newly registered target object.
      */
     public StatefulTargetObject preregister(Map<String, String> attributes, Map<String, String> tags);
 
     /**
-     * Unregisters a gateway, removing it from the <code>GatewayRepository</code>. Note
-     * that a <code>StatefulGatewayObject</code> might stay around if it is backed
-     * by audit log entries. If the given ID is not that of an existing <code>GatewayObject</code>,
+     * Unregisters a target, removing it from the <code>TargetRepository</code>. Note
+     * that a <code>StatefulTargetObject</code> might stay around if it is backed
+     * by audit log entries. If the given ID is not that of an existing <code>TargetObject</code>,
      * an <code>IllegalArgumentException</code> will be thrown.
-     * @param gatewayID A string representing a gateway ID.
+     * @param targetID A string representing a target ID.
      */
-    public void unregister(String gatewayID);
+    public void unregister(String targetID);
 
     /**
-     * Explicitly instruct the <code>StatefulGatewayRepository</code> to update
+     * Explicitly instruct the <code>StatefulTargetRepository</code> to update
      * its contents; for instance, after syncing the audit log.
      */
     public void refresh();

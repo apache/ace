@@ -20,21 +20,21 @@ public interface DeploymentVersionRepository extends ObjectRepository<Deployment
     public DeploymentVersionObject create(Map<String, String> attributes, Map<String, String> tags, DeploymentArtifact[] artifacts);
 
     /**
-     * Gets all available deployment versions for this gateway. If none can be
+     * Gets all available deployment versions for this target. If none can be
      * found, an empty list will be returned.
-     * @param gatewayID The gateway to be used.
+     * @param targetID The target to be used.
      * @return A list of <code>DeploymentVersionObject</code>s which are related to
-     * this gateway, sorted lexically by version.
+     * this target, sorted lexically by version.
      */
-    public List<DeploymentVersionObject> getDeploymentVersions(String gatewayID);
+    public List<DeploymentVersionObject> getDeploymentVersions(String targetID);
 
     /**
-     * Get the most recent known deployment version for a given gateway.
-     * @param gatewayID The gateway to be used.
+     * Get the most recent known deployment version for a given target.
+     * @param targetID The target to be used.
      * @return A <code>DeploymentVersionObject</code> which is the most recent one to be deployed
-     * to the gateway. If none can be found, <code>null</code> will be returned.
+     * to the target. If none can be found, <code>null</code> will be returned.
      */
-    public DeploymentVersionObject getMostRecentDeploymentVersion(String gatewayID);
+    public DeploymentVersionObject getMostRecentDeploymentVersion(String targetID);
 
     /**
      * Creates a DeploymentArtifact object.

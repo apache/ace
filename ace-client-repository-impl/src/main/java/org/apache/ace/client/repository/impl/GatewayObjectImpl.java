@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.License2GatewayAssociation;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
+import org.apache.ace.client.repository.object.DistributionObject;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
@@ -49,16 +49,16 @@ public class GatewayObjectImpl extends RepositoryObjectImpl<TargetObject> implem
         }
     }
 
-    public List<LicenseObject> getLicenses() {
-        return getAssociations(LicenseObject.class);
+    public List<DistributionObject> getDistributions() {
+        return getAssociations(DistributionObject.class);
     }
 
     public String getID() {
         return getAttribute(KEY_ID);
     }
 
-    public List<License2GatewayAssociation> getAssociationsWith(LicenseObject license) {
-        return getAssociationsWith(license, LicenseObject.class, License2GatewayAssociation.class);
+    public List<Distribution2TargetAssociation> getAssociationsWith(DistributionObject license) {
+        return getAssociationsWith(license, DistributionObject.class, Distribution2TargetAssociation.class);
     }
 
     private static String[] DEFINING_KEYS = new String[] {KEY_ID};

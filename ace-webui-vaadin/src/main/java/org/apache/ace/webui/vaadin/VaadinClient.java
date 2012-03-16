@@ -37,19 +37,19 @@ import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
-import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
+import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.Group2LicenseAssociation;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.object.License2GatewayAssociation;
-import org.apache.ace.client.repository.object.LicenseObject;
-import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
+import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
+import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
-import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepository;
-import org.apache.ace.client.repository.repository.GroupRepository;
-import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
-import org.apache.ace.client.repository.repository.LicenseRepository;
+import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
+import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
+import org.apache.ace.client.repository.repository.DistributionRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.test.utils.FileUtils;
@@ -127,22 +127,22 @@ public class VaadinClient extends com.vaadin.Application {
     private volatile SessionFactory m_sessionFactory;
     private volatile UserAdmin m_userAdmin;
     private volatile ArtifactRepository m_artifactRepository;
-    private volatile GroupRepository m_featureRepository;
-    private volatile LicenseRepository m_distributionRepository;
+    private volatile FeatureRepository m_featureRepository;
+    private volatile DistributionRepository m_distributionRepository;
     private volatile StatefulTargetRepository m_statefulTargetRepository;
-    private volatile Artifact2GroupAssociationRepository m_artifact2GroupAssociationRepository;
-    private volatile Group2LicenseAssociationRepository m_group2LicenseAssociationRepository;
-    private volatile License2GatewayAssociationRepository m_license2GatewayAssociationRepository;
+    private volatile Artifact2FeatureAssociationRepository m_artifact2GroupAssociationRepository;
+    private volatile Feature2DistributionAssociationRepository m_group2LicenseAssociationRepository;
+    private volatile Distribution2TargetAssociationRepository m_license2GatewayAssociationRepository;
     private volatile RepositoryAdmin m_admin;
     private volatile LogService m_log;
     private String m_sessionID;
-    private volatile List<LicenseObject> m_distributions;
+    private volatile List<DistributionObject> m_distributions;
     private ObjectPanel m_artifactsPanel;
     private ObjectPanel m_featuresPanel;
     private ObjectPanel m_distributionsPanel;
     private ObjectPanel m_targetsPanel;
     private List<ArtifactObject> m_artifacts;
-    private List<GroupObject> m_features;
+    private List<FeatureObject> m_features;
     private List<StatefulTargetObject> m_targets;
     private final Associations m_associations = new Associations();
 
@@ -174,12 +174,12 @@ public class VaadinClient extends com.vaadin.Application {
         m_sessionDir = dir;
         m_sessionFactory.createSession(m_sessionID);
         addDependency(component, RepositoryAdmin.class);
-        addDependency(component, LicenseRepository.class);
+        addDependency(component, DistributionRepository.class);
         addDependency(component, ArtifactRepository.class);
-        addDependency(component, GroupRepository.class);
-        addDependency(component, Artifact2GroupAssociationRepository.class);
-        addDependency(component, Group2LicenseAssociationRepository.class);
-        addDependency(component, License2GatewayAssociationRepository.class);
+        addDependency(component, FeatureRepository.class);
+        addDependency(component, Artifact2FeatureAssociationRepository.class);
+        addDependency(component, Feature2DistributionAssociationRepository.class);
+        addDependency(component, Distribution2TargetAssociationRepository.class);
         addDependency(component, StatefulTargetRepository.class);
     }
 
@@ -309,17 +309,17 @@ public class VaadinClient extends com.vaadin.Application {
         m_grid.addComponent(progress, 0, 3);
 
         m_artifactsPanel.addListener(m_associations.createSelectionListener(m_artifactsPanel, m_artifactRepository,
-            new Class[] {}, new Class[] { GroupObject.class, LicenseObject.class, TargetObject.class },
+            new Class[] {}, new Class[] { FeatureObject.class, DistributionObject.class, TargetObject.class },
             new Table[] { m_featuresPanel, m_distributionsPanel, m_targetsPanel }));
         m_featuresPanel.addListener(m_associations.createSelectionListener(m_featuresPanel, m_featureRepository,
-            new Class[] { ArtifactObject.class }, new Class[] { LicenseObject.class, TargetObject.class },
+            new Class[] { ArtifactObject.class }, new Class[] { DistributionObject.class, TargetObject.class },
             new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }));
         m_distributionsPanel
             .addListener(m_associations.createSelectionListener(m_distributionsPanel, m_distributionRepository,
-                new Class[] { GroupObject.class, ArtifactObject.class }, new Class[] { TargetObject.class },
+                new Class[] { FeatureObject.class, ArtifactObject.class }, new Class[] { TargetObject.class },
                 new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
         m_targetsPanel.addListener(m_associations.createSelectionListener(m_targetsPanel, m_statefulTargetRepository,
-            new Class[] { LicenseObject.class, GroupObject.class, ArtifactObject.class }, new Class[] {},
+            new Class[] { DistributionObject.class, FeatureObject.class, ArtifactObject.class }, new Class[] {},
             new Table[] { m_artifactsPanel, m_featuresPanel, m_distributionsPanel }));
 
         m_artifactsPanel.setDropHandler(new AssociationDropHandler((Table) null, m_featuresPanel) {
@@ -386,7 +386,7 @@ public class VaadinClient extends com.vaadin.Application {
                     target.register();
                     target.setAutoApprove(true);
                 }
-                m_license2GatewayAssociationRepository.create(getDistribution(left), target.getGatewayObject());
+                m_license2GatewayAssociationRepository.create(getDistribution(left), target.getTargetObject());
             }
         });
         m_targetsPanel.setDropHandler(new AssociationDropHandler(m_distributionsPanel, (Table) null) {
@@ -397,7 +397,7 @@ public class VaadinClient extends com.vaadin.Application {
                     target.register();
                     target.setAutoApprove(true);
                 }
-                m_license2GatewayAssociationRepository.create(getDistribution(left), target.getGatewayObject());
+                m_license2GatewayAssociationRepository.create(getDistribution(left), target.getTargetObject());
             }
 
             @Override
@@ -406,8 +406,8 @@ public class VaadinClient extends com.vaadin.Application {
         });
 
         addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL);
-        addListener(m_featuresPanel, GroupObject.TOPIC_ALL);
-        addListener(m_distributionsPanel, LicenseObject.TOPIC_ALL);
+        addListener(m_featuresPanel, FeatureObject.TOPIC_ALL);
+        addListener(m_distributionsPanel, DistributionObject.TOPIC_ALL);
         addListener(m_targetsPanel, StatefulTargetObject.TOPIC_ALL);
         m_mainWindow.addComponent(m_grid);
     }
@@ -532,9 +532,9 @@ public class VaadinClient extends com.vaadin.Application {
 
                         @Override
                         protected void removeLinkFromRight(ArtifactObject object, RepositoryObject other) {
-                            List<Artifact2GroupAssociation> associations = object
-                                .getAssociationsWith((GroupObject) other);
-                            for (Artifact2GroupAssociation association : associations) {
+                            List<Artifact2FeatureAssociation> associations = object
+                                .getAssociationsWith((FeatureObject) other);
+                            for (Artifact2FeatureAssociation association : associations) {
                                 m_artifact2GroupAssociationRepository.remove(association);
                             }
                             m_associations.removeAssociatedItem(object);
@@ -570,37 +570,37 @@ public class VaadinClient extends com.vaadin.Application {
 
             public void populate() {
                 removeAllItems();
-                for (GroupObject feature : m_featureRepository.get()) {
+                for (FeatureObject feature : m_featureRepository.get()) {
                     add(feature);
                 }
             }
 
             public void handleEvent(org.osgi.service.event.Event event) {
-                GroupObject feature = (GroupObject) event.getProperty(GroupObject.EVENT_ENTITY);
+                FeatureObject feature = (FeatureObject) event.getProperty(FeatureObject.EVENT_ENTITY);
                 String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
-                if (GroupObject.TOPIC_ADDED.equals(topic)) {
+                if (FeatureObject.TOPIC_ADDED.equals(topic)) {
                     add(feature);
                 }
-                if (GroupObject.TOPIC_REMOVED.equals(topic)) {
+                if (FeatureObject.TOPIC_REMOVED.equals(topic)) {
                     remove(feature);
                 }
-                if (GroupObject.TOPIC_CHANGED.equals(topic)) {
+                if (FeatureObject.TOPIC_CHANGED.equals(topic)) {
                     change(feature);
                 }
             }
 
-            private void add(GroupObject feature) {
+            private void add(FeatureObject feature) {
                 Item item = addItem(feature.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_NAME).setValue(feature.getName());
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue(feature.getDescription());
-                    Button removeLinkButton = new RemoveLinkButton<GroupObject>(feature, m_artifactsPanel,
+                    Button removeLinkButton = new RemoveLinkButton<FeatureObject>(feature, m_artifactsPanel,
                         m_distributionsPanel) {
                         @Override
-                        protected void removeLinkFromLeft(GroupObject object, RepositoryObject other) {
-                            List<Artifact2GroupAssociation> associations = object
+                        protected void removeLinkFromLeft(FeatureObject object, RepositoryObject other) {
+                            List<Artifact2FeatureAssociation> associations = object
                                 .getAssociationsWith((ArtifactObject) other);
-                            for (Artifact2GroupAssociation association : associations) {
+                            for (Artifact2FeatureAssociation association : associations) {
                                 m_artifact2GroupAssociationRepository.remove(association);
                             }
                             m_associations.removeAssociatedItem(object);
@@ -608,10 +608,10 @@ public class VaadinClient extends com.vaadin.Application {
                         }
 
                         @Override
-                        protected void removeLinkFromRight(GroupObject object, RepositoryObject other) {
-                            List<Group2LicenseAssociation> associations = object
-                                .getAssociationsWith((LicenseObject) other);
-                            for (Group2LicenseAssociation association : associations) {
+                        protected void removeLinkFromRight(FeatureObject object, RepositoryObject other) {
+                            List<Feature2DistributionAssociation> associations = object
+                                .getAssociationsWith((DistributionObject) other);
+                            for (Feature2DistributionAssociation association : associations) {
                                 m_group2LicenseAssociationRepository.remove(association);
                             }
                             m_associations.removeAssociatedItem(object);
@@ -620,20 +620,20 @@ public class VaadinClient extends com.vaadin.Application {
                     };
                     HorizontalLayout buttons = new HorizontalLayout();
                     buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton<GroupObject, GroupRepository>(feature,
+                    buttons.addComponent(new RemoveItemButton<FeatureObject, FeatureRepository>(feature,
                         m_featureRepository));
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
 
-            private void change(GroupObject go) {
+            private void change(FeatureObject go) {
                 Item item = getItem(go.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue(go.getDescription());
                 }
             }
 
-            private void remove(GroupObject go) {
+            private void remove(FeatureObject go) {
                 removeItem(go.getDefinition());
             }
         };
@@ -692,37 +692,37 @@ public class VaadinClient extends com.vaadin.Application {
 
             public void populate() {
                 removeAllItems();
-                for (LicenseObject distribution : m_distributionRepository.get()) {
+                for (DistributionObject distribution : m_distributionRepository.get()) {
                     add(distribution);
                 }
             }
 
             public void handleEvent(org.osgi.service.event.Event event) {
-                LicenseObject distribution = (LicenseObject) event.getProperty(LicenseObject.EVENT_ENTITY);
+                DistributionObject distribution = (DistributionObject) event.getProperty(DistributionObject.EVENT_ENTITY);
                 String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
-                if (LicenseObject.TOPIC_ADDED.equals(topic)) {
+                if (DistributionObject.TOPIC_ADDED.equals(topic)) {
                     add(distribution);
                 }
-                if (LicenseObject.TOPIC_REMOVED.equals(topic)) {
+                if (DistributionObject.TOPIC_REMOVED.equals(topic)) {
                     remove(distribution);
                 }
-                if (LicenseObject.TOPIC_CHANGED.equals(topic)) {
+                if (DistributionObject.TOPIC_CHANGED.equals(topic)) {
                     change(distribution);
                 }
             }
 
-            private void add(LicenseObject distribution) {
+            private void add(DistributionObject distribution) {
                 Item item = addItem(distribution.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_NAME).setValue(distribution.getName());
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
-                    Button removeLinkButton = new RemoveLinkButton<LicenseObject>(distribution, m_featuresPanel,
+                    Button removeLinkButton = new RemoveLinkButton<DistributionObject>(distribution, m_featuresPanel,
                         m_targetsPanel) {
                         @Override
-                        protected void removeLinkFromLeft(LicenseObject object, RepositoryObject other) {
-                            List<Group2LicenseAssociation> associations = object
-                                .getAssociationsWith((GroupObject) other);
-                            for (Group2LicenseAssociation association : associations) {
+                        protected void removeLinkFromLeft(DistributionObject object, RepositoryObject other) {
+                            List<Feature2DistributionAssociation> associations = object
+                                .getAssociationsWith((FeatureObject) other);
+                            for (Feature2DistributionAssociation association : associations) {
                                 m_group2LicenseAssociationRepository.remove(association);
                             }
                             m_associations.removeAssociatedItem(object);
@@ -730,10 +730,10 @@ public class VaadinClient extends com.vaadin.Application {
                         }
 
                         @Override
-                        protected void removeLinkFromRight(LicenseObject object, RepositoryObject other) {
-                            List<License2GatewayAssociation> associations = object
+                        protected void removeLinkFromRight(DistributionObject object, RepositoryObject other) {
+                            List<Distribution2TargetAssociation> associations = object
                                 .getAssociationsWith((TargetObject) other);
-                            for (License2GatewayAssociation association : associations) {
+                            for (Distribution2TargetAssociation association : associations) {
                                 m_license2GatewayAssociationRepository.remove(association);
                             }
                             m_associations.removeAssociatedItem(object);
@@ -742,20 +742,20 @@ public class VaadinClient extends com.vaadin.Application {
                     };
                     HorizontalLayout buttons = new HorizontalLayout();
                     buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton<LicenseObject, LicenseRepository>(distribution,
+                    buttons.addComponent(new RemoveItemButton<DistributionObject, DistributionRepository>(distribution,
                         m_distributionRepository));
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
 
-            private void change(LicenseObject distribution) {
+            private void change(DistributionObject distribution) {
                 Item item = getItem(distribution.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
                 }
             }
 
-            private void remove(LicenseObject distribution) {
+            private void remove(DistributionObject distribution) {
                 removeItem(distribution.getDefinition());
             }
         };
@@ -799,9 +799,9 @@ public class VaadinClient extends com.vaadin.Application {
                         m_distributionsPanel, null) {
                         @Override
                         protected void removeLinkFromLeft(StatefulTargetObject object, RepositoryObject other) {
-                            List<License2GatewayAssociation> associations = object
-                                .getAssociationsWith((LicenseObject) other);
-                            for (License2GatewayAssociation association : associations) {
+                            List<Distribution2TargetAssociation> associations = object
+                                .getAssociationsWith((DistributionObject) other);
+                            for (Distribution2TargetAssociation association : associations) {
                                 m_license2GatewayAssociationRepository.remove(association);
                             }
                             m_associations.removeAssociatedItem(object);
@@ -994,8 +994,8 @@ public class VaadinClient extends com.vaadin.Application {
      */
     private void createFeature(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put(GroupObject.KEY_NAME, name);
-        attributes.put(GroupObject.KEY_DESCRIPTION, description);
+        attributes.put(FeatureObject.KEY_NAME, name);
+        attributes.put(FeatureObject.KEY_DESCRIPTION, description);
         Map<String, String> tags = new HashMap<String, String>();
         m_featureRepository.create(attributes, tags);
     }
@@ -1024,8 +1024,8 @@ public class VaadinClient extends com.vaadin.Application {
      */
     private void createDistribution(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put(LicenseObject.KEY_NAME, name);
-        attributes.put(LicenseObject.KEY_DESCRIPTION, description);
+        attributes.put(DistributionObject.KEY_NAME, name);
+        attributes.put(DistributionObject.KEY_DESCRIPTION, description);
         Map<String, String> tags = new HashMap<String, String>();
         m_distributionRepository.create(attributes, tags);
     }
@@ -1034,11 +1034,11 @@ public class VaadinClient extends com.vaadin.Application {
         return m_artifactRepository.get(definition);
     }
 
-    private GroupObject getFeature(String name) {
+    private FeatureObject getFeature(String name) {
         return m_featureRepository.get(name);
     }
 
-    private LicenseObject getDistribution(String name) {
+    private DistributionObject getDistribution(String name) {
         return m_distributionRepository.get(name);
     }
 
@@ -1047,7 +1047,7 @@ public class VaadinClient extends com.vaadin.Application {
     }
 
     private void deleteFeature(String name) {
-        GroupObject feature = getFeature(name);
+        FeatureObject feature = getFeature(name);
         if (feature != null) {
             m_featureRepository.remove(feature);
             // TODO cleanup links?

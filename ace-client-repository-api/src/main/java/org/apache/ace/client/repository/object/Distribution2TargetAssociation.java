@@ -21,10 +21,10 @@ package org.apache.ace.client.repository.object;
 import org.apache.ace.client.repository.Association;
 
 /**
- * Interface to a Artifact2GroupAssociation. Most functionality is defined by the generic Association.
+ * Interface to a Distribution2TargetAssociation. Most functionality is defined by the generic Association.
  */
-public interface Artifact2GroupAssociation extends Association<ArtifactObject, GroupObject> {
-    public static final String TOPIC_ENTITY_ROOT = Artifact2GroupAssociation.class.getSimpleName() + "/";
+public interface Distribution2TargetAssociation extends Association<DistributionObject, TargetObject> {
+    public static final String TOPIC_ENTITY_ROOT = Distribution2TargetAssociation.class.getSimpleName() + "/";
 
     public static final String TOPIC_ADDED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ADDED_SUFFIX;
     public static final String TOPIC_REMOVED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_REMOVED_SUFFIX;

@@ -1,13 +1,13 @@
 package org.apache.ace.webui.domain;
 
 import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.object.GroupObject;
+import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.webui.NamedObject;
 
 public class NamedFeatureObject implements NamedObject {
-    private final GroupObject m_target;
+    private final FeatureObject m_target;
 
-    public NamedFeatureObject(GroupObject target) {
+    public NamedFeatureObject(FeatureObject target) {
         m_target = target;
     }
 

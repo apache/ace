@@ -34,16 +34,17 @@ public interface TargetObject extends RepositoryObject {
     public static final String TOPIC_ALL = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ALL_SUFFIX;
 
     /**
-     * Returns all <code>LicenseObject</code>s this object is associated with. If there
+     * Returns all <code>DistributionObject</code>s this object is associated with. If there
      * are none, an empty list will be returned.
      */
-    public List<LicenseObject> getLicenses();
+    public List<DistributionObject> getDistributions();
     /**
-     * Returns all associations this gateway has with a given license.
+     * Returns all associations this target has with a given distribution.
      */
-    public List<License2GatewayAssociation> getAssociationsWith(LicenseObject license);
+    public List<Distribution2TargetAssociation> getAssociationsWith(DistributionObject distribution);
+
     /**
-     * Gets the ID of this GatewayObject.
+     * Gets the ID of this TargetObject.
      */
     public String getID();
 
@@ -53,7 +54,7 @@ public interface TargetObject extends RepositoryObject {
     public void setAutoApprove(boolean approve);
 
     /**
-     * Get the auto approval value of this gateway.
+     * Get the auto approval value of this target.
      */
     public boolean getAutoApprove();
 }

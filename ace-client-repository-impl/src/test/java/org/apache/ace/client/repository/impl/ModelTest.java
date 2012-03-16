@@ -31,22 +31,22 @@ import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryUtil;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.helper.bundle.impl.BundleHelperImpl;
-import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
+import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
 import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.Group2LicenseAssociation;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.object.LicenseObject;
-import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
+import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
-import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepository;
-import org.apache.ace.client.repository.repository.GroupRepository;
-import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
-import org.apache.ace.client.repository.repository.LicenseRepository;
+import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
+import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
+import org.apache.ace.client.repository.repository.DistributionRepository;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
@@ -111,11 +111,11 @@ public class ModelTest {
 
         Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> repos = new HashMap<Class<? extends ObjectRepository>, ObjectRepositoryImpl>();
         repos.put(ArtifactRepository.class, m_artifactRepository);
-        repos.put(Artifact2GroupAssociationRepository.class, m_artifact2groupRepository);
-        repos.put(GroupRepository.class, m_groupRepository);
-        repos.put(Group2LicenseAssociationRepository.class, m_group2licenseRepository);
-        repos.put(LicenseRepository.class, m_licenseRepository);
-        repos.put(License2GatewayAssociationRepository.class, m_license2gatewayRepository);
+        repos.put(Artifact2FeatureAssociationRepository.class, m_artifact2groupRepository);
+        repos.put(FeatureRepository.class, m_groupRepository);
+        repos.put(Feature2DistributionAssociationRepository.class, m_group2licenseRepository);
+        repos.put(DistributionRepository.class, m_licenseRepository);
+        repos.put(Distribution2TargetAssociationRepository.class, m_license2gatewayRepository);
         repos.put(TargetRepository.class, m_gatewayRepository);
         repos.put(DeploymentVersionRepository.class, m_deploymentVersionRepository);
 
@@ -145,7 +145,7 @@ public class ModelTest {
         }
 
         // Even though the bundle is not yet associated to a group, try to get its groups.
-        List<GroupObject> groups = b.getGroups();
+        List<FeatureObject> groups = b.getGroups();
 
         assert groups.size() == 0 : "The bundle is not associated, so it should not return any groups.";
 
@@ -249,8 +249,8 @@ public class ModelTest {
         ArtifactObject b2 = createBasicBundleObject("bundle2");
         ArtifactObject b3 = createBasicBundleObject("bundle3");
 
-        GroupObject g1 = createBasicGroupObject("group1");
-        GroupObject g2 = createBasicGroupObject("group2");
+        FeatureObject g1 = createBasicGroupObject("group1");
+        FeatureObject g2 = createBasicGroupObject("group2");
 
         m_artifact2groupRepository.create(b1, g1);
         m_artifact2groupRepository.create(b2, g2);
@@ -266,12 +266,12 @@ public class ModelTest {
         assert m_artifactRepository.get().size() == 3 : "We expect to find 3 bundles, but we find " + m_artifactRepository.get().size();
         assert m_groupRepository.get().size() == 2 : "We expect to find 2 groups, but we find " + m_groupRepository.get().size();
         assert m_artifact2groupRepository.get().size() == 3 : "We expect to find 3 associations, but we find " + m_artifact2groupRepository.get().size();
-        assert b1.isAssociated(g1, GroupObject.class) : "After serialization, b1 should still be associated with g1.";
-        assert !b1.isAssociated(g2, GroupObject.class) : "After serialization, b1 should not be associated with g1.";
-        assert !b2.isAssociated(g1, GroupObject.class) : "After serialization, b2 should not be associated with g2.";
-        assert b2.isAssociated(g2, GroupObject.class) : "After serialization, b2 should still be associated with g2.";
-        assert !b3.isAssociated(g1, GroupObject.class) : "After serialization, b3 should not be associated with g2.";
-        assert b3.isAssociated(g2, GroupObject.class) : "After serialization, b3 should still be associated with g2.";
+        assert b1.isAssociated(g1, FeatureObject.class) : "After serialization, b1 should still be associated with g1.";
+        assert !b1.isAssociated(g2, FeatureObject.class) : "After serialization, b1 should not be associated with g1.";
+        assert !b2.isAssociated(g1, FeatureObject.class) : "After serialization, b2 should not be associated with g2.";
+        assert b2.isAssociated(g2, FeatureObject.class) : "After serialization, b2 should still be associated with g2.";
+        assert !b3.isAssociated(g1, FeatureObject.class) : "After serialization, b3 should not be associated with g2.";
+        assert b3.isAssociated(g2, FeatureObject.class) : "After serialization, b3 should still be associated with g2.";
     }
 
     @Test( groups = { TestUtils.UNIT } )
@@ -284,7 +284,7 @@ public class ModelTest {
         Map<String, String> tags = new HashMap<String, String>();
 
         assert m_groupRepository != null : "Something has gone wrong injecting the bundle repository.";
-        GroupObject g1 = m_groupRepository.create(attributes, tags);
+        FeatureObject g1 = m_groupRepository.create(attributes, tags);
         g1.addTag("mytag", "thetag");
         g1.addTag("name", "tagname");
         g1.addTag("difficult", ")diffi)c*ul\\t");
@@ -323,18 +323,18 @@ public class ModelTest {
         ArtifactObject b2 = createBasicBundleObject("bundle2");
 
         // Create three groups.
-        GroupObject g1 = createBasicGroupObject("group1");
-        GroupObject g2 = createBasicGroupObject("group2");
-        GroupObject g3 = createBasicGroupObject("group3");
+        FeatureObject g1 = createBasicGroupObject("group1");
+        FeatureObject g2 = createBasicGroupObject("group2");
+        FeatureObject g3 = createBasicGroupObject("group3");
 
         // Create some associations.
-        Artifact2GroupAssociation b2g1 = m_artifact2groupRepository.create(b1, g2);
+        Artifact2FeatureAssociation b2g1 = m_artifact2groupRepository.create(b1, g2);
         assert b2g1 != null;
-        Artifact2GroupAssociation b2g2 = m_artifact2groupRepository.create(b2, g1);
+        Artifact2FeatureAssociation b2g2 = m_artifact2groupRepository.create(b2, g1);
         assert b2g2 != null;
-        Artifact2GroupAssociation b2g3 = m_artifact2groupRepository.create(b1, g3);
+        Artifact2FeatureAssociation b2g3 = m_artifact2groupRepository.create(b1, g3);
         assert b2g3 != null;
-        Artifact2GroupAssociation b2g4 = m_artifact2groupRepository.create(b2, g3);
+        Artifact2FeatureAssociation b2g4 = m_artifact2groupRepository.create(b2, g3);
         assert b2g4 != null;
 
         // Do some basic checks on the repositories.
@@ -346,24 +346,24 @@ public class ModelTest {
         assert (b2g4.getRight().size() == 1) && b2g4.getRight().contains(g3) : "The right side of the fourth association should be group 3.";
 
         // Check the wiring: what is wired to what?
-        List<GroupObject> b1groups = b1.getGroups();
-        List<GroupObject> b2groups = b2.getGroups();
+        List<FeatureObject> b1groups = b1.getGroups();
+        List<FeatureObject> b2groups = b2.getGroups();
 
         List<ArtifactObject> g1bundles = g1.getArtifacts();
         List<ArtifactObject> g2bundles = g2.getArtifacts();
         List<ArtifactObject> g3bundles = g3.getArtifacts();
-        List<LicenseObject> g1licenses = g1.getLicenses();
-        List<LicenseObject> g2licenses = g2.getLicenses();
-        List<LicenseObject> g3licenses = g3.getLicenses();
+        List<DistributionObject> g1licenses = g1.getDistributions();
+        List<DistributionObject> g2licenses = g2.getDistributions();
+        List<DistributionObject> g3licenses = g3.getDistributions();
 
         assert g1licenses.size() == 0 : "Group one should not have any associations to licenses; we found " + g1licenses.size() + ".";
         assert g2licenses.size() == 0 : "Group two should not have any associations to licenses; we found " + g2licenses.size() + ".";
         assert g3licenses.size() == 0 : "Group three should not have any associations to licenses; we found " + g3licenses.size() + ".";
 
-        List<GroupObject> b1expectedGroups = new ArrayList<GroupObject>();
+        List<FeatureObject> b1expectedGroups = new ArrayList<FeatureObject>();
         b1expectedGroups.add(g2);
         b1expectedGroups.add(g3);
-        List<GroupObject> b2expectedGroups = new ArrayList<GroupObject>();
+        List<FeatureObject> b2expectedGroups = new ArrayList<FeatureObject>();
         b2expectedGroups.add(g1);
         b2expectedGroups.add(g3);
 
@@ -411,15 +411,15 @@ public class ModelTest {
     @Test( groups = { TestUtils.UNIT } )
     public void TestGroup2LicenseAssociations() {
         initializeRepositoryAdmin();
-        GroupObject g1 = createBasicGroupObject("group1");
-        LicenseObject l1 = createBasicLicenseObject("license1");
-        Group2LicenseAssociation g2l1 = m_group2licenseRepository.create(g1, l1);
+        FeatureObject g1 = createBasicGroupObject("group1");
+        DistributionObject l1 = createBasicLicenseObject("license1");
+        Feature2DistributionAssociation g2l1 = m_group2licenseRepository.create(g1, l1);
 
         assert (g2l1.getLeft().size() == 1) && g2l1.getLeft().contains(g1) : "Left side of the association should be our group.";
         assert (g2l1.getRight().size() == 1) &&  g2l1.getRight().contains(l1) : "Right side of the association should be our license.";
 
         assert g1.getArtifacts().size() == 0 : "Group 1 should not be associated with any bundles; it is associated with " + g1.getArtifacts().size() + ".";
-        assert g1.getLicenses().size() == 1 : "Group 1 should be associated with exactly one license; it is associated with " + g1.getLicenses().size() + ".";
+        assert g1.getDistributions().size() == 1 : "Group 1 should be associated with exactly one license; it is associated with " + g1.getDistributions().size() + ".";
 
         assert l1.getGroups().size() == 1 : "License 1 should be associated with exactly one group; it is associated with " + l1.getGroups().size() + ".";
         assert l1.getGateways().size() == 0 : "License 1 should not be associated with any gateways; it is associated with " + l1.getGateways().size() + ".";
@@ -434,25 +434,25 @@ public class ModelTest {
     @Test( groups = { TestUtils.UNIT } )
     public void testLicense2GatewayAssociations() {
         initializeRepositoryAdmin();
-        LicenseObject l1 = createBasicLicenseObject("license1");
+        DistributionObject l1 = createBasicLicenseObject("license1");
         TargetObject g1 = createBasicGatewayObject("gateway1");
         m_license2gatewayRepository.create(l1, g1);
 
         assert l1.getGroups().size() == 0 : "License 1 should not be associated with any groups; it is associated with " + l1.getGroups().size() + ".";
         assert l1.getGateways().size() == 1 : "License 1 should be associated with exactly one gateway; it is associated with " + l1.getGateways().size() + ".";
 
-        assert g1.getLicenses().size() == 1 : "Gateway 1 should be associated with exactly one license; it is associated with " + g1.getLicenses().size() + ".";
+        assert g1.getDistributions().size() == 1 : "Gateway 1 should be associated with exactly one license; it is associated with " + g1.getDistributions().size() + ".";
     }
 
     @Test( groups = { TestUtils.UNIT } )
     public void testGetAssociationsWith() {
         initializeRepositoryAdmin();
         ArtifactObject b1 = createBasicBundleObject("bundle1");
-        GroupObject g1 = createBasicGroupObject("group1");
-        Artifact2GroupAssociation b2g1 = m_artifact2groupRepository.create(b1, g1);
+        FeatureObject g1 = createBasicGroupObject("group1");
+        Artifact2FeatureAssociation b2g1 = m_artifact2groupRepository.create(b1, g1);
 
-        List<Artifact2GroupAssociation> b1Associations = b1.getAssociationsWith(g1);
-        List<Artifact2GroupAssociation> g1Associations = g1.getAssociationsWith(b1);
+        List<Artifact2FeatureAssociation> b1Associations = b1.getAssociationsWith(g1);
+        List<Artifact2FeatureAssociation> g1Associations = g1.getAssociationsWith(b1);
 
         assert b1Associations.size() == 1 : "The bundle has exactly one association to the group, but it shows " + b1Associations.size() + ".";
         assert b1Associations.get(0) == b2g1 : "The bundle's association should be the one we created.";
@@ -566,18 +566,18 @@ public class ModelTest {
         ArtifactObject b1 = createBasicBundleObject("b1");
         ArtifactObject b2 = createBasicBundleObject("b2");
         ArtifactObject b3 = createBasicBundleObject("b3");
-        GroupObject g1 = createBasicGroupObject("g1");
-        GroupObject g2 = createBasicGroupObject("g2");
-        GroupObject g3 = createBasicGroupObject("g3");
+        FeatureObject g1 = createBasicGroupObject("g1");
+        FeatureObject g2 = createBasicGroupObject("g2");
+        FeatureObject g3 = createBasicGroupObject("g3");
 
         List<ArtifactObject> bundles = new ArrayList<ArtifactObject>();
         bundles.add(b1);
         bundles.add(b2);
-        List<GroupObject> groups = new ArrayList<GroupObject>();
+        List<FeatureObject> groups = new ArrayList<FeatureObject>();
         groups.add(g1);
         groups.add(g3);
 
-        Artifact2GroupAssociation bg = m_artifact2groupRepository.create(bundles, groups);
+        Artifact2FeatureAssociation bg = m_artifact2groupRepository.create(bundles, groups);
 
         assert bg.getLeft().size() == 2 : "We expect two bundles on the left side of the association.";
         assert bg.getRight().size() == 2 : "We expect two groups on the right side of the association.";
@@ -589,7 +589,7 @@ public class ModelTest {
         assert !bg.getRight().contains(g2) : "g2 should not be on the right side of the association.";
         assert bg.getRight().contains(g3) : "g3 should be on the right side of the association.";
 
-        List<GroupObject> foundGroups = b1.getGroups();
+        List<FeatureObject> foundGroups = b1.getGroups();
         assert foundGroups.size() == 2 : "b1 should be associated with two groups.";
         assert foundGroups.contains(g1) : "b1 should be associated with g1";
         assert !foundGroups.contains(g2) : "b1 not should be associated with g2";
@@ -608,14 +608,14 @@ public class ModelTest {
     @Test( groups = { TestUtils.UNIT } )
     public void testAssociationsWithCardinality() {
         ArtifactObject b1 = createBasicBundleObject("b1");
-        GroupObject g1 = createBasicGroupObject("g1");
-        GroupObject g2 = createBasicGroupObject("g2");
-        GroupObject g3 = createBasicGroupObject("g3");
+        FeatureObject g1 = createBasicGroupObject("g1");
+        FeatureObject g2 = createBasicGroupObject("g2");
+        FeatureObject g3 = createBasicGroupObject("g3");
 
         Map<String, String> props = new HashMap<String, String>();
         props.put(Association.LEFT_ENDPOINT, "(" + BundleHelper.KEY_SYMBOLICNAME + "=b1)");
         props.put(Association.LEFT_CARDINALITY, "1");
-        props.put(Association.RIGHT_ENDPOINT, "(" + GroupObject.KEY_NAME + "=g*)");
+        props.put(Association.RIGHT_ENDPOINT, "(" + FeatureObject.KEY_NAME + "=g*)");
         props.put(Association.RIGHT_CARDINALITY, "2");
         Map<String, String> tags = new HashMap<String, String>();
 
@@ -629,7 +629,7 @@ public class ModelTest {
 
         props.put(Association.RIGHT_CARDINALITY, "3");
 
-        Artifact2GroupAssociation bg = m_artifact2groupRepository.create(props, tags);
+        Artifact2FeatureAssociation bg = m_artifact2groupRepository.create(props, tags);
         assert b1.getGroups().size() == 3 : "The bundle should be associated to three groups.";
         assert (g1.getArtifacts().size() == 1) && g1.getArtifacts().contains(b1) : "g1 should be associated to only b1.";
         assert (g2.getArtifacts().size() == 1) && g2.getArtifacts().contains(b1) : "g1 should be associated to only b1.";
@@ -657,17 +657,17 @@ public class ModelTest {
         return m_artifactRepository.create(attr, tags);
     }
 
-    private GroupObject createBasicGroupObject(String name) {
+    private FeatureObject createBasicGroupObject(String name) {
         Map<String, String> attr = new HashMap<String, String>();
-        attr.put(GroupObject.KEY_NAME, name);
+        attr.put(FeatureObject.KEY_NAME, name);
         Map<String, String> tags = new HashMap<String, String>();
 
         return m_groupRepository.create(attr, tags);
     }
 
-    private LicenseObject createBasicLicenseObject(String name) {
+    private DistributionObject createBasicLicenseObject(String name) {
         Map<String, String> attr = new HashMap<String, String>();
-        attr.put(LicenseObject.KEY_NAME, name);
+        attr.put(DistributionObject.KEY_NAME, name);
         Map<String, String> tags = new HashMap<String, String>();
 
         return m_licenseRepository.create(attr, tags);
@@ -683,7 +683,7 @@ public class ModelTest {
 
     private DeploymentVersionObject createBasicDeploymentVersionObject(String gatewayID, String version, String[] bundles) {
         Map<String, String> attr = new HashMap<String, String>();
-        attr.put(DeploymentVersionObject.KEY_GATEWAYID, gatewayID);
+        attr.put(DeploymentVersionObject.KEY_TARGETID, gatewayID);
         attr.put(DeploymentVersionObject.KEY_VERSION, version);
         Map<String, String> tags = new HashMap<String, String>();
 

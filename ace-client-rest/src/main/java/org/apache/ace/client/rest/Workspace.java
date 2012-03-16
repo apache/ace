@@ -31,13 +31,13 @@ import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
-import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
+import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
-import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepository;
-import org.apache.ace.client.repository.repository.GroupRepository;
-import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
-import org.apache.ace.client.repository.repository.LicenseRepository;
+import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
+import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
+import org.apache.ace.client.repository.repository.DistributionRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.felix.dm.Component;
@@ -68,13 +68,13 @@ public class Workspace {
     private volatile DependencyManager m_manager;
     private volatile RepositoryAdmin m_repositoryAdmin;
     private volatile ArtifactRepository m_artifactRepository;
-    private volatile GroupRepository m_featureRepository;
-    private volatile LicenseRepository m_distributionRepository;
+    private volatile FeatureRepository m_featureRepository;
+    private volatile DistributionRepository m_distributionRepository;
     private volatile StatefulTargetRepository m_statefulTargetRepository;
     private volatile TargetRepository m_targetRepository;
-    private volatile Artifact2GroupAssociationRepository m_artifact2FeatureAssociationRepository;
-    private volatile Group2LicenseAssociationRepository m_feature2DistributionAssociationRepository;
-    private volatile License2GatewayAssociationRepository m_distribution2TargetAssociationRepository;
+    private volatile Artifact2FeatureAssociationRepository m_artifact2FeatureAssociationRepository;
+    private volatile Feature2DistributionAssociationRepository m_feature2DistributionAssociationRepository;
+    private volatile Distribution2TargetAssociationRepository m_distribution2TargetAssociationRepository;
     private volatile UserAdmin m_userAdmin;
     private volatile LogService m_log;
 
@@ -108,13 +108,13 @@ public class Workspace {
     public void init(Component component) {
         addSessionDependency(component, RepositoryAdmin.class, true);
         addSessionDependency(component, ArtifactRepository.class, true);
-        addSessionDependency(component, GroupRepository.class, true);
-        addSessionDependency(component, LicenseRepository.class, true);
+        addSessionDependency(component, FeatureRepository.class, true);
+        addSessionDependency(component, DistributionRepository.class, true);
         addSessionDependency(component, TargetRepository.class, true);
         addSessionDependency(component, StatefulTargetRepository.class, true);
-        addSessionDependency(component, Artifact2GroupAssociationRepository.class, true);
-        addSessionDependency(component, Group2LicenseAssociationRepository.class, true);
-        addSessionDependency(component, License2GatewayAssociationRepository.class, true);
+        addSessionDependency(component, Artifact2FeatureAssociationRepository.class, true);
+        addSessionDependency(component, Feature2DistributionAssociationRepository.class, true);
+        addSessionDependency(component, Distribution2TargetAssociationRepository.class, true);
         addDependency(component, UserAdmin.class, true);
         addDependency(component, LogService.class, false);
     }
@@ -186,7 +186,7 @@ public class Workspace {
                 if (left != null) {
                     if (left instanceof StatefulTargetObject) {
                         if (((StatefulTargetObject) left).isRegistered()) {
-                            attributes.put("leftEndpoint", ((StatefulTargetObject) left).getGatewayObject().getAssociationFilter(attributes));
+                            attributes.put("leftEndpoint", ((StatefulTargetObject) left).getTargetObject().getAssociationFilter(attributes));
                         }
                     }
                     else {
@@ -196,7 +196,7 @@ public class Workspace {
                 if (right != null) {
                     if (right instanceof StatefulTargetObject) {
                         if (((StatefulTargetObject) right).isRegistered()) {
-                            attributes.put("rightEndpoint", ((StatefulTargetObject) right).getGatewayObject().getAssociationFilter(attributes));
+                            attributes.put("rightEndpoint", ((StatefulTargetObject) right).getTargetObject().getAssociationFilter(attributes));
                         }
                     }
                     else {
@@ -244,7 +244,7 @@ public class Workspace {
             if (left != null) {
                 if (left instanceof StatefulTargetObject) {
                     if (((StatefulTargetObject) left).isRegistered()) {
-                        repositoryObject.addAttribute("leftEndpoint", ((StatefulTargetObject) left).getGatewayObject().getAssociationFilter(getAttributes(((StatefulTargetObject) left).getGatewayObject())));
+                        repositoryObject.addAttribute("leftEndpoint", ((StatefulTargetObject) left).getTargetObject().getAssociationFilter(getAttributes(((StatefulTargetObject) left).getTargetObject())));
                     }
                 }
                 else {
@@ -254,7 +254,7 @@ public class Workspace {
             if (right != null) {
                 if (right instanceof StatefulTargetObject) {
                     if (((StatefulTargetObject) right).isRegistered()) {
-                        repositoryObject.addAttribute("rightEndpoint", ((StatefulTargetObject) right).getGatewayObject().getAssociationFilter(getAttributes(((StatefulTargetObject) right).getGatewayObject())));
+                        repositoryObject.addAttribute("rightEndpoint", ((StatefulTargetObject) right).getTargetObject().getAssociationFilter(getAttributes(((StatefulTargetObject) right).getTargetObject())));
                     }
                 }
                 else {

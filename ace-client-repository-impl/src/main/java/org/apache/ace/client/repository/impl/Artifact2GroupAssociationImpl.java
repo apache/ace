@@ -20,9 +20,9 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
+import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.client.repository.object.GroupObject;
+import org.apache.ace.client.repository.object.FeatureObject;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -31,18 +31,18 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * Implementation class for the Artifact2GroupAssociation. For 'what it does', see Artifact2GroupAssociation,
  * for 'how it works', see AssociationImpl.
  */
-public class Artifact2GroupAssociationImpl extends AssociationImpl<ArtifactObject, GroupObject, Artifact2GroupAssociation> implements Artifact2GroupAssociation {
+public class Artifact2GroupAssociationImpl extends AssociationImpl<ArtifactObject, FeatureObject, Artifact2FeatureAssociation> implements Artifact2FeatureAssociation {
     private final static String XML_NODE = "artifact2group";
 
     public Artifact2GroupAssociationImpl(Map<String, String> attributes, ChangeNotifier notifier, ArtifactRepositoryImpl artifactRepository, GroupRepositoryImpl groupRepository) throws InvalidSyntaxException {
-        super(attributes, notifier, ArtifactObject.class, GroupObject.class, artifactRepository, groupRepository, XML_NODE);
+        super(attributes, notifier, ArtifactObject.class, FeatureObject.class, artifactRepository, groupRepository, XML_NODE);
     }
 
     public Artifact2GroupAssociationImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier, ArtifactRepositoryImpl artifactRepository, GroupRepositoryImpl groupRepository) throws InvalidSyntaxException {
-        super(attributes, tags, notifier, ArtifactObject.class, GroupObject.class, artifactRepository, groupRepository, XML_NODE);
+        super(attributes, tags, notifier, ArtifactObject.class, FeatureObject.class, artifactRepository, groupRepository, XML_NODE);
     }
 
     public Artifact2GroupAssociationImpl(HierarchicalStreamReader reader, ChangeNotifier notifier, ArtifactRepositoryImpl artifactRepository, GroupRepositoryImpl groupRepository) throws InvalidSyntaxException {
-        super(reader, notifier, ArtifactObject.class, GroupObject.class, null, null, artifactRepository, groupRepository, XML_NODE);
+        super(reader, notifier, ArtifactObject.class, FeatureObject.class, null, null, artifactRepository, groupRepository, XML_NODE);
     }
 }

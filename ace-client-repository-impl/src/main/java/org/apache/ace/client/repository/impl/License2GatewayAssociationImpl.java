@@ -21,8 +21,8 @@ package org.apache.ace.client.repository.impl;
 import java.util.Map;
 
 import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.License2GatewayAssociation;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
+import org.apache.ace.client.repository.object.DistributionObject;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -31,16 +31,16 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * Implementation class for the License2GatewayAssociation. For 'what it does', see License2GatewayAssociation,
  * for 'how it works', see AssociationImpl.
  */
-public class License2GatewayAssociationImpl extends AssociationImpl<LicenseObject, TargetObject, License2GatewayAssociation> implements License2GatewayAssociation {
+public class License2GatewayAssociationImpl extends AssociationImpl<DistributionObject, TargetObject, Distribution2TargetAssociation> implements Distribution2TargetAssociation {
     private final static String XML_NODE = "license2gateway";
 
     public License2GatewayAssociationImpl(Map<String, String> attributes, ChangeNotifier notifier, LicenseRepositoryImpl licenseRepository, GatewayRepositoryImpl gatewayRepository) throws InvalidSyntaxException {
-        super(attributes, notifier, LicenseObject.class, TargetObject.class, licenseRepository, gatewayRepository, XML_NODE);
+        super(attributes, notifier, DistributionObject.class, TargetObject.class, licenseRepository, gatewayRepository, XML_NODE);
     }
     public License2GatewayAssociationImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier, LicenseRepositoryImpl licenseRepository, GatewayRepositoryImpl gatewayRepository) throws InvalidSyntaxException {
-        super(attributes, tags, notifier, LicenseObject.class, TargetObject.class, licenseRepository, gatewayRepository, XML_NODE);
+        super(attributes, tags, notifier, DistributionObject.class, TargetObject.class, licenseRepository, gatewayRepository, XML_NODE);
     }
     public License2GatewayAssociationImpl(HierarchicalStreamReader reader, ChangeNotifier notifier, LicenseRepositoryImpl licenseRepository, GatewayRepositoryImpl gatewayRepository) throws InvalidSyntaxException {
-        super(reader, notifier, LicenseObject.class, TargetObject.class, null, null, licenseRepository, gatewayRepository, XML_NODE);
+        super(reader, notifier, DistributionObject.class, TargetObject.class, null, null, licenseRepository, gatewayRepository, XML_NODE);
     }
 }

@@ -23,54 +23,59 @@ import java.util.List;
 import org.apache.ace.client.repository.RepositoryObject;
 
 /**
- * Interface to a LicenseObject. The basic functionality is defined by RepositoryObject, but extended for
- * License-specific information.
+ * Interface to a FeatureObject. The basic functionality is defined by RepositoryObject, but extended for
+ * feature-specific information.
  */
-public interface LicenseObject extends RepositoryObject {
-    public static final String TOPIC_ENTITY_ROOT = LicenseObject.class.getSimpleName() + "/";
+public interface FeatureObject extends RepositoryObject {
+    public static final String KEY_DESCRIPTION = "description";
+    public static final String KEY_NAME = "name";
+
+    public static final String TOPIC_ENTITY_ROOT = FeatureObject.class.getSimpleName() + "/";
 
     public static final String TOPIC_ADDED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ADDED_SUFFIX;
     public static final String TOPIC_REMOVED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_REMOVED_SUFFIX;
     public static final String TOPIC_CHANGED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_CHANGED_SUFFIX;
     public static final String TOPIC_ALL = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ALL_SUFFIX;
 
-    public static final String KEY_DESCRIPTION = "description";
-    public static final String KEY_NAME = "name";
-
     /**
-     * Returns all <code>GroupObject</code>s this object is associated with. If there
+     * Returns all <code>ArtifactObject</code>s this object is associated with. If there
      * are none, an empty list will be returned.
      */
-    public List<GroupObject> getGroups();
+    public List<ArtifactObject> getArtifacts();
+    
     /**
-     * Returns all <code>GatewayObject</code>s this object is associated with. If there
+     * Returns all <code>DistributionObject</code>s this object is associated with. If there
      * are none, an empty list will be returned.
      */
-    public List<TargetObject> getGateways();
+    public List<DistributionObject> getDistributions();
 
     /**
-     * Returns all associations this license has with a given group.
+     * Returns all associations this feature has with a given artifact.
      */
-    public List<Group2LicenseAssociation> getAssociationsWith(GroupObject group);
+    public List<Artifact2FeatureAssociation> getAssociationsWith(ArtifactObject artifact);
+    
     /**
-     * Returns all associations this license has with a given gateway.
+     * Returns all associations this feature has with a given distribution.
      */
-    public List<License2GatewayAssociation> getAssociationsWith(TargetObject gateway);
+    public List<Feature2DistributionAssociation> getAssociationsWith(DistributionObject distribution);
 
     /**
-     * Returns the name of this bundle.
+     * Returns the name of this feature.
      */
     public String getName();
+
     /**
-     * Sets the name of this bundle.
+     * Sets the name of this feature.
      */
     public void setName(String name);
+    
     /**
-     * Returns the description of this bundle.
+     * Returns the description of this feature.
      */
     public String getDescription();
+    
     /**
-     * Sets the description of this bundle.
+     * Sets the description of this feature.
      */
     public void setDescription(String description);
 }

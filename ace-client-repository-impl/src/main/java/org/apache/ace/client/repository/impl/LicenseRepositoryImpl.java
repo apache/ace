@@ -20,8 +20,8 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.LicenseObject;
-import org.apache.ace.client.repository.repository.LicenseRepository;
+import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.repository.DistributionRepository;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
@@ -29,7 +29,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * Implementation class for the LicenseRepository. For 'what it does', see LicenseRepository,
  * for 'how it works', see ObjectRepositoryImpl.
  */
-public class LicenseRepositoryImpl extends ObjectRepositoryImpl<LicenseObjectImpl, LicenseObject> implements LicenseRepository {
+public class LicenseRepositoryImpl extends ObjectRepositoryImpl<LicenseObjectImpl, DistributionObject> implements DistributionRepository {
     private final static String XML_NODE = "licenses";
 
     public LicenseRepositoryImpl(ChangeNotifier notifier) {

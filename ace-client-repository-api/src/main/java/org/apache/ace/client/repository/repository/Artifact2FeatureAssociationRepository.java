@@ -18,11 +18,13 @@
  */
 package org.apache.ace.client.repository.repository;
 
-import org.apache.ace.client.repository.ObjectRepository;
-import org.apache.ace.client.repository.object.GroupObject;
+import org.apache.ace.client.repository.AssociationRepository;
+import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
+import org.apache.ace.client.repository.object.ArtifactObject;
+import org.apache.ace.client.repository.object.FeatureObject;
 
 /**
- * Interface to a GroupRepository. The functionality is defined by the generic AssociationRepository.
+ * Interface to a Artifact2FeatureAssociationRepository. The functionality is defined by the generic AssociationRepository.
  */
-public interface GroupRepository extends ObjectRepository<GroupObject> {
+public interface Artifact2FeatureAssociationRepository extends AssociationRepository<ArtifactObject, FeatureObject, Artifact2FeatureAssociation> {
 }

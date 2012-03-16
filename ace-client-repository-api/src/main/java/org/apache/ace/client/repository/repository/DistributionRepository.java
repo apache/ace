@@ -19,10 +19,10 @@
 package org.apache.ace.client.repository.repository;
 
 import org.apache.ace.client.repository.ObjectRepository;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.DistributionObject;
 
 /**
- * Interface to a LicenseRepository. The functionality is defined by the generic AssociationRepository.
+ * Interface to a DistributionRepository. The functionality is defined by the generic AssociationRepository.
  */
-public interface LicenseRepository extends ObjectRepository<LicenseObject>{
+public interface DistributionRepository extends ObjectRepository<DistributionObject> {
 }

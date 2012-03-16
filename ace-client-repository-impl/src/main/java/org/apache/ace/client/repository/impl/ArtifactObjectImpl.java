@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ace.client.repository.helper.ArtifactHelper;
-import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
+import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.client.repository.object.GroupObject;
+import org.apache.ace.client.repository.object.FeatureObject;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
@@ -68,12 +68,12 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
         m_repo = repo;
     }
 
-    public List<GroupObject> getGroups() {
-        return getAssociations(GroupObject.class);
+    public List<FeatureObject> getGroups() {
+        return getAssociations(FeatureObject.class);
     }
 
-    public List<Artifact2GroupAssociation> getAssociationsWith(GroupObject group) {
-        return getAssociationsWith(group, GroupObject.class, Artifact2GroupAssociation.class);
+    public List<Artifact2FeatureAssociation> getAssociationsWith(FeatureObject group) {
+        return getAssociationsWith(group, FeatureObject.class, Artifact2FeatureAssociation.class);
     }
 
     @Override

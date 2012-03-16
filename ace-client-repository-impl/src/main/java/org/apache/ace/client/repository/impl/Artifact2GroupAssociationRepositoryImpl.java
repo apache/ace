@@ -20,10 +20,10 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
+import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -32,7 +32,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * Implementation class for the Artifact2GroupAssociationRepository. For 'what it does', see Artifact2GroupAssociationRepository,
  * for 'how it works', see AssociationRepositoryImpl.
  */
-public class Artifact2GroupAssociationRepositoryImpl extends AssociationRepositoryImpl<ArtifactObject, GroupObject, Artifact2GroupAssociationImpl, Artifact2GroupAssociation> implements Artifact2GroupAssociationRepository {
+public class Artifact2GroupAssociationRepositoryImpl extends AssociationRepositoryImpl<ArtifactObject, FeatureObject, Artifact2GroupAssociationImpl, Artifact2FeatureAssociation> implements Artifact2FeatureAssociationRepository {
     private final static String XML_NODE = "artifacts2groups";
 
     private final ArtifactRepositoryImpl m_bundleRepository;

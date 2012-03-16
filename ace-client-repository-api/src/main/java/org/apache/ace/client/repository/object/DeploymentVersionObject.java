@@ -29,7 +29,7 @@ import org.apache.ace.client.repository.RepositoryObject;
  */
 public interface DeploymentVersionObject extends RepositoryObject {
 
-    public static final String KEY_GATEWAYID = "gatewayID";
+    public static final String KEY_TARGETID = "targetID";
     public static final String KEY_VERSION = "version";
 
     public static final String TOPIC_ENTITY_ROOT = DeploymentVersionObject.class.getSimpleName() + "/";
@@ -40,9 +40,9 @@ public interface DeploymentVersionObject extends RepositoryObject {
     public static final String TOPIC_ALL = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ALL_SUFFIX;
 
     /**
-     * Gets the gateway which is related to this version.
+     * Gets the target which is related to this version.
      */
-    public String getGatewayID();
+    public String getTargetID();
 
     /**
      * Gets the version number of this deployment version.

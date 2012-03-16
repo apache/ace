@@ -59,7 +59,7 @@ public interface RepositoryAdminLoginContext
     public RepositoryAdminLoginContext setObrBase(URL base);
 
     /**
-     * Adds a gateway repository to this login context.
+     * Adds a target repository to this login context.
      * @param repositoryLocation The location of the repository where this set's data resides.
      * @param repositoryCustomer The customer name for the location of the repository where this set's data resides.
      * @param repositoryName The repository name for the location of the repository where this set's data resides.

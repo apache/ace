@@ -26,14 +26,14 @@ import java.util.Map;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
-import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
+import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
 import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.Group2LicenseAssociation;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.object.License2GatewayAssociation;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
+import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
@@ -121,11 +121,11 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         Dictionary topic = new Hashtable();
         topic.put(EventConstants.EVENT_TOPIC, new String[] {
             ArtifactObject.TOPIC_ALL,
-            Artifact2GroupAssociation.TOPIC_ALL,
-            GroupObject.TOPIC_ALL,
-            Group2LicenseAssociation.TOPIC_ALL,
-            LicenseObject.TOPIC_ALL,
-            License2GatewayAssociation.TOPIC_ALL,
+            Artifact2FeatureAssociation.TOPIC_ALL,
+            FeatureObject.TOPIC_ALL,
+            Feature2DistributionAssociation.TOPIC_ALL,
+            DistributionObject.TOPIC_ALL,
+            Distribution2TargetAssociation.TOPIC_ALL,
             TargetObject.TOPIC_ALL,
             DeploymentVersionObject.TOPIC_ALL,
             RepositoryAdmin.TOPIC_REFRESH, RepositoryAdmin.TOPIC_LOGIN});

@@ -19,12 +19,12 @@
 package org.apache.ace.client.repository.repository;
 
 import org.apache.ace.client.repository.AssociationRepository;
-import org.apache.ace.client.repository.object.Group2LicenseAssociation;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.DistributionObject;
 
 /**
- * Interface to a Group2LicenseAssociationRepository. The functionality is defined by the generic AssociationRepository.
+ * Interface to a Feature2DistributionAssociationRepository. The functionality is defined by the generic AssociationRepository.
  */
-public interface Group2LicenseAssociationRepository extends AssociationRepository<GroupObject, LicenseObject, Group2LicenseAssociation> {
+public interface Feature2DistributionAssociationRepository extends AssociationRepository<FeatureObject, DistributionObject, Feature2DistributionAssociation> {
 }

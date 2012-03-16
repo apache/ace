@@ -6,8 +6,8 @@ import java.util.List;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.helper.PropertyResolver;
 import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.DistributionObject;
 
 /**
  * 
@@ -62,13 +62,13 @@ public class RepoPropertyResolver implements PropertyResolver {
     
     protected List<? extends RepositoryObject> getChildren(RepositoryObject ob) {
         if (ob instanceof TargetObject) {
-            return ((TargetObject) ob).getLicenses();
+            return ((TargetObject) ob).getDistributions();
         }
-        else if (ob instanceof LicenseObject) {
-            return ((LicenseObject) ob).getGroups();
+        else if (ob instanceof DistributionObject) {
+            return ((DistributionObject) ob).getGroups();
         }
-        else if (ob instanceof GroupObject) {
-            return ((GroupObject) ob).getArtifacts();
+        else if (ob instanceof FeatureObject) {
+            return ((FeatureObject) ob).getArtifacts();
         }
         return new ArrayList<RepositoryObject>();
     }

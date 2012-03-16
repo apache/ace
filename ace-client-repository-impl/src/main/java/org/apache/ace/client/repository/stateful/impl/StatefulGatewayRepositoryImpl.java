@@ -41,8 +41,8 @@ import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
 import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
@@ -469,13 +469,13 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
 
         Map<ArtifactObject, String> bundles = new HashMap<ArtifactObject, String>();
         Map<ArtifactObject, String> artifacts = new HashMap<ArtifactObject, String>();
-        Map<ArtifactObject, Map<GroupObject, List<LicenseObject>>> path = new HashMap<ArtifactObject, Map<GroupObject,List<LicenseObject>>>();
+        Map<ArtifactObject, Map<FeatureObject, List<DistributionObject>>> path = new HashMap<ArtifactObject, Map<FeatureObject,List<DistributionObject>>>();
 
         // First, find all basic bundles and artifacts. An while we're traversing the
         // tree of objects, build the tree of properties.
         if (go != null) {
-            for (LicenseObject license : go.getLicenses()) {
-                for (GroupObject group : license.getGroups()) {
+            for (DistributionObject license : go.getDistributions()) {
+                for (FeatureObject group : license.getGroups()) {
                     for (ArtifactObject artifact : group.getArtifacts()) {
                         if (m_bundleHelper.canUse(artifact)) {
                             bundles.put(artifact, m_bundleHelper.getResourceProcessorPIDs(artifact));
@@ -483,14 +483,14 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
                         else {
                             artifacts.put(artifact, artifact.getProcessorPID());
                         }
-                        Map<GroupObject, List<LicenseObject>> groupToLicense = path.get(artifact);
+                        Map<FeatureObject, List<DistributionObject>> groupToLicense = path.get(artifact);
                         if (groupToLicense == null) {
-                        	groupToLicense = new HashMap<GroupObject, List<LicenseObject>>();
+                        	groupToLicense = new HashMap<FeatureObject, List<DistributionObject>>();
                         	path.put(artifact, groupToLicense);
                         }
-                        List<LicenseObject> licenses = groupToLicense.get(group);
+                        List<DistributionObject> licenses = groupToLicense.get(group);
                         if (licenses == null) {
-                        	licenses = new ArrayList<LicenseObject>();
+                        	licenses = new ArrayList<DistributionObject>();
                         	groupToLicense.put(group, licenses);
                         }
                         licenses.add(license);
@@ -559,12 +559,12 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
         return result.toArray(new DeploymentArtifact[result.size()]);
     }
     
-    private String getRepositoryPath(ArtifactObject artifact, Map<ArtifactObject, Map<GroupObject, List<LicenseObject>>> path) {
+    private String getRepositoryPath(ArtifactObject artifact, Map<ArtifactObject, Map<FeatureObject, List<DistributionObject>>> path) {
     	StringBuilder builder = new StringBuilder();
-        Map<GroupObject, List<LicenseObject>> groupToLicense = path.get(artifact);
+        Map<FeatureObject, List<DistributionObject>> groupToLicense = path.get(artifact);
         if (groupToLicense != null) {
-	        for (Entry<GroupObject, List<LicenseObject>> entry : groupToLicense.entrySet()) {
-	        	for (LicenseObject l : entry.getValue()) {
+	        for (Entry<FeatureObject, List<DistributionObject>> entry : groupToLicense.entrySet()) {
+	        	for (DistributionObject l : entry.getValue()) {
 	        		builder.append(entry.getKey().getName()).append(';').append(l.getName()).append(',');
 	        	}
 	        }
@@ -589,8 +589,8 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
         }
 
         if (go != null) {
-            for (LicenseObject license : go.getLicenses()) {
-                for (GroupObject group : license.getGroups()) {
+            for (DistributionObject license : go.getDistributions()) {
+                for (FeatureObject group : license.getGroups()) {
                     for (ArtifactObject artifact : group.getArtifacts()) {
                         result.add(artifact);
                         if (!m_bundleHelper.canUse(artifact)) {
@@ -619,7 +619,7 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
      */
     DeploymentVersionObject generateDeploymentVersion(String gatewayID) throws IOException {
         Map<String, String> attr = new HashMap<String, String>();
-        attr.put(DeploymentVersionObject.KEY_GATEWAYID, gatewayID);
+        attr.put(DeploymentVersionObject.KEY_TARGETID, gatewayID);
         Map<String, String> tags = new HashMap<String, String>();
 
         DeploymentVersionObject mostRecentDeploymentVersion = getMostRecentDeploymentVersion(gatewayID);
@@ -684,7 +684,7 @@ public class StatefulGatewayRepositoryImpl implements StatefulTargetRepository, 
         else if (event.getTopic().equals(DeploymentVersionObject.TOPIC_ADDED) || event.getTopic().equals(DeploymentVersionObject.TOPIC_REMOVED)) {
             synchronized(m_repository) {
                 DeploymentVersionObject deploymentVersionObject = ((DeploymentVersionObject) event.getProperty(RepositoryObject.EVENT_ENTITY));
-                String id = deploymentVersionObject.getGatewayID();
+                String id = deploymentVersionObject.getTargetID();
                 StatefulGatewayObjectImpl sgoi = getStatefulGatewayObject(id);
                 if (sgoi == null) {
                     createStateful(id);

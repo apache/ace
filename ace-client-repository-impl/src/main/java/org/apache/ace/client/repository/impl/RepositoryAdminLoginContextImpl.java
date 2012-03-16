@@ -24,14 +24,14 @@ import java.util.List;
 
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
-import org.apache.ace.client.repository.repository.Artifact2GroupAssociationRepository;
+import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
-import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepository;
-import org.apache.ace.client.repository.repository.GroupRepository;
-import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
-import org.apache.ace.client.repository.repository.LicenseRepository;
+import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
+import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
+import org.apache.ace.client.repository.repository.DistributionRepository;
 import org.osgi.service.useradmin.User;
 
 class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginContext {
@@ -61,17 +61,17 @@ class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginContext {
     public RepositoryAdminLoginContext addShopRepository(URL repositoryLocation, String repositoryCustomer, String repositoryName, boolean writeAccess) {
         return addRepositories(repositoryLocation, repositoryCustomer, repositoryName, writeAccess,
             ArtifactRepository.class,
-            GroupRepository.class,
-            Artifact2GroupAssociationRepository.class,
-            LicenseRepository.class,
-            Group2LicenseAssociationRepository.class);
+            FeatureRepository.class,
+            Artifact2FeatureAssociationRepository.class,
+            DistributionRepository.class,
+            Feature2DistributionAssociationRepository.class);
     }
 
     @SuppressWarnings("unchecked")
     public RepositoryAdminLoginContext addTargetRepository(URL repositoryLocation, String repositoryCustomer, String repositoryName, boolean writeAccess) {
         return addRepositories(repositoryLocation, repositoryCustomer, repositoryName, writeAccess,
             TargetRepository.class,
-            License2GatewayAssociationRepository.class);
+            Distribution2TargetAssociationRepository.class);
     }
 
     @SuppressWarnings("unchecked")

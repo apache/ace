@@ -20,10 +20,10 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.Group2LicenseAssociation;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.object.LicenseObject;
-import org.apache.ace.client.repository.repository.Group2LicenseAssociationRepository;
+import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -32,7 +32,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * Implementation class for the Group2LicenseAssociationRepository. For 'what it does', see Group2LicenseAssociationRepository,
  * for 'how it works', see AssociationRepositoryImpl.
  */
-public class Group2LicenseAssociationRepositoryImpl extends AssociationRepositoryImpl<GroupObject, LicenseObject, Group2LicenseAssociationImpl, Group2LicenseAssociation> implements Group2LicenseAssociationRepository {
+public class Group2LicenseAssociationRepositoryImpl extends AssociationRepositoryImpl<FeatureObject, DistributionObject, Group2LicenseAssociationImpl, Feature2DistributionAssociation> implements Feature2DistributionAssociationRepository {
     private final static String XML_NODE = "groups2licenses";
 
     private final GroupRepositoryImpl m_groupRepository;

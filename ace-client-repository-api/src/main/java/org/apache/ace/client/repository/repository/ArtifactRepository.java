@@ -29,7 +29,7 @@ import org.apache.ace.client.repository.object.TargetObject;
 /**
  * Interface to a ArtifactRepository. The functionality is defined by the generic AssociationRepository.
  */
-public interface ArtifactRepository extends ObjectRepository<ArtifactObject>{
+public interface ArtifactRepository extends ObjectRepository<ArtifactObject> {
 	/**
 	 * Gets a list of all ArtifactObject's which are resource processing bundles.
 	 */
@@ -74,19 +74,19 @@ public interface ArtifactRepository extends ObjectRepository<ArtifactObject>{
 	 * needs to be done, the original artifact's URL will be returned.
 	 * @param artifact An artifact
 	 * @param props A tree of properties objects, to be used for replacement.
-	 * @param gatewayID The gatewayID of the gateway for which this artifact is being processed.
+	 * @param targetID The targetID of the target for which this artifact is being processed.
 	 * @param version The deployment version for which this artifact is being processed.
 	 * @return A URL to a new, processed artifact, or to the original one, in case nothing needed to be processed.
      * @throws IOException Thrown if reading the original artifact goes wrong, or storing the processed one.
 	 */
-	public String preprocessArtifact(ArtifactObject artifact, TargetObject gateway, String gatewayID, String version) throws IOException ;
+	public String preprocessArtifact(ArtifactObject artifact, TargetObject target, String targetID, String version) throws IOException ;
 
     /**
      * Indicates whether the template should be processed again, given the properties, and the version to which it
      * should be compared.
      * @param url A string representing a URL to the original artifact.
      * @param props A PropertyResolver which can be used to fill in 'holes' in the template.
-     * @param gatewayID The gatewayID of the gateway for which this artifact is being processed.
+     * @param targetID The targetID of the target for which this artifact is being processed.
      * @param version The deployment version for which this artifact is being processed.
      * @param lastVersion The deployment version to which the current one should be compared.
      * @param newVersion The new, potential version.
@@ -94,7 +94,7 @@ public interface ArtifactRepository extends ObjectRepository<ArtifactObject>{
      * @return Whether or not a new version has to be created.
      * @throws IOException
      */
-    public boolean needsNewVersion(ArtifactObject artifact, TargetObject gateway, String gatewayID, String fromVersion);
+    public boolean needsNewVersion(ArtifactObject artifact, TargetObject target, String targetID, String fromVersion);
 
 	/**
 	 * Sets the OBR that this artifact repository should use to upload artifacts to.

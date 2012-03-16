@@ -20,8 +20,8 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.repository.GroupRepository;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.repository.FeatureRepository;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
@@ -29,7 +29,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * Implementation class for the GroupRepository. For 'what it does', see GroupRepository,
  * for 'how it works', see ObjectRepositoryImpl.
  */
-public class GroupRepositoryImpl extends ObjectRepositoryImpl<GroupObjectImpl, GroupObject> implements GroupRepository {
+public class GroupRepositoryImpl extends ObjectRepositoryImpl<GroupObjectImpl, FeatureObject> implements FeatureRepository {
     private final static String XML_NODE = "groups";
 
     public GroupRepositoryImpl(ChangeNotifier notifier) {

@@ -23,54 +23,59 @@ import java.util.List;
 import org.apache.ace.client.repository.RepositoryObject;
 
 /**
- * Interface to a GroupObject. The basic functionality is defined by RepositoryObject, but extended for
- * Group-specific information.
+ * Interface to a DistributionObject. The basic functionality is defined by RepositoryObject, but extended for
+ * distribution-specific information.
  */
-public interface GroupObject extends RepositoryObject {
-    public static final String KEY_DESCRIPTION = "description";
-    public static final String KEY_NAME = "name";
-
-    public static final String TOPIC_ENTITY_ROOT = GroupObject.class.getSimpleName() + "/";
+public interface DistributionObject extends RepositoryObject {
+    public static final String TOPIC_ENTITY_ROOT = DistributionObject.class.getSimpleName() + "/";
 
     public static final String TOPIC_ADDED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ADDED_SUFFIX;
     public static final String TOPIC_REMOVED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_REMOVED_SUFFIX;
     public static final String TOPIC_CHANGED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_CHANGED_SUFFIX;
     public static final String TOPIC_ALL = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ALL_SUFFIX;
 
-    /**
-     * Returns all <code>ArtifactObject</code>s this object is associated with. If there
-     * are none, an empty list will be returned.
-     */
-    public List<ArtifactObject> getArtifacts();
-    /**
-     * Returns all <code>LicenseObject</code>s this object is associated with. If there
-     * are none, an empty list will be returned.
-     */
-    public List<LicenseObject> getLicenses();
+    public static final String KEY_DESCRIPTION = "description";
+    public static final String KEY_NAME = "name";
 
     /**
-     * Returns all associations this group has with a given bundle.
+     * Returns all <code>FeatureObject</code>s this object is associated with. If there
+     * are none, an empty list will be returned.
      */
-    public List<Artifact2GroupAssociation> getAssociationsWith(ArtifactObject artifact);
+    public List<FeatureObject> getGroups();
+    
     /**
-     * Returns all associations this group has with a given license.
+     * Returns all <code>TargetObject</code>s this object is associated with. If there
+     * are none, an empty list will be returned.
      */
-    public List<Group2LicenseAssociation> getAssociationsWith(LicenseObject license);
+    public List<TargetObject> getGateways();
 
     /**
-     * Returns the name of this bundle.
+     * Returns all associations this distribution has with a given feature.
+     */
+    public List<Feature2DistributionAssociation> getAssociationsWith(FeatureObject feature);
+
+    /**
+     * Returns all associations this distribution has with a given target.
+     */
+    public List<Distribution2TargetAssociation> getAssociationsWith(TargetObject target);
+
+    /**
+     * Returns the name of this distribution.
      */
     public String getName();
+    
     /**
-     * Sets the name of this bundle.
+     * Sets the name of this distribution.
      */
     public void setName(String name);
+
     /**
-     * Returns the description of this bundle.
+     * Returns the description of this distribution.
      */
     public String getDescription();
+    
     /**
-     * Sets the description of this bundle.
+     * Sets the description of this distribution.
      */
     public void setDescription(String description);
 }

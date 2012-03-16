@@ -94,7 +94,7 @@ public class DeploymentVersionRepositoryImpl extends ObjectRepositoryImpl<Deploy
     public List<DeploymentVersionObject> getDeploymentVersions(String gatewayID) {
         List<DeploymentVersionObject> result = null;
             try {
-                result = get(createFilter("(" + DeploymentVersionObject.KEY_GATEWAYID + "=" + RepositoryUtil.escapeFilterValue(gatewayID) + ")"));
+                result = get(createFilter("(" + DeploymentVersionObject.KEY_TARGETID + "=" + RepositoryUtil.escapeFilterValue(gatewayID) + ")"));
                 Collections.sort(result, versionComparator);
             }
             catch (InvalidSyntaxException e) {

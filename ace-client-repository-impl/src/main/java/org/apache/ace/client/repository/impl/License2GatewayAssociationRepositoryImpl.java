@@ -21,9 +21,9 @@ package org.apache.ace.client.repository.impl;
 import java.util.Map;
 
 import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.License2GatewayAssociation;
-import org.apache.ace.client.repository.object.LicenseObject;
-import org.apache.ace.client.repository.repository.License2GatewayAssociationRepository;
+import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
+import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -32,7 +32,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * for 'how it works', see AssociationRepositoryImpl.
  */
 
-public class License2GatewayAssociationRepositoryImpl extends AssociationRepositoryImpl<LicenseObject, TargetObject, License2GatewayAssociationImpl, License2GatewayAssociation> implements License2GatewayAssociationRepository {
+public class License2GatewayAssociationRepositoryImpl extends AssociationRepositoryImpl<DistributionObject, TargetObject, License2GatewayAssociationImpl, Distribution2TargetAssociation> implements Distribution2TargetAssociationRepository {
     private final static String XML_NODE = "licenses2gateways";
 
     private final LicenseRepositoryImpl m_licenseRepository;
@@ -74,7 +74,7 @@ public class License2GatewayAssociationRepositoryImpl extends AssociationReposit
         }
     }
 
-    public License2GatewayAssociation createLicense2GatewayFilter(LicenseObject license, String gatewayFilter) {
+    public Distribution2TargetAssociation createDistribution2TargetFilter(DistributionObject license, String gatewayFilter) {
         try {
             m_gatewayRepository.createFilter(gatewayFilter);
         }

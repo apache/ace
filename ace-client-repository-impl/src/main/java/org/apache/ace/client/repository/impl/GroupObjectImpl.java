@@ -21,11 +21,11 @@ package org.apache.ace.client.repository.impl;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ace.client.repository.object.Artifact2GroupAssociation;
+import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.client.repository.object.Group2LicenseAssociation;
-import org.apache.ace.client.repository.object.GroupObject;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.DistributionObject;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
@@ -33,7 +33,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * Implementation class for the GroupObject. For 'what it does', see GroupObject,
  * for 'how it works', see RepositoryObjectImpl.
  */
-public class GroupObjectImpl extends RepositoryObjectImpl<GroupObject> implements GroupObject {
+public class GroupObjectImpl extends RepositoryObjectImpl<FeatureObject> implements FeatureObject {
     private final static String XML_NODE = "group";
 
     GroupObjectImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier) {
@@ -52,8 +52,8 @@ public class GroupObjectImpl extends RepositoryObjectImpl<GroupObject> implement
         return getAssociations(ArtifactObject.class);
     }
 
-    public List<LicenseObject> getLicenses() {
-        return getAssociations(LicenseObject.class);
+    public List<DistributionObject> getDistributions() {
+        return getAssociations(DistributionObject.class);
     }
 
     public String getDescription() {
@@ -72,12 +72,12 @@ public class GroupObjectImpl extends RepositoryObjectImpl<GroupObject> implement
         addAttribute(KEY_NAME, name);
     }
 
-    public List<Artifact2GroupAssociation> getAssociationsWith(ArtifactObject artifact) {
-        return getAssociationsWith(artifact, ArtifactObject.class, Artifact2GroupAssociation.class);
+    public List<Artifact2FeatureAssociation> getAssociationsWith(ArtifactObject artifact) {
+        return getAssociationsWith(artifact, ArtifactObject.class, Artifact2FeatureAssociation.class);
     }
 
-    public List<Group2LicenseAssociation> getAssociationsWith(LicenseObject license) {
-        return getAssociationsWith(license, LicenseObject.class, Group2LicenseAssociation.class);
+    public List<Feature2DistributionAssociation> getAssociationsWith(DistributionObject license) {
+        return getAssociationsWith(license, DistributionObject.class, Feature2DistributionAssociation.class);
     }
 
     private static String[] DEFINING_KEYS = new String[] {KEY_NAME};

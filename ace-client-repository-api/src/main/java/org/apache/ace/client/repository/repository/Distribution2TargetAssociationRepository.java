@@ -20,19 +20,19 @@ package org.apache.ace.client.repository.repository;
 
 import org.apache.ace.client.repository.AssociationRepository;
 import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.License2GatewayAssociation;
-import org.apache.ace.client.repository.object.LicenseObject;
+import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
+import org.apache.ace.client.repository.object.DistributionObject;
 
 /**
- * Interface to a License2GatewayAssociationRepository. The functionality is defined by the generic AssociationRepository.
+ * Interface to a Distribution2TargetAssociationRepository. The functionality is defined by the generic AssociationRepository.
  */
-public interface License2GatewayAssociationRepository extends AssociationRepository<LicenseObject, TargetObject, License2GatewayAssociation> {
+public interface Distribution2TargetAssociationRepository extends AssociationRepository<DistributionObject, TargetObject, Distribution2TargetAssociation> {
     /**
-     * Creates an assocation from a given license to multiple gateways, which correspond to the given
-     * filter string. For parameters to use in the filter, see <code>GatewayObject</code>'s <code>KEY_</code> constants.
-     * @param license A license object for the left side of this association.
-     * @param gatewayFilter An LDAP-filter for the gateways to use.
+     * Creates an assocation from a given distribution to multiple targets, which correspond to the given
+     * filter string. For parameters to use in the filter, see <code>TargetObject</code>'s <code>KEY_</code> constants.
+     * @param distribution A distribution object for the left side of this association.
+     * @param targetFilter An LDAP-filter for the targets to use.
      * @return The newly created association.
      */
-    public License2GatewayAssociation createLicense2GatewayFilter(LicenseObject license, String gatewayFilter);
+    public Distribution2TargetAssociation createDistribution2TargetFilter(DistributionObject distribution, String targetFilter);
 }
