@@ -121,5 +121,4 @@ public class CachedRepositoryImplTest {
         inputBytes = AdminTestUtil.copy(input);
         assert AdminTestUtil.byteArraysEqual(inputBytes, testContent) : "We got something different than 'initial' from getLocal: " + new String(inputBytes);
     }
-
 }
