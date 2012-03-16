@@ -44,9 +44,9 @@ import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
 
 /**
- * A <code>StatefulGatewayObjectImpl</code> uses the interface of a <code>StatefulGatewayObject</code>,
- * but delegates most of its calls to either an embedded <code>GatewayObject</code>, or to its
- * parent <code>StatefulGatewayRepository</code>. Once created, it will handle its own lifecyle
+ * A <code>StatefulTargetObjectImpl</code> uses the interface of a <code>StatefulTargetObject</code>,
+ * but delegates most of its calls to either an embedded <code>TargetObject</code>, or to its
+ * parent <code>StatefulTargetRepository</code>. Once created, it will handle its own lifecycle
  * and remove itself once is existence is no longer necessary.
  */
 public class StatefulTargetObjectImpl implements StatefulTargetObject {
@@ -59,7 +59,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     private boolean m_inConstructor = true;
 
     /**
-     * Creates a new <code>StatefulGatewayObjectImpl</code>. After creation, it will have the
+     * Creates a new <code>StatefulTargetObjectImpl</code>. After creation, it will have the
      * most recent data available, and has verified its own reasons for existence.
      * @param repository The parent repository of this object.
      * @param targetID A string representing a target ID.
@@ -213,7 +213,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     }
 
     /**
-     * Based on the information about a <code>GatewayObject</code>, the
+     * Based on the information about a <code>TargetObject</code>, the
      * <code>AuditEvent</code>s available, and the deployment information that
      * the parent repository can give, determines the status of this target.
      */

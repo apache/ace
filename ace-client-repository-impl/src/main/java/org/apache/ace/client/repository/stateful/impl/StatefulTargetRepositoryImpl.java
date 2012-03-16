@@ -179,7 +179,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     /**
      * Creates and registers a new stateful target object based on the given ID.
      * @param targetID A string representing a target ID.
-     * @return The newly created and registered <code>StatefulGatewayObjectImpl</code>.
+     * @return The newly created and registered <code>StatefulTargetObjectImpl</code>.
      */
     private StatefulTargetObjectImpl createStateful(String targetID) {
         synchronized(m_repository) {
