@@ -83,7 +83,7 @@ public class StreamTest {
     public static void main(String[] args) {
         final InputStream[] streams = new InputStream[300];
         for (int i = 1; i <= 250; i++) {
-            final String id = "gateway-" + i;
+            final String id = "target-" + i;
             try {
                 streams[i - 1] = new URL("http://127.0.0.1:" + TestConstants.PORT + "/data/" + id + "/versions/1.0.0").openStream();
             }
@@ -204,7 +204,7 @@ public class StreamTest {
                     for (int i = 250; i < 300; i++) {
                         try {
                             if (streams[i] == null) {
-                                streams[i] = new URL("http://127.0.0.1:" + TestConstants.PORT + "/data/gateway-" + (i + 1) + "/versions/1.0.0").openStream();
+                                streams[i] = new URL("http://127.0.0.1:" + TestConstants.PORT + "/data/target-" + (i + 1) + "/versions/1.0.0").openStream();
                             }
                             int in = streams[i].read();
                             if (in == -1) {
