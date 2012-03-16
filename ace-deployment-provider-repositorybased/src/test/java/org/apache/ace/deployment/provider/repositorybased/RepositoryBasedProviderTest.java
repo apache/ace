@@ -69,7 +69,7 @@ public class RepositoryBasedProviderTest {
 
     private static final String TAGS_TAG = "tags";
     private static final String VERSION_TAG = "version";
-    private static final String GATEWAYID_TAG = "gatewayID";
+    private static final String TARGETID_TAG = "targetID";
     private static final String ARTIFACTS_TAG = "artifacts";
     private static final String ARTIFACT_TAG = "deploymentArtifact";
     private static final String URL_TAG = "url";
@@ -87,11 +87,11 @@ public class RepositoryBasedProviderTest {
     private final String VERSION4 = "4.0.0";
     private final String INVALIDVERSION = "Invalid.version.directory";
 
-    private final String GATEWAY = "gateway";
-    private final String MULTIPLEVERSIONGATEWAY = "multi-version-gateway";
-    private final String INVALIDVERSIONGATEWAY = "illegal-version-gateway";
-    private final String EMPTYVERSIONGATEWAY = "empty-version-gateway";
-    private final String RESOURCEGATEWAY = "resource-gateway";
+    private final String TARGET = "target";
+    private final String MULTIPLEVERSIONTARGET = "multi-version-target";
+    private final String INVALIDVERSIONTARGET = "illegal-version-target";
+    private final String EMPTYVERSIONTARGET = "empty-version-target";
+    private final String RESOURCETARGET = "resource-target";
 
     private ArtifactData BUNDLE1;
     private ArtifactData BUNDLE3;
@@ -105,7 +105,6 @@ public class RepositoryBasedProviderTest {
     private ArtifactData ARTIFACT1;
     private ArtifactData ARTIFACT2;
 
-    @SuppressWarnings("serial")
     @BeforeMethod(alwaysRun = true)
     protected void setUp() throws Exception {
 
@@ -185,23 +184,23 @@ public class RepositoryBasedProviderTest {
         root.appendChild(versions);
 
         // create deployment versions
-        versions.appendChild(generateDeploymentVersion(doc, GATEWAY, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONGATEWAY, VERSION1, new String[] {BUNDLE3.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE3.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE3.getVersion()}, new String[] {BUNDLE4.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONGATEWAY, VERSION2, new String[] {BUNDLE4_1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4_1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4_1.getVersion()}, new String[] { BUNDLE5.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE5.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE5.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONGATEWAY, VERSION3 , new String[] {BUNDLE4.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONGATEWAY, VERSION4, new String[] {BUNDLE3_2.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE3_2.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE3_2.getVersion()}, new String[] { BUNDLE4_2.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4_2.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4_2.getVersion()}));
+        versions.appendChild(generateDeploymentVersion(doc, TARGET, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
+        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION1, new String[] {BUNDLE3.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE3.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE3.getVersion()}, new String[] {BUNDLE4.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4.getVersion()}));
+        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION2, new String[] {BUNDLE4_1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4_1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4_1.getVersion()}, new String[] { BUNDLE5.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE5.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE5.getVersion()}));
+        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION3 , new String[] {BUNDLE4.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4.getVersion()}));
+        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION4, new String[] {BUNDLE3_2.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE3_2.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE3_2.getVersion()}, new String[] { BUNDLE4_2.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4_2.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4_2.getVersion()}));
         //Add versions with special characters like ' " < >
         versions.appendChild(generateDeploymentVersion(doc, "'",VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
         versions.appendChild(generateDeploymentVersion(doc, "\"",VERSION2, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, "gateway'\"",VERSION3, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
+        versions.appendChild(generateDeploymentVersion(doc, "target'\"",VERSION3, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
         versions.appendChild(generateDeploymentVersion(doc, " '''' \"\"\"\" ", VERSION4, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, "myGateway", "1'0'0", new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
+        versions.appendChild(generateDeploymentVersion(doc, "myTarget", "1'0'0", new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
 
         //Add a valid deployment version (5.0.0) with no bundle urls (empty package)
-        versions.appendChild(generateDeploymentVersion(doc, EMPTYVERSIONGATEWAY, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, EMPTYVERSIONGATEWAY, VERSION2));
+        versions.appendChild(generateDeploymentVersion(doc, EMPTYVERSIONTARGET, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
+        versions.appendChild(generateDeploymentVersion(doc, EMPTYVERSIONTARGET, VERSION2));
 
-        versions.appendChild(generateDeploymentVersion(doc, RESOURCEGATEWAY, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}, new String[] {RESOURCEPROCESSOR1.getUrl().toString(), DeploymentArtifact.DIRECTIVE_ISCUSTOMIZER, "true", BundleHelper.KEY_SYMBOLICNAME, RESOURCEPROCESSOR1.getSymbolicName(), BundleHelper.KEY_VERSION, RESOURCEPROCESSOR1.getVersion()}, new String[] {ARTIFACT1.getUrl().toString(), DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid"}, new String[] {ARTIFACT2.getUrl().toString(), DeploymentArtifact.DIRECTIVE_KEY_RESOURCE_ID, "Artifact2", DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid" }));
+        versions.appendChild(generateDeploymentVersion(doc, RESOURCETARGET, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}, new String[] {RESOURCEPROCESSOR1.getUrl().toString(), DeploymentArtifact.DIRECTIVE_ISCUSTOMIZER, "true", BundleHelper.KEY_SYMBOLICNAME, RESOURCEPROCESSOR1.getSymbolicName(), BundleHelper.KEY_VERSION, RESOURCEPROCESSOR1.getVersion()}, new String[] {ARTIFACT1.getUrl().toString(), DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid"}, new String[] {ARTIFACT2.getUrl().toString(), DeploymentArtifact.DIRECTIVE_KEY_RESOURCE_ID, "Artifact2", DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid" }));
 
         // transform the document to string
         TransformerFactory tFactory = TransformerFactory.newInstance();
@@ -231,22 +230,22 @@ public class RepositoryBasedProviderTest {
     /**
      * Helper method to create the description of a deploymentpacakge with given data.
      * @param doc The document to add the version to.
-     * @param gatewayText The gatewayID in the deploymentversion.
+     * @param targetText The targetId in the deploymentversion.
      * @param versionText The version in the deploymentversion.
      * @param data An array of data for the deployment artifact. [0] is the url, and each following item is
      * first a directive key, and a directive value. For example,<br>
      * <code>new String[] { "http://mybundle", "somedirective", "somevalue" }</code>
      * @return
      */
-    private Node generateDeploymentVersion(Document doc, String gatewayText, String versionText, String[]... data) {
+    private Node generateDeploymentVersion(Document doc, String targetText, String versionText, String[]... data) {
         Element deploymentversion = doc.createElement(DEPLOYMENTVERSION_TAG);
         Element attr = doc.createElement(ATTRIBUTES_TAG);
         deploymentversion.appendChild(attr);
 
-        //Create and add gatewayTag
+        //Create and add targetId Tag
         Element elem = null;
-        elem = doc.createElement(GATEWAYID_TAG);
-        elem.setTextContent(gatewayText);
+        elem = doc.createElement(TARGETID_TAG);
+        elem.setTextContent(targetText);
         attr.appendChild(elem);
 
         //Create and add versionTag
@@ -290,7 +289,7 @@ public class RepositoryBasedProviderTest {
         Repository mock = new MockDeploymentRepository("", null);
         TestUtils.configureObject(m_backend, Repository.class, mock);
 
-        List<String> versions = m_backend.getVersions(GATEWAY);
+        List<String> versions = m_backend.getVersions(TARGET);
         assert versions.size() == 0 : "From an empty repository, we should get 0 versions, but we get " + versions.size();
     }
 
@@ -300,7 +299,7 @@ public class RepositoryBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testGetVersion() throws IOException {
-        List<String> versions = m_backend.getVersions(GATEWAY);
+        List<String> versions = m_backend.getVersions(TARGET);
         assert versions.size() == 1 : "Expected one version to be found, but found " + versions.size();
         assert versions.get(0).equals(VERSION1) : "Expected version " + VERSION1 + " but found " + versions.get(0);
     }
@@ -311,7 +310,7 @@ public class RepositoryBasedProviderTest {
     @Test(groups = { UNIT })
     public void testIllegalVersion() throws IOException {
         // an illegal version should be silently ignored
-        List<String> versions = m_backend.getVersions(INVALIDVERSIONGATEWAY);
+        List<String> versions = m_backend.getVersions(INVALIDVERSIONTARGET);
         assert versions.isEmpty() : "Expected no versions to be found, but found " + versions.size();
     }
 
@@ -320,7 +319,7 @@ public class RepositoryBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testMultipleVersions() throws IOException {
-        List<String> versions = m_backend.getVersions(MULTIPLEVERSIONGATEWAY);
+        List<String> versions = m_backend.getVersions(MULTIPLEVERSIONTARGET);
         assert versions.size() == 4 : "Expected three version to be found, but found " + versions.size();
         // all versions should be in ascending order
         assert versions.get(0).equals(VERSION1) : "Expected version " + VERSION1 + " but found " + versions.get(0);
@@ -334,7 +333,7 @@ public class RepositoryBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testSingleBundleSingleVersionBundleData() throws IOException {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(GATEWAY, VERSION1);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(TARGET, VERSION1);
         assert bundleData.size() == 1 : "Expected one bundle to be found, but found " + bundleData.size();
         assert bundleData.contains(BUNDLE1) : "Expected to find bundle " + BUNDLE1.getSymbolicName();
     }
@@ -344,7 +343,7 @@ public class RepositoryBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testMultipleBundleSingleVersionBundleData() throws IOException {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION1);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         assert bundleData.contains(BUNDLE3) : "Expected to find bundle " + BUNDLE3.getSymbolicName();
         assert bundleData.contains(BUNDLE4) : "Expected to find bundle " + BUNDLE4.getSymbolicName();
@@ -356,21 +355,21 @@ public class RepositoryBasedProviderTest {
     @Test(groups = { UNIT })
     public void testInvalidVersionBundleData() throws IOException {
         try {
-            m_backend.getBundleData(GATEWAY, INVALIDVERSION);
-            assert false : "Expected an error because version " + INVALIDVERSION + " doesn't exist for gateway" + GATEWAY;
+            m_backend.getBundleData(TARGET, INVALIDVERSION);
+            assert false : "Expected an error because version " + INVALIDVERSION + " doesn't exist for target: " + TARGET;
         } catch (IllegalArgumentException iae) {
             // expected, because the version doesn't exist
         }
     }
 
     /**
-     * Test the getBundleData with an illegal gateway (i.e. a gateway that doesn't exist)
+     * Test the getBundleData with an illegal target (i.e. a target that doesn't exist)
      */
     @Test(groups = { UNIT })
-    public void testInvalidGatewayBundleData() throws IOException {
+    public void testInvalidTargetBundleData() throws IOException {
         try {
-            m_backend.getBundleData(INVALIDVERSIONGATEWAY, VERSION1);
-            assert false : "Expected an error because version " + VERSION1 + " doesn't exist for gateway" + INVALIDVERSIONGATEWAY;
+            m_backend.getBundleData(INVALIDVERSIONTARGET, VERSION1);
+            assert false : "Expected an error because version " + VERSION1 + " doesn't exist for target: " + INVALIDVERSIONTARGET;
         } catch (IllegalArgumentException iae) {
             // expected, because the version doesn't exist
         }
@@ -380,7 +379,7 @@ public class RepositoryBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testSingleUnchangedBundleMultipleVersions() throws IOException {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(GATEWAY, VERSION1, VERSION1);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(TARGET, VERSION1, VERSION1);
         assert bundleData.size() == 1 : "Expect one bundle, got " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
@@ -394,7 +393,7 @@ public class RepositoryBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testMultipleBundlesMultipleVersions() throws IOException {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION1, VERSION1);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
@@ -408,7 +407,7 @@ public class RepositoryBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testRemovedBundleMultipleVersions() throws IOException {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION1, VERSION3);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION3);
         assert bundleData.size() == 1 : "Expected one bundle to be found, but found " + bundleData.size();
     }
 
@@ -417,7 +416,7 @@ public class RepositoryBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testAddedBundleMultipleVersions() throws IOException {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION3, VERSION1);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION3, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
@@ -436,7 +435,7 @@ public class RepositoryBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testSingleChangedBundleMultipleVersions() throws IOException {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION1, VERSION4);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION4);
         assert bundleData.size() == 2 : "Expected two bundles to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
@@ -456,7 +455,7 @@ public class RepositoryBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testMultipleChangedBundlesMultipleVersions() throws IOException {
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONGATEWAY, VERSION1, VERSION2);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION2);
         assert bundleData.size() == 2 : "Expected two bundles to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
@@ -475,7 +474,7 @@ public class RepositoryBasedProviderTest {
      * See if the getVersions() methods normal output works with literals ' and "
      */
     @Test(groups = { UNIT })
-    public void testGetLiteralGatewayVersion() throws IOException {
+    public void testGetLiteralTargetVersion() throws IOException {
         List<String> versions = m_backend.getVersions("'");
         assert versions.size() == 1 : "Expected one version to be found, but found " + versions.size();
         assert versions.get(0).equals(VERSION1) : "Expected version " + VERSION1 + " but found " + versions.get(0);
@@ -484,7 +483,7 @@ public class RepositoryBasedProviderTest {
         assert versions.size() == 1 : "Expected one version to be found, but found " + versions.size();
         assert versions.get(0).equals(VERSION2) : "Expected version " + VERSION2 + " but found " + versions.get(0);
 
-        versions = m_backend.getVersions("gateway'\"");
+        versions = m_backend.getVersions("target'\"");
         assert versions.size() == 1 : "Expected one version to be found, but found " + versions.size();
         assert versions.get(0).equals(VERSION3) : "Expected version " + VERSION3 + " but found " + versions.get(0);
 
@@ -499,18 +498,18 @@ public class RepositoryBasedProviderTest {
     @Test(groups = { UNIT })
     public void testEmptyDeploymentVersion() throws IOException {
         // get the version number
-        List<String> versions = m_backend.getVersions(EMPTYVERSIONGATEWAY);
+        List<String> versions = m_backend.getVersions(EMPTYVERSIONTARGET);
         assert versions.size() == 2 : "Expected two version to be found, but found " + versions.size();
 
         //get the (empty bundle data version (2))
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(EMPTYVERSIONGATEWAY, VERSION2);
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(EMPTYVERSIONTARGET, VERSION2);
         assert bundleData.size() == 0 : "Expected no bundles to be found, but got: " + bundleData.size();
 
         //check an update from and to an empty version
-        Collection<ArtifactData> bundleData2 = m_backend.getBundleData(EMPTYVERSIONGATEWAY, VERSION1, VERSION2);
+        Collection<ArtifactData> bundleData2 = m_backend.getBundleData(EMPTYVERSIONTARGET, VERSION1, VERSION2);
         assert bundleData2.size() == 0 : "Expected no bundles to be found, but got: " + bundleData2.size();
 
-        Collection<ArtifactData> bundleData3 = m_backend.getBundleData(EMPTYVERSIONGATEWAY, VERSION2, VERSION1);
+        Collection<ArtifactData> bundleData3 = m_backend.getBundleData(EMPTYVERSIONTARGET, VERSION2, VERSION1);
         assert bundleData3.size() == 1 : "Expected one bundle to be found, but got: " + bundleData3.size();
         assert bundleData3.iterator().next().getVersion().equals("1.0.0");
     }
@@ -520,8 +519,8 @@ public class RepositoryBasedProviderTest {
      * See if a version with a literal is parsed correct and ignored.
      */
     @Test(groups = { UNIT })
-    public void testGetLiteralGatewayIllegalVersion() throws IOException {
-        List<String> versions = m_backend.getVersions("myGateway");
+    public void testGetLiteralTargetIllegalVersion() throws IOException {
+        List<String> versions = m_backend.getVersions("myTarget");
         assert versions.size() == 0 : "Expected no versions to be found, but found " + versions.size();
     }
 
@@ -530,10 +529,10 @@ public class RepositoryBasedProviderTest {
      */
     @Test(groups = { UNIT })
     public void testBundleDataWithResources() throws IOException {
-        List<String> versions = m_backend.getVersions(RESOURCEGATEWAY);
+        List<String> versions = m_backend.getVersions(RESOURCETARGET);
         assert versions.size() == 1 : "Expected two version to be found, but found " + versions.size();
 
-        Collection<ArtifactData> bundleData = m_backend.getBundleData(RESOURCEGATEWAY, versions.get(0));
+        Collection<ArtifactData> bundleData = m_backend.getBundleData(RESOURCETARGET, versions.get(0));
 
         assert bundleData.size() == 4 : "Expected four bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
