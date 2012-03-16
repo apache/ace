@@ -32,10 +32,10 @@ public interface DeploymentProvider {
      * The ArtifactData.hasChanged method will return true for all bundles in this collection
      *
      * @return a collection of bundledata. If there are no bundles in this version, return an empty list
-     * @throws IllegalArgumentException if the gateway or version do not exist
+     * @throws IllegalArgumentException if the target or version do not exist
      * @throws java.io.IOException If an IOException occurs.
      */
-    public List<ArtifactData> getBundleData(String gatewayId, String version) throws IllegalArgumentException, IOException;
+    public List<ArtifactData> getBundleData(String targetId, String version) throws IllegalArgumentException, IOException;
 
     /**
      * This data can be used to generate a fix package. It gives the differences between the versionFrom and versionTo.
@@ -49,22 +49,22 @@ public interface DeploymentProvider {
      * </ol>
      *
      * @return a list of bundles.
-     * @throws IllegalArgumentException if the gateway, the versionFrom or versionTo do no exist
+     * @throws IllegalArgumentException if the target, the versionFrom or versionTo do no exist
      * @throws java.io.IOException If an IOException occurs.
      */
 
-    public List<ArtifactData> getBundleData(String gatewayId, String versionFrom, String versionTo) throws IllegalArgumentException, IOException;
+    public List<ArtifactData> getBundleData(String targetId, String versionFrom, String versionTo) throws IllegalArgumentException, IOException;
 
     /**
-     * Returns a list of versions for a specific gateway. The list is sorted in
+     * Returns a list of versions for a specific target. The list is sorted in
      * ascending order, so the latest version is the last one in the list.
      *
-     * @param gatewayId  The id of the gateway for which all available deployment package
+     * @param targetId  The id of the target for which all available deployment package
      *                   versions are being retrieved.
-     * @return All available deployment package versions for a specific gateway. If none available,
+     * @return All available deployment package versions for a specific target. If none available,
      *         return an empty List.
-     *         If the gateway doesn't exist, an IllegalArgumentException is thrown
+     *         If the target doesn't exist, an IllegalArgumentException is thrown
      * @throws java.io.IOException If an IOException occurs.
      */
-    public List<String> getVersions(String gatewayId) throws IllegalArgumentException, IOException;
+    public List<String> getVersions(String targetId) throws IllegalArgumentException, IOException;
 }

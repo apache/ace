@@ -48,10 +48,10 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 
 /**
- * This class reads data from the filesystem. It contains deployment data in the following format: <storage dir>/<gateway-name>/<bundle-version>/<jars>
- * example : storage-directory/ storage-directory/gateway-a storage-directory/gateway-a/1.0.0
- * storage-directory/gateway-a/1.0.0/bundle1.jar storage-directory/gateway-a/1.0.0/bundle2.jar storage-directory/gateway-a/1.1.0
- * storage-directory/gateway-a/1.1.0/bundle2.jar storage-directory/gateway-a/1.1.0/bundle3.jar The versions are in the
+ * This class reads data from the filesystem. It contains deployment data in the following format: <storage dir>/<target-name>/<bundle-version>/<jars>
+ * example : storage-directory/ storage-directory/target-a storage-directory/target-a/1.0.0
+ * storage-directory/target-a/1.0.0/bundle1.jar storage-directory/target-a/1.0.0/bundle2.jar storage-directory/target-a/1.1.0
+ * storage-directory/target-a/1.1.0/bundle2.jar storage-directory/target-a/1.1.0/bundle3.jar The versions are in the
  * org.osgi.framework.Version format.
  */
 public class FileBasedProvider implements DeploymentProvider, ManagedService {
@@ -66,19 +66,19 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
     private final Semaphore m_disk = new Semaphore(1, true);
 
     /**
-     * Get the bundle data from the bundles in the <data dir>/<gateway>/<version> directory It reads the manifest from all the
+     * Get the bundle data from the bundles in the &lt;data dir&gt;/&lt;target&gt;/&lt;version&gt; directory It reads the manifest from all the
      * .jar files in that directory. If the manifest cannot be found, This method can only parse OSGi R4 bundles
      */
-    public List<ArtifactData> getBundleData(String gatewayId, String version) throws IllegalArgumentException {
-        List<String> versions = getVersions(gatewayId);
+    public List<ArtifactData> getBundleData(String targetId, String version) throws IllegalArgumentException {
+        List<String> versions = getVersions(targetId);
         if (!versions.contains(version)) {
             throw new IllegalArgumentException("Unknown version " + version + " requested");
         }
-        File gatewayDirectory = new File(m_baseDirectory, gatewayId);
+        File targetDirectory = new File(m_baseDirectory, targetId);
         File versionDirectory;
-        if (gatewayDirectory.isDirectory()) {
-            // gateway has its own folder
-            versionDirectory = findMatchingVersionDirectory(gatewayDirectory, version);
+        if (targetDirectory.isDirectory()) {
+            // target has its own folder
+            versionDirectory = findMatchingVersionDirectory(targetDirectory, version);
         }
         else {
             versionDirectory = findMatchingVersionDirectory(m_defaultDirectory, version);
@@ -204,16 +204,16 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
      * like 1 instead of 1.0.0 and alike.
      * So we need to do some crawling to map them.
      *
-     * @param gatewayDirectory store directory
+     * @param targetDirectory store directory
      * @param version          that has been requested.
      *
      * @return the matching folder.
      *
      * @throws IllegalArgumentException if no matching folder has been found. If this happens something is weirdly wrong.
      */
-    private File findMatchingVersionDirectory(File gatewayDirectory, String version) {
+    private File findMatchingVersionDirectory(File targetDirectory, String version) {
         // first try the direct way:
-        File directTry = new File(gatewayDirectory, version);
+        File directTry = new File(targetDirectory, version);
         if ((directTry != null) && directTry.isDirectory()) {
             return directTry;
         }
@@ -223,10 +223,10 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
             requestedVersion = Version.parseVersion(version);
         }
         catch (IllegalArgumentException iae) {
-            throw new IllegalArgumentException("Requested version " + version + " has no matching folder in store: " + gatewayDirectory.getAbsolutePath());
+            throw new IllegalArgumentException("Requested version " + version + " has no matching folder in store: " + targetDirectory.getAbsolutePath());
         }
 
-        File[] files = gatewayDirectory.listFiles();
+        File[] files = targetDirectory.listFiles();
         for (int i = 0; i < files.length; i++) {
             File possibleVersionDirectory = files[i];
             if (possibleVersionDirectory.isDirectory()) {
@@ -235,7 +235,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
                     Version foundVersion = Version.parseVersion(possibleVersionDirectory.getName());
                     // no exception, but is could still be an empty version
                     if ((requestedVersion != null) && requestedVersion.equals(foundVersion)) {
-                        return new File(gatewayDirectory, possibleVersionDirectory.getName());
+                        return new File(targetDirectory, possibleVersionDirectory.getName());
                     }
                 }
                 catch (IllegalArgumentException iae) {
@@ -243,12 +243,12 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
                 }
             }
         }
-        throw new IllegalArgumentException("Requested version " + version + " has no matching folder in store: " + gatewayDirectory.getAbsolutePath());
+        throw new IllegalArgumentException("Requested version " + version + " has no matching folder in store: " + targetDirectory.getAbsolutePath());
     }
 
-    public List<ArtifactData> getBundleData(String gatewayId, String versionFrom, String versionTo) throws IllegalArgumentException {
-        List<ArtifactData> dataVersionFrom = getBundleData(gatewayId, versionFrom);
-        List<ArtifactData> dataVersionTo = getBundleData(gatewayId, versionTo);
+    public List<ArtifactData> getBundleData(String targetId, String versionFrom, String versionTo) throws IllegalArgumentException {
+        List<ArtifactData> dataVersionFrom = getBundleData(targetId, versionFrom);
+        List<ArtifactData> dataVersionTo = getBundleData(targetId, versionTo);
 
         Iterator<ArtifactData> it = dataVersionTo.iterator();
         while (it.hasNext()) {
@@ -277,21 +277,21 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
     }
 
     /**
-     * Look in the baseDirectory for the specified gateway. If it exists, get the list of directories in there and check if they
+     * Look in the baseDirectory for the specified target. If it exists, get the list of directories in there and check if they
      * conform to the <code>org.osgi.framework.Version</code> format. If it does, it will be in the list of versions that are
-     * returned. If there are no valid versions, return an empty list. If the gateway cannot be found, an
+     * returned. If there are no valid versions, return an empty list. If the target cannot be found, an
      * IllegalArgumentException is thrown. The list will be sorted on version.
      */
     @SuppressWarnings("unchecked")
-    public List<String> getVersions(String gatewayId) throws IllegalArgumentException {
+    public List<String> getVersions(String targetId) throws IllegalArgumentException {
         List<Version> versionList = new ArrayList<Version>();
-        File gatewayDirectory = new File(m_baseDirectory.getAbsolutePath(), gatewayId);
-        if (gatewayDirectory.isDirectory()) {
-            getVersions(gatewayId, versionList, gatewayDirectory);
+        File targetDirectory = new File(m_baseDirectory.getAbsolutePath(), targetId);
+        if (targetDirectory.isDirectory()) {
+            getVersions(targetId, versionList, targetDirectory);
         }
         else {
             // try the default
-            getVersions(gatewayId, versionList, m_defaultDirectory);
+            getVersions(targetId, versionList, m_defaultDirectory);
         }
 
         // now sort the list of versions and convert all values to strings.
@@ -307,11 +307,11 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
 
     /**
      *
-     * @param gatewayId ID that requested versions
+     * @param targetId ID that requested versions
      * @param versionList where collected versions will be put into.
      * @param base folder to be crawled.
      */
-    private void getVersions(String gatewayId, List<Version> versionList, File base) {
+    private void getVersions(String targetId, List<Version> versionList, File base) {
         // ok, it is a directory. Now treat all the subdirectories as seperate versions
         File[] files = base.listFiles();
         for (int i = 0; i < files.length; i++) {
@@ -331,14 +331,13 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
             }
         }
         if (files.length == 0) {
-            m_log.log(LogService.LOG_DEBUG, "No versions found for gateway " + gatewayId);
+            m_log.log(LogService.LOG_DEBUG, "No versions found for target: " + targetId);
         }
     }
 
     /**
      * Update the configuration for this bundle. It checks if the basedirectory exists and is a directory.
      */
-    @SuppressWarnings("unchecked")
     public void updated(Dictionary settings) throws ConfigurationException {
         if (settings != null) {
             String baseDirectoryName = getNotNull(settings, DIRECTORY_NAME, "The base directory cannot be null");
@@ -364,7 +363,6 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
     /**
      * Convenience method for getting settings from a configuration dictionary.
      */
-    @SuppressWarnings("unchecked")
     private String getNotNull(Dictionary settings, String id, String errorMessage) throws ConfigurationException {
         String result = (String) settings.get(id);
         if (result == null) {

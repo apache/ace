@@ -41,9 +41,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathVariableResolver;
 
-import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
-import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.DeploymentProvider;
@@ -82,11 +80,11 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
      */
     private volatile Repository m_directRepository;
 
-    public List<ArtifactData> getBundleData(String gatewayId, String version) throws IllegalArgumentException, IOException {
-        return getBundleData(gatewayId, null, version);
+    public List<ArtifactData> getBundleData(String targetId, String version) throws IllegalArgumentException, IOException {
+        return getBundleData(targetId, null, version);
     }
 
-    public List<ArtifactData> getBundleData(String gatewayId, String versionFrom, String versionTo) throws IllegalArgumentException, IOException {
+    public List<ArtifactData> getBundleData(String targetId, String versionFrom, String versionTo) throws IllegalArgumentException, IOException {
         try {
             if (versionFrom != null) {
                 Version.parseVersion(versionFrom);
@@ -105,10 +103,10 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         try {
             input = getRepositoryStream();
             if (versionFrom == null) {
-                pairs = getURLDirectivePairs(input, gatewayId, new String[] { versionTo });
+                pairs = getURLDirectivePairs(input, targetId, new String[] { versionTo });
             }
             else {
-                pairs = getURLDirectivePairs(input, gatewayId, new String[] { versionFrom, versionTo });
+                pairs = getURLDirectivePairs(input, targetId, new String[] { versionFrom, versionTo });
             }
         }
         catch (IOException ioe) {
@@ -151,15 +149,15 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
     }
 
     @SuppressWarnings("unchecked")
-    public List<String> getVersions(String gatewayId) throws IllegalArgumentException, IOException {
+    public List<String> getVersions(String targetId) throws IllegalArgumentException, IOException {
         List<String> stringVersionList = new ArrayList<String>();
         InputStream input = null;
 
         try {
             input = getRepositoryStream();
-            List<Version> versionList = getAvailableVersions(input, gatewayId);
+            List<Version> versionList = getAvailableVersions(input, targetId);
             if (versionList.isEmpty()) {
-                m_log.log(LogService.LOG_DEBUG, "No versions found for gateway " + gatewayId);
+                m_log.log(LogService.LOG_DEBUG, "No versions found for target: " + targetId);
             }
             else {
                 // now sort the list of versions and convert all values to strings.
@@ -268,19 +266,19 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
     }
 
     /**
-     * Returns the available deployment versions for a gateway
+     * Returns the available deployment versions for a target
      *
      * @param input A dom document representation of the repository
-     * @param gatewayId The gatwayId
+     * @param targetId The target identifier
      * @return A list of available versions
      */
-    private List<Version> getAvailableVersions(InputStream input, String gatewayId) throws IllegalArgumentException {
+    private List<Version> getAvailableVersions(InputStream input, String targetId) throws IllegalArgumentException {
         //result list
         List<Version> versionList = new ArrayList<Version>();
         XPathContext context = XPathContext.getInstance();
 
         try {
-            NodeList versions = context.getVersions(gatewayId, input);
+            NodeList versions = context.getVersions(targetId, input);
             if (versions != null) {
                 for (int j = 0; j < versions.getLength(); j++) {
                     Node n = versions.item(j);
@@ -321,16 +319,16 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
      * try
      * {
      *     // to get all artifacts of a number of versions:
-     *     context.init(gatewayId, versions, input);
+     *     context.init(targetId, versions, input);
      *
      *     for (int i = 0; i < versions.length; i++)
      *     {
      *         Node version = context.getVersion(i);
      *         // Do work with version
      *     }
-     *     // to get all versions of a number of a gateway:
-     *     NodeList versions = context.getVersions(gatewayId, input);
-     *     // Do wortk with versions
+     *     // to get all versions of a number of a target:
+     *     NodeList versions = context.getVersions(targetId, input);
+     *     // Do work with versions
      * }
      * finally
      * {
@@ -349,7 +347,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
 
         private final Map<Integer, XPathExpression> m_expressions = new HashMap<Integer, XPathExpression>();
 
-        private String m_gatewayId;
+        private String m_targetId;
 
         private String[] m_versions;
 
@@ -360,8 +358,8 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         private XPathContext() {
             m_xPath.setXPathVariableResolver(this);
             try {
-                m_attributesExpression = m_xPath.compile("//deploymentversions/deploymentversion/attributes/child::gatewayID[text()=$id]/../child::version[text()=$version]/../../artifacts");
-                m_versionsExpression = m_xPath.compile("//deploymentversions/deploymentversion/attributes/child::gatewayID[text()=$id]/parent::attributes/version/text()");
+                m_attributesExpression = m_xPath.compile("//deploymentversions/deploymentversion/attributes/child::targetID[text()=$id]/../child::version[text()=$version]/../../artifacts");
+                m_versionsExpression = m_xPath.compile("//deploymentversions/deploymentversion/attributes/child::targetID[text()=$id]/parent::attributes/version/text()");
             }
             catch (XPathExpressionException e) {
                 throw new RuntimeException(e);
@@ -391,28 +389,28 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         }
 
         /**
-         * @param gatewayId the id of the gateway
+         * @param targetId the id of the target
          * @param input the stream to read repository from
-         * @return  the versions in the repo for the given gatewayId or null if none
+         * @return  the versions in the repo for the given targetId or null if none
          * @throws javax.xml.xpath.XPathExpressionException in case something goes wrong
          */
-        public NodeList getVersions(String gatewayId, InputStream input) throws XPathExpressionException {
-            m_gatewayId = gatewayId;
+        public NodeList getVersions(String targetId, InputStream input) throws XPathExpressionException {
+            m_targetId = targetId;
             return (NodeList) m_versionsExpression.evaluate(new InputSource(input), XPathConstants.NODESET);
         }
 
         /**
-         * @param gatewayId the id of the gateway
+         * @param targetId the id of the target
          * @param versions the versions to return
          * @param input the stream to read repository from
          * @return true if versions can be found, otherwise false
          * @throws javax.xml.xpath.XPathExpressionException if something goes wrong
          */
         @SuppressWarnings("boxing")
-        public boolean init(String gatewayId, String[] versions, InputStream input) throws XPathExpressionException {
+        public boolean init(String targetId, String[] versions, InputStream input) throws XPathExpressionException {
             XPathExpression expression = m_expressions.get(versions.length);
             if (expression == null) {
-                StringBuilder versionStatement = new StringBuilder("//deploymentversions/deploymentversion/attributes/child::gatewayID[text()=$id]/following::version[text()=$0");
+                StringBuilder versionStatement = new StringBuilder("//deploymentversions/deploymentversion/attributes/child::targetID[text()=$id]/following::version[text()=$0");
                 for (int i = 1; i < versions.length; i++) {
                     versionStatement.append(" or ").append(".=$").append(i);
                 }
@@ -420,7 +418,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
                 expression = m_xPath.compile(versionStatement.toString());
                 m_expressions.put(versions.length, expression);
             }
-            m_gatewayId = gatewayId;
+            m_targetId = targetId;
             m_versions = versions;
 
             m_node = (Node) expression.evaluate(new InputSource(input), XPathConstants.NODE);
@@ -443,18 +441,18 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         public void destroy() {
             m_node = null;
             m_version = null;
-            m_gatewayId = null;
+            m_targetId = null;
             m_versions = null;
         }
 
         /**
          * @param name id|version|<version-index>
-         * @return id->gatewayId | version->version | version-index -> versions[version-index]
+         * @return id->targetId | version->version | version-index -> versions[version-index]
          */
         public Object resolveVariable(QName name) {
             String localPart = name.getLocalPart();
             if ("id".equals(localPart)) {
-                return m_gatewayId;
+                return m_targetId;
             }
             else if ("version".equals(localPart)) {
                 return m_version;
@@ -464,26 +462,26 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
     }
 
     /**
-     * Helper method to retrieve urls and directives for a gateway-version combination.
+     * Helper method to retrieve urls and directives for a target-version combination.
      *
      * @param input An input stream from which an XML representation of a deployment repository can be read.
-     * @param gatewayId The gatewayId to be used
+     * @param targetId The target identifier to be used
      * @param versions An array of versions.
      * @return An array of lists of URLDirectivePairs. For each version in <code>versions</code>, a separate list will be
      *         created; the index of a version in the <code>versions</code> array is equal to the index of its result in the
      *         result array.
-     * @throws IllegalArgumentException if the gatewayId or versions cannot be found in the input stream, or if
+     * @throws IllegalArgumentException if the targetId or versions cannot be found in the input stream, or if
      *         <code>input</code> does not contain an XML stream.
      */
     @SuppressWarnings("unchecked")
-    private List<URLDirectivePair>[] getURLDirectivePairs(InputStream input, String gatewayId, String[] versions) throws IllegalArgumentException {
+    private List<URLDirectivePair>[] getURLDirectivePairs(InputStream input, String targetId, String[] versions) throws IllegalArgumentException {
 
         XPathContext context = XPathContext.getInstance();
         List<URLDirectivePair>[] result = new List[versions.length]; //unfortunately, we cannot use a typed list array.
 
         try {
-            if (!context.init(gatewayId, versions, input)) {
-                m_log.log(LogService.LOG_WARNING, "Versions not found for Gateway: " + gatewayId);
+            if (!context.init(targetId, versions, input)) {
+                m_log.log(LogService.LOG_WARNING, "Versions not found for target: " + targetId);
                 throw new IllegalArgumentException("Versions not found.");
             }
             for (int i = 0; i < versions.length; i++) {
@@ -495,7 +493,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
                     artifactNode = context.getVersion(i);
                 }
                 catch (XPathExpressionException e) {
-                    m_log.log(LogService.LOG_WARNING, "Version " + versions[i] + " not found for Gateway: " + gatewayId);
+                    m_log.log(LogService.LOG_WARNING, "Version " + versions[i] + " not found for target: " + targetId);
                     continue;
                 }
                 NodeList artifacts = artifactNode.getChildNodes();
@@ -586,7 +584,6 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     public void updated(Dictionary settings) throws ConfigurationException {
         if (settings != null) {
             String url = getNotNull(settings, URL, "DeploymentRepository URL not configured.");
@@ -622,7 +619,6 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
     /**
      * Convenience method for getting settings from a configuration dictionary.
      */
-    @SuppressWarnings("unchecked")
     private String getNotNull(Dictionary settings, String id, String errorMessage) throws ConfigurationException {
         String result = (String) settings.get(id);
         if (result == null) {

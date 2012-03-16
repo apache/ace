@@ -39,8 +39,8 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 
 /**
- * The DeploymentServlet class provides in a list of versions available for a gateway and a stream
- * of data containing the DeploymentPackage (or fix package) for a specific gateway and version.
+ * The DeploymentServlet class provides in a list of versions available for a target and a stream
+ * of data containing the DeploymentPackage (or fix package) for a specific target and version.
  */
 public class DeploymentServlet extends HttpServlet implements ManagedService {
     private static final long serialVersionUID = 1L;
@@ -56,12 +56,12 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
 
     /**
      * Responds to GET requests sent to this endpoint, the response depends on the requested path:
-     * <li>http://host/endpoint/gatewayid/versions/ returns a list of versions available for the specified gateway
-     * <li>http://host/endpoint/gatewayid/versions/x.y.z returns a deployment package stream for the specified gateway and version
+     * <li>http://host/endpoint/targetid/versions/ returns a list of versions available for the specified target
+     * <li>http://host/endpoint/targetid/versions/x.y.z returns a deployment package stream for the specified target and version
      *
      * The status code of the response can be one of the following:
-     * <li><code>HttpServletResponse.SC_BAD_REQUEST</code> - If no gateway is specified or the request is malformed in a different way.
-     * <li><code>HttpServletResponse.SC_NOT_FOUND</code> - If the specified gateway or version does not exist.
+     * <li><code>HttpServletResponse.SC_BAD_REQUEST</code> - If no target is specified or the request is malformed in a different way.
+     * <li><code>HttpServletResponse.SC_NOT_FOUND</code> - If the specified target or version does not exist.
      * <li><code>HttpServletResponse.SC_INTERNAL_SERVER_ERROR</code> - If there was a problem processing the request.
      * <li><code>HttpServletResponse.SC_OK</code> - If all went fine
      */
@@ -69,8 +69,8 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             String[] pathElements = verifyAndGetPathElements(request.getPathInfo());
-            String gatewayID = pathElements[1];
-            List<String> versions = getVersions(gatewayID);
+            String targetID = pathElements[1];
+            List<String> versions = getVersions(targetID);
             int numberOfElements = pathElements.length;
 
             if (numberOfElements == 3) {
@@ -78,7 +78,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
             }
             else {
                 String version = pathElements[3];
-                handlePackageDelivery(gatewayID, version, versions, request, response);
+                handlePackageDelivery(targetID, version, versions, request, response);
             }
         }
         catch (AceRestException e) {
@@ -89,7 +89,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
 
     /**
      * Serve the case where requested path is like:
-     * http://host/endpoint/gatewayid/versions/ returns a list of versions available for the specified gateway
+     * http://host/endpoint/targetid/versions/ returns a list of versions available for the specified target
      *
      * @param versions versions to be put into response
      * @param response response object.
@@ -113,7 +113,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         }
     }
 
-    private void handlePackageDelivery(final String gatewayID, final String version, final List<String> versions, final HttpServletRequest request, final HttpServletResponse response) throws AceRestException {
+    private void handlePackageDelivery(final String targetID, final String version, final List<String> versions, final HttpServletRequest request, final HttpServletResponse response) throws AceRestException {
         ServletOutputStream output = null;
 
         try {
@@ -125,10 +125,10 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
 
             InputStream inputStream;
             if (current != null) {
-                inputStream = m_streamGenerator.getDeploymentPackage(gatewayID, current, version);
+                inputStream = m_streamGenerator.getDeploymentPackage(targetID, current, version);
             }
             else {
-                inputStream = m_streamGenerator.getDeploymentPackage(gatewayID, version);
+                inputStream = m_streamGenerator.getDeploymentPackage(targetID, version);
             }
 
             if (processor != null) {
@@ -156,12 +156,12 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         }
     }
 
-    private List<String> getVersions(String gatewayID) throws AceRestException {
+    private List<String> getVersions(String targetID) throws AceRestException {
         try {
-            return m_provider.getVersions(gatewayID);
+            return m_provider.getVersions(targetID);
         }
         catch (IllegalArgumentException iae) {
-            throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown gateway (" + gatewayID + ")");
+            throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown target (" + targetID + ")");
         }
         catch (IOException ioe) {
             m_log.log(LogService.LOG_WARNING, "Error getting available versions.", ioe);
@@ -209,7 +209,6 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         return "Ace Deployment Servlet Endpoint";
     }
 
-    @SuppressWarnings( "unchecked" )
     public void updated(Dictionary settings) throws ConfigurationException {
         // Nothing needs to be done - handled by DependencyManager
     }
