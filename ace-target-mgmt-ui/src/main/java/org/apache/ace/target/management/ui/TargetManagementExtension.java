@@ -58,7 +58,7 @@ public class TargetManagementExtension implements UIExtensionFactory {
 
         final StatefulTargetObject target = (StatefulTargetObject) object;
 
-        CheckBox registerCB = new CheckBox("Registered?");
+        final CheckBox registerCB = new CheckBox("Registered?");
         registerCB.setImmediate(true);
         registerCB.setEnabled(!target.isRegistered());
         registerCB.setValue(Boolean.valueOf(target.isRegistered()));
@@ -66,6 +66,7 @@ public class TargetManagementExtension implements UIExtensionFactory {
             public void buttonClick(ClickEvent event) {
                 if (event.getButton().booleanValue()) {
                     target.register();
+                    registerCB.setEnabled(!target.isRegistered());
                 }
             }
         });
