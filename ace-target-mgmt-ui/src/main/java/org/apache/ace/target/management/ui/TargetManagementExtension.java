@@ -85,12 +85,13 @@ public class TargetManagementExtension implements UIExtensionFactory {
         result.addComponent(autoApproveCB);
 
 
-        Button approveButton = new Button("Approve changes");
+        final Button approveButton = new Button("Approve changes");
         approveButton.setImmediate(true);
-        approveButton.setEnabled(!target.getAutoApprove() && target.isRegistered() && hasUnapprovedChanges(target));
+        approveButton.setEnabled(hasUnapprovedChanges(target));
         approveButton.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
                 target.approve();
+                approveButton.setEnabled(hasUnapprovedChanges(target));
             }
         });
 
@@ -108,9 +109,7 @@ public class TargetManagementExtension implements UIExtensionFactory {
      * @return
      */
     private boolean hasUnapprovedChanges(StatefulTargetObject target) {
-        String availableVersion = target.getCurrentVersion();
-        String currentVersion = target.getLastInstallVersion();
-        return (availableVersion != null) && !availableVersion.equals(currentVersion);
+    	return target.needsApprove();
     }
 
     private RepositoryObject getRepositoryObjectFromContext(Map<String, Object> context) {
