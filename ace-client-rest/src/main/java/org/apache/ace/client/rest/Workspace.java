@@ -90,7 +90,7 @@ public class Workspace {
             .setService(service, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
             .setRequired(isRequired)
             .setInstanceBound(true)
-            );
+        );
     }
     
     private void addDependency(Component component, Class service, boolean isRequired) {
@@ -98,7 +98,7 @@ public class Workspace {
             .setService(service)
             .setRequired(isRequired)
             .setInstanceBound(true)
-            );
+        );
     }
     
     public void init(Component component) {
@@ -125,7 +125,6 @@ public class Workspace {
                 .addDeploymentRepository(new URL(m_repositoryURL), m_customerName, m_deploymentRepositoryName, true)
                 );
             m_repositoryAdmin.checkout();
-//            m_repositoryAdmin.revert();
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -135,6 +134,10 @@ public class Workspace {
     
     public void destroy() {
     }
+    
+    public void checkout() throws IOException {
+    	m_repositoryAdmin.checkout();
+    }
 
     public void commit() throws IOException {
         m_repositoryAdmin.commit();
@@ -142,10 +145,6 @@ public class Workspace {
 
     public RepositoryObject getRepositoryObject(String entityType, String entityId) {
         return getObjectRepository(entityType).get(entityId);
-    }
-
-    public static String getRepositoryObjectIdentity(RepositoryObject object) {
-        return object.getDefinition();
     }
 
     public List<RepositoryObject> getRepositoryObjects(String entityType) {
@@ -203,7 +202,39 @@ public class Workspace {
             return getObjectRepository(entityType).create(attributes, tags);
         }
     }
+    
+    /**
+     * Approves a given stateful target object.
+     * <p>If the given repository object does <em>not</em> represent a stateful target object, this method will do nothing.</p>
+     * 
+     * @param repositoryObject the repository object to approve.
+     * @return the approved stateful target object, can be <code>null</code> only if the given repository object does not represent a {@link StatefulTargetObject}.
+     */
+    public StatefulTargetObject approveTarget(RepositoryObject repositoryObject) {
+        if (!(repositoryObject instanceof StatefulTargetObject)) {
+            return null;
+        }
+        StatefulTargetObject targetObject = (StatefulTargetObject) repositoryObject;
+        targetObject.approve();
+        return targetObject;
+    }
 
+    /**
+     * Registers a given stateful target object.
+     * <p>If the given repository object does <em>not</em> represent a stateful target object, this method will do nothing.</p>
+     * 
+     * @param repositoryObject the repository object to register.
+     * @return the registered stateful target object, can be <code>null</code> only if the given repository object does not represent a {@link StatefulTargetObject}.
+     */
+    public StatefulTargetObject registerTarget(RepositoryObject repositoryObject) {
+        if (!(repositoryObject instanceof StatefulTargetObject)) {
+            return null;
+        }
+        StatefulTargetObject targetObject = (StatefulTargetObject) repositoryObject;
+        targetObject.register();
+        return targetObject;
+    }
+    
     public void updateObjectWithData(String entityType, String entityId, RepositoryValueObject valueObject) {
         RepositoryObject repositoryObject = getRepositoryObject(entityType, entityId);
         // first handle the attributes

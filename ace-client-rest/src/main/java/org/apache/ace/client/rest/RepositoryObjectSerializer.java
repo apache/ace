@@ -75,7 +75,7 @@ public class RepositoryObjectSerializer implements JsonSerializer<RepositoryObje
             state.addProperty("autoApprove", Boolean.toString(stateful.getAutoApprove()));
             JsonArray artifactsFromShop = new JsonArray();
             for (ArtifactObject a : stateful.getArtifactsFromShop()) {
-                artifactsFromShop.add(new JsonPrimitive(Workspace.getRepositoryObjectIdentity(a)));
+                artifactsFromShop.add(new JsonPrimitive(a.getDefinition()));
             }
             state.add("artifactsFromShop", artifactsFromShop);
             JsonArray artifactsFromDeployment = new JsonArray();
@@ -85,7 +85,6 @@ public class RepositoryObjectSerializer implements JsonSerializer<RepositoryObje
             state.add("artifactsFromDeployment", artifactsFromDeployment);
             state.addProperty("lastInstallVersion", stateful.getLastInstallVersion());
             state.addProperty("lastInstallSuccess", stateful.getLastInstallSuccess());
-            state.add("auditEvents", getAuditEvents(stateful));
             /* TODO getLicenses/AssocationsWith might not be that helpful since the data is also available in a different way */
             /* TODO some of this tends to show up as attributes as well, so we will need to do some filtering there */
             /* TODO some aspects of the state can be manipulated as well, we need to supply methods for that */

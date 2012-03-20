@@ -34,6 +34,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
+import org.apache.ace.log.LogEvent;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.service.cm.ConfigurationException;
@@ -48,7 +50,7 @@ import com.google.gson.JsonPrimitive;
  * Servlet that offers a REST client API.
  */
 public class RESTClientServlet extends HttpServlet implements ManagedService {
-    private static final long serialVersionUID = 5210711248294238039L;
+	private static final long serialVersionUID = 5210711248294238039L;
     /** Alias that redirects to the latest version automatically. */
     private static final String LATEST_FOLDER = "latest";
     /** Name of the folder where working copies are kept. */
@@ -67,6 +69,12 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     private static final String KEY_DEPLOYMENT_REPOSITORY_NAME = "deployment.repository.name";
     /** Name of the user to log in as. */
     private static final String KEY_USER_NAME = "user.name";
+    /** The action name for approving targets. */
+    private static final String ACTION_APPROVE = "approve";
+    /** The action name for registering targets. */
+    private static final String ACTION_REGISTER = "register";
+    /** The action name for reading audit events. */
+    private static final String ACTION_AUDITEVENTS = "auditEvents";
 
     private static long m_sessionID = 1;
 
@@ -87,6 +95,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     public RESTClientServlet() {
         m_gson = (new GsonBuilder())
             .registerTypeHierarchyAdapter(RepositoryObject.class, new RepositoryObjectSerializer())
+            .registerTypeHierarchyAdapter(LogEvent.class, new LogEventSerializer())
             .create();
     }
     
@@ -107,6 +116,18 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                     return;
                 }
             }
+            else if (pathElements.length == 2) {
+            	JsonArray result = new JsonArray();
+            	result.add(new JsonPrimitive(Workspace.ARTIFACT));
+            	result.add(new JsonPrimitive(Workspace.ARTIFACT2FEATURE));
+            	result.add(new JsonPrimitive(Workspace.FEATURE));
+            	result.add(new JsonPrimitive(Workspace.FEATURE2DISTRIBUTION));
+            	result.add(new JsonPrimitive(Workspace.DISTRIBUTION));
+            	result.add(new JsonPrimitive(Workspace.DISTRIBUTION2TARGET));
+            	result.add(new JsonPrimitive(Workspace.TARGET));
+            	resp.getWriter().println(m_gson.toJson(result));
+            	return;
+            }
             else if (pathElements.length == 3) {
                 if (WORK_FOLDER.equals(pathElements[0])) {
                     Workspace workspace = getWorkspace(pathElements[1]);
@@ -115,7 +136,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                         List<RepositoryObject> objects = workspace.getRepositoryObjects(pathElements[2]);
                         JsonArray result = new JsonArray();
                         for (RepositoryObject ro : objects) {
-                            String identity = Workspace.getRepositoryObjectIdentity(ro);
+                            String identity = ro.getDefinition();
                             if (identity != null) {
                                 result.add(new JsonPrimitive(URLEncoder.encode(identity, "UTF-8")));
                             }
@@ -141,6 +162,61 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                         
                         resp.getWriter().println(m_gson.toJson(repositoryObject));
                         return;
+                    }
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
+                    return;
+                }
+            }
+            else if (pathElements.length == 5) {
+                if (WORK_FOLDER.equals(pathElements[0])) {
+                    Workspace workspace = getWorkspace(pathElements[1]);
+                    if (workspace != null) {
+                        String entityType = pathElements[2];
+                        String entityId = pathElements[3];
+                        String action = pathElements[4];
+                        RepositoryObject repositoryObject = workspace.getRepositoryObject(entityType, entityId);
+                        if (repositoryObject == null) {
+                            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository object of type " + entityType + " and identity " + entityId + " not found.");
+                            return;
+                        }
+                        
+                        boolean isTarget = Workspace.TARGET.equals(entityType);
+						if (isTarget && ACTION_APPROVE.equals(action)) {
+                            resp.getWriter().println(m_gson.toJson(((StatefulTargetObject) repositoryObject).getStoreState()));
+                            return;
+                        }
+						else if (isTarget && ACTION_REGISTER.equals(action)) {
+                            resp.getWriter().println(m_gson.toJson(((StatefulTargetObject) repositoryObject).getRegistrationState()));
+                            return;
+                        }
+						else if (isTarget && ACTION_AUDITEVENTS.equals(action)) {
+							StatefulTargetObject target = (StatefulTargetObject) repositoryObject;
+							List<LogEvent> events = target.getAuditEvents();
+							String startValue = req.getParameter("start");
+							String maxValue = req.getParameter("max");
+							int start = (startValue == null) ? 0 : Integer.parseInt(startValue);
+							if (start < 0) {
+								start = 0;
+							}
+							if (start >= events.size()) {
+								start = events.size() - 1;
+							}
+							int max = (maxValue == null) ? 100 : Integer.parseInt(maxValue);
+							if (max < 1) {
+								max = 1;
+							}
+							int end = start + max;
+							if (end > events.size()) {
+								end = events.size();
+							}
+							List<LogEvent> selection = events.subList(start, end);
+                        	resp.getWriter().println(m_gson.toJson(selection));
+                        	return;
+                        }
+						else {
+                            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action '" + action + "' for " + entityType + "/" + entityId);
+                            return;
+                        }
                     }
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
                     return;
@@ -201,7 +277,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                         try {
                             RepositoryValueObject data = m_gson.fromJson(req.getReader(), RepositoryValueObject.class);
                             RepositoryObject object = workspace.addRepositoryObject(pathElements[2], data.attributes, data.tags);
-                            String identity = Workspace.getRepositoryObjectIdentity(object);
+                            String identity = object.getDefinition();
                             if (identity != null) {
                                 resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], identity));
                             }
@@ -215,6 +291,39 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
                         }
                     }
                     resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not add entity of type " + pathElements[2]);
+                    return;
+                }
+            }
+            else if (pathElements.length == 5) {
+                if (WORK_FOLDER.equals(pathElements[0])) {
+                    Workspace workspace = getWorkspace(pathElements[1]);
+                    if (workspace != null) {
+                        String entityType = pathElements[2];
+                        String entityId = pathElements[3];
+                        RepositoryObject repositoryObject = workspace.getRepositoryObject(entityType, entityId);
+                        if (repositoryObject == null) {
+                            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository object of type " + entityType + " and identity " + entityId + " not found.");
+                            return;
+                        }
+
+                        // the last element is the "command" to apply...
+                        String action = pathElements[4];
+
+                        if (Workspace.TARGET.equals(entityType) && ACTION_APPROVE.equals(action)) {
+                            StatefulTargetObject sto = workspace.approveTarget(repositoryObject);
+                            // Respond with the current store state...
+                            resp.getWriter().println(m_gson.toJson(sto.getStoreState()));
+                            return;
+                        } else if (Workspace.TARGET.equals(entityType) && ACTION_REGISTER.equals(action)) {
+                            StatefulTargetObject sto = workspace.registerTarget(repositoryObject);
+                            // Respond with the current registration state...
+                            resp.getWriter().println(m_gson.toJson(sto.getRegistrationState()));
+                            return;
+                        }
+                        
+                        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action for " + pathElements[2]);
+                    }
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
                     return;
                 }
             }
