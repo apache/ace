@@ -43,29 +43,28 @@
 
     <properties>
         <export.package>
-            org.osgi.service.cm;version="1.3",
-	        org.osgi.service.deploymentadmin;version="1.0",
-	        org.osgi.service.deploymentadmin.spi;version="1.0",
-	        org.osgi.service.event;version="1.2",
-	        org.osgi.service.log;version="1.3",
-	        org.osgi.service.metatype;version="1.1",
-	        org.apache.ace.log;version=${project.version},
-            org.apache.ace.deployment.service;version=${project.version}
+            org.osgi.service.cm;version="1.3";managementagent=true;mandatory:=managementagent;-split-package:=first,
+	        org.osgi.service.deploymentadmin;version="1.0";managementagent=true;mandatory:=managementagent;-split-package:=first,
+	        org.osgi.service.deploymentadmin.spi;version="1.0";managementagent=true;mandatory:=managementagent;-split-package:=first,
+	        org.osgi.service.event;version="1.2";managementagent=true;mandatory:=managementagent;-split-package:=first,
+	        org.osgi.service.log;version="1.3";managementagent=true;mandatory:=managementagent;-split-package:=first,
+	        org.osgi.service.metatype;version="1.1";managementagent=true;mandatory:=managementagent;-split-package:=first,
+	        org.apache.felix.dm;version="3.0";managementagent=true;mandatory:=managementagent;-split-package:=first,
+	        org.apache.felix.dm.tracker;version="3.0";managementagent=true;mandatory:=managementagent;-split-package:=first,
+	        org.apache.ace.log;version=${project.version};managementagent=true;mandatory:=managementagent;-split-package:=first,
+            org.apache.ace.deployment.service;version=${project.version};managementagent=true;mandatory:=managementagent;-split-package:=first
         </export.package>
         <import.package>
-            !org.osgi.service.cm,
-            !org.osgi.service.deploymentadmin,
-            !org.osgi.service.deploymentadmin.spi,
-            !org.osgi.service.event,
-            !org.osgi.service.log,
-            !org.osgi.service.metatype,
-            !org.apache.ace.log,
+            !javax.swing,
+            !javax.swing.border,
+            !javax.microedition.io,
+            !org.osgi.service.condpermadmin,
             *
         </import.package>
         <private.package>
-            org.apache.ace.*,
-            org.apache.felix.*,
-            EDU.oswego.cs.dl.util.concurrent
+            EDU.oswego.cs.dl.util.concurrent;-split-package:=first,
+            org.apache.felix.*;-split-package:=first,
+            org.apache.ace.*;-split-package:=first
         </private.package>
         <bundle.activator>
             org.apache.ace.managementagent.Activator
@@ -76,7 +75,9 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
         </dependency>
+        <!--  
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
@@ -85,6 +86,7 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
+        -->
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.configadmin</artifactId>
