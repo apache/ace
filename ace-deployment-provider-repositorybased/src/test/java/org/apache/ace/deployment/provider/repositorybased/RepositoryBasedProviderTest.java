@@ -41,9 +41,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
-import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
@@ -128,7 +126,8 @@ public class RepositoryBasedProviderTest {
     /**
      * make a bundle with the given symbolic name and version in the given file.
      */
-    private ArtifactData generateBundle(File file, Map<String, String> directives, String symbolicName, String version, Map<String, String> additionalHeaders) throws Exception {
+    private ArtifactData generateBundle(File file, Map<String, String> directives, String symbolicName, String version,
+        Map<String, String> additionalHeaders) throws Exception {
         ArtifactData bundle = new ArtifactDataImpl(file.toURI().toURL(), directives, symbolicName, version, false);
         if (additionalHeaders == null) {
             BundleStreamGenerator.generateBundle(bundle);
@@ -184,23 +183,63 @@ public class RepositoryBasedProviderTest {
         root.appendChild(versions);
 
         // create deployment versions
-        versions.appendChild(generateDeploymentVersion(doc, TARGET, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION1, new String[] {BUNDLE3.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE3.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE3.getVersion()}, new String[] {BUNDLE4.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION2, new String[] {BUNDLE4_1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4_1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4_1.getVersion()}, new String[] { BUNDLE5.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE5.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE5.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION3 , new String[] {BUNDLE4.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION4, new String[] {BUNDLE3_2.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE3_2.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE3_2.getVersion()}, new String[] { BUNDLE4_2.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4_2.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE4_2.getVersion()}));
-        //Add versions with special characters like ' " < >
-        versions.appendChild(generateDeploymentVersion(doc, "'",VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, "\"",VERSION2, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, "target'\"",VERSION3, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, " '''' \"\"\"\" ", VERSION4, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
-        versions.appendChild(generateDeploymentVersion(doc, "myTarget", "1'0'0", new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
+        versions.appendChild(generateDeploymentVersion(doc, TARGET, VERSION1, new String[] {
+            BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(),
+            BundleHelper.KEY_VERSION, BUNDLE1.getVersion() }));
+        versions
+            .appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION1, new String[] {
+                BUNDLE3.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE3.getSymbolicName(),
+                BundleHelper.KEY_VERSION, BUNDLE3.getVersion() },
+                new String[] { BUNDLE4.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4.getSymbolicName(),
+                    BundleHelper.KEY_VERSION, BUNDLE4.getVersion() }));
+        versions
+            .appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION2, new String[] {
+                BUNDLE4_1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4_1.getSymbolicName(),
+                BundleHelper.KEY_VERSION, BUNDLE4_1.getVersion() },
+                new String[] { BUNDLE5.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE5.getSymbolicName(),
+                    BundleHelper.KEY_VERSION, BUNDLE5.getVersion() }));
+        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION3, new String[] {
+            BUNDLE4.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4.getSymbolicName(),
+            BundleHelper.KEY_VERSION, BUNDLE4.getVersion() }));
+        versions.appendChild(generateDeploymentVersion(doc, MULTIPLEVERSIONTARGET, VERSION4, new String[] {
+            BUNDLE3_2.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE3_2.getSymbolicName(),
+            BundleHelper.KEY_VERSION, BUNDLE3_2.getVersion() },
+            new String[] { BUNDLE4_2.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE4_2.getSymbolicName(),
+                BundleHelper.KEY_VERSION, BUNDLE4_2.getVersion() }));
+        // Add versions with special characters like ' " < >
+        versions
+            .appendChild(generateDeploymentVersion(doc, "'", VERSION1,
+                new String[] { BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(),
+                    BundleHelper.KEY_VERSION, BUNDLE1.getVersion() }));
+        versions
+            .appendChild(generateDeploymentVersion(doc, "\"", VERSION2,
+                new String[] { BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(),
+                    BundleHelper.KEY_VERSION, BUNDLE1.getVersion() }));
+        versions.appendChild(generateDeploymentVersion(doc, "target'\"", VERSION3, new String[] {
+            BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(),
+            BundleHelper.KEY_VERSION, BUNDLE1.getVersion() }));
+        versions.appendChild(generateDeploymentVersion(doc, " '''' \"\"\"\" ", VERSION4, new String[] {
+            BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(),
+            BundleHelper.KEY_VERSION, BUNDLE1.getVersion() }));
+        versions.appendChild(generateDeploymentVersion(doc, "myTarget", "1'0'0", new String[] {
+            BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(),
+            BundleHelper.KEY_VERSION, BUNDLE1.getVersion() }));
 
-        //Add a valid deployment version (5.0.0) with no bundle urls (empty package)
-        versions.appendChild(generateDeploymentVersion(doc, EMPTYVERSIONTARGET, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}));
+        // Add a valid deployment version (5.0.0) with no bundle urls (empty package)
+        versions.appendChild(generateDeploymentVersion(doc, EMPTYVERSIONTARGET, VERSION1, new String[] {
+            BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(),
+            BundleHelper.KEY_VERSION, BUNDLE1.getVersion() }));
         versions.appendChild(generateDeploymentVersion(doc, EMPTYVERSIONTARGET, VERSION2));
 
-        versions.appendChild(generateDeploymentVersion(doc, RESOURCETARGET, VERSION1, new String[] {BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(), BundleHelper.KEY_VERSION, BUNDLE1.getVersion()}, new String[] {RESOURCEPROCESSOR1.getUrl().toString(), DeploymentArtifact.DIRECTIVE_ISCUSTOMIZER, "true", BundleHelper.KEY_SYMBOLICNAME, RESOURCEPROCESSOR1.getSymbolicName(), BundleHelper.KEY_VERSION, RESOURCEPROCESSOR1.getVersion()}, new String[] {ARTIFACT1.getUrl().toString(), DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid"}, new String[] {ARTIFACT2.getUrl().toString(), DeploymentArtifact.DIRECTIVE_KEY_RESOURCE_ID, "Artifact2", DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid" }));
+        versions.appendChild(generateDeploymentVersion(doc, RESOURCETARGET, VERSION1, new String[] {
+            BUNDLE1.getUrl().toString(), BundleHelper.KEY_SYMBOLICNAME, BUNDLE1.getSymbolicName(),
+            BundleHelper.KEY_VERSION, BUNDLE1.getVersion() },
+            new String[] { RESOURCEPROCESSOR1.getUrl().toString(), DeploymentArtifact.DIRECTIVE_ISCUSTOMIZER, "true",
+                BundleHelper.KEY_SYMBOLICNAME, RESOURCEPROCESSOR1.getSymbolicName(), BundleHelper.KEY_VERSION,
+                RESOURCEPROCESSOR1.getVersion() }, new String[] { ARTIFACT1.getUrl().toString(),
+                DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid" }, new String[] {
+                ARTIFACT2.getUrl().toString(), DeploymentArtifact.DIRECTIVE_KEY_RESOURCE_ID, "Artifact2",
+                DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, "my.processor.pid" }));
 
         // transform the document to string
         TransformerFactory tFactory = TransformerFactory.newInstance();
@@ -229,12 +268,13 @@ public class RepositoryBasedProviderTest {
 
     /**
      * Helper method to create the description of a deploymentpacakge with given data.
+     * 
      * @param doc The document to add the version to.
      * @param targetText The targetId in the deploymentversion.
      * @param versionText The version in the deploymentversion.
      * @param data An array of data for the deployment artifact. [0] is the url, and each following item is
-     * first a directive key, and a directive value. For example,<br>
-     * <code>new String[] { "http://mybundle", "somedirective", "somevalue" }</code>
+     *        first a directive key, and a directive value. For example,<br>
+     *        <code>new String[] { "http://mybundle", "somedirective", "somevalue" }</code>
      * @return
      */
     private Node generateDeploymentVersion(Document doc, String targetText, String versionText, String[]... data) {
@@ -242,18 +282,18 @@ public class RepositoryBasedProviderTest {
         Element attr = doc.createElement(ATTRIBUTES_TAG);
         deploymentversion.appendChild(attr);
 
-        //Create and add targetId Tag
+        // Create and add targetId Tag
         Element elem = null;
         elem = doc.createElement(TARGETID_TAG);
         elem.setTextContent(targetText);
         attr.appendChild(elem);
 
-        //Create and add versionTag
+        // Create and add versionTag
         elem = doc.createElement(VERSION_TAG);
         elem.setTextContent(versionText);
         attr.appendChild(elem);
 
-        //Create and add empty tagsTag to deploymentversion
+        // Create and add empty tagsTag to deploymentversion
         elem = doc.createElement(TAGS_TAG);
         deploymentversion.appendChild(elem);
 
@@ -267,7 +307,7 @@ public class RepositoryBasedProviderTest {
             Element directives = doc.createElement(DIRECTIVES_TAG);
             for (int i = 1; i < s.length; i += 2) {
                 Element directive = doc.createElement(s[i]);
-                directive.setTextContent(s[i+1]);
+                directive.setTextContent(s[i + 1]);
                 directives.appendChild(directive);
             }
             artifact.appendChild(directives);
@@ -282,6 +322,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Without any checked in data, we should just get back no version,
      * but the provider should not crash.
+     * 
      * @throws java.io.IOException
      */
     @Test(groups = { UNIT })
@@ -290,9 +331,9 @@ public class RepositoryBasedProviderTest {
         TestUtils.configureObject(m_backend, Repository.class, mock);
 
         List<String> versions = m_backend.getVersions(TARGET);
-        assert versions.size() == 0 : "From an empty repository, we should get 0 versions, but we get " + versions.size();
+        assert versions.size() == 0 : "From an empty repository, we should get 0 versions, but we get "
+            + versions.size();
     }
-
 
     /**
      * See if the getVersions() methods normal output works
@@ -356,8 +397,10 @@ public class RepositoryBasedProviderTest {
     public void testInvalidVersionBundleData() throws IOException {
         try {
             m_backend.getBundleData(TARGET, INVALIDVERSION);
-            assert false : "Expected an error because version " + INVALIDVERSION + " doesn't exist for target: " + TARGET;
-        } catch (IllegalArgumentException iae) {
+            assert false : "Expected an error because version " + INVALIDVERSION + " doesn't exist for target: "
+                + TARGET;
+        }
+        catch (IllegalArgumentException iae) {
             // expected, because the version doesn't exist
         }
     }
@@ -369,11 +412,14 @@ public class RepositoryBasedProviderTest {
     public void testInvalidTargetBundleData() throws IOException {
         try {
             m_backend.getBundleData(INVALIDVERSIONTARGET, VERSION1);
-            assert false : "Expected an error because version " + VERSION1 + " doesn't exist for target: " + INVALIDVERSIONTARGET;
-        } catch (IllegalArgumentException iae) {
+            assert false : "Expected an error because version " + VERSION1 + " doesn't exist for target: "
+                + INVALIDVERSIONTARGET;
+        }
+        catch (IllegalArgumentException iae) {
             // expected, because the version doesn't exist
         }
     }
+
     /**
      * Test the getBundleData for a two versions, returning a single bundle that hasn't changed
      */
@@ -382,7 +428,7 @@ public class RepositoryBasedProviderTest {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(TARGET, VERSION1, VERSION1);
         assert bundleData.size() == 1 : "Expect one bundle, got " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArtifactData data = it.next();
             assert !data.hasChanged() : "The data should not have been changed.";
         }
@@ -396,7 +442,7 @@ public class RepositoryBasedProviderTest {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArtifactData data = it.next();
             assert !data.hasChanged() : "The data should not have been changed.";
         }
@@ -419,7 +465,7 @@ public class RepositoryBasedProviderTest {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION3, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArtifactData data = it.next();
             if (data.getSymbolicName().equals("Bundle4")) {
                 assert !data.hasChanged() : "The data (Bundle4) should not have been changed.";
@@ -438,13 +484,15 @@ public class RepositoryBasedProviderTest {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION4);
         assert bundleData.size() == 2 : "Expected two bundles to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArtifactData data = it.next();
             if (data.equals(BUNDLE3_2)) {
                 assert !data.hasChanged() : "The data should not have been changed.";
-            } else if (data.equals(BUNDLE4_2)) {
+            }
+            else if (data.equals(BUNDLE4_2)) {
                 assert data.hasChanged() : "The data should have been changed.";
-            } else {
+            }
+            else {
                 assert false : "Unknown bundle found";
             }
         }
@@ -458,13 +506,15 @@ public class RepositoryBasedProviderTest {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION2);
         assert bundleData.size() == 2 : "Expected two bundles to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArtifactData data = it.next();
             if (data.equals(BUNDLE4_1)) {
                 assert data.hasChanged() : "The data should have been changed.";
-            } else if (data.equals(BUNDLE5)) {
+            }
+            else if (data.equals(BUNDLE5)) {
                 assert data.hasChanged() : "The data should have been changed.";
-            } else {
+            }
+            else {
                 assert false : "Unknown bundle found";
             }
         }
@@ -501,11 +551,11 @@ public class RepositoryBasedProviderTest {
         List<String> versions = m_backend.getVersions(EMPTYVERSIONTARGET);
         assert versions.size() == 2 : "Expected two version to be found, but found " + versions.size();
 
-        //get the (empty bundle data version (2))
+        // get the (empty bundle data version (2))
         Collection<ArtifactData> bundleData = m_backend.getBundleData(EMPTYVERSIONTARGET, VERSION2);
         assert bundleData.size() == 0 : "Expected no bundles to be found, but got: " + bundleData.size();
 
-        //check an update from and to an empty version
+        // check an update from and to an empty version
         Collection<ArtifactData> bundleData2 = m_backend.getBundleData(EMPTYVERSIONTARGET, VERSION1, VERSION2);
         assert bundleData2.size() == 0 : "Expected no bundles to be found, but got: " + bundleData2.size();
 
@@ -513,7 +563,6 @@ public class RepositoryBasedProviderTest {
         assert bundleData3.size() == 1 : "Expected one bundle to be found, but got: " + bundleData3.size();
         assert bundleData3.iterator().next().getVersion().equals("1.0.0");
     }
-
 
     /**
      * See if a version with a literal is parsed correct and ignored.
@@ -536,19 +585,23 @@ public class RepositoryBasedProviderTest {
 
         assert bundleData.size() == 4 : "Expected four bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArtifactData data = it.next();
             if (data.equals(BUNDLE1)) {
                 // fine
-            } else if (data.equals(RESOURCEPROCESSOR1)) {
+            }
+            else if (data.equals(RESOURCEPROCESSOR1)) {
                 // fine
-            } else if (data.equals(ARTIFACT1)) {
+            }
+            else if (data.equals(ARTIFACT1)) {
                 // fine
-            } else if (data.equals(ARTIFACT2)) {
+            }
+            else if (data.equals(ARTIFACT2)) {
                 // check the filename
                 assert data.getFilename().equals("Artifact2");
                 assert data.getProcessorPid().equals("my.processor.pid");
-            } else {
+            }
+            else {
                 assert false : "Unknown bundle found";
             }
         }
@@ -614,15 +667,11 @@ public class RepositoryBasedProviderTest {
                 assert false : "Unknown header found: " + entry.getKey().toString();
             }
         }
-
-
     }
-
 
     @AfterTest(alwaysRun = true)
     public void tearDown() throws Exception {
         FileUtils.removeDirectoryWithContent(m_tempDirectory);
     }
-
 
 }
