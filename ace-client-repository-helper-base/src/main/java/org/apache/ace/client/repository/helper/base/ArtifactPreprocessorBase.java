@@ -18,6 +18,7 @@
  */
 package org.apache.ace.client.repository.helper.base;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,7 +38,7 @@ import org.apache.ace.client.repository.helper.PropertyResolver;
  */
 public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
 
-    private static final int BUFFER_SIZE = 4 * 1024;
+    protected static final int BUFFER_SIZE = 4 * 1024;
 
     /**
      * Uploads an artifact to an OBR.
@@ -87,22 +88,8 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
             throw new IOException("Error uploading " + name + ": " + ioe.getMessage());
         }
         finally {
-            if (input != null) {
-                try {
-                    input.close();
-                }
-                catch (Exception ex) {
-                    // Not much we can do
-                }
-            }
-            if (output != null) {
-                try {
-                    output.close();
-                }
-                catch (Exception ex) {
-                    // Not much we can do
-                }
-            }
+            silentlyClose(input);
+            silentlyClose(output);
         }
 
         return url;
@@ -120,7 +107,7 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
          * This function works by starting a thread which reads from the outputstream which is passed out,
          * and writing it to another stream, which is read by a thread that does the Upload.
          */
-        PipedOutputStream externalOutput = new PipedOutputStream();
+        final PipedOutputStream externalOutput = new PipedOutputStream();
         final PipedInputStream externalInput = new PipedInputStream(externalOutput);
 
         final PipedOutputStream internalOutput = new PipedOutputStream();
@@ -137,20 +124,11 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
                 catch (IOException e) {
                     // We cannot signal this to the user, but he will notice (in the original thread)
                     // that the pipe has been broken.
+                    e.printStackTrace();
                 }
                 finally {
-                    try {
-                        internalOutput.close();
-                    }
-                    catch (IOException e) {
-                        // Not much to be done.
-                    }
-                    try {
-                        externalInput.close();
-                    }
-                    catch (IOException e) {
-                        // Not much to be done.
-                    }
+                    silentlyClose(internalOutput);
+                    silentlyClose(externalInput);
                 }
             }
         }, "upload-Outputstream(" + name + ")").start();
@@ -163,6 +141,10 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
                 catch (IOException e) {
                     // We cannot signal this to the user, but he will notice (in the original thread)
                     // that the pipe has been broken.
+                    e.printStackTrace();
+                } finally {
+                    silentlyClose(internalInput);
+                    silentlyClose(externalOutput);
                 }
             }
         }, "upload-Inputstream(" + name + ")").start();
@@ -177,4 +159,21 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
     public abstract String preprocess(String url, PropertyResolver props, String targetID, String version, URL obrBase) throws IOException;
 
     public abstract boolean needsNewVersion(String url, PropertyResolver props, String targetID, String fromVersion);
+    
+
+    /**
+     * @param closable
+     * @throws IOException
+     */
+    protected final void silentlyClose(Closeable closable) {
+        if (closable != null) {
+            try {
+                closable.close();
+            }
+            catch (IOException e) {
+                // Ignore; nothing we can/will do about here...
+            }
+        }
+    }
+
 }
