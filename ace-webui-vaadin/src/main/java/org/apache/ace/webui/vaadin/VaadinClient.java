@@ -814,6 +814,7 @@ public class VaadinClient extends com.vaadin.Application {
                     };
                     HorizontalLayout buttons = new HorizontalLayout();
                     buttons.addComponent(removeLinkButton);
+                    buttons.addComponent(new RemoveItemButton<StatefulTargetObject, StatefulTargetRepository>(statefulTarget, m_statefulTargetRepository));
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
