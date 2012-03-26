@@ -19,18 +19,12 @@
 package org.apache.ace.ant.deploymentpackage;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.JarInputStream;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
 
+import org.apache.ace.builder.DeploymentPackageBuilder;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Project;
@@ -140,78 +134,16 @@ public class DeploymentPackageTask extends MatchingTask {
         for (String file : files) {
             log("Found file: " + file);
         }
-
-        Manifest manifest = new Manifest();
-        Attributes main = manifest.getMainAttributes();
-        main.putValue("Manifest-Version", "1.0");
-        main.putValue("DeploymentPackage-SymbolicName", m_name);
-        main.putValue("DeploymentPackage-Version", m_version);
-
-        for (String file : files) {
-            try {
-                log("Parsing manifest of: " + file);
-                JarInputStream jis = new JarInputStream(new FileInputStream(new File(m_dir, file)));
-                Manifest bundleManifest = jis.getManifest();
-                String bsn = "INVALID";
-                String version = "INVALID";
-                if (bundleManifest == null) {
-                    throw new BuildException("Not a valid manifest in: " + file);
-                }
-                else {
-                    bsn = bundleManifest.getMainAttributes().getValue("Bundle-SymbolicName");
-                    version = bundleManifest.getMainAttributes().getValue("Bundle-Version");
-                    jis.close();
-                }
-                Attributes a = new Attributes();
-                a.putValue("Bundle-SymbolicName", bsn);
-                a.putValue("Bundle-Version", version);
-                manifest.getEntries().put(file, a);
-            }
-            catch (IOException e) {
-                throw new BuildException("Could not read bundle " + file + ".", e);
-            }
-        }
-
-        JarOutputStream output = null;
-        FileInputStream fis = null;
+        
         try {
-            output = new JarOutputStream(new FileOutputStream(m_destination), manifest);
-            byte[] buffer = new byte[4096];
-            for (String file : files) {
-                log("Writing to deployment package: " + file);
-                output.putNextEntry(new ZipEntry(file));
-                fis = new FileInputStream(new File(m_dir, file));
-                int bytes = fis.read(buffer);
-                while (bytes != -1) {
-                    output.write(buffer, 0, bytes);
-                    bytes = fis.read(buffer);
-                }
-                output.closeEntry();
-                fis.close();
-                fis = null;
-            }
-        }
+        	DeploymentPackageBuilder dp = DeploymentPackageBuilder.createDeploymentPackage(m_name, m_version);
+        	for (String file : files) {
+        		dp.addBundle(new URL("file://" + m_dir.getAbsolutePath() + "/" + file));
+        	}
+			dp.generate(new FileOutputStream(m_destination));
+		}
         catch (Exception e) {
-            throw new BuildException("Could not create deployment package " + m_destination + ".", e);
-        }
-        finally {
-            if (output != null) {
-                try {
-                    output.close();
-                }
-                catch (IOException e) {
-                    throw new BuildException("Could not close deployment package " + m_destination + ".", e);
-                }
-            }
-            if (fis != null) {
-                try {
-                    fis.close();
-                }
-                catch (IOException e) {
-                    throw new BuildException("Could not close file " + fis + ".", e);
-                }
-            }
+			throw new BuildException("Error building deployment package: " + e.getMessage(), e);
         }
     }
 }
-

@@ -35,6 +35,9 @@
         <module>pom</module>
         <module>ace-util</module>
 
+        <module>ace-ant-tasks</module>
+        <module>ace-builder</module>
+
         <module>ace-range-api</module>
 
         <module>ace-repository-api</module>

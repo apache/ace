@@ -28,29 +28,22 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <artifactId>org.apache.ace.ant.tasks</artifactId>
+    <artifactId>org.apache.ace.builder</artifactId>
 
-    <version>0.8.1-SNAPSHOT</version>
-    <name>Apache ACE :: Ant Tasks</name>
-    <description>Collection of Ant tasks for integrating Apache ACE into your development environment.</description>
+    <name>Apache ACE :: Builders</name>
+    <description>Collection of builders that can be used in various contexts.</description>
     <packaging>jar</packaging>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-ant-tasks</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-ant-tasks</developerConnection>
-        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-ant-tasks</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-builder</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-builder</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-builder</url>
     </scm>
-
+    
     <dependencies>
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>1.8.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.builder</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+       <dependency>
+         <groupId>org.apache.ace</groupId>
+         <artifactId>org.apache.ace.util</artifactId>
+       </dependency>
+     </dependencies>
 </project>
