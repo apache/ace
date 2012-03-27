@@ -110,7 +110,10 @@ class BaseRepositoryHandler extends DefaultHandler {
             if (m_currentArtifact == null) {
                 throw new SAXException("Unexpected directive tag!");
             }
-            m_currentArtifact.m_directives.put(m_currentDirectiveKey, new String(ch, start, length));
+            String value = new String(ch, start, length).trim();
+            if (m_currentDirectiveKey != null && !value.equals("")) {
+                m_currentArtifact.m_directives.put(m_currentDirectiveKey, value);
+            }
         }
     }
 
@@ -156,6 +159,9 @@ class BaseRepositoryHandler extends DefaultHandler {
             }
 
             m_currentArtifact = null;
+        }
+        else if (XmlTag.directives.equals(tag)) {
+            m_currentDirectiveKey = null;
         }
     }
 

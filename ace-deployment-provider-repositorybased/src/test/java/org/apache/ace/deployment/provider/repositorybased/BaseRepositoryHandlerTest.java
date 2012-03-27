@@ -288,7 +288,7 @@ public class BaseRepositoryHandlerTest {
         try {
             transformer = tFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            transformer.setOutputProperty(OutputKeys.INDENT, "no");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             DOMSource source = new DOMSource(doc);
             sw = new StringWriter();
             StreamResult result = new StreamResult(sw);

@@ -109,14 +109,19 @@ public class Main {
         activators.add(new Activator());
         Map frameworkProperties = new HashMap();
         frameworkProperties.put("felix.systembundle.activators", activators);
-        frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.osgi.service.deploymentadmin;version=\"1.0\","
-                + "org.osgi.service.deploymentadmin.spi;version=\"1.0\","
-                + "org.osgi.service.cm;version=\"1.3\","
-                + "org.osgi.service.event;version=\"1.2\","
-                + "org.osgi.service.log;version=\"1.3\","
-                + "org.osgi.service.metatype;version=\"1.1\","
-                + "org.apache.ace.log;version=\"0.8.0\"");
-
+        frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, 
+    		"org.osgi.service.deploymentadmin;managementagent=true;mandatory:=managementagent;version=\"1.0\","
+            + "org.osgi.service.deploymentadmin.spi;managementagent=true;mandatory:=managementagent;version=\"1.0\","
+            + "org.osgi.service.cm;managementagent=true;mandatory:=managementagent;version=\"1.3\","
+            + "org.osgi.service.event;managementagent=true;mandatory:=managementagent;version=\"1.2\","
+            + "org.osgi.service.log;managementagent=true;mandatory:=managementagent;version=\"1.3\","
+            + "org.osgi.service.metatype;managementagent=true;mandatory:=managementagent;version=\"1.1\","
+            + "org.apache.felix.dm;managementagent=true;mandatory:=managementagent;version=\"3.0\","
+            + "org.apache.felix.dm.tracker;managementagent=true;mandatory:=managementagent;version=\"3.0\","
+            + "org.apache.ace.log;managementagent=true;mandatory:=managementagent;version=\"0.8.1.SNAPSHOT\","
+            + "org.apache.ace.deployment.service;managementagent=true;mandatory:=managementagent;version=\"0.8.1.SNAPSHOT\""
+        );
+        
         frameworkProperties.putAll(m_fwOptionHandler.getProperties());
 
         factory.newFramework(frameworkProperties).start();
