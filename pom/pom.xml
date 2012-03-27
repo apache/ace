@@ -130,6 +130,7 @@
         <embed.dependency />
         <embed.transitive>false</embed.transitive>
         <bundle.activator />
+        <main.class />
         <deployment.providesresourceprocessor />
         <sourceReleaseAssemblyDescriptor>source-release-zip-tar</sourceReleaseAssemblyDescriptor>
         <commons-collections.version>3.2.1</commons-collections.version>
@@ -260,6 +261,7 @@
                         <Embed-Transitive>${embed.transitive}</Embed-Transitive>
                         <Bundle-Activator>${bundle.activator}</Bundle-Activator>
                         <Deployment-ProvidesResourceProcessor>${deployment.providesresourceprocessor}</Deployment-ProvidesResourceProcessor>
+                        <Main-Class>${main.class}</Main-Class>
                     </instructions>
                     <supportedProjectTypes>
                         <supportedProjectType>jar</supportedProjectType>
