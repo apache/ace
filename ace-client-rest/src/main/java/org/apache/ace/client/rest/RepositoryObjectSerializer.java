@@ -19,19 +19,12 @@
 package org.apache.ace.client.rest;
 
 import java.lang.reflect.Type;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.List;
 
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
-import org.apache.ace.log.AuditEvent;
-import org.apache.ace.log.LogEvent;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -41,103 +34,143 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 /**
- * 
+ * Provides an object serializer for the entire type hierarchy of {@link RepositoryObject}s.
  */
 public class RepositoryObjectSerializer implements JsonSerializer<RepositoryObject> {
+
+    /** used in all repository objects. */
+    private static final String TAGS = "tags";
+    /** used in all repository objects. */
+    private static final String ATTRIBUTES = "attributes";
+    /** used in stateful target objects only. */
+    private static final String STATE = "state";
+    
+    private static final String REGISTRATION_STATE = "registrationState";
+    private static final String CURRENT_VERSION = "currentVersion";
+    private static final String STORE_STATE = "storeState";
+    private static final String PROVISIONING_STATE = "provisioningState";
+    private static final String IS_REGISTERED = "isRegistered";
+    private static final String NEEDS_APPROVAL = "needsApproval";
+    private static final String AUTO_APPROVE = "autoApprove";
+    private static final String ARTIFACTS_FROM_SHOP = "artifactsFromShop";
+    private static final String ARTIFACTS_FROM_DEPLOYMENT = "artifactsFromDeployment";
+    private static final String LAST_INSTALL_VERSION = "lastInstallVersion";
+    private static final String LAST_INSTALL_SUCCESS = "lastInstallSuccess";
+
+    /**
+     * @see com.google.gson.JsonSerializer#serialize(java.lang.Object, java.lang.reflect.Type, com.google.gson.JsonSerializationContext)
+     */
     public JsonElement serialize(RepositoryObject repositoryObject, Type featureType, JsonSerializationContext context) {
+        // ACE-164: for stateful target objects we need some special measures to serialize it...
+        if (repositoryObject instanceof StatefulTargetObject) {
+            return serializeStatefulTargetObject((StatefulTargetObject) repositoryObject);
+        }
+
+        // All other repository objects can be simply serialized...
+        return serializeRepositoryObject(repositoryObject);
+    }
+
+    /**
+     * Custom serializer method for {@link StatefulTargetObject}s, as they have state and cannot be accessed
+     * always in the same way as other repository objects. For example, when dealing with unregistered targets,
+     * we cannot ask for the attributes and/or tags of a target.
+     * 
+     * @param targetObject the target object to serialize, cannot be <code>null</code>.
+     * @return a JSON representation of the given target object, never <code>null</code>.
+     */
+    private JsonElement serializeStatefulTargetObject(StatefulTargetObject targetObject) {
         JsonObject result = new JsonObject();
         // first add all attributes
-        Enumeration<String> keys = repositoryObject.getAttributeKeys();
         JsonObject attr = new JsonObject();
+
+        if (targetObject.isRegistered()) {
+            Enumeration<String> keys = targetObject.getAttributeKeys();
+            while (keys.hasMoreElements()) {
+                String key = keys.nextElement();
+                attr.addProperty(key, targetObject.getAttribute(key));
+            }
+        }
+        else {
+            // Ensure that the ID of the target is always present as attribute...
+            attr.addProperty(StatefulTargetObject.KEY_ID, targetObject.getID());
+        }
+
+        result.add(ATTRIBUTES, attr);
+
+        // then add all tags
+        JsonObject tags = new JsonObject();
+
+        if (targetObject.isRegistered()) {
+            Enumeration<String> keys = targetObject.getTagKeys();
+            while (keys.hasMoreElements()) {
+                String key = keys.nextElement();
+                tags.addProperty(key, targetObject.getTag(key));
+            }
+        }
+
+        result.add(TAGS, tags);
+
+        // finally, if it's a target with state, add that as well
+        JsonObject state = new JsonObject();
+        state.addProperty(REGISTRATION_STATE, targetObject.getRegistrationState().name());
+        state.addProperty(PROVISIONING_STATE, targetObject.getProvisioningState().name());
+        state.addProperty(STORE_STATE, targetObject.getStoreState().name());
+        state.addProperty(CURRENT_VERSION, targetObject.getCurrentVersion());
+        state.addProperty(IS_REGISTERED, Boolean.toString(targetObject.isRegistered()));
+        state.addProperty(NEEDS_APPROVAL, Boolean.toString(targetObject.needsApprove()));
+        state.addProperty(AUTO_APPROVE, Boolean.toString(targetObject.getAutoApprove()));
+
+        JsonArray artifactsFromShop = new JsonArray();
+        for (ArtifactObject a : targetObject.getArtifactsFromShop()) {
+            artifactsFromShop.add(new JsonPrimitive(a.getDefinition()));
+        }
+        state.add(ARTIFACTS_FROM_SHOP, artifactsFromShop);
+
+        JsonArray artifactsFromDeployment = new JsonArray();
+        for (DeploymentArtifact a : targetObject.getArtifactsFromDeployment()) {
+            artifactsFromDeployment.add(new JsonPrimitive(a.getUrl()));
+        }
+        state.add(ARTIFACTS_FROM_DEPLOYMENT, artifactsFromDeployment);
+
+        state.addProperty(LAST_INSTALL_VERSION, targetObject.getLastInstallVersion());
+        state.addProperty(LAST_INSTALL_SUCCESS, targetObject.getLastInstallSuccess());
+
+        /* TODO getLicenses/AssocationsWith might not be that helpful since the data is also available in a different way */
+        /* TODO some of this tends to show up as attributes as well, so we will need to do some filtering there */
+        /* TODO some aspects of the state can be manipulated as well, we need to supply methods for that */
+        result.add(STATE, state);
+
+        return result;
+    }
+
+    /**
+     * Serializes a (non stateful target object) repository object to a JSON representation.
+     * 
+     * @param repositoryObject the repository object to serialize, cannot be <code>null</code>.
+     * @return a JSON representation of the given repository object, never <code>null</code>.
+     */
+    private JsonElement serializeRepositoryObject(RepositoryObject repositoryObject) {
+        JsonObject result = new JsonObject();
+        // first add all attributes
+        JsonObject attr = new JsonObject();
+        
+        Enumeration<String> keys = repositoryObject.getAttributeKeys();
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
             attr.addProperty(key, repositoryObject.getAttribute(key));
         }
-        result.add("attributes", attr);
+        result.add(ATTRIBUTES, attr);
+        
         // then add all tags
-        keys = repositoryObject.getTagKeys();
         JsonObject tags = new JsonObject();
+
+        keys = repositoryObject.getTagKeys();
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
             tags.addProperty(key, repositoryObject.getTag(key));
         }
-        result.add("tags", tags);
-        // finally, if it's a target with state, add that as well
-        if (repositoryObject instanceof StatefulTargetObject) {
-            StatefulTargetObject stateful = (StatefulTargetObject) repositoryObject;
-            JsonObject state = new JsonObject();
-            state.addProperty("registrationState", stateful.getRegistrationState().name());
-            state.addProperty("provisioningState", stateful.getProvisioningState().name());
-            state.addProperty("storeState", stateful.getStoreState().name());
-            state.addProperty("currentVersion", stateful.getCurrentVersion());
-            state.addProperty("isRegistered", Boolean.toString(stateful.isRegistered()));
-            state.addProperty("needsApproval", Boolean.toString(stateful.needsApprove()));
-            state.addProperty("autoApprove", Boolean.toString(stateful.getAutoApprove()));
-            JsonArray artifactsFromShop = new JsonArray();
-            for (ArtifactObject a : stateful.getArtifactsFromShop()) {
-                artifactsFromShop.add(new JsonPrimitive(a.getDefinition()));
-            }
-            state.add("artifactsFromShop", artifactsFromShop);
-            JsonArray artifactsFromDeployment = new JsonArray();
-            for (DeploymentArtifact a : stateful.getArtifactsFromDeployment()) {
-                artifactsFromDeployment.add(new JsonPrimitive(a.getUrl()));
-            }
-            state.add("artifactsFromDeployment", artifactsFromDeployment);
-            state.addProperty("lastInstallVersion", stateful.getLastInstallVersion());
-            state.addProperty("lastInstallSuccess", stateful.getLastInstallSuccess());
-            /* TODO getLicenses/AssocationsWith might not be that helpful since the data is also available in a different way */
-            /* TODO some of this tends to show up as attributes as well, so we will need to do some filtering there */
-            /* TODO some aspects of the state can be manipulated as well, we need to supply methods for that */
-            result.add("state", state);
-        }
+        result.add(TAGS, tags);
+        
         return result;
-    }
-
-    private JsonArray getAuditEvents(StatefulTargetObject stateful) {
-        DateFormat format = SimpleDateFormat.getDateTimeInstance();
-        List<LogEvent> auditEvents = stateful.getAuditEvents();
-        JsonArray events = new JsonArray();
-        for (LogEvent e : auditEvents) {
-            JsonObject event = new JsonObject();
-            event.addProperty("logId", e.getLogID());
-            event.addProperty("id", e.getID());
-            event.addProperty("time", format.format(new Date(e.getTime())));
-            event.addProperty("type", toAuditEventType(e.getType()));
-            JsonObject eventProperties = new JsonObject();
-            Dictionary p = e.getProperties();
-            Enumeration keyEnumeration = p.keys();
-            while (keyEnumeration.hasMoreElements()) {
-                Object key = keyEnumeration.nextElement();
-                eventProperties.addProperty(key.toString(), p.get(key).toString());
-            }
-            event.add("properties", eventProperties);
-            events.add(event);
-        }
-        return events;
-    }
-
-    private String toAuditEventType(int type) {
-        switch (type) {
-            case AuditEvent.BUNDLE_INSTALLED: return "bundle installed";
-            case AuditEvent.BUNDLE_RESOLVED: return "bundle resolved";
-            case AuditEvent.BUNDLE_STARTED: return "bundle started";
-            case AuditEvent.BUNDLE_STOPPED: return "bundle stopped";
-            case AuditEvent.BUNDLE_UNRESOLVED: return "bundle unresolved";
-            case AuditEvent.BUNDLE_UPDATED: return "bundle updated";
-            case AuditEvent.BUNDLE_UNINSTALLED: return "bundle uninstalled";
-            case AuditEvent.BUNDLE_STARTING: return "bundle starting";
-            case AuditEvent.BUNDLE_STOPPING: return "bundle stopping";
-            case AuditEvent.FRAMEWORK_INFO: return "framework info";
-            case AuditEvent.FRAMEWORK_WARNING: return "framework warning";
-            case AuditEvent.FRAMEWORK_ERROR: return "framework error";
-            case AuditEvent.FRAMEWORK_REFRESH: return "framework refresh";
-            case AuditEvent.FRAMEWORK_STARTED: return "framework started";
-            case AuditEvent.FRAMEWORK_STARTLEVEL: return "framework startlevel";
-            case AuditEvent.DEPLOYMENTADMIN_INSTALL: return "deployment admin install";
-            case AuditEvent.DEPLOYMENTADMIN_UNINSTALL: return "deployment admin uninstall";
-            case AuditEvent.DEPLOYMENTADMIN_COMPLETE: return "deployment admin complete";
-            case AuditEvent.DEPLOYMENTCONTROL_INSTALL: return "deployment control install";
-            default: return Integer.toString(type);
-        }
     }
 }
