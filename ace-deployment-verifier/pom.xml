@@ -46,7 +46,8 @@
             org.apache.ace.deployment.verifier;version=${project.version},org.osgi.service.log,org.osgi.framework.wiring
         </export.package>
         <private.package>
-            org.apache.felix.*,org.apache.ace.deployment.verifier.impl.*
+            org.apache.felix.*,
+            org.apache.ace.deployment.verifier.impl.*
         </private.package>
         <import.package>
             org.osgi.framework;version="[1.5,2)",*

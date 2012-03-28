@@ -18,8 +18,13 @@
  */
 package org.apache.ace.obr.metadata.bindex;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+
 import org.apache.ace.obr.metadata.MetadataGenerator;
 import org.osgi.impl.bundle.bindex.Index;
 import org.osgi.service.log.LogService;
@@ -37,37 +42,122 @@ public class BIndexMetadataGenerator implements MetadataGenerator {
             File index = new File(directory, INDEX_FILENAME + INDEX_EXTENSION);
             try {
                 tempIndex = File.createTempFile("repo", INDEX_EXTENSION, directory);
-                Index.main(new String[] {"-q", "-a", "-r", tempIndex.getAbsolutePath(), directory.getAbsolutePath()});
-                // TODO: try to move the index file to it's final location, this can fail if the target
-                // file was not released by a third party before we were called (not all platforms support reading and writing
-                // to a file at the same time), for now we will try 10 times and throw an IOException if the move has not
-                // succeeded by then.
-                boolean renameOK = false;
-                int attempts = 0;
-                while(!renameOK && (attempts < 10)) {
-                    index.delete();
-                    renameOK = tempIndex.renameTo(index);
-                    if (!renameOK) {
-                        attempts++;
-                        Thread.sleep(1000);
-                    }
-                }
-                if (!renameOK) {
-                    m_log.log(LogService.LOG_ERROR, "Unable to move new repository index to it's final location.");
-                    throw new IOException("Could not move temporary index file (" + tempIndex.getAbsolutePath() + ") to it's final location (" + index.getAbsolutePath() + ")");
-                }
+                Index.main(new String[] { "-q", "-a", "-r", tempIndex.getAbsolutePath(), directory.getAbsolutePath() });
+                renameFile(tempIndex, index);
             }
             catch (IOException e) {
-                m_log.log(LogService.LOG_ERROR, "Unable to create temporary file for new repository index.", e);
+                if (m_log != null) {
+                    m_log.log(LogService.LOG_ERROR, "Unable to create temporary file for new repository index.", e);
+                }
                 throw e;
             }
             catch (InterruptedException e) {
-                m_log.log(LogService.LOG_ERROR, "Waiting for next attempt to move temporary repository index failed.", e);
+                if (m_log != null) {
+                    m_log.log(LogService.LOG_ERROR, "Waiting for next attempt to move temporary repository index failed.", e);
+                }
+                // Make sure the thread's administration remains correct...
+                Thread.currentThread().interrupt();
             }
             catch (Exception e) {
-                m_log.log(LogService.LOG_ERROR, "Failed to generate new repository index.", e);
+                if (m_log != null) {
+                    m_log.log(LogService.LOG_ERROR, "Failed to generate new repository index.", e);
+                }
                 throw new IOException("Failed to generate new repository index. + (" + e.getMessage() + ")");
             }
+        }
+    }
+
+    /**
+     * Renames a given source file to a new destination file, using Commons-IO.
+     * <p>This avoids the problem mentioned in ACE-155.</p>
+     * 
+     * @param source the file to rename;
+     * @param dest the file to rename to.
+     */
+    private void renameFile(File source, File dest) throws IOException, InterruptedException {
+        boolean renameOK = false;
+        int attempts = 0;
+        while (!renameOK && (attempts++ < 10)) {
+            try {
+                renameOK = moveFile(source, dest);
+            }
+            catch (IOException e) {
+                // In all other cases, we assume the source file is still locked and cannot be removed;
+                Thread.sleep(1000);
+            }
+        }
+
+        if (!renameOK) {
+            if (m_log != null) {
+                m_log.log(LogService.LOG_ERROR, "Unable to move new repository index to it's final location.");
+            }
+            throw new IOException("Could not move temporary index file (" + source.getAbsolutePath() + ") to it's final location (" + dest.getAbsolutePath() + ")");
+        }
+    }
+
+    /**
+     * Moves a given source file to a destination location, effectively resulting in a rename.
+     * 
+     * @param source the source file to move;
+     * @param dest the destination file to move the file to.
+     * @return <code>true</code> if the move succeeded.
+     * @throws IOException in case of I/O problems.
+     */
+    private boolean moveFile(File source, File dest) throws IOException {
+        final int bufferSize = 1024 * 1024; // 1MB
+
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+        FileChannel input = null;
+        FileChannel output = null;
+
+        try {
+            fis = new FileInputStream(source);
+            input = fis.getChannel();
+
+            fos = new FileOutputStream(dest);
+            output = fos.getChannel();
+
+            long size = input.size();
+            long pos = 0;
+            while (pos < size) {
+                pos += output.transferFrom(input, pos, Math.min(size - pos, bufferSize));
+            }
+        }
+        finally {
+            closeQuietly(fos);
+            closeQuietly(fis);
+            closeQuietly(output);
+            closeQuietly(input);
+        }
+
+        if (source.length() != dest.length()) {
+            throw new IOException("Failed to move file! Not all contents from '" + source + "' copied to '" + dest + "'!");
+        }
+
+        dest.setLastModified(source.lastModified());
+
+        if (!source.delete()) {
+            dest.delete();
+            throw new IOException("Failed to move file! Source file (" + source + ") locked?");
+        }
+
+        return true;
+    }
+
+    /**
+     * Safely closes a given resource, ignoring any I/O exceptions that might occur by this.
+     * 
+     * @param resource the resource to close, can be <code>null</code>.
+     */
+    private void closeQuietly(Closeable resource) {
+        try {
+            if (resource != null) {
+                resource.close();
+            }
+        }
+        catch (IOException e) {
+            // Ignored...
         }
     }
 }

@@ -136,6 +136,7 @@
         <commons-collections.version>3.2.1</commons-collections.version>
         <commons-lang.version>2.4</commons-lang.version>
         <commons-logging.version>1.1.1</commons-logging.version>
+        <commons-io.version>2.0.1</commons-io.version>
         <easymock.version>2.5.2</easymock.version>
         <felix.configadmin.version>1.2.8</felix.configadmin.version>
         <felix.dependencymanager.version>3.0.0</felix.dependencymanager.version>
@@ -694,6 +695,11 @@
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>${commons-logging.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
             </dependency>
 
             <!-- OPS4J -->

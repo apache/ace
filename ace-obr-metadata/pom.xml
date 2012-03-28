@@ -58,10 +58,12 @@
         <private.package>
             org.apache.ace.obr.metadata.bindex
         </private.package>
+        <embed.dependency>
+        	artifactId=kxml2
+        </embed.dependency>
         <bundle.activator>
             org.apache.ace.obr.metadata.bindex.Activator
         </bundle.activator>
-        <embed.dependency>kxml2</embed.dependency>
     </properties>
 
     <dependencies>

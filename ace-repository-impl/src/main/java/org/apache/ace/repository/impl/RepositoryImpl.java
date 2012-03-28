@@ -18,12 +18,14 @@
  */
 package org.apache.ace.repository.impl;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
 import org.apache.ace.range.SortedRangeSet;
@@ -44,10 +46,10 @@ import org.osgi.service.log.LogService;
 public class RepositoryImpl implements RepositoryReplication, Repository {
 
     private volatile LogService m_log; /* will be injected by dependency manager */
+    private volatile boolean m_isMaster;
 
     private final File m_tempDir;
-    private File m_dir;
-    private boolean m_isMaster;
+    private final File m_dir;
 
     /**
      * Creates a new repository.
@@ -87,11 +89,11 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         OutputStream fileStream = null;
         try {
             fileStream = new FileOutputStream(tempFile);
+            
             byte[] buffer = new byte[1024];
-            int bytes = data.read(buffer);
-            while (bytes != -1) {
+            int bytes;
+            while ((bytes = data.read(buffer)) >= 0) {
                 fileStream.write(buffer, 0, bytes);
-                bytes = data.read(buffer);
             }
         }
         catch (IOException e) {
@@ -114,13 +116,7 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         }
 
         // move temp file to final location
-        if (!tempFile.renameTo(file)) {
-            String deleteMsg = "";
-            if (!tempFile.delete()) {
-                deleteMsg = " and was unable to remove temp file " + tempFile.getAbsolutePath();
-            }
-            throw new IOException("Unable to move temp file (" + tempFile.getAbsolutePath() + ") to final location (" + file.getAbsolutePath() + ")" + deleteMsg);
-        }
+        renameFile(tempFile, file);
 
         return true;
     }
@@ -192,7 +188,108 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
      *
      * @throws ConfigurationException If it was impossible to use the new configuration.
      */
-    public synchronized void updated(boolean isMaster) throws ConfigurationException {
+    public void updated(boolean isMaster) throws ConfigurationException {
         m_isMaster = isMaster;
+    }
+
+    /**
+     * Renames a given source file to a new destination file.
+     * <p>
+     * This avoids the problem mentioned in ACE-155.<br/>
+     * The moveFile method from Commons-IO is not used, as it would mean that
+     * we need to include this JAR in several placed for only a few lines of
+     * code.
+     * </p>
+     * 
+     * @param source the file to rename;
+     * @param dest the file to rename to.
+     */
+    private void renameFile(File source, File dest) throws IOException {
+        boolean renameOK = false;
+        int attempts = 0;
+        while (!renameOK && (attempts++ < 10)) {
+            try {
+                renameOK = source.renameTo(dest);
+                if (!renameOK) {
+                    renameOK = moveFile(source, dest);
+                }
+            }
+            catch (IOException e) {
+                // In all other cases, we assume the source file is still locked and cannot be removed;
+            }
+        }
+
+        if (!renameOK) {
+            if (m_log != null) {
+                m_log.log(LogService.LOG_ERROR, "Unable to move new repository file to it's final location.");
+            }
+            throw new IOException("Could not move temporary file (" + source.getAbsolutePath() + ") to it's final location (" + dest.getAbsolutePath() + ")");
+        }
+    }
+
+    /**
+     * Moves a given source file to a destination location, effectively resulting in a rename.
+     * 
+     * @param source the source file to move;
+     * @param dest the destination file to move the file to.
+     * @return <code>true</code> if the move succeeded.
+     * @throws IOException in case of I/O problems.
+     */
+    private boolean moveFile(File source, File dest) throws IOException {
+        final int bufferSize = 1024 * 1024; // 1MB
+
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+        FileChannel input = null;
+        FileChannel output = null;
+        
+        try {
+            fis = new FileInputStream(source);
+            input = fis.getChannel();
+
+            fos = new FileOutputStream(dest);
+            output = fos.getChannel();
+
+            long size = input.size();
+            long pos = 0;
+            while (pos < size) {
+                pos += output.transferFrom(input, pos, Math.min(size - pos, bufferSize));
+            }
+        }
+        finally {
+            closeQuietly(fos);
+            closeQuietly(fis);
+            closeQuietly(output);
+            closeQuietly(input);
+        }
+
+        if (source.length() != dest.length()) {
+            throw new IOException("Failed to move file! Not all contents from '" + source + "' copied to '" + dest + "'!");
+        }
+
+        dest.setLastModified(source.lastModified());
+
+        if (!source.delete()) {
+            dest.delete();
+            throw new IOException("Failed to move file! Source file (" + source + ") locked?");
+        }
+
+        return true;
+    }
+
+    /**
+     * Safely closes a given resource, ignoring any I/O exceptions that might occur by this.
+     * 
+     * @param resource the resource to close, can be <code>null</code>.
+     */
+    private void closeQuietly(Closeable resource) {
+        try {
+            if (resource != null) {
+                resource.close();
+            }
+        }
+        catch (IOException e) {
+            // Ignored...
+        }
     }
 }

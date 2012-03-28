@@ -105,7 +105,7 @@ public class ConfiguratorTest {
                 if (dest.exists()) {
                     dest.delete();
                 }
-                outFile.renameTo(dest);
+                renameFile(outFile, dest);
             }
             else {
                 File file = new File(m_configDir, factoryPid);
@@ -114,7 +114,7 @@ public class ConfiguratorTest {
                 if (dest.exists()) {
                     dest.delete();
                 }
-                outFile.renameTo(dest);
+                renameFile(outFile, dest);
             }
         }
     }
@@ -352,5 +352,21 @@ public class ConfiguratorTest {
     public void tearDown() throws Exception {
         m_configurator.stop();
         FileUtils.removeDirectoryWithContent(m_configDir);
+    }
+
+    /**
+     * Renames a given source file to a new destination file, using Commons-IO.
+     * <p>This avoids the problem mentioned in ACE-155.</p>
+     * 
+     * @param source the file to rename;
+     * @param dest the file to rename to.
+     */
+    private void renameFile(File source, File dest) {
+        try {
+            org.apache.commons.io.FileUtils.moveFile(source, dest);
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Failed to rename file!", e);
+        }
     }
 }

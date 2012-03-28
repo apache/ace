@@ -18,11 +18,13 @@
  */
 package org.apache.ace.obr.storage.file;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
 import java.util.Dictionary;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.ace.obr.metadata.MetadataGenerator;
 import org.apache.ace.obr.storage.BundleStore;
 import org.apache.ace.obr.storage.file.constants.OBRFileStoreConstants;
-import org.apache.commons.io.FileUtils;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
@@ -40,56 +41,60 @@ import org.osgi.service.log.LogService;
  * the repository.xml should be retrievable from that path (which will internally be converted to an absolute path).
  */
 public class BundleFileStore implements BundleStore, ManagedService {
+
     private static int BUFFER_SIZE = 8 * 1024;
+    private static final String REPOSITORY_XML = "repository.xml";
+
+    private final Map<String, Long> m_foundFiles = new ConcurrentHashMap<String, Long>();
+    private final Object m_dirLock = new Object();
 
     private volatile MetadataGenerator m_metadata; /* will be injected by dependencymanager */
     private volatile LogService m_log; /* will be injected by dependencymanager */
 
-    private final Map<String, Long> m_foundFiles = new ConcurrentHashMap<String, Long>();
-    private volatile File m_dir;
+    /** protected by m_dirLock. */
+    private File m_dir;
 
-    @SuppressWarnings("unused")
-    private void start() {
-        try {
-            generateMetadata();
-        }
-        catch (IOException e) {
-            m_log.log(LogService.LOG_ERROR, "Could not generate initial meta data for bundle repository");
+    public void generateMetadata() throws IOException {
+        File dir = getWorkingDir();
+        File[] files = dir.listFiles();
+
+        m_metadata.generateMetadata(dir);
+
+        for (File current : files) {
+            m_foundFiles.put(current.getAbsolutePath(), current.lastModified() ^ current.length());
         }
     }
 
     public InputStream get(String fileName) throws IOException {
-        if (fileName.equals("repository.xml") && directoryChanged()) {
+        if (REPOSITORY_XML.equals(fileName) && directoryChanged(getWorkingDir())) {
             generateMetadata(); // might be called too often
         }
-        return new FileInputStream(new File(m_dir, fileName));
+        return new FileInputStream(createFile(fileName));
     }
 
-    public synchronized boolean put(String fileName, InputStream data) throws IOException {
-        File file = new File(m_dir, fileName);
+    public boolean put(String fileName, InputStream data) throws IOException {
+        final File file = createFile(fileName);
+
         boolean success = false;
         if (!file.exists()) {
-            File tempFile = null;
             try {
-                tempFile = File.createTempFile("obr", ".tmp");
                 // the reason for first writing to a temporary file is that we want to minimize
                 // the window where someone could be looking at a "partial" file that is still being
                 // uploaded
-                FileUtils.copyInputStreamToFile(data, tempFile);
-                FileUtils.moveFile(tempFile, file);
+                downloadToFile(data, file);
                 success = true;
             }
             catch (IOException e) {
                 // if anything goes wrong while reading from the input stream or
                 // moving the file, delete the temporary file
-                tempFile.delete();
             }
         }
         return success;
     }
 
-    public synchronized boolean remove(String fileName) throws IOException {
-        File file = new File(m_dir, fileName);
+    public boolean remove(String fileName) throws IOException {
+        File file = createFile(fileName);
+
         if (file.exists()) {
             if (file.delete()) {
                 return true;
@@ -98,12 +103,57 @@ public class BundleFileStore implements BundleStore, ManagedService {
                 throw new IOException("Unable to delete file (" + file.getAbsolutePath() + ")");
             }
         }
+
         return false;
     }
 
+    @SuppressWarnings("unchecked")
+    public void updated(Dictionary dict) throws ConfigurationException {
+        if (dict != null) {
+            String path = (String) dict.get(OBRFileStoreConstants.FILE_LOCATION_KEY);
+            if (path == null) {
+                throw new ConfigurationException(OBRFileStoreConstants.FILE_LOCATION_KEY, "Missing property");
+            }
+
+            File newDir = new File(path);
+            File curDir = getWorkingDir();
+
+            if (!newDir.equals(curDir)) {
+                if (!newDir.exists()) {
+                    newDir.mkdirs();
+                }
+                else if (!newDir.isDirectory()) {
+                    throw new ConfigurationException(OBRFileStoreConstants.FILE_LOCATION_KEY, "Is not a directory: " + newDir);
+                }
+
+                synchronized (m_dirLock) {
+                    m_dir = newDir;
+                }
+
+                m_foundFiles.clear();
+            }
+        }
+        else {
+            // clean up after getting a null as dictionary, as the service is going to be pulled afterwards
+            m_foundFiles.clear();
+        }
+    }
+
+    /**
+     * Called by dependencymanager upon start of this component.
+     */
+    protected void start() {
+        try {
+            generateMetadata();
+        }
+        catch (IOException e) {
+            m_log.log(LogService.LOG_ERROR, "Could not generate initial meta data for bundle repository");
+        }
+    }
+
     @SuppressWarnings("boxing")
-    private boolean directoryChanged() {
-        File[] files = m_dir.listFiles();
+    private boolean directoryChanged(File dir) {
+        File[] files = dir.listFiles();
 
         // if number of files changed, create new metadata
         if (files.length != m_foundFiles.size()) {
@@ -122,40 +172,130 @@ public class BundleFileStore implements BundleStore, ManagedService {
                 return true;
             }
         }
+
         return false;
     }
 
-    @SuppressWarnings("boxing")
-    public synchronized void generateMetadata() throws IOException {
-        File[] files = m_dir.listFiles();
-        m_metadata.generateMetadata(m_dir);
-        for (File current : files) {
-            m_foundFiles.put(current.getAbsolutePath(), current.lastModified() ^ current.length());
+    /**
+     * Downloads a given input stream to a temporary file and if done, moves it to its final location.
+     * 
+     * @param source the input stream to download;
+     * @param dest the destination to write the downloaded file to.
+     * @throws IOException in case of I/O problems.
+     */
+    private void downloadToFile(InputStream source, File dest) throws IOException {
+        File tempFile = File.createTempFile("obr", ".tmp");
+
+        FileOutputStream fos = null;
+
+        try {
+            fos = new FileOutputStream(tempFile);
+
+            int read;
+            byte[] buffer = new byte[BUFFER_SIZE];
+            while ((read = source.read(buffer)) >= 0) {
+                fos.write(buffer, 0, read);
+            }
+            fos.flush();
+
+            if (!tempFile.renameTo(dest)) {
+                if (!moveFile(tempFile, dest)) {
+                    throw new IOException("Failed to move file store to its destination!");
+                }
+            }
+        }
+        finally {
+            closeQuietly(fos);
+
+            tempFile.delete();
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public synchronized void updated(Dictionary dict) throws ConfigurationException {
-        if (dict != null) {
-            String path = (String) dict.get(OBRFileStoreConstants.FILE_LOCATION_KEY);
-            if (path == null) {
-                throw new ConfigurationException(OBRFileStoreConstants.FILE_LOCATION_KEY, "Missing property");
-            }
-            File dir = new File(path);
-            if (!dir.equals(m_dir)) {
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-                else if (!dir.isDirectory()) {
-                    throw new ConfigurationException(OBRFileStoreConstants.FILE_LOCATION_KEY, "Is not a directory: " + dir);
-                }
-                m_dir = dir;
-                m_foundFiles.clear();
+    /**
+     * @return the working directory of this file store.
+     */
+    private File getWorkingDir() {
+        final File dir;
+        synchronized (m_dirLock) {
+            dir = m_dir;
+        }
+        return dir;
+    }
+
+    /**
+     * Moves a given source file to a destination location, effectively resulting in a rename.
+     * 
+     * @param source the source file to move;
+     * @param dest the destination file to move the file to.
+     * @return <code>true</code> if the move succeeded.
+     * @throws IOException in case of I/O problems.
+     */
+    private boolean moveFile(File source, File dest) throws IOException {
+        final int bufferSize = 1024 * 1024; // 1MB
+
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+        FileChannel input = null;
+        FileChannel output = null;
+
+        try {
+            fis = new FileInputStream(source);
+            input = fis.getChannel();
+
+            fos = new FileOutputStream(dest);
+            output = fos.getChannel();
+
+            long size = input.size();
+            long pos = 0;
+            while (pos < size) {
+                pos += output.transferFrom(input, pos, Math.min(size - pos, bufferSize));
             }
         }
-        else {
-            // clean up after getting a null as dictionary, as the service is going to be pulled afterwards
-            m_foundFiles.clear();
+        finally {
+            closeQuietly(fos);
+            closeQuietly(fis);
+            closeQuietly(output);
+            closeQuietly(input);
         }
+
+        if (source.length() != dest.length()) {
+            throw new IOException("Failed to move file! Not all contents from '" + source + "' copied to '" + dest + "'!");
+        }
+
+        dest.setLastModified(source.lastModified());
+
+        if (!source.delete()) {
+            dest.delete();
+            throw new IOException("Failed to move file! Source file (" + source + ") locked?");
+        }
+
+        return true;
+    }
+
+    /**
+     * Safely closes a given resource, ignoring any I/O exceptions that might occur by this.
+     * 
+     * @param resource the resource to close, can be <code>null</code>.
+     */
+    private void closeQuietly(Closeable resource) {
+        try {
+            if (resource != null) {
+                resource.close();
+            }
+        }
+        catch (IOException e) {
+            // Ignored...
+        }
+    }
+
+    /**
+     * Creates a {@link File} object with the given file name in the current working directory.
+     * 
+     * @param fileName the name of the file.
+     * @return a {@link File} object, never <code>null</code>.
+     * @see #getWorkingDir()
+     */
+    private File createFile(String fileName) {
+        return new File(getWorkingDir(), fileName);
     }
 }
