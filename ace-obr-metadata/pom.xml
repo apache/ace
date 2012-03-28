@@ -59,7 +59,7 @@
             org.apache.ace.obr.metadata.bindex
         </private.package>
         <embed.dependency>
-        	artifactId=kxml2
+        	kxml2
         </embed.dependency>
         <bundle.activator>
             org.apache.ace.obr.metadata.bindex.Activator
