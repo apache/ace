@@ -40,17 +40,19 @@ import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.log.LogService;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 
 /**
  * Servlet that offers a REST client API.
  */
 public class RESTClientServlet extends HttpServlet implements ManagedService {
-	private static final long serialVersionUID = 5210711248294238039L;
+    
     /** Alias that redirects to the latest version automatically. */
     private static final String LATEST_FOLDER = "latest";
     /** Name of the folder where working copies are kept. */
@@ -78,342 +80,50 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
     private static long m_sessionID = 1;
 
+    private volatile LogService m_logger;
     private volatile DependencyManager m_dm;
     private volatile SessionFactory m_sessionFactory;
 
-    private final Map<String, Workspace> m_workspaces = new HashMap<String, Workspace>();
-    private final Map<String, Component> m_workspaceComponents = new HashMap<String, Component>();
-    private Gson m_gson;
+    private final Map<String, Workspace> m_workspaces;
+    private final Map<String, Component> m_workspaceComponents;
+    private final Gson m_gson;
+    
     private String m_repositoryURL;
     private String m_obrURL;
     private String m_customerName;
     private String m_storeRepositoryName;
-    private String m_distributionRepositoryName;
+    private String m_targetRepositoryName;
     private String m_deploymentRepositoryName;
     private String m_serverUser;
-    
+
+    /**
+     * Creates a new {@link RESTClientServlet} instance.
+     */
     public RESTClientServlet() {
         m_gson = (new GsonBuilder())
             .registerTypeHierarchyAdapter(RepositoryObject.class, new RepositoryObjectSerializer())
             .registerTypeHierarchyAdapter(LogEvent.class, new LogEventSerializer())
             .create();
+        
+        m_workspaces = new HashMap<String, Workspace>();
+        m_workspaceComponents = new HashMap<String, Component>();
     }
-    
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String[] pathElements = getPathElements(req);
-        if (pathElements == null || pathElements.length == 0) {
-            // TODO return a list of versions
-            resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Not implemented: list of versions");
-            return;
-        }
-        else {
-            if (pathElements.length == 1) {
-                if (LATEST_FOLDER.equals(pathElements[0])) {
-                    // TODO redirect to latest version
-                    // resp.sendRedirect("notImplemented" /* to latest version */);
-                    resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Not implemented: redirect to latest version");
-                    return;
-                }
-            }
-            else if (pathElements.length == 2) {
-            	JsonArray result = new JsonArray();
-            	result.add(new JsonPrimitive(Workspace.ARTIFACT));
-            	result.add(new JsonPrimitive(Workspace.ARTIFACT2FEATURE));
-            	result.add(new JsonPrimitive(Workspace.FEATURE));
-            	result.add(new JsonPrimitive(Workspace.FEATURE2DISTRIBUTION));
-            	result.add(new JsonPrimitive(Workspace.DISTRIBUTION));
-            	result.add(new JsonPrimitive(Workspace.DISTRIBUTION2TARGET));
-            	result.add(new JsonPrimitive(Workspace.TARGET));
-            	resp.getWriter().println(m_gson.toJson(result));
-            	return;
-            }
-            else if (pathElements.length == 3) {
-                if (WORK_FOLDER.equals(pathElements[0])) {
-                    Workspace workspace = getWorkspace(pathElements[1]);
-                    if (workspace != null) {
-                        // TODO add a feature to filter the list that is returned (query, paging, ...)
-                        List<RepositoryObject> objects = workspace.getRepositoryObjects(pathElements[2]);
-                        JsonArray result = new JsonArray();
-                        for (RepositoryObject ro : objects) {
-                            String identity = ro.getDefinition();
-                            if (identity != null) {
-                                result.add(new JsonPrimitive(URLEncoder.encode(identity, "UTF-8")));
-                            }
-                        }
-                        resp.getWriter().println(m_gson.toJson(result));
-                        return;
-                    }
-                    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
-                    return;
-                }
-            }
-            else if (pathElements.length == 4) {
-                if (WORK_FOLDER.equals(pathElements[0])) {
-                    Workspace workspace = getWorkspace(pathElements[1]);
-                    if (workspace != null) {
-                        String entityType = pathElements[2];
-                        String entityId = pathElements[3];
-                        RepositoryObject repositoryObject = workspace.getRepositoryObject(entityType, entityId);
-                        if (repositoryObject == null) {
-                            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository object of type " + entityType + " and identity " + entityId + " not found.");
-                            return;
-                        }
-                        
-                        resp.getWriter().println(m_gson.toJson(repositoryObject));
-                        return;
-                    }
-                    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
-                    return;
-                }
-            }
-            else if (pathElements.length == 5) {
-                if (WORK_FOLDER.equals(pathElements[0])) {
-                    Workspace workspace = getWorkspace(pathElements[1]);
-                    if (workspace != null) {
-                        String entityType = pathElements[2];
-                        String entityId = pathElements[3];
-                        String action = pathElements[4];
-                        RepositoryObject repositoryObject = workspace.getRepositoryObject(entityType, entityId);
-                        if (repositoryObject == null) {
-                            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository object of type " + entityType + " and identity " + entityId + " not found.");
-                            return;
-                        }
-                        
-                        boolean isTarget = Workspace.TARGET.equals(entityType);
-						if (isTarget && ACTION_APPROVE.equals(action)) {
-                            resp.getWriter().println(m_gson.toJson(((StatefulTargetObject) repositoryObject).getStoreState()));
-                            return;
-                        }
-						else if (isTarget && ACTION_REGISTER.equals(action)) {
-                            resp.getWriter().println(m_gson.toJson(((StatefulTargetObject) repositoryObject).getRegistrationState()));
-                            return;
-                        }
-						else if (isTarget && ACTION_AUDITEVENTS.equals(action)) {
-							StatefulTargetObject target = (StatefulTargetObject) repositoryObject;
-							List<LogEvent> events = target.getAuditEvents();
-							
-							String startValue = req.getParameter("start");
-							String maxValue = req.getParameter("max");
-							
-							int start = (startValue == null) ? 0 : Integer.parseInt(startValue);
-							// ACE-237: ensure the start-value is a correctly bounded positive integer...
-							start = Math.max(0, Math.min(events.size() - 1, start));
-							
-							int max = (maxValue == null) ? 100 : Integer.parseInt(maxValue);
-							// ACE-237: ensure the max- & end-values are correctly bounded...
-							max = Math.max(1, max);
 
-							int end = Math.min(events.size(), start + max);
-
-							List<LogEvent> selection = events.subList(start, end);
-                        	resp.getWriter().println(m_gson.toJson(selection));
-                        	return;
-                        }
-						else {
-                            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action '" + action + "' for " + entityType + "/" + entityId);
-                            return;
-                        }
-                    }
-                    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
-                    return;
-                }
-            }
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
+    public void updated(Dictionary properties) throws ConfigurationException {
+        // Note that configuration changes are only applied to new work areas, started after the
+        // configuration was changed. No attempt is done to "fix" existing work areas, although we
+        // might consider flushing/invalidating them.
+        synchronized (new Object()) {
+            m_repositoryURL = getProperty(properties, KEY_REPOSITORY_URL, "http://localhost:8080/repository");
+            m_obrURL = getProperty(properties, KEY_OBR_URL, "http://localhost:8080/obr");
+            m_customerName = getProperty(properties, KEY_CUSTOMER_NAME, "apache");
+            m_storeRepositoryName = getProperty(properties, KEY_STORE_REPOSITORY_NAME, "shop");
+            m_targetRepositoryName = getProperty(properties, KEY_DISTRIBUTION_REPOSITORY_NAME, "target");
+            m_deploymentRepositoryName = getProperty(properties, KEY_DEPLOYMENT_REPOSITORY_NAME, "deployment");
+            m_serverUser = getProperty(properties, KEY_USER_NAME, "d");
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String[] pathElements = getPathElements(req);
-        if (pathElements != null) {
-            if (pathElements.length == 1) {
-                if (WORK_FOLDER.equals(pathElements[0])) {
-                    // TODO get data from post body (if no data, assume latest??) -> for now always assume latest
-                    String sessionID;
-                    Workspace workspace;
-                    Component component;
-                    synchronized (m_workspaces) {
-                        sessionID = "rest-" + m_sessionID++;
-                        workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, m_customerName, m_storeRepositoryName, m_distributionRepositoryName, m_deploymentRepositoryName, m_serverUser);
-                        m_workspaces.put(sessionID, workspace);
-                        component = m_dm.createComponent().setImplementation(workspace);
-                        m_workspaceComponents.put(sessionID, component);
-                    }
-                    m_sessionFactory.createSession(sessionID);
-                    m_dm.add(component);
-                    resp.sendRedirect(buildPathFromElements(WORK_FOLDER, sessionID));
-                    return;
-                }
-            }
-            else if (pathElements.length == 2) {
-                if (WORK_FOLDER.equals(pathElements[0])) {
-                    Workspace workspace = getWorkspace(pathElements[1]);
-                    if (workspace != null) {
-                        try {
-                            workspace.commit();
-                            return;
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                            resp.sendError(HttpServletResponse.SC_CONFLICT, "Commit failed: " + e.getMessage());
-                            return;
-                        }
-                    }
-                    else {
-                        // return error
-                        System.out.println("Failed...");
-                    }
-                }
-            }
-            else if (pathElements.length == 3) {
-                if (WORK_FOLDER.equals(pathElements[0])) {
-                    Workspace workspace = getWorkspace(pathElements[1]);
-                    if (workspace != null) {
-                        try {
-                            RepositoryValueObject data = m_gson.fromJson(req.getReader(), RepositoryValueObject.class);
-                            RepositoryObject object = workspace.addRepositoryObject(pathElements[2], data.attributes, data.tags);
-                            String identity = object.getDefinition();
-                            if (identity != null) {
-                                resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], identity));
-                            }
-                            else {
-                                // TODO decide what to do here, if this can happen at all
-                            }
-                            return;
-                        }
-                        catch (IllegalArgumentException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not add entity of type " + pathElements[2]);
-                    return;
-                }
-            }
-            else if (pathElements.length == 5) {
-                if (WORK_FOLDER.equals(pathElements[0])) {
-                    Workspace workspace = getWorkspace(pathElements[1]);
-                    if (workspace != null) {
-                        String entityType = pathElements[2];
-                        String entityId = pathElements[3];
-                        RepositoryObject repositoryObject = workspace.getRepositoryObject(entityType, entityId);
-                        if (repositoryObject == null) {
-                            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository object of type " + entityType + " and identity " + entityId + " not found.");
-                            return;
-                        }
-
-                        // the last element is the "command" to apply...
-                        String action = pathElements[4];
-
-                        if (Workspace.TARGET.equals(entityType) && ACTION_APPROVE.equals(action)) {
-                            StatefulTargetObject sto = workspace.approveTarget(repositoryObject);
-                            // Respond with the current store state...
-                            resp.getWriter().println(m_gson.toJson(sto.getStoreState()));
-                            return;
-                        } else if (Workspace.TARGET.equals(entityType) && ACTION_REGISTER.equals(action)) {
-                            StatefulTargetObject sto = workspace.registerTarget(repositoryObject);
-                            // Respond with the current registration state...
-                            resp.getWriter().println(m_gson.toJson(sto.getRegistrationState()));
-                            return;
-                        }
-                        
-                        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action for " + pathElements[2]);
-                    }
-                    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
-                    return;
-                }
-            }
-        }
-        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-        return;
-    }
-
-    @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String[] pathElements = getPathElements(req);
-        if (pathElements != null) {
-            if (pathElements.length == 4) {
-                if (pathElements[0].equals(WORK_FOLDER)) {
-                    Workspace workspace = getWorkspace(pathElements[1]);
-                    if (workspace != null) {
-                        try {
-                            RepositoryValueObject data = m_gson.fromJson(req.getReader(), RepositoryValueObject.class);
-                            workspace.updateObjectWithData(pathElements[2], pathElements[2], data);
-                            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, pathElements[1], pathElements[2], pathElements[3]));
-                            return;
-                        }
-                        catch (IllegalArgumentException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not add entity of type " + pathElements[2]);
-                    return;
-                }
-            }
-        }
-        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-        return;
-    }
-
-    @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String[] pathElements = getPathElements(req);
-        if (pathElements != null) {
-            if (pathElements.length == 2) {
-                if (WORK_FOLDER.equals(pathElements[0])) {
-                    String id = pathElements[1];
-                    Workspace workspace;
-                    Component component;
-                    synchronized (m_workspaces) {
-                        workspace = m_workspaces.remove(id);
-                        component = m_workspaceComponents.remove(id);
-                    }
-                    if (workspace != null && component != null) {
-                        // TODO delete the work area
-                        m_dm.remove(component);
-                        m_sessionFactory.destroySession(id);
-                        return;
-                    }
-                    else {
-                        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not delete work area.");
-                        return;
-                    }
-                }
-            }
-            else if (pathElements.length == 4) {
-                if (WORK_FOLDER.equals(pathElements[0])) {
-                    String id = pathElements[1];
-                    String entityType = pathElements[2];
-                    String entityId = pathElements[3];
-                    
-                    Workspace workspace;
-                    synchronized (m_workspaces) {
-                        workspace = m_workspaces.get(id);
-                    }
-                    if (workspace != null) {
-                        workspace.deleteRepositoryObject(entityType, entityId);
-                        return;
-                    }
-                    else {
-                        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not find work area.");
-                        return;
-                    }
-                }
-            }
-        }
-        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-        return;
-    }
-
-    private Workspace getWorkspace(String id) {
-        Workspace workspace;
-        synchronized (m_workspaces) {
-            workspace = m_workspaces.get(id);
-        }
-        return workspace;
-    }
-    
     /**
      * Builds a URL path from the supplied elements. Each individual element is URL encoded.
      * 
@@ -426,10 +136,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             if (result.length() > 0) {
                 result.append('/');
             }
-            try {
-                result.append(URLEncoder.encode(element, "UTF-8").replaceAll("\\+", "%20"));
-            }
-            catch (UnsupportedEncodingException e) {} // ignored on purpose, any JVM must support UTF-8
+            result.append(urlEncode(element));
         }
         return result.toString();
     }
@@ -451,29 +158,23 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         if (path.endsWith("/") && path.length() > 1) {
             path = path.substring(0, path.length() - 1);
         }
+        
         String[] pathElements = path.split("/");
-        try {
-            for (int i = 0; i < pathElements.length; i++) {
-                pathElements[i] = URLDecoder.decode(pathElements[i].replaceAll("%20", "\\+"), "UTF-8");
-            }
+        for (int i = 0; i < pathElements.length; i++) {
+            pathElements[i] = urlDecode(pathElements[i]);
         }
-        catch (UnsupportedEncodingException e) {}
+        
         return pathElements;
     }
 
-    public void updated(Dictionary properties) throws ConfigurationException {
-        // Note that configuration changes are only applied to new work areas, started after the
-        // configuration was changed. No attempt is done to "fix" existing work areas, although we
-        // might consider flushing/invalidating them.
-        m_repositoryURL = getProperty(properties, KEY_REPOSITORY_URL, "http://localhost:8080/repository");
-        m_obrURL = getProperty(properties, KEY_OBR_URL, "http://localhost:8080/obr");
-        m_customerName = getProperty(properties, KEY_CUSTOMER_NAME, "apache");
-        m_storeRepositoryName = getProperty(properties, KEY_STORE_REPOSITORY_NAME, "shop");
-        m_distributionRepositoryName = getProperty(properties, KEY_DISTRIBUTION_REPOSITORY_NAME, "target"); // TODO default was: gateway, shouldn't this be distribution?
-        m_deploymentRepositoryName = getProperty(properties, KEY_DEPLOYMENT_REPOSITORY_NAME, "deployment");
-        m_serverUser = getProperty(properties, KEY_USER_NAME, "d");
-    }
-    
+    /**
+     * Helper method to safely obtain a property value from the given dictionary.
+     * 
+     * @param properties the dictionary to retrieve the value from, can be <code>null</code>;
+     * @param key the name of the property to retrieve, cannot be <code>null</code>;
+     * @param defaultValue the default value to return in case the property does not exist, or the given dictionary was <code>null</code>.
+     * @return a property value, can be <code>null</code>.
+     */
     String getProperty(Dictionary properties, String key, String defaultValue) {
         if (properties != null) {
             Object value = properties.get(key);
@@ -482,5 +183,483 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             }
         }
         return defaultValue;
+    }
+
+    /**
+     * @see javax.servlet.http.HttpServlet#doDelete(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+     */
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String[] pathElements = getPathElements(req);
+        if (pathElements == null || pathElements.length < 1 || !WORK_FOLDER.equals(pathElements[0])) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        final String id = pathElements[1];
+
+        Workspace workspace = getWorkspace(id);
+        if (workspace == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + id);
+            return;
+        }
+
+        if (pathElements.length == 2) {
+            removeWorkspace(id, resp);
+        }
+        else if (pathElements.length == 4) {
+            deleteRepositoryObject(workspace, pathElements[2], pathElements[3], resp);
+        }
+        else {
+            // All other path lengths...
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    /**
+     * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+     */
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String[] pathElements = getPathElements(req);
+        if (pathElements == null || pathElements.length == 0) {
+            // TODO return a list of versions
+            resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Not implemented: list of versions");
+            return;
+        }
+
+        if (pathElements.length == 1) {
+            if (LATEST_FOLDER.equals(pathElements[0])) {
+                // TODO redirect to latest version
+                // resp.sendRedirect("notImplemented" /* to latest version */);
+                resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Not implemented: redirect to latest version");
+                return;
+            }
+            else {
+                // All other paths...
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            }
+        }
+        else {
+            // path elements of length > 1...
+            final String id = pathElements[1];
+
+            Workspace workspace = getWorkspace(id);
+            if (workspace == null) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + id);
+                return;
+            }
+
+            if (pathElements.length == 2) {
+                // TODO this should be the current set of repository objects?!
+                JsonArray result = new JsonArray();
+                result.add(new JsonPrimitive(Workspace.ARTIFACT));
+                result.add(new JsonPrimitive(Workspace.ARTIFACT2FEATURE));
+                result.add(new JsonPrimitive(Workspace.FEATURE));
+                result.add(new JsonPrimitive(Workspace.FEATURE2DISTRIBUTION));
+                result.add(new JsonPrimitive(Workspace.DISTRIBUTION));
+                result.add(new JsonPrimitive(Workspace.DISTRIBUTION2TARGET));
+                result.add(new JsonPrimitive(Workspace.TARGET));
+                resp.getWriter().println(m_gson.toJson(result));
+                return;
+            }
+            else if (pathElements.length == 3) {
+                listRepositoryObjects(workspace, pathElements[2], resp);
+            }
+            else if (pathElements.length == 4) {
+                readRepositoryObject(workspace, pathElements[2], pathElements[3], resp);
+            }
+            else if (pathElements.length == 5) {
+                handleWorkspaceAction(workspace, pathElements[2], pathElements[3], pathElements[4], req, resp);
+            }
+            else {
+                // All other path lengths...
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            }
+        }
+    }
+
+    /**
+     * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+     */
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String[] pathElements = getPathElements(req);
+        if (pathElements == null || pathElements.length < 1 || !WORK_FOLDER.equals(pathElements[0])) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        if (pathElements.length == 1) {
+            createWorkspace(resp);
+        }
+        else {
+            // more than one path elements...
+            Workspace workspace = getWorkspace(pathElements[1]);
+            if (workspace == null) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
+                return;
+            }
+
+            if (pathElements.length == 2) {
+                // Possible commit of workspace...
+                commitWorkspace(workspace, resp);
+            }
+            else if (pathElements.length == 3) {
+                // Possible repository object creation...
+                RepositoryValueObject data = getRepositoryValueObject(req);
+                createRepositoryObject(workspace, pathElements[2], data, resp);
+            }
+            else if (pathElements.length == 5) {
+                // Possible workspace action...
+                performWorkspaceAction(workspace, pathElements[2], pathElements[3], pathElements[4], resp);
+            }
+            else {
+                // All other path lengths...
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            }
+        }
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String[] pathElements = getPathElements(req);
+        if (pathElements == null || pathElements.length != 4 || !WORK_FOLDER.equals(pathElements[0])) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        Workspace workspace = getWorkspace(pathElements[1]);
+        if (workspace == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
+            return;
+        }
+
+        RepositoryValueObject data = getRepositoryValueObject(req);
+        updateRepositoryObject(workspace, pathElements[2], pathElements[3], data, resp);
+    }
+
+    /**
+     * Commits the given workspace.
+     * 
+     * @param workspace the workspace to commit;
+     * @param resp the servlet repsonse to write the response data to.
+     * @throws IOException in case of I/O errors.
+     */
+    private void commitWorkspace(Workspace workspace, HttpServletResponse resp) throws IOException {
+        try {
+            workspace.commit();
+        }
+        catch (Exception e) {
+            m_logger.log(LogService.LOG_WARNING, "Failed to commit workspace!", e);
+            resp.sendError(HttpServletResponse.SC_CONFLICT, "Commit failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Creates a new repository object.
+     * 
+     * @param workspace the workspace to create the new repository object in;
+     * @param entityType the type of repository object to create;
+     * @param data the repository value object to use as content for the to-be-created repository object;
+     * @param resp the servlet response to write the response data to.
+     * @throws IOException in case of I/O errors.
+     */
+    private void createRepositoryObject(Workspace workspace, String entityType, RepositoryValueObject data, HttpServletResponse resp) throws IOException {
+        try {
+            RepositoryObject object = workspace.addRepositoryObject(entityType, data.attributes, data.tags);
+
+            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, workspace.getSessionID(), entityType, object.getDefinition()));
+        }
+        catch (IllegalArgumentException e) {
+            m_logger.log(LogService.LOG_WARNING, "Failed to add entity of type: " + entityType, e);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not add entity of type " + entityType);
+        }
+    }
+
+    /**
+     * Creates a new workspace.
+     * 
+     * @param resp the servlet repsonse to write the response data to.
+     * @throws IOException in case of I/O errors.
+     */
+    private void createWorkspace(HttpServletResponse resp) throws IOException {
+        // TODO get data from post body (if no data, assume latest??) -> for now always assume latest
+        final String sessionID;
+        final Workspace workspace;
+        final Component component;
+
+        synchronized (m_workspaces) {
+            sessionID = "rest-" + m_sessionID++;
+            workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, m_customerName, m_storeRepositoryName, m_targetRepositoryName, m_deploymentRepositoryName, m_serverUser);
+            m_workspaces.put(sessionID, workspace);
+
+            component = m_dm.createComponent().setImplementation(workspace);
+            m_workspaceComponents.put(sessionID, component);
+        }
+        m_sessionFactory.createSession(sessionID);
+        m_dm.add(component);
+
+        resp.sendRedirect(buildPathFromElements(WORK_FOLDER, sessionID));
+    }
+
+    /**
+     * Deletes a repository object from the current workspace.
+     * 
+     * @param workspace the workspace to perform the action for;
+     * @param entityType the type of entity to apply the action to;
+     * @param entityId the identification of the entity to apply the action to;
+     * @param resp the servlet response to write the response data to.
+     * @throws IOException in case of I/O errors.
+     */
+    private void deleteRepositoryObject(Workspace workspace, String entityType, String entityId, HttpServletResponse resp) throws IOException {
+        try {
+            workspace.deleteRepositoryObject(entityType, entityId);
+        }
+        catch (IllegalArgumentException e) {
+            m_logger.log(LogService.LOG_WARNING, "Failed to delete repository object!", e);
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository object of type " + entityType + " and identity " + entityId + " not found.");
+        }
+    }
+
+    /**
+     * Interprets the given request-data as JSON-data and converts it to a {@link RepositoryValueObject} instance.
+     * 
+     * @param request the servlet request data to interpret;
+     * @return a {@link RepositoryValueObject} representation of the given request-data, never <code>null</code>.
+     * @throws IOException in case of I/O errors, or in case the JSON parsing failed.
+     */
+    private RepositoryValueObject getRepositoryValueObject(HttpServletRequest request) throws IOException {
+        try {
+            return m_gson.fromJson(request.getReader(), RepositoryValueObject.class);
+        }
+        catch (JsonParseException e) {
+            m_logger.log(LogService.LOG_WARNING, "Invalid repository object data!", e);
+            throw new IOException("Unable to parse repository object!", e);
+        }
+    }
+
+    /**
+     * Returns a workspace by its identification.
+     * 
+     * @param id the (session) identifier of the workspace to return.
+     * @return the workspace with requested ID, or <code>null</code> if no such workspace exists.
+     */
+    private Workspace getWorkspace(String id) {
+        Workspace workspace;
+        synchronized (m_workspaces) {
+            workspace = m_workspaces.get(id);
+        }
+        return workspace;
+    }
+
+    /**
+     * Performs an idempotent action on an repository object for the given workspace.
+     * 
+     * @param workspace the workspace to perform the action for;
+     * @param entityType the type of entity to apply the action to;
+     * @param entityId the identification of the entity to apply the action to;
+     * @param action the (name of the) action to apply;
+     * @param req the servlet request to read the request data from;
+     * @param resp the servlet response to write the response data to.
+     * @throws IOException
+     */
+    private void handleWorkspaceAction(Workspace workspace, String entityType, String entityId, String action, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        RepositoryObject repositoryObject = workspace.getRepositoryObject(entityType, entityId);
+        if (repositoryObject == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository object of type " + entityType + " and identity " + entityId + " not found.");
+            return;
+        }
+
+        if (Workspace.TARGET.equals(entityType) && ACTION_APPROVE.equals(action)) {
+            resp.getWriter().println(m_gson.toJson(((StatefulTargetObject) repositoryObject).getStoreState()));
+        }
+        else if (Workspace.TARGET.equals(entityType) && ACTION_REGISTER.equals(action)) {
+            resp.getWriter().println(m_gson.toJson(((StatefulTargetObject) repositoryObject).getRegistrationState()));
+        }
+        else if (Workspace.TARGET.equals(entityType) && ACTION_AUDITEVENTS.equals(action)) {
+            StatefulTargetObject target = (StatefulTargetObject) repositoryObject;
+            List<LogEvent> events = target.getAuditEvents();
+
+            String startValue = req.getParameter("start");
+            String maxValue = req.getParameter("max");
+
+            int start = (startValue == null) ? 0 : Integer.parseInt(startValue);
+            // ACE-237: ensure the start-value is a correctly bounded positive integer...
+            start = Math.max(0, Math.min(events.size() - 1, start));
+
+            int max = (maxValue == null) ? 100 : Integer.parseInt(maxValue);
+            // ACE-237: ensure the max- & end-values are correctly bounded...
+            max = Math.max(1, max);
+
+            int end = Math.min(events.size(), start + max);
+
+            List<LogEvent> selection = events.subList(start, end);
+            resp.getWriter().println(m_gson.toJson(selection));
+        }
+        else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action for " + entityType);
+        }
+    }
+
+    /**
+     * Returns the identifiers of all repository objects of a given type.
+     * 
+     * @param workspace the workspace to read the repository objects from;
+     * @param entityType the type of repository objects to read;
+     * @param resp the servlet response to write the response data to.
+     * @throws IOException in case of I/O problems.
+     */
+    private void listRepositoryObjects(Workspace workspace, String entityType, HttpServletResponse resp) throws IOException {
+        // TODO add a feature to filter the list that is returned (query, paging, ...)
+        List<RepositoryObject> objects = workspace.getRepositoryObjects(entityType);
+
+        JsonArray result = new JsonArray();
+        for (RepositoryObject ro : objects) {
+            String identity = ro.getDefinition();
+            if (identity != null) {
+                result.add(new JsonPrimitive(urlEncode(identity)));
+            }
+        }
+
+        resp.getWriter().println(m_gson.toJson(result));
+    }
+
+    /**
+     * Performs a non-idempotent action on an repository object for the given workspace.
+     * 
+     * @param workspace the workspace to perform the action for;
+     * @param entityType the type of entity to apply the action to;
+     * @param entityId the identification of the entity to apply the action to;
+     * @param action the (name of the) action to apply;
+     * @param resp the servlet response to write the response data to.
+     * @throws IOException in case of I/O errors.
+     */
+    private void performWorkspaceAction(Workspace workspace, String entityType, String entityId, String action, HttpServletResponse resp) throws IOException {
+        RepositoryObject repositoryObject = workspace.getRepositoryObject(entityType, entityId);
+        if (repositoryObject == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository object of type " + entityType + " and identity " + entityId + " not found.");
+            return;
+        }
+
+        if (Workspace.TARGET.equals(entityType) && ACTION_APPROVE.equals(action)) {
+            StatefulTargetObject sto = workspace.approveTarget((StatefulTargetObject) repositoryObject);
+
+            // Respond with the current store state...
+            resp.getWriter().println(m_gson.toJson(sto.getStoreState()));
+        }
+        else if (Workspace.TARGET.equals(entityType) && ACTION_REGISTER.equals(action)) {
+            StatefulTargetObject sto = workspace.registerTarget((StatefulTargetObject) repositoryObject);
+            if (sto == null) {
+                resp.sendError(HttpServletResponse.SC_CONFLICT, "Target already registered: " + entityId);
+            }
+            else {
+                // Respond with the current registration state...
+                resp.getWriter().println(m_gson.toJson(sto.getRegistrationState()));
+            }
+        }
+        else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action for " + entityType);
+        }
+    }
+
+    /**
+     * Reads a single repository object and returns a JSON representation of it.
+     * 
+     * @param workspace the workspace to read the repository object from;
+     * @param entityType the type of repository object to read;
+     * @param entityId the identifier of the repository object to read;
+     * @param resp the servlet response to write the response data to.
+     * @throws IOException in case of I/O problems.
+     */
+    private void readRepositoryObject(Workspace workspace, String entityType, String entityId, HttpServletResponse resp) throws IOException {
+        RepositoryObject repositoryObject = workspace.getRepositoryObject(entityType, entityId);
+        if (repositoryObject == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository object of type " + entityType + " and identity " + entityId + " not found.");
+        }
+        else {
+            resp.getWriter().println(m_gson.toJson(repositoryObject));
+        }
+    }
+
+    /**
+     * Removes the workspace with the given identifier.
+     * 
+     * @param id the identifier of the workspace to remove; 
+     * @param resp the servlet response to write the response data to.
+     * @throws IOException in case of I/O problems.
+     */
+    private void removeWorkspace(final String id, HttpServletResponse resp) throws IOException {
+        final Workspace workspace;
+        final Component component;
+
+        synchronized (m_workspaces) {
+            workspace = m_workspaces.remove(id);
+            component = m_workspaceComponents.remove(id);
+        }
+
+        if ((workspace != null) && (component != null)) {
+            workspace.destroy();
+
+            m_dm.remove(component);
+            m_sessionFactory.destroySession(id);
+        }
+        else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not delete work area.");
+        }
+    }
+
+    /**
+     * Updates an existing repository object.
+     * 
+     * @param workspace the workspace to update the repository object in;
+     * @param entityType the type of repository object to update;
+     * @param entityId the identifier of the repository object to update;
+     * @param data the repository value object to use as content for the to-be-updated repository object;
+     * @param resp the servlet response to write the response data to.
+     * @throws IOException in case of I/O errors.
+     */
+    private void updateRepositoryObject(Workspace workspace, String entityType, String entityId, RepositoryValueObject data, HttpServletResponse resp) throws IOException {
+        try {
+            workspace.updateObjectWithData(entityType, entityId, data);
+
+            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, workspace.getSessionID(), entityType, entityId));
+        }
+        catch (IllegalArgumentException e) {
+            m_logger.log(LogService.LOG_WARNING, "Failed to update entity of type: " + entityType, e);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not update entity of type " + entityType);
+        }
+    }
+
+    /**
+     * URL decodes a given element.
+     * 
+     * @param element the element to decode, cannot be <code>null</code>.
+     * @return the decoded element, never <code>null</code>.
+     */
+    private String urlDecode(String element) {
+        try {
+            return URLDecoder.decode(element.replaceAll("%20", "\\+"), "UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            // ignored on purpose, any JVM must support UTF-8
+            return null; // should never occur
+        }
+    }
+
+    /**
+     * URL encodes a given element.
+     * 
+     * @param element the element to encode, cannot be <code>null</code>.
+     * @return the encoded element, never <code>null</code>.
+     */
+    private String urlEncode(String element) {
+        try {
+            return URLEncoder.encode(element, "UTF-8").replaceAll("\\+", "%20");
+        }
+        catch (UnsupportedEncodingException e) {
+            // ignored on purpose, any JVM must support UTF-8
+            return null; // should never occur
+        }
     }
 }

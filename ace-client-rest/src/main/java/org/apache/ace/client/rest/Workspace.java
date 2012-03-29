@@ -85,6 +85,13 @@ public class Workspace {
         m_serverUser = serverUser;
     }
     
+    /**
+     * @return the session ID of this workspace, never <code>null</code>.
+     */
+    public String getSessionID() {
+        return m_sessionID;
+    }
+    
     private void addSessionDependency(Component component, Class service, boolean isRequired) {
         component.add(m_manager.createServiceDependency()
             .setService(service, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
@@ -205,32 +212,25 @@ public class Workspace {
     
     /**
      * Approves a given stateful target object.
-     * <p>If the given repository object does <em>not</em> represent a stateful target object, this method will do nothing.</p>
      * 
-     * @param repositoryObject the repository object to approve.
-     * @return the approved stateful target object, can be <code>null</code> only if the given repository object does not represent a {@link StatefulTargetObject}.
+     * @param targetObject the target object to approve, cannot be <code>null</code>.
+     * @return the approved stateful target object, cannot be <code>null</code>.
      */
-    public StatefulTargetObject approveTarget(RepositoryObject repositoryObject) {
-        if (!(repositoryObject instanceof StatefulTargetObject)) {
-            return null;
-        }
-        StatefulTargetObject targetObject = (StatefulTargetObject) repositoryObject;
+    public StatefulTargetObject approveTarget(StatefulTargetObject targetObject) {
         targetObject.approve();
         return targetObject;
     }
 
     /**
      * Registers a given stateful target object.
-     * <p>If the given repository object does <em>not</em> represent a stateful target object, this method will do nothing.</p>
      * 
-     * @param repositoryObject the repository object to register.
-     * @return the registered stateful target object, can be <code>null</code> only if the given repository object does not represent a {@link StatefulTargetObject}.
+     * @param targetObject the target object to register, cannot be <code>null</code>.
+     * @return the registered stateful target object, can be <code>null</code> only if the given target object is already registered.
      */
-    public StatefulTargetObject registerTarget(RepositoryObject repositoryObject) {
-        if (!(repositoryObject instanceof StatefulTargetObject)) {
+    public StatefulTargetObject registerTarget(StatefulTargetObject targetObject) {
+        if (targetObject.isRegistered()) {
             return null;
         }
-        StatefulTargetObject targetObject = (StatefulTargetObject) repositoryObject;
         targetObject.register();
         return targetObject;
     }
@@ -318,38 +318,48 @@ public class Workspace {
     }
 
     public RepositoryObject getLeft(String entityType, String entityId) {
-        ObjectRepository repo = getObjectRepository(entityType);
         if (ARTIFACT2FEATURE.equals(entityType)) {
             return getObjectRepository(ARTIFACT).get(entityId);
         }
-        if (FEATURE2DISTRIBUTION.equals(entityType)) {
+        else if (FEATURE2DISTRIBUTION.equals(entityType)) {
             return getObjectRepository(FEATURE).get(entityId);
         }
-        if (DISTRIBUTION2TARGET.equals(entityType)) {
+        else if (DISTRIBUTION2TARGET.equals(entityType)) {
             return getObjectRepository(DISTRIBUTION).get(entityId);
+        }
+        else {
+            // throws an exception in case of an illegal type!
+            getObjectRepository(entityType);
         }
         return null;
     }
 
     public RepositoryObject getRight(String entityType, String entityId) {
-        ObjectRepository repo = getObjectRepository(entityType);
         if (ARTIFACT2FEATURE.equals(entityType)) {
             return getObjectRepository(FEATURE).get(entityId);
         }
-        if (FEATURE2DISTRIBUTION.equals(entityType)) {
+        else if (FEATURE2DISTRIBUTION.equals(entityType)) {
             return getObjectRepository(DISTRIBUTION).get(entityId);
         }
-        if (DISTRIBUTION2TARGET.equals(entityType)) {
+        else if (DISTRIBUTION2TARGET.equals(entityType)) {
             return getObjectRepository(TARGET).get(entityId);
+        }
+        else {
+            // throws an exception in case of an illegal type!
+            getObjectRepository(entityType);
         }
         return null;
     }
     
     public void deleteRepositoryObject(String entityType, String entityId) {
-        RepositoryObject result = null;
-            ObjectRepository objectRepository = getObjectRepository(entityType);
-            RepositoryObject repositoryObject = objectRepository.get(entityId);
-            objectRepository.remove(repositoryObject);
+        ObjectRepository objectRepository = getObjectRepository(entityType);
+        RepositoryObject repositoryObject = objectRepository.get(entityId);
+        // ACE-239: avoid null entities being passed in...
+        if (repositoryObject == null) {
+            throw new IllegalArgumentException("Could not find repository object!");
+        }
+
+        objectRepository.remove(repositoryObject);
     }
 
     private ObjectRepository getObjectRepository(String entityType) {
