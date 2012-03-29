@@ -192,23 +192,20 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 						else if (isTarget && ACTION_AUDITEVENTS.equals(action)) {
 							StatefulTargetObject target = (StatefulTargetObject) repositoryObject;
 							List<LogEvent> events = target.getAuditEvents();
+							
 							String startValue = req.getParameter("start");
 							String maxValue = req.getParameter("max");
+							
 							int start = (startValue == null) ? 0 : Integer.parseInt(startValue);
-							if (start < 0) {
-								start = 0;
-							}
-							if (start >= events.size()) {
-								start = events.size() - 1;
-							}
+							// ACE-237: ensure the start-value is a correctly bounded positive integer...
+							start = Math.max(0, Math.min(events.size() - 1, start));
+							
 							int max = (maxValue == null) ? 100 : Integer.parseInt(maxValue);
-							if (max < 1) {
-								max = 1;
-							}
-							int end = start + max;
-							if (end > events.size()) {
-								end = events.size();
-							}
+							// ACE-237: ensure the max- & end-values are correctly bounded...
+							max = Math.max(1, max);
+
+							int end = Math.min(events.size(), start + max);
+
 							List<LogEvent> selection = events.subList(start, end);
                         	resp.getWriter().println(m_gson.toJson(selection));
                         	return;
