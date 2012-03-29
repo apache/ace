@@ -96,7 +96,9 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
 
         List<XmlDeploymentArtifact>[] pairs = null;
         try {
-            input = getRepositoryStream();
+            // ACE-240: do NOT allow local/remote repositories to be empty. If we're 
+            // asking for real artifacts, it means we must have a repository...
+            input = getRepositoryStream(true /* fail */);
             if (versionFrom == null) {
                 pairs = getDeploymentArtifactPairs(input, targetId, new String[] { versionTo });
             }
@@ -149,7 +151,9 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         InputStream input = null;
 
         try {
-            input = getRepositoryStream();
+            // ACE-240: allow local/remote repositories to be empty; as the target 
+            // might be new & unregistered, it can have no repository yet... 
+            input = getRepositoryStream(false /* fail */);
             List<Version> versionList = getAvailableVersions(input, targetId);
             if (versionList.isEmpty()) {
                 m_log.log(LogService.LOG_DEBUG, "No versions found for target: " + targetId);
@@ -311,7 +315,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
      * @return An input stream to the repository document. Will return an empty stream if none can be found.
      * @throws java.io.IOException if there is a problem communicating with the local or remote repository.
      */
-    private InputStream getRepositoryStream() throws IOException {
+    private InputStream getRepositoryStream(boolean fail) throws IOException {
         // cache the repositories, since we do not want them to change while we're in this method.
         CachedRepository cachedRepository = m_cachedRepository;
         Repository repository = m_directRepository;
@@ -320,10 +324,10 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         if (cachedRepository != null) {
             // we can use the cached repository
             if (cachedRepository.isCurrent()) {
-                result = cachedRepository.getLocal(true);
+                result = cachedRepository.getLocal(fail);
             }
             else {
-                result = cachedRepository.checkout(true);
+                result = cachedRepository.checkout(fail);
             }
         }
         else {
