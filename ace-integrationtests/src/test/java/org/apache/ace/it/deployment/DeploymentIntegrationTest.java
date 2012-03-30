@@ -87,6 +87,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
                 Ace.deploymentApi(),
                 Ace.deploymentDeploymentAdmin(),
                 Ace.deploymentServlet(),
+                Ace.deploymentTaskBase(),
                 Ace.deploymentTask(),
                 Ace.deploymentStreamgenerator()
             )

@@ -142,6 +142,10 @@ public class Options {
             return maven("org.apache.ace.deployment.servlet");
         }
 
+        public static MavenArtifactProvisionOption deploymentTaskBase() {
+            return maven("org.apache.ace.deployment.task.base");
+        }
+
         public static MavenArtifactProvisionOption deploymentTask() {
             return maven("org.apache.ace.deployment.task");
         }

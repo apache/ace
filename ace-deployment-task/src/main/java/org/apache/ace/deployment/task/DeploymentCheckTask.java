@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.util.Dictionary;
 import java.util.Properties;
 
+import org.apache.ace.deployment.service.DeploymentService;
 import org.osgi.framework.Version;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -32,38 +33,33 @@ import org.osgi.service.log.LogService;
  * download or install it.
  */
 public class DeploymentCheckTask implements Runnable {
+
     private static final String TOPIC_UPDATE_AVAILABLE = "org/apache/ace/deployment/UPDATEAVAILABLE";
-    
-    private final DeploymentTaskBase m_task;
-    
+
     private volatile LogService m_log;
     private volatile EventAdmin m_eventAdmin;
-    
-    public DeploymentCheckTask(DeploymentTaskBase task) {
-        m_task = task;
-    }
+    private volatile DeploymentService m_service;
 
     /**
      * When run a check is made if a higher version is available on the remote. If so, send out an event.
      */
     public void run() {
         try {
-            Version highestLocalVersion = m_task.getHighestLocalVersion();
-            Version highestRemoteVersion = m_task.getHighestRemoteVersion();
-            if (highestRemoteVersion == null) {
-                //expected if there's no discovered ps or relay server
+            Version localVersion = m_service.getHighestLocalVersion();
+            Version remoteVersion = m_service.getHighestRemoteVersion();
+
+            if (remoteVersion == null) {
+                // expected if there's no discovered ps or relay server
                 // ACE-220: lower log level; not of real interest...
-                m_log.log(LogService.LOG_DEBUG, "Highest remote: unknown / Highest local: " + highestLocalVersion);
+                m_log.log(LogService.LOG_DEBUG, "Highest remote: unknown / Highest local: " + localVersion);
                 return;
             }
+
             // ACE-220: lower log level; not of real interest...
-            m_log.log(LogService.LOG_DEBUG, "Highest remote: " + highestRemoteVersion + " / Highest local: " + highestLocalVersion);
-            
-            if ((highestRemoteVersion != null) && ((highestLocalVersion == null) || (highestRemoteVersion.compareTo(highestLocalVersion) > 0))) {
-                Properties properties = new Properties();
-                properties.put("deploymentpackage.localversion", ((highestLocalVersion == null) ? Version.emptyVersion : highestLocalVersion));
-                properties.put("deploymentpackage.remoteversion", highestRemoteVersion);
-                m_eventAdmin.postEvent(new Event(TOPIC_UPDATE_AVAILABLE, (Dictionary) properties));
+            m_log.log(LogService.LOG_DEBUG, "Highest remote: " + remoteVersion + " / Highest local: " + localVersion);
+
+            if ((remoteVersion != null) && ((localVersion == null) || (remoteVersion.compareTo(localVersion) > 0))) {
+                m_eventAdmin.postEvent(createEvent(localVersion, remoteVersion));
             }
         }
         catch (MalformedURLException e) {
@@ -72,5 +68,20 @@ public class DeploymentCheckTask implements Runnable {
         catch (Exception e) {
             m_log.log(LogService.LOG_ERROR, "Error checking for update", e);
         }
+    }
+
+    /**
+     * Creates an event for notifying listeners that a new version can be installed.
+     * 
+     * @param localVersion the highest local version;
+     * @param remoteVersion the higest remote version.
+     * @return a new {@link Event} instance, never <code>null</code>.
+     */
+    private Event createEvent(Version localVersion, Version remoteVersion) {
+        Properties properties = new Properties();
+        properties.put("deploymentpackage.localversion", ((localVersion == null) ? Version.emptyVersion : localVersion));
+        properties.put("deploymentpackage.remoteversion", remoteVersion);
+
+        return new Event(TOPIC_UPDATE_AVAILABLE, (Dictionary) properties);
     }
 }

@@ -29,11 +29,11 @@
     </parent>
 
     <version>0.8.1-SNAPSHOT</version>
-    <artifactId>org.apache.ace.deployment.task</artifactId>
+    <artifactId>org.apache.ace.deployment.task.base</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Deployment :: Task</name>
-    <description>This bundle is responsible for checking the deployment server for updates and for synchronizing the local instance with the server.</description>
+    <name>Apache ACE :: Deployment :: Task :: API</name>
+    <description>This bundle provides an API for checking the deployment server for updates and for synchronizing the local instance with the server.</description>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-deployment-task</connection>
@@ -46,22 +46,20 @@
             org.apache.ace.deployment;version=${project.version},
             org.apache.ace.discovery;version=${project.version},
             org.apache.ace.identification;version=${project.version},
-            org.apache.ace.deployment.service;version=${project.version},
             *
         </import.package>
+        <export.package>
+            org.apache.ace.deployment.service;version=${project.version}
+        </export.package>
         <private.package>
-            org.apache.ace.deployment.task
+            org.apache.ace.deployment.service.impl
         </private.package>
         <bundle.activator>
-            org.apache.ace.deployment.task.Activator
+            org.apache.ace.deployment.service.impl.Activator
         </bundle.activator>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.deployment.task.base</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.deployment.api</artifactId>

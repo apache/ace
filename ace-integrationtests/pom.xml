@@ -191,6 +191,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.deployment.task.base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.deployment.task</artifactId>
         </dependency>
         <dependency>

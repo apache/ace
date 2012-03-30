@@ -79,6 +79,7 @@
 
         <module>ace-deployment-api</module>
         <module>ace-deployment-deploymentadmin</module>
+        <module>ace-deployment-task-base</module>
         <module>ace-deployment-task</module>
         <module>ace-deployment-verifier</module>
         <module>ace-deployment-verifier-ui</module>
@@ -188,6 +189,7 @@
                 <module>ace-scheduler-api</module>
                 <module>ace-scheduler</module>
                 <module>ace-deployment-api</module>
+                <module>ace-deployment-task-base</module>
                 <module>ace-deployment-task</module>
             </modules>
         </profile>

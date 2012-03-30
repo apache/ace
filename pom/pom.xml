@@ -430,6 +430,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.ace</groupId>
+                <artifactId>org.apache.ace.deployment.task.base</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ace</groupId>
                 <artifactId>org.apache.ace.deployment.task</artifactId>
                 <version>${project.version}</version>
             </dependency>

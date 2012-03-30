@@ -178,6 +178,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.deployment.task.base</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.deployment.task</artifactId>
             <scope>runtime</scope>
         </dependency>

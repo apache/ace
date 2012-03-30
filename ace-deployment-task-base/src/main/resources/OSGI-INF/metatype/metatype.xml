@@ -3,7 +3,7 @@
 	<metatype:OCD id="org.apache.ace.deployment" name="%service.name" description="%service.desc">
 		<metatype:AD id="ma" type="String" name="%ma.name" description="%ma.desc" required="false" />
 	</metatype:OCD>
-	<metatype:Designate factoryPid="org.apache.ace.deployment.task.default.factory">
+	<metatype:Designate factoryPid="org.apache.ace.deployment.task.base.factory">
 		<metatype:Object ocdref="org.apache.ace.deployment" />
 	</metatype:Designate>
 </metatype:MetaData>

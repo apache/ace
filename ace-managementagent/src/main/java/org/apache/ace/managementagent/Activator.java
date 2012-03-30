@@ -2,7 +2,6 @@ package org.apache.ace.managementagent;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Properties;
 
@@ -14,10 +13,10 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 public class Activator extends DependencyActivatorBase {
-    private static final String[] PROTOTYPE_ARRAY = new String[] {};
 
     private BundleActivator[] m_activators = new BundleActivator[] {
         new org.apache.ace.deployment.deploymentadmin.Activator(),
+        new org.apache.ace.deployment.service.impl.Activator(),
         new org.apache.ace.deployment.task.Activator(),
         new org.apache.ace.discovery.property.Activator(),
         new org.apache.ace.target.log.Activator(),
@@ -91,7 +90,8 @@ public class Activator extends DependencyActivatorBase {
                     if (!isFileUrl) {
                         configureFactory("org.apache.ace.target.log.sync.factory", "ma", ma, "name", "auditlog");
                     }
-                    configureFactory("org.apache.ace.deployment.factory", "ma", ma);
+                    configureFactory("org.apache.ace.deployment.task.base.factory", "ma", ma);
+                    configureFactory("org.apache.ace.deployment.task.default.factory", "ma", ma);
                     configure("org.apache.ace.scheduler", "ma=" + ma + ";name=auditlog", syncInterval);
                     instances.append(
                         "  Instance     : " + ma + "\n" +

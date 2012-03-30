@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.deployment.task;
+package org.apache.ace.deployment.service.impl;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
@@ -29,60 +29,102 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.util.SortedSet;
 
 import org.apache.ace.deployment.Deployment;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.identification.Identification;
-import org.apache.ace.target.log.store.LogStore;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.framework.Version;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class DeploymentUpdateTaskTest {
-
-    private DeploymentTaskBase m_task;
-    private DeploymentUpdateTask m_deploymentTask;
-    private MockDeploymentService m_mockDeploymentService;
-
-    private static final Version m_version1 = new Version("1.0.0");
-    private static final Version m_version2 = new Version("2.0.0");
-    private static final Version m_version3 = new Version("3.0.0");
-
-    boolean m_correctVersionInstalled;
-    boolean m_installCalled;
+public class DeploymentServiceImplTest {
+    
+    private static final Version VERSION1 = new Version("1.0.0");
+    private static final Version VERSION2 = new Version("2.0.0");
+    private static final Version VERSION3 = new Version("3.0.0");
+    
+    private DeploymentServiceImpl m_service;
+    private MockDeployerService m_mockDeployerService;
+    private boolean m_correctVersionInstalled;
+    private boolean m_installCalled;
 
     @BeforeMethod(alwaysRun = true)
     protected void setUp() throws Exception {
-        m_mockDeploymentService = new MockDeploymentService();
+        m_mockDeployerService = new MockDeployerService();
+        
         m_correctVersionInstalled = false;
         m_installCalled = false;
-        m_task = new DeploymentTaskBase();
-        m_deploymentTask = new DeploymentUpdateTask(m_task);
-        TestUtils.configureObject(m_deploymentTask, LogService.class);
-        TestUtils.configureObject(m_task, LogService.class);
-        TestUtils.configureObject(m_task, Identification.class, new Identification() {
+        m_service = new DeploymentServiceImpl();
+        
+        TestUtils.configureObject(m_service, LogService.class);
+        TestUtils.configureObject(m_service, EventAdmin.class);
+        TestUtils.configureObject(m_service, Identification.class, new Identification() {
             public String getID() {
                 return "test";
             }
         });
-        TestUtils.configureObject(m_task, Discovery.class);
-        TestUtils.configureObject(m_task, Deployment.class, m_mockDeploymentService);
+        TestUtils.configureObject(m_service, Discovery.class, new Discovery() {
+            public URL discover() {
+                try {
+                    return new URL("http://localhost/");
+                }
+                catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        TestUtils.configureObject(m_service, Deployment.class, m_mockDeployerService);
     }
 
     @Test(groups = { UNIT })
-    public synchronized void testGetHighestLocalVersion() {
-        prepareMockEnvironment(new Version[] {m_version1, m_version2, m_version3}, null, null, null);
-        Version highestVersion = m_task.getHighestLocalVersion();
-        assert highestVersion.equals(m_version3) : "Highest local version is incorrect, expected " + m_version3.toString() + " but got " + highestVersion.toString();
+    public void testGetHighestLocalVersion() {
+        prepareMockEnvironment(new Version[] {VERSION1, VERSION2, VERSION3}, null, null);
+        Version highestVersion = m_service.getHighestLocalVersion();
+        assert highestVersion.equals(VERSION3) : "Highest local version is incorrect, expected " + VERSION3.toString() + " but got " + highestVersion.toString();
     }
 
     @Test(groups = { UNIT })
-    public synchronized void testGetHighestRemoteVersion() throws MalformedURLException, IOException {
-        URL[] urls = prepareMockEnvironment(null, new Version[] {m_version1, m_version2, m_version3}, null, null);
-        Version highestVersion = m_task.getHighestRemoteVersion(urls[0]);
-        assert highestVersion.equals(m_version3) : "Highest remote version is incorrect, expected " + m_version3.toString() + " but got " + highestVersion.toString();
+    public void testGetRemoteVersionsWithURL() throws MalformedURLException, IOException {
+        URL[] urls =  prepareMockEnvironment(null, new Version[] {VERSION1, VERSION2, VERSION3}, null);
+        SortedSet<Version> highestVersion = m_service.getRemoteVersions(urls[0]);
+        assert !highestVersion.isEmpty() : "Expected versions to return!";
+        assert highestVersion.last().equals(VERSION3) : "Highest remote version is incorrect, expected " + VERSION3.toString() + " but got " + highestVersion.toString();
+    }
+
+    @Test(groups = { UNIT })
+    public void testUpdateWithLatestVersion() throws Exception {
+        final URL[] urls=  prepareMockEnvironment(null, new Version[] {VERSION1, VERSION2, VERSION3}, VERSION3);
+
+        TestUtils.configureObject(m_service, Discovery.class, new Discovery() {
+            public URL discover() {
+                return urls[1];
+            }
+        });
+
+        m_service.update(VERSION3);
+        
+        assert m_installCalled : "Install not called?!";
+        assert m_correctVersionInstalled : "Wrong version installed?!";
+    }
+
+    @Test(groups = { UNIT })
+    public void testUpdateWithNonLatestVersion() throws Exception {
+        final URL[] urls=  prepareMockEnvironment(null, new Version[] {VERSION1, VERSION2, VERSION3}, VERSION2);
+
+        TestUtils.configureObject(m_service, Discovery.class, new Discovery() {
+            public URL discover() {
+                return urls[1];
+            }
+        });
+
+        m_service.update(VERSION2);
+        
+        assert m_installCalled : "Install not called?!";
+        assert m_correctVersionInstalled : "Wrong version installed?!";
     }
 
     /**
@@ -91,33 +133,32 @@ public class DeploymentUpdateTaskTest {
      * @param localVersions The versions that should appear to be installed.
      * @param remoteVersions The versions that should appear to be available remotely.
      * @param expectedInstallVersion The version that is expected to be installed.
-     * @param malformedVersion Optional malformed version to be added to the remote versions.
-     *
      * @return Array of two urls, element [0] is the controlEndpoint, element [1] is the dataEndpoint
      */
-    private URL[] prepareMockEnvironment(Version[] localVersions, Version[] remoteVersions, Version expectedInstallVersion, String malformedVersion) {
+    private URL[] prepareMockEnvironment(Version[] localVersions, Version[] remoteVersions, Version expectedInstallVersion) {
         if (localVersions == null) {
-            localVersions = new Version[]{};
+            localVersions = new Version[0];
         }
         if (remoteVersions == null) {
-            remoteVersions = new Version[]{};
+            remoteVersions = new Version[0];
         }
         if (expectedInstallVersion == null) {
             expectedInstallVersion = Version.emptyVersion;
         }
         // mock installed versions
-        m_mockDeploymentService.setList(localVersions);
+        m_mockDeployerService.setList(localVersions);
 
         // mock versions available remotely through the control channel
         MockURLConnection controlURLConnection = new MockURLConnection();
-        controlURLConnection.setVersions(remoteVersions, malformedVersion);
+        controlURLConnection.setVersions(remoteVersions, null);
 
         // mock version available remotely through the data channel
         MockURLConnection dataURLConnection = new MockURLConnection();
         dataURLConnection.setVersions(new Version[] {expectedInstallVersion}, null);
-        m_mockDeploymentService.setExpectedInstallVersion(expectedInstallVersion);
 
-        URL controlEndpoint = null;
+        m_mockDeployerService.setExpectedInstallVersion(expectedInstallVersion);
+
+        final URL controlEndpoint;
         URL dataEndpoint = null;
         try {
             // create endpoints based on mock classes
@@ -125,10 +166,12 @@ public class DeploymentUpdateTaskTest {
             dataEndpoint = new URL(new URL("http://notmalformed"), "", new MockURLStreamHandler(dataURLConnection));
         }
         catch (MalformedURLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+
         return new URL[] {controlEndpoint, dataEndpoint};
     }
+    
     /**
      * Mock implementation of <code>DeploymentService</code> that expects Version objects.
      * The Version objects that are 'installed' can be mocked with the new <code>setList(Version[] objects)</code>
@@ -136,7 +179,7 @@ public class DeploymentUpdateTaskTest {
      * version matches the version set by the <code>setExpectedInstallVersion(Version v)</code> method. If so a boolean
      * in the outer class is set to true.
      */
-    private class MockDeploymentService implements Deployment {
+    private class MockDeployerService implements Deployment {
         Object[] m_objects = new Object[]{};
         Version m_expectedInstallVersion = Version.emptyVersion;
 
@@ -176,17 +219,16 @@ public class DeploymentUpdateTaskTest {
      * Mock implementation of <code>URLStreamHandler</code>. Will return the <code>URLConnection</code>
      * supplied in the constructor instead when <code>openConnection(URL url)</code> is called.
      */
-    private class MockURLStreamHandler extends URLStreamHandler {
-
-        private final URLConnection m_urlConnection;
+    private static class MockURLStreamHandler extends URLStreamHandler {
+        private final URLConnection urlConn;
 
         public MockURLStreamHandler(URLConnection urlConnection) {
-            m_urlConnection = urlConnection;
+            this.urlConn = urlConnection;
         }
 
         @Override
         protected URLConnection openConnection(URL url) throws IOException {
-            return m_urlConnection;
+            return urlConn;
         }
     }
 
@@ -195,7 +237,7 @@ public class DeploymentUpdateTaskTest {
      * based on the URL it will return an inputstream based on the versions specified by the
      * new <code>setVersions(Version[] versions)</code> method.
      */
-    private class MockURLConnection extends URLConnection {
+    private static class MockURLConnection extends URLConnection {
         private ByteArrayInputStream m_inputStream = new ByteArrayInputStream(new byte[]{});
 
         protected MockURLConnection() {
@@ -225,25 +267,4 @@ public class DeploymentUpdateTaskTest {
         }
 
     }
-
-    public URL discover() {
-        return null;
-    }
-
-    public Deployment getDeployment() {
-        return TestUtils.createMockObjectAdapter(Deployment.class, m_mockDeploymentService);
-    }
-
-    public String getID() {
-        return null;
-    }
-
-    public LogService getLog() {
-        return TestUtils.createNullObject(LogService.class);
-    }
-
-    public LogStore getAuditStore() {
-        return null;
-    }
-
 }
