@@ -113,7 +113,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         // Note that configuration changes are only applied to new work areas, started after the
         // configuration was changed. No attempt is done to "fix" existing work areas, although we
         // might consider flushing/invalidating them.
-        synchronized (new Object()) {
+        synchronized (m_workspaces) {
             m_repositoryURL = getProperty(properties, KEY_REPOSITORY_URL, "http://localhost:8080/repository");
             m_obrURL = getProperty(properties, KEY_OBR_URL, "http://localhost:8080/obr");
             m_customerName = getProperty(properties, KEY_CUSTOMER_NAME, "apache");
