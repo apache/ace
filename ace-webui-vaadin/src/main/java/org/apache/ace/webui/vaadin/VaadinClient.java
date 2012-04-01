@@ -90,6 +90,7 @@ import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.TableTransferable;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.Notification;
 
 /*
 
@@ -919,14 +920,17 @@ public class VaadinClient extends com.vaadin.Application {
         Button button = new Button("Add Feature...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                GenericAddWindow addFeatureWindow = new GenericAddWindow(main, "Add Feature");
-                addFeatureWindow.setOkListeren(new GenericAddWindow.AddFunction() {
-
-                    public void create(String name, String description) {
+                GenericAddWindow addFeatureWindow = new GenericAddWindow("Add Feature") {
+                    public void onOk(String name, String description) {
                         createFeature(name, description);
                     }
-                });
-                addFeatureWindow.show();
+                    
+                    public void handleError(Exception e) {
+                        // ACE-241: notify user when the feature-creation failed!
+                        main.showNotification("Failed to add new feature!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                    }
+                };
+                addFeatureWindow.show(main);
             }
         });
         return button;
@@ -943,14 +947,17 @@ public class VaadinClient extends com.vaadin.Application {
         Button button = new Button("Add Distribution...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                GenericAddWindow addDistributionWindow = new GenericAddWindow(main, "Add Distribution");
-                addDistributionWindow.setOkListeren(new GenericAddWindow.AddFunction() {
-
-                    public void create(String name, String description) {
+                GenericAddWindow addDistributionWindow = new GenericAddWindow("Add Distribution") {
+                    public void onOk(String name, String description) {
                         createDistribution(name, description);
                     }
-                });
-                addDistributionWindow.show();
+                    
+                    public void handleError(Exception e) {
+                        // ACE-241: notify user when the distribution-creation failed!
+                        main.showNotification("Failed to add new distribution!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                    }
+                };
+                addDistributionWindow.show(main);
             }
         });
 
@@ -968,14 +975,17 @@ public class VaadinClient extends com.vaadin.Application {
         Button button = new Button("Add target...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                GenericAddWindow addTargetWindow = new GenericAddWindow(main, "Add Target");
-                addTargetWindow.setOkListeren(new GenericAddWindow.AddFunction() {
-
-                    public void create(String name, String description) {
-                        createTarget(name, description);
+                GenericAddWindow addTargetWindow = new GenericAddWindow("Add Target", "Identifier") {
+                    public void onOk(String id, String description) {
+                        createTarget(id, description);
                     }
-                });
-                addTargetWindow.show();
+                    
+                    public void handleError(Exception e) {
+                        // ACE-241: notify user when the target-creation failed!
+                        main.showNotification("Failed to add new target!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                    }
+                };
+                addTargetWindow.show(main);
             }
         });
         return button;

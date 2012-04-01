@@ -1,76 +1,129 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.ace.webui.vaadin;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
 
-@SuppressWarnings("serial")
-public class GenericAddWindow extends Window {
+public abstract class GenericAddWindow extends Window {
 
-    public interface AddFunction {
-        void create(String name, String description);
-    };
-
-    private final Window m_main;
     private final TextField m_name;
-    private AddFunction m_addFunction;
+    private final TextField m_description;
 
-    public GenericAddWindow(final Window main, String caption) {
-        m_main = main;
+    public GenericAddWindow(String caption) {
+        this(caption, "Name");
+    }
 
+    public GenericAddWindow(String caption, String fieldName) {
         setModal(true);
         setWidth("15em");
         setCaption(caption);
 
-        // Configure the windws layout; by default a VerticalLayout
-        VerticalLayout layout = (VerticalLayout) getContent();
-        layout.setMargin(true);
-        layout.setSpacing(true);
+        m_name = new TextField(fieldName);
+        m_name.setWidth("100%");
 
-        m_name = new TextField("name");
-        final TextField description = new TextField("description");
+        m_description = new TextField("Description");
+        m_description.setWidth("100%");
+        
+        VerticalLayout fields = new VerticalLayout();
+        fields.setSpacing(true);
+        fields.addComponent(m_name);
+        fields.addComponent(m_description);
 
-        layout.addComponent(m_name);
-        layout.addComponent(description);
-
-        Button close = new Button("Ok", new Button.ClickListener() {
-            // inline click-listener
+        Button okButton = new Button("Ok", new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                // close the window by removing it from the parent window
-                (getParent()).removeWindow(GenericAddWindow.this);
-                // create the feature
-                if (m_addFunction != null) {
-                    m_addFunction.create((String) m_name.getValue(),
-                        (String) description.getValue());
+                try {
+                    onOk((String) m_name.getValue(), (String) m_description.getValue());
+                    closeDialog();
+                }
+                catch (Exception e) {
+                    handleError(e);
                 }
             }
         });
+
+        Button cancelButton = new Button("Cancel", new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                closeDialog();
+            }
+        });
+
+        HorizontalLayout buttonBar = new HorizontalLayout();
+        buttonBar.setSpacing(true);
+        buttonBar.addComponent(okButton);
+        buttonBar.addComponent(cancelButton);
+
+        VerticalLayout layout = (VerticalLayout) getContent();
+        layout.setMargin(true);
+        layout.setSpacing(true);
+        layout.addComponent(fields);
+        layout.addComponent(buttonBar);
+
         // The components added to the window are actually added to the window's
         // layout; you can use either. Alignments are set using the layout
-        layout.addComponent(close);
-        layout.setComponentAlignment(close, Alignment.BOTTOM_RIGHT);
+        layout.setComponentAlignment(buttonBar, Alignment.BOTTOM_RIGHT);
     }
 
-    public void setOkListeren(AddFunction addFunction) {
-        m_addFunction = addFunction;
-    }
-
-    public void show() {
+    public void show(final Window window) {
         if (getParent() != null) {
             // window is already showing
-            m_main.getWindow().showNotification("Window is already open");
+            window.showNotification("Window is already open");
         }
         else {
-            // Open the subwindow by adding it to the parent
-            // window
-            m_main.getWindow().addWindow(this);
+            // Open the subwindow by adding it to the parent window
+            window.addWindow(this);
         }
         setRelevantFocus();
     }
 
+    /**
+     * Closes this dialog by removing it from the parent window.
+     */
+    void closeDialog() {
+        // close the window by removing it from the parent window
+        getParent().removeWindow(this);
+    }
+
+    /**
+     * Called when the user acknowledges this window by pressing Ok.
+     * 
+     * @param name the value of the name field;
+     * @param description the value of the description field.
+     * @throws Exception in case the creation failed.
+     */
+    protected abstract void onOk(String name, String description) throws Exception;
+
+    /**
+     * Called when the {@link #onOk(String, String)} method failed with an exception.
+     * 
+     * @param e the exception to handle, never <code>null</code>.
+     */
+    protected abstract void handleError(Exception e);
+
+    /**
+     * Sets the focus to the name field.
+     */
     private void setRelevantFocus() {
         m_name.focus();
     }
