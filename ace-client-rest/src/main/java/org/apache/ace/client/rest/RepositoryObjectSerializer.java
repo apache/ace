@@ -39,6 +39,8 @@ import com.google.gson.JsonSerializer;
 public class RepositoryObjectSerializer implements JsonSerializer<RepositoryObject> {
 
     /** used in all repository objects. */
+    private static final String DEFINITION = "definition";
+    /** used in all repository objects. */
     private static final String TAGS = "tags";
     /** used in all repository objects. */
     private static final String ATTRIBUTES = "attributes";
@@ -80,7 +82,10 @@ public class RepositoryObjectSerializer implements JsonSerializer<RepositoryObje
      */
     private JsonElement serializeStatefulTargetObject(StatefulTargetObject targetObject) {
         JsonObject result = new JsonObject();
-        // first add all attributes
+        // ACE-243: first all the definition...
+        result.addProperty(DEFINITION, targetObject.getDefinition());
+
+        // then add all attributes
         JsonObject attr = new JsonObject();
 
         if (targetObject.isRegistered()) {
@@ -151,7 +156,10 @@ public class RepositoryObjectSerializer implements JsonSerializer<RepositoryObje
      */
     private JsonElement serializeRepositoryObject(RepositoryObject repositoryObject) {
         JsonObject result = new JsonObject();
-        // first add all attributes
+        // ACE-243: first all the definition...
+        result.addProperty(DEFINITION, repositoryObject.getDefinition());
+        
+        // then add all attributes
         JsonObject attr = new JsonObject();
         
         Enumeration<String> keys = repositoryObject.getAttributeKeys();
