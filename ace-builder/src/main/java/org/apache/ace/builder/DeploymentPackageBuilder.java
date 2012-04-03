@@ -18,7 +18,6 @@
  */
 package org.apache.ace.builder;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,8 +51,11 @@ import java.util.zip.ZipEntry;
  */
 public class DeploymentPackageBuilder {
 	private static final int BUFFER_SIZE = 32 * 1024;
+	private static final String PREFIX_BUNDLE = "bundle-";
+	private static final String PREFIX_ARTIFACT = "artifact-";
 	private final String m_name;
 	private final String m_version;
+	private int m_id = 1;
 	private final List<ArtifactData> m_bundles = new ArrayList<ArtifactData>();
 	private final List<ArtifactData> m_processors = new ArrayList<ArtifactData>();
 	private final List<ArtifactData> m_artifacts = new ArrayList<ArtifactData>();
@@ -100,14 +102,19 @@ public class DeploymentPackageBuilder {
 	/**
 	 * Adds an artifact to the deployment package.
 	 * 
-	 * @param url a url that refers to the bundle
+	 * @param url a url that refers to the artifact
 	 * @param processorPID the PID of the processor for this artifact
 	 * @return a builder to further add data to the deployment package
 	 * @throws Exception if something goes wrong while building
 	 */
 	public DeploymentPackageBuilder addArtifact(URL url, String processorPID) throws Exception {
-        File file = new File(url.toURI());
-    	m_artifacts.add(ArtifactData.createArtifact(url, file.getName(), processorPID));
+		String path = url.getPath();
+		int i = path.lastIndexOf('/');
+		if (i > 0 && i < (path.length() - 1)) {
+			path = path.substring(i + 1);
+		}
+		String name = PREFIX_ARTIFACT + getUniqueID() + "-" + path;
+    	m_artifacts.add(ArtifactData.createArtifact(url, name, processorPID));
 		return this;
 	}
 
@@ -140,16 +147,20 @@ public class DeploymentPackageBuilder {
 	        Attributes attributes = bundleManifest.getMainAttributes();
 			String bundleSymbolicName = getRequiredHeader(attributes, "Bundle-SymbolicName");
 	        String bundleVersion = getRequiredHeader(attributes, "Bundle-Version");
-	        File file = new File(url.toURI());
-	        if (isResourceProcessor) {
+	        String name = PREFIX_BUNDLE + bundleSymbolicName + "-" + bundleVersion;
+	        int i = name.lastIndexOf('/');
+	        if (i > 0 && i < (name.length() - 1)) {
+	        	name = name.substring(i + 1);
+	        }
+			if (isResourceProcessor) {
 	        	if (!"true".equals(getRequiredHeader(attributes, "DeploymentPackage-Customizer"))) {
 	        		throw new IOException("Invalid DeploymentPackage-Customizer header in: " + url);
 	        	}
 	        	String processorPID = getRequiredHeader(attributes, "Deployment-ProvidesResourceProcessor");
-	        	m_processors.add(ArtifactData.createResourceProcessor(url, file.getName(), bundleSymbolicName, bundleVersion, processorPID));
+	        	m_processors.add(ArtifactData.createResourceProcessor(url, name, bundleSymbolicName, bundleVersion, processorPID));
 	        }
 	        else {
-	        	m_bundles.add(ArtifactData.createBundle(url, file.getName(), bundleSymbolicName, bundleVersion));
+	        	m_bundles.add(ArtifactData.createBundle(url, name, bundleSymbolicName, bundleVersion));
 	        }
 		}
 		finally {
@@ -239,4 +250,8 @@ public class DeploymentPackageBuilder {
             }
         }
     }
+	
+	private synchronized int getUniqueID() {
+		return m_id++;
+	}
 }
