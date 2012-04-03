@@ -88,6 +88,7 @@ import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.TableTransferable;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.Notification;
 
 /*
 
@@ -687,7 +688,13 @@ public class VaadinClient extends com.vaadin.Application {
             setStyleName("small");
             addListener(new Button.ClickListener() {
                 public void buttonClick(ClickEvent event) {
-                    repository.remove(object);
+                    try {
+                        repository.remove(object);
+                    }
+                    catch (Exception e) {
+                        // ACE-246: notify user when the removal failed!
+                        getWindow().showNotification("Failed to remove item!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                    }
                 }
             });
         }
