@@ -39,23 +39,22 @@ import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
-import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
-import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
-import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
 import org.apache.ace.client.repository.repository.DistributionRepository;
+import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
+import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
-import org.apache.ace.webui.domain.OBREntry;
 import org.apache.ace.webui.vaadin.component.MainActionToolbar;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
@@ -77,7 +76,6 @@ import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.TargetDetails;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.event.dd.acceptcriteria.Or;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractSelect.AbstractSelectTargetDetails;
 import com.vaadin.ui.AbstractSelect.VerticalLocationIs;
 import com.vaadin.ui.Button;
@@ -90,7 +88,6 @@ import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.TableTransferable;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
 
 /*
 
@@ -109,11 +106,14 @@ import com.vaadin.ui.Window.Notification;
  */
 @SuppressWarnings("serial")
 public class VaadinClient extends com.vaadin.Application {
+    
     public static final String OBJECT_NAME = "name";
     public static final String OBJECT_DESCRIPTION = "description";
 
     private static final long serialVersionUID = 1L;
+    
     private static long SESSION_ID = 12345;
+    
     private static String targetRepo = "target";
     private static String shopRepo = "shop";
     private static String deployRepo = "deployment";
@@ -137,14 +137,10 @@ public class VaadinClient extends com.vaadin.Application {
     private volatile RepositoryAdmin m_admin;
     private volatile LogService m_log;
     private String m_sessionID;
-    private volatile List<DistributionObject> m_distributions;
     private ObjectPanel m_artifactsPanel;
     private ObjectPanel m_featuresPanel;
     private ObjectPanel m_distributionsPanel;
     private ObjectPanel m_targetsPanel;
-    private List<ArtifactObject> m_artifacts;
-    private List<FeatureObject> m_features;
-    private List<StatefulTargetObject> m_targets;
     private final Associations m_associations = new Associations();
 
     private GridLayout m_grid;
@@ -212,32 +208,40 @@ public class VaadinClient extends com.vaadin.Application {
         setTheme("ace");
         if (!m_dependenciesResolved.get()) {
             final Window message = new Window("Apache ACE");
-            setMainWindow(message);
             message.getContent().setSizeFull();
-            Label richText =
-                new Label(
+            setMainWindow(message);
+            
+            Label richText = new Label(
                     "<h1>Apache ACE User Interface</h1>"
                         + "<p>Due to missing component dependencies on the server, probably due to misconfiguration, "
                         + "the user interface cannot be properly started. Please contact your server administrator. "
                         + "You can retry accessing the user interface by <a href=\"?restartApplication\">following this link</a>.</p>");
-            // TODO we might want to add some more details here as to what's
-            // missing
-            // on the other hand, the user probably can't fix that anyway
             richText.setContentMode(Label.CONTENT_XHTML);
+            
+            // TODO we might want to add some more details here as to what's
+            // missing on the other hand, the user probably can't fix that anyway
             message.addComponent(richText);
             return;
         }
 
         m_mainWindow = new Window("Apache ACE");
-        setMainWindow(m_mainWindow);
         m_mainWindow.getContent().setSizeFull();
+        
+        setMainWindow(m_mainWindow);
 
+        showLoginWindow();
+    }
+
+    /**
+     * Shows the login window on the center of the main window.
+     */
+    private void showLoginWindow() {
         LoginWindow loginWindow = new LoginWindow(m_log, new LoginWindow.LoginFunction() {
             public boolean login(String name, String password) {
                 return VaadinClient.this.login(name, password);
             }
         });
-        m_mainWindow.getWindow().addWindow(loginWindow);
+        m_mainWindow.addWindow(loginWindow);
         loginWindow.center();
     }
 
@@ -470,6 +474,12 @@ public class VaadinClient extends com.vaadin.Application {
             @Override
             protected void doAfterCommit() throws IOException {
                 // Nop
+            }
+            
+            @Override
+            protected void doAfterLogout() throws IOException {
+                // Close the application and reload the main window...
+                close();
             }
 
             private void updateTableData() {
@@ -796,12 +806,10 @@ public class VaadinClient extends com.vaadin.Application {
                 if (item != null) {
                     item.getItemProperty(OBJECT_NAME).setValue(statefulTarget.getID());
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue("");
-                    Button removeLinkButton = new RemoveLinkButton<StatefulTargetObject>(statefulTarget,
-                        m_distributionsPanel, null) {
+                    Button removeLinkButton = new RemoveLinkButton<StatefulTargetObject>(statefulTarget, m_distributionsPanel, null) {
                         @Override
                         protected void removeLinkFromLeft(StatefulTargetObject object, RepositoryObject other) {
-                            List<Distribution2TargetAssociation> associations = object
-                                .getAssociationsWith((DistributionObject) other);
+                            List<Distribution2TargetAssociation> associations = object.getAssociationsWith((DistributionObject) other);
                             for (Distribution2TargetAssociation association : associations) {
                                 m_license2TargetAssociationRepository.remove(association);
                             }
@@ -848,10 +856,8 @@ public class VaadinClient extends com.vaadin.Application {
             if (transferable instanceof TableTransferable) {
                 TableTransferable tt = (TableTransferable) transferable;
                 Object fromItemId = tt.getItemId();
-                // get the active selection, but only if we drag from the same
-                // table
-                Set<?> selection = m_associations.isActiveTable(tt.getSourceComponent()) ? m_associations
-                    .getActiveSelection() : null;
+                // get the active selection, but only if we drag from the same table
+                Set<?> selection = m_associations.isActiveTable(tt.getSourceComponent()) ? m_associations.getActiveSelection() : null;
                 if (targetDetails instanceof AbstractSelectTargetDetails) {
                     AbstractSelectTargetDetails ttd = (AbstractSelectTargetDetails) targetDetails;
                     Object toItemId = ttd.getItemIdOver();
@@ -875,11 +881,10 @@ public class VaadinClient extends com.vaadin.Application {
                             associateFromRight((String) toItemId, (String) fromItemId);
                         }
                     }
-                    // TODO add to highlighting (it's probably easiest to
-                    // recalculate the whole
-                    // set of related and associated items here, see
-                    // SelectionListener, or to manually
-                    // figure out the changes in all cases
+                    // TODO add to highlighting (it's probably easiest to 
+                    // recalculate the whole set of related and associated 
+                    // items here, see SelectionListener, or to manually figure
+                    // out the changes in all cases
                 }
             }
         }
@@ -1051,14 +1056,6 @@ public class VaadinClient extends com.vaadin.Application {
         return m_statefulTargetRepository.get(name);
     }
 
-    private void deleteFeature(String name) {
-        FeatureObject feature = getFeature(name);
-        if (feature != null) {
-            m_featureRepository.remove(feature);
-            // TODO cleanup links?
-        }
-    }
-
     @Override
     public void close() {
         super.close();
@@ -1145,14 +1142,13 @@ public class VaadinClient extends com.vaadin.Application {
             }
         }
 
-        private void init(Component component) {
+        public void init(Component component) {
             populate();
             DependencyManager dm = component.getDependencyManager();
             component.add(dm
                 .createServiceDependency()
                 .setInstanceBound(true)
-                .setService(UIExtensionFactory.class,
-                    "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + m_extensionPoint + ")")
+                .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + m_extensionPoint + ")")
                 .setCallbacks("addExtension", "removeExtension"));
         }
 

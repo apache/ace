@@ -18,17 +18,16 @@
  */
 package org.apache.ace.webui.vaadin;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
-import org.osgi.framework.*;
 
 public class VaadinResourceHandler {
     private volatile HttpService m_http;
