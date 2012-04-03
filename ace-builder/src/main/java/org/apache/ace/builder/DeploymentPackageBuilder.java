@@ -136,6 +136,16 @@ public class DeploymentPackageBuilder {
 		writeStream(artifacts, m, output);
 	}
 	
+	/** Returns the symbolic name of the deployment package. */
+	public String getName() {
+		return m_name;
+	}
+
+	/** Returns the version of the deployment package. */
+	public String getVersion() {
+		return m_version;
+	}
+	
 	private DeploymentPackageBuilder addBundleArtifact(URL url, boolean isResourceProcessor) throws Exception {
 		JarInputStream jis = null;
 		try {
