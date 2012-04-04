@@ -312,8 +312,8 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             String extraPorts = getConfigProperty(properties, EXTRA_PORTS, "");
             String runAsRoot = getConfigProperty(properties, RUN_AS_ROOT, "false");
             String aceLauncher = getConfigProperty(properties, ACE_LAUNCHER, "ace-launcher.jar");
-            String additionalObrDownloads = getConfigProperty(properties, ADDITIONAL_OBR_DOWNLOADS);
-            String externalDownloadUrls = getConfigProperty(properties, EXTERNAL_DOWNLOAD_URLS);
+            String additionalObrDownloads = getConfigProperty(properties, ADDITIONAL_OBR_DOWNLOADS, "");
+            String externalDownloadUrls = getConfigProperty(properties, EXTERNAL_DOWNLOAD_URLS, "");
 
             m_server = server;
             m_amiId = amiId;
