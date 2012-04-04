@@ -89,13 +89,14 @@
         <dependency>
             <groupId>org.jclouds.driver</groupId>
             <artifactId>jclouds-sshj</artifactId>
-            <version>1.2.1</version>
+            <version>1.4.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.jclouds</groupId>
-            <artifactId>jclouds-allcompute</artifactId>
-            <version>1.2.1</version>
+            <groupId>org.jclouds.provider</groupId>
+            <artifactId>aws-ec2</artifactId>
+            <version>1.4.0</version>
+
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
