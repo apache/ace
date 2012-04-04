@@ -68,6 +68,7 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.Transferable;
@@ -320,8 +321,7 @@ public class VaadinClient extends com.vaadin.Application {
         m_featuresPanel.addListener(m_associations.createSelectionListener(m_featuresPanel, m_featureRepository,
             new Class[] { ArtifactObject.class }, new Class[] { DistributionObject.class, TargetObject.class },
             new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }));
-        m_distributionsPanel
-            .addListener(m_associations.createSelectionListener(m_distributionsPanel, m_distributionRepository,
+        m_distributionsPanel.addListener(m_associations.createSelectionListener(m_distributionsPanel, m_distributionRepository,
                 new Class[] { FeatureObject.class, ArtifactObject.class }, new Class[] { TargetObject.class },
                 new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
         m_targetsPanel.addListener(m_associations.createSelectionListener(m_targetsPanel, m_statefulTargetRepository,
@@ -554,8 +554,7 @@ public class VaadinClient extends com.vaadin.Application {
                         }
                     };
                     buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton<ArtifactObject, ArtifactRepository>(artifact,
-                        m_artifactRepository));
+                    buttons.addComponent(new RemoveItemButton(artifact, m_artifactRepository));
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
@@ -632,8 +631,7 @@ public class VaadinClient extends com.vaadin.Application {
                     };
                     HorizontalLayout buttons = new HorizontalLayout();
                     buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton<FeatureObject, FeatureRepository>(feature,
-                        m_featureRepository));
+                    buttons.addComponent(new RemoveItemButton(feature, m_featureRepository));
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
@@ -682,10 +680,11 @@ public class VaadinClient extends com.vaadin.Application {
         protected abstract void removeLinkFromRight(REPO_OBJECT object, RepositoryObject other);
     }
 
-    public class RemoveItemButton<REPO_OBJECT extends RepositoryObject, REPO extends ObjectRepository> extends Button {
-        public RemoveItemButton(final REPO_OBJECT object, final REPO repository) {
+    public class RemoveItemButton extends Button {
+        public RemoveItemButton(final RepositoryObject object, final ObjectRepository repository) {
             super("x");
             setStyleName("small");
+            
             addListener(new Button.ClickListener() {
                 public void buttonClick(ClickEvent event) {
                     try {
@@ -734,8 +733,7 @@ public class VaadinClient extends com.vaadin.Application {
                 if (item != null) {
                     item.getItemProperty(OBJECT_NAME).setValue(distribution.getName());
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
-                    Button removeLinkButton = new RemoveLinkButton<DistributionObject>(distribution, m_featuresPanel,
-                        m_targetsPanel) {
+                    Button removeLinkButton = new RemoveLinkButton<DistributionObject>(distribution, m_featuresPanel, m_targetsPanel) {
                         @Override
                         protected void removeLinkFromLeft(DistributionObject object, RepositoryObject other) {
                             List<Feature2DistributionAssociation> associations = object
@@ -760,8 +758,7 @@ public class VaadinClient extends com.vaadin.Application {
                     };
                     HorizontalLayout buttons = new HorizontalLayout();
                     buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton<DistributionObject, DistributionRepository>(distribution,
-                        m_distributionRepository));
+                    buttons.addComponent(new RemoveItemButton(distribution, m_distributionRepository));
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
@@ -781,6 +778,8 @@ public class VaadinClient extends com.vaadin.Application {
 
     private ObjectPanel createTargetsPanel(Window main) {
         return new ObjectPanel(m_associations, "Target", UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET, main, true) {
+            private RemoveItemButton m_deleteButton;
+            
             @Override
             protected RepositoryObject getFromId(String id) {
                 return getTarget(id);
@@ -794,8 +793,7 @@ public class VaadinClient extends com.vaadin.Application {
             }
 
             public void handleEvent(org.osgi.service.event.Event event) {
-                StatefulTargetObject statefulTarget = (StatefulTargetObject) event
-                    .getProperty(StatefulTargetObject.EVENT_ENTITY);
+                StatefulTargetObject statefulTarget = (StatefulTargetObject) event.getProperty(StatefulTargetObject.EVENT_ENTITY);
                 String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
                 if (StatefulTargetObject.TOPIC_ADDED.equals(topic)) {
                     add(statefulTarget);
@@ -828,9 +826,12 @@ public class VaadinClient extends com.vaadin.Application {
                         protected void removeLinkFromRight(StatefulTargetObject object, RepositoryObject other) {
                         }
                     };
+                    m_deleteButton = new RemoveItemButton(statefulTarget, m_statefulTargetRepository);
+                    m_deleteButton.setEnabled(statefulTarget.isRegistered());
+
                     HorizontalLayout buttons = new HorizontalLayout();
                     buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton<StatefulTargetObject, StatefulTargetRepository>(statefulTarget, m_statefulTargetRepository));
+                    buttons.addComponent(m_deleteButton);
                     item.getItemProperty(ACTIONS).setValue(buttons);
                 }
             }
@@ -839,6 +840,8 @@ public class VaadinClient extends com.vaadin.Application {
                 Item item = getItem(statefulTarget.getDefinition());
                 if (item != null) {
                     item.getItemProperty(OBJECT_DESCRIPTION).setValue("");
+
+                    m_deleteButton.setEnabled(statefulTarget.isRegistered());
                 }
             }
 
@@ -1116,25 +1119,32 @@ public class VaadinClient extends com.vaadin.Application {
     
     public abstract class ObjectPanel extends Table implements EventHandler {
         public static final String ACTIONS = "actions";
-        protected Table m_table = this;
-        protected Associations m_associations;
-        private List<UIExtensionFactoryHolder> m_extensionFactories = new ArrayList<UIExtensionFactoryHolder>();
+        
+        protected final Table m_table;
+        protected final Associations m_associations;
+
+        private final List<UIExtensionFactoryHolder> m_extensionFactories;
         private final String m_extensionPoint;
 
-        public ObjectPanel(Associations associations, final String name, String extensionPoint, final Window main,
-            boolean hasEdit) {
+        public ObjectPanel(Associations associations, final String name, String extensionPoint, final Window main, final boolean hasEdit) {
             super(name + "s");
+
+            m_table = this;
+            m_extensionFactories = new ArrayList<UIExtensionFactoryHolder>();
             m_associations = associations;
             m_extensionPoint = extensionPoint;
+
             addContainerProperty(OBJECT_NAME, String.class, null);
             addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
             addContainerProperty(ACTIONS, HorizontalLayout.class, null);
+
             setSizeFull();
             setCellStyleGenerator(m_associations.createCellStyleGenerator());
             setSelectable(true);
             setMultiSelect(true);
             setImmediate(true);
             setDragMode(TableDragMode.MULTIROW);
+
             if (hasEdit) {
                 addListener(new ItemClickListener() {
                     public void itemClick(ItemClickEvent event) {
@@ -1151,6 +1161,7 @@ public class VaadinClient extends com.vaadin.Application {
 
         public void init(Component component) {
             populate();
+            
             DependencyManager dm = component.getDependencyManager();
             component.add(dm
                 .createServiceDependency()
