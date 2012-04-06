@@ -62,55 +62,51 @@ public class TargetManagementExtension implements UIExtensionFactory {
         registerCB.setImmediate(true);
         registerCB.setEnabled(!target.isRegistered());
         registerCB.setValue(Boolean.valueOf(target.isRegistered()));
-        registerCB.addListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                if (event.getButton().booleanValue()) {
-                    target.register();
-                    registerCB.setEnabled(!target.isRegistered());
-                }
-            }
-        });
 
         result.addComponent(registerCB);
 
-        CheckBox autoApproveCB = new CheckBox("Auto approve?");
+        final CheckBox autoApproveCB = new CheckBox("Auto approve?");
         autoApproveCB.setImmediate(true);
         autoApproveCB.setEnabled(target.isRegistered());
         autoApproveCB.setValue(Boolean.valueOf(target.getAutoApprove()));
-        autoApproveCB.addListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                target.setAutoApprove(event.getButton().booleanValue());
-            }
-        });
 
         result.addComponent(autoApproveCB);
 
 
         final Button approveButton = new Button("Approve changes");
         approveButton.setImmediate(true);
-        approveButton.setEnabled(hasUnapprovedChanges(target));
-        approveButton.addListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                target.approve();
-                approveButton.setEnabled(hasUnapprovedChanges(target));
-            }
-        });
+        approveButton.setEnabled(target.needsApprove());
 
         result.addComponent(approveButton);
         
         // Add a spacer that fill the remainder of the available space...
         result.addComponent(new Label(" "));
         result.setRowExpandRatio(3, 1.0f);
+        
+        // Add all listeners...
+        registerCB.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                if (event.getButton().booleanValue()) {
+                    target.register();
+                    registerCB.setEnabled(!target.isRegistered());
+                    autoApproveCB.setEnabled(target.isRegistered());
+                }
+            }
+        });
+        autoApproveCB.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                target.setAutoApprove(event.getButton().booleanValue());
+                approveButton.setEnabled(target.needsApprove());
+            }
+        });
+        approveButton.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                target.approve();
+                approveButton.setEnabled(target.needsApprove());
+            }
+        });
 
         return result;
-    }
-
-    /**
-     * @param target
-     * @return
-     */
-    private boolean hasUnapprovedChanges(StatefulTargetObject target) {
-    	return target.needsApprove();
     }
 
     private RepositoryObject getRepositoryObjectFromContext(Map<String, Object> context) {
@@ -118,10 +114,7 @@ public class TargetManagementExtension implements UIExtensionFactory {
         if (contextObject == null) {
             throw new IllegalStateException("No context object found");
         }
-        // It looks like there is some bug (or some other reason that escapes
-        // me) why ace is using either the object directly or wraps it in a
-        // NamedObject first.
-        // Its unclear when it does which so for now we cater for both.
+
         return (contextObject instanceof NamedObject ? ((NamedObject) contextObject).getObject()
             : (RepositoryObject) contextObject);
     }
