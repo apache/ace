@@ -37,7 +37,9 @@ import java.util.Dictionary;
 
 public class VaadinServlet extends AbstractApplicationServlet implements ManagedService {
     private static final long serialVersionUID = 1L;
+    
     public static final String PID = "org.apache.ace.webui.vaadin";
+    
     public static final String ACE_HOST = "aceHost";
     public static final String OBR_URL = "obrUrl";
 
@@ -74,7 +76,6 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     }
 
     public void updated(Dictionary dictionary) throws ConfigurationException {
-        System.out.println("There's a config! "+ dictionary);
         if (dictionary != null) {
             URL aceHost;
             try {

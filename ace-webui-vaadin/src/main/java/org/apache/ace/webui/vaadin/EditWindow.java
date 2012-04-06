@@ -19,6 +19,8 @@
 package org.apache.ace.webui.vaadin;
 
 import com.vaadin.ui.*;
+import com.vaadin.ui.Button.ClickEvent;
+
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.ace.webui.domain.NamedTargetObject;
@@ -27,78 +29,116 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Provides a generic editor for repository objects.
+ */
 public class EditWindow extends Window {
-    private final Window m_main;
-    private TextField m_name;
 
-    public EditWindow(final NamedObject object, Window main, List<UIExtensionFactory> factories) {
-        m_main = main;
+    private final TextField m_name;
+    private final TextField m_description;
+
+    /**
+     * @param object
+     * @param factories
+     */
+    public EditWindow(final NamedObject object, List<UIExtensionFactory> factories) {
         setModal(true);
         setCaption("Edit " + object.getName());
         setWidth("500px");
 
-        VerticalLayout layout = (VerticalLayout) getContent();
-        layout.setMargin(true);
-        layout.setSpacing(true);
+        m_name = new TextField("Name", object.getName());
+        m_name.setReadOnly(object instanceof NamedTargetObject);
+        m_name.setWidth("100%");
 
-        m_name = new TextField("name");
-        final TextField description = new TextField("description");
+        m_description = new TextField("Description", object.getDescription());
+        m_description.setWidth("100%");
 
-        m_name.setValue(object.getName());
-        description.setValue(object.getDescription());
-
-        layout.addComponent(m_name);
-        layout.addComponent(description);
+        VerticalLayout fields = new VerticalLayout();
+        fields.setSpacing(true);
+        fields.addComponent(m_name);
+        fields.addComponent(m_description);
 
         TabSheet tabs = new TabSheet();
         tabs.setHeight("350px");
+        tabs.setWidth("100%");
+        tabs.setVisible(!factories.isEmpty());
+
         Map<String, Object> context = new HashMap<String, Object>();
         context.put("object", object);
+
         for (UIExtensionFactory factory : factories) {
             try {
-                com.vaadin.ui.Component component = factory.create(context);
-                tabs.addTab(component);
-            } catch (Throwable ex) {
+                tabs.addTab(factory.create(context));
+            }
+            catch (Throwable ex) {
                 // We ignore extension factories that throw exceptions
                 // TODO: log this or something
                 ex.printStackTrace();
             }
         }
-        layout.addComponent(tabs);
 
-        Button close = new Button("Ok", new Button.ClickListener() {
-            // inline click-listener
+        Button okButton = new Button("Ok", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                // close the window by removing it from the parent window
-                getParent().removeWindow(EditWindow.this);
                 if (object instanceof NamedTargetObject) {
                     // do nothing
                 }
                 else {
-                    object.setDescription((String) description.getValue());
+                    object.setDescription((String) m_description.getValue());
                 }
+
+                closeDialog();
             }
         });
+
+        Button cancelButton = new Button("Cancel", new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                closeDialog();
+            }
+        });
+
+        HorizontalLayout buttonBar = new HorizontalLayout();
+        buttonBar.setSpacing(true);
+        buttonBar.addComponent(okButton);
+        buttonBar.addComponent(cancelButton);
+
+        VerticalLayout layout = (VerticalLayout) getContent();
+        layout.setMargin(true);
+        layout.setSpacing(true);
+        layout.addComponent(fields);
+        layout.addComponent(tabs);
+        layout.addComponent(buttonBar);
+
         // The components added to the window are actually added to the window's
         // layout; you can use either. Alignments are set using the layout
-        layout.addComponent(close);
-        layout.setComponentAlignment(close, Alignment.BOTTOM_RIGHT);
+        layout.setComponentAlignment(buttonBar, Alignment.BOTTOM_RIGHT);
     }
 
-    public void show() {
+    /**
+     * @param parent
+     */
+    public void show(Window parent) {
         if (getParent() != null) {
             // window is already showing
-            m_main.getWindow().showNotification("Window is already open");
-        } else {
-            // Open the subwindow by adding it to the parent
-            // window
-            m_main.getWindow().addWindow(this);
+            parent.showNotification("Window is already open!");
+        }
+        else {
+            parent.addWindow(this);
         }
         setRelevantFocus();
     }
 
+    /**
+     * Closes this dialog by removing it from the parent window.
+     */
+    void closeDialog() {
+        // close the window by removing it from the parent window
+        getParent().removeWindow(this);
+    }
+
+    /**
+     * Sets the focus to the name field.
+     */
     private void setRelevantFocus() {
         m_name.focus();
     }
 }
-

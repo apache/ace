@@ -1070,6 +1070,11 @@ div.v-app-loading {
 	overflow: hidden; /* for IE6 */
 	background: #ddd;
 }
+
+.v-progressindicator-invisible {
+	display: none;
+}
+
 div.v-progressindicator-indeterminate {
 	height: 20px;
 	width: 20px;

@@ -20,18 +20,13 @@ package org.apache.ace.webui.vaadin;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.RepositoryObject;
@@ -53,13 +48,14 @@ import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.test.utils.FileUtils;
-import org.apache.ace.webui.NamedObject;
-import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.vaadin.component.ArtifactsPanel;
+import org.apache.ace.webui.vaadin.component.DistributionsPanel;
+import org.apache.ace.webui.vaadin.component.FeaturesPanel;
 import org.apache.ace.webui.vaadin.component.MainActionToolbar;
+import org.apache.ace.webui.vaadin.component.TargetsPanel;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
@@ -67,10 +63,6 @@ import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.Transferable;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
@@ -89,7 +81,6 @@ import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.TableTransferable;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
 
 /*
 
@@ -108,9 +99,6 @@ import com.vaadin.ui.Window.Notification;
  */
 @SuppressWarnings("serial")
 public class VaadinClient extends com.vaadin.Application {
-    
-    public static final String OBJECT_NAME = "name";
-    public static final String OBJECT_DESCRIPTION = "description";
 
     private static final long serialVersionUID = 1L;
     
@@ -122,9 +110,6 @@ public class VaadinClient extends com.vaadin.Application {
     private static String customerName = "apache";
     private static String endpoint = "/repository";
 
-    private URL m_aceHost;
-    private URL m_obrUrl;
-
     private volatile DependencyManager m_manager;
     private volatile BundleContext m_context;
     private volatile SessionFactory m_sessionFactory;
@@ -133,28 +118,33 @@ public class VaadinClient extends com.vaadin.Application {
     private volatile FeatureRepository m_featureRepository;
     private volatile DistributionRepository m_distributionRepository;
     private volatile StatefulTargetRepository m_statefulTargetRepository;
-    private volatile Artifact2FeatureAssociationRepository m_artifact2GroupAssociationRepository;
-    private volatile Feature2DistributionAssociationRepository m_group2LicenseAssociationRepository;
-    private volatile Distribution2TargetAssociationRepository m_license2TargetAssociationRepository;
+    private volatile Artifact2FeatureAssociationRepository m_artifact2featureAssociationRepository;
+    private volatile Feature2DistributionAssociationRepository m_feature2distributionAssociationRepository;
+    private volatile Distribution2TargetAssociationRepository m_distribution2targetAssociationRepository;
     private volatile RepositoryAdmin m_admin;
     private volatile LogService m_log;
+    
     private String m_sessionID;
-    private ObjectPanel m_artifactsPanel;
-    private ObjectPanel m_featuresPanel;
-    private ObjectPanel m_distributionsPanel;
-    private ObjectPanel m_targetsPanel;
-    private final Associations m_associations = new Associations();
-
+    private ArtifactsPanel m_artifactsPanel;
+    private FeaturesPanel m_featuresPanel;
+    private DistributionsPanel m_distributionsPanel;
+    private TargetsPanel m_targetsPanel;
     private GridLayout m_grid;
-
     private boolean m_dynamicRelations = true;
     private File m_sessionDir; // private folder for session info
-    private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
     private HorizontalLayout m_artifactToolbar;
     private Button m_featureToolbar;
     private Button m_distributionToolbar;
     private Button m_targetToolbar;
     private Window m_mainWindow;
+
+    private final URL m_aceHost;
+    private final URL m_obrUrl;
+    
+    private final Associations m_associations = new Associations();
+    private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
+
+    private ProgressIndicator m_progress;
 
     // basic session ID generator
     private static long generateSessionID() {
@@ -193,11 +183,12 @@ public class VaadinClient extends com.vaadin.Application {
     // @formatter:on
 
     public void start() {
-        System.out.println("Starting " + m_sessionID);
+        m_log.log(LogService.LOG_INFO, "Starting session #" + m_sessionID);
         m_dependenciesResolved.set(true);
     }
 
     public void stop() {
+        m_log.log(LogService.LOG_INFO, "Stopping session #" + m_sessionID);
         m_dependenciesResolved.set(false);
     }
 
@@ -208,6 +199,7 @@ public class VaadinClient extends com.vaadin.Application {
 
     public void init() {
         setTheme("ace");
+        
         if (!m_dependenciesResolved.get()) {
             final Window message = new Window("Apache ACE");
             message.getContent().setSizeFull();
@@ -225,7 +217,7 @@ public class VaadinClient extends com.vaadin.Application {
             message.addComponent(richText);
             return;
         }
-
+        
         m_mainWindow = new Window("Apache ACE");
         m_mainWindow.getContent().setSizeFull();
         
@@ -308,12 +300,27 @@ public class VaadinClient extends com.vaadin.Application {
             m_grid.addComponent(m_targetsPanel, count, 2);
             m_grid.addComponent(m_targetToolbar, count, 1);
         }
+        
+        // Wire up all panels so they have the correct associations...
+        m_artifactsPanel.setLeftTable(null);
+        m_artifactsPanel.setRightTable(m_featuresPanel);
+        
+        m_featuresPanel.setLeftTable(m_artifactsPanel);
+        m_featuresPanel.setRightTable(m_distributionsPanel);
+        
+        m_distributionsPanel.setLeftTable(m_featuresPanel);
+        m_distributionsPanel.setRightTable(m_targetsPanel);
+        
+        m_targetsPanel.setLeftTable(m_distributionsPanel);
+        m_targetsPanel.setRightTable(null);
 
         m_grid.setRowExpandRatio(2, 1.0f);
 
-        ProgressIndicator progress = new ProgressIndicator(0f);
-        progress.setPollingInterval(500);
-        m_grid.addComponent(progress, 0, 3);
+        m_progress = new ProgressIndicator(0f);
+        m_progress.setStyleName("invisible");
+        m_progress.setPollingInterval(500);
+        
+        m_grid.addComponent(m_progress, 0, 3);
 
         m_artifactsPanel.addListener(m_associations.createSelectionListener(m_artifactsPanel, m_artifactRepository,
             new Class[] {}, new Class[] { FeatureObject.class, DistributionObject.class, TargetObject.class },
@@ -345,10 +352,10 @@ public class VaadinClient extends com.vaadin.Application {
                     if (m_dynamicRelations) {
                         Map<String, String> properties = new HashMap<String, String>();
                         properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
-                        m_artifact2GroupAssociationRepository.create(artifact, properties, getFeature(right), null);
+                        m_artifact2featureAssociationRepository.create(artifact, properties, getFeature(right), null);
                     }
                     else {
-                        m_artifact2GroupAssociationRepository.create(artifact, getFeature(right));
+                        m_artifact2featureAssociationRepository.create(artifact, getFeature(right));
                     }
                 }
             }
@@ -366,23 +373,23 @@ public class VaadinClient extends com.vaadin.Application {
                     if (m_dynamicRelations) {
                         Map<String, String> properties = new HashMap<String, String>();
                         properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
-                        m_artifact2GroupAssociationRepository.create(artifact, properties, getFeature(right), null);
+                        m_artifact2featureAssociationRepository.create(artifact, properties, getFeature(right), null);
                     }
                     else {
-                        m_artifact2GroupAssociationRepository.create(artifact, getFeature(right));
+                        m_artifact2featureAssociationRepository.create(artifact, getFeature(right));
                     }
                 }
             }
 
             @Override
             protected void associateFromRight(String left, String right) {
-                m_group2LicenseAssociationRepository.create(getFeature(left), getDistribution(right));
+                m_feature2distributionAssociationRepository.create(getFeature(left), getDistribution(right));
             }
         });
         m_distributionsPanel.setDropHandler(new AssociationDropHandler(m_featuresPanel, m_targetsPanel) {
             @Override
             protected void associateFromLeft(String left, String right) {
-                m_group2LicenseAssociationRepository.create(getFeature(left), getDistribution(right));
+                m_feature2distributionAssociationRepository.create(getFeature(left), getDistribution(right));
             }
 
             @Override
@@ -392,7 +399,7 @@ public class VaadinClient extends com.vaadin.Application {
                     target.register();
                     target.setAutoApprove(true);
                 }
-                m_license2TargetAssociationRepository.create(getDistribution(left), target.getTargetObject());
+                m_distribution2targetAssociationRepository.create(getDistribution(left), target.getTargetObject());
             }
         });
         m_targetsPanel.setDropHandler(new AssociationDropHandler(m_distributionsPanel, (Table) null) {
@@ -403,7 +410,7 @@ public class VaadinClient extends com.vaadin.Application {
                     target.register();
                     target.setAutoApprove(true);
                 }
-                m_license2TargetAssociationRepository.create(getDistribution(left), target.getTargetObject());
+                m_distribution2targetAssociationRepository.create(getDistribution(left), target.getTargetObject());
             }
 
             @Override
@@ -411,10 +418,11 @@ public class VaadinClient extends com.vaadin.Application {
             }
         });
 
-        addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL);
-        addListener(m_featuresPanel, FeatureObject.TOPIC_ALL);
-        addListener(m_distributionsPanel, DistributionObject.TOPIC_ALL);
-        addListener(m_targetsPanel, StatefulTargetObject.TOPIC_ALL);
+        addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
+        addListener(m_featuresPanel, FeatureObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
+        addListener(m_distributionsPanel, DistributionObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
+        addListener(m_targetsPanel, StatefulTargetObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
+
         m_mainWindow.addComponent(m_grid);
     }
 
@@ -446,13 +454,16 @@ public class VaadinClient extends com.vaadin.Application {
         }
     }
 
-    private void addListener(final Object implementation, final String topic) {
-        m_manager.add(m_manager.createComponent().setInterface(EventHandler.class.getName(), new Properties() {
-            {
-                put(EventConstants.EVENT_TOPIC, topic);
-                put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
-            }
-        }).setImplementation(implementation));
+    private void addListener(final Object implementation, final String... topics) {
+        Properties props = new Properties();
+        props.put(EventConstants.EVENT_TOPIC, topics);
+        props.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
+        // @formatter:off
+        m_manager.add(
+            m_manager.createComponent()
+                .setInterface(EventHandler.class.getName(), props)
+                .setImplementation(implementation));
+        // @formatter:on
     }
 
     private GridLayout createToolbar() {
@@ -474,7 +485,7 @@ public class VaadinClient extends com.vaadin.Application {
 
             @Override
             protected void doAfterCommit() throws IOException {
-                // Nop
+                updateTableData();
             }
             
             @Override
@@ -494,359 +505,90 @@ public class VaadinClient extends com.vaadin.Application {
         return mainActionToolbar;
     }
 
-    private ObjectPanel createArtifactsPanel(Window main) {
-        return new ObjectPanel(m_associations, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, main,
-            true) {
+    private ArtifactsPanel createArtifactsPanel(Window main) {
+        return new ArtifactsPanel(m_associations) {
+
             @Override
-            protected RepositoryObject getFromId(String id) {
-                return getArtifact(id);
+            protected ArtifactRepository getRepository() {
+                return m_artifactRepository;
             }
-
-            public void populate() {
-                removeAllItems();
-                for (ArtifactObject artifact : m_artifactRepository.get()) {
-                    add(artifact);
-                }
-            }
-
-            public void handleEvent(org.osgi.service.event.Event event) {
-                ArtifactObject artifact = (ArtifactObject) event.getProperty(ArtifactObject.EVENT_ENTITY);
-                String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
-                if (ArtifactObject.TOPIC_ADDED.equals(topic)) {
-                    add(artifact);
-                }
-                if (ArtifactObject.TOPIC_REMOVED.equals(topic)) {
-                    remove(artifact);
-                }
-                if (ArtifactObject.TOPIC_CHANGED.equals(topic)) {
-                    change(artifact);
-                }
-            }
-
-            private void add(ArtifactObject artifact) {
-                String resourceProcessorPID = artifact.getAttribute(BundleHelper.KEY_RESOURCE_PROCESSOR_PID);
-                if (resourceProcessorPID != null) {
-                    // if it's a resource processor we don't add it to our list,
-                    // as resource processors don't
-                    // show up there (you can query for them separately)
-
-                    return;
-                }
-                Item item = addItem(artifact.getDefinition());
-                if (item != null) {
-                    item.getItemProperty(OBJECT_NAME).setValue(artifact.getName());
-                    item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
-                    HorizontalLayout buttons = new HorizontalLayout();
-                    Button removeLinkButton = new RemoveLinkButton<ArtifactObject>(artifact, null, m_featuresPanel) {
-                        @Override
-                        protected void removeLinkFromLeft(ArtifactObject object, RepositoryObject other) {
-                        }
-
-                        @Override
-                        protected void removeLinkFromRight(ArtifactObject object, RepositoryObject other) {
-                            List<Artifact2FeatureAssociation> associations = object
-                                .getAssociationsWith((FeatureObject) other);
-                            for (Artifact2FeatureAssociation association : associations) {
-                                m_artifact2GroupAssociationRepository.remove(association);
-                            }
-                            m_associations.removeAssociatedItem(object);
-                            m_table.requestRepaint();
-                        }
-                    };
-                    buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton(artifact, m_artifactRepository));
-                    item.getItemProperty(ACTIONS).setValue(buttons);
-                }
-            }
-
-            private void change(ArtifactObject artifact) {
-                Item item = getItem(artifact.getDefinition());
-                if (item != null) {
-                    item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
-                }
-            }
-
-            private void remove(ArtifactObject artifact) {
-                removeItem(artifact.getDefinition());
-            }
-        };
-    }
-
-    private ObjectPanel createFeaturesPanel(Window main) {
-        return new ObjectPanel(m_associations, "Feature", UIExtensionFactory.EXTENSION_POINT_VALUE_FEATURE, main, true) {
-            @Override
-            protected RepositoryObject getFromId(String id) {
-                return getFeature(id);
-            }
-
-            public void populate() {
-                removeAllItems();
-                for (FeatureObject feature : m_featureRepository.get()) {
-                    add(feature);
-                }
-            }
-
-            public void handleEvent(org.osgi.service.event.Event event) {
-                FeatureObject feature = (FeatureObject) event.getProperty(FeatureObject.EVENT_ENTITY);
-                String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
-                if (FeatureObject.TOPIC_ADDED.equals(topic)) {
-                    add(feature);
-                }
-                if (FeatureObject.TOPIC_REMOVED.equals(topic)) {
-                    remove(feature);
-                }
-                if (FeatureObject.TOPIC_CHANGED.equals(topic)) {
-                    change(feature);
-                }
-            }
-
-            private void add(FeatureObject feature) {
-                Item item = addItem(feature.getDefinition());
-                if (item != null) {
-                    item.getItemProperty(OBJECT_NAME).setValue(feature.getName());
-                    item.getItemProperty(OBJECT_DESCRIPTION).setValue(feature.getDescription());
-                    Button removeLinkButton = new RemoveLinkButton<FeatureObject>(feature, m_artifactsPanel,
-                        m_distributionsPanel) {
-                        @Override
-                        protected void removeLinkFromLeft(FeatureObject object, RepositoryObject other) {
-                            List<Artifact2FeatureAssociation> associations = object
-                                .getAssociationsWith((ArtifactObject) other);
-                            for (Artifact2FeatureAssociation association : associations) {
-                                m_artifact2GroupAssociationRepository.remove(association);
-                            }
-                            m_associations.removeAssociatedItem(object);
-                            m_table.requestRepaint();
-                        }
-
-                        @Override
-                        protected void removeLinkFromRight(FeatureObject object, RepositoryObject other) {
-                            List<Feature2DistributionAssociation> associations = object
-                                .getAssociationsWith((DistributionObject) other);
-                            for (Feature2DistributionAssociation association : associations) {
-                                m_group2LicenseAssociationRepository.remove(association);
-                            }
-                            m_associations.removeAssociatedItem(object);
-                            m_table.requestRepaint();
-                        }
-                    };
-                    HorizontalLayout buttons = new HorizontalLayout();
-                    buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton(feature, m_featureRepository));
-                    item.getItemProperty(ACTIONS).setValue(buttons);
-                }
-            }
-
-            private void change(FeatureObject go) {
-                Item item = getItem(go.getDefinition());
-                if (item != null) {
-                    item.getItemProperty(OBJECT_DESCRIPTION).setValue(go.getDescription());
-                }
-            }
-
-            private void remove(FeatureObject go) {
-                removeItem(go.getDefinition());
-            }
-        };
-    }
-
-    public abstract class RemoveLinkButton<REPO_OBJECT extends RepositoryObject> extends Button {
-        // TODO generify?
-        public RemoveLinkButton(final REPO_OBJECT object, final ObjectPanel toLeft, final ObjectPanel toRight) {
-            super("-");
-            setStyleName("small");
-            addListener(new Button.ClickListener() {
-                public void buttonClick(ClickEvent event) {
-                    Set<?> selection = m_associations.getActiveSelection();
-                    if (selection != null) {
-                        if (m_associations.isActiveTable(toLeft)) {
-                            for (Object item : selection) {
-                                RepositoryObject selected = m_associations.lookupInActiveSelection(item);
-                                removeLinkFromLeft(object, selected);
-                            }
-                        }
-                        else if (m_associations.isActiveTable(toRight)) {
-                            for (Object item : selection) {
-                                RepositoryObject selected = m_associations.lookupInActiveSelection(item);
-                                removeLinkFromRight(object, selected);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        protected abstract void removeLinkFromLeft(REPO_OBJECT object, RepositoryObject other);
-
-        protected abstract void removeLinkFromRight(REPO_OBJECT object, RepositoryObject other);
-    }
-
-    public class RemoveItemButton extends Button {
-        public RemoveItemButton(final RepositoryObject object, final ObjectRepository repository) {
-            super("x");
-            setStyleName("small");
-            
-            addListener(new Button.ClickListener() {
-                public void buttonClick(ClickEvent event) {
-                    try {
-                        repository.remove(object);
-                    }
-                    catch (Exception e) {
-                        // ACE-246: notify user when the removal failed!
-                        getWindow().showNotification("Failed to remove item!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
-                    }
-                }
-            });
-        }
-    }
-
-    private ObjectPanel createDistributionsPanel(Window main) {
-        return new ObjectPanel(m_associations, "Distribution", UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION,
-            main, true) {
-            @Override
-            protected RepositoryObject getFromId(String id) {
-                return getDistribution(id);
-            }
-
-            public void populate() {
-                removeAllItems();
-                for (DistributionObject distribution : m_distributionRepository.get()) {
-                    add(distribution);
-                }
-            }
-
-            public void handleEvent(org.osgi.service.event.Event event) {
-                DistributionObject distribution = (DistributionObject) event.getProperty(DistributionObject.EVENT_ENTITY);
-                String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
-                if (DistributionObject.TOPIC_ADDED.equals(topic)) {
-                    add(distribution);
-                }
-                if (DistributionObject.TOPIC_REMOVED.equals(topic)) {
-                    remove(distribution);
-                }
-                if (DistributionObject.TOPIC_CHANGED.equals(topic)) {
-                    change(distribution);
-                }
-            }
-
-            private void add(DistributionObject distribution) {
-                Item item = addItem(distribution.getDefinition());
-                if (item != null) {
-                    item.getItemProperty(OBJECT_NAME).setValue(distribution.getName());
-                    item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
-                    Button removeLinkButton = new RemoveLinkButton<DistributionObject>(distribution, m_featuresPanel, m_targetsPanel) {
-                        @Override
-                        protected void removeLinkFromLeft(DistributionObject object, RepositoryObject other) {
-                            List<Feature2DistributionAssociation> associations = object
-                                .getAssociationsWith((FeatureObject) other);
-                            for (Feature2DistributionAssociation association : associations) {
-                                m_group2LicenseAssociationRepository.remove(association);
-                            }
-                            m_associations.removeAssociatedItem(object);
-                            m_table.requestRepaint();
-                        }
-
-                        @Override
-                        protected void removeLinkFromRight(DistributionObject object, RepositoryObject other) {
-                            List<Distribution2TargetAssociation> associations = object
-                                .getAssociationsWith((TargetObject) other);
-                            for (Distribution2TargetAssociation association : associations) {
-                                m_license2TargetAssociationRepository.remove(association);
-                            }
-                            m_associations.removeAssociatedItem(object);
-                            m_table.requestRepaint();
-                        }
-                    };
-                    HorizontalLayout buttons = new HorizontalLayout();
-                    buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(new RemoveItemButton(distribution, m_distributionRepository));
-                    item.getItemProperty(ACTIONS).setValue(buttons);
-                }
-            }
-
-            private void change(DistributionObject distribution) {
-                Item item = getItem(distribution.getDefinition());
-                if (item != null) {
-                    item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
-                }
-            }
-
-            private void remove(DistributionObject distribution) {
-                removeItem(distribution.getDefinition());
-            }
-        };
-    }
-
-    private ObjectPanel createTargetsPanel(Window main) {
-        return new ObjectPanel(m_associations, "Target", UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET, main, true) {
-            private RemoveItemButton m_deleteButton;
             
             @Override
-            protected RepositoryObject getFromId(String id) {
-                return getTarget(id);
+            protected RepositoryAdmin getRepositoryAdmin() {
+                return m_admin;
             }
-
-            public void populate() {
-                removeAllItems();
-                for (StatefulTargetObject statefulTarget : m_statefulTargetRepository.get()) {
-                    add(statefulTarget);
-                }
+            
+            @Override
+            protected void removeAssociation(Artifact2FeatureAssociation association) {
+                m_artifact2featureAssociationRepository.remove(association);
             }
+        };
+    }
 
-            public void handleEvent(org.osgi.service.event.Event event) {
-                StatefulTargetObject statefulTarget = (StatefulTargetObject) event.getProperty(StatefulTargetObject.EVENT_ENTITY);
-                String topic = (String) event.getProperty(EventConstants.EVENT_TOPIC);
-                if (StatefulTargetObject.TOPIC_ADDED.equals(topic)) {
-                    add(statefulTarget);
-                }
-                if (StatefulTargetObject.TOPIC_REMOVED.equals(topic)) {
-                    remove(statefulTarget);
-                }
-                if (StatefulTargetObject.TOPIC_CHANGED.equals(topic)) {
-                    change(statefulTarget);
-                }
+    private FeaturesPanel createFeaturesPanel(Window main) {
+        return new FeaturesPanel(m_associations) {
+            @Override
+            protected FeatureRepository getRepository() {
+                return m_featureRepository;
             }
-
-            private void add(StatefulTargetObject statefulTarget) {
-                Item item = addItem(statefulTarget.getDefinition());
-                if (item != null) {
-                    item.getItemProperty(OBJECT_NAME).setValue(statefulTarget.getID());
-                    item.getItemProperty(OBJECT_DESCRIPTION).setValue("");
-                    Button removeLinkButton = new RemoveLinkButton<StatefulTargetObject>(statefulTarget, m_distributionsPanel, null) {
-                        @Override
-                        protected void removeLinkFromLeft(StatefulTargetObject object, RepositoryObject other) {
-                            List<Distribution2TargetAssociation> associations = object.getAssociationsWith((DistributionObject) other);
-                            for (Distribution2TargetAssociation association : associations) {
-                                m_license2TargetAssociationRepository.remove(association);
-                            }
-                            m_associations.removeAssociatedItem(object);
-                            m_table.requestRepaint();
-                        }
-
-                        @Override
-                        protected void removeLinkFromRight(StatefulTargetObject object, RepositoryObject other) {
-                        }
-                    };
-                    m_deleteButton = new RemoveItemButton(statefulTarget, m_statefulTargetRepository);
-                    m_deleteButton.setEnabled(statefulTarget.isRegistered());
-
-                    HorizontalLayout buttons = new HorizontalLayout();
-                    buttons.addComponent(removeLinkButton);
-                    buttons.addComponent(m_deleteButton);
-                    item.getItemProperty(ACTIONS).setValue(buttons);
-                }
+            
+            @Override
+            protected RepositoryAdmin getRepositoryAdmin() {
+                return m_admin;
             }
-
-            private void change(StatefulTargetObject statefulTarget) {
-                Item item = getItem(statefulTarget.getDefinition());
-                if (item != null) {
-                    item.getItemProperty(OBJECT_DESCRIPTION).setValue("");
-
-                    m_deleteButton.setEnabled(statefulTarget.isRegistered());
-                }
+            
+            @Override
+            protected void removeAssocation(Artifact2FeatureAssociation association) {
+                m_artifact2featureAssociationRepository.remove(association);
             }
+            
+            @Override
+            protected void removeAssocation(Feature2DistributionAssociation association) {
+                m_feature2distributionAssociationRepository.remove(association);
+            }
+        };
+    }
 
-            private void remove(StatefulTargetObject statefulTarget) {
-                removeItem(statefulTarget.getDefinition());
+    private DistributionsPanel createDistributionsPanel(Window main) {
+        return new DistributionsPanel(m_associations) {
+
+            @Override
+            protected DistributionRepository getRepository() {
+                return m_distributionRepository;
+            }
+            
+            @Override
+            protected RepositoryAdmin getRepositoryAdmin() {
+                return m_admin;
+            }
+            
+            @Override
+            protected void removeAssocation(Distribution2TargetAssociation association) {
+                m_distribution2targetAssociationRepository.remove(association);
+            }
+            
+            @Override
+            protected void removeAssocation(Feature2DistributionAssociation association) {
+                m_feature2distributionAssociationRepository.remove(association);                
+            }
+        };
+    }
+
+    private TargetsPanel createTargetsPanel(Window main) {
+        return new TargetsPanel(m_associations) {
+            @Override
+            protected StatefulTargetRepository getRepository() {
+                return m_statefulTargetRepository;
+            }
+            
+            @Override
+            protected RepositoryAdmin getRepositoryAdmin() {
+                return m_admin;
+            }
+            
+            @Override
+            protected void removeAssocation(Distribution2TargetAssociation association) {
+                m_distribution2targetAssociationRepository.remove(association);
             }
         };
     }
@@ -1072,150 +814,7 @@ public class VaadinClient extends com.vaadin.Application {
         // when the session times out
         // TODO: clean up the ace client session?
     }
-    
-    private static class UIExtensionFactoryHolder implements Comparable<UIExtensionFactoryHolder> {
-        private final ServiceReference m_serviceRef;
-        private final WeakReference<UIExtensionFactory> m_extensionFactory;
-        
-        public UIExtensionFactoryHolder(ServiceReference serviceRef, UIExtensionFactory extensionFactory) {
-            m_serviceRef = serviceRef;
-            m_extensionFactory = new WeakReference<UIExtensionFactory>(extensionFactory);
-        }
-
-        public int compareTo(UIExtensionFactoryHolder o) {
-            ServiceReference thatServiceRef = o.m_serviceRef;
-            ServiceReference thisServiceRef = m_serviceRef;
-            // Sort in reverse order so that the highest rankings come first...
-            return thatServiceRef.compareTo(thisServiceRef);
-        }
-        
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (!(obj instanceof UIExtensionFactoryHolder)) {
-                return false;
-            }
-            UIExtensionFactoryHolder other = (UIExtensionFactoryHolder) obj;
-            return m_serviceRef.equals(other.m_serviceRef);
-        }
-        
-        /**
-         * @return the {@link UIExtensionFactory}, can be <code>null</code> if it has been GC'd before this method call.
-         */
-        public UIExtensionFactory getUIExtensionFactory() {
-            return m_extensionFactory.get();
-        }
-
-        @Override
-        public int hashCode() {
-            return m_serviceRef.hashCode() ^ m_extensionFactory.hashCode();
-        }
-    }
-    
-    public abstract class ObjectPanel extends Table implements EventHandler {
-        public static final String ACTIONS = "actions";
-        
-        protected final Table m_table;
-        protected final Associations m_associations;
-
-        private final List<UIExtensionFactoryHolder> m_extensionFactories;
-        private final String m_extensionPoint;
-
-        public ObjectPanel(Associations associations, final String name, String extensionPoint, final Window main, final boolean hasEdit) {
-            super(name + "s");
-
-            m_table = this;
-            m_extensionFactories = new ArrayList<UIExtensionFactoryHolder>();
-            m_associations = associations;
-            m_extensionPoint = extensionPoint;
-
-            addContainerProperty(OBJECT_NAME, String.class, null);
-            addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
-            addContainerProperty(ACTIONS, HorizontalLayout.class, null);
-
-            setSizeFull();
-            setCellStyleGenerator(m_associations.createCellStyleGenerator());
-            setSelectable(true);
-            setMultiSelect(true);
-            setImmediate(true);
-            setDragMode(TableDragMode.MULTIROW);
-
-            if (hasEdit) {
-                addListener(new ItemClickListener() {
-                    public void itemClick(ItemClickEvent event) {
-                        if (event.isDoubleClick()) {
-                            String itemId = (String) event.getItemId();
-                            RepositoryObject object = getFromId(itemId);
-                            NamedObject namedObject = m_associations.getNamedObject(object);
-                            showEditWindow(namedObject, main);
-                        }
-                    }
-                });
-            }
-        }
-
-        public void init(Component component) {
-            populate();
-            
-            DependencyManager dm = component.getDependencyManager();
-            component.add(dm
-                .createServiceDependency()
-                .setInstanceBound(true)
-                .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + m_extensionPoint + ")")
-                .setCallbacks("addExtension", "removeExtension"));
-        }
-
-        public void addExtension(ServiceReference ref, UIExtensionFactory factory) {
-        	synchronized (m_extensionFactories) {
-        		m_extensionFactories.add(new UIExtensionFactoryHolder(ref, factory));
-			}
-            populate();
-        }
-
-        public void removeExtension(ServiceReference ref, UIExtensionFactory factory) {
-        	synchronized (m_extensionFactories) {
-        		m_extensionFactories.remove(new UIExtensionFactoryHolder(ref, factory));
-        	}
-            populate();
-        }
-
-        private void showEditWindow(NamedObject object, Window main) {
-            List<UIExtensionFactory> extensions = getExtensionFactories();
-            new EditWindow(object, main, extensions).show();
-        }
-
-        /**
-         * @return a list of current extension factories, properly ordered, never <code>null</code>.
-         */
-        private List<UIExtensionFactory> getExtensionFactories() {
-            List<UIExtensionFactory> extensions;
-            synchronized (m_extensionFactories) {
-                // Sort the list of extension factories...
-                Collections.sort(m_extensionFactories);
-                
-                // Walk through the holders and fetch the extension factories one by one...
-                extensions = new ArrayList<UIExtensionFactory>(m_extensionFactories.size());
-                for (UIExtensionFactoryHolder holder : m_extensionFactories) {
-                    UIExtensionFactory extensionFactory = holder.getUIExtensionFactory();
-                    // Make sure only to use non-GCd factories...
-                    if (extensionFactory != null) {
-                        extensions.add(extensionFactory);
-                    }
-                }
-            }
-            return extensions;
-        }
-
-        public abstract void populate();
-
-        protected abstract RepositoryObject getFromId(String id);
-    }
-
+     
     private void showAddArtifactDialog() {
         final AddArtifactWindow featureWindow = new AddArtifactWindow(m_sessionDir, m_obrUrl) {
             @Override
