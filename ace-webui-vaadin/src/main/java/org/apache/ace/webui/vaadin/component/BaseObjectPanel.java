@@ -30,6 +30,7 @@ import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.RepositoryObject.WorkingState;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.vaadin.AssociationRemover;
 import org.apache.ace.webui.vaadin.Associations;
 import org.apache.ace.webui.vaadin.EditWindow;
 import org.apache.felix.dm.Component;
@@ -51,8 +52,7 @@ import com.vaadin.ui.Window.Notification;
 /**
  * Provides a custom table for displaying artifacts, features and so on.
  */
-abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends ObjectRepository<REPO_OBJ>> extends
-    Table implements EventHandler, RemoveAssociationHandler<REPO_OBJ> {
+abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends ObjectRepository<REPO_OBJ>> extends Table implements EventHandler {
 
     /**
      * Provides a generic remove item button.
@@ -82,7 +82,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      */
     private class RemoveLinkButton<REPO_OBJECT extends RepositoryObject> extends Button {
         public RemoveLinkButton(final REPO_OBJECT object, final Table toLeft, final Table toRight,
-            final RemoveAssociationHandler<REPO_OBJECT> removeHandler) {
+            final BaseObjectPanel removeHandler) {
             super("-");
             setStyleName("small");
 
@@ -173,6 +173,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     protected static final int ICON_WIDTH = 16;
 
     private final Associations m_associations;
+    protected final AssociationRemover m_associationRemover;
+
     private final List<UIExtensionFactoryHolder> m_extensionFactories;
     private final String m_extensionPoint;
 
@@ -186,15 +188,18 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * Creates a new {@link BaseObjectPanel} instance.
      * 
      * @param associations the associations for this panel;
+     * @param associationRemover the association remove to use for removing associations;
      * @param name the name of this panel;
      * @param extensionPoint the extension point to listen for;
      * @param hasEdit <code>true</code> if double clicking an row in this table should show an editor, <code>false</code> to disallow editing.
      */
-    public BaseObjectPanel(Associations associations, final String name, String extensionPoint, final boolean hasEdit) {
+    public BaseObjectPanel(final Associations associations, final AssociationRemover associationRemover,
+        final String name, final String extensionPoint, final boolean hasEdit) {
         super(name + "s");
 
-        m_extensionFactories = new ArrayList<UIExtensionFactoryHolder>();
         m_associations = associations;
+        m_associationRemover = associationRemover;
+        m_extensionFactories = new ArrayList<UIExtensionFactoryHolder>();
         m_extensionPoint = extensionPoint;
 
         defineTableColumns();
@@ -243,24 +248,12 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         synchronized (getApplication()) {
             if (isSupportedEntity(entity)) {
                 try {
-                    doHandleEvent(topic, (REPO_OBJ) entity, event);
+                    handleEvent(topic, (REPO_OBJ) entity, event);
                 }
                 finally {
                     refreshRenderedCells();
                 }
             }
-        }
-    }
-
-    /**
-     * @param entity
-     */
-    public void updateEntity(REPO_OBJ entity) {
-        try {
-            update(entity);
-        }
-        finally {
-            refreshRenderedCells();
         }
     }
 
@@ -276,8 +269,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         component.add(dm
             .createServiceDependency()
             .setInstanceBound(true)
-            .setService(UIExtensionFactory.class,
-                "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + m_extensionPoint + ")")
+            .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + m_extensionPoint + ")")
             .setCallbacks("addExtension", "removeExtension"));
     }
 
@@ -305,26 +297,6 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public final void removeLeftSideAssociation(REPO_OBJ object, RepositoryObject other) {
-        if (doRemoveLeftSideAssociation(object, other)) {
-            m_associations.removeAssociatedItem(object);
-            requestRepaint();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final void removeRightSideAssocation(REPO_OBJ object, RepositoryObject other) {
-        if (doRemoveRightSideAssociation(object, other)) {
-            m_associations.removeAssociatedItem(object);
-            requestRepaint();
-        }
-    }
-
-    /**
      * Sets the left-side table, that defines the left-hand side of the assocations of the entities.
      * 
      * @param leftTable the table to set, can be <code>null</code>.
@@ -340,6 +312,32 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      */
     public final void setRightTable(Table rightTable) {
         m_rightTable = rightTable;
+    }
+
+    /**
+     * Removes the left-hand side associations for a given repository object.
+     * 
+     * @param object the repository object to remove the left-hand side associations;
+     * @param other the (left-hand side) repository object to remove the associations for.
+     */
+    final void removeLeftSideAssociation(REPO_OBJ object, RepositoryObject other) {
+        if (doRemoveLeftSideAssociation(object, other)) {
+            m_associations.removeAssociatedItem(object);
+            requestRepaint();
+        }
+    }
+
+    /**
+     * Removes the right-hand side associations for a given repository object.
+     * 
+     * @param object the repository object to remove the right-hand side associations;
+     * @param other the (right-hand side) repository object to remove the associations for.
+     */
+    final void removeRightSideAssocation(REPO_OBJ object, RepositoryObject other) {
+        if (doRemoveRightSideAssociation(object, other)) {
+            m_associations.removeAssociatedItem(object);
+            requestRepaint();
+        }
     }
 
     /**
@@ -381,7 +379,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * @param res the resource denoting the actual icon.
      * @return an embeddable icon, never <code>null</code>.
      */
-    protected final Embedded createIcon(String name, Resource res) {
+    protected Embedded createIcon(String name, Resource res) {
         Embedded embedded = new Embedded(name, res);
         embedded.setType(Embedded.TYPE_IMAGE);
         embedded.setDescription(name);
@@ -396,7 +394,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * @param iconName the base name of the icon to use, it will be appended with '.png'.
      * @return a {@link Resource} denoting the icon.
      */
-    protected final Resource createIconResource(String iconName) {
+    protected Resource createIconResource(String iconName) {
         return new ThemeResource("icons/" + iconName.toLowerCase() + ".png");
     }
 
@@ -439,7 +437,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * 
      * @see org.osgi.service.event.EventHandler#handleEvent(org.osgi.service.event.Event)
      */
-    protected void doHandleEvent(String topic, REPO_OBJ entity, org.osgi.service.event.Event event) {
+    protected void handleEvent(String topic, REPO_OBJ entity, org.osgi.service.event.Event event) {
         // Nop...
     }
 

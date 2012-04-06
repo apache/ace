@@ -98,12 +98,12 @@ import com.vaadin.ui.Window;
  - Add buttons to create new items in all of the tables (done for those that make sense)
  */
 @SuppressWarnings("serial")
-public class VaadinClient extends com.vaadin.Application {
+public class VaadinClient extends com.vaadin.Application implements AssociationRemover {
 
     private static final long serialVersionUID = 1L;
-    
+
     private static long SESSION_ID = 12345;
-    
+
     private static String targetRepo = "target";
     private static String shopRepo = "shop";
     private static String deployRepo = "deployment";
@@ -123,7 +123,7 @@ public class VaadinClient extends com.vaadin.Application {
     private volatile Distribution2TargetAssociationRepository m_distribution2targetAssociationRepository;
     private volatile RepositoryAdmin m_admin;
     private volatile LogService m_log;
-    
+
     private String m_sessionID;
     private ArtifactsPanel m_artifactsPanel;
     private FeaturesPanel m_featuresPanel;
@@ -140,7 +140,7 @@ public class VaadinClient extends com.vaadin.Application {
 
     private final URL m_aceHost;
     private final URL m_obrUrl;
-    
+
     private final Associations m_associations = new Associations();
     private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
 
@@ -199,28 +199,29 @@ public class VaadinClient extends com.vaadin.Application {
 
     public void init() {
         setTheme("ace");
-        
+
         if (!m_dependenciesResolved.get()) {
             final Window message = new Window("Apache ACE");
             message.getContent().setSizeFull();
             setMainWindow(message);
-            
-            Label richText = new Label(
+
+            Label richText =
+                new Label(
                     "<h1>Apache ACE User Interface</h1>"
                         + "<p>Due to missing component dependencies on the server, probably due to misconfiguration, "
                         + "the user interface cannot be properly started. Please contact your server administrator. "
                         + "You can retry accessing the user interface by <a href=\"?restartApplication\">following this link</a>.</p>");
             richText.setContentMode(Label.CONTENT_XHTML);
-            
+
             // TODO we might want to add some more details here as to what's
             // missing on the other hand, the user probably can't fix that anyway
             message.addComponent(richText);
             return;
         }
-        
+
         m_mainWindow = new Window("Apache ACE");
         m_mainWindow.getContent().setSizeFull();
-        
+
         setMainWindow(m_mainWindow);
 
         showLoginWindow();
@@ -253,7 +254,7 @@ public class VaadinClient extends com.vaadin.Application {
 
         m_grid.addComponent(createToolbar(), 0, 0, count - 1, 0);
 
-        m_artifactsPanel = createArtifactsPanel(m_mainWindow);
+        m_artifactsPanel = createArtifactsPanel();
 
         m_artifactToolbar = new HorizontalLayout();
         m_artifactToolbar.addComponent(createAddArtifactButton());
@@ -275,7 +276,7 @@ public class VaadinClient extends com.vaadin.Application {
             count++;
         }
 
-        m_featuresPanel = createFeaturesPanel(m_mainWindow);
+        m_featuresPanel = createFeaturesPanel();
         m_featureToolbar = createAddFeatureButton(m_mainWindow);
 
         if (auth.hasRole("viewFeature")) {
@@ -284,7 +285,7 @@ public class VaadinClient extends com.vaadin.Application {
             count++;
         }
 
-        m_distributionsPanel = createDistributionsPanel(m_mainWindow);
+        m_distributionsPanel = createDistributionsPanel();
         m_distributionToolbar = createAddDistributionButton(m_mainWindow);
 
         if (auth.hasRole("viewDistribution")) {
@@ -293,24 +294,24 @@ public class VaadinClient extends com.vaadin.Application {
             count++;
         }
 
-        m_targetsPanel = createTargetsPanel(m_mainWindow);
+        m_targetsPanel = createTargetsPanel();
         m_targetToolbar = createAddTargetButton(m_mainWindow);
 
         if (auth.hasRole("viewTarget")) {
             m_grid.addComponent(m_targetsPanel, count, 2);
             m_grid.addComponent(m_targetToolbar, count, 1);
         }
-        
+
         // Wire up all panels so they have the correct associations...
         m_artifactsPanel.setLeftTable(null);
         m_artifactsPanel.setRightTable(m_featuresPanel);
-        
+
         m_featuresPanel.setLeftTable(m_artifactsPanel);
         m_featuresPanel.setRightTable(m_distributionsPanel);
-        
+
         m_distributionsPanel.setLeftTable(m_featuresPanel);
         m_distributionsPanel.setRightTable(m_targetsPanel);
-        
+
         m_targetsPanel.setLeftTable(m_distributionsPanel);
         m_targetsPanel.setRightTable(null);
 
@@ -319,7 +320,7 @@ public class VaadinClient extends com.vaadin.Application {
         m_progress = new ProgressIndicator(0f);
         m_progress.setStyleName("invisible");
         m_progress.setPollingInterval(500);
-        
+
         m_grid.addComponent(m_progress, 0, 3);
 
         m_artifactsPanel.addListener(m_associations.createSelectionListener(m_artifactsPanel, m_artifactRepository,
@@ -328,9 +329,10 @@ public class VaadinClient extends com.vaadin.Application {
         m_featuresPanel.addListener(m_associations.createSelectionListener(m_featuresPanel, m_featureRepository,
             new Class[] { ArtifactObject.class }, new Class[] { DistributionObject.class, TargetObject.class },
             new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }));
-        m_distributionsPanel.addListener(m_associations.createSelectionListener(m_distributionsPanel, m_distributionRepository,
-                new Class[] { FeatureObject.class, ArtifactObject.class }, new Class[] { TargetObject.class },
-                new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
+        m_distributionsPanel.addListener(m_associations.createSelectionListener(m_distributionsPanel,
+            m_distributionRepository,
+            new Class[] { FeatureObject.class, ArtifactObject.class }, new Class[] { TargetObject.class },
+            new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
         m_targetsPanel.addListener(m_associations.createSelectionListener(m_targetsPanel, m_statefulTargetRepository,
             new Class[] { DistributionObject.class, FeatureObject.class, ArtifactObject.class }, new Class[] {},
             new Table[] { m_artifactsPanel, m_featuresPanel, m_distributionsPanel }));
@@ -426,6 +428,27 @@ public class VaadinClient extends com.vaadin.Application {
         m_mainWindow.addComponent(m_grid);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAssociation(Artifact2FeatureAssociation association) {
+        m_artifact2featureAssociationRepository.remove(association);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAssociation(Distribution2TargetAssociation association) {
+        m_distribution2targetAssociationRepository.remove(association);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAssociation(Feature2DistributionAssociation association) {
+        m_feature2distributionAssociationRepository.remove(association);
+    }
+
     boolean login(String username, String password) {
         try {
             User user = m_userAdmin.getUser("username", username);
@@ -487,7 +510,7 @@ public class VaadinClient extends com.vaadin.Application {
             protected void doAfterCommit() throws IOException {
                 updateTableData();
             }
-            
+
             @Override
             protected void doAfterLogout() throws IOException {
                 // Close the application and reload the main window...
@@ -505,90 +528,58 @@ public class VaadinClient extends com.vaadin.Application {
         return mainActionToolbar;
     }
 
-    private ArtifactsPanel createArtifactsPanel(Window main) {
-        return new ArtifactsPanel(m_associations) {
-
+    private ArtifactsPanel createArtifactsPanel() {
+        return new ArtifactsPanel(m_associations, this) {
             @Override
             protected ArtifactRepository getRepository() {
                 return m_artifactRepository;
             }
-            
+
             @Override
             protected RepositoryAdmin getRepositoryAdmin() {
                 return m_admin;
             }
-            
-            @Override
-            protected void removeAssociation(Artifact2FeatureAssociation association) {
-                m_artifact2featureAssociationRepository.remove(association);
-            }
         };
     }
 
-    private FeaturesPanel createFeaturesPanel(Window main) {
-        return new FeaturesPanel(m_associations) {
+    private FeaturesPanel createFeaturesPanel() {
+        return new FeaturesPanel(m_associations, this) {
             @Override
             protected FeatureRepository getRepository() {
                 return m_featureRepository;
             }
-            
+
             @Override
             protected RepositoryAdmin getRepositoryAdmin() {
                 return m_admin;
             }
-            
-            @Override
-            protected void removeAssocation(Artifact2FeatureAssociation association) {
-                m_artifact2featureAssociationRepository.remove(association);
-            }
-            
-            @Override
-            protected void removeAssocation(Feature2DistributionAssociation association) {
-                m_feature2distributionAssociationRepository.remove(association);
-            }
         };
     }
 
-    private DistributionsPanel createDistributionsPanel(Window main) {
-        return new DistributionsPanel(m_associations) {
-
+    private DistributionsPanel createDistributionsPanel() {
+        return new DistributionsPanel(m_associations, this) {
             @Override
             protected DistributionRepository getRepository() {
                 return m_distributionRepository;
             }
-            
+
             @Override
             protected RepositoryAdmin getRepositoryAdmin() {
                 return m_admin;
-            }
-            
-            @Override
-            protected void removeAssocation(Distribution2TargetAssociation association) {
-                m_distribution2targetAssociationRepository.remove(association);
-            }
-            
-            @Override
-            protected void removeAssocation(Feature2DistributionAssociation association) {
-                m_feature2distributionAssociationRepository.remove(association);                
             }
         };
     }
 
-    private TargetsPanel createTargetsPanel(Window main) {
-        return new TargetsPanel(m_associations) {
+    private TargetsPanel createTargetsPanel() {
+        return new TargetsPanel(m_associations, this) {
             @Override
             protected StatefulTargetRepository getRepository() {
                 return m_statefulTargetRepository;
             }
-            
+
             @Override
             protected RepositoryAdmin getRepositoryAdmin() {
                 return m_admin;
-            }
-            
-            @Override
-            protected void removeAssocation(Distribution2TargetAssociation association) {
-                m_distribution2targetAssociationRepository.remove(association);
             }
         };
     }
@@ -609,7 +600,8 @@ public class VaadinClient extends com.vaadin.Application {
                 TableTransferable tt = (TableTransferable) transferable;
                 Object fromItemId = tt.getItemId();
                 // get the active selection, but only if we drag from the same table
-                Set<?> selection = m_associations.isActiveTable(tt.getSourceComponent()) ? m_associations.getActiveSelection() : null;
+                Set<?> selection =
+                    m_associations.isActiveTable(tt.getSourceComponent()) ? m_associations.getActiveSelection() : null;
                 if (targetDetails instanceof AbstractSelectTargetDetails) {
                     AbstractSelectTargetDetails ttd = (AbstractSelectTargetDetails) targetDetails;
                     Object toItemId = ttd.getItemIdOver();
@@ -633,8 +625,8 @@ public class VaadinClient extends com.vaadin.Application {
                             associateFromRight((String) toItemId, (String) fromItemId);
                         }
                     }
-                    // TODO add to highlighting (it's probably easiest to 
-                    // recalculate the whole set of related and associated 
+                    // TODO add to highlighting (it's probably easiest to
+                    // recalculate the whole set of related and associated
                     // items here, see SelectionListener, or to manually figure
                     // out the changes in all cases
                 }
@@ -681,10 +673,11 @@ public class VaadinClient extends com.vaadin.Application {
                     public void onOk(String name, String description) {
                         createFeature(name, description);
                     }
-                    
+
                     public void handleError(Exception e) {
                         // ACE-241: notify user when the feature-creation failed!
-                        main.showNotification("Failed to add new feature!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        main.showNotification("Failed to add new feature!", "<br/>Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
                     }
                 };
                 addFeatureWindow.show(main);
@@ -708,10 +701,11 @@ public class VaadinClient extends com.vaadin.Application {
                     public void onOk(String name, String description) {
                         createDistribution(name, description);
                     }
-                    
+
                     public void handleError(Exception e) {
                         // ACE-241: notify user when the distribution-creation failed!
-                        main.showNotification("Failed to add new distribution!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        main.showNotification("Failed to add new distribution!", "<br/>Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
                     }
                 };
                 addDistributionWindow.show(main);
@@ -736,10 +730,11 @@ public class VaadinClient extends com.vaadin.Application {
                     public void onOk(String id, String description) {
                         createTarget(id, description);
                     }
-                    
+
                     public void handleError(Exception e) {
                         // ACE-241: notify user when the target-creation failed!
-                        main.showNotification("Failed to add new target!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        main.showNotification("Failed to add new target!", "<br/>Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
                     }
                 };
                 addTargetWindow.show(main);
@@ -814,7 +809,7 @@ public class VaadinClient extends com.vaadin.Application {
         // when the session times out
         // TODO: clean up the ace client session?
     }
-     
+
     private void showAddArtifactDialog() {
         final AddArtifactWindow featureWindow = new AddArtifactWindow(m_sessionDir, m_obrUrl) {
             @Override
@@ -827,7 +822,7 @@ public class VaadinClient extends com.vaadin.Application {
                 return m_log;
             }
         };
-        
+
         if (featureWindow.getParent() != null) {
             // window is already showing
             getMainWindow().showNotification("Window is already open");

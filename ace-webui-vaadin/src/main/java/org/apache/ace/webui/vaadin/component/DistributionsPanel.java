@@ -29,26 +29,55 @@ import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.DistributionRepository;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.vaadin.AssociationRemover;
 import org.apache.ace.webui.vaadin.Associations;
 
 import com.vaadin.data.Item;
 
 /**
- *
+ * Provides an object panel for displaying distributions.
  */
 public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObject, DistributionRepository> {
 
     /**
-     * @param associations
+     * Creates a new {@link DistributionsPanel} instance.
+     * 
+     * @param associations the assocation-holder object;
+     * @param associationRemover the helper for removing associations.
      */
-    public DistributionsPanel(Associations associations) {
-        super(associations, "Distribution", UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION, true /* hasEdit */);
+    public DistributionsPanel(Associations associations, AssociationRemover associationRemover) {
+        super(associations, associationRemover, "Distribution", UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION,
+            true /* hasEdit */);
     }
 
     /**
      * {@inheritDoc}
      */
-    protected void doHandleEvent(String topic, DistributionObject distribution, org.osgi.service.event.Event event) {
+    @Override
+    protected boolean doRemoveLeftSideAssociation(DistributionObject object, RepositoryObject other) {
+        List<Feature2DistributionAssociation> associations = object.getAssociationsWith((FeatureObject) other);
+        for (Feature2DistributionAssociation association : associations) {
+            m_associationRemover.removeAssociation(association);
+        }
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean doRemoveRightSideAssociation(DistributionObject object, RepositoryObject other) {
+        List<Distribution2TargetAssociation> associations = object.getAssociationsWith((TargetObject) other);
+        for (Distribution2TargetAssociation association : associations) {
+            m_associationRemover.removeAssociation(association);
+        }
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected void handleEvent(String topic, DistributionObject distribution, org.osgi.service.event.Event event) {
         if (DistributionObject.TOPIC_ADDED.equals(topic)) {
             add(distribution);
         }
@@ -60,30 +89,6 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean doRemoveLeftSideAssociation(DistributionObject object, RepositoryObject other) {
-        List<Feature2DistributionAssociation> associations = object.getAssociationsWith((FeatureObject) other);
-        for (Feature2DistributionAssociation association : associations) {
-            removeAssocation(association);
-        }
-        return true;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean doRemoveRightSideAssociation(DistributionObject object, RepositoryObject other) {
-        List<Distribution2TargetAssociation> associations = object.getAssociationsWith((TargetObject) other);
-        for (Distribution2TargetAssociation association : associations) {
-            removeAssocation(association);
-        }
-        return true;
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -102,14 +107,4 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
         item.getItemProperty(ACTIONS).setValue(createActionButtons(distribution));
     }
-    
-    /**
-     * @param association
-     */
-    protected abstract void removeAssocation(Distribution2TargetAssociation association);
-    
-    /**
-     * @param association
-     */
-    protected abstract void removeAssocation(Feature2DistributionAssociation association);
 }

@@ -28,43 +28,42 @@ import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.vaadin.AssociationRemover;
 import org.apache.ace.webui.vaadin.Associations;
 
 import com.vaadin.data.Item;
 
 /**
- *
+ * Provides an object panel for displaying artifacts.
  */
 public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, ArtifactRepository> {
 
     /**
-     * @param associations
+     * Creates a new {@link ArtifactsPanel} instance.
+     * 
+     * @param associations the assocation-holder object;
+     * @param associationRemover the helper for removing associations.
      */
-    public ArtifactsPanel(Associations associations) {
-        super(associations, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, true);
+    public ArtifactsPanel(Associations associations, AssociationRemover associationRemover) {
+        super(associations, associationRemover, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, true);
     }
 
     /**
      * {@inheritDoc}
      */
-    protected void add(ArtifactObject artifact) {
-        String resourceProcessorPID = artifact.getAttribute(BundleHelper.KEY_RESOURCE_PROCESSOR_PID);
-        if (resourceProcessorPID != null) {
-            // if it's a resource processor we don't add it to our list, as
-            // resource processors don't show up there (you can query for them
-            // separately)
-            return;
+    @Override
+    protected boolean doRemoveRightSideAssociation(ArtifactObject object, RepositoryObject other) {
+        List<Artifact2FeatureAssociation> associations = object.getAssociationsWith((FeatureObject) other);
+        for (Artifact2FeatureAssociation association : associations) {
+            m_associationRemover.removeAssociation(association);
         }
-        Item item = addItem(artifact.getDefinition());
-        if (item != null) {
-            populateItem(artifact, item);
-        }
+        return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    protected void doHandleEvent(String topic, ArtifactObject artifact, org.osgi.service.event.Event event) {
+    protected void handleEvent(String topic, ArtifactObject artifact, org.osgi.service.event.Event event) {
         if (ArtifactObject.TOPIC_ADDED.equals(topic)) {
             add(artifact);
         }
@@ -80,30 +79,10 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
      * {@inheritDoc}
      */
     @Override
-    protected boolean doRemoveLeftSideAssociation(ArtifactObject object, RepositoryObject other) {
-        return false;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean doRemoveRightSideAssociation(ArtifactObject object, RepositoryObject other) {
-        List<Artifact2FeatureAssociation> associations = object.getAssociationsWith((FeatureObject) other);
-        for (Artifact2FeatureAssociation association : associations) {
-            removeAssociation(association);
-        }
-        return true;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected boolean isSupportedEntity(RepositoryObject entity) {
-        return entity instanceof ArtifactObject;
+        return (entity instanceof ArtifactObject) && !isResourceProcessor((ArtifactObject) entity);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -116,7 +95,12 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
     }
 
     /**
-     * @param association
+     * Returns whether or not the given artifact is actually a resource processor.
+     * 
+     * @param artifact the artifact to test, cannot be <code>null</code>.
+     * @return <code>true</code> if the given artifact is a resource processor, <code>false</code> otherwise.
      */
-    protected abstract void removeAssociation(Artifact2FeatureAssociation association);
+    private boolean isResourceProcessor(ArtifactObject artifact) {
+        return artifact.getAttribute(BundleHelper.KEY_RESOURCE_PROCESSOR_PID) != null;
+    }
 }

@@ -28,6 +28,7 @@ import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.vaadin.AssociationRemover;
 import org.apache.ace.webui.vaadin.Associations;
 
 import com.vaadin.data.Item;
@@ -37,7 +38,7 @@ import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 
 /**
- *
+ * Provides an object panel for displaying (stateful) targets.
  */
 public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject, StatefulTargetRepository> {
 
@@ -48,12 +49,16 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
     /**
      * Creates a new {@link TargetsPanel} instance.
      * 
-     * @param associations the assocation-holder object.
+     * @param associations the assocation-holder object;
+     * @param associationRemover the helper for removing associations.
      */
-    public TargetsPanel(Associations associations) {
-        super(associations, "Target", UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET, true /* hasEdit */);
+    public TargetsPanel(Associations associations, AssociationRemover associationRemover) {
+        super(associations, associationRemover, "Target", UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET, true /* hasEdit */);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Button createRemoveItemButton(StatefulTargetObject object) {
         Button b = super.createRemoveItemButton(object);
@@ -84,28 +89,11 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
     /**
      * {@inheritDoc}
      */
-    protected void doHandleEvent(String topic, StatefulTargetObject statefulTarget, org.osgi.service.event.Event event) {
-        if (StatefulTargetObject.TOPIC_ADDED.equals(topic)) {
-            add(statefulTarget);
-        }
-        if (StatefulTargetObject.TOPIC_REMOVED.equals(topic)) {
-            remove(statefulTarget);
-        }
-        if (StatefulTargetObject.TOPIC_CHANGED.equals(topic) || StatefulTargetObject.TOPIC_STATUS_CHANGED.equals(topic)
-            || StatefulTargetObject.TOPIC_AUDITEVENTS_CHANGED.equals(topic)
-            || RepositoryAdmin.TOPIC_STATUSCHANGED.equals(topic)) {
-            update(statefulTarget);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean doRemoveLeftSideAssociation(StatefulTargetObject object, RepositoryObject other) {
         List<Distribution2TargetAssociation> associations = object.getAssociationsWith((DistributionObject) other);
         for (Distribution2TargetAssociation association : associations) {
-            removeAssocation(association);
+            m_associationRemover.removeAssociation(association);
         }
         return true;
     }
@@ -120,6 +108,23 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
             return super.getWorkingState(statefulTarget.getTargetObject());
         }
         return WorkingState.Unchanged;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected void handleEvent(String topic, StatefulTargetObject statefulTarget, org.osgi.service.event.Event event) {
+        if (StatefulTargetObject.TOPIC_ADDED.equals(topic)) {
+            add(statefulTarget);
+        }
+        if (StatefulTargetObject.TOPIC_REMOVED.equals(topic)) {
+            remove(statefulTarget);
+        }
+        if (StatefulTargetObject.TOPIC_CHANGED.equals(topic) || StatefulTargetObject.TOPIC_STATUS_CHANGED.equals(topic)
+            || StatefulTargetObject.TOPIC_AUDITEVENTS_CHANGED.equals(topic)
+            || RepositoryAdmin.TOPIC_STATUSCHANGED.equals(topic)) {
+            update(statefulTarget);
+        }
     }
 
     /**
@@ -144,11 +149,6 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
 
         item.getItemProperty(ACTIONS).setValue(createActionButtons(object));
     }
-
-    /**
-     * @param association
-     */
-    protected abstract void removeAssocation(Distribution2TargetAssociation association);
 
     /**
      * @param object

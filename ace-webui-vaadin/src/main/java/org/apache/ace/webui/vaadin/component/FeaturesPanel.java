@@ -29,37 +29,26 @@ import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
 import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.vaadin.AssociationRemover;
 import org.apache.ace.webui.vaadin.Associations;
 
 import com.vaadin.data.Item;
 
 /**
- *
+ * Provides an object panel for displaying features.
  */
 public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, FeatureRepository> {
 
     /**
-     * @param associations
+     * Creates a new {@link FeaturesPanel} instance.
+     * 
+     * @param associations the assocation-holder object;
+     * @param associationRemover the helper for removing associations.
      */
-    public FeaturesPanel(Associations associations) {
-        super(associations, "Feature", UIExtensionFactory.EXTENSION_POINT_VALUE_FEATURE, true);
+    public FeaturesPanel(Associations associations, AssociationRemover associationRemover) {
+        super(associations, associationRemover, "Feature", UIExtensionFactory.EXTENSION_POINT_VALUE_FEATURE, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected void doHandleEvent(String topic, FeatureObject feature, org.osgi.service.event.Event event) {
-        if (FeatureObject.TOPIC_ADDED.equals(topic)) {
-            add(feature);
-        }
-        if (FeatureObject.TOPIC_REMOVED.equals(topic)) {
-            remove(feature);
-        }
-        if (FeatureObject.TOPIC_CHANGED.equals(topic) || RepositoryAdmin.TOPIC_STATUSCHANGED.equals(topic)) {
-            update(feature);
-        }
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -67,7 +56,7 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
     protected boolean doRemoveLeftSideAssociation(FeatureObject object, RepositoryObject other) {
         List<Artifact2FeatureAssociation> associations = object.getAssociationsWith((ArtifactObject) other);
         for (Artifact2FeatureAssociation association : associations) {
-            removeAssocation(association);
+            m_associationRemover.removeAssociation(association);
         }
         return true;
     }
@@ -79,9 +68,24 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
     protected boolean doRemoveRightSideAssociation(FeatureObject object, RepositoryObject other) {
         List<Feature2DistributionAssociation> associations = object.getAssociationsWith((DistributionObject) other);
         for (Feature2DistributionAssociation association : associations) {
-            removeAssocation(association);
+            m_associationRemover.removeAssociation(association);
         }
         return true;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    protected void handleEvent(String topic, FeatureObject feature, org.osgi.service.event.Event event) {
+        if (FeatureObject.TOPIC_ADDED.equals(topic)) {
+            add(feature);
+        }
+        if (FeatureObject.TOPIC_REMOVED.equals(topic)) {
+            remove(feature);
+        }
+        if (FeatureObject.TOPIC_CHANGED.equals(topic) || RepositoryAdmin.TOPIC_STATUSCHANGED.equals(topic)) {
+            update(feature);
+        }
     }
     
     /**
@@ -102,15 +106,5 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(feature.getDescription());
         item.getItemProperty(ACTIONS).setValue(createActionButtons(feature));
     }
-    
-    /**
-     * @param association
-     */
-    protected abstract void removeAssocation(Artifact2FeatureAssociation association);
-    
-    /**
-     * @param association
-     */
-    protected abstract void removeAssocation(Feature2DistributionAssociation association);
 }
 
