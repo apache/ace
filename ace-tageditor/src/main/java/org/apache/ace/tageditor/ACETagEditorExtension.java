@@ -29,80 +29,115 @@ import org.apache.ace.webui.UIExtensionFactory;
 
 import com.vaadin.event.Action;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+/**
+ * Provides a generic tag-editor for artifacts, features, distributions and targets.
+ */
 public class ACETagEditorExtension implements UIExtensionFactory {
 
+    /**
+     * {@inheritDoc}
+     */
     public Component create(Map<String, Object> context) {
         final RepositoryObject sgo = getRepositoryObjectFromContext(context);
-        VerticalLayout result = new VerticalLayout();
-        result.setCaption("Tag Editor");
+
+        Component editor;
         if (sgo instanceof StatefulTargetObject) {
             StatefulTargetObject statefulTarget = (StatefulTargetObject) sgo;
             if (statefulTarget.isRegistered()) {
-                final Table table = new Table();
-                table.setWidth("100%");
-                table.addContainerProperty("Tag", TextField.class, null);
-                table.addContainerProperty("Value", TextField.class, null);
-                table.setEditable(false);
-                result.addComponent(table);
-                result.setComponentAlignment(table, Alignment.MIDDLE_CENTER);
-                final Map<Object, TagTableEntry> idToKey = new HashMap<Object, TagTableEntry>();
-                Enumeration<String> keys = sgo.getTagKeys();
-                while (keys.hasMoreElements()) {
-                    String keyString = keys.nextElement();
-                    String valueString = sgo.getTag(keyString);
-                    if ((valueString != null) && (valueString.trim().length() != 0)) {
-                        TagTableEntry tte = new TagTableEntry(sgo, keyString,
-                                valueString);
-                        idToKey.put(tte.addTo(table), tte);
-                    }
-                }
-                final TagTableEntry tte = new TagTableEntry(sgo);
-                idToKey.put(tte.addTo(table), tte);
-                tte.setListener(new TagTableEntry.ChangeListener() {
-                    private volatile TagTableEntry m_lastEntry = tte;
-                    public void changed(TagTableEntry entry) {
-                        TagTableEntry ntte = new TagTableEntry(sgo);
-                        idToKey.put(ntte.addTo(table), ntte);
-                        m_lastEntry.setListener(null);
-                        m_lastEntry = ntte;
-                        ntte.setListener(this);
-                    }
-                });
-                table.addActionHandler(new Action.Handler() {
-                    final Action[] delete = new Action[] { new Action("delete") };
-                    public void handleAction(Action action, Object sender, Object target) {
-                        idToKey.remove(target).removeFrom(table);
-                    }
-                    public Action[] getActions(Object target, Object sender) {
-                        return delete;
-                    }
-                });
+                editor = createTagEditor(sgo);
             }
             else {
-                result.addComponent(new Label("This target is not yet registered, so you cannot add tags."));
+                editor = new Label("This target is not yet registered, so you cannot add tags.");
             }
         }
+        else {
+            editor = createTagEditor(sgo);
+        }
+
+        VerticalLayout result = new VerticalLayout();
+        result.setCaption("Tag Editor");
+
+        result.addComponent(editor);
+
+        result.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
+
         return result;
     }
 
-    private RepositoryObject getRepositoryObjectFromContext(
-            @SuppressWarnings("rawtypes") Map context) {
+    /**
+     * Creates a tag editor component for the given repository object.
+     * 
+     * @param object the repository object to create the tag editor for, cannot be <code>null</code>.
+     * @return a tag editor component, never <code>null</code>.
+     */
+    private Component createTagEditor(final RepositoryObject object) {
+        final Table table = new Table();
+        table.setWidth("100%");
+
+        table.addContainerProperty("Tag", TextField.class, null);
+        table.addContainerProperty("Value", TextField.class, null);
+        table.addContainerProperty("Remove", Button.class, null, "", null, Table.ALIGN_CENTER);
+        table.setEditable(false);
+        
+        table.setColumnExpandRatio("Tag", 1.0f);
+        table.setColumnExpandRatio("Value", 1.0f);
+        table.setColumnExpandRatio("Remove", 0.2f);
+        
+        final Map<Object, TagTableEntry> idToKey = new HashMap<Object, TagTableEntry>();
+        Enumeration<String> keys = object.getTagKeys();
+        while (keys.hasMoreElements()) {
+            String keyString = keys.nextElement();
+            String valueString = object.getTag(keyString);
+            if ((valueString != null) && (valueString.trim().length() != 0)) {
+                TagTableEntry tte = new TagTableEntry(object, keyString, valueString);
+                idToKey.put(tte.addTo(table), tte);
+            }
+        }
+        
+        final TagTableEntry tte = new TagTableEntry(object);
+        idToKey.put(tte.addTo(table), tte);
+        
+        tte.setListener(new TagTableEntry.ChangeListener() {
+            private volatile TagTableEntry m_lastEntry = tte;
+
+            public void changed(TagTableEntry entry) {
+                TagTableEntry ntte = new TagTableEntry(object);
+                idToKey.put(ntte.addTo(table), ntte);
+                m_lastEntry.setListener(null);
+                m_lastEntry = ntte;
+                ntte.setListener(this);
+            }
+        });
+        
+        table.addActionHandler(new Action.Handler() {
+            final Action[] delete = new Action[] { new Action("delete") };
+
+            public void handleAction(Action action, Object sender, Object target) {
+                idToKey.remove(target).removeFrom(table);
+            }
+
+            public Action[] getActions(Object target, Object sender) {
+                return delete;
+            }
+        });
+
+        return table;
+    }
+
+    private RepositoryObject getRepositoryObjectFromContext(Map<String, Object> context) {
         Object contextObject = context.get("object");
         if (contextObject == null) {
             throw new IllegalStateException("No context object found");
         }
-        // It looks like there is some bug (or some other reason that escapes
-        // me)
-        // why ace is using either the object directly or wraps it in a
-        // NamedObject first.
-        // Its unclear when it does which so for now we cater for both.
-        return ((RepositoryObject) (contextObject instanceof NamedObject ? ((NamedObject) contextObject)
-                .getObject() : contextObject));
+
+        return (contextObject instanceof NamedObject ? ((NamedObject) contextObject).getObject()
+            : (RepositoryObject) contextObject);
     }
 }

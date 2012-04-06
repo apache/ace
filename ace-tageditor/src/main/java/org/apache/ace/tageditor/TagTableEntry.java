@@ -22,10 +22,13 @@ import org.apache.ace.client.repository.RepositoryObject;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.Button.ClickEvent;
 
 public class TagTableEntry {
+
     public interface ChangeListener {
         public void changed(TagTableEntry entry);
     }
@@ -33,6 +36,7 @@ public class TagTableEntry {
     private final TextField m_keyField = new TextField(null, "");
     private final TextField m_valueField = new TextField(null, "");
     private final RepositoryObject m_repoObject;
+
     private volatile String m_lastKey = null;
     private volatile Object m_id = null;
     private volatile ChangeListener m_listener = null;
@@ -40,15 +44,15 @@ public class TagTableEntry {
     public TagTableEntry(RepositoryObject repoObject) {
         m_repoObject = repoObject;
         m_keyField.setImmediate(true);
+        m_keyField.setWidth("100%");
         m_keyField.addListener(new ValueChangeListener() {
-
             public void valueChange(ValueChangeEvent event) {
                 keyChanged();
             }
         });
         m_valueField.setImmediate(true);
+        m_valueField.setWidth("100%");
         m_valueField.addListener(new ValueChangeListener() {
-
             public void valueChange(ValueChangeEvent event) {
                 valueChanged();
             }
@@ -57,13 +61,28 @@ public class TagTableEntry {
 
     public TagTableEntry(RepositoryObject repoObject, String key, String value) {
         this(repoObject);
+
         m_keyField.setValue(key);
         m_valueField.setValue(value);
         m_lastKey = key;
     }
 
-    public Object addTo(Table table) {
-        m_id = table.addItem(new Object[] { m_keyField, m_valueField }, null);
+    public Object addTo(final Table table) {
+        Button deleteButton = new Button() {
+            @Override
+            public boolean isEnabled() {
+                return super.isEnabled() && m_id != null;
+            }
+        };
+        deleteButton.setCaption("x");
+        deleteButton.setStyleName("small");
+        deleteButton.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                removeFrom(table);
+            }
+        });
+
+        m_id = table.addItem(new Object[] { m_keyField, m_valueField, deleteButton }, null);
         return m_id;
     }
 
