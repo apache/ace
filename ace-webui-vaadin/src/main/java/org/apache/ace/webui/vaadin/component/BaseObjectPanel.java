@@ -248,7 +248,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         synchronized (getApplication()) {
             if (isSupportedEntity(entity)) {
                 try {
-                    handleEvent(topic, (REPO_OBJ) entity, event);
+                    handleEvent(topic, entity, event);
                 }
                 finally {
                     refreshRenderedCells();
@@ -431,17 +431,6 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     }
 
     /**
-     * @param topic the topic of the event;
-     * @param entity the entity of the event;
-     * @param event the original event.
-     * 
-     * @see org.osgi.service.event.EventHandler#handleEvent(org.osgi.service.event.Event)
-     */
-    protected void handleEvent(String topic, REPO_OBJ entity, org.osgi.service.event.Event event) {
-        // Nop...
-    }
-
-    /**
      * Does the actual removal of the left-hand side associations for a given repository object.
      * 
      * @param object the repository object to remove the left-hand side associations;
@@ -461,6 +450,16 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      */
     protected boolean doRemoveRightSideAssociation(REPO_OBJ object, RepositoryObject other) {
         return m_rightTable != null;
+    }
+
+    /**
+     * Converts a table-id back to a concrete {@link RepositoryObject}.
+     * 
+     * @param id the identifier of the {@link RepositoryObject}, cannot be <code>null</code>.
+     * @return a {@link RepositoryObject} instance for the given ID, can be <code>null</code> in case no such object is found.
+     */
+    protected final REPO_OBJ getFromId(String id) {
+        return getRepository().get(id);
     }
 
     /**
@@ -497,6 +496,17 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         String name = getWorkingState(object).name();
         Resource res = createIconResource("resource_workingstate_" + name);
         return createIcon(name, res);
+    }
+
+    /**
+     * @param topic the topic of the event;
+     * @param entity the entity of the event;
+     * @param event the original event.
+     * 
+     * @see org.osgi.service.event.EventHandler#handleEvent(org.osgi.service.event.Event)
+     */
+    protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
+        // Nop...
     }
 
     /**
@@ -565,16 +575,6 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
             }
         }
         return extensions;
-    }
-
-    /**
-     * Converts a table-id back to a concrete {@link RepositoryObject}.
-     * 
-     * @param id the identifier of the {@link RepositoryObject}, cannot be <code>null</code>.
-     * @return a {@link RepositoryObject} instance for the given ID, can be <code>null</code> in case no such object is found.
-     */
-    private REPO_OBJ getFromId(String id) {
-        return getRepository().get(id);
     }
 
     /**

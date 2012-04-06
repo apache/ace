@@ -20,11 +20,11 @@ package org.apache.ace.webui.vaadin.component;
 
 import java.util.List;
 
-import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.RepositoryObject.WorkingState;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.webui.UIExtensionFactory;
@@ -113,16 +113,15 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
     /**
      * {@inheritDoc}
      */
-    protected void handleEvent(String topic, StatefulTargetObject statefulTarget, org.osgi.service.event.Event event) {
+    protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
+        StatefulTargetObject statefulTarget = asStatefulTargetObject(entity);
         if (StatefulTargetObject.TOPIC_ADDED.equals(topic)) {
             add(statefulTarget);
         }
         if (StatefulTargetObject.TOPIC_REMOVED.equals(topic)) {
             remove(statefulTarget);
         }
-        if (StatefulTargetObject.TOPIC_CHANGED.equals(topic) || StatefulTargetObject.TOPIC_STATUS_CHANGED.equals(topic)
-            || StatefulTargetObject.TOPIC_AUDITEVENTS_CHANGED.equals(topic)
-            || RepositoryAdmin.TOPIC_STATUSCHANGED.equals(topic)) {
+        if (topic.endsWith("CHANGED")) {
             update(statefulTarget);
         }
     }
@@ -132,7 +131,7 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
      */
     @Override
     protected boolean isSupportedEntity(RepositoryObject entity) {
-        return entity instanceof StatefulTargetObject;
+        return (entity instanceof StatefulTargetObject) || (entity instanceof TargetObject);
     }
 
     /**
@@ -178,5 +177,17 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         String name = object.getStoreState().name();
         Resource res = createIconResource("target_store_" + name);
         return createIcon(name, res);
+    }
+
+    /**
+     * 
+     * @param entity
+     * @return
+     */
+    private StatefulTargetObject asStatefulTargetObject(RepositoryObject entity) {
+        if (entity instanceof StatefulTargetObject) {
+            return (StatefulTargetObject) entity;
+        }
+        return getFromId(((TargetObject) entity).getDefinition());
     }
 }

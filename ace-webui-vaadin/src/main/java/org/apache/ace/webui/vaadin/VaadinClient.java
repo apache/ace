@@ -423,7 +423,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
         addListener(m_featuresPanel, FeatureObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
         addListener(m_distributionsPanel, DistributionObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
-        addListener(m_targetsPanel, StatefulTargetObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
+        addListener(m_targetsPanel, StatefulTargetObject.TOPIC_ALL, TargetObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
 
         m_mainWindow.addComponent(m_grid);
     }
