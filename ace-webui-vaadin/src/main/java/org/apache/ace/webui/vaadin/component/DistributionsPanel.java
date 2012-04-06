@@ -77,7 +77,8 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
     /**
      * {@inheritDoc}
      */
-    protected void handleEvent(String topic, DistributionObject distribution, org.osgi.service.event.Event event) {
+    protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
+        DistributionObject distribution = (DistributionObject) entity;
         if (DistributionObject.TOPIC_ADDED.equals(topic)) {
             add(distribution);
         }

@@ -505,9 +505,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * 
      * @see org.osgi.service.event.EventHandler#handleEvent(org.osgi.service.event.Event)
      */
-    protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
-        // Nop...
-    }
+    protected abstract void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event);
 
     /**
      * Returns whether the given {@link RepositoryObject} can be handled by this panel.

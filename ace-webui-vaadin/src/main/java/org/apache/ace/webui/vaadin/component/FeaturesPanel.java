@@ -76,7 +76,8 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
     /**
      * {@inheritDoc}
      */
-    protected void handleEvent(String topic, FeatureObject feature, org.osgi.service.event.Event event) {
+    protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
+        FeatureObject feature = (FeatureObject) entity;
         if (FeatureObject.TOPIC_ADDED.equals(topic)) {
             add(feature);
         }

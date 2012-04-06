@@ -63,7 +63,8 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
     /**
      * {@inheritDoc}
      */
-    protected void handleEvent(String topic, ArtifactObject artifact, org.osgi.service.event.Event event) {
+    protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
+        ArtifactObject artifact = (ArtifactObject) entity;
         if (ArtifactObject.TOPIC_ADDED.equals(topic)) {
             add(artifact);
         }
