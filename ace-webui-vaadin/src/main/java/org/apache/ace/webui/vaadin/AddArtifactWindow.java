@@ -495,9 +495,9 @@ abstract class AddArtifactWindow extends Window {
                 added.add(importRemoteBundle(artifact.toURI().toURL()));
             }
             catch (Exception exception) {
-                showErrorNotification("Import artifact failed", "Artifact "
-                    + artifact.getAbsolutePath()
-                    + "<br />could not be imported into the repository.<br />"
+                showErrorNotification("Import artifact failed", "<br/>Artifact '"
+                    + artifact.getName()
+                    + "' could not be imported into the repository.<br />"
                     + "Reason: " + exception.getMessage());
 
                 logError("Import of " + artifact.getAbsolutePath() + " failed.", exception);
@@ -517,7 +517,7 @@ abstract class AddArtifactWindow extends Window {
      * @param aMessage the error message itself.
      */
     final void showErrorNotification(final String aTitle, final String aMessage) {
-        showNotification(aTitle, aMessage, Notification.TYPE_ERROR_MESSAGE);
+        getParent().showNotification(aTitle, aMessage, Notification.TYPE_ERROR_MESSAGE);
     }
 
     /**
