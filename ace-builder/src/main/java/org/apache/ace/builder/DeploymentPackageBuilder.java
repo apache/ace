@@ -246,17 +246,17 @@ public class DeploymentPackageBuilder {
                     output.write(buffer, 0, bytes);
                     bytes = fis.read(buffer);
                 }
-                output.closeEntry();
                 fis.close();
+                output.closeEntry();
                 fis = null;
             }
         }
         finally {
+        	if (fis != null) {
+        		fis.close();
+        	}
             if (output != null) {
             	output.close();
-            }
-            if (fis != null) {
-                fis.close();
             }
         }
     }
