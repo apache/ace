@@ -18,10 +18,13 @@
  */
 package org.apache.ace.builder;
 
+import static org.apache.ace.test.utils.TestUtils.UNIT;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
@@ -30,8 +33,6 @@ import java.util.jar.Manifest;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 
 public class DeploymentPackageBuilderTest {
     @Test(groups = { UNIT })
@@ -70,10 +71,10 @@ public class DeploymentPackageBuilderTest {
 		Assert.assertEquals(name, m.getMainAttributes().getValue("DeploymentPackage-SymbolicName"));
 		Assert.assertEquals(version, m.getMainAttributes().getValue("DeploymentPackage-Version"));
 		Assert.assertEquals(1, m.getEntries().size());
-		Attributes attributes = m.getEntries().get(tempBundleFile.getName());
-		Assert.assertNotNull(attributes);
-		Assert.assertEquals(bundleSymbolicName, attributes.getValue("Bundle-SymbolicName"));
-		Assert.assertEquals(bundleVersion, attributes.getValue("Bundle-Version"));
+		contains(m.getEntries().values(),
+			"Bundle-SymbolicName", bundleSymbolicName,
+			"Bundle-Version", bundleVersion
+		);
 	}
 
     @Test(groups = { UNIT })
@@ -101,13 +102,14 @@ public class DeploymentPackageBuilderTest {
 		Assert.assertEquals(name, m.getMainAttributes().getValue("DeploymentPackage-SymbolicName"));
 		Assert.assertEquals(version, m.getMainAttributes().getValue("DeploymentPackage-Version"));
 		Assert.assertEquals(2, m.getEntries().size());
-		Attributes attributes = m.getEntries().get(tempBundleFile.getName());
-		Assert.assertNotNull(attributes);
-		Assert.assertEquals(bundleSymbolicName, attributes.getValue("Bundle-SymbolicName"));
-		Assert.assertEquals(bundleVersion, attributes.getValue("Bundle-Version"));
-		attributes = m.getEntries().get(tempBundleFile2.getName());
-		Assert.assertEquals(bundleSymbolicName2, attributes.getValue("Bundle-SymbolicName"));
-		Assert.assertEquals(bundleVersion2, attributes.getValue("Bundle-Version"));
+		contains(m.getEntries().values(),
+			"Bundle-SymbolicName", bundleSymbolicName,
+			"Bundle-Version", bundleVersion
+		);
+		contains(m.getEntries().values(),
+			"Bundle-SymbolicName", bundleSymbolicName2,
+			"Bundle-Version", bundleVersion2
+		);
 	}
 	
     @Test(groups = { UNIT })
@@ -136,16 +138,17 @@ public class DeploymentPackageBuilderTest {
 		Assert.assertEquals(version, m.getMainAttributes().getValue("DeploymentPackage-Version"));
 		Map<String, Attributes> entries = m.getEntries();
 		Assert.assertEquals(2, entries.size());
-		Attributes attributes = entries.get(tempBundleFile.getName());
-		Assert.assertNotNull(attributes);
-		Assert.assertEquals(bundleSymbolicName, attributes.getValue("Bundle-SymbolicName"));
-		Assert.assertEquals(bundleVersion, attributes.getValue("Bundle-Version"));
-		Assert.assertEquals("true", attributes.getValue("DeploymentPackage-Customizer"));
-		Assert.assertEquals(pid, attributes.getValue("Deployment-ProvidesResourceProcessor"));
-		attributes = entries.get(tempArtifactFile.getName());
-		Assert.assertEquals(pid, attributes.getValue("Resource-Processor"));
+		contains(entries.values(),
+			"Bundle-SymbolicName", bundleSymbolicName,
+			"Bundle-Version", bundleVersion,
+			"DeploymentPackage-Customizer", "true",
+			"Deployment-ProvidesResourceProcessor", pid
+		);
+		contains(entries.values(),
+			"Resource-Processor", pid
+		);
 	}
-
+    
     @Test(groups = { UNIT }, expectedExceptions = { Exception.class })
 	public void testResourceWithoutProcessorDeploymentPackage() throws Exception {
 		File tempFile = File.createTempFile("output-", ".jar");
@@ -230,5 +233,21 @@ public class DeploymentPackageBuilderTest {
             	output.close();
             }
         }
+	}
+
+	private void contains(Collection<Attributes> list, String... keysAndValues) {
+		for (Attributes attributes : list) {
+			boolean found = true;
+			for (int i = 0; i < keysAndValues.length; i += 2) {
+				if (!keysAndValues[i + 1].equals(attributes.getValue(keysAndValues[i]))) {
+					found = false;
+					break;
+				}
+			}
+			if (found) {
+				return;
+			}
+		}
+		throw new IllegalStateException("Could not find entry in list.");
 	}
 }

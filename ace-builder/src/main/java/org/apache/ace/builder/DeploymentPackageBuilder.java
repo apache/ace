@@ -50,18 +50,18 @@ import java.util.zip.ZipEntry;
  * and resource processors first and then all artifacts.
  */
 public class DeploymentPackageBuilder {
-	private static final int BUFFER_SIZE = 32 * 1024;
 	private static final String PREFIX_BUNDLE = "bundle-";
 	private static final String PREFIX_ARTIFACT = "artifact-";
-	private final String m_name;
+	private static final int BUFFER_SIZE = 32 * 1024;
+	private final String m_symbolicName;
 	private final String m_version;
-	private int m_id = 1;
 	private final List<ArtifactData> m_bundles = new ArrayList<ArtifactData>();
 	private final List<ArtifactData> m_processors = new ArrayList<ArtifactData>();
 	private final List<ArtifactData> m_artifacts = new ArrayList<ArtifactData>();
+	private int m_id = 1;
 	
-	private DeploymentPackageBuilder(String name, String version) {
-		m_name = name;
+	private DeploymentPackageBuilder(String symbolicName, String version) {
+		m_symbolicName = symbolicName;
 		m_version = version;
 	}
 	
@@ -137,8 +137,8 @@ public class DeploymentPackageBuilder {
 	}
 	
 	/** Returns the symbolic name of the deployment package. */
-	public String getName() {
-		return m_name;
+	public String getSymbolicName() {
+		return m_symbolicName;
 	}
 
 	/** Returns the version of the deployment package. */
@@ -209,7 +209,7 @@ public class DeploymentPackageBuilder {
 		Manifest manifest = new Manifest();
         Attributes main = manifest.getMainAttributes();
         main.putValue("Manifest-Version", "1.0");
-        main.putValue("DeploymentPackage-SymbolicName", m_name);
+        main.putValue("DeploymentPackage-SymbolicName", m_symbolicName);
         main.putValue("DeploymentPackage-Version", m_version);
 
         for (ArtifactData file : files) {
@@ -260,7 +260,6 @@ public class DeploymentPackageBuilder {
             }
         }
     }
-	
 	private synchronized int getUniqueID() {
 		return m_id++;
 	}
