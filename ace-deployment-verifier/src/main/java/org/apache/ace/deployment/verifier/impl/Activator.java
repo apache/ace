@@ -22,13 +22,22 @@ import org.apache.ace.deployment.verifier.VerifierService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+/**
+ * Provides a {@link BundleActivator} implementation for the {@link VerifierService}.
+ */
 public class Activator implements BundleActivator {
 
-	public void start(BundleContext context) throws Exception {
-		context.registerService(VerifierService.class.getName(), new VerifierServiceImpl(), null);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void start(BundleContext context) {
+        context.registerService(VerifierService.class.getName(), new VerifierServiceImpl(), null);
+    }
 
-	public void stop(BundleContext context) throws Exception {
-	}
-
+    /**
+     * {@inheritDoc}
+     */
+    public void stop(BundleContext context) {
+        // Nop
+    }
 }

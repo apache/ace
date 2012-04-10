@@ -38,7 +38,11 @@ import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWiring;
 
+/**
+ *
+ */
 public class VerifierBundleRevision implements BundleRevision {
+    
 	private final String m_symbolicName;
 	private final Version m_version;
 	private final List<BundleCapability> m_declaredCaps;
@@ -48,6 +52,13 @@ public class VerifierBundleRevision implements BundleRevision {
 	private final List<R4Library> m_declaredLibs;
 	private final Map<String, String> m_headers;
 
+	/**
+	 * @param log
+	 * @param bundle
+	 * @param config
+	 * @param headers
+	 * @throws BundleException
+	 */
 	public VerifierBundleRevision(Logger log, Bundle bundle, Map<String, String> config, Map<String, String> headers) throws BundleException {
 		m_bundle = bundle;
 		m_headers = Collections.unmodifiableMap(headers);
@@ -60,39 +71,40 @@ public class VerifierBundleRevision implements BundleRevision {
 		m_declaredLibs = parser.getLibraries();
 	}
 
-	private static List<BundleCapability> aliasSymbolicName(List<BundleCapability> caps)
+    /**
+     * Takes a given list of bundle capabilities and patches all symbolic names to be marked as system bundles.
+     * 
+     * @param capabilities the capabilities to patch, may be <code>null</code>.
+     * @return the patched capabilities, or an emtpy list in case the given capabilities was <code>null</code>.
+     */
+    private static List<BundleCapability> aliasSymbolicName(List<BundleCapability> capabilities)
     {
-        if (caps == null)
+        if (capabilities == null)
         {
-            return new ArrayList<BundleCapability>(0);
+            return Collections.emptyList();
         }
 
-        List<BundleCapability> aliasCaps = new ArrayList<BundleCapability>(caps);
+        List<BundleCapability> aliasCaps = new ArrayList<BundleCapability>(capabilities);
 
         for (int capIdx = 0; capIdx < aliasCaps.size(); capIdx++)
         {
+            BundleCapability capability = aliasCaps.get(capIdx);
+            
             // Get the attributes and search for bundle symbolic name.
-            for (Entry<String, Object> entry : aliasCaps.get(capIdx).getAttributes().entrySet())
+            Map<String, Object> attributes = capability.getAttributes();
+            
+            for (Entry<String, Object> entry : attributes.entrySet())
             {
                 // If there is a bundle symbolic name attribute, add the
                 // standard alias as a value.
-                if (entry.getKey().equalsIgnoreCase(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE))
+                if (Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE.equalsIgnoreCase(entry.getKey()))
                 {
                     // Make a copy of the attribute array.
-                    Map<String, Object> aliasAttrs =
-                        new HashMap<String, Object>(aliasCaps.get(capIdx).getAttributes());
+                    Map<String, Object> aliasAttrs = new HashMap<String, Object>(attributes);
                     // Add the aliased value.
-                    aliasAttrs.put(
-                        Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE,
-                        new String[] {
-                            (String) entry.getValue(),
-                            Constants.SYSTEM_BUNDLE_SYMBOLICNAME});
+                    aliasAttrs.put(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE, new String[] { (String) entry.getValue(), Constants.SYSTEM_BUNDLE_SYMBOLICNAME });
                     // Create the aliased capability to replace the old capability.
-                    aliasCaps.set(capIdx, new BundleCapabilityImpl(
-                        caps.get(capIdx).getRevision(),
-                        caps.get(capIdx).getNamespace(),
-                        caps.get(capIdx).getDirectives(),
-                        aliasAttrs));
+                    aliasCaps.set(capIdx, new BundleCapabilityImpl(capability.getRevision(), capability.getNamespace(), capability.getDirectives(), aliasAttrs));
                     // Continue with the next capability.
                     break;
                 }
@@ -101,47 +113,91 @@ public class VerifierBundleRevision implements BundleRevision {
 
         return aliasCaps;
     }
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Bundle getBundle() {
 		return m_bundle;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	public String getSymbolicName() {
 		return m_symbolicName;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	public Version getVersion() {
 		return m_version;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	public List<BundleCapability> getDeclaredCapabilities(String namespace) {
 		return m_declaredCaps;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	public List<BundleRequirement> getDeclaredRequirements(String namespace) {
 		return m_declaredReqs;
 	}
 	
+    /**
+     * {@inheritDoc}
+     */
 	public List<R4Library> getDeclaredNativeLibraries() {
 		return m_declaredLibs;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	public int getTypes() {
 		return m_type;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	public BundleWiring getWiring() {
 		return null;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	public Map<String, String> getHeaders() {
 		return m_headers;
 	}
 	
+	/**
+	 * Returns the required execution environment, if defined.
+	 * 
+	 * @return the required execution environment, can be <code>null</code> if not defined.
+	 */
+	@SuppressWarnings("deprecation")
+    public String getRequiredExecutionEnvironment() {
+	    String result = getHeaders().get(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT);
+        return result == null ? null : result.trim();
+	}
+	
+    /**
+     * {@inheritDoc}
+     */
 	public int hashCode() {
 		return (int) getBundle().getBundleId();
 	}
 	
+    /**
+     * {@inheritDoc}
+     */
 	public boolean equals(Object o) {
 		if (o instanceof VerifierBundleRevision) {
 			return o.hashCode() == hashCode();
@@ -149,6 +205,9 @@ public class VerifierBundleRevision implements BundleRevision {
 		return false;
 	}
 	
+    /**
+     * {@inheritDoc}
+     */
 	public String toString() {
 		return m_symbolicName + ";"+ Constants.VERSION_ATTRIBUTE + "=" + m_version + "(id=" + getBundle().getBundleId() + ")";
 	}

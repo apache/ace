@@ -33,6 +33,7 @@ import org.apache.felix.framework.capabilityset.SimpleFilter;
 import org.apache.felix.framework.resolver.CandidateComparator;
 import org.apache.felix.framework.resolver.ResolveException;
 import org.apache.felix.framework.resolver.Resolver;
+import org.apache.felix.framework.resolver.Resolver.ResolverState;
 import org.apache.felix.framework.util.Util;
 import org.apache.felix.framework.util.manifestparser.R4Library;
 import org.apache.felix.framework.wiring.BundleRequirementImpl;
@@ -41,6 +42,9 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 
+/**
+ * Provides a custom {@link ResolverState} implementation to hold all state during resolving.
+ */
 public class VerifierResolverState implements Resolver.ResolverState {
 
 	// Set of all revisions.
@@ -54,16 +58,11 @@ public class VerifierResolverState implements Resolver.ResolverState {
 	// Parsed framework environments
 	private final Set<String> m_fwkExecEnvSet;
 
-	// void dump()
-	// {
-	// for (Entry<String, CapabilitySet> entry : m_capSets.entrySet())
-	// {
-	// System.out.println("+++ START CAPSET " + entry.getKey());
-	// entry.getValue().dump();
-	// System.out.println("+++ END CAPSET " + entry.getKey());
-	// }
-	// }
-
+	/**
+	 * Creates a new {@link VerifierResolverState} instance.
+	 * 
+	 * @param fwkExecEnvStr the framework execution environment, can be <code>null</code>.
+	 */
 	public VerifierResolverState(String fwkExecEnvStr) {
 		m_revisions = new HashSet<BundleRevision>();
 		m_fragments = new HashSet<BundleRevision>();
@@ -74,18 +73,15 @@ public class VerifierResolverState implements Resolver.ResolverState {
 
 		List<String> indices = new ArrayList<String>();
 		indices.add(BundleRevision.BUNDLE_NAMESPACE);
-		m_capSets.put(BundleRevision.BUNDLE_NAMESPACE, new CapabilitySet(
-				indices, true));
+		m_capSets.put(BundleRevision.BUNDLE_NAMESPACE, new CapabilitySet(indices, true));
 
 		indices = new ArrayList<String>();
 		indices.add(BundleRevision.PACKAGE_NAMESPACE);
-		m_capSets.put(BundleRevision.PACKAGE_NAMESPACE, new CapabilitySet(
-				indices, true));
+		m_capSets.put(BundleRevision.PACKAGE_NAMESPACE, new CapabilitySet(indices, true));
 
 		indices = new ArrayList<String>();
 		indices.add(BundleRevision.HOST_NAMESPACE);
-		m_capSets.put(BundleRevision.HOST_NAMESPACE, new CapabilitySet(indices,
-				true));
+		m_capSets.put(BundleRevision.HOST_NAMESPACE, new CapabilitySet(indices, true));
 	}
 
 	synchronized Set<BundleRevision> getUnresolvedRevisions() {
@@ -156,22 +152,20 @@ public class VerifierResolverState implements Resolver.ResolverState {
 		return new HashSet(m_fragments);
 	}
 
-	//
-	// ResolverState methods.
-	//
-
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean isEffective(BundleRequirement req) {
-		String effective = req.getDirectives().get(
-				Constants.EFFECTIVE_DIRECTIVE);
-		return ((effective == null) || effective
-				.equals(Constants.EFFECTIVE_RESOLVE));
+		String effective = req.getDirectives().get(Constants.EFFECTIVE_DIRECTIVE);
+		return ((effective == null) || effective.equals(Constants.EFFECTIVE_RESOLVE));
 	}
 
-	public synchronized SortedSet<BundleCapability> getCandidates(
-			BundleRequirement req, boolean obeyMandatory) {
-		BundleRevision reqRevision = req.getRevision();
-		SortedSet<BundleCapability> result = new TreeSet<BundleCapability>(
-				new CandidateComparator());
+    /**
+     * {@inheritDoc}
+     */
+	public synchronized SortedSet<BundleCapability> getCandidates(BundleRequirement req, boolean obeyMandatory) {
+//		BundleRevision reqRevision = req.getRevision();
+		SortedSet<BundleCapability> result = new TreeSet<BundleCapability>(new CandidateComparator());
 
 		CapabilitySet capSet = m_capSets.get(req.getNamespace());
 		if (capSet != null) {
@@ -284,55 +278,46 @@ public class VerifierResolverState implements Resolver.ResolverState {
 		return result;
 	}
 
-	public void checkExecutionEnvironment(BundleRevision revision)
-			throws ResolveException {
-		String bundleExecEnvStr = (String) ((VerifierBundleRevision) revision)
-				.getHeaders()
-				.get(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT);
+    /**
+     * {@inheritDoc}
+     */
+	public void checkExecutionEnvironment(BundleRevision revision) throws ResolveException {
+		String bundleExecEnvStr = ((VerifierBundleRevision) revision).getRequiredExecutionEnvironment();
 		if (bundleExecEnvStr != null) {
-			bundleExecEnvStr = bundleExecEnvStr.trim();
-
 			// If the bundle has specified an execution environment and the
 			// framework has an execution environment specified, then we must
 			// check for a match.
-			if (!bundleExecEnvStr.equals("") && (m_fwkExecEnvStr != null)
-					&& (m_fwkExecEnvStr.length() > 0)) {
-				StringTokenizer tokens = new StringTokenizer(bundleExecEnvStr,
-						",");
+			if (!bundleExecEnvStr.equals("") && (m_fwkExecEnvStr != null) && (m_fwkExecEnvStr.length() > 0)) {
+				StringTokenizer tokens = new StringTokenizer(bundleExecEnvStr, ",");
+
 				boolean found = false;
 				while (tokens.hasMoreTokens() && !found) {
 					if (m_fwkExecEnvSet.contains(tokens.nextToken().trim())) {
 						found = true;
 					}
 				}
+				
 				if (!found) {
-					throw new ResolveException(
-							"Execution environment not supported: "
-									+ bundleExecEnvStr, revision, null);
+					throw new ResolveException("Execution environment not supported: " + bundleExecEnvStr, revision, null);
 				}
 			}
 		}
 	}
 
-	public void checkNativeLibraries(BundleRevision revision)
-			throws ResolveException {
+    /**
+     * {@inheritDoc}
+     */
+	public void checkNativeLibraries(BundleRevision revision) throws ResolveException {
 		// Next, try to resolve any native code, since the revision is
 		// not resolvable if its native code cannot be loaded.
-		List<R4Library> libs = ((VerifierBundleRevision) revision)
-				.getDeclaredNativeLibraries();
-		if (libs != null) {
-			// If we have a zero-length native library array, then
-			// this means no native library class could be selected
-			// so we should fail to resolve.
-			if (libs.isEmpty()) {
-				throw new ResolveException("No matching native libraries found.", revision, null);
-			}
+		List<R4Library> libs = ((VerifierBundleRevision) revision).getDeclaredNativeLibraries();
+		// If we have a zero-length native library array, then
+		// this means no native library class could be selected
+		// so we should fail to resolve.
+		if ((libs != null) && libs.isEmpty()) {
+			throw new ResolveException("No matching native libraries found.", revision, null);
 		}
 	}
-
-	//
-	// Utility methods.
-	//
 
 	/**
 	 * Updates the framework wide execution environment string and a cached Set
