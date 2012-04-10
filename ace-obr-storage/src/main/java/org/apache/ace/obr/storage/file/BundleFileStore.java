@@ -197,6 +197,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
                 fos.write(buffer, 0, read);
             }
             fos.flush();
+            fos.close();
 
             if (!tempFile.renameTo(dest)) {
                 if (!moveFile(tempFile, dest)) {
