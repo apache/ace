@@ -97,11 +97,13 @@ public class DeploymentServiceImpl implements DeploymentService {
         
         try {
             String version = highestRemoteVersion.toString();
-            if (highestLocalVersion != null) {
+            URL baseURL = getURL();
+            boolean isFileBasedProtocol = "file".equals(baseURL.getProtocol());
+            if (highestLocalVersion != null && !isFileBasedProtocol) {
                 version += "?current=" + highestLocalVersion.toString();
             }
-            URL dataURL = new URL(getURL(), version);
-            if ("file".equals(dataURL.getProtocol())) {
+			URL dataURL = new URL(baseURL, version);
+			if (isFileBasedProtocol) {
                 File file = urlToFile(dataURL);
                 inputStream = new FileInputStream(file);
             }
