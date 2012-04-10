@@ -18,6 +18,7 @@
  */
 package org.apache.ace.webui.vaadin;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -28,24 +29,59 @@ import com.vaadin.ui.Window;
 
 public abstract class GenericAddWindow extends Window {
 
-    private final TextField m_name;
-    private final TextField m_description;
+    protected final TextField m_name;
+    protected final TextField m_description;
 
     public GenericAddWindow(String caption) {
-        this(caption, "Name");
-    }
-
-    public GenericAddWindow(String caption, String fieldName) {
         setModal(true);
         setWidth("15em");
         setCaption(caption);
 
-        m_name = new TextField(fieldName);
+        m_name = new TextField("Name");
         m_name.setWidth("100%");
 
         m_description = new TextField("Description");
         m_description.setWidth("100%");
-        
+
+        initDialog();
+    }
+
+    /**
+     * Shows this dialog on screen.
+     * 
+     * @param window the parent window to show this dialog on, cannot be <code>null</code>.
+     */
+    public void show(final Window window) {
+        if (getParent() != null) {
+            // window is already showing
+            window.showNotification("Window is already open");
+        }
+        else {
+            // Open the subwindow by adding it to the parent window
+            window.addWindow(this);
+        }
+        setRelevantFocus();
+    }
+
+    /**
+     * Closes this dialog by removing it from the parent window.
+     */
+    protected void closeDialog() {
+        // close the window by removing it from the parent window
+        getParent().removeWindow(this);
+    }
+
+    /**
+     * Called when the {@link #onOk(String, String)} method failed with an exception.
+     * 
+     * @param e the exception to handle, never <code>null</code>.
+     */
+    protected abstract void handleError(Exception e);
+
+    /**
+     * Initializes this dialog by placing all components on it.
+     */
+    protected void initDialog() {
         VerticalLayout fields = new VerticalLayout();
         fields.setSpacing(true);
         fields.addComponent(m_name);
@@ -62,6 +98,9 @@ public abstract class GenericAddWindow extends Window {
                 }
             }
         });
+        // Allow enter to be used to close this dialog with enter directly...
+        okButton.setClickShortcut(KeyCode.ENTER);
+        okButton.addStyleName("primary");
 
         Button cancelButton = new Button("Cancel", new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -85,26 +124,6 @@ public abstract class GenericAddWindow extends Window {
         layout.setComponentAlignment(buttonBar, Alignment.BOTTOM_RIGHT);
     }
 
-    public void show(final Window window) {
-        if (getParent() != null) {
-            // window is already showing
-            window.showNotification("Window is already open");
-        }
-        else {
-            // Open the subwindow by adding it to the parent window
-            window.addWindow(this);
-        }
-        setRelevantFocus();
-    }
-
-    /**
-     * Closes this dialog by removing it from the parent window.
-     */
-    void closeDialog() {
-        // close the window by removing it from the parent window
-        getParent().removeWindow(this);
-    }
-
     /**
      * Called when the user acknowledges this window by pressing Ok.
      * 
@@ -113,13 +132,6 @@ public abstract class GenericAddWindow extends Window {
      * @throws Exception in case the creation failed.
      */
     protected abstract void onOk(String name, String description) throws Exception;
-
-    /**
-     * Called when the {@link #onOk(String, String)} method failed with an exception.
-     * 
-     * @param e the exception to handle, never <code>null</code>.
-     */
-    protected abstract void handleError(Exception e);
 
     /**
      * Sets the focus to the name field.

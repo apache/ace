@@ -18,41 +18,86 @@
  */
 package org.apache.ace.webui.vaadin;
 
-import com.vaadin.ui.*;
-import com.vaadin.ui.Button.ClickEvent;
-
-import org.apache.ace.webui.NamedObject;
-import org.apache.ace.webui.UIExtensionFactory;
-import org.apache.ace.webui.domain.NamedTargetObject;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ace.webui.NamedObject;
+import org.apache.ace.webui.UIExtensionFactory;
+
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+
 /**
  * Provides a generic editor for repository objects.
  */
-public class EditWindow extends Window {
+public abstract class EditWindow extends Window {
 
-    private final TextField m_name;
-    private final TextField m_description;
+    protected final TextField m_name;
+    protected final TextField m_description;
 
     /**
      * @param object
      * @param factories
      */
-    public EditWindow(final NamedObject object, List<UIExtensionFactory> factories) {
+    public EditWindow(String caption, NamedObject object, List<UIExtensionFactory> factories) {
         setModal(true);
-        setCaption("Edit " + object.getName());
-        setWidth("500px");
+        setWidth("50em");
+        setCaption(caption);
 
         m_name = new TextField("Name", object.getName());
-        m_name.setReadOnly(object instanceof NamedTargetObject);
+        m_name.setReadOnly(true);
         m_name.setWidth("100%");
 
         m_description = new TextField("Description", object.getDescription());
         m_description.setWidth("100%");
 
+        initDialog(object, factories);
+    }
+
+    /**
+     * Shows this dialog on screen.
+     * 
+     * @param window the parent window to show this dialog on, cannot be <code>null</code>.
+     */
+    public void show(Window parent) {
+        if (getParent() != null) {
+            // window is already showing
+            parent.showNotification("Window is already open!");
+        }
+        else {
+            parent.addWindow(this);
+        }
+        setRelevantFocus();
+    }
+
+    /**
+     * Closes this dialog by removing it from the parent window.
+     */
+    protected void closeDialog() {
+        // close the window by removing it from the parent window
+        getParent().removeWindow(this);
+    }
+
+    /**
+     * Called when the {@link #onOk(String, String)} method failed with an exception.
+     * 
+     * @param e the exception to handle, never <code>null</code>.
+     */
+    protected abstract void handleError(Exception e);
+
+    /**
+     * @param object
+     * @param factories
+     */
+    protected void initDialog(final NamedObject object, List<UIExtensionFactory> factories) {
         VerticalLayout fields = new VerticalLayout();
         fields.setSpacing(true);
         fields.addComponent(m_name);
@@ -78,17 +123,19 @@ public class EditWindow extends Window {
         }
 
         Button okButton = new Button("Ok", new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                if (object instanceof NamedTargetObject) {
-                    // do nothing
+            public void buttonClick(ClickEvent event) {
+                try {
+                    onOk((String) m_name.getValue(), (String) m_description.getValue());
+                    closeDialog();
                 }
-                else {
-                    object.setDescription((String) m_description.getValue());
+                catch (Exception e) {
+                    handleError(e);
                 }
-
-                closeDialog();
             }
         });
+        // Allow enter to be used to close this dialog with enter directly...
+        okButton.setClickShortcut(KeyCode.ENTER);
+        okButton.addStyleName("primary");
 
         Button cancelButton = new Button("Cancel", new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -114,26 +161,13 @@ public class EditWindow extends Window {
     }
 
     /**
-     * @param parent
+     * Called when the user acknowledges this window by pressing Ok.
+     * 
+     * @param name the value of the name field;
+     * @param description the value of the description field.
+     * @throws Exception in case the creation failed.
      */
-    public void show(Window parent) {
-        if (getParent() != null) {
-            // window is already showing
-            parent.showNotification("Window is already open!");
-        }
-        else {
-            parent.addWindow(this);
-        }
-        setRelevantFocus();
-    }
-
-    /**
-     * Closes this dialog by removing it from the parent window.
-     */
-    void closeDialog() {
-        // close the window by removing it from the parent window
-        getParent().removeWindow(this);
-    }
+    protected abstract void onOk(String name, String description) throws Exception;
 
     /**
      * Sets the focus to the name field.

@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -48,6 +49,8 @@ import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.test.utils.FileUtils;
+import org.apache.ace.webui.NamedObject;
+import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.ace.webui.vaadin.component.ArtifactsPanel;
 import org.apache.ace.webui.vaadin.component.DistributionsPanel;
 import org.apache.ace.webui.vaadin.component.FeaturesPanel;
@@ -277,7 +280,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         }
 
         m_featuresPanel = createFeaturesPanel();
-        m_featureToolbar = createAddFeatureButton(m_mainWindow);
+        m_featureToolbar = createAddFeatureButton();
 
         if (auth.hasRole("viewFeature")) {
             m_grid.addComponent(m_featuresPanel, count, 2);
@@ -286,7 +289,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         }
 
         m_distributionsPanel = createDistributionsPanel();
-        m_distributionToolbar = createAddDistributionButton(m_mainWindow);
+        m_distributionToolbar = createAddDistributionButton();
 
         if (auth.hasRole("viewDistribution")) {
             m_grid.addComponent(m_distributionsPanel, count, 2);
@@ -295,7 +298,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         }
 
         m_targetsPanel = createTargetsPanel();
-        m_targetToolbar = createAddTargetButton(m_mainWindow);
+        m_targetToolbar = createAddTargetButton();
 
         if (auth.hasRole("viewTarget")) {
             m_grid.addComponent(m_targetsPanel, count, 2);
@@ -346,10 +349,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             protected void associateFromRight(String left, String right) {
                 ArtifactObject artifact = getArtifact(left);
                 // if you drop on a resource processor, and try to get it, you
-                // will get null
-                // because you cannot associate anything with a resource
-                // processor so we check
-                // for null here
+                // will get null because you cannot associate anything with a 
+                // resource processor so we check for null here
                 if (artifact != null) {
                     if (m_dynamicRelations) {
                         Map<String, String> properties = new HashMap<String, String>();
@@ -367,10 +368,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             protected void associateFromLeft(String left, String right) {
                 ArtifactObject artifact = getArtifact(left);
                 // if you drop on a resource processor, and try to get it, you
-                // will get null
-                // because you cannot associate anything with a resource
-                // processor so we check
-                // for null here
+                // will get null because you cannot associate anything with a 
+                // resource processor so we check for null here
                 if (artifact != null) {
                     if (m_dynamicRelations) {
                         Map<String, String> properties = new HashMap<String, String>();
@@ -531,6 +530,21 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     private ArtifactsPanel createArtifactsPanel() {
         return new ArtifactsPanel(m_associations, this) {
             @Override
+            protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
+                return new EditWindow("Edit Artifact", object, extensions) {
+                    @Override
+                    protected void onOk(String name, String description) throws Exception {
+                        object.setDescription(description);
+                    }
+                    
+                    @Override
+                    protected void handleError(Exception e) {
+                        getWindow().showNotification("Failed to edit artifact!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                    }
+                };
+            }
+            
+            @Override
             protected ArtifactRepository getRepository() {
                 return m_artifactRepository;
             }
@@ -544,6 +558,21 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     private FeaturesPanel createFeaturesPanel() {
         return new FeaturesPanel(m_associations, this) {
+            @Override
+            protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
+                return new EditWindow("Edit Feature", object, extensions) {
+                    @Override
+                    protected void onOk(String name, String description) throws Exception {
+                        object.setDescription(description);
+                    }
+                    
+                    @Override
+                    protected void handleError(Exception e) {
+                        getWindow().showNotification("Failed to edit feature!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                    }
+                };
+            }
+            
             @Override
             protected FeatureRepository getRepository() {
                 return m_featureRepository;
@@ -559,6 +588,21 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     private DistributionsPanel createDistributionsPanel() {
         return new DistributionsPanel(m_associations, this) {
             @Override
+            protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
+                return new EditWindow("Edit Distribution", object, extensions) {
+                    @Override
+                    protected void onOk(String name, String description) throws Exception {
+                        object.setDescription(description);
+                    }
+                    
+                    @Override
+                    protected void handleError(Exception e) {
+                        getWindow().showNotification("Failed to edit distribution!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                    }
+                };
+            }
+            
+            @Override
             protected DistributionRepository getRepository() {
                 return m_distributionRepository;
             }
@@ -572,6 +616,30 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     private TargetsPanel createTargetsPanel() {
         return new TargetsPanel(m_associations, this) {
+            @Override
+            protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
+                return new EditWindow("Edit Target", object, extensions) {
+                    @Override
+                    protected void onOk(String name, String description) throws Exception {
+                        // Nothing to edit!
+                    }
+                    
+                    @Override
+                    protected void handleError(Exception e) {
+                        getWindow().showNotification("Failed to edit target!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                    }
+
+                    @Override
+                    protected void initDialog(NamedObject object, List<UIExtensionFactory> factories) {
+                        m_name.setCaption("Identifier");
+                        m_name.setReadOnly(true);
+                        m_description.setVisible(false);
+                        
+                        super.initDialog(object, factories);
+                    }
+                };
+            }
+
             @Override
             protected StatefulTargetRepository getRepository() {
                 return m_statefulTargetRepository;
@@ -662,25 +730,23 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
      * Create a button to show popup window for adding a new feature. On success
      * this calls the createFeature() method.
      * 
-     * @param main Main Window
-     * @return Button
+     * @return the add-feature button instance.
      */
-    private Button createAddFeatureButton(final Window main) {
+    private Button createAddFeatureButton() {
         Button button = new Button("Add Feature...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                GenericAddWindow addFeatureWindow = new GenericAddWindow("Add Feature") {
+                GenericAddWindow window = new GenericAddWindow("Add Feature") {
                     public void onOk(String name, String description) {
                         createFeature(name, description);
                     }
 
                     public void handleError(Exception e) {
                         // ACE-241: notify user when the feature-creation failed!
-                        main.showNotification("Failed to add new feature!", "<br/>Reason: " + e.getMessage(),
-                            Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Failed to add new feature!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
                     }
                 };
-                addFeatureWindow.show(main);
+                window.show(getMainWindow());
             }
         });
         return button;
@@ -690,25 +756,23 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
      * Create a button to show a popup window for adding a new distribution. On
      * success this calls the createDistribution() method.
      * 
-     * @param main Main Window
-     * @return Button
+     * @return the add-distribution button instance.
      */
-    private Button createAddDistributionButton(final Window main) {
+    private Button createAddDistributionButton() {
         Button button = new Button("Add Distribution...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                GenericAddWindow addDistributionWindow = new GenericAddWindow("Add Distribution") {
+                GenericAddWindow window = new GenericAddWindow("Add Distribution") {
                     public void onOk(String name, String description) {
                         createDistribution(name, description);
                     }
 
                     public void handleError(Exception e) {
                         // ACE-241: notify user when the distribution-creation failed!
-                        main.showNotification("Failed to add new distribution!", "<br/>Reason: " + e.getMessage(),
-                            Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Failed to add new distribution!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
                     }
                 };
-                addDistributionWindow.show(main);
+                window.show(getMainWindow());
             }
         });
 
@@ -719,35 +783,41 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
      * Create a button to show a popup window for adding a new target. On
      * success this calls the createTarget() method
      * 
-     * @param main Main Window
-     * @return Button
+     * @return the add-target button instance.
      */
-    private Button createAddTargetButton(final Window main) {
+    private Button createAddTargetButton() {
         Button button = new Button("Add target...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                GenericAddWindow addTargetWindow = new GenericAddWindow("Add Target", "Identifier") {
-                    public void onOk(String id, String description) {
-                        createTarget(id, description);
+                GenericAddWindow window = new GenericAddWindow("Add Target") {
+                    protected void onOk(String id, String description) {
+                        createTarget(id);
                     }
 
-                    public void handleError(Exception e) {
+                    protected void handleError(Exception e) {
                         // ACE-241: notify user when the target-creation failed!
-                        main.showNotification("Failed to add new target!", "<br/>Reason: " + e.getMessage(),
-                            Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Failed to add new target!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                    }
+
+                    @Override
+                    protected void initDialog() {
+                        m_name.setCaption("Identifier");
+                        m_description.setVisible(false);
+
+                        super.initDialog();
                     }
                 };
-                addTargetWindow.show(main);
+                window.show(getMainWindow());
             }
         });
         return button;
     }
 
     /**
-     * Create a new feature (GroupObject) in the feature repository
+     * Create a new feature in the feature repository.
      * 
-     * @param name Name of the new feature
-     * @param description Description of the new feature
+     * @param name the name of the new feature;
+     * @param description the description of the new feature.
      */
     private void createFeature(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
@@ -758,14 +828,11 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     }
 
     /**
-     * Create a new Target (StatefulTargetObject) in the statefulTargetRepository
+     * Create a new target in the stateful target repository.
      * 
-     * @param name Name of the new Target
-     * @param description Description of the new Target
-     * 
-     *        TODO description is not persisted. Should we remote it?
+     * @param name the name of the new target;
      */
-    private void createTarget(String name, String description) {
+    private void createTarget(String name) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(StatefulTargetObject.KEY_ID, name);
         attributes.put(TargetObject.KEY_AUTO_APPROVE, "true");
@@ -774,10 +841,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     }
 
     /**
-     * Create a new Distribution (LicenseObject) in the distributionRepository
+     * Create a new distribution in the distribution repository
      * 
-     * @param name Name of the new Distribution (LicenseObject)
-     * @param description Description of the new Distribution
+     * @param name the name of the new distribution;
+     * @param description the description of the new distribution.
      */
     private void createDistribution(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
@@ -811,7 +878,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     }
 
     private void showAddArtifactDialog() {
-        final AddArtifactWindow featureWindow = new AddArtifactWindow(m_sessionDir, m_obrUrl) {
+        final AddArtifactWindow window = new AddArtifactWindow(m_sessionDir, m_obrUrl) {
             @Override
             protected ArtifactRepository getArtifactRepository() {
                 return m_artifactRepository;
@@ -823,14 +890,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             }
         };
 
-        if (featureWindow.getParent() != null) {
-            // window is already showing
-            getMainWindow().showNotification("Window is already open");
-        }
-        else {
-            // Open the subwindow by adding it to the parent
-            // window
-            getMainWindow().addWindow(featureWindow);
-        }
+        // Open the subwindow by adding it to the parent window
+        getMainWindow().addWindow(window);
     }
 }

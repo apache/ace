@@ -371,6 +371,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         }
         return buttons;
     }
+    
+    protected abstract EditWindow createEditor(NamedObject object, List<UIExtensionFactory> extensions);
 
     /**
      * Factory method to create an embeddable icon.
@@ -583,6 +585,6 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      */
     private void showEditWindow(NamedObject object) {
         List<UIExtensionFactory> extensions = getExtensionFactories();
-        new EditWindow(object, extensions).show(getParent().getWindow());
+        createEditor(object, extensions).show(getParent().getWindow());
     }
 }
