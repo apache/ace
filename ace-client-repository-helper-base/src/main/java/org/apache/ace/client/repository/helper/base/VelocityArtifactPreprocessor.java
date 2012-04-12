@@ -272,11 +272,11 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
             byte[] buf = new byte[BUFFER_SIZE];
             for (int count = in.read(buf); count != -1; count = in.read(buf)) {
                 baos.write(buf, 0, count);
-
-                result = baos.toByteArray();
-
-                m_cachedArtifacts.put(url, new WeakReference<byte[]>(result));
             }
+            
+            result = baos.toByteArray();
+            
+            m_cachedArtifacts.put(url, new WeakReference<byte[]>(result));
         }
         finally {
             silentlyClose(in);

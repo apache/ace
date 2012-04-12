@@ -38,7 +38,7 @@ import org.junit.Test;
 public class VelocityArtifactPreprocessorTest {
     
     private static final String TARGET = "target";
-    private static final String VERSION = "1.0.0";
+    private static final String VERSION1 = "1.0.0";
     
     private URL m_obrUrl;
     private PropertyResolver m_resolver;
@@ -55,64 +55,6 @@ public class VelocityArtifactPreprocessorTest {
     }
 
     /**
-     * Test case for {@link VelocityArtifactPreprocessor#preprocess(String, PropertyResolver, String, String, java.net.URL)}
-     */
-    @Test(expected = IOException.class)
-    public void testPreprocessNonExistingTemplateOk() throws Exception {
-        // Should be something that really doesn't exist somehow...
-        String url = "file:///path/to/nowhere-" + System.currentTimeMillis();
-        
-        new VelocityArtifactPreprocessor().preprocess(url, m_resolver, TARGET, VERSION, m_obrUrl);
-    }
-
-    /**
-     * Test case for {@link VelocityArtifactPreprocessor#preprocess(String, PropertyResolver, String, String, java.net.URL)}
-     */
-    @Test
-    public void testPreprocessExistingRealTemplateOk() throws Exception {
-        String url = createArtifact("Message: [$context.msg]");
-        
-        String newUrl = new VelocityArtifactPreprocessor().preprocess(url, m_resolver, TARGET, VERSION, m_obrUrl);
-        assertNotNull(newUrl);
-        // Verify that it is actually uploaded...
-        assertFalse(newUrl.equals(url));
-        // Verify that it is actually uploaded to our (fake) OBR...
-        assertTrue(newUrl.startsWith(m_obrUrl.toExternalForm()));
-    }
-
-    /**
-     * Test case for {@link VelocityArtifactPreprocessor#preprocess(String, PropertyResolver, String, String, java.net.URL)}
-     */
-    @Test
-    public void testPreprocessExistingNoTemplateOk() throws Exception {
-        String url = createArtifact("Message: [context.msg]");
-        
-        String newUrl = new VelocityArtifactPreprocessor().preprocess(url, m_resolver, TARGET, VERSION, m_obrUrl);
-        assertNotNull(newUrl);
-        // Verify that it is *not* uploaded...
-        assertEquals(url, newUrl);
-    }
-
-    /**
-     * Test case for {@link VelocityArtifactPreprocessor#needsNewVersion(String, PropertyResolver, String, String)}
-     */
-    @Test
-    public void testNeedsNewVersionUnchangedTemplateOk() throws Exception {
-        final VelocityArtifactPreprocessor vap = new VelocityArtifactPreprocessor();
-        
-        String url = createArtifact("Message: [$context.msg]");
-        
-        boolean result = vap.needsNewVersion(url, m_resolver, TARGET, VERSION);
-        assertTrue(result); // nothing uploaded yet; new version is needed...
-        
-        // "upload" a new version...
-        vap.preprocess(url, m_resolver, TARGET, VERSION, m_obrUrl);
-        
-        result = vap.needsNewVersion(url, m_resolver, TARGET, VERSION);
-        assertFalse(result); // no new version is needed...
-    }
-
-    /**
      * Test case for {@link VelocityArtifactPreprocessor#needsNewVersion(String, PropertyResolver, String, String)}
      */
     @Test
@@ -122,15 +64,31 @@ public class VelocityArtifactPreprocessorTest {
         String url = createArtifact("Message: [$context.msg]");
 
         // "upload" a new version...
-        vap.preprocess(url, m_resolver, TARGET, VERSION, m_obrUrl);
+        vap.preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
         
-        boolean result = vap.needsNewVersion(url, m_resolver, TARGET, VERSION);
+        boolean result = vap.needsNewVersion(url, m_resolver, TARGET, VERSION1);
         assertFalse(result); // no new version is needed...
         
         updateArtifact(url, "Another message: [$context.msg2]");
         
-        result = vap.needsNewVersion(url, m_resolver, TARGET, VERSION);
+        result = vap.needsNewVersion(url, m_resolver, TARGET, VERSION1);
         assertFalse(result); // no new version is needed; original artifact is cached indefinitely...
+    }
+
+    /**
+     * Test case for {@link VelocityArtifactPreprocessor#needsNewVersion(String, PropertyResolver, String, String)}
+     */
+    @Test
+    public void testNeedsNewVersionEmptyTemplateOk() throws Exception {
+        final VelocityArtifactPreprocessor vap = new VelocityArtifactPreprocessor();
+        
+        String url = createArtifact("");
+
+        // "upload" a new version...
+        vap.preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
+
+        boolean result = vap.needsNewVersion(url, m_resolver, TARGET, VERSION1);
+        assertFalse(result); // no new version is needed...
     }
 
     /**
@@ -143,8 +101,66 @@ public class VelocityArtifactPreprocessorTest {
         // Should be something that really doesn't exist somehow...
         String url = "file:///path/to/nowhere-" + System.currentTimeMillis();
 
-        boolean result = vap.needsNewVersion(url, m_resolver, TARGET, VERSION);
+        boolean result = vap.needsNewVersion(url, m_resolver, TARGET, VERSION1);
         assertTrue(result); // always true for non-existing templates...
+    }
+
+    /**
+     * Test case for {@link VelocityArtifactPreprocessor#needsNewVersion(String, PropertyResolver, String, String)}
+     */
+    @Test
+    public void testNeedsNewVersionUnchangedTemplateOk() throws Exception {
+        final VelocityArtifactPreprocessor vap = new VelocityArtifactPreprocessor();
+        
+        String url = createArtifact("Message: [$context.msg]");
+        
+        boolean result = vap.needsNewVersion(url, m_resolver, TARGET, VERSION1);
+        assertTrue(result); // nothing uploaded yet; new version is needed...
+
+        // "upload" a new version...
+        vap.preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
+
+        result = vap.needsNewVersion(url, m_resolver, TARGET, VERSION1);
+        assertFalse(result); // no new version is needed...
+    }
+
+    /**
+     * Test case for {@link VelocityArtifactPreprocessor#preprocess(String, PropertyResolver, String, String, java.net.URL)}
+     */
+    @Test
+    public void testPreprocessExistingNoTemplateOk() throws Exception {
+        String url = createArtifact("Message: [context.msg]");
+        
+        String newUrl = new VelocityArtifactPreprocessor().preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
+        assertNotNull(newUrl);
+        // Verify that it is *not* uploaded...
+        assertEquals(url, newUrl);
+    }
+
+    /**
+     * Test case for {@link VelocityArtifactPreprocessor#preprocess(String, PropertyResolver, String, String, java.net.URL)}
+     */
+    @Test
+    public void testPreprocessExistingRealTemplateOk() throws Exception {
+        String url = createArtifact("Message: [$context.msg]");
+        
+        String newUrl = new VelocityArtifactPreprocessor().preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
+        assertNotNull(newUrl);
+        // Verify that it is actually uploaded...
+        assertFalse(newUrl.equals(url));
+        // Verify that it is actually uploaded to our (fake) OBR...
+        assertTrue(newUrl.startsWith(m_obrUrl.toExternalForm()));
+    }
+
+    /**
+     * Test case for {@link VelocityArtifactPreprocessor#preprocess(String, PropertyResolver, String, String, java.net.URL)}
+     */
+    @Test(expected = IOException.class)
+    public void testPreprocessNonExistingTemplateOk() throws Exception {
+        // Should be something that really doesn't exist somehow...
+        String url = "file:///path/to/nowhere-" + System.currentTimeMillis();
+        
+        new VelocityArtifactPreprocessor().preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
     }
 
     private String createArtifact(String string) throws IOException {
@@ -154,6 +170,7 @@ public class VelocityArtifactPreprocessorTest {
         
         FileWriter writer = new FileWriter(tmpFile);
         writer.write(string);
+        writer.flush();
         writer.close();
 
         return tmpFile.toURI().toURL().toExternalForm();
@@ -164,6 +181,7 @@ public class VelocityArtifactPreprocessorTest {
         
         FileWriter writer = new FileWriter(uri.getFile());
         writer.write(string);
+        writer.flush();
         writer.close();
 
         return url;
