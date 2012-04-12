@@ -38,6 +38,12 @@
         <module>ace-ant-tasks</module>
         <module>ace-builder</module>
 
+        <module>ace-authentication-api</module>
+        <module>ace-authentication</module>
+        <module>ace-authenticationprocessor-basicauth</module>
+        <module>ace-authenticationprocessor-clientcert</module>
+        <module>ace-authenticationprocessor-password</module>
+
         <module>ace-range-api</module>
 
         <module>ace-repository-api</module>
@@ -198,6 +204,9 @@
             <modules>
                 <module>pom</module>
                 <module>ace-util</module>
+                <module>ace-authentication</module>
+                <module>ace-authenticationprocessor-basicauth</module>
+                <module>ace-authenticationprocessor-password</module>
                 <module>ace-client-repository-impl</module>
                 <module>ace-client-repository-helper-bundle</module>
                 <module>ace-configurator</module>

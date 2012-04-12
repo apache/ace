@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.RepositoryObject;
@@ -51,6 +52,7 @@ import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.vaadin.LoginWindow.LoginFunction;
 import org.apache.ace.webui.vaadin.component.ArtifactsPanel;
 import org.apache.ace.webui.vaadin.component.DistributionsPanel;
 import org.apache.ace.webui.vaadin.component.FeaturesPanel;
@@ -101,7 +103,7 @@ import com.vaadin.ui.Window;
  - Add buttons to create new items in all of the tables (done for those that make sense)
  */
 @SuppressWarnings("serial")
-public class VaadinClient extends com.vaadin.Application implements AssociationRemover {
+public class VaadinClient extends com.vaadin.Application implements AssociationRemover, LoginFunction {
 
     private static final long serialVersionUID = 1L;
 
@@ -113,6 +115,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     private static String customerName = "apache";
     private static String endpoint = "/repository";
 
+    private volatile AuthenticationService m_authenticationService;
     private volatile DependencyManager m_manager;
     private volatile BundleContext m_context;
     private volatile SessionFactory m_sessionFactory;
@@ -234,12 +237,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
      * Shows the login window on the center of the main window.
      */
     private void showLoginWindow() {
-        LoginWindow loginWindow = new LoginWindow(m_log, new LoginWindow.LoginFunction() {
-            public boolean login(String name, String password) {
-                return VaadinClient.this.login(name, password);
-            }
-        });
+        LoginWindow loginWindow = new LoginWindow(m_log, this);
+        
         m_mainWindow.addWindow(loginWindow);
+        
         loginWindow.center();
     }
 
@@ -448,15 +449,16 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         m_feature2distributionAssociationRepository.remove(association);
     }
 
-    boolean login(String username, String password) {
+    /**
+     * {@inheritDoc}
+     */
+    public boolean login(String username, String password) {
         try {
-            User user = m_userAdmin.getUser("username", username);
+            User user = m_authenticationService.authenticate(username, password);
             if (user == null) {
                 return false;
             }
-            if (!user.hasCredential("password", password)) {
-                return false;
-            }
+
             RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
 
             // @formatter:off
@@ -465,13 +467,15 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
                 .addTargetRepository(new URL(m_aceHost, endpoint), customerName, targetRepo, true)
                 .addDeploymentRepository(new URL(m_aceHost, endpoint), customerName, deployRepo, true);
             // @formatter:on
+            
             m_admin.login(context);
             initGrid(user);
             m_admin.checkout();
+            
             return true;
         }
         catch (IOException e) {
-            e.printStackTrace();
+            m_log.log(LogService.LOG_WARNING, "Login failed!", e);
             return false;
         }
     }

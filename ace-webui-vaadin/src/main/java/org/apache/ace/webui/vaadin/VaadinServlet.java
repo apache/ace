@@ -18,9 +18,14 @@
  */
 package org.apache.ace.webui.vaadin;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Dictionary;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.service.cm.ConfigurationException;
@@ -30,10 +35,6 @@ import org.osgi.service.useradmin.UserAdmin;
 
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Dictionary;
 
 public class VaadinServlet extends AbstractApplicationServlet implements ManagedService {
     private static final long serialVersionUID = 1L;
@@ -65,6 +66,10 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
             )
             .add(m_manager.createServiceDependency()
                 .setService(UserAdmin.class)
+                .setRequired(true)
+            )
+            .add(m_manager.createServiceDependency()
+                .setService(AuthenticationService.class)
                 .setRequired(true)
             )
             .add(m_manager.createServiceDependency()

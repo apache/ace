@@ -28,63 +28,43 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-SNAPSHOT</version>
-    <artifactId>org.apache.ace.client.rest</artifactId>
+    <artifactId>org.apache.ace.authenticationprocessor.basicauth</artifactId>
+
+    <name>Apache ACE :: Authentication :: HTTP Basic Auth</name>
+    <description>Provides an authentication processor that can handle HTTP basic authentication.</description>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Client :: REST API</name>
-    <description />
-
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-client-rest</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-client-rest</developerConnection>
-        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-client-rest</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-authentication-basicauth</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-authentication-basicauth</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-authentication-basicauth</url>
     </scm>
-
+        
     <properties>
         <import.package>
-	        *
+        	org.apache.ace.authentication.api,
+        	javax.servlet.http,
+        	org.apache.felix.dm,
+        	org.osgi.framework,
+        	org.osgi.service.cm,
+        	org.osgi.service.useradmin
         </import.package>
         <private.package>
-            org.apache.ace.client.rest,
-            com.google.gson,
-            com.google.gson.*
+            org.apache.ace.authenticationprocessor.basicauth,
+            org.apache.commons.codec,
+			org.apache.commons.codec.binary
         </private.package>
-        <bundle.activator>org.apache.ace.client.rest.Activator</bundle.activator>
+        <bundle.activator>org.apache.ace.authenticationprocessor.basicauth.Activator</bundle.activator>
     </properties>
-
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.authentication.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.client.repository.api</artifactId>
-        </dependency>
-         <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.repository.api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.repository.ext</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.server.log.store</artifactId>
-        </dependency>
-         <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.range.api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.client.repository.helper.bundle</artifactId>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -98,10 +78,9 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>1.7.1</version>
-        </dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
     </dependencies>
 </project>

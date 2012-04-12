@@ -291,7 +291,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
 
         if (pathElements.length == 1) {
-            createWorkspace(resp);
+            createWorkspace(req, resp);
         }
         else {
             // more than one path elements...
@@ -380,10 +380,10 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     /**
      * Creates a new workspace.
      * 
-     * @param resp the servlet repsonse to write the response data to.
+     * @param resp the servlet response to write the response data to.
      * @throws IOException in case of I/O errors.
      */
-    private void createWorkspace(HttpServletResponse resp) throws IOException {
+    private void createWorkspace(final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
         // TODO get data from post body (if no data, assume latest??) -> for now always assume latest
         final String sessionID;
         final Workspace workspace;
@@ -400,7 +400,11 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         m_sessionFactory.createSession(sessionID);
         m_dm.add(component);
 
-        resp.sendRedirect(buildPathFromElements(WORK_FOLDER, sessionID));
+        if (!workspace.login(req)) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        } else {
+            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, sessionID));
+        }
     }
 
     /**

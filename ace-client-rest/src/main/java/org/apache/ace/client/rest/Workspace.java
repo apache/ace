@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
@@ -62,6 +65,7 @@ public class Workspace {
     private final String m_distributionRepositoryName;
     private final String m_deploymentRepositoryName;
     private final String m_serverUser;
+    private volatile AuthenticationService m_authenticationService;
     private volatile DependencyManager m_manager;
     private volatile RepositoryAdmin m_repositoryAdmin;
     private volatile ArtifactRepository m_artifactRepository;
@@ -118,13 +122,30 @@ public class Workspace {
         addSessionDependency(component, Artifact2FeatureAssociationRepository.class, true);
         addSessionDependency(component, Feature2DistributionAssociationRepository.class, true);
         addSessionDependency(component, Distribution2TargetAssociationRepository.class, true);
+        addDependency(component, AuthenticationService.class, true);
         addDependency(component, UserAdmin.class, true);
         addDependency(component, LogService.class, false);
     }
     
     public void start() {
+    }
+    
+    public void destroy() {
+    }
+    
+    public boolean login(HttpServletRequest request) {
         try {
-            User user = m_userAdmin.getUser("username", m_serverUser);
+            User user = m_authenticationService.authenticate(request);
+            if (user == null) {
+                // No user obtained through request; try fallback scenario...
+                // TODO this shouldn't be here, but otherwise we break all existing clients
+                user = m_userAdmin.getUser("username", m_serverUser);
+                if (user == null) {
+                    // Still no user obtained; no succesful login...
+                    return false;
+                }
+            }
+
             m_repositoryAdmin.login(m_repositoryAdmin.createLoginContext(user)
                 .setObrBase(new URL(m_obrURL))
                 .addShopRepository(new URL(m_repositoryURL), m_customerName, m_storeRepositoryName, true)
@@ -137,13 +158,12 @@ public class Workspace {
             e.printStackTrace();
             m_log.log(LogService.LOG_ERROR, "Could not login and checkout. Workspace will probably not work correctly.", e);
         }
-    }
-    
-    public void destroy() {
+        
+        return true;
     }
     
     public void checkout() throws IOException {
-    	m_repositoryAdmin.checkout();
+        m_repositoryAdmin.checkout();
     }
 
     public void commit() throws IOException {

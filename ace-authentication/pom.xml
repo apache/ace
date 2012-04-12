@@ -28,40 +28,40 @@
         <relativePath>../pom/pom.xml</relativePath>
     </parent>
 
-    <version>0.8.1-SNAPSHOT</version>
-    <artifactId>org.apache.ace.webui.vaadin</artifactId>
+    <artifactId>org.apache.ace.authentication</artifactId>
+
+    <name>Apache ACE :: Authentication :: Impl</name>
+    <description>Provides a generic implementation of the authentication service.</description>
     <packaging>bundle</packaging>
 
-    <name>Apache ACE :: Web UI :: Vaadin</name>
-    <description />
-
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-webui-vaadin</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-webui-vaadin</developerConnection>
-        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-webui-vaadin</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-authentication</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-authentication</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-authentication</url>
     </scm>
-
+    
     <properties>
-        <export.package>
-            org.apache.ace.webui;version=${project.version}
-        </export.package>
         <import.package>
-            !org.apache.ace.webui,
-            com.vaadin*,
-            *
+        	org.apache.ace.authentication.api;version="[0.8,1.0)",
+        	org.apache.felix.dm,
+        	org.osgi.framework,
+        	org.osgi.service.log,
+        	org.osgi.service.useradmin
         </import.package>
+        <export.package>
+        	org.apache.ace.authentication.api;version=${project.version};-split-package:=merge-first;provide:=true
+        </export.package>
         <private.package>
-            org.apache.ace.webui.vaadin,
-            org.apache.ace.webui.vaadin.component,
-            org.apache.ace.webui.domain,
-            org.apache.ace.test.utils
+            org.apache.ace.authentication.impl
         </private.package>
-        <bundle.activator>
-            org.apache.ace.webui.vaadin.Activator
-        </bundle.activator>
+        <bundle.activator>org.apache.ace.authentication.impl.Activator</bundle.activator>
     </properties>
-
+    
     <dependencies>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.authentication.api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -71,33 +71,8 @@
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.client.repository.api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.httplistener</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.authentication.api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.authentication</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin</artifactId>
-        </dependency>
-    </dependencies>
-
+     </dependencies>
 </project>

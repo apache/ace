@@ -134,6 +134,7 @@
         <deployment.providesresourceprocessor />
         <sourceReleaseAssemblyDescriptor>source-release-zip-tar</sourceReleaseAssemblyDescriptor>
         <commons-collections.version>3.2.1</commons-collections.version>
+        <commons-codec.version>1.5</commons-codec.version>
         <commons-lang.version>2.4</commons-lang.version>
         <commons-logging.version>1.1.1</commons-logging.version>
         <commons-io.version>2.0.1</commons-io.version>
@@ -323,6 +324,31 @@
         <dependencies>
 
             <!-- ACE modules -->
+            <dependency>
+                <groupId>org.apache.ace</groupId>
+                <artifactId>org.apache.ace.authentication.api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ace</groupId>
+                <artifactId>org.apache.ace.authentication</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ace</groupId>
+                <artifactId>org.apache.ace.authenticationprocessor.basicauth</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ace</groupId>
+                <artifactId>org.apache.ace.authenticationprocessor.clientcert</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ace</groupId>
+                <artifactId>org.apache.ace.authenticationprocessor.password</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.ace</groupId>
                 <artifactId>org.apache.ace.client.automation</artifactId>
@@ -686,6 +712,11 @@
             </dependency>
 
             <!-- Commons -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
