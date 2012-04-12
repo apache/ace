@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -49,8 +50,8 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
     private static Object m_initLock = new Object();
     private static boolean m_velocityInitialized = false;
 
-    private final Map<String, WeakReference<byte[]>> m_cachedArtifacts;
-    private final Map<String, WeakReference<String>> m_cachedHashes;
+    private final Map<String, Reference<byte[]>> m_cachedArtifacts;
+    private final Map<String, Reference<String>> m_cachedHashes;
     private final MessageDigest m_md5;
 
     /**
@@ -64,8 +65,8 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
             throw new RuntimeException("Failed to create VelocityArtifactPreprocessor instance!", e);
         }
 
-        m_cachedArtifacts = new ConcurrentHashMap<String, WeakReference<byte[]>>();
-        m_cachedHashes = new ConcurrentHashMap<String, WeakReference<String>>();
+        m_cachedArtifacts = new ConcurrentHashMap<String, Reference<byte[]>>();
+        m_cachedHashes = new ConcurrentHashMap<String, Reference<String>>();
     }
 
     @Override
@@ -185,21 +186,21 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
      */
     private String getHashForVersion(String url, String target, String version) {
         String key = createHashKey(url, target, version);
-        String result = null;
 
-        WeakReference<String> ref = m_cachedHashes.get(key);
-        if (ref == null || ((result = ref.get()) == null)) {
+        Reference<String> ref = m_cachedHashes.get(key);
+        String hash = (ref != null) ? ref.get() : null;
+        if (hash == null) {
             try {
-                result = hash(getBytesFromUrl(getFullUrl(url, target, version)));
+                hash = hash(getBytesFromUrl(getFullUrl(url, target, version)));
 
-                m_cachedHashes.put(key, new WeakReference<String>(result));
+                m_cachedHashes.put(key, new WeakReference<String>(hash));
             }
             catch (IOException e) {
                 // we cannot retrieve the artifact, so we cannot say anything about it.
             }
         }
 
-        return result;
+        return hash;
     }
 
     /**
@@ -248,7 +249,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
     private byte[] getArtifactAsBytes(String url) throws IOException {
         byte[] result = null;
 
-        WeakReference<byte[]> ref = m_cachedArtifacts.get(url);
+        Reference<byte[]> ref = m_cachedArtifacts.get(url);
         if (ref == null || ((result = ref.get()) == null)) {
             result = getBytesFromUrl(url);
         }
