@@ -19,22 +19,30 @@
 
 package org.apache.ace.launcher;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.ace.managementagent.Activator;
 import org.osgi.framework.Constants;
 import org.osgi.framework.launch.FrameworkFactory;
-
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A simple launcher, that launches the embedded Felix together with a management agent.
  */
 public class Main {
 
+    private final boolean m_quiet = Boolean.parseBoolean(System.getProperty("quiet", "false"));
+    private final List m_additionalBundleActivators = new ArrayList();
+
     private Argument m_identification = new KeyValueArgument() {
         public void handle(String key, String value) {
-            if (key.equals("identification")) {
+            if ("identification".equals(key)) {
                 System.setProperty("identification", value);
             }
         }
@@ -46,7 +54,7 @@ public class Main {
 
     private Argument m_discovery = new KeyValueArgument() {
         public void handle(String key, String value) {
-            if (key.equals("discovery")) {
+            if ("discovery".equals(key)) {
                 System.setProperty("discovery", value);
             }
         }
@@ -58,7 +66,7 @@ public class Main {
 
     private Argument m_agents = new KeyValueArgument() {
         public void handle(String key, String value) {
-            if (key.equals("agents")) {
+            if ("agents".equals(key)) {
                 System.setProperty("agents", value);
             }
         }
@@ -70,7 +78,7 @@ public class Main {
 
     private Argument m_help = new Argument() {
         public void handle(String argument) {
-            if (argument.equals("help")) {
+            if ("help".equals(argument)) {
                 showHelp();
                 System.exit(0);
             }
@@ -80,10 +88,32 @@ public class Main {
             return "help: prints this help message";
         }
     };
+    
+    private Argument m_additionalBundles = new KeyValueArgument() {
+        public void handle(String key, String value) {
+            if ("bundle".equals(key)) {
+                try {
+                    Class clazz = Class.forName(value);
+                    if (!m_quiet) {
+                        System.out.println("Adding additional bundle activator: " + clazz.getName());
+                    }
+                    m_additionalBundleActivators.add(clazz.newInstance());
+                }
+                catch (Exception e) {
+                    System.err.println("Bundle (" + value + ") not added! Details: " + e.getMessage());
+                }
+            }
+        }
 
+        public String getDescription() {
+            return "bundle: adds an additional bundle to be started with this management agent: bundle=my.fully.qualified.BundleActivator";
+        }
+    };
+    
     private FrameworkOption m_fwOptionHandler = new FrameworkOption();
-
+    
     private final List<Argument> m_arguments = Arrays.asList(
+        m_additionalBundles,
         m_identification,
         m_discovery,
         m_agents,
@@ -107,6 +137,8 @@ public class Main {
 
         List activators = new ArrayList();
         activators.add(new Activator());
+        activators.addAll(m_additionalBundleActivators);
+        
         Map frameworkProperties = new HashMap();
         frameworkProperties.put("felix.systembundle.activators", activators);
         frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, 
