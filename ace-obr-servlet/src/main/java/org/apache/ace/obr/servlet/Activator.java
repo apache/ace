@@ -19,7 +19,6 @@
 package org.apache.ace.obr.servlet;
 
 import javax.servlet.Servlet;
-import javax.servlet.http.HttpServlet;
 
 import org.apache.ace.obr.storage.BundleStore;
 import org.apache.felix.dm.DependencyActivatorBase;
