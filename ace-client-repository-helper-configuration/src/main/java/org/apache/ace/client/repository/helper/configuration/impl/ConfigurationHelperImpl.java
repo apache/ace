@@ -24,7 +24,9 @@ import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.ArtifactRecognizer;
 import org.apache.ace.client.repository.helper.base.VelocityArtifactPreprocessor;
@@ -36,6 +38,11 @@ import org.w3c.dom.Node;
 
 public class ConfigurationHelperImpl implements ArtifactRecognizer, ConfigurationHelper {
 
+    // known valid metatype namespaces
+    private static final String NAMESPACE_1_0 = "http://www.osgi.org/xmlns/metatype/v1.0.0";
+    private static final String NAMESPACE_1_1 = "http://www.osgi.org/xmlns/metatype/v1.1.0";
+    private static final String NAMESPACE_1_2 = "http://www.osgi.org/xmlns/metatype/v1.2.0";
+    
     public boolean canHandle(String mimetype) {
         return MIMETYPE.equals(mimetype);
     }
@@ -63,7 +70,11 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
             Node first = doc.getFirstChild();
             NamedNodeMap attributes = first.getAttributes();
             Node metatype = attributes.getNamedItem("xmlns:metatype");
-            if (new String("http://www.osgi.org/xmlns/metatype/v1.0.0").equals(metatype.getTextContent())) {
+            String namespace = metatype.getTextContent();
+            if (namespace != null
+                && (namespace.equals(NAMESPACE_1_0)
+                    || namespace.equals(NAMESPACE_1_1)
+                    || namespace.equals(NAMESPACE_1_2))) {
                 return MIMETYPE;
             }
         }
