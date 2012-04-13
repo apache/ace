@@ -19,22 +19,24 @@
 package org.apache.ace.client.repository.helper.configuration.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.ArtifactRecognizer;
 import org.apache.ace.client.repository.helper.base.VelocityArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.configuration.ConfigurationHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class ConfigurationHelperImpl implements ArtifactRecognizer, ConfigurationHelper {
 
@@ -42,6 +44,14 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
     private static final String NAMESPACE_1_0 = "http://www.osgi.org/xmlns/metatype/v1.0.0";
     private static final String NAMESPACE_1_1 = "http://www.osgi.org/xmlns/metatype/v1.1.0";
     private static final String NAMESPACE_1_2 = "http://www.osgi.org/xmlns/metatype/v1.2.0";
+
+    private final SAXParserFactory m_saxParserFactory;
+
+    public ConfigurationHelperImpl() {
+        m_saxParserFactory = SAXParserFactory.newInstance();
+        m_saxParserFactory.setNamespaceAware(false);
+        m_saxParserFactory.setValidating(false);
+    }
     
     public boolean canHandle(String mimetype) {
         return MIMETYPE.equals(mimetype);
@@ -64,13 +74,15 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
     }
 
     public String recognize(URL artifact) {
+        MetaDataNamespaceCollector handler = new MetaDataNamespaceCollector();
+        InputStream input = null;
         try {
-            InputStream in = artifact.openStream();
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
-            Node first = doc.getFirstChild();
-            NamedNodeMap attributes = first.getAttributes();
-            Node metatype = attributes.getNamedItem("xmlns:metatype");
-            String namespace = metatype.getTextContent();
+            input = artifact.openStream();
+            SAXParser parser = m_saxParserFactory.newSAXParser();
+            parser.parse(input, handler);
+        }
+        catch (Exception e) {
+            String namespace = handler.getMetaDataNamespace();
             if (namespace != null
                 && (namespace.equals(NAMESPACE_1_0)
                     || namespace.equals(NAMESPACE_1_1)
@@ -78,10 +90,14 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
                 return MIMETYPE;
             }
         }
-        catch (Exception e) {
-            // Does not matter.
+        finally {
+            if (input != null) {
+                try {
+                    input.close();
+                }
+                catch (IOException e) {}
+            }
         }
-
         return null;
     }
 
@@ -122,5 +138,32 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
     public String getExtension(URL artifact) {
         return ".xml";
     }
-    
+
+    static class MetaDataNamespaceCollector extends DefaultHandler {
+
+        private String m_metaDataNameSpace = "";
+
+        public String getMetaDataNamespace() {
+            return m_metaDataNameSpace;
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes)
+            throws SAXException {
+            if (qName.equals("MetaData") || qName.endsWith(":MetaData")) {
+                String nsAttributeQName = "xmlns";
+                if (qName.endsWith(":MetaData")) {
+                    nsAttributeQName = "xmlns" + ":" + qName.split(":")[0];
+                }
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    if (attributes.getQName(i).equals(nsAttributeQName)) {
+                        m_metaDataNameSpace = attributes.getValue(i);
+                    }
+                }
+            }
+            // first element is expected to have been the MetaData
+            // root so we can now terminate processing.
+            throw new SAXException("Done");
+        }
+    }
 }
