@@ -607,15 +607,15 @@ public class ModelTest {
 
     @Test( groups = { TestUtils.UNIT } )
     public void testAssociationsWithCardinality() {
-        ArtifactObject b1 = createBasicArtifactObject("b1");
-        FeatureObject g1 = createBasicFeatureObject("g1");
-        FeatureObject g2 = createBasicFeatureObject("g2");
-        FeatureObject g3 = createBasicFeatureObject("g3");
+        ArtifactObject a1 = createBasicArtifactObject("a1");
+        FeatureObject f1 = createBasicFeatureObject("f1");
+        FeatureObject f2 = createBasicFeatureObject("f2");
+        FeatureObject f3 = createBasicFeatureObject("f3");
 
         Map<String, String> props = new HashMap<String, String>();
-        props.put(Association.LEFT_ENDPOINT, "(" + BundleHelper.KEY_SYMBOLICNAME + "=b1)");
+        props.put(Association.LEFT_ENDPOINT, "(" + BundleHelper.KEY_SYMBOLICNAME + "=a1)");
         props.put(Association.LEFT_CARDINALITY, "1");
-        props.put(Association.RIGHT_ENDPOINT, "(" + FeatureObject.KEY_NAME + "=g*)");
+        props.put(Association.RIGHT_ENDPOINT, "(" + FeatureObject.KEY_NAME + "=f*)");
         props.put(Association.RIGHT_CARDINALITY, "2");
         Map<String, String> tags = new HashMap<String, String>();
 
@@ -630,10 +630,12 @@ public class ModelTest {
         props.put(Association.RIGHT_CARDINALITY, "3");
 
         Artifact2FeatureAssociation bg = m_artifact2FeatureRepository.create(props, tags);
-        assert b1.getFeatures().size() == 3 : "The artifact should be associated to three features.";
-        assert (g1.getArtifacts().size() == 1) && g1.getArtifacts().contains(b1) : "g1 should be associated to only b1.";
-        assert (g2.getArtifacts().size() == 1) && g2.getArtifacts().contains(b1) : "g1 should be associated to only b1.";
-        assert (g3.getArtifacts().size() == 1) && g3.getArtifacts().contains(b1) : "g1 should be associated to only b1.";
+        assert bg != null : "Assocating artifact to feature failed?!";
+        
+        assert a1.getFeatures().size() == 3 : "The artifact should be associated to three features.";
+        assert (f1.getArtifacts().size() == 1) && f1.getArtifacts().contains(a1) : "g1 should be associated to only b1.";
+        assert (f2.getArtifacts().size() == 1) && f2.getArtifacts().contains(a1) : "g1 should be associated to only b1.";
+        assert (f3.getArtifacts().size() == 1) && f3.getArtifacts().contains(a1) : "g1 should be associated to only b1.";
     }
 
     private Filter createLocalFilter(String filter) throws InvalidSyntaxException {

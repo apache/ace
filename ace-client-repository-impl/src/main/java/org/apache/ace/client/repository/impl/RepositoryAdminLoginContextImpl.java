@@ -35,10 +35,10 @@ import org.apache.ace.client.repository.repository.DistributionRepository;
 import org.osgi.service.useradmin.User;
 
 class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginContext {
+    private final String m_sessionid;
     private final User m_user;
     private final List<RepositorySetDescriptor> m_descriptors = new ArrayList<RepositorySetDescriptor>();
     private URL m_obrBase;
-    private final String m_sessionid;
 
     RepositoryAdminLoginContextImpl(User user, String sessionid) {
         m_user = user;
@@ -80,6 +80,10 @@ class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginContext {
             DeploymentVersionRepository.class);
     }
 
+    public List<RepositorySetDescriptor> getDescriptors() {
+        return m_descriptors;
+    }
+
     public RepositoryAdminLoginContext setObrBase(URL base) {
         m_obrBase = base;
         return this;
@@ -92,9 +96,9 @@ class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginContext {
     User getUser() {
         return m_user;
     }
-
-    public List<RepositorySetDescriptor> getDescriptors() {
-        return m_descriptors;
+    
+    String getSessionId() {
+        return m_sessionid;
     }
 
     /**

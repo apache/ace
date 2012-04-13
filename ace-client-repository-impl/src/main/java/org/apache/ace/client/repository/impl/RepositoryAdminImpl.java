@@ -141,23 +141,27 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
 
     @SuppressWarnings("unchecked")
     public void start() {
-        initialize(publishRepositories());
+        synchronized (m_lock) {
+            initialize(publishRepositories());
+        }
     }
 
     public void stop() {
         pullRepositories();
-        if (loggedIn()) {
-            try {
-                logout(true);
-            }
-            catch (IOException ioe) {
-                m_log.log(LogService.LOG_ERROR, "Failed to log out of the repositories.", ioe);
+        synchronized (m_lock) {
+            if (loggedIn()) {
+                try {
+                    logout(true);
+                }
+                catch (IOException ioe) {
+                    m_log.log(LogService.LOG_ERROR, "Failed to log out of the repositories.", ioe);
+                }
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    synchronized Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> publishRepositories() {
+    private Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> publishRepositories() {
         // create the repository objects, if this is the first time this method is called.
         if (m_artifactRepositoryImpl == null) {
             m_artifactRepositoryImpl = new ArtifactRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, ArtifactObject.TOPIC_ENTITY_ROOT, m_sessionID));
@@ -210,10 +214,11 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
 
         return result;
     }
+
     /**
      * Pulls all repository services; is used to make sure the repositories go away before the RepositoryAdmin does.
      */
-    synchronized void pullRepositories() {
+    private void pullRepositories() {
         for (Component[] services : m_services) {
             for (Component service : services) {
                 m_manager.remove(service);
@@ -278,8 +283,8 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     }
 
     public void revert() throws IOException {
-        ensureLogin();
         synchronized (m_lock) {
+            ensureLogin();
             for (RepositorySet set : m_repositorySets) {
                 set.revert();
             }
@@ -288,8 +293,8 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     }
 
     public boolean isCurrent() throws IOException {
-        ensureLogin();
         synchronized (m_lock) {
+            ensureLogin();
             boolean result = true;
             for (RepositorySet set : m_repositorySets) {
                     result &= (set.isCurrent() || !set.writeAccess());
@@ -299,12 +304,15 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     }
 
     public boolean isModified() {
-        ensureLogin();
-        boolean result = false;
-        for (RepositorySet set : m_repositorySets) {
-            result |= set.isModified();
+        synchronized (m_lock) {
+            ensureLogin();
+            for (RepositorySet set : m_repositorySets) {
+                if (set.isModified()) {
+                    return true;
+                }
+            }
+            return false;
         }
-        return result;
     }
 
     public RepositoryAdminLoginContext createLoginContext(User user) {
@@ -321,9 +329,12 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
 
         RepositoryAdminLoginContextImpl impl = ((RepositoryAdminLoginContextImpl) context);
         RepositorySet[] repositorySets = getRepositorySets(impl);
-        // TODO I don't like this line, it should not be here...
-        ((ArtifactRepositoryImpl) m_repositories.get(ArtifactRepository.class)).setObrBase(impl.getObrBase());
-        login(impl.getUser(), repositorySets);
+
+        synchronized(m_lock) {
+            // TODO I don't like this line, it should not be here...
+            ((ArtifactRepositoryImpl) m_repositories.get(ArtifactRepository.class)).setObrBase(impl.getObrBase());
+            login(impl.getUser(), repositorySets);
+        }
     }
 
     /**
@@ -331,7 +342,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
      * testing purposes.
      * @throws IOException
      */
-    void login(User user, RepositorySet[] sets) throws IOException {
+    private void login(User user, RepositorySet[] sets) throws IOException {
         synchronized(m_lock) {
             if (m_user != null) {
                 throw new IllegalStateException("Another user is logged in.");
@@ -379,7 +390,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         }
     }
 
-    boolean loggedIn() {
+    private boolean loggedIn() {
         return m_user != null;
     }
 
@@ -528,20 +539,25 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
 
     public int getNumberWithWorkingState(Class<? extends RepositoryObject> clazz, WorkingState state) {
         int result = 0;
-        for (RepositorySet set : m_repositorySets) {
-            result += set.getNumberWithWorkingState(clazz, state);
+        synchronized (m_lock) {
+            for (RepositorySet set : m_repositorySets) {
+                result += set.getNumberWithWorkingState(clazz, state);
+            }
         }
         return result;
     }
 
     public WorkingState getWorkingState(RepositoryObject object) {
-        for (RepositorySet set : m_repositorySets) {
-            WorkingState result = set.getWorkingState(object);
-            if (result != null) {
-                return result;
+        WorkingState result = null;
+        synchronized (m_lock) {
+            for (RepositorySet set : m_repositorySets) {
+                result = set.getWorkingState(object);
+                if (result != null) {
+                    break;
+                }
             }
         }
-        return WorkingState.Unchanged;
+        return (result == null) ? WorkingState.Unchanged : result;
     }
 
     public void addArtifactHelper(ServiceReference ref, ArtifactHelper helper) {

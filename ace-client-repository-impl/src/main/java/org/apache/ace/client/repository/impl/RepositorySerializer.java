@@ -86,9 +86,14 @@ class RepositorySerializer implements Converter {
         for (ObjectRepositoryImpl repo : m_set.getRepos()) {
             repo.setBusy(true);
         }
-        m_stream.toXML(this, out);
-        for (ObjectRepositoryImpl repo : m_set.getRepos()) {
-            repo.setBusy(false);
+        try {
+            m_stream.toXML(this, out);
+        }
+        finally {
+            // Ensure all busy flags are reset at all times...
+            for (ObjectRepositoryImpl repo : m_set.getRepos()) {
+                repo.setBusy(false);
+            }
         }
     }
 
@@ -119,9 +124,10 @@ class RepositorySerializer implements Converter {
         }
         finally {
             Thread.currentThread().setContextClassLoader(cl);
-        }
-        for (ObjectRepositoryImpl repo : m_set.getRepos()) {
-            repo.setBusy(false);
+            // Ensure all busy flags are reset at all times...
+            for (ObjectRepositoryImpl repo : m_set.getRepos()) {
+                repo.setBusy(false);
+            }
         }
     }
 }

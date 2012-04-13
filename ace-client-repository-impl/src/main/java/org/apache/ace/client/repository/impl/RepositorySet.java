@@ -18,6 +18,7 @@
  */
 package org.apache.ace.client.repository.impl;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -27,12 +28,14 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.RepositoryObject.WorkingState;
+import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.repository.ext.CachedRepository;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -60,11 +63,11 @@ class RepositorySet {
     private final CachedRepository m_repository;
     private final String m_name;
     private final boolean m_writeAccess;
-
-    private final Map<RepositoryObject, WorkingState> m_workingState = new HashMap<RepositoryObject, WorkingState>();
-    private ServiceRegistration m_modifiedHandler;
+    private final ConcurrentMap<RepositoryObject, WorkingState> m_workingState;
     private final ChangeNotifier m_notifier;
     private final LogService m_log;
+    
+    private volatile ServiceRegistration m_modifiedHandler;
 
     /* ********
      * Basics
@@ -80,6 +83,7 @@ class RepositorySet {
      * </ul>
      */
     RepositorySet(ChangeNotifier notifier, LogService log, User user, Preferences prefs, ObjectRepositoryImpl[] repos, CachedRepository repository, String name, boolean writeAccess) {
+        m_workingState = new ConcurrentHashMap<RepositoryObject, WorkingState>();
         m_notifier = notifier;
         m_log = log;
         m_user = user;
@@ -90,12 +94,22 @@ class RepositorySet {
         m_writeAccess = writeAccess;
     }
 
+     void unregisterHandler() {
+        m_modifiedHandler.unregister();
+        m_modifiedHandler = null;
+    }
+
+    boolean writeAccess() {
+        return m_writeAccess;
+    }
+
     boolean isModified() {
-        boolean modified = false;
-        for (Map.Entry<RepositoryObject, WorkingState> entry : m_workingState.entrySet()) {
-            modified |= !(entry.getValue().equals(WorkingState.Unchanged));
+        for (WorkingState workingState : m_workingState.values()) {
+            if (!WorkingState.Unchanged.equals(workingState)) {
+                return true;
+            }
         }
-        return modified;
+        return false;
     }
 
     User getUser() {
@@ -126,6 +140,7 @@ class RepositorySet {
             m_log.log(LogService.LOG_WARNING, "Could not store all preferences for " + workingNode.absolutePath());
             e.printStackTrace();
         }
+        
         for (Map.Entry<RepositoryObject, WorkingState> entry : m_workingState.entrySet()) {
             workingNode.node(entry.getKey().getDefinition()).put(PREFS_LOCAL_WORKING_STATE_VALUE, entry.getValue().toString());
         }
@@ -141,13 +156,16 @@ class RepositorySet {
         Map<String, WorkingState> entries = new HashMap<String, WorkingState>();
         // First, get all nodes and their workingstate.
         try {
+            String defaultWorkingState = WorkingState.Unchanged.toString();
+
             for (String node : workingNode.childrenNames()) {
-                String state = workingNode.node(node).get(PREFS_LOCAL_WORKING_STATE_VALUE, WorkingState.Unchanged.toString());
+                String state = workingNode.node(node).get(PREFS_LOCAL_WORKING_STATE_VALUE, defaultWorkingState);
                 entries.put(node, WorkingState.valueOf(state));
             }
         }
         catch (BackingStoreException e) {
             // Something went wrong reading from the store, just work with whatever we have in the map.
+            m_log.log(LogService.LOG_WARNING, "Could not load all preferences for " + workingNode.absolutePath());
             e.printStackTrace();
         }
         // Then, go through all objects and check whether they match a definition we know.
@@ -167,35 +185,24 @@ class RepositorySet {
      * ********/
 
     boolean readLocal() throws IOException {
-        InputStream input = m_repository.getLocal(false);
+        InputStream input = m_repository.getLocal(false /* fail */);
         if (input.available() > 0) {
             read(input);
             return true;
         }
         else {
-            try {
-                input.close();
-            }
-            catch (IOException e) {
-                // This does not matter now.
-            }
+            closeSafely(input);
             return false;
         }
     }
 
     void read(InputStream input) {
         new RepositorySerializer(this).fromXML(input);
-        try {
-            input.close();
-        }
-        catch (IOException e) {
-            // Not much we can do...
-            e.printStackTrace();
-        }
+        closeSafely(input);
     }
 
     void writeLocal() throws IOException {
-        PipedInputStream input = new PipedInputStream();
+        final PipedInputStream input = new PipedInputStream();
         final PipedOutputStream output = new PipedOutputStream(input);
         new Thread(new Runnable() {
             public void run() {
@@ -245,11 +252,17 @@ class RepositorySet {
         for (ObjectRepositoryImpl repo : getRepos()) {
             repo.setBusy(true);
         }
-        for (ObjectRepositoryImpl repo : getRepos()) {
-            repo.removeAll();
+
+        try {
+            for (ObjectRepositoryImpl repo : getRepos()) {
+                repo.removeAll();
+            }
         }
-        for (ObjectRepositoryImpl repo : getRepos()) {
-            repo.setBusy(false);
+        finally {
+            // Ensure all busy flags are reset at all times...
+            for (ObjectRepositoryImpl repo : getRepos()) {
+                repo.setBusy(false);
+            }
         }
     }
 
@@ -267,23 +280,15 @@ class RepositorySet {
         m_modifiedHandler = context.registerService(EventHandler.class.getName(), new ModifiedHandler(), topic);
     }
 
-    public void unregisterHandler() {
-        m_modifiedHandler.unregister();
-        m_modifiedHandler = null;
-    }
-
     WorkingState getWorkingState(RepositoryObject object) {
-        if (m_workingState.containsKey(object)) {
-            return m_workingState.get(object);
-        }
-        return null;
+        return m_workingState.get(object);
     }
 
     int getNumberWithWorkingState(Class<? extends RepositoryObject> clazz, WorkingState state) {
         int result = 0;
         for (Map.Entry<RepositoryObject, WorkingState> entry : m_workingState.entrySet()) {
             if (clazz.isInstance(entry.getKey()) && state.equals(entry.getValue())) {
-                result ++;
+                result++;
             }
         }
         return result;
@@ -300,44 +305,55 @@ class RepositorySet {
         }
         m_notifier.notifyChanged(RepositoryAdmin.TOPIC_STATUSCHANGED_SUFFIX, null);
     }
-
-    class ModifiedHandler implements EventHandler {
-
+    
+    private void closeSafely(Closeable resource) {
+        if (resource != null) {
+            try {
+                resource.close();
+            }
+            catch (IOException e) {
+                // Ignored; not much we can do about this...
+                m_log.log(LogService.LOG_DEBUG, "Closing resource failed!", e);
+            }
+        }
+    }
+    
+    final class ModifiedHandler implements EventHandler {
+        
         public void handleEvent(Event event) {
             /*
              * NOTE: if recalculating the state for every event turns out to be
              * too expensive, we can cache the 'modified' state and not recalculate
              * it every time.
              */
-
+            
             boolean wasModified = isModified();
+            
             RepositoryObject object = (RepositoryObject) event.getProperty(RepositoryObject.EVENT_ENTITY);
-
+            String topic = event.getTopic();
+            
             WorkingState newState = WorkingState.Unchanged;
-            if (event.getTopic().endsWith("/ADDED")) {
+            if (topic.endsWith("/ADDED")) {
                 newState = WorkingState.New;
             }
-            else if (event.getTopic().endsWith("/CHANGED")) {
+            else if (topic.endsWith("/CHANGED")) {
                 newState = WorkingState.Changed;
             }
-            else if (event.getTopic().endsWith("/REMOVED")) {
+            else if (topic.endsWith("/REMOVED")) {
                 newState = WorkingState.Removed;
             }
-
+            
             if (!newState.equals(m_workingState.get(object))) {
                 m_workingState.put(object, newState);
+                
                 Properties props = new Properties();
                 props.put(RepositoryObject.EVENT_ENTITY, object);
                 m_notifier.notifyChanged(RepositoryAdmin.TOPIC_STATUSCHANGED_SUFFIX, props);
             }
-
+            
             if (!wasModified) {
                 m_notifier.notifyChanged(RepositoryAdmin.TOPIC_STATUSCHANGED_SUFFIX, null);
             }
         }
-    }
-
-    public boolean writeAccess() {
-        return m_writeAccess;
     }
 }

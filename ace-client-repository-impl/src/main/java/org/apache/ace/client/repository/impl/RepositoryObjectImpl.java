@@ -33,10 +33,9 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
     private final Map<String, String> m_tags = new HashMap<String, String>();
     @SuppressWarnings("unchecked")
     private final Map<Class, List<Association>> m_associations = new HashMap<Class, List<Association>>();
-
     private final ChangeNotifier m_notifier;
-
     private final String m_xmlNode;
+    
     private volatile boolean m_deleted = false;
     private volatile boolean m_busy = false;
 
@@ -78,7 +77,6 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
     /**
      * Returns an enumeration of the values in this object's dictionary.
      */
-
     @Override
     public Enumeration<Object> elements() {
         synchronized (m_attributes) {
@@ -90,7 +88,6 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
      * Gets the object associated with this key. Will return null when the key is not used; if the key is available for both the
      * tags and the object's basic information, an array of two Strings will be returned.
      */
-
     @Override
     public Object get(Object key) {
         synchronized (m_attributes) {
@@ -112,7 +109,6 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
     /**
      * Return whether the dictionary is empty.
      */
-
     @Override
     public boolean isEmpty() {
         synchronized (m_attributes) {
@@ -123,7 +119,6 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
     /**
      * Returns an enumeration of the keys in this object.
      */
-
     @Override
     public Enumeration<String> keys() {
         synchronized (m_attributes) {
@@ -135,30 +130,28 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
     }
 
     /**
-     * @throws UnsupportedOperationException
+     * Unsupported operation.
+     * 
+     * @throws UnsupportedOperationException always
      */
-
     @Override
-    public Object put(@SuppressWarnings("unused")
-    String key, @SuppressWarnings("unused")
-    Object value) {
+    public Object put(String key, Object value) {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * @throws UnsupportedOperationException
+     * Unsupported operation.
+     * 
+     * @throws UnsupportedOperationException always
      */
-
     @Override
-    public Object remove(@SuppressWarnings("unused")
-    Object key) {
+    public Object remove(Object key) {
         throw new UnsupportedOperationException();
     }
 
     /**
      * Returns the number of keys in both this object's tags, and its 'member' keys.
      */
-
     @Override
     public int size() {
         synchronized (m_attributes) {
@@ -168,47 +161,6 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
             return keys.size();
         }
     }
-
-    /**
-     * Helper class that implements an enumeration for use in <code>keys()</code>.
-     */
-    private class KeysEnumeration implements Enumeration<String> {
-        private final Iterator<String> m_iter;
-
-        public KeysEnumeration(Iterator<String> iter) {
-            m_iter = iter;
-        }
-
-
-        public boolean hasMoreElements() {
-            return m_iter.hasNext();
-        }
-
-
-        public String nextElement() {
-            return m_iter.next();
-        }
-
-    }
-
-    /**
-     * Helper class that implements an enumeration for use in <code>elements()</code>.
-     */
-    private class ValuesEnumeration implements Enumeration<Object> {
-        private final Enumeration<String> m_iter = keys();
-
-
-        public boolean hasMoreElements() {
-            return m_iter.hasMoreElements();
-        }
-
-
-        public Object nextElement() {
-            return get(m_iter.nextElement());
-        }
-
-    }
-
 
     public String addAttribute(String key, String value) {
         for (String s : getDefiningKeys()) {
@@ -223,7 +175,6 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         }
     }
 
-
     public String addTag(String key, String value) {
         synchronized (m_attributes) {
             ensureCurrent();
@@ -232,13 +183,11 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         }
     }
 
-
     public String getAttribute(String key) {
         synchronized (m_attributes) {
             return m_attributes.get(key);
         }
     }
-
 
     public String getTag(String key) {
         synchronized (m_attributes) {
@@ -246,18 +195,15 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         }
     }
 
-
     public Enumeration<String> getAttributeKeys() {
         synchronized (m_attributes) {
             return new KeysEnumeration(new HashSet<String>(m_attributes.keySet()).iterator());
         }
     }
 
-
     public Dictionary<String, Object> getDictionary() {
         return this;
     }
-
 
     public Enumeration<String> getTagKeys() {
         synchronized (m_attributes) {
@@ -606,4 +552,37 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         return null;
     }
 
+    /**
+     * Helper class that implements an enumeration for use in <code>keys()</code>.
+     */
+    private static class KeysEnumeration implements Enumeration<String> {
+        private final Iterator<String> m_iter;
+
+        public KeysEnumeration(Iterator<String> iter) {
+            m_iter = iter;
+        }
+
+        public boolean hasMoreElements() {
+            return m_iter.hasNext();
+        }
+
+        public String nextElement() {
+            return m_iter.next();
+        }
+    }
+
+    /**
+     * Helper class that implements an enumeration for use in <code>elements()</code>.
+     */
+    private class ValuesEnumeration implements Enumeration<Object> {
+        private final Enumeration<String> m_iter = keys();
+
+        public boolean hasMoreElements() {
+            return m_iter.hasMoreElements();
+        }
+
+        public Object nextElement() {
+            return get(m_iter.nextElement());
+        }
+    }
 }

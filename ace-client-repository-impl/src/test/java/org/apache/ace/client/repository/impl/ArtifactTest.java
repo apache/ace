@@ -91,7 +91,7 @@ public class ArtifactTest {
         m_artifactRepository.addHelper("myMime", new MockHelper());
         m_artifactRepository.addHelper(BundleHelper.MIMETYPE, new BundleHelperImpl());
 
-        ArtifactObject normalBundle = createArtifact(BundleHelper.MIMETYPE, "normalBundle", "normalBundle", null);
+        createArtifact(BundleHelper.MIMETYPE, "normalBundle", "normalBundle", null);
 
         ArtifactObject resourceProcessor1 = createArtifact(BundleHelper.MIMETYPE, "resourceProcessor1", "resourceProcessor1", "somePID");
         ArtifactObject resourceProcessor2 = createArtifact(BundleHelper.MIMETYPE, "resourceProcessor2", "resourceProcessor2", "someOtherPID");
