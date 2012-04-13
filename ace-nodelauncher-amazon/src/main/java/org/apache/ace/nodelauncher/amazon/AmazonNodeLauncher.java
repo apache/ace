@@ -242,16 +242,21 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
 
     private String buildStartupScript(String id) throws MalformedURLException {
         StringBuilder script = new StringBuilder();
-        if (m_nodeBootstrap != null) {
+        if (m_nodeBootstrap != null && m_nodeBootstrap.length() > 0) {
             script.append(m_nodeBootstrap).append(" ; ");
         }
 
         script.append("wget ").append(new URL(m_server, "/obr/" + m_aceLauncher)).append(" ;");
-        for (String additonalDownload : m_additionalObrDownloads.split(",")) {
-            script.append("wget ").append(new URL(m_server, "/obr/" + additonalDownload.trim())).append(" ;");
+        if (m_additionalObrDownloads.length() > 0) {
+            for (String additonalDownload : m_additionalObrDownloads.split(",")) {
+                script.append("wget ").append(new URL(m_server, "/obr/" + additonalDownload.trim())).append(" ;");
+            }
         }
-        for (String additonalDownload : m_externalDownloadUrls.split(",")) {
-            script.append("wget ").append(additonalDownload.trim()).append(" ;");
+
+        if (m_externalDownloadUrls.length() > 0) {
+            for (String additonalDownload : m_externalDownloadUrls.split(",")) {
+                script.append("wget ").append(additonalDownload.trim()).append(" ;");
+            }
         }
         script.append("nohup java -jar ").append(m_aceLauncher).append(" ");
         script.append("discovery=").append(m_server.toExternalForm()).append(" ");
