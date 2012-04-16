@@ -70,6 +70,9 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
      */
     private volatile Repository m_directRepository;
     private final SAXParserFactory m_saxParserFactory;
+    
+    
+    private Map<String,List<String>> m_cachedVersionLists = new LRUMap<String, List<String>>();
 
     public RepositoryBasedProvider() {
         m_saxParserFactory = SAXParserFactory.newInstance();
@@ -147,6 +150,22 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
 
     @SuppressWarnings("unchecked")
     public List<String> getVersions(String targetId) throws IllegalArgumentException, IOException {
+    	// check if cache is up to date
+    	if (isCacheUpToDate()) {
+    		List<String> result = m_cachedVersionLists.get(targetId);
+    		if (result != null) {
+    			System.out.println("Cache hit!");
+    			return result;
+    		}
+    		System.out.println("Cache miss!");
+    	}
+    	else {
+    		m_cachedVersionLists.clear();
+    		System.out.println("Cache cleared!");
+    	}
+
+    	
+    	
         List<String> stringVersionList = new ArrayList<String>();
         InputStream input = null;
 
@@ -186,6 +205,8 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
             }
         }
 
+        System.out.println("Cache added: " + targetId);
+        m_cachedVersionLists.put(targetId, stringVersionList);
         return stringVersionList;
     }
 
@@ -345,6 +366,17 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         }
 
         return result;
+    }
+    
+    private boolean isCacheUpToDate() {
+        CachedRepository cachedRepository = m_cachedRepository;
+        try {
+			return (cachedRepository != null && cachedRepository.isCurrent());
+		}
+        catch (IOException ioe) {
+        	m_log.log(LogService.LOG_WARNING, "Failed to check if cache is current. Assuming it's not.", ioe);
+        	return false;
+		}
     }
 
     public void updated(Dictionary settings) throws ConfigurationException {
