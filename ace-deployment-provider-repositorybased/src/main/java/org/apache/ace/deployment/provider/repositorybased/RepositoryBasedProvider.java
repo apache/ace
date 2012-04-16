@@ -154,17 +154,12 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
     	if (isCacheUpToDate()) {
     		List<String> result = m_cachedVersionLists.get(targetId);
     		if (result != null) {
-    			System.out.println("Cache hit!");
     			return result;
     		}
-    		System.out.println("Cache miss!");
     	}
     	else {
     		m_cachedVersionLists.clear();
-    		System.out.println("Cache cleared!");
     	}
-
-    	
     	
         List<String> stringVersionList = new ArrayList<String>();
         InputStream input = null;
