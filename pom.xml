@@ -131,6 +131,7 @@
         <module>ace-managementagent</module>
         <module>ace-launcher</module>
         <module>ace-glassfish-launcher</module>
+        <module>ace-processlauncher</module>
 
         <module>ace-karaf-features</module>
 
