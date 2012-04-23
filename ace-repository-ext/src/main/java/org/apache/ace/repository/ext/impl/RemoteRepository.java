@@ -29,6 +29,7 @@ import java.net.URL;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.Repository;
 
@@ -40,42 +41,33 @@ public class RemoteRepository implements Repository {
     private static final String COMMAND_QUERY = "/query";
     private static final String COMMAND_CHECKOUT = "/checkout";
     private static final String COMMAND_COMMIT = "/commit";
+    
     private static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
+    
     private static final int COPY_BUFFER_SIZE = 4096;
 
     private final URL m_url;
     private final String m_customer;
     private final String m_name;
-    private final String m_filter;
 
-
-    RemoteRepository(URL url, String customer, String name, String filter) {
-        m_url = url;
-        m_customer = customer;
-        m_name = name;
-        m_filter = filter;
-    }
+    private volatile ConnectionFactory m_connectionFactory;
 
     /**
-     * Creates a remote repository that connects to a given location with a given customer-
-     * and repository name.
+     * Creates a remote repository that connects to a given location with a given customer- and repository name.
+     * 
      * @param url The location of the repository.
      * @param customer The customer name to use.
      * @param name The repository name to use.
      */
     public RemoteRepository(URL url, String customer, String name) {
-        this(url, customer, name, null);
-    }
+        if (url == null || customer == null || name == null) {
+            throw new IllegalArgumentException("None of the parameters can be null!");
+        }
 
-    /**
-     * Creates a remote repository that connects to a given location with a given filter.
-     * @param url The location of the repository.
-     * @param filter An LDAP filter string to select the repository.
-     */
-    public RemoteRepository(URL url, String filter) {
-        this(url, null, null, filter);
+        m_url = url;
+        m_customer = customer;
+        m_name = name;
     }
-
 
     public InputStream checkout(long version) throws IOException, IllegalArgumentException {
         if (version <= 0) {
@@ -83,7 +75,8 @@ public class RemoteRepository implements Repository {
         }
 
         URL url = buildCommand(m_url, COMMAND_CHECKOUT, version);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        HttpURLConnection connection = (HttpURLConnection) m_connectionFactory.createConnection(url);
+
         if (connection.getResponseCode() == HttpServletResponse.SC_NOT_FOUND) {
             throw new IllegalArgumentException("Requested version not found in remote repository. (" + connection.getResponseMessage() + ")");
         }
@@ -96,7 +89,8 @@ public class RemoteRepository implements Repository {
 
     public boolean commit(InputStream data, long fromVersion) throws IOException, IllegalArgumentException {
         URL url = buildCommand(m_url, COMMAND_COMMIT, fromVersion);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        HttpURLConnection connection = (HttpURLConnection) m_connectionFactory.createConnection(url);
+        
         connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", MIME_APPLICATION_OCTET_STREAM);
 
@@ -104,12 +98,14 @@ public class RemoteRepository implements Repository {
         copy(data, out);
         out.flush();
         out.close();
+
         return connection.getResponseCode() == HttpServletResponse.SC_OK;
     }
 
     public SortedRangeSet getRange() throws IOException {
         URL url = buildCommand(m_url, COMMAND_QUERY, 0);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        HttpURLConnection connection = (HttpURLConnection) m_connectionFactory.createConnection(url);
+        
         if (connection.getResponseCode() == HttpServletResponse.SC_OK) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line = reader.readLine();
@@ -120,6 +116,7 @@ public class RemoteRepository implements Repository {
             reader.close();
             return new SortedRangeSet(representation);
         }
+
         throw new IOException("Connection error: " + connection.getResponseMessage());
     }
 
@@ -142,6 +139,7 @@ public class RemoteRepository implements Repository {
      * Builds a command string to use in the request to the server, based on the parameters
      * this object was created with. The version is only mandatory for <code>CHECKOUT</code>
      * and <code>COMMIT</code>.
+     * 
      * @param command A command string, use the <code>COMMAND_</code> constants in this file.
      * @param version A version statement.
      * @return The command string.
@@ -149,29 +147,23 @@ public class RemoteRepository implements Repository {
     private URL buildCommand(URL url, String command, long version) {
         StringBuffer result = new StringBuffer();
 
-        if (m_filter != null) {
-            result.append(m_filter);
+        if (m_customer != null) {
+            if (result.length() != 0) {
+                result.append("&");
+            }
+            result.append("customer=").append(m_customer);
         }
-        else {
-
-            if (m_customer != null) {
-                if (result.length() != 0) {
-                    result.append("&");
-                }
-                result.append("customer=").append(m_customer);
+        if (m_name != null) {
+            if (result.length() != 0) {
+                result.append("&");
             }
-            if (m_name != null) {
-                if (result.length() != 0) {
-                    result.append("&");
-                }
-                result.append("name=").append(m_name);
+            result.append("name=").append(m_name);
+        }
+        if (command != COMMAND_QUERY) {
+            if (result.length() != 0) {
+                result.append("&");
             }
-            if (command != COMMAND_QUERY) {
-                if (result.length() != 0) {
-                    result.append("&");
-                }
-                result.append("version=").append(version);
-            }
+            result.append("version=").append(version);
         }
 
         try {
@@ -189,6 +181,6 @@ public class RemoteRepository implements Repository {
 
     @Override
     public String toString() {
-        return "RemoteRepository[" + m_url + "," + m_customer + "," + m_name + "," + m_filter + "]";
+        return "RemoteRepository[" + m_url + "," + m_customer + "," + m_name + "]";
     }
 }

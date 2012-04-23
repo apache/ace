@@ -20,7 +20,9 @@ package org.apache.ace.webui.vaadin;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,7 @@ import org.apache.ace.client.repository.repository.Feature2DistributionAssociati
 import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
@@ -129,6 +132,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     private volatile Distribution2TargetAssociationRepository m_distribution2targetAssociationRepository;
     private volatile RepositoryAdmin m_admin;
     private volatile LogService m_log;
+    private volatile ConnectionFactory m_connectionFactory;
 
     private String m_sessionID;
     private ArtifactsPanel m_artifactsPanel;
@@ -144,8 +148,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     private Button m_targetToolbar;
     private Window m_mainWindow;
 
-    private final URL m_aceHost;
     private final URL m_obrUrl;
+    private final URL m_repository;
+    private final boolean m_useAuth;
+    private final String m_userName;
 
     private final Associations m_associations = new Associations();
     private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
@@ -157,9 +163,28 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         return SESSION_ID++;
     }
 
-    public VaadinClient(URL aceHost, URL obrUrl) {
-        m_aceHost = aceHost;
+    /**
+     * Creates a new {@link VaadinClient} instance.
+     * 
+     * @param aceHost the hostname where the management service can be reached;
+     * @param obrUrl the URL of the OBR to use;
+     * @param useAuth <code>true</code> to use authentication, <code>false</code> to disable authentication;
+     * @param userName the hardcoded username to use when authentication is disabled.
+     */
+    public VaadinClient(URL aceHost, URL obrUrl, boolean useAuth, String userName) {
+        try {
+            m_repository = new URL(aceHost, endpoint);
+        }
+        catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Need a valid repository URL!", e);
+        }
         m_obrUrl = obrUrl;
+        m_useAuth = useAuth;
+        m_userName = userName;
+
+        if (!m_useAuth && (m_userName == null || "".equals(m_userName.trim()))) {
+            throw new IllegalArgumentException("Need a valid user name when no authentication is used!");
+        }
     }
 
     public void setupDependencies(Component component) {
@@ -168,25 +193,16 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         dir.mkdir();
         m_sessionDir = dir;
         m_sessionFactory.createSession(m_sessionID);
-        addDependency(component, RepositoryAdmin.class);
-        addDependency(component, DistributionRepository.class);
-        addDependency(component, ArtifactRepository.class);
-        addDependency(component, FeatureRepository.class);
-        addDependency(component, Artifact2FeatureAssociationRepository.class);
-        addDependency(component, Feature2DistributionAssociationRepository.class);
-        addDependency(component, Distribution2TargetAssociationRepository.class);
-        addDependency(component, StatefulTargetRepository.class);
+        addSessionDependency(component, RepositoryAdmin.class);
+        addSessionDependency(component, DistributionRepository.class);
+        addSessionDependency(component, ArtifactRepository.class);
+        addSessionDependency(component, FeatureRepository.class);
+        addSessionDependency(component, Artifact2FeatureAssociationRepository.class);
+        addSessionDependency(component, Feature2DistributionAssociationRepository.class);
+        addSessionDependency(component, Distribution2TargetAssociationRepository.class);
+        addSessionDependency(component, StatefulTargetRepository.class);
+        addDependency(component, ConnectionFactory.class);
     }
-
-    // @formatter:off
-    private void addDependency(Component component, Class service) {
-        component.add(m_manager.createServiceDependency()
-            .setService(service, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
-            .setRequired(true)
-            .setInstanceBound(true));
-    }
-
-    // @formatter:on
 
     public void start() {
         m_log.log(LogService.LOG_INFO, "Starting session #" + m_sessionID);
@@ -230,7 +246,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
         setMainWindow(m_mainWindow);
 
-        showLoginWindow();
+        // Authenticate the user either by showing a login window; or by another means...
+        authenticate();
     }
 
     /**
@@ -238,9 +255,9 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
      */
     private void showLoginWindow() {
         LoginWindow loginWindow = new LoginWindow(m_log, this);
-        
+
         m_mainWindow.addWindow(loginWindow);
-        
+
         loginWindow.center();
     }
 
@@ -350,7 +367,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             protected void associateFromRight(String left, String right) {
                 ArtifactObject artifact = getArtifact(left);
                 // if you drop on a resource processor, and try to get it, you
-                // will get null because you cannot associate anything with a 
+                // will get null because you cannot associate anything with a
                 // resource processor so we check for null here
                 if (artifact != null) {
                     if (m_dynamicRelations) {
@@ -369,7 +386,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             protected void associateFromLeft(String left, String right) {
                 ArtifactObject artifact = getArtifact(left);
                 // if you drop on a resource processor, and try to get it, you
-                // will get null because you cannot associate anything with a 
+                // will get null because you cannot associate anything with a
                 // resource processor so we check for null here
                 if (artifact != null) {
                     if (m_dynamicRelations) {
@@ -423,7 +440,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
         addListener(m_featuresPanel, FeatureObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
         addListener(m_distributionsPanel, DistributionObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
-        addListener(m_targetsPanel, StatefulTargetObject.TOPIC_ALL, TargetObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
+        addListener(m_targetsPanel, StatefulTargetObject.TOPIC_ALL, TargetObject.TOPIC_ALL,
+            RepositoryAdmin.TOPIC_STATUSCHANGED);
 
         m_mainWindow.addComponent(m_grid);
     }
@@ -453,31 +471,32 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
      * {@inheritDoc}
      */
     public boolean login(String username, String password) {
-        try {
-            User user = m_authenticationService.authenticate(username, password);
-            if (user == null) {
-                return false;
-            }
+        User user = m_authenticationService.authenticate(username, password);
+        setUser(user);
+        return login(user);
+    }
 
-            RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
+    private void addSessionDependency(Component component, Class service) {
+        component.add(m_manager.createServiceDependency()
+            .setService(service, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
+            .setRequired(true)
+            .setInstanceBound(true));
+    }
 
-            // @formatter:off
-            context.addShopRepository(new URL(m_aceHost, endpoint), customerName, shopRepo, true)
-                .setObrBase(m_obrUrl)
-                .addTargetRepository(new URL(m_aceHost, endpoint), customerName, targetRepo, true)
-                .addDeploymentRepository(new URL(m_aceHost, endpoint), customerName, deployRepo, true);
-            // @formatter:on
-            
-            m_admin.login(context);
-            initGrid(user);
-            m_admin.checkout();
-            
-            return true;
-        }
-        catch (IOException e) {
-            m_log.log(LogService.LOG_WARNING, "Login failed!", e);
-            return false;
-        }
+    private void addDependency(Component component, Class service) {
+        component.add(m_manager.createServiceDependency()
+            .setService(service)
+            .setRequired(true)
+            .setInstanceBound(true));
+    }
+
+    /**
+     * @return <code>true</code> if the login succeeded, <code>false</code> otherwise.
+     */
+    private boolean loginAutomatically() {
+        User user = m_userAdmin.getUser("username", m_userName);
+        setUser(user);
+        return login(user);
     }
 
     private void addListener(final Object implementation, final String... topics) {
@@ -492,8 +511,22 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         // @formatter:on
     }
 
+    /**
+     * Determines how authentication should take place.
+     */
+    private void authenticate() {
+        if (m_useAuth) {
+            showLoginWindow();
+        }
+        else {
+            // Not using authentication; use fallback scenario...
+            loginAutomatically();
+        }
+    }
+
     private GridLayout createToolbar() {
-        MainActionToolbar mainActionToolbar = new MainActionToolbar() {
+        final boolean showLogoutButton = m_useAuth;
+        MainActionToolbar mainActionToolbar = new MainActionToolbar(showLogoutButton) {
             @Override
             protected RepositoryAdmin getRepositoryAdmin() {
                 return m_admin;
@@ -540,14 +573,15 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
                     protected void onOk(String name, String description) throws Exception {
                         object.setDescription(description);
                     }
-                    
+
                     @Override
                     protected void handleError(Exception e) {
-                        getWindow().showNotification("Failed to edit artifact!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Failed to edit artifact!", "<br/>Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
                     }
                 };
             }
-            
+
             @Override
             protected ArtifactRepository getRepository() {
                 return m_artifactRepository;
@@ -569,14 +603,15 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
                     protected void onOk(String name, String description) throws Exception {
                         object.setDescription(description);
                     }
-                    
+
                     @Override
                     protected void handleError(Exception e) {
-                        getWindow().showNotification("Failed to edit feature!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Failed to edit feature!", "<br/>Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
                     }
                 };
             }
-            
+
             @Override
             protected FeatureRepository getRepository() {
                 return m_featureRepository;
@@ -598,14 +633,15 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
                     protected void onOk(String name, String description) throws Exception {
                         object.setDescription(description);
                     }
-                    
+
                     @Override
                     protected void handleError(Exception e) {
-                        getWindow().showNotification("Failed to edit distribution!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Failed to edit distribution!", "<br/>Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
                     }
                 };
             }
-            
+
             @Override
             protected DistributionRepository getRepository() {
                 return m_distributionRepository;
@@ -627,10 +663,11 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
                     protected void onOk(String name, String description) throws Exception {
                         // Nothing to edit!
                     }
-                    
+
                     @Override
                     protected void handleError(Exception e) {
-                        getWindow().showNotification("Failed to edit target!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Failed to edit target!", "<br/>Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
                     }
 
                     @Override
@@ -638,7 +675,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
                         m_name.setCaption("Identifier");
                         m_name.setReadOnly(true);
                         m_description.setVisible(false);
-                        
+
                         super.initDialog(object, factories);
                     }
                 };
@@ -747,7 +784,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
                     public void handleError(Exception e) {
                         // ACE-241: notify user when the feature-creation failed!
-                        getWindow().showNotification("Failed to add new feature!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Failed to add new feature!", "<br/>Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
                     }
                 };
                 window.show(getMainWindow());
@@ -773,7 +811,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
                     public void handleError(Exception e) {
                         // ACE-241: notify user when the distribution-creation failed!
-                        getWindow().showNotification("Failed to add new distribution!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Failed to add new distribution!",
+                            "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
                     }
                 };
                 window.show(getMainWindow());
@@ -800,7 +839,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
                     protected void handleError(Exception e) {
                         // ACE-241: notify user when the target-creation failed!
-                        getWindow().showNotification("Failed to add new target!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Failed to add new target!", "<br/>Reason: " + e.getMessage(),
+                            Notification.TYPE_ERROR_MESSAGE);
                     }
 
                     @Override
@@ -887,6 +927,11 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             protected ArtifactRepository getArtifactRepository() {
                 return m_artifactRepository;
             }
+            
+            @Override
+            protected URLConnection openConnection(URL url) throws IOException {
+                return m_connectionFactory.createConnection(url);
+            }
 
             @Override
             protected LogService getLogger() {
@@ -895,6 +940,37 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         };
 
         // Open the subwindow by adding it to the parent window
-        getMainWindow().addWindow(window);
+        window.showWindow(getMainWindow());
+    }
+
+    /**
+     * Authenticates the given user by creating all dependent services.
+     * 
+     * @param user
+     * @throws IOException in case of I/O problems.
+     */
+    private boolean login(final User user) {
+        try {
+            RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
+            
+            // @formatter:off
+            context.setObrBase(m_obrUrl)
+                .add(context.createShopRepositoryContext()
+                    .setLocation(m_repository).setCustomer(customerName).setName(shopRepo).setWriteable())
+                .add(context.createTargetRepositoryContext()
+                    .setLocation(m_repository).setCustomer(customerName).setName(targetRepo).setWriteable())
+                .add(context.createDeploymentRepositoryContext()
+                    .setLocation(m_repository).setCustomer(customerName).setName(deployRepo).setWriteable());
+            // @formatter:on
+
+            m_admin.login(context);
+            initGrid(user);
+            m_admin.checkout();
+            return true;
+        }
+        catch (Exception e) {
+            m_log.log(LogService.LOG_WARNING, "Login failed!", e);
+            return false;
+        }
     }
 }

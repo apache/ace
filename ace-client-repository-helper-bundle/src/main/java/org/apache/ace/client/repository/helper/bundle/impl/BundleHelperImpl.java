@@ -19,7 +19,6 @@
 package org.apache.ace.client.repository.helper.bundle.impl;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +30,7 @@ import org.apache.ace.client.repository.RepositoryUtil;
 import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.ArtifactRecognizer;
+import org.apache.ace.client.repository.helper.ArtifactResource;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.util.VersionRange;
@@ -195,7 +195,7 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
         return MIMETYPE.equals(mimetype);
     }
 
-    public Map<String, String> extractMetaData(URL artifact) throws IllegalArgumentException {
+    public Map<String, String> extractMetaData(ArtifactResource artifact) throws IllegalArgumentException {
         /*
          * Opens the URL as a Jar input stream, gets the manifest, and extracts headers from there.
          */
@@ -241,7 +241,7 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
         }
     }
 
-    public String recognize(URL artifact) {
+    public String recognize(ArtifactResource artifact) {
         /*
          * Tries to find out whether this artifact is a bundle by (a) trying to open it as a
          * jar, (b) trying to extract the manifest, and (c) checking whether that manifest
@@ -276,7 +276,7 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
         return null;
     }
     
-    public String getExtension(URL artifact) {
+    public String getExtension(ArtifactResource artifact) {
         return ".jar";
     }
 }

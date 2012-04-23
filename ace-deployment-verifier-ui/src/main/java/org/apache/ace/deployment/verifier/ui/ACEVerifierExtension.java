@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,7 @@ import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.deployment.verifier.VerifierService;
 import org.apache.ace.deployment.verifier.VerifierService.VerifyEnvironment;
 import org.apache.ace.deployment.verifier.VerifierService.VerifyReporter;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.osgi.framework.Constants;
@@ -138,8 +140,10 @@ public class ACEVerifierExtension implements UIExtensionFactory {
         }
     }
 
+    // Injected by Dependency Manager
     private volatile VerifierService m_verifier;
     private volatile DeploymentVersionRepository m_repo;
+    private volatile ConnectionFactory m_connectionFactory;
 
     /**
      * {@inheritDoc}
@@ -370,7 +374,7 @@ public class ACEVerifierExtension implements UIExtensionFactory {
         JarInputStream jis = null;
 
         try {
-            is = new URL(bundle.getUrl()).openStream();
+            is = getBundleContents(bundle.getUrl());
             jis = new JarInputStream(is, false /* verify */);
 
             Map<String, String> manifest = getManifestEntries(jis.getManifest());
@@ -394,5 +398,15 @@ public class ACEVerifierExtension implements UIExtensionFactory {
             closeQuietly(is);
             closeQuietly(jis);
         }
+    }
+
+    /**
+     * @param url the remote URL to connect to, cannot be <code>null</code>.
+     * @return an {@link InputStream} to the remote URL, never <code>null</code>.
+     * @throws IOException in case of I/O problems opening the remote connection.
+     */
+    private InputStream getBundleContents(String url) throws IOException {
+        URLConnection conn = m_connectionFactory.createConnection(new URL(url));
+        return conn.getInputStream();
     }
 }

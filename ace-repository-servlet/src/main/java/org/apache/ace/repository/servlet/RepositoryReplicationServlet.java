@@ -66,9 +66,8 @@ public class RepositoryReplicationServlet extends RepositoryServletBase {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void updated(Dictionary settings) throws ConfigurationException {
-        // nothing special we want to do here
+        super.updated(settings);
     }
 
     @Override

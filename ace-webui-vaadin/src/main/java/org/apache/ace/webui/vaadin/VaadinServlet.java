@@ -41,11 +41,19 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     
     public static final String PID = "org.apache.ace.webui.vaadin";
     
-    public static final String ACE_HOST = "aceHost";
-    public static final String OBR_URL = "obrUrl";
+    /** A boolean denoting whether or not authentication is enabled. */
+    private static final String KEY_USE_AUTHENTICATION = "ui.authentication.enabled";
+    /** Name of the user to log in as. */
+    private static final String KEY_USER_NAME = "ui.authentication.user.name";
+    /** A string denoting the host name of the management service. */
+    private static final String KEY_ACE_HOST = "ace.host";
+    /** A string denoting the URL to the management server's OBR. */
+    private static final String KEY_OBR_URL = "obr.url";
 
     private volatile DependencyManager m_manager;
 
+    private volatile boolean m_useAuth;
+    private volatile String m_userName;
     private volatile URL m_aceHost;
     private volatile URL m_obrUrl;
     
@@ -56,7 +64,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
 
     @Override
     protected Application getNewApplication(HttpServletRequest request)	throws ServletException {
-        Application application = new VaadinClient(m_aceHost, m_obrUrl);
+        Application application = new VaadinClient(m_aceHost, m_obrUrl, m_useAuth, m_userName);
         m_manager.add(m_manager.createComponent()
             .setImplementation(application)
             .setCallbacks("setupDependencies", "start", "stop", "destroyDependencies")
@@ -70,7 +78,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
             )
             .add(m_manager.createServiceDependency()
                 .setService(AuthenticationService.class)
-                .setRequired(true)
+                .setRequired(m_useAuth)
             )
             .add(m_manager.createServiceDependency()
                 .setService(LogService.class)
@@ -84,28 +92,41 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         if (dictionary != null) {
             URL aceHost;
             try {
-                String aceHostString = (String) dictionary.get(ACE_HOST);
+                String aceHostString = (String) dictionary.get(KEY_ACE_HOST);
                 if (aceHostString == null) {
-                    throw new ConfigurationException(ACE_HOST, "Missing property");
+                    throw new ConfigurationException(KEY_ACE_HOST, "Missing property");
                 }
                 aceHost = new URL(aceHostString);
             }
             catch (MalformedURLException e) {
-                throw new ConfigurationException(ACE_HOST, "Is not a valid URL", e);
+                throw new ConfigurationException(KEY_ACE_HOST, "Is not a valid URL", e);
             }
 
             URL obrUrl;
             try {
-                String obrUrlString = (String) dictionary.get(OBR_URL);
+                String obrUrlString = (String) dictionary.get(KEY_OBR_URL);
                 if (obrUrlString == null) {
-                    throw new ConfigurationException(OBR_URL, "Missing property");
+                    throw new ConfigurationException(KEY_OBR_URL, "Missing property");
                 }
                 obrUrl = new URL(obrUrlString);
             }
             catch (MalformedURLException e) {
-                throw new ConfigurationException(OBR_URL, "Is not a valid URL", e);
+                throw new ConfigurationException(KEY_OBR_URL, "Is not a valid URL", e);
             }
 
+            String useAuthString = (String) dictionary.get(KEY_USE_AUTHENTICATION);
+            if (useAuthString == null || !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
+                throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
+            }
+            boolean useAuth = Boolean.parseBoolean(useAuthString);
+
+            String userNameString = (String) dictionary.get(KEY_USER_NAME);
+            if ((userNameString == null) && !useAuth) {
+                throw new ConfigurationException(KEY_USER_NAME, "Missing value; authentication is disabled!");
+            }
+
+            m_useAuth = useAuth;
+            m_userName = userNameString;
             m_aceHost = aceHost;
             m_obrUrl = obrUrl;
         }

@@ -20,6 +20,7 @@ package org.apache.ace.repository.task;
 
 import java.util.Properties;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -28,15 +29,18 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
+
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         Properties props = new Properties();
         props.put(SchedulerConstants.SCHEDULER_NAME_KEY, RepositoryReplicationTask.class.getName());
         props.put(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY, "Synchronizes repositories.");
+
         manager.add(createComponent()
             .setInterface(Runnable.class.getName(), props)
             .setImplementation(RepositoryReplicationTask.class)
             .add(createServiceDependency().setService(Discovery.class).setRequired(true))
+            .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false))
             );
     }

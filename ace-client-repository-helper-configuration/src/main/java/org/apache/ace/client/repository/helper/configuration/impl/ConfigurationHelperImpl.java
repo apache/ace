@@ -21,7 +21,6 @@ package org.apache.ace.client.repository.helper.configuration.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,9 +30,11 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.ArtifactRecognizer;
+import org.apache.ace.client.repository.helper.ArtifactResource;
 import org.apache.ace.client.repository.helper.base.VelocityArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.configuration.ConfigurationHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -47,6 +48,11 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
 
     private final SAXParserFactory m_saxParserFactory;
 
+    // Injected by Dependency Manager
+    private volatile ConnectionFactory m_connectionFactory;
+    // Created in #start()
+    private volatile VelocityArtifactPreprocessor m_artifactPreprocessor;
+
     public ConfigurationHelperImpl() {
         m_saxParserFactory = SAXParserFactory.newInstance();
         m_saxParserFactory.setNamespaceAware(false);
@@ -57,11 +63,11 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
         return MIMETYPE.equals(mimetype);
     }
 
-    public Map<String, String> extractMetaData(URL artifact) throws IllegalArgumentException {
+    public Map<String, String> extractMetaData(ArtifactResource artifact) throws IllegalArgumentException {
         Map<String, String> result = new HashMap<String, String>();
         result.put(ArtifactObject.KEY_PROCESSOR_PID, PROCESSOR);
         result.put(ArtifactObject.KEY_MIMETYPE, MIMETYPE);
-        String name = new File(artifact.getFile()).getName();
+        String name = new File(artifact.getURL().getFile()).getName();
         String key = KEY_FILENAME + "-";
         int idx = name.indexOf(key);
         if (idx > -1) {
@@ -73,7 +79,7 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
         return result;
     }
 
-    public String recognize(URL artifact) {
+    public String recognize(ArtifactResource artifact) {
         MetaDataNamespaceCollector handler = new MetaDataNamespaceCollector();
         InputStream input = null;
         try {
@@ -130,13 +136,27 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
         return new String[] {KEY_FILENAME};
     }
 
-    private final static VelocityArtifactPreprocessor VELOCITY_ARTIFACT_PREPROCESSOR = new VelocityArtifactPreprocessor();
     public ArtifactPreprocessor getPreprocessor() {
-        return VELOCITY_ARTIFACT_PREPROCESSOR;
+        return m_artifactPreprocessor;
     }
     
-    public String getExtension(URL artifact) {
+    public String getExtension(ArtifactResource artifact) {
         return ".xml";
+    }
+
+    /**
+     * Called by dependency manager upon start of this component.
+     */
+    protected void start() {
+        m_artifactPreprocessor = new VelocityArtifactPreprocessor(m_connectionFactory);
+    }
+
+    /**
+     * Called by dependency manager upon stopping of this component.
+     */
+    protected void stop() {
+        m_artifactPreprocessor = null;
+        
     }
 
     static class MetaDataNamespaceCollector extends DefaultHandler {

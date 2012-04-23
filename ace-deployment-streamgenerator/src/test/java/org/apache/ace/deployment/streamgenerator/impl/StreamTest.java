@@ -20,13 +20,14 @@ package org.apache.ace.deployment.streamgenerator.impl;
 
 import static org.apache.ace.test.utils.TestUtils.BROKEN;
 import static org.apache.ace.test.utils.TestUtils.UNIT;
+import static org.ops4j.pax.swissbox.tinybundles.core.TinyBundles.newBundle;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,14 +37,15 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.TestUtils;
 import org.apache.ace.test.utils.deployment.TestProvider;
 import org.osgi.service.log.LogService;
+import org.osgi.service.useradmin.User;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import static org.ops4j.pax.swissbox.tinybundles.core.TinyBundles.*;
 
 /**
  * Unit tests for the deployment admin stream.
@@ -52,7 +54,6 @@ public class StreamTest {
     private static final int COPY_BUFFER_SIZE = 4096;
 
     private StreamGeneratorImpl m_generator;
-
     private TestProvider m_provider;
 
     @BeforeTest(alwaysRun = true)
@@ -78,6 +79,7 @@ public class StreamTest {
         m_provider.addData("A3.jar", "A3", url, "1.0.0", true);
         TestUtils.configureObject(m_generator, DeploymentProvider.class, m_provider);
         TestUtils.configureObject(m_generator, LogService.class);
+        TestUtils.configureObject(m_generator, ConnectionFactory.class, new MockConnectionFactory());
     }
 
     public static void main(String[] args) {
@@ -254,9 +256,7 @@ public class StreamTest {
 
             byte[] buffer = new byte[COPY_BUFFER_SIZE];
             int bytes = jis.read(buffer);
-            long size = 0;
             while (bytes != -1) {
-                size += bytes;
                 bytes = jis.read(buffer);
             }
 
@@ -310,5 +310,18 @@ public class StreamTest {
         e.awaitTermination(10, TimeUnit.SECONDS);
 
         assert m_failure == null : "Test failed: " + m_failure.getLocalizedMessage();
+    }
+
+    /**
+     * Mock implementation of {@link ConnectionFactory}.
+     */
+    static final class MockConnectionFactory implements ConnectionFactory {
+        public URLConnection createConnection(URL url) throws IOException {
+            return url.openConnection();
+        }
+        
+        public URLConnection createConnection(URL url, User user) throws IOException {
+            return createConnection(url);
+        }
     }
 }

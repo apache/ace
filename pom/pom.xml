@@ -501,6 +501,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.ace</groupId>
+                <artifactId>org.apache.ace.connectionfactory</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ace</groupId>
                 <artifactId>org.apache.ace.httplistener</artifactId>
                 <version>${project.version}</version>
             </dependency>

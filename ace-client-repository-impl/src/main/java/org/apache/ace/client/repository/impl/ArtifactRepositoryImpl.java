@@ -36,10 +36,12 @@ import org.apache.ace.client.repository.RepositoryUtil;
 import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.ArtifactRecognizer;
+import org.apache.ace.client.repository.helper.ArtifactResource;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
@@ -61,37 +63,14 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  */
 public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectImpl, ArtifactObject> implements ArtifactRepository {
     private final static String XML_NODE = "artifacts";
-    private volatile BundleContext m_context; /*Injected by dependency manager*/
-    private volatile LogService m_log; /*Injected by dependency manager*/
-    private Map<String, ArtifactHelper> m_helpers = new HashMap<String, ArtifactHelper>();
+    
+    // Injected by Dependency Manager
+    private volatile BundleContext m_context;
+    private volatile LogService m_log;
+    private volatile ConnectionFactory m_connectionFactory;
+    
+    private final Map<String, ArtifactHelper> m_helpers = new HashMap<String, ArtifactHelper>();
     private URL m_obrBase;
-
-    /**
-     * Custom comparator which sorts service references by service rank, highest rank first.
-     */
-    private static Comparator<ServiceReference> SERVICE_RANK_COMPARATOR = new Comparator<ServiceReference>() { // TODO ServiceReferences are comparable by default now
-        public int compare(ServiceReference o1, ServiceReference o2) {
-            int rank1 = 0;
-            int rank2 = 0;
-            try {
-                Object rankObject1 = o1.getProperty(Constants.SERVICE_RANKING);
-                rank1 = (rankObject1 == null) ? 0 : ((Integer) rankObject1).intValue();
-            }
-            catch (ClassCastException cce) {
-                // No problem.
-            }
-            try {
-                Object rankObject2 = o2.getProperty(Constants.SERVICE_RANKING);
-                rank1 = (rankObject2 == null) ? 0 : ((Integer) rankObject2).intValue();
-            }
-            catch (ClassCastException cce) {
-                // No problem.
-            }
-
-            return rank1 - rank2;
-        }
-    };
-
 
     public ArtifactRepositoryImpl(ChangeNotifier notifier) {
         super(notifier, XML_NODE);
@@ -247,24 +226,30 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         // If available, sort the references by service ranking.
         Arrays.sort(refs, SERVICE_RANK_COMPARATOR);
 
+        ArtifactResource resource = convertToArtifactResource(url);
+
         // Check all referenced services to find one that matches our input.
         ArtifactRecognizer recognizer = null;
         String foundMimetype = null;
         for (ServiceReference ref : refs) {
             ArtifactRecognizer candidate = (ArtifactRecognizer) m_context.getService(ref);
-            if (mimetype != null) {
-                if (candidate.canHandle(mimetype)) {
-                    recognizer = candidate;
-                    break;
+            try {
+                if (mimetype != null) {
+                    if (candidate.canHandle(mimetype)) {
+                        recognizer = candidate;
+                        break;
+                    }
                 }
-            }
-            else {
-                String candidateMime = candidate.recognize(url);
-                if (candidateMime != null) {
-                    foundMimetype = candidateMime;
-                    recognizer = candidate;
-                    break;
+                else {
+                    String candidateMime = candidate.recognize(resource);
+                    if (candidateMime != null) {
+                        foundMimetype = candidateMime;
+                        recognizer = candidate;
+                        break;
+                    }
                 }
+            } finally {
+                m_context.ungetService(ref);
             }
         }
 
@@ -350,7 +335,9 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
     }
 
     private ArtifactObject importArtifact(URL artifact, ArtifactRecognizer recognizer, ArtifactHelper helper, String mimetype, boolean overwrite, boolean upload) throws IOException {
-        Map<String, String> attributes = recognizer.extractMetaData(artifact);
+        ArtifactResource resource = convertToArtifactResource(artifact);
+        
+        Map<String, String> attributes = recognizer.extractMetaData(resource);
         Map<String, String> tags = new HashMap<String, String>();
 
         helper.checkAttributes(attributes);
@@ -364,7 +351,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         attributes.put(ArtifactObject.KEY_URL, artifactURL);
         
         if (upload) {
-            attributes.put("upload", recognizer.getExtension(artifact));
+            attributes.put("upload", recognizer.getExtension(resource));
         }
 
         ArtifactObject result = create(attributes, tags);
@@ -399,10 +386,10 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         // First, check whether we can actually reach something from this URL.
         InputStream is = null;
         try {
-            is = artifact.openStream();
+            is = openInputStream(artifact);
         }
         catch (IOException ioe) {
-            throw new IllegalArgumentException("Artifact " + artifact.toString() + "does not point to a valid file.");
+            throw new IllegalArgumentException("Artifact " + artifact.toString() + " does not point to a valid file.");
         }
         finally {
             if (is != null) {
@@ -421,7 +408,6 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
                 throw new IllegalArgumentException("Artifact " + artifact.toString() + "'s name contains an illegal character '" + new String(new byte[] {b}) + "'");
             }
         }
-
     }
 
     /**
@@ -440,19 +426,26 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         OutputStream output = null;
         URL url = null;
         try {
-            input = artifact.openStream();
+            input = openInputStream(artifact);
+
             url = new URL(m_obrBase, definition);
-            URLConnection connection = url.openConnection();
+
+            URLConnection connection = m_connectionFactory.createConnection(url);
+            
             connection.setDoOutput(true);
             connection.setDoInput(true);
             connection.setUseCaches(false);
             connection.setRequestProperty("Content-Type", mimetype);
+
             output = connection.getOutputStream();
+
             byte[] buffer = new byte[4 * 1024];
             for (int count = input.read(buffer); count != -1; count = input.read(buffer)) {
                 output.write(buffer, 0, count);
             }
+
             output.close();
+            
             if (connection instanceof HttpURLConnection) {
                 int responseCode = ((HttpURLConnection) connection).getResponseCode();
                 switch (responseCode) {
@@ -515,9 +508,66 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             return preprocessor.needsNewVersion(artifact.getURL(), new TargetPropertyResolver(target), targetID, fromVersion);
         }
     }
-    
 
     public URL getObrBase() {
         return m_obrBase;
+    }
+
+    /**
+     * Custom comparator which sorts service references by service rank, highest rank first.
+     */
+    private static Comparator<ServiceReference> SERVICE_RANK_COMPARATOR = new Comparator<ServiceReference>() { // TODO ServiceReferences are comparable by default now
+        public int compare(ServiceReference o1, ServiceReference o2) {
+            int rank1 = 0;
+            int rank2 = 0;
+            try {
+                Object rankObject1 = o1.getProperty(Constants.SERVICE_RANKING);
+                rank1 = (rankObject1 == null) ? 0 : ((Integer) rankObject1).intValue();
+            }
+            catch (ClassCastException cce) {
+                // No problem.
+            }
+            try {
+                Object rankObject2 = o2.getProperty(Constants.SERVICE_RANKING);
+                rank1 = (rankObject2 == null) ? 0 : ((Integer) rankObject2).intValue();
+            }
+            catch (ClassCastException cce) {
+                // No problem.
+            }
+
+            return rank1 - rank2;
+        }
+    };
+    
+    private InputStream openInputStream(URL artifactURL) throws IOException {
+        URLConnection connection = m_connectionFactory.createConnection(artifactURL);
+        return connection.getInputStream();
+    }
+
+    /**
+     * Converts a given URL to a {@link ArtifactResource} that abstracts the way we access the contents of 
+     * the URL away from the URL itself. This way, we can avoid having to pass authentication credentials,
+     * or a {@link ConnectionFactory} to the artifact recognizers. 
+     *  
+     * @param url the URL to convert, can be <code>null</code> in which case <code>null</code> is returned.
+     * @return an {@link ArtifactResource}, or <code>null</code> if the given URL was <code>null</code>.
+     */
+    private ArtifactResource convertToArtifactResource(final URL url) {
+        if (url == null) {
+            return null;
+        }
+
+        return new ArtifactResource() {
+            public URL getURL() {
+                return url;
+            }
+            
+            public InputStream openStream() throws IOException {
+                // Take care of the fact that an URL could need credentials to be accessible!!!
+                URLConnection conn = m_connectionFactory.createConnection(getURL());
+                conn.setUseCaches(true);
+                return conn.getInputStream();
+            }
+        };
     }
 }

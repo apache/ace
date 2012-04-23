@@ -25,6 +25,7 @@ import java.net.URL;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.range.SortedRangeSet;
@@ -40,51 +41,73 @@ import org.osgi.service.log.LogService;
  * stuff out.
  */
 public class RepositoryReplicationTask implements Runnable {
-    private volatile Discovery m_discovery;
-    private volatile LogService m_log;
     private volatile BundleContext m_context;
+    private volatile Discovery m_discovery;
+    private volatile ConnectionFactory m_connectionFactory;
+    private volatile LogService m_log;
 
     public void run() {
         try {
-            URL host = m_discovery.discover();
             ServiceReference[] refs = m_context.getServiceReferences(RepositoryReplication.class.getName(), null);
+            if (refs == null) {
+                return;
+            }
+
             for (ServiceReference ref : refs) {
                 RepositoryReplication repository = (RepositoryReplication) m_context.getService(ref);
-                SortedRangeSet localRange = repository.getRange();
-                Object customer = ref.getProperty("customer");
-                Object name = ref.getProperty("name");
-                String filter = "customer=" + customer + "&name=" + name;
-                URL query = new URL(host, "/replication/query?" + filter);
-                HttpURLConnection connection = (HttpURLConnection) query.openConnection();
-                if (connection.getResponseCode() == HttpServletResponse.SC_OK) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    try {
-                        String line = reader.readLine();
-                        int i = line.lastIndexOf(',');
-                        if (i > 0) {
-                            SortedRangeSet remoteRange = new SortedRangeSet(line.substring(i + 1));
-                            SortedRangeSet delta = localRange.diffDest(remoteRange);
-                            RangeIterator iterator = delta.iterator();
-                            while (iterator.hasNext()) {
-                                long version = iterator.next();
-                                URL get = new URL(host, "/replication/get?" + filter + "&version=" + version);
-                                HttpURLConnection connection2 = (HttpURLConnection) get.openConnection();
-                                repository.put(connection2.getInputStream(), version);
+
+                try {
+                    String filter = getQueryFilter(ref);
+                    URL host = m_discovery.discover();
+                    URL query = new URL(host, "/replication/query?" + filter);
+
+                    HttpURLConnection connection = (HttpURLConnection) m_connectionFactory.createConnection(query);
+
+                    if (connection.getResponseCode() == HttpServletResponse.SC_OK) {
+                        SortedRangeSet localRange = repository.getRange();
+
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                        try {
+                            String line = reader.readLine();
+                            int i = line.lastIndexOf(',');
+                            if (i > 0) {
+                                SortedRangeSet remoteRange = new SortedRangeSet(line.substring(i + 1));
+                                SortedRangeSet delta = localRange.diffDest(remoteRange);
+                                RangeIterator iterator = delta.iterator();
+
+                                while (iterator.hasNext()) {
+                                    long version = iterator.next();
+                                    URL get = new URL(host, "/replication/get?" + filter + "&version=" + version);
+                                    
+                                    HttpURLConnection connection2 = (HttpURLConnection) m_connectionFactory.createConnection(get);
+
+                                    repository.put(connection2.getInputStream(), version);
+                                }
                             }
                         }
+                        catch (Exception e) {
+                            m_log.log(LogService.LOG_WARNING, "Error parsing remote range", e);
+                        }
                     }
-                    catch (Exception e) {
-                        m_log.log(LogService.LOG_WARNING, "Error parsing remote range", e);
+                    else {
+                        m_log.log(LogService.LOG_WARNING, "Could not sync repository for customer: " + ref.getProperty("customer") + ", name: " + ref.getProperty("name") + ", because: " + connection.getResponseMessage() + " (" + connection.getResponseCode() + ")");
                     }
                 }
-                else {
-                    m_log.log(LogService.LOG_WARNING, "Could not sync repository for customer " + customer + " name " + name + " because: " + connection.getResponseMessage() + " (" + connection.getResponseCode() + ")");
+                finally {
+                    m_context.ungetService(ref);
                 }
-                m_context.ungetService(ref);
             }
         }
         catch (Exception e) {
             m_log.log(LogService.LOG_WARNING, "Error while replicating", e);
         }
+    }
+
+    /**
+     * @param ref
+     * @return
+     */
+    public String getQueryFilter(ServiceReference ref) {
+        return "customer=" + ref.getProperty("customer") + "&name=" + ref.getProperty("name");
     }
 }

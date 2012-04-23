@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.Deployment;
 import org.apache.ace.deployment.service.DeploymentService;
 import org.apache.ace.discovery.Discovery;
@@ -57,6 +59,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     protected volatile Discovery m_discovery;
     protected volatile LogService m_log;
     protected volatile EventAdmin m_eventAdmin;
+    protected volatile ConnectionFactory m_connectionFactory;
 
     /**
      * @see org.apache.ace.deployment.service.DeploymentService#getHighestLocalVersion()
@@ -108,7 +111,7 @@ public class DeploymentServiceImpl implements DeploymentService {
                 inputStream = new FileInputStream(file);
             }
             else {
-                inputStream = dataURL.openStream();
+                inputStream = getContents(dataURL);
             }
 
             // Post event for auditlog
@@ -234,7 +237,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     private SortedSet<Version> getVersionsFromServer(URL url) {
         BufferedReader bufReader = null;
         try {
-            bufReader = new BufferedReader(new InputStreamReader(url.openStream()));
+            bufReader = new BufferedReader(new InputStreamReader(getContents(url)));
             SortedSet<Version> versions = new TreeSet<Version>();
             
             String versionString;
@@ -253,6 +256,7 @@ public class DeploymentServiceImpl implements DeploymentService {
             return versions;
         }
         catch (IOException ioe) {
+            m_log.log(LogService.LOG_DEBUG, "I/O error accessing server!", ioe);
             return null;
         }
         finally {
@@ -284,4 +288,13 @@ public class DeploymentServiceImpl implements DeploymentService {
         return file;
     }
 
+    /**
+     * @param url the remote URL to connect to, cannot be <code>null</code>.
+     * @return an {@link InputStream} to the remote URL, never <code>null</code>.
+     * @throws IOException in case of I/O problems opening the remote connection.
+     */
+    private InputStream getContents(URL url) throws IOException {
+        URLConnection conn = m_connectionFactory.createConnection(url);
+        return conn.getInputStream();
+    }
 }

@@ -25,6 +25,7 @@ import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.ArtifactRecognizer;
 import org.apache.ace.client.repository.helper.configuration.ConfigurationHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
@@ -38,13 +39,15 @@ public class Activator extends DependencyActivatorBase {
     public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
         Dictionary<String, String> props = new Hashtable<String, String>();
         props.put(ArtifactObject.KEY_MIMETYPE, ConfigurationHelper.MIMETYPE);
+
         ConfigurationHelperImpl helperImpl = new ConfigurationHelperImpl();
         manager.add(createComponent()
-            .setInterface(ArtifactHelper.class.getName(), props)
-            .setImplementation(helperImpl));
-        manager.add(createComponent()
-            .setInterface(ArtifactRecognizer.class.getName(), null)
-            .setImplementation(helperImpl));
+            .setInterface(new String[] { ArtifactHelper.class.getName(), ArtifactRecognizer.class.getName() }, props)
+            .setImplementation(helperImpl)
+            .add(createServiceDependency()
+                .setService(ConnectionFactory.class)
+                .setRequired(true))
+            );
     }
 
     @Override

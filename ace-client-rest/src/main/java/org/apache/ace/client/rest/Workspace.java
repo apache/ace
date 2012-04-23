@@ -19,6 +19,7 @@
 package org.apache.ace.client.rest;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -32,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
+import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
@@ -57,14 +59,17 @@ public class Workspace {
     static final String DISTRIBUTION = "distribution";
     static final String DISTRIBUTION2TARGET = "distribution2target";
     static final String TARGET = "target";
+    
     private final String m_sessionID;
-    private final String m_repositoryURL;
-    private final String m_obrURL;
+    private final URL m_repositoryURL;
+    private final URL m_obrURL;
     private final String m_customerName;
     private final String m_storeRepositoryName;
     private final String m_distributionRepositoryName;
     private final String m_deploymentRepositoryName;
     private final String m_serverUser;
+    private final boolean m_useAuthentication;
+    
     private volatile AuthenticationService m_authenticationService;
     private volatile DependencyManager m_manager;
     private volatile RepositoryAdmin m_repositoryAdmin;
@@ -78,14 +83,15 @@ public class Workspace {
     private volatile UserAdmin m_userAdmin;
     private volatile LogService m_log;
 
-    public Workspace(String sessionID, String repositoryURL, String obrURL, String customerName, String storeRepositoryName, String distributionRepositoryName, String deploymentRepositoryName, String serverUser) {
+    public Workspace(String sessionID, String repositoryURL, String obrURL, String customerName, String storeRepositoryName, String distributionRepositoryName, String deploymentRepositoryName, boolean useAuthentication, String serverUser) throws MalformedURLException {
         m_sessionID = sessionID;
-        m_repositoryURL = repositoryURL;
-        m_obrURL = obrURL;
+        m_repositoryURL = new URL(repositoryURL);
+        m_obrURL = new URL(obrURL);
         m_customerName = customerName;
         m_storeRepositoryName = storeRepositoryName;
         m_distributionRepositoryName = distributionRepositoryName;
         m_deploymentRepositoryName = deploymentRepositoryName;
+        m_useAuthentication = useAuthentication;
         m_serverUser = serverUser;
     }
     
@@ -122,7 +128,7 @@ public class Workspace {
         addSessionDependency(component, Artifact2FeatureAssociationRepository.class, true);
         addSessionDependency(component, Feature2DistributionAssociationRepository.class, true);
         addSessionDependency(component, Distribution2TargetAssociationRepository.class, true);
-        addDependency(component, AuthenticationService.class, true);
+        addDependency(component, AuthenticationService.class, m_useAuthentication);
         addDependency(component, UserAdmin.class, true);
         addDependency(component, LogService.class, false);
     }
@@ -135,23 +141,40 @@ public class Workspace {
     
     public boolean login(HttpServletRequest request) {
         try {
-            User user = m_authenticationService.authenticate(request);
-            if (user == null) {
-                // No user obtained through request; try fallback scenario...
-                // TODO this shouldn't be here, but otherwise we break all existing clients
+            final User user;
+            if (m_useAuthentication) {
+                // Use the authentication service to authenticate the given request...
+                user = m_authenticationService.authenticate(request);
+            } else {
+                // Use the "hardcoded" user to login with...
                 user = m_userAdmin.getUser("username", m_serverUser);
-                if (user == null) {
-                    // Still no user obtained; no succesful login...
-                    return false;
-                }
+            }
+            
+            if (user == null) {
+                // No user obtained through request/fallback scenario; login failed...
+                return false;
             }
 
-            m_repositoryAdmin.login(m_repositoryAdmin.createLoginContext(user)
-                .setObrBase(new URL(m_obrURL))
-                .addShopRepository(new URL(m_repositoryURL), m_customerName, m_storeRepositoryName, true)
-                .addTargetRepository(new URL(m_repositoryURL), m_customerName, m_distributionRepositoryName, true)
-                .addDeploymentRepository(new URL(m_repositoryURL), m_customerName, m_deploymentRepositoryName, true)
-                );
+            RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(user);
+            
+            context.setObrBase(m_obrURL)
+                .add(context.createShopRepositoryContext()
+                    .setLocation(m_repositoryURL)
+                    .setCustomer(m_customerName)
+                    .setName(m_storeRepositoryName)
+                    .setWriteable())
+                .add(context.createTargetRepositoryContext()
+                    .setLocation(m_repositoryURL)
+                    .setCustomer(m_customerName)
+                    .setName(m_distributionRepositoryName)
+                    .setWriteable())
+                .add(context.createDeploymentRepositoryContext()
+                    .setLocation(m_repositoryURL)
+                    .setCustomer(m_customerName)
+                    .setName(m_deploymentRepositoryName)
+                    .setWriteable());
+
+            m_repositoryAdmin.login(context);
             m_repositoryAdmin.checkout();
         }
         catch (IOException e) {

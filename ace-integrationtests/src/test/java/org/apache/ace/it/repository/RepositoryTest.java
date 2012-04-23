@@ -18,8 +18,28 @@
  */
 package org.apache.ace.it.repository;
 
+import static org.apache.ace.it.Options.jetty;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.provision;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
+import org.apache.ace.it.Options.Ace;
+import org.apache.ace.it.Options.Felix;
+import org.apache.ace.it.Options.Osgi;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
 import org.apache.ace.test.constants.TestConstants;
@@ -36,19 +56,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
-
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.ace.it.Options.*;
-import static org.ops4j.pax.exam.CoreOptions.*;
 
 /**
  * Integration test for our repositories, and the replication thereof.
@@ -68,6 +75,7 @@ public class RepositoryTest extends IntegrationTestBase {
                 Felix.configAdmin(),
                 Felix.preferences(),
                 Ace.util(),
+                Ace.authenticationApi(),
                 Ace.rangeApi(),
                 Ace.httplistener(),
                 Ace.repositoryApi(),
@@ -79,9 +87,9 @@ public class RepositoryTest extends IntegrationTestBase {
 
     protected void before() throws IOException {
         configure("org.apache.ace.repository.servlet.RepositoryReplicationServlet",
-                HttpConstants.ENDPOINT, "/replication");
+                HttpConstants.ENDPOINT, "/replication", "authentication.enabled", "false");
         configure("org.apache.ace.repository.servlet.RepositoryServlet",
-                HttpConstants.ENDPOINT, "/repository");
+                HttpConstants.ENDPOINT, "/repository", "authentication.enabled", "false");
     }
 
     protected Component[] getDependencies() {

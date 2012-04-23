@@ -49,7 +49,7 @@ public class LogServletTest {
 
     @BeforeMethod(alwaysRun = true)
     protected void setUp() throws Exception {
-        m_logServlet = new LogServlet("test");
+        m_logServlet = new LogServlet("test", false /* useAuth */);
         TestUtils.configureObject(m_logServlet, LogService.class);
         m_mockStore = new MockLogStore();
         TestUtils.configureObject(m_logServlet, LogStore.class, m_mockStore);

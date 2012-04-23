@@ -47,6 +47,7 @@
         </export.package>
         <import.package>
             !org.apache.ace.obr.servlet,
+            org.apache.ace.authentication.api;resolution:=optional;version=${project.version},
             *
         </import.package>
         <bundle.activator>
@@ -55,6 +56,10 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.authentication.api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.obr.metadata</artifactId>

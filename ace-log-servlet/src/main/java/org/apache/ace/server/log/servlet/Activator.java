@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import javax.servlet.Servlet;
 
+import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.server.log.store.LogStore;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -36,7 +37,11 @@ import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
-    private static final String LOG_NAME = "name";
+
+    private static final String KEY_LOG_NAME = "name";
+
+    /** A boolean denoting whether or not authentication is enabled. */
+    private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
 
     private final Map<String, Component> m_instances = new HashMap<String, Component>(); // String -> Service
     private DependencyManager m_manager;
@@ -69,16 +74,24 @@ public class Activator extends DependencyActivatorBase implements ManagedService
 
     @SuppressWarnings("unchecked")
     public void updated(String pid, Dictionary dict) throws ConfigurationException {
-        String name = (String) dict.get(LOG_NAME);
+        String name = (String) dict.get(KEY_LOG_NAME);
         if ((name == null) || "".equals(name)) {
-            throw new ConfigurationException(LOG_NAME, "Log name has to be specified.");
+            throw new ConfigurationException(KEY_LOG_NAME, "Log name has to be specified.");
         }
+        
+        String useAuthString = (String) dict.get(KEY_USE_AUTHENTICATION);
+        if (useAuthString == null
+            || !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
+            throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
+        }
+        boolean useAuth = Boolean.parseBoolean(useAuthString);
 
         Component service = m_instances.get(pid);
         if (service == null) {
             service = m_manager.createComponent()
                 .setInterface(Servlet.class.getName(), dict)
-                .setImplementation(new LogServlet(name))
+                .setImplementation(new LogServlet(name, useAuth))
+                .add(createServiceDependency().setService(AuthenticationService.class).setRequired(useAuth))
                 .add(createServiceDependency().setService(LogService.class).setRequired(false))
                 .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=" + name + "))").setRequired(true));
 

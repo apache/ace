@@ -39,6 +39,7 @@ import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
 import org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandler.XmlDeploymentArtifact;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.ext.BackupRepository;
@@ -46,6 +47,7 @@ import org.apache.ace.repository.ext.CachedRepository;
 import org.apache.ace.repository.ext.impl.CachedRepositoryImpl;
 import org.apache.ace.repository.ext.impl.FilebasedBackupRepository;
 import org.apache.ace.repository.ext.impl.RemoteRepository;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.Version;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
@@ -59,6 +61,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
     private static final String URL = "url";
     private static final String NAME = "name";
     private static final String CUSTOMER = "customer";
+    
     private volatile LogService m_log;
 
     /** This variable is volatile since it can be changed by the Updated() method. */
@@ -69,13 +72,14 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
      * custom repository in the integration test.
      */
     private volatile Repository m_directRepository;
+    private volatile DependencyManager m_manager;
+    
     private final SAXParserFactory m_saxParserFactory;
-    
-    
-    private Map<String,List<String>> m_cachedVersionLists = new LRUMap<String, List<String>>();
+    private final Map<String,List<String>> m_cachedVersionLists;
 
     public RepositoryBasedProvider() {
         m_saxParserFactory = SAXParserFactory.newInstance();
+        m_cachedVersionLists = new LRUMap<String, List<String>>();
     }
 
     public List<ArtifactData> getBundleData(String targetId, String version) throws IllegalArgumentException, IOException {
@@ -380,26 +384,33 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
             String name = getNotNull(settings, NAME, "RepositoryName not configured.");
             String customer = getNotNull(settings, CUSTOMER, "RepositoryCustomer not configured.");
 
-            //create the remote repository and set it.
+            // create the remote repository and set it.
             try {
-                BackupRepository backup = null;
-                try {
-                    backup = new FilebasedBackupRepository(File.createTempFile("currentrepository", null), File.createTempFile("backuprepository", null));
-                }
-                catch (Exception e) {
-                    m_log.log(LogService.LOG_WARNING, "Unable to create temporary files for FilebasedBackupRepository");
-                }
+                BackupRepository backup = new FilebasedBackupRepository(File.createTempFile("currentrepository", null), File.createTempFile("backuprepository", null));
 
                 // We always create the remote repository. If we can create a backup repository, we will wrap a CachedRepository
                 // around it.
                 m_directRepository = new RemoteRepository(new URL(url), customer, name);
+
+                m_manager.add(m_manager.createComponent()
+                    .setImplementation(m_directRepository)
+                    .add(m_manager.createServiceDependency()
+                        .setService(ConnectionFactory.class)
+                        .setRequired(true)));
+
                 m_cachedRepository = null;
                 if (backup != null) {
-                    m_cachedRepository = new CachedRepositoryImpl(null, m_directRepository, backup, CachedRepositoryImpl.UNCOMMITTED_VERSION);
+                    m_cachedRepository = new CachedRepositoryImpl(m_directRepository, backup, CachedRepositoryImpl.UNCOMMITTED_VERSION);
                 }
+            }
+            catch (IllegalArgumentException e) {
+                throw new ConfigurationException("Authentication", e.getMessage());
             }
             catch (MalformedURLException mue) {
                 throw new ConfigurationException(URL, mue.getMessage());
+            }
+            catch (IOException e) {
+                m_log.log(LogService.LOG_WARNING, "Unable to create temporary files for FilebasedBackupRepository");
             }
         }
     }

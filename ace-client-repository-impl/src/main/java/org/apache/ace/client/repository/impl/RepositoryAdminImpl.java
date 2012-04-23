@@ -33,26 +33,27 @@ import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.RepositoryObject.WorkingState;
+import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.impl.RepositoryAdminLoginContextImpl.RepositorySetDescriptor;
 import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
-import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
-import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
-import org.apache.ace.client.repository.repository.TargetRepository;
-import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
-import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
 import org.apache.ace.client.repository.repository.DistributionRepository;
+import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
+import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.ext.BackupRepository;
 import org.apache.ace.repository.ext.CachedRepository;
@@ -78,28 +79,32 @@ import org.osgi.service.useradmin.User;
  * to be used are defined in <code>login(...)</code>.<br>
  */
 public class RepositoryAdminImpl implements RepositoryAdmin {
+    private final static String PREFS_LOCAL_FILE_ROOT = "ClientRepositoryAdmin";
+    private final static String PREFS_LOCAL_FILE_LOCATION = "FileLocation";
+    private final static String PREFS_LOCAL_FILE_CURRENT = "current";
+    private final static String PREFS_LOCAL_FILE_BACKUP = "backup";
+
     /**
      * Maps from interface classes of the ObjectRepositories to their implementations.
      */
     @SuppressWarnings("unchecked")
     private Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> m_repositories;
 
+    private final String m_sessionID;
+    private final Properties m_sessionProps;
     private final ChangeNotifier m_changeNotifier;
-    private volatile BundleContext m_context; /* Injected by dependency manager */
-    private volatile PreferencesService m_preferences; /* Injected by dependency manager */
-    private volatile LogService m_log; /* Injected by dependency manager */
-
     private final Object m_lock = new Object();
 
-    private final static String PREFS_LOCAL_FILE_ROOT = "ClientRepositoryAdmin";
-    private final static String PREFS_LOCAL_FILE_LOCATION = "FileLocation";
-    private final static String PREFS_LOCAL_FILE_CURRENT = "current";
-    private final static String PREFS_LOCAL_FILE_BACKUP = "backup";
+    // Injected by dependency manager
+    private volatile DependencyManager m_manager;
+    private volatile BundleContext m_context; 
+    private volatile PreferencesService m_preferences;
+    private volatile LogService m_log;
+
     private User m_user;
     private RepositorySet[] m_repositorySets;
 
-    private volatile DependencyManager m_manager;
-    List<Component[]> m_services;
+    private List<Component[]> m_services;
     private ArtifactRepositoryImpl m_artifactRepositoryImpl;
     private FeatureRepositoryImpl m_featureRepositoryImpl;
     private Artifact2FeatureAssociationRepositoryImpl m_artifact2FeatureAssociationRepositoryImpl;
@@ -109,8 +114,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     private Distribution2TargetAssociationRepositoryImpl m_distribution2TargetAssociationRepositoryImpl;
     private DeploymentVersionRepositoryImpl m_deploymentVersionRepositoryImpl;
     private ChangeNotifierManager m_changeNotifierManager;
-    private final String m_sessionID;
-    private final Properties m_sessionProps;
+
 
     public RepositoryAdminImpl(String sessionID) {
         m_sessionID = sessionID;
@@ -135,11 +139,6 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     }
 
     @SuppressWarnings("unchecked")
-    void initialize(Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> repositories) {
-        m_repositories = repositories;
-    }
-
-    @SuppressWarnings("unchecked")
     public void start() {
         synchronized (m_lock) {
             initialize(publishRepositories());
@@ -161,6 +160,11 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     }
 
     @SuppressWarnings("unchecked")
+    void initialize(Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> repositories) {
+        m_repositories = repositories;
+    }
+
+    @SuppressWarnings("unchecked")
     private Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> publishRepositories() {
         // create the repository objects, if this is the first time this method is called.
         if (m_artifactRepositoryImpl == null) {
@@ -173,18 +177,23 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             m_distribution2TargetAssociationRepositoryImpl = new Distribution2TargetAssociationRepositoryImpl(m_distributionRepositoryImpl, m_targetRepositoryImpl, m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, Distribution2TargetAssociation.TOPIC_ENTITY_ROOT, m_sessionID));
             m_deploymentVersionRepositoryImpl = new DeploymentVersionRepositoryImpl(m_changeNotifierManager.getConfiguredNotifier(RepositoryObject.PRIVATE_TOPIC_ROOT, RepositoryObject.PUBLIC_TOPIC_ROOT, DeploymentVersionObject.TOPIC_ENTITY_ROOT, m_sessionID));
         }
+        
         // first, register the artifact repository manually; it needs some special care.
         Component artifactRepoService = m_manager.createComponent()
             .setInterface(ArtifactRepository.class.getName(), m_sessionProps)
             .setImplementation(m_artifactRepositoryImpl)
+            .add(m_manager.createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
             .add(m_manager.createServiceDependency().setService(LogService.class).setRequired(false))
             .add(m_manager.createServiceDependency().setService(ArtifactHelper.class).setRequired(false).setAutoConfig(false).setCallbacks(this, "addArtifactHelper", "removeArtifactHelper"));
+        
         Dictionary topic = new Hashtable();
-        topic.put(EventConstants.EVENT_TOPIC, new String[] {});
         topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
+        topic.put(EventConstants.EVENT_TOPIC, new String[] {});
+        
         Component artifactHandlerService = m_manager.createComponent()
             .setInterface(EventHandler.class.getName(), topic)
             .setImplementation(m_artifactRepositoryImpl);
+
         m_manager.add(artifactRepoService);
         m_manager.add(artifactHandlerService);
 
@@ -332,7 +341,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
 
         synchronized(m_lock) {
             // TODO I don't like this line, it should not be here...
-            ((ArtifactRepositoryImpl) m_repositories.get(ArtifactRepository.class)).setObrBase(impl.getObrBase());
+            ((ArtifactRepository) m_repositories.get(ArtifactRepository.class)).setObrBase(impl.getObrBase());
             login(impl.getUser(), repositorySets);
         }
     }
@@ -409,40 +418,34 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
      */
     @SuppressWarnings("unchecked")
     private RepositorySet[] getRepositorySets(RepositoryAdminLoginContextImpl context) throws IOException {
+        List<RepositorySetDescriptor> descriptors = context.getDescriptors();
+        
         // First, some sanity checks on the list of descriptors.
-        for (RepositorySetDescriptor rsd : context.getDescriptors()) {
+        for (RepositorySetDescriptor rsd : descriptors) {
             for (Class c : rsd.m_objectRepositories) {
                 // Do we have an impl for each repository class?
                 if (!m_repositories.containsKey(c)) {
                     throw new IllegalArgumentException(rsd.toString() + " references repository class " + c.getName() + " for which no implementation is available.");
                 }
-                // Do other sets have a reference to this same class?
-                for (RepositorySetDescriptor other : context.getDescriptors()) {
-                    if (other != rsd) {
-                        for (Class otherC : other.m_objectRepositories) {
-                            if (c.equals(otherC)) {
-                                throw new IllegalArgumentException(rsd.toString() + " references repository class " + c.getName() + ", but so does " + other.toString());
-                            }
-                        }
-                    }
-                }
             }
         }
 
-        RepositorySet[] result = new RepositorySet[context.getDescriptors().size()];
+        RepositorySet[] result = new RepositorySet[descriptors.size()];
 
         /*
          * Create the lists of repositories and topics, and create and register
          * the sets with these.
          */
         for (int i = 0; i < result.length; i++) {
-            RepositorySetDescriptor rsd = context.getDescriptors().get(i);
+            RepositorySetDescriptor rsd = descriptors.get(i);
+            
             ObjectRepositoryImpl[] impls = new ObjectRepositoryImpl[rsd.m_objectRepositories.length];
             String[] topics = new String[rsd.m_objectRepositories.length];
             for (int j = 0; j < impls.length; j++) {
                 impls[j] = m_repositories.get(rsd.m_objectRepositories[j]);
                 topics[j] = impls[j].getTopicAll(true);
             }
+
             result[i] = loadRepositorySet(context.getUser(), rsd, impls);
             result[i].registerHandler(m_context, m_sessionID, topics);
         }
@@ -516,9 +519,9 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
      * Helper method for login.
      * @throws IOException
      */
-    private CachedRepository getCachedRepositoryFromPreferences(User user, Repository repository, Preferences repositoryPrefs) throws IOException {
+    private CachedRepository getCachedRepositoryFromPreferences(Repository repository, Preferences repositoryPrefs) throws IOException {
         long mostRecentVersion = repositoryPrefs.getLong("version", CachedRepositoryImpl.UNCOMMITTED_VERSION);
-        return new CachedRepositoryImpl(user, repository, getBackupFromPreferences(repositoryPrefs), mostRecentVersion);
+        return new CachedRepositoryImpl(repository, getBackupFromPreferences(repositoryPrefs), mostRecentVersion);
     }
 
     /**
@@ -532,9 +535,18 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     @SuppressWarnings("unchecked")
     public RepositorySet loadRepositorySet(User user, RepositorySetDescriptor rsd, ObjectRepositoryImpl[] repos) throws IOException {
         Repository repo = new RemoteRepository(rsd.m_location, rsd.m_customer, rsd.m_name);
+
+        // Expose the repository itself as component so its dependencies get managed...
+        m_manager.add(m_manager.createComponent()
+            .setImplementation(repo)
+            .add(m_manager.createServiceDependency()
+                .setService(ConnectionFactory.class)
+                .setRequired(true)));
+
         Preferences prefs = m_preferences.getUserPreferences(user.getName());
         Preferences repoPrefs = getRepositoryPrefs(prefs, rsd.m_location, rsd.m_customer, rsd.m_name);
-        return new RepositorySet(m_changeNotifier, m_log, user, repoPrefs, repos, getCachedRepositoryFromPreferences(user, repo, repoPrefs), rsd.m_name, rsd.m_writeAccess);
+
+        return new RepositorySet(m_changeNotifier, m_log, user, repoPrefs, repos, getCachedRepositoryFromPreferences(repo, repoPrefs), rsd.m_name, rsd.m_writeAccess);
     }
 
     public int getNumberWithWorkingState(Class<? extends RepositoryObject> clazz, WorkingState state) {

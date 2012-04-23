@@ -88,6 +88,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.connectionfactory</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.authentication.api</artifactId>
         </dependency>
         <dependency>

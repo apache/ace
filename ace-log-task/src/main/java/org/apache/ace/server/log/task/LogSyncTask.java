@@ -26,12 +26,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
@@ -46,7 +48,7 @@ public class LogSyncTask implements Runnable, LogSync {
     private static final String COMMAND_SEND = "send";
     private static final String COMMAND_RECEIVE = "receive";
 
-    private static final String GWID_KEY = "gwid";
+    private static final String TARGETID_KEY = "gwid";
     private static final String FILTER_KEY = "filter";
     private static final String LOGID_KEY = "logid";
     private static final String RANGE_KEY = "range";
@@ -55,6 +57,8 @@ public class LogSyncTask implements Runnable, LogSync {
     private volatile Discovery m_discovery;
     private volatile LogService m_log;
     private volatile LogStore m_logStore;
+    private volatile ConnectionFactory m_connectionFactory;
+    
     private final String m_endpoint;
     private final String m_name;
 
@@ -94,7 +98,7 @@ public class LogSyncTask implements Runnable, LogSync {
     private boolean synchronize(boolean push, boolean pull) throws IOException {
         URL host = m_discovery.discover();
 
-        Connection queryConnection = new Connection(new URL(host, m_endpoint + "/" + COMMAND_QUERY));
+        URLConnection queryConnection = m_connectionFactory.createConnection(new URL(host, m_endpoint + "/" + COMMAND_QUERY));
         InputStream queryInput = queryConnection.getInputStream();
 
         List<LogDescriptor> localRanges = m_logStore.getDescriptors();
@@ -114,7 +118,9 @@ public class LogSyncTask implements Runnable, LogSync {
         boolean result = false;
         OutputStream sendOutput = null;
         try {
-            Connection sendConnection = new Connection(new URL(host, m_endpoint + "/" + COMMAND_SEND));
+            URLConnection sendConnection = m_connectionFactory.createConnection(new URL(host, m_endpoint + "/" + COMMAND_SEND));
+            sendConnection.setDoOutput(true);
+            
             sendOutput = sendConnection.getOutputStream();
 
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sendOutput));
@@ -124,7 +130,12 @@ public class LogSyncTask implements Runnable, LogSync {
 
             sendOutput.flush();
             sendOutput.close();
-            sendConnection.close();
+
+            if (sendConnection instanceof HttpURLConnection) {
+                HttpURLConnection conn = (HttpURLConnection) sendConnection;
+                conn.getContent();
+                conn.disconnect();
+            }
         }
         catch (IOException e) {
             m_log.log(LogService.LOG_ERROR, "Unable to (fully) synchronize log with remote", e);
@@ -174,17 +185,24 @@ public class LogSyncTask implements Runnable, LogSync {
         List<LogDescriptor> delta = calculateDelta(remoteRanges, localRanges);
         result = !delta.isEmpty();
         for (LogDescriptor l : delta) {
-            Connection receiveConnection;
             try {
                 /*
                  * The request currently contains a range. This is not yet supported by the servlet, but it will
                  * simply be ignored.
                  */
-                receiveConnection = new Connection(new URL(host, m_endpoint + "/" + COMMAND_RECEIVE + "?" + GWID_KEY +
-                    "=" + l.getTargetID() + "&" + LOGID_KEY + "=" + l.getLogID() + "&" + RANGE_KEY + "=" + l.getRangeSet().toRepresentation()));
+                URL url = new URL(host, m_endpoint + "/" + COMMAND_RECEIVE + "?" + TARGETID_KEY + "=" + l.getTargetID() + "&" + LOGID_KEY + "=" + l.getLogID() + "&" + RANGE_KEY + "=" + l.getRangeSet().toRepresentation());
+                
+                URLConnection receiveConnection = m_connectionFactory.createConnection(url);
                 InputStream receiveInput = receiveConnection.getInputStream();
+                
                 BufferedReader reader = new BufferedReader(new InputStreamReader(receiveInput));
                 readLogs(reader);
+                
+                if (receiveConnection instanceof HttpURLConnection) {
+                    HttpURLConnection conn = (HttpURLConnection) receiveConnection;
+                    conn.getContent();
+                    conn.disconnect();
+                }
             }
             catch (IOException e) {
                 m_log.log(LogService.LOG_ERROR, "Unable to connect to retrieve log events.", e);
@@ -276,50 +294,6 @@ public class LogSyncTask implements Runnable, LogSync {
             }
         }
         return result;
-
-    }
-
-    // helper class that abstracts handling of a URLConnection somewhat.
-    private class Connection {
-        private URLConnection m_connection;
-
-        public Connection(URL url) throws IOException {
-            m_connection = url.openConnection();
-        }
-
-        /**
-         * Enables the retrieving of input using this connection and returns an inputstream
-         * to the connection.
-         *
-         * @return Inputstream to the connection.
-         * @throws java.io.IOException If I/O problems occur.
-         */
-        public InputStream getInputStream() throws IOException {
-            m_connection.setDoInput(true);
-            return m_connection.getInputStream();
-        }
-
-        /**
-         * Enables the sending of output using this connection and returns an outputstream
-         * to the connection.
-         *
-         * @return Outputstream to the connection.
-         * @throws java.io.IOException If I/O problems occur.
-         */
-        public OutputStream getOutputStream() throws IOException {
-            m_connection.setDoOutput(true);
-            return m_connection.getOutputStream();
-        }
-
-        /**
-         * Should be called when a <code>Connection</code> is used to do a POST (write to it's outputstream)
-         * without reading it's inputstream (the response). Calling this will make sure the POST request is sent.
-         *
-         * @throws java.io.IOException If I/O problems occur dealing with the connection.
-         */
-        public void close() throws IOException {
-            m_connection.getContent();
-        }
 
     }
 

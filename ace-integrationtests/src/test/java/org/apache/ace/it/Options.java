@@ -18,6 +18,8 @@
  */
 package org.apache.ace.it;
 
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.container.def.options.VMOption;
 import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
 import org.ops4j.pax.exam.options.WrappedUrlProvisionOption;
 
@@ -68,6 +70,38 @@ public class Options {
         public static WrappedUrlProvisionOption util() {
             // we do this because we need access to some test classes that aren't exported
             return wrappedBundle(mavenBundle("org.apache.ace", "org.apache.ace.util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL);
+        }
+        
+        public static Option enableDebugger() {
+            return enableDebugger(true, 8787);
+        }
+        
+        public static Option enableDebugger(boolean suspend, int port) {
+            return new VMOption("-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=" + (suspend ? "y" : "n") + ",address=" + port);
+        }
+
+        public static MavenArtifactProvisionOption authenticationApi() {
+            return maven("org.apache.ace.authentication.api");
+        }
+
+        public static MavenArtifactProvisionOption authentication() {
+            return maven("org.apache.ace.authentication");
+        }
+
+        public static MavenArtifactProvisionOption authenticationProcessorBasicAuth() {
+            return maven("org.apache.ace.authenticationprocessor.basicauth");
+        }
+
+        public static MavenArtifactProvisionOption authenticationProcessorClientCert() {
+            return maven("org.apache.ace.authenticationprocessor.clientcert");
+        }
+
+        public static MavenArtifactProvisionOption authenticationProcessorPassword() {
+            return maven("org.apache.ace.authenticationprocessor.password");
+        }
+
+        public static MavenArtifactProvisionOption connectionFactory() {
+            return maven("org.apache.ace.connectionfactory");
         }
 
         public static MavenArtifactProvisionOption rangeApi() {

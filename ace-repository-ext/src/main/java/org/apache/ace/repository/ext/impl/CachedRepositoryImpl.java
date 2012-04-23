@@ -19,17 +19,14 @@
 package org.apache.ace.repository.ext.impl;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.ext.BackupRepository;
 import org.apache.ace.repository.ext.CachedRepository;
-import org.osgi.service.useradmin.User;
 
 /**
  * Provides a CachedRepository, which uses either a <code>Repository</code> and a <code>BackupRepository</code>
@@ -40,47 +37,24 @@ import org.osgi.service.useradmin.User;
 public class CachedRepositoryImpl implements CachedRepository {
     public static final long UNCOMMITTED_VERSION = -1;
 
-    private final User m_user;
     private volatile long m_mostRecentVersion;
 
     private final BackupRepository m_local;
     private final Repository m_remote;
 
     /**
-     * Creates a cached repository which uses <code>remote</code>, <code>customer</code> and
-     * <code>name</code> to create a <code>RemoteRepository</code>, and uses the <code>Files</code>s
-     * passed in as a for local storage and backup.
-     * @param user A user object, which is allowed to access <code>remote</code>.
-     * @param remote The location of the remote repository.
-     * @param customer The customer name to be used with the remote repository.
-     * @param name The name to be used with the remote repository.
-     * @param local A local file to be used for storage of changes to the repository.
-     * @param backup A local file to be used as a local backup of what was on the server.
-     * @param mostRecentVersion The version from which <code>backup</code> was checked out or committed.
-     * If no version has been committed yet, use <code>UNCOMMITTED_VERSION</code>.
-     */
-    public CachedRepositoryImpl(User user, URL remote, String customer, String name, File local, File backup, long mostRecentVersion) {
-        this(user,
-            new RemoteRepository(remote, customer, name),
-            new FilebasedBackupRepository(local, backup),
-            mostRecentVersion);
-    }
-
-    /**
      * Creates a cached repository using.
-     * @param user A user object, which is allowed to access <code>remote</code>.
+     * 
      * @param remote A repository which holds committed versions.
      * @param backup A backup repository for local changes.
      * @param mostRecentVersion The version from which <code>backup</code> was checked out or committed.
      * If no version has been committed yet, use <code>UNCOMMITTED_VERSION</code>.
      */
-    public CachedRepositoryImpl(User user, Repository remote, BackupRepository backup, long mostRecentVersion) {
-        m_user = user;
+    public CachedRepositoryImpl(Repository remote, BackupRepository backup, long mostRecentVersion) {
         m_remote = remote;
         m_local = backup;
         m_mostRecentVersion = mostRecentVersion;
     }
-
 
     public InputStream checkout(boolean fail) throws IOException, IllegalArgumentException {
         m_mostRecentVersion = highestRemoteVersion();

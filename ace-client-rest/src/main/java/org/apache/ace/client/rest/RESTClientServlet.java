@@ -57,6 +57,8 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     private static final String LATEST_FOLDER = "latest";
     /** Name of the folder where working copies are kept. */
     private static final String WORK_FOLDER = "work";
+    /** A boolean denoting whether or not authentication is enabled. */
+    private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
     /** URL of the repository to talk to. */
     private static final String KEY_REPOSITORY_URL = "repository.url";
     /** URL of the OBR to talk to. */
@@ -69,7 +71,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     private static final String KEY_DISTRIBUTION_REPOSITORY_NAME = "distribution.repository.name";
     /** Name of the deployment repository. */
     private static final String KEY_DEPLOYMENT_REPOSITORY_NAME = "deployment.repository.name";
-    /** Name of the user to log in as. */
+    /** Name of the user to log in as, in case no actual authentication is used. */
     private static final String KEY_USER_NAME = "user.name";
     /** The action name for approving targets. */
     private static final String ACTION_APPROVE = "approve";
@@ -88,6 +90,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     private final Map<String, Component> m_workspaceComponents;
     private final Gson m_gson;
     
+    private boolean m_useAuthentication;
     private String m_repositoryURL;
     private String m_obrURL;
     private String m_customerName;
@@ -110,10 +113,17 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     }
 
     public void updated(Dictionary properties) throws ConfigurationException {
+        // First check whether all mandatory configuration keys are available...
+        String useAuth = getProperty(properties, KEY_USE_AUTHENTICATION);
+        if (useAuth == null || !("true".equalsIgnoreCase(useAuth) || "false".equalsIgnoreCase(useAuth))) {
+            throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
+        }
+
         // Note that configuration changes are only applied to new work areas, started after the
         // configuration was changed. No attempt is done to "fix" existing work areas, although we
         // might consider flushing/invalidating them.
         synchronized (m_workspaces) {
+            m_useAuthentication = Boolean.valueOf(useAuth);
             m_repositoryURL = getProperty(properties, KEY_REPOSITORY_URL, "http://localhost:8080/repository");
             m_obrURL = getProperty(properties, KEY_OBR_URL, "http://localhost:8080/obr");
             m_customerName = getProperty(properties, KEY_CUSTOMER_NAME, "apache");
@@ -176,13 +186,25 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
      * @return a property value, can be <code>null</code>.
      */
     String getProperty(Dictionary properties, String key, String defaultValue) {
+        String value = getProperty(properties, key);
+        return (value == null) ? defaultValue : value; 
+    }
+
+    /**
+     * Helper method to safely obtain a property value from the given dictionary.
+     * 
+     * @param properties the dictionary to retrieve the value from, can be <code>null</code>;
+     * @param key the name of the property to retrieve, cannot be <code>null</code>.
+     * @return a property value, can be <code>null</code>.
+     */
+    String getProperty(Dictionary properties, String key) {
         if (properties != null) {
             Object value = properties.get(key);
             if (value != null && value instanceof String) {
                 return (String) value;
             }
         }
-        return defaultValue;
+        return null;
     }
 
     /**
@@ -391,7 +413,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
         synchronized (m_workspaces) {
             sessionID = "rest-" + m_sessionID++;
-            workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, m_customerName, m_storeRepositoryName, m_targetRepositoryName, m_deploymentRepositoryName, m_serverUser);
+            workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, m_customerName, m_storeRepositoryName, m_targetRepositoryName, m_deploymentRepositoryName, m_useAuthentication, m_serverUser);
             m_workspaces.put(sessionID, workspace);
 
             component = m_dm.createComponent().setImplementation(workspace);

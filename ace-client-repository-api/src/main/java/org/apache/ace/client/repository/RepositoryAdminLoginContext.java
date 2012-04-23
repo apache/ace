@@ -26,57 +26,83 @@ import java.net.URL;
  */
 public interface RepositoryAdminLoginContext
 {
+    /**
+     * Provides a common interface for all repository contexts.
+     * 
+     * @param <T> the actual context type to return in this builder.
+     */
+    public interface BaseRepositoryContext<T extends BaseRepositoryContext<?>> {
+    
+        /**
+         * @param location the location of the repository where this set's data resides.
+         * @return this context.
+         */
+        T setLocation(URL location);
+    
+        /**
+         * @param customer the customer name for the location of the repository where this set's data resides.
+         * @return this context.
+         */
+        T setCustomer(String customer);
+    
+        /**
+         * @param name the repository name for the location of the repository where this set's data resides.
+         * @return this context.
+         */
+        T setName(String name);
+    
+        /**
+         * Marks this repository as writable (default is read-only).
+         * 
+         * @return this context.
+         */
+        T setWriteable();
+    }
 
     /**
-     * Adds a set of repositories and their location to this login context.
-     * @param repositoryLocation The location of the repository where this set's data resides.
-     * @param repositoryCustomer The customer name for the location of the repository where this set's data resides.
-     * @param repositoryName The repository name for the location of the repository where this set's data resides.
-     * @param writeAccess Whether or not we need write access to this location. If <code>false</code>, readonly access
-     * will be used.
-     * @param objectRepositories The interfaces classes of the repositories to be used for this set.
-     * @return this object, to allow chaining.
+     * Denotes a context for creating shop repositories.
      */
-    @SuppressWarnings("unchecked")
-    public RepositoryAdminLoginContext addRepositories(URL repositoryLocation, String repositoryCustomer, String repositoryName, boolean writeAccess, Class<? extends ObjectRepository>... objectRepositories);
+    public static interface ShopRepositoryContext extends BaseRepositoryContext<ShopRepositoryContext> {
+    }
 
     /**
-     * Adds a shop repository to this login context.
-     * @param repositoryLocation The location of the repository where this set's data resides.
-     * @param repositoryCustomer The customer name for the location of the repository where this set's data resides.
-     * @param repositoryName The repository name for the location of the repository where this set's data resides.
-     * @param writeAccess Whether or not we need write access to this location. If <code>false</code>, readonly access
-     * will be used.
-     * @return this object, to allow chaining.
+     * Denotes a context for creating target repositories.
      */
-    public RepositoryAdminLoginContext addShopRepository(URL repositoryLocation, String repositoryCustomer, String repositoryName, boolean writeAccess);
+    public static interface TargetRepositoryContext extends BaseRepositoryContext<TargetRepositoryContext> {
+    }
+
+    /**
+     * Denotes a context for creating deployment repositories.
+     */
+    public static interface DeploymentRepositoryContext extends BaseRepositoryContext<DeploymentRepositoryContext> {
+    }
+
+    /**
+     * @return a new shop repository context, never <code>null</code>.
+     */
+    public ShopRepositoryContext createShopRepositoryContext();
+
+    /**
+     * @return a new target repository context, never <code>null</code>.
+     */
+    public TargetRepositoryContext createTargetRepositoryContext();
+
+    /**
+     * @return a new deployment repository context, never <code>null</code>.
+     */
+    public DeploymentRepositoryContext createDeploymentRepositoryContext();
+
+    /**
+     * @param repositoryContext the context to add, cannot be <code>null</code>.
+     * @return this context, never <code>null</code>.
+     */
+    public RepositoryAdminLoginContext add(BaseRepositoryContext<?> repositoryContext);
 
     /**
      * When uploads are needed, this is the base OBR that will be used.
+     * 
      * @param base The URL of the OBR to be used.
      * @return this object, to allow chaining.
      */
     public RepositoryAdminLoginContext setObrBase(URL base);
-
-    /**
-     * Adds a target repository to this login context.
-     * @param repositoryLocation The location of the repository where this set's data resides.
-     * @param repositoryCustomer The customer name for the location of the repository where this set's data resides.
-     * @param repositoryName The repository name for the location of the repository where this set's data resides.
-     * @param writeAccess Whether or not we need write access to this location. If <code>false</code>, readonly access
-     * will be used.
-     * @return this object, to allow chaining.
-     */
-    public RepositoryAdminLoginContext addTargetRepository(URL repositoryLocation, String repositoryCustomer, String repositoryName, boolean writeAccess);
-
-    /**
-     * Adds a deployment repository to this login context.
-     * @param repositoryLocation The location of the repository where this set's data resides.
-     * @param repositoryCustomer The customer name for the location of the repository where this set's data resides.
-     * @param repositoryName The repository name for the location of the repository where this set's data resides.
-     * @param writeAccess Whether or not we need write access to this location. If <code>false</code>, readonly access
-     * will be used.
-     * @return this object, to allow chaining.
-     */
-    public RepositoryAdminLoginContext addDeploymentRepository(URL repositoryLocation, String repositoryCustomer, String repositoryName, boolean writeAccess);
 }

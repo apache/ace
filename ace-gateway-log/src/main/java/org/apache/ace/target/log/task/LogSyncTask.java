@@ -24,10 +24,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.identification.Identification;
 import org.apache.ace.log.LogDescriptor;
@@ -49,6 +52,7 @@ public class LogSyncTask implements Runnable {
     private volatile Identification m_identification;
     private volatile LogService m_log;
     private volatile LogStore m_LogStore;
+    private volatile ConnectionFactory m_connectionFactory;
 
     private final String m_endpoint;
 
@@ -76,26 +80,30 @@ public class LogSyncTask implements Runnable {
     	}
 
     	String targetId = m_identification.getID();
-        Connection sendConnection = null;
+        URLConnection sendConnection = null;
         try {
-            sendConnection = new Connection(new URL(host, m_endpoint + "/" + COMMAND_SEND));
+            sendConnection = m_connectionFactory.createConnection(new URL(host, m_endpoint + "/" + COMMAND_SEND));
+            sendConnection.setDoOutput(true);
+
             long[] logIDs = m_LogStore.getLogIDs();
             for (int i = 0; i < logIDs.length; i++) {
-                Connection queryConnection = new Connection(new URL(host,
-                        m_endpoint + "/" + COMMAND_QUERY + "?"
-                            + PARAMETER_TARGETID + "=" + targetId + "&"
-                            + PARAMETER_LOGID + "=" + logIDs[i]));
+                URL url = new URL(host, m_endpoint + "/" + COMMAND_QUERY + "?" + PARAMETER_TARGETID + "=" + targetId + "&" + PARAMETER_LOGID + "=" + logIDs[i]);
+                
+                URLConnection queryConnection = m_connectionFactory.createConnection(url);
                 // TODO: make sure no actual call is made using sendConnection
                 // when there's nothing to sync
                 synchronizeLog(logIDs[i], queryConnection.getInputStream(), sendConnection);
             }
+            
+            // Make sure to send the actual POST request...
+            sendConnection.getContent();
         }
         catch (IOException e) {
             m_log.log(LogService.LOG_ERROR, "Unable to (fully) synchronize log with remote (endpoint=" + m_endpoint + ")", e);
         }
         finally {
-            if (sendConnection != null) {
-                sendConnection.close();
+            if (sendConnection instanceof HttpURLConnection) {
+                ((HttpURLConnection) sendConnection).disconnect();
             }
         }
     }
@@ -116,18 +124,20 @@ public class LogSyncTask implements Runnable {
      *             If synchronization could not be completed due to an I/O
      *             failure.
      */
-    protected void synchronizeLog(long logID, InputStream queryInput, Connection sendConnection) throws IOException {
+    protected void synchronizeLog(long logID, InputStream queryInput, URLConnection sendConnection) throws IOException {
         long highestLocal = m_LogStore.getHighestID(logID);
         if (highestLocal == 0) {
             // No events, no need to synchronize
             return;
         }
+        
         SortedRangeSet localRange = new SortedRangeSet("1-" + highestLocal);
         SortedRangeSet remoteRange = getDescriptor(queryInput).getRangeSet();
         SortedRangeSet delta = remoteRange.diffDest(localRange);
         RangeIterator rangeIterator = delta.iterator();
-        BufferedWriter writer = null;
-        writer = new BufferedWriter(new OutputStreamWriter(sendConnection.getOutputStream()));
+
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sendConnection.getOutputStream()));
+        
         if (rangeIterator.hasNext()) {
             long lowest = rangeIterator.next();
             long highest = delta.getHigh();
@@ -148,6 +158,7 @@ public class LogSyncTask implements Runnable {
                 }
             }
         }
+
         writer.flush();
     }
 

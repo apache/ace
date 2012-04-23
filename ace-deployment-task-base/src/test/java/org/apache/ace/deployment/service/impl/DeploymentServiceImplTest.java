@@ -31,6 +31,7 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.util.SortedSet;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.Deployment;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.identification.Identification;
@@ -38,6 +39,7 @@ import org.apache.ace.test.utils.TestUtils;
 import org.osgi.framework.Version;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
+import org.osgi.service.useradmin.User;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -62,6 +64,7 @@ public class DeploymentServiceImplTest {
         
         TestUtils.configureObject(m_service, LogService.class);
         TestUtils.configureObject(m_service, EventAdmin.class);
+        TestUtils.configureObject(m_service, ConnectionFactory.class, new MockConnectionFactory());
         TestUtils.configureObject(m_service, Identification.class, new Identification() {
             public String getID() {
                 return "test";
@@ -171,7 +174,20 @@ public class DeploymentServiceImplTest {
 
         return new URL[] {controlEndpoint, dataEndpoint};
     }
-    
+
+    /**
+     * Mock implementation of {@link ConnectionFactory}.
+     */
+    static final class MockConnectionFactory implements ConnectionFactory {
+        public URLConnection createConnection(URL url) throws IOException {
+            return url.openConnection();
+        }
+        
+        public URLConnection createConnection(URL url, User user) throws IOException {
+            return createConnection(url);
+        }
+    }
+
     /**
      * Mock implementation of <code>DeploymentService</code> that expects Version objects.
      * The Version objects that are 'installed' can be mocked with the new <code>setList(Version[] objects)</code>

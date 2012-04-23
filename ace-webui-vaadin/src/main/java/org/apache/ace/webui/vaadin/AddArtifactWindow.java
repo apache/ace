@@ -287,6 +287,7 @@ abstract class AddArtifactWindow extends Window {
     private final List<File> m_uploadedArtifacts = new ArrayList<File>();
     private final Button m_searchButton;
     private final Button m_closeButton;
+    private final Table m_artifactsTable;
 
     /**
      * Creates a new {@link AddArtifactWindow} instance.
@@ -303,10 +304,10 @@ abstract class AddArtifactWindow extends Window {
         setModal(true);
         setWidth("50em");
 
-        final Table artifacts = new ArtifactTable();
-        artifacts.setCaption("Artifacts in repository");
+        m_artifactsTable = new ArtifactTable();
+        m_artifactsTable.setCaption("Artifacts in repository");
 
-        final IndexedContainer dataSource = (IndexedContainer) artifacts.getContainerDataSource();
+        final IndexedContainer dataSource = (IndexedContainer) m_artifactsTable.getContainerDataSource();
 
         final Table uploadedArtifacts = new ArtifactTable();
         uploadedArtifacts.setCaption("Uploaded artifacts");
@@ -385,7 +386,7 @@ abstract class AddArtifactWindow extends Window {
         m_closeButton = new Button("Add", new ClickListener() {
             public void buttonClick(ClickEvent event) {
                 // Import all "local" (existing) bundles...
-                importLocalBundles(artifacts);
+                importLocalBundles(m_artifactsTable);
                 // Import all "remote" (non existing) bundles...
                 importRemoteBundles(m_uploadedArtifacts);
 
@@ -405,21 +406,13 @@ abstract class AddArtifactWindow extends Window {
         layout.setSpacing(true);
 
         layout.addComponent(searchBar);
-        layout.addComponent(artifacts);
+        layout.addComponent(m_artifactsTable);
         layout.addComponent(uploadArtifact);
         layout.addComponent(finalUploadedArtifacts);
         // The components added to the window are actually added to the window's
         // layout; you can use either. Alignments are set using the layout
         layout.addComponent(m_closeButton);
         layout.setComponentAlignment(m_closeButton, Alignment.MIDDLE_RIGHT);
-
-        try {
-            getBundles(artifacts);
-        }
-        catch (Exception e) {
-            showErrorNotification("Failed to retrieve OBR repository!", "Reason: <br/>" + e.getMessage());
-            logError("Failed to retrieve OBR repository!", e);
-        }
 
         searchField.focus();
     }
@@ -438,6 +431,25 @@ abstract class AddArtifactWindow extends Window {
         }
         else {
             return namedItem.getTextContent();
+        }
+    }
+    
+    /**
+     * Shows this dialog on the parent window.
+     * 
+     * @param parent the parent for this window, cannot be <code>null</code>.
+     */
+    public final void showWindow(Window parent) {
+        try {
+            // Fill the artifacts table with the data from the OBR...
+            getBundles(m_artifactsTable);
+            
+            parent.addWindow(this);
+        }
+        catch (Exception e) {
+            // We've not yet added this window to the given parent, so we cannot use #showErrorNotification here...
+            parent.showNotification("Failed to retrieve OBR repository!", "Reason: <br/>" + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            logError("Failed to retrieve OBR repository!", e);
         }
     }
 
@@ -556,6 +568,12 @@ abstract class AddArtifactWindow extends Window {
      * @return the log service.
      */
     protected abstract LogService getLogger();
+    
+    /**
+     * @param url the URL to connect to, cannot be <code>null</code>.
+     * @return a valid {@link URLConnection} instance, never <code>null</code>.
+     */
+    protected abstract URLConnection openConnection(URL url) throws IOException;
 
     /**
      * Converts a given artifact object to an OBR entry.
@@ -565,8 +583,7 @@ abstract class AddArtifactWindow extends Window {
      * @return an OBR entry instance, never <code>null</code>.
      */
     private OBREntry convertToOBREntry(ArtifactObject artifactObject, String artifactURL) {
-        return new OBREntry(artifactObject.getName(), artifactObject.getAttribute(BundleHelper.KEY_VERSION), new File(
-            artifactURL).getName());
+        return new OBREntry(artifactObject.getName(), artifactObject.getAttribute(BundleHelper.KEY_VERSION), new File(artifactURL).getName());
     }
 
     /**
@@ -698,9 +715,10 @@ abstract class AddArtifactWindow extends Window {
         InputStream input = null;
         NodeList resources = null;
         try {
-            URLConnection connection = url.openConnection();
+            URLConnection connection = openConnection(url);
             // We always want the newest repository.xml file.
             connection.setUseCaches(false);
+
             input = connection.getInputStream();
 
             try {

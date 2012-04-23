@@ -23,7 +23,6 @@ import static org.apache.ace.test.utils.TestUtils.UNIT;
 import java.util.Properties;
 
 import org.apache.ace.test.utils.TestUtils;
-import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;

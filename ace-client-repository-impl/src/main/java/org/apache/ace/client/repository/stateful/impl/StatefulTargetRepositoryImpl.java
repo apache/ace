@@ -74,8 +74,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     private LogService m_log; /* Injected by dependency manager */
     private BundleHelper m_bundleHelper; /* Injected by dependency manager */
     // TODO: Make the concurrencyLevel of this concurrent hashmap settable?
-    private Map<String, StatefulTargetObjectImpl> m_repository =
-        new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
+    private Map<String, StatefulTargetObjectImpl> m_repository = new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
     private Map<String, StatefulTargetObjectImpl> m_index = new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
     private final String m_sessionID;
 

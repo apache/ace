@@ -38,7 +38,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      * Provides a button listener for the logout button.
      */
     private class LogoutButtonListener implements Button.ClickListener, ConfirmationDialog.Callback {
-        
+
         /**
          * {@inheritDoc}
          */
@@ -46,14 +46,18 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
             final RepositoryAdmin repoAdmin = getRepositoryAdmin();
             try {
                 if (repoAdmin.isModified() && repoAdmin.isCurrent()) {
-                    getWindow().addWindow(new ConfirmationDialog("Revert changes?", "The repository is changed. Are you sure you want to loose all local changes?", this));
+                    getWindow().addWindow(
+                        new ConfirmationDialog("Revert changes?",
+                            "The repository is changed. Are you sure you want to loose all local changes?", this));
                 }
                 else {
                     logout();
                 }
             }
             catch (IOException e) {
-                getWindow().showNotification("Changes not stored", "Failed to store the changes to the server.<br />Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                getWindow().showNotification("Changes not stored",
+                    "Failed to store the changes to the server.<br />Reason: " + e.getMessage(),
+                    Notification.TYPE_ERROR_MESSAGE);
             }
         }
 
@@ -75,7 +79,9 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
          * @param e the exception to handle.
          */
         private void handleIOException(IOException e) {
-            getWindow().showNotification("Warning", "There were errors during the logout procedure.<br />Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            getWindow().showNotification("Warning",
+                "There were errors during the logout procedure.<br />Reason: " + e.getMessage(),
+                Notification.TYPE_ERROR_MESSAGE);
         }
 
         /**
@@ -102,7 +108,9 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
             try {
                 if (repoAdmin.isModified()) {
                     // Warn the user about the possible loss of changes...
-                    getWindow().addWindow(new ConfirmationDialog("Retrieve latest changes?", "The repository is changed. Are you sure you want to loose all local changes?", this));
+                    getWindow().addWindow(
+                        new ConfirmationDialog("Retrieve latest changes?",
+                            "The repository is changed. Are you sure you want to loose all local changes?", this));
                 }
                 else {
                     retrieveData();
@@ -131,7 +139,9 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
          * @param e the exception to handle.
          */
         private void handleIOException(IOException e) {
-            getWindow().showNotification("Retrieve failed", "Failed to retrieve the data from the server.<br />Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            getWindow().showNotification("Retrieve failed",
+                "Failed to retrieve the data from the server.<br />Reason: " + e.getMessage(),
+                Notification.TYPE_ERROR_MESSAGE);
         }
 
         /**
@@ -144,7 +154,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
             doAfterRetrieve();
         }
     }
-    
+
     /**
      * Provides a button listener for the revert button.
      */
@@ -157,11 +167,14 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
             try {
                 if (getRepositoryAdmin().isModified()) {
                     // Revert all changes...
-                    getWindow().addWindow(new ConfirmationDialog("Revert changes?", "Are you sure you want to overwrite all local changes?", this));
+                    getWindow().addWindow(
+                        new ConfirmationDialog("Revert changes?",
+                            "Are you sure you want to overwrite all local changes?", this));
                 }
                 else {
                     // Nothing to revert...
-                    getWindow().showNotification("Nothing to revert", "There are no local changes that need to be reverted.", Notification.TYPE_WARNING_MESSAGE);
+                    getWindow().showNotification("Nothing to revert",
+                        "There are no local changes that need to be reverted.", Notification.TYPE_WARNING_MESSAGE);
                 }
             }
             catch (IOException e) {
@@ -187,7 +200,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
          * @param e the exception to handle.
          */
         private void handleIOException(IOException e) {
-            getWindow().showNotification("Revert failed", "Failed to revert your changes.<br />Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            getWindow().showNotification("Revert failed",
+                "Failed to revert your changes.<br />Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
         }
 
         /**
@@ -217,15 +231,21 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
                         commitChanges();
                     }
                     else {
-                        getWindow().showNotification("Changes not stored", "Unable to store your changes; repository changed!", Notification.TYPE_WARNING_MESSAGE);
+                        getWindow().showNotification("Changes not stored",
+                            "Unable to store your changes; repository changed!", Notification.TYPE_WARNING_MESSAGE);
                     }
                 }
                 else {
-                    getWindow().showNotification("Nothing to store", "There are no changes that can be stored to the repository.", Notification.TYPE_WARNING_MESSAGE);
+                    getWindow()
+                        .showNotification("Nothing to store",
+                            "There are no changes that can be stored to the repository.",
+                            Notification.TYPE_WARNING_MESSAGE);
                 }
             }
             catch (IOException e) {
-                getWindow().showNotification("Changes not stored", "Failed to store the changes to the server.<br />Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                getWindow().showNotification("Changes not stored",
+                    "Failed to store the changes to the server.<br />Reason: " + e.getMessage(),
+                    Notification.TYPE_ERROR_MESSAGE);
             }
         }
 
@@ -240,6 +260,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         }
     }
 
+    private final boolean m_showLogoutButton;
+
     private Button m_retrieveButton;
     private Button m_storeButton;
     private Button m_revertButton;
@@ -247,9 +269,13 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
 
     /**
      * Creates a new {@link MainActionToolbar} instance.
+     * 
+     * @param showLogoutButton <code>true</code> if a logout button should be shown, <code>false</code> if it should not.
      */
-    public MainActionToolbar() {
+    public MainActionToolbar(boolean showLogoutButton) {
         super(5, 1);
+
+        m_showLogoutButton = showLogoutButton;
 
         setWidth("100%");
         setSpacing(true);
@@ -262,14 +288,17 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      */
     public void handleEvent(org.osgi.service.event.Event event) {
         String topic = event.getTopic();
-        if (RepositoryAdmin.TOPIC_STATUSCHANGED.equals(topic) || RepositoryAdmin.TOPIC_REFRESH.equals(topic) || RepositoryAdmin.TOPIC_LOGIN.equals(topic)) {
+        if (RepositoryAdmin.TOPIC_STATUSCHANGED.equals(topic) || RepositoryAdmin.TOPIC_REFRESH.equals(topic)
+            || RepositoryAdmin.TOPIC_LOGIN.equals(topic)) {
 
             boolean modified = false;
             try {
                 modified = getRepositoryAdmin().isModified();
             }
             catch (IOException e) {
-                getWindow().showNotification("Communication failed!", "Failed to communicate with the server.<br />Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                getWindow().showNotification("Communication failed!",
+                    "Failed to communicate with the server.<br />Reason: " + e.getMessage(),
+                    Notification.TYPE_ERROR_MESSAGE);
             }
 
             m_storeButton.setEnabled(modified);
@@ -297,7 +326,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      * @throws IOException
      */
     protected abstract void doAfterRetrieve() throws IOException;
-    
+
     /**
      * Called after a revert has taken place, allows additional UI-updates to be performed.
      * 
@@ -325,15 +354,17 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         m_revertButton = new Button("Revert");
         m_revertButton.addListener(new RevertButtonListener());
         addComponent(m_revertButton, 2, 0);
-        
+
         Label spacer = new Label(" ");
         addComponent(spacer, 3, 0);
-        
+
         m_logoutButton = new Button("Logout");
         m_logoutButton.addListener(new LogoutButtonListener());
-        addComponent(m_logoutButton, 4, 0);
+        if (m_showLogoutButton) {
+            addComponent(m_logoutButton, 4, 0);
+        }
 
-        // Ensure the spacer gets all the excessive room, causing the logout 
+        // Ensure the spacer gets all the excessive room, causing the logout
         // button to appear at the right side of the screen....
         setColumnExpandRatio(3, 5);
     }

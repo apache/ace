@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.ace.client.repository.helper.PropertyResolver;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 
@@ -56,8 +57,11 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
 
     /**
      * Creates a new {@link VelocityArtifactPreprocessor} instance.
+     * @param connectionFactory 
      */
-    public VelocityArtifactPreprocessor() {
+    public VelocityArtifactPreprocessor(ConnectionFactory connectionFactory) {
+        super(connectionFactory);
+
         try {
             m_md5 = MessageDigest.getInstance("MD5");
         }

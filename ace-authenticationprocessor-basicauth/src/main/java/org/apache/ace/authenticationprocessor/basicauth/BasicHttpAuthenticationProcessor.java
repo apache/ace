@@ -27,6 +27,7 @@ import org.apache.ace.authentication.api.AuthenticationProcessor;
 import org.apache.commons.codec.binary.Base64;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -88,7 +89,7 @@ public class BasicHttpAuthenticationProcessor implements AuthenticationProcessor
             return null;
         }
 
-        User user = userAdmin.getUser(m_keyUsername, credentials[0]);
+        User user = getUser(userAdmin, credentials[0]);
         if (user == null || !user.hasCredential(m_keyPassword, credentials[1])) {
             // Invalid/unknown user!
             return null;
@@ -140,5 +141,28 @@ public class BasicHttpAuthenticationProcessor implements AuthenticationProcessor
             // Should never occur, as Java is always capable of handling UTF-8!
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Searches for a user with a given name.
+     * <p>
+     * This method first looks whether there's a user with the property 
+     * "m_keyUsername" that matches the given username, if not found, it will 
+     * try to retrieve a role with the given name.
+     * </p>
+     * 
+     * @param userAdmin the {@link UserAdmin} service to get users from;
+     * @param name the name of the user to retrieve.
+     * @return a {@link User}, can be <code>null</code> if no such user is found.
+     */
+    private User getUser(UserAdmin userAdmin, String name) {
+        Role user = null;
+        if (m_keyUsername != null) {
+            user = userAdmin.getUser(m_keyUsername, name);
+        }
+        if (user == null) {
+            user = userAdmin.getRole(name);
+        }
+        return (user instanceof User) ? (User) user : null;
     }
 }

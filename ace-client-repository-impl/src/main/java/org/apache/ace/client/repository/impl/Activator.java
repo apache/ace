@@ -18,9 +18,11 @@
  */
 package org.apache.ace.client.repository.impl;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
@@ -29,11 +31,11 @@ import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
-import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
-import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
@@ -56,8 +58,14 @@ import org.osgi.service.prefs.PreferencesService;
  * creates all required repositories.
  */
 public class Activator extends DependencyActivatorBase implements SessionFactory {
-    private DependencyManager m_dependencyManager;
+    
+    private final Map<String, SessionData> m_sessions = new HashMap<String, SessionData>();
 
+    private volatile DependencyManager m_dependencyManager;
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
         m_dependencyManager = manager;
@@ -67,58 +75,70 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void destroy(BundleContext context, DependencyManager manager) throws Exception {
+        // Nop
     }
 
-    private Map<String, SessionData> m_sessions = new HashMap<String, SessionData>();
-    private static class SessionData {
-        public static SessionData EMPTY_SESSION = new SessionData();
-
-        private Component m_service;
-        private Component m_service2;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public void createSession(String sessionID) {
-        boolean create = false;
+        SessionData sessionData = null;
         synchronized (m_sessions) {
             if (!m_sessions.containsKey(sessionID)) {
-                m_sessions.put(sessionID, SessionData.EMPTY_SESSION);
-                create = true;
+                sessionData = new SessionData();
+                m_sessions.put(sessionID, sessionData);
             }
         }
-        if (create) {
-            SessionData sd = createSessionServices(sessionID);
-            m_sessions.put(sessionID, sd);
+
+        // Allow session to be created outside the lock; to avoid potential deadlocks...
+        if (sessionData != null) {
+            createSessionServices(sessionData, sessionID);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void destroySession(String sessionID) {
-        boolean destroy = false;
-        SessionData sd = SessionData.EMPTY_SESSION;
+        SessionData sessionData = null;
         synchronized (m_sessions) {
-            destroy = m_sessions.containsKey(sessionID);
-            sd = m_sessions.remove(sessionID);
+            sessionData = m_sessions.remove(sessionID);
         }
-        if (destroy && !sd.equals(SessionData.EMPTY_SESSION)) {
-            destroySessionServices(sessionID, sd);
+
+        // Allow session to be destroyed outside the lock; to avoid potential deadlocks...
+        if ((sessionData != null) && !sessionData.isEmpty()) {
+            destroySessionServices(sessionData, sessionID);
         }
     }
 
+    /**
+     * Creates all necessary session-related service for the given session.
+     * 
+     * @param sd the session data to keep the session-related services;
+     * @param sessionID the session ID to use.
+     */
     @SuppressWarnings("unchecked")
-    private SessionData createSessionServices(String sessionID) {
-        SessionData sd = new SessionData();
+    private void createSessionServices(SessionData sd, String sessionID) {
         RepositoryAdminImpl rai = new RepositoryAdminImpl(sessionID);
-        sd.m_service = createComponent()
+        Component comp1 = createComponent()
             .setInterface(RepositoryAdmin.class.getName(), rai.getSessionProps())
             .setImplementation(rai)
             .setComposition("getInstances")
             .add(createServiceDependency().setService(PreferencesService.class).setRequired(true))
             .add(createServiceDependency().setService(EventAdmin.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false));
-        m_dependencyManager.add(sd.m_service);
+
+        String sessionFilter = "(" + SessionFactory.SERVICE_SID + "=" + sessionID + ")";
+        String auditLogFilter = "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))";
 
         Dictionary topic = new Hashtable();
+        topic.put(SessionFactory.SERVICE_SID, sessionID);
+        topic.put(EventConstants.EVENT_FILTER, sessionFilter);
         topic.put(EventConstants.EVENT_TOPIC, new String[] {
             ArtifactObject.TOPIC_ALL,
             Artifact2FeatureAssociation.TOPIC_ALL,
@@ -128,27 +148,70 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
             Distribution2TargetAssociation.TOPIC_ALL,
             TargetObject.TOPIC_ALL,
             DeploymentVersionObject.TOPIC_ALL,
-            RepositoryAdmin.TOPIC_REFRESH, RepositoryAdmin.TOPIC_LOGIN});
-        String filter = "(" + SessionFactory.SERVICE_SID + "=" + sessionID + ")";
-        topic.put(EventConstants.EVENT_FILTER, filter);
-        topic.put(SessionFactory.SERVICE_SID, sessionID);
+            RepositoryAdmin.TOPIC_REFRESH, 
+            RepositoryAdmin.TOPIC_LOGIN 
+        });
+        
         StatefulTargetRepositoryImpl statefulTargetRepositoryImpl = new StatefulTargetRepositoryImpl(sessionID);
-        sd.m_service2 = createComponent()
+        Component comp2 = createComponent()
             .setInterface(new String[] { StatefulTargetRepository.class.getName(), EventHandler.class.getName() }, topic)
             .setImplementation(statefulTargetRepositoryImpl)
-            .add(createServiceDependency().setService(ArtifactRepository.class, filter).setRequired(true))
-            .add(createServiceDependency().setService(TargetRepository.class, filter).setRequired(true))
-            .add(createServiceDependency().setService(DeploymentVersionRepository.class, filter).setRequired(true))
-            .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=auditlog))").setRequired(false))
+            .add(createServiceDependency().setService(ArtifactRepository.class, sessionFilter).setRequired(true))
+            .add(createServiceDependency().setService(TargetRepository.class, sessionFilter).setRequired(true))
+            .add(createServiceDependency().setService(DeploymentVersionRepository.class, sessionFilter).setRequired(true))
+            .add(createServiceDependency().setService(LogStore.class, auditLogFilter).setRequired(false))
             .add(createServiceDependency().setService(BundleHelper.class).setRequired(true))
             .add(createServiceDependency().setService(EventAdmin.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false));
-        m_dependencyManager.add(sd.m_service2);
-        return sd;
+
+        // Publish our components to our session data for later use...
+        sd.addComponents(m_dependencyManager, comp1, comp2);
     }
 
-    private void destroySessionServices(String sessionID, SessionData sd) {
-        m_dependencyManager.remove(sd.m_service2);
-        m_dependencyManager.remove(sd.m_service);
+    /**
+     * Removes the session-related services from the session.
+     * 
+     * @param sd the session data that keeps the session-related services;
+     * @param sessionID the session ID to use.
+     */
+    private void destroySessionServices(SessionData sd, String sessionID) {
+        sd.removeAllComponents(m_dependencyManager);
+    }
+
+    /**
+     * Small container that keeps the session-related services for us.
+     */
+    private static final class SessionData {
+        private final List<Component> m_services = new ArrayList<Component>();
+
+        final void addComponents(DependencyManager manager, Component... comps) {
+            synchronized (m_services) {
+                for (Component c : comps) {
+                    m_services.add(c);
+                }
+            }
+
+            for (Component c : comps) {
+                manager.add(c);
+            }
+        }
+
+        final void removeAllComponents(DependencyManager manager) {
+            Component[] comps;
+            synchronized (m_services) {
+                comps = m_services.toArray(new Component[m_services.size()]);
+                m_services.clear();
+            }
+            
+            for (Component c : comps) {
+                manager.remove(c);
+            }
+        }
+        
+        final boolean isEmpty() {
+            synchronized (m_services) {
+                return m_services.isEmpty();
+            }
+        }
     }
 }

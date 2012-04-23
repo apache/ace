@@ -18,17 +18,87 @@
  */
 package org.apache.ace.it.repositoryadmin;
 
-import org.apache.ace.client.repository.*;
+import static org.apache.ace.client.repository.RepositoryObject.PRIVATE_TOPIC_ROOT;
+import static org.apache.ace.client.repository.RepositoryObject.PUBLIC_TOPIC_ROOT;
+import static org.apache.ace.client.repository.stateful.StatefulTargetObject.KEY_ID;
+import static org.apache.ace.client.repository.stateful.StatefulTargetObject.KEY_REGISTRATION_STATE;
+import static org.apache.ace.client.repository.stateful.StatefulTargetObject.TOPIC_ADDED;
+import static org.apache.ace.client.repository.stateful.StatefulTargetObject.TOPIC_ALL;
+import static org.apache.ace.client.repository.stateful.StatefulTargetObject.TOPIC_REMOVED;
+import static org.apache.ace.client.repository.stateful.StatefulTargetObject.TOPIC_STATUS_CHANGED;
+import static org.apache.ace.client.repository.stateful.StatefulTargetObject.UNKNOWN_VERSION;
+import static org.apache.ace.it.Options.jetty;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.provision;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+
+import junit.framework.Assert;
+
+import org.apache.ace.client.repository.ObjectRepository;
+import org.apache.ace.client.repository.RepositoryAdmin;
+import org.apache.ace.client.repository.RepositoryAdminLoginContext;
+import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.client.repository.RepositoryObject.WorkingState;
+import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.PropertyResolver;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
-import org.apache.ace.client.repository.object.*;
-import org.apache.ace.client.repository.repository.*;
+import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
+import org.apache.ace.client.repository.object.ArtifactObject;
+import org.apache.ace.client.repository.object.DeploymentArtifact;
+import org.apache.ace.client.repository.object.DeploymentVersionObject;
+import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
+import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
+import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.TargetObject;
+import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
+import org.apache.ace.client.repository.repository.ArtifactRepository;
+import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
+import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
+import org.apache.ace.client.repository.repository.DistributionRepository;
+import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
+import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject.ProvisioningState;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject.RegistrationState;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject.StoreState;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
+import org.apache.ace.it.Options.Ace;
+import org.apache.ace.it.Options.Felix;
+import org.apache.ace.it.Options.Knopflerfish;
+import org.apache.ace.it.Options.Osgi;
 import org.apache.ace.log.AuditEvent;
 import org.apache.ace.log.LogEvent;
 import org.apache.ace.obr.storage.file.constants.OBRFileStoreConstants;
@@ -57,27 +127,6 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.useradmin.User;
 import org.osgi.util.tracker.ServiceTracker;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.jar.Attributes;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
-
-import junit.framework.Assert;
-
-import static org.apache.ace.client.repository.RepositoryObject.PRIVATE_TOPIC_ROOT;
-import static org.apache.ace.client.repository.RepositoryObject.PUBLIC_TOPIC_ROOT;
-import static org.apache.ace.client.repository.RepositoryObject.WorkingState;
-import static org.apache.ace.client.repository.stateful.StatefulTargetObject.*;
-import static org.apache.ace.it.Options.*;
-import static org.ops4j.pax.exam.CoreOptions.*;
-
 @RunWith(JUnit4TestRunner.class)
 public class RepositoryAdminTest extends IntegrationTestBase implements EventHandler {
 
@@ -97,6 +146,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
                 Knopflerfish.useradmin(),
                 Knopflerfish.log(),
                 Ace.util(),
+                Ace.authenticationApi(),
+                Ace.connectionFactory(),
                 Ace.rangeApi(),
                 Ace.log(),
                 Ace.serverLogStore(),
@@ -120,7 +171,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
     protected void before() throws IOException {
         getService(SessionFactory.class).createSession("test-session-ID");
         configureFactory("org.apache.ace.server.log.store.factory",
-            "name", "auditlog");
+            "name", "auditlog", "authentication.enabled", "false");
     }
 
     protected Component[] getDependencies() {
@@ -352,8 +403,11 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         }
 
         final RepositoryAdminLoginContext loginContext1 = m_repositoryAdmin.createLoginContext(user1);
-        loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext1.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "target", true);
+        loginContext1
+            .add(loginContext1.createShopRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("store").setWriteable())
+            .add(loginContext1.createTargetRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("target").setWriteable());
         m_repositoryAdmin.login(loginContext1);
 
         assert !m_repositoryAdmin.isCurrent() : "When first logging in without checking out, the repository cannot be current.";
@@ -440,8 +494,11 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         cleanUp();
 
         final RepositoryAdminLoginContext loginContext2 = m_repositoryAdmin.createLoginContext(user2);
-        loginContext2.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext2.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "target", true);
+        loginContext2
+            .add(loginContext2.createShopRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("store").setWriteable())
+            .add(loginContext2.createTargetRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("target").setWriteable());
 
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
@@ -550,9 +607,14 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         addRepository("deploymentInstance", "apache", "deployment", true);
 
         RepositoryAdminLoginContext loginContext = m_repositoryAdmin.createLoginContext(user);
-        loginContext.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "target", true);
-        loginContext.addDeploymentRepository(new URL(HOST + ENDPOINT), "apache", "deployment", true);
+        loginContext
+            .add(loginContext.createShopRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("store").setWriteable())
+            .add(loginContext.createTargetRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("target").setWriteable())
+            .add(loginContext.createDeploymentRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("deployment").setWriteable());
+
         m_repositoryAdmin.login(loginContext);
 
         runAndWaitForEvent(new Callable<Object>() {
@@ -635,9 +697,14 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         addRepository("deploymentInstance", "apache", "deployment", true);
 
         RepositoryAdminLoginContext loginContext = m_repositoryAdmin.createLoginContext(user);
-        loginContext.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "target", true);
-        loginContext.addDeploymentRepository(new URL(HOST + ENDPOINT), "apache", "deployment", true);
+        loginContext
+            .add(loginContext.createShopRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("store").setWriteable())
+            .add(loginContext.createTargetRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("target").setWriteable())
+            .add(loginContext.createDeploymentRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("deployment").setWriteable());
+
         m_repositoryAdmin.login(loginContext);
 
         /*
@@ -1545,9 +1612,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             m_name = name;
         }
 
-        @SuppressWarnings("unchecked")
         public Dictionary getCredentials() {
-            return null;
+            return new Properties();
         }
 
         public boolean hasCredential(String arg0, Object arg1) {
@@ -1558,9 +1624,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             return m_name;
         }
 
-        @SuppressWarnings("unchecked")
         public Dictionary getProperties() {
-            return null;
+            return new Properties();
         }
 
         public int getType() {
@@ -1579,8 +1644,12 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         addRepository("targetInstance", "apache", "target", true);
 
         final RepositoryAdminLoginContext loginContext1 = m_repositoryAdmin.createLoginContext(user1);
-        loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext1.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "target", true);
+        loginContext1
+            .add(loginContext1.createShopRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("store").setWriteable())
+            .add(loginContext1.createTargetRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("target").setWriteable());
+
         m_repositoryAdmin.login(loginContext1);
 
         FeatureObject g1 = createBasicFeatureObject("feature1");
@@ -1614,8 +1683,12 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         addRepository("targetInstance", "apache", "target", true);
 
         final RepositoryAdminLoginContext loginContext1 = m_repositoryAdmin.createLoginContext(user1);
-        loginContext1.addShopRepository(new URL(HOST + ENDPOINT), "apache", "store", true);
-        loginContext1.addTargetRepository(new URL(HOST + ENDPOINT), "apache", "target", false);
+        loginContext1
+            .add(loginContext1.createShopRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("store").setWriteable())
+            .add(loginContext1.createTargetRepositoryContext()
+                .setLocation(new URL(HOST + ENDPOINT)).setCustomer("apache").setName("target"));
+
         m_repositoryAdmin.login(loginContext1);
 
         m_repositoryAdmin.checkout();
@@ -1651,43 +1724,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         }
         catch (IOException ioe) {
             // too bad.
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testRepostoryLoginDoubleRepository() throws Exception {
-        RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(new MockUser("user"));
-        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "shop", true,
-            ArtifactRepository.class, Artifact2FeatureAssociationRepository.class, FeatureRepository.class);
-        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "deployment", true,
-            FeatureRepository.class, Feature2DistributionAssociationRepository.class, DistributionRepository.class);
-        try {
-            m_repositoryAdmin.login(context);
-            assert false : "We tried to log in with two repositories that try to access the same repository service; this should not be allowed.";
-        }
-        catch (IllegalArgumentException iae) {
-            // expected
-        }
-    }
-
-    private static interface newRepository extends ObjectRepository<DistributionObject> {
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testRepostoryLoginRepositoryWithoutImplementation() throws Exception {
-        RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(new MockUser("user"));
-        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "shop", true,
-            ArtifactRepository.class, Artifact2FeatureAssociationRepository.class, FeatureRepository.class);
-        context.addRepositories(new URL("http://localhost:" + TestConstants.PORT), "apache", "deployment", true,
-            FeatureRepository.class, Feature2DistributionAssociationRepository.class, newRepository.class);
-        try {
-            m_repositoryAdmin.login(context);
-            assert false : "We tried to log in with a repository for which no implementation is available; this should not be allowed.";
-        }
-        catch (IllegalArgumentException iae) {
-            // expected
         }
     }
 
@@ -1773,7 +1809,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
         String noTemplate = "<Attribute content=\"http://someURL\"/>";
         String noTemplateProcessed = "<Attribute content=\"http://someURL\"/>";
-        final File noTemplateFile = createFileWithContents("template", "xml", xmlHeader + noTemplate + xmlFooter);
+        final File noTemplateFile = createFileWithContents("template", ".xml", xmlHeader + noTemplate + xmlFooter);
 
         String simpleTemplate = "<Attribute content=\"http://$context.name\"/>";
         String simpleTemplateProcessed = "<Attribute content=\"http://mydistribution\"/>";
@@ -2019,8 +2055,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
     protected void startRepositoryService() throws IOException {
         // configure the (replication)repository servlets
-        setProperty("org.apache.ace.repository.servlet.RepositoryServlet", new Object[][] { { HttpConstants.ENDPOINT,
-            ENDPOINT } });
+        configure("org.apache.ace.repository.servlet.RepositoryServlet", HttpConstants.ENDPOINT,
+            ENDPOINT, "authentication.enabled", "false");
     }
 
     @After
@@ -2054,20 +2090,9 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         tracker.close();
     }
 
-    private void addObr(String endpoint, String fileLocation) throws IOException, InterruptedException,
-        InvalidSyntaxException {
-        Properties propsServlet = new Properties();
-        propsServlet.put(HttpConstants.ENDPOINT, endpoint);
-        propsServlet.put("OBRInstance", "singleOBRServlet");
-        Properties propsStore = new Properties();
-        propsStore.put(OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
-        propsStore.put("OBRInstance", "singleOBRStore");
-
-        Configuration configServlet = m_configAdmin.getConfiguration("org.apache.ace.obr.servlet", null);
-        Configuration configStore = m_configAdmin.getConfiguration("org.apache.ace.obr.storage.file", null);
-
-        configServlet.update(propsServlet);
-        configStore.update(propsStore);
+    private void addObr(String endpoint, String fileLocation) throws IOException, InterruptedException {
+        configure("org.apache.ace.obr.servlet", "OBRInstance", "singleOBRServlet", "org.apache.ace.server.servlet.endpoint", endpoint, "authentication.enabled", "false");
+        configure("org.apache.ace.obr.storage.file", "OBRInstance", "singleOBRStore", OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
 
         // Wait for the endpoint to respond.
         // TODO below there is a similar url that does put a slash between port and endpoint, why?
@@ -2137,21 +2162,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             tracker.close();
         }
     }
-
-    /* Configure properties for the specified service PID */
-    @SuppressWarnings("unchecked")
-    private void setProperty(String pid, Object[][] props) throws IOException {
-        Configuration configuration = m_configAdmin.getConfiguration(pid, null);
-        Dictionary dictionary = configuration.getProperties();
-        if (dictionary == null) {
-            dictionary = new Hashtable();
-        }
-        for (Object[] pair : props) {
-            dictionary.put(pair[0], pair[1]);
-        }
-        configuration.update(dictionary);
-    }
-
 }
 
 class MockArtifactHelper implements ArtifactHelper {

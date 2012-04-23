@@ -34,6 +34,7 @@ import java.net.URLConnection;
 
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.PropertyResolver;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 
 /**
  * This class can be used as a base class for artifact preprocessors. It comes with its
@@ -42,6 +43,15 @@ import org.apache.ace.client.repository.helper.PropertyResolver;
 public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
 
     protected static final int BUFFER_SIZE = 4 * 1024;
+    
+    protected final ConnectionFactory m_connectionFactory;
+
+    /**
+     * @param connectionFactory
+     */
+    protected ArtifactPreprocessorBase(ConnectionFactory connectionFactory) {
+        m_connectionFactory = connectionFactory;
+    }
 
     /**
      * Uploads an artifact to an OBR.
@@ -145,8 +155,7 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
         return new URL(obrBase, name);
     }
 
-    public abstract String preprocess(String url, PropertyResolver props, String targetID, String version, URL obrBase)
-        throws IOException;
+    public abstract String preprocess(String url, PropertyResolver props, String targetID, String version, URL obrBase) throws IOException;
 
     public abstract boolean needsNewVersion(String url, PropertyResolver props, String targetID, String fromVersion);
 
@@ -207,7 +216,8 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
         OutputStream output = null;
 
         try {
-            URLConnection connection = url.openConnection();
+            URLConnection connection = m_connectionFactory.createConnection(url);
+
             connection.setDoOutput(true);
             connection.setDoInput(true);
             output = connection.getOutputStream();

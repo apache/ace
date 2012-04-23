@@ -53,6 +53,10 @@
     <dependencies>
         <dependency>
              <groupId>org.apache.ace</groupId>
+             <artifactId>org.apache.ace.client.repository.api</artifactId>
+        </dependency>
+        <dependency>
+             <groupId>org.apache.ace</groupId>
              <artifactId>org.apache.ace.server.log.store</artifactId>
         </dependency>
         <dependency>

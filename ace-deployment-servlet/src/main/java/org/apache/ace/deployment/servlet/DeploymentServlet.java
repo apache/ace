@@ -18,25 +18,33 @@
  */
 package org.apache.ace.deployment.servlet;
 
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.deployment.processor.DeploymentProcessor;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.streamgenerator.StreamGenerator;
+import org.apache.felix.dm.Component;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
+import org.osgi.service.useradmin.User;
 
 /**
  * The DeploymentServlet class provides in a list of versions available for a target and a stream
@@ -44,15 +52,26 @@ import org.osgi.service.log.LogService;
  */
 public class DeploymentServlet extends HttpServlet implements ManagedService {
     private static final long serialVersionUID = 1L;
+
+    /** A boolean denoting whether or not authentication is enabled. */
+    private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
+
     public static final String CURRENT = "current";
     public static final String PROCESSOR = "processor";
     public static final String VERSIONS = "versions";
     public static final String DP_MIMETYPE = "application/vnd.osgi.dp";
     public static final String TEXT_MIMETYPE = "text/plain";
-    private volatile LogService m_log;                  /* injected by dependency manager */
-    private volatile StreamGenerator m_streamGenerator; /* injected by dependency manager */
-    private volatile DeploymentProvider m_provider;     /* injected by dependency manager */
-    private final ConcurrentHashMap<String, DeploymentProcessor> m_processors = new ConcurrentHashMap<String, DeploymentProcessor>();
+    
+    private final ConcurrentMap<String, DeploymentProcessor> m_processors = new ConcurrentHashMap<String, DeploymentProcessor>();
+    
+    // injected by Dependency Manager
+    private volatile DependencyManager m_dm; 
+    private volatile LogService m_log;
+    private volatile StreamGenerator m_streamGenerator;
+    private volatile DeploymentProvider m_provider;
+    private volatile AuthenticationService m_authService;
+
+    private volatile boolean m_useAuth = false;
 
     /**
      * Responds to GET requests sent to this endpoint, the response depends on the requested path:
@@ -85,6 +104,50 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
             m_log.log(LogService.LOG_WARNING, e.getMessage(), e);
             e.handleAsHttpError(response);
         }
+    }
+
+    /**
+     * Called by Dependency Manager upon initialization of this component.
+     * 
+     * @param comp the component to initialize, cannot be <code>null</code>.
+     */
+    protected void init(Component comp) {
+        comp.add(m_dm.createServiceDependency()
+            .setService(AuthenticationService.class)
+            .setRequired(m_useAuth)
+            .setInstanceBound(true)
+            );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (!authenticate(req)) {
+            // Authentication failed; don't proceed with the original request...
+            resp.sendError(SC_UNAUTHORIZED);
+        } else {
+            // Authentication successful, proceed with original request...
+            super.service(req, resp);
+        }
+    }
+
+    /**
+     * Authenticates, if needed the user with the information from the given request.
+     * 
+     * @param request the request to obtain the credentials from, cannot be <code>null</code>.
+     * @return <code>true</code> if the authentication was successful, <code>false</code> otherwise.
+     */
+    private boolean authenticate(HttpServletRequest request) {
+        if (m_useAuth) {
+            User user = m_authService.authenticate(request);
+            if (user == null) {
+                m_log.log(LogService.LOG_INFO, "Authentication failure!");
+            }
+            return (user != null);
+        }
+        return true;
     }
 
     /**
@@ -210,7 +273,19 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
     }
 
     public void updated(Dictionary settings) throws ConfigurationException {
-        // Nothing needs to be done - handled by DependencyManager
+        if (settings != null) {
+            String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
+            if (useAuthString == null
+                || !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
+                throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
+            }
+            boolean useAuth = Boolean.parseBoolean(useAuthString);
+
+            m_useAuth = useAuth;
+        }
+        else {
+            m_useAuth = false;
+        }
     }
 
     public void addProcessor(ServiceReference ref, DeploymentProcessor processor) {

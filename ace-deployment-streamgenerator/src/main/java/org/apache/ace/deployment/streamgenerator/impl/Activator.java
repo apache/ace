@@ -18,6 +18,7 @@
  */
 package org.apache.ace.deployment.streamgenerator.impl;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.streamgenerator.StreamGenerator;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -33,7 +34,11 @@ public class Activator extends DependencyActivatorBase {
             .add(createServiceDependency()
                 .setService(DeploymentProvider.class)
                 .setRequired(true)
-                )
+            )
+            .add(createServiceDependency()
+                .setService(ConnectionFactory.class)
+                .setRequired(true)
+            )
             );
     }
 

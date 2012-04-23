@@ -21,6 +21,7 @@ package org.apache.ace.deployment.verifier.ui;
 import java.util.Properties;
 
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.verifier.VerifierService;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -41,6 +42,9 @@ public class Activator extends DependencyActivatorBase {
                 .add(createServiceDependency()
                 		.setService(VerifierService.class)
                 		.setRequired(true))
+                .add(createServiceDependency()
+                        .setService(ConnectionFactory.class)
+                        .setRequired(true))
                 .add(createServiceDependency()
                         .setService(DeploymentVersionRepository.class)
                         .setRequired(true)

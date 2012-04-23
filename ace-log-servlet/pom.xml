@@ -47,6 +47,7 @@
         </export.package>
         <import.package>
             !org.apache.ace.server.log.servlet,
+            org.apache.ace.authentication.api;resolution:=optional;version=${project.version},
             org.apache.ace.log;version=${project.version},
             org.apache.ace.range;version=${project.version},
             org.apache.ace.server.log.store;version=${project.version},
@@ -58,6 +59,10 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.authentication.api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.range.api</artifactId>

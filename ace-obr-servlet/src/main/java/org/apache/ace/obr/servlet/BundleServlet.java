@@ -18,7 +18,12 @@
  */
 package org.apache.ace.obr.servlet;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 import java.io.Closeable;
 import java.io.EOFException;
@@ -26,33 +31,73 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Dictionary;
 
+import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.obr.storage.BundleStore;
+import org.apache.felix.dm.Component;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
+import org.osgi.service.useradmin.User;
 
+/**
+ * Provides access to the OBR through a REST-ish API.
+ */
 public class BundleServlet extends HttpServlet implements ManagedService {
-    public static final String TEXT_MIMETYPE = "text/plain";
-
     private static final long serialVersionUID = 1L;
+
+    /** A boolean denoting whether or not authentication is enabled. */
+    private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
+
     private static final int COPY_BUFFER_SIZE = 4096;
 
+    public static final String TEXT_MIMETYPE = "text/plain";
+
+    private volatile DependencyManager m_dm; // injected by Dependency Manager
     private volatile LogService m_log; /* will be injected by dependencymanager */
     private volatile BundleStore m_store; /* will be injected by dependencymanager */
+    private volatile AuthenticationService m_authService;
+
+    private volatile boolean m_useAuth = false;
 
     @Override
     public String getServletInfo() {
         return "Apache ACE OBR Servlet";
     }
 
-    @SuppressWarnings("unchecked")
     public void updated(Dictionary settings) throws ConfigurationException {
-        // nothing needs to be done, settings are propagated by the dependency manager
+        if (settings != null) {
+            String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
+            if (useAuthString == null
+                || !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
+                throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
+            }
+            boolean useAuth = Boolean.parseBoolean(useAuthString);
+
+            m_useAuth = useAuth;
+        }
+        else {
+            m_useAuth = false;
+        }
+    }
+
+    /**
+     * Called by Dependency Manager upon initialization of this component.
+     * 
+     * @param comp the component to initialize, cannot be <code>null</code>.
+     */
+    protected void init(Component comp) {
+        comp.add(m_dm.createServiceDependency()
+            .setService(AuthenticationService.class)
+            .setRequired(m_useAuth)
+            .setInstanceBound(true)
+            );
     }
 
     /**
@@ -69,21 +114,21 @@ public class BundleServlet extends HttpServlet implements ManagedService {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         String path = request.getPathInfo();
         if ((path == null) || (path.length() <= 1)) {
-            sendResponse(response, HttpServletResponse.SC_BAD_REQUEST);
+            sendResponse(response, SC_BAD_REQUEST);
         }
         else {
             String id = path.substring(1);
             try {
                 if (m_store.put(id, request.getInputStream())) {
-                    sendResponse(response, HttpServletResponse.SC_OK);
+                    sendResponse(response, SC_OK);
                 }
                 else {
-                    sendResponse(response, HttpServletResponse.SC_CONFLICT);
+                    sendResponse(response, SC_CONFLICT);
                 }
             }
             catch (IOException e) {
                 m_log.log(LogService.LOG_WARNING, "Exception handling request: " + request.getRequestURL(), e);
-                sendResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                sendResponse(response, SC_INTERNAL_SERVER_ERROR);
             }
         }
     }
@@ -101,14 +146,14 @@ public class BundleServlet extends HttpServlet implements ManagedService {
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) {
         String path = request.getPathInfo();
         if ((path == null) || (path.length() <= 1)) {
-            sendResponse(response, HttpServletResponse.SC_BAD_REQUEST);
+            sendResponse(response, SC_BAD_REQUEST);
         }
         else {
             // Remove leading slash...
             String id = path.substring(1);
             try {
                 if (m_store.remove(id)) {
-                    sendResponse(response, HttpServletResponse.SC_OK);
+                    sendResponse(response, SC_OK);
                 }
                 else {
                     sendResponse(response, SC_NOT_FOUND);
@@ -116,7 +161,7 @@ public class BundleServlet extends HttpServlet implements ManagedService {
             }
             catch (IOException e) {
                 m_log.log(LogService.LOG_WARNING, "Exception handling request: " + request.getRequestURL(), e);
-                sendResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                sendResponse(response, SC_INTERNAL_SERVER_ERROR);
             }
         }
     }
@@ -136,7 +181,7 @@ public class BundleServlet extends HttpServlet implements ManagedService {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         String path = request.getPathInfo();
         if ((path == null) || (path.length() <= 1)) {
-            sendResponse(response, HttpServletResponse.SC_BAD_REQUEST);
+            sendResponse(response, SC_BAD_REQUEST);
         }
         else {
             // Remove leasing slash...
@@ -162,19 +207,51 @@ public class BundleServlet extends HttpServlet implements ManagedService {
             }
             catch (EOFException ex) {
                 // ACE-260: lower log-level of this exception; as it is probably because the remote hung up early...
-                m_log.log(LogService.LOG_DEBUG, "EOF Exception in request: " + request.getRequestURL() + "; probably the remote hung up early.");
+                m_log.log(LogService.LOG_DEBUG, "EOF Exception in request: " + request.getRequestURL()
+                    + "; probably the remote hung up early.");
             }
             catch (IOException ex) {
                 // ACE-260: all other exception are logged, as we might have a possible resource leak...
                 m_log.log(LogService.LOG_WARNING, "Exception in request: " + request.getRequestURL(), ex);
+                sendResponse(response, SC_INTERNAL_SERVER_ERROR);
             }
             finally {
-                closeSafely(fileStream, request);
                 closeSafely(output, request);
             }
         }
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (!authenticate(req)) {
+            // Authentication failed; don't proceed with the original request...
+            resp.sendError(SC_UNAUTHORIZED);
+        } else {
+            // Authentication successful, proceed with original request...
+            super.service(req, resp);
+        }
+    }
+
+    /**
+     * Authenticates, if needed the user with the information from the given request.
+     * 
+     * @param request the request to obtain the credentials from, cannot be <code>null</code>.
+     * @return <code>true</code> if the authentication was successful, <code>false</code> otherwise.
+     */
+    private boolean authenticate(HttpServletRequest request) {
+        if (m_useAuth) {
+            User user = m_authService.authenticate(request);
+            if (user == null) {
+                m_log.log(LogService.LOG_INFO, "Authentication failure!");
+            }
+            return (user != null);
+        }
+        return true;
+    }
+
     private void closeSafely(Closeable resource, HttpServletRequest request) {
         if (resource != null) {
             try {
@@ -182,7 +259,8 @@ public class BundleServlet extends HttpServlet implements ManagedService {
             }
             catch (EOFException ex) {
                 // ACE-260: lower log-level of this exception; as it is probably because the remote hung up early...
-                m_log.log(LogService.LOG_DEBUG, "EOF Exception trying to close stream: " + request.getRequestURL() + "; probably the remote hung up early.");
+                m_log.log(LogService.LOG_DEBUG, "EOF Exception trying to close stream: " + request.getRequestURL()
+                    + "; probably the remote hung up early.");
             }
             catch (Exception ex) {
                 // ACE-260: all other exception are logged, as we might have a possible resource leak...

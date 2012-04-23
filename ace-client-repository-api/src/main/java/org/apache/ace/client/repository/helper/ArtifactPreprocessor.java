@@ -22,11 +22,12 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- *  An ArtifactPreprocessor processes an artifact before it is deployed.
+ * An ArtifactPreprocessor processes an artifact before it is deployed.
  */
 public interface ArtifactPreprocessor {
     /**
      * Preprocesses a single artifact, uploads it to the obr, and returns the new URL as a string.
+     *
      * @param url A string representing a URL to the original artifact.
      * @param props A PropertyResolver which can be used to fill in 'holes' in the template.
      * @param targetID The targetID of the target for which this artifact is being processed.
@@ -40,13 +41,14 @@ public interface ArtifactPreprocessor {
     /**
      * Indicates whether the template should be processed again, given the properties, and the version to which it
      * should be compared.
+     * 
      * @param url A string representing a URL to the original artifact.
      * @param props A PropertyResolver which can be used to fill in 'holes' in the template.
      * @param targetID The targetID of the target for which this artifact is being processed.
      * @param version The deployment version for which this artifact is being processed.
      * @param fromVersion The deployment version to which the current one should be compared.
      * @return <code>false</code> if the version of the processed artifact identified by <code>fromVersion</code>
-     * is identical to what would be created using the new <code>props</code>; <code>true</code> otherwise.
+     *         is identical to what would be created using the new <code>props</code>; <code>true</code> otherwise.
      * @throws java.io.IOException
      */
     public boolean needsNewVersion(String url, PropertyResolver props, String targetID, String fromVersion);

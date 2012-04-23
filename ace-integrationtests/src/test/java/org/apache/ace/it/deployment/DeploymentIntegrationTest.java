@@ -18,12 +18,34 @@
  */
 package org.apache.ace.it.deployment;
 
+import static org.apache.ace.it.Options.jetty;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.provision;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
 import org.apache.ace.discovery.property.constants.DiscoveryConstants;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.property.constants.IdentificationConstants;
 import org.apache.ace.it.IntegrationTestBase;
+import org.apache.ace.it.Options.Ace;
+import org.apache.ace.it.Options.Felix;
+import org.apache.ace.it.Options.Osgi;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.deployment.BundleStreamGenerator;
@@ -38,7 +60,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.deploymentadmin.DeploymentAdmin;
 import org.osgi.service.deploymentadmin.DeploymentException;
@@ -47,17 +68,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpService;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.ace.it.Options.*;
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.*;
 
 @RunWith(JUnit4TestRunner.class)
 public class DeploymentIntegrationTest extends IntegrationTestBase implements BundleListener, EventHandler {
@@ -76,6 +86,8 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
                 Felix.configAdmin(),
                 Felix.eventAdmin(),
                 Felix.deploymentAdmin(),
+                Ace.authenticationApi(),
+                Ace.connectionFactory(),
                 Ace.scheduler(),
                 Ace.deploymentProviderApi(),
                 Ace.deploymentProviderFilebased(),
@@ -112,7 +124,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
 
     public static final String HOST = "localhost";
     public static final String GWID = "gw-id";
-    public static final long POLL_INTERVAL = 1000;
+    public static final String POLL_INTERVAL = "1000";
     private volatile ConfigurationAdmin m_config;
     private volatile DeploymentAdmin m_deployment;
     private volatile File m_tempDir;
@@ -343,14 +355,13 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
 
     private void configureTarget() throws IOException {
         // configure discovery bundle
-        setProperty(DiscoveryConstants.DISCOVERY_PID, new Object[][] { { DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + TestConstants.PORT } });
+        configure(DiscoveryConstants.DISCOVERY_PID, DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + TestConstants.PORT);
         // configure identification bundle
-        setProperty(IdentificationConstants.IDENTIFICATION_PID, new Object[][] { { IdentificationConstants.IDENTIFICATION_TARGETID_KEY, GWID } });
+        configure(IdentificationConstants.IDENTIFICATION_PID, IdentificationConstants.IDENTIFICATION_TARGETID_KEY, GWID);
         // configure scheduler
-        setProperty(SchedulerConstants.SCHEDULER_PID, new Object[][] {
-            { "org.apache.ace.target.auditlog.task.AuditLogSyncTask", POLL_INTERVAL },
-            { "org.apache.ace.deployment.task.DeploymentUpdateTask", POLL_INTERVAL }
-            });
+        configure(SchedulerConstants.SCHEDULER_PID,
+             "org.apache.ace.target.auditlog.task.AuditLogSyncTask", POLL_INTERVAL,
+             "org.apache.ace.deployment.task.DeploymentUpdateTask", POLL_INTERVAL);
     }
 
     private void unconfigureTarget() throws IOException {
@@ -366,22 +377,9 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
 
     private void configureServer() throws IOException {
         // configure data bundle
-        setProperty(org.apache.ace.deployment.servlet.Activator.PID, new Object[][] { { HttpConstants.ENDPOINT, "/deployment" } });
+        configure(org.apache.ace.deployment.servlet.Activator.PID, HttpConstants.ENDPOINT, "/deployment", "authentication.enabled", "false");
         // configure file based backend
-        setProperty(org.apache.ace.deployment.provider.filebased.Activator.PID, new Object[][] { { "BaseDirectoryName", m_tempDir.getAbsolutePath() } });
-    }
-
-    @SuppressWarnings("unchecked")
-    private void setProperty(String pid, Object[][] props) throws IOException {
-        Configuration configuration = m_config.getConfiguration(pid, null);
-        Dictionary dictionary = configuration.getProperties();
-        if (dictionary == null) {
-            dictionary = new Hashtable();
-        }
-        for (Object[] pair : props) {
-            dictionary.put(pair[0], pair[1]);
-        }
-        configuration.update(dictionary);
+        configure(org.apache.ace.deployment.provider.filebased.Activator.PID, "BaseDirectoryName", m_tempDir.getAbsolutePath());
     }
 
     private ArtifactData generateBundle(File file, String symbolicName, String version) throws Exception {

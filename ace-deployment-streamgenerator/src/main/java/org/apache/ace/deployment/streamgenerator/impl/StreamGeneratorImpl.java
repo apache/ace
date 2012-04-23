@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.SoftReference;
+import java.net.URLConnection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -29,6 +30,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.streamgenerator.StreamGenerator;
@@ -39,6 +41,7 @@ import org.apache.ace.deployment.streamgenerator.StreamGenerator;
  */
 public class StreamGeneratorImpl implements StreamGenerator {
     private volatile DeploymentProvider m_provider;
+    private volatile ConnectionFactory m_connectionFactory;
 
     /**
      * Returns an input stream with the requested deployment package.
@@ -49,7 +52,6 @@ public class StreamGeneratorImpl implements StreamGenerator {
      * @throws java.io.IOException when the stream could not be generated
      */
     public InputStream getDeploymentPackage(String id, String version) throws IOException {
-        //return execute(new Worker(id, version));
         List<ArtifactData> data = m_provider.getBundleData(id, version);
         Manifest manifest = new Manifest();
         Attributes main = manifest.getMainAttributes();
@@ -65,7 +67,7 @@ public class StreamGeneratorImpl implements StreamGenerator {
             manifest.getEntries().put(bd.getFilename(), bd.getManifestAttributes(false));
         }
 
-        return DeploymentPackageStream.createStreamForThread(manifest, data.iterator(), false);
+        return DeploymentPackageStream.createStreamForThread(m_connectionFactory, manifest, data.iterator(), false);
     }
 
     /**
@@ -92,40 +94,35 @@ public class StreamGeneratorImpl implements StreamGenerator {
             manifest.getEntries().put(bd.getFilename(), bd.getManifestAttributes(true));
         }
 
-        return DeploymentPackageStream.createStreamForThread(manifest, data.iterator(), true);
+        return DeploymentPackageStream.createStreamForThread(m_connectionFactory, manifest, data.iterator(), true);
     }
 
     private static final class DeploymentPackageStream extends InputStream {
         private byte[] m_readBuffer;
-
         private byte[] m_buffer;
-
-        private final OutputBuffer m_outputBuffer = new OutputBuffer(this);
-
         private JarOutputStream m_output;
-
         private Iterator<ArtifactData> m_iter;
-
         private InputStream m_current = null;
-
         private int m_pos = 0;
-
         private int m_max = 0;
-
         private boolean m_fixPack;
+        
+        private final OutputBuffer m_outputBuffer = new OutputBuffer(this);
+        private final ConnectionFactory m_connectionFactory;
 
-        private DeploymentPackageStream() {
-            this(64 * 1024);
+        private DeploymentPackageStream(ConnectionFactory connectionFactory) {
+            this(connectionFactory, 64 * 1024);
         }
 
-        private DeploymentPackageStream(int bufferSize) {
+        private DeploymentPackageStream(ConnectionFactory connectionFactory, int bufferSize) {
+            m_connectionFactory = connectionFactory;
             m_buffer = new byte[bufferSize];
             m_readBuffer = new byte[bufferSize];
         }
 
         private static final ThreadLocal<SoftReference<DeploymentPackageStream>> m_cache = new ThreadLocal<SoftReference<DeploymentPackageStream>>();
 
-        static DeploymentPackageStream createStreamForThread(Manifest man, Iterator<ArtifactData> iter, boolean fixpack) throws IOException {
+        static DeploymentPackageStream createStreamForThread(ConnectionFactory connectionFactory, Manifest man, Iterator<ArtifactData> iter, boolean fixpack) throws IOException {
             SoftReference<DeploymentPackageStream> ref = m_cache.get();
             DeploymentPackageStream dps = null;
             if (ref != null) {
@@ -133,12 +130,12 @@ public class StreamGeneratorImpl implements StreamGenerator {
             }
 
             if (dps == null) {
-                dps = new DeploymentPackageStream();
+                dps = new DeploymentPackageStream(connectionFactory);
                 m_cache.set(new SoftReference<DeploymentPackageStream>(dps));
             }
 
             if (dps.isInUse()) {
-                dps = new DeploymentPackageStream();
+                dps = new DeploymentPackageStream(connectionFactory);
             }
 
             dps.init(man, iter, fixpack);
@@ -167,12 +164,17 @@ public class StreamGeneratorImpl implements StreamGenerator {
                 m_output.close();
             }
             else if (!m_fixPack || current.hasChanged()) {
-                m_current = current.getUrl().openStream();
+                m_current = openStream(current);
                 m_output.putNextEntry(new ZipEntry(current.getFilename()));
             }
             else {
                 next();
             }
+        }
+
+        private InputStream openStream(ArtifactData data) throws IOException {
+            URLConnection conn = m_connectionFactory.createConnection(data.getUrl());
+            return conn.getInputStream();
         }
 
         @Override

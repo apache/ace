@@ -86,7 +86,8 @@
 	        !org.apache.tools.ant,
 	        !org.apache.tools.ant.taskdefs,
 	        !org.jdom.output,
-	        org.apache.ace.client.repository.helper;version=${project.version}
+	        org.apache.ace.client.repository.helper;version=${project.version},
+	        org.apache.ace.connectionfactory;version=${project.version}
         </import.package>
         <embed.dependency>
             velocity, xpp3, commons-collections, commons-lang
@@ -105,6 +106,10 @@
         <dependency>
             <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.client.repository.api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.connectionfactory</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

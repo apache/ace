@@ -27,10 +27,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 
 import org.apache.ace.client.repository.helper.PropertyResolver;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.osgi.service.useradmin.User;
 
 /**
  * Test cases for {@link VelocityArtifactPreprocessor}.
@@ -59,7 +62,7 @@ public class VelocityArtifactPreprocessorTest {
      */
     @Test
     public void testNeedsNewVersionChangedTemplateOk() throws Exception {
-        final VelocityArtifactPreprocessor vap = new VelocityArtifactPreprocessor();
+        final VelocityArtifactPreprocessor vap = createProcessor();
         
         String url = createArtifact("Message: [$context.msg]");
 
@@ -80,7 +83,7 @@ public class VelocityArtifactPreprocessorTest {
      */
     @Test
     public void testNeedsNewVersionEmptyTemplateOk() throws Exception {
-        final VelocityArtifactPreprocessor vap = new VelocityArtifactPreprocessor();
+        final VelocityArtifactPreprocessor vap = createProcessor();
         
         String url = createArtifact("");
 
@@ -96,7 +99,7 @@ public class VelocityArtifactPreprocessorTest {
      */
     @Test
     public void testNeedsNewVersionNonExistingTemplateOk() throws Exception {
-        final VelocityArtifactPreprocessor vap = new VelocityArtifactPreprocessor();
+        final VelocityArtifactPreprocessor vap = createProcessor();
         
         // Should be something that really doesn't exist somehow...
         String url = "file:///path/to/nowhere-" + System.currentTimeMillis();
@@ -110,7 +113,7 @@ public class VelocityArtifactPreprocessorTest {
      */
     @Test
     public void testNeedsNewVersionUnchangedTemplateOk() throws Exception {
-        final VelocityArtifactPreprocessor vap = new VelocityArtifactPreprocessor();
+        final VelocityArtifactPreprocessor vap = createProcessor();
         
         String url = createArtifact("Message: [$context.msg]");
         
@@ -131,7 +134,7 @@ public class VelocityArtifactPreprocessorTest {
     public void testPreprocessExistingNoTemplateOk() throws Exception {
         String url = createArtifact("Message: [context.msg]");
         
-        String newUrl = new VelocityArtifactPreprocessor().preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
+        String newUrl = createProcessor().preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
         assertNotNull(newUrl);
         // Verify that it is *not* uploaded...
         assertEquals(url, newUrl);
@@ -144,7 +147,7 @@ public class VelocityArtifactPreprocessorTest {
     public void testPreprocessExistingRealTemplateOk() throws Exception {
         String url = createArtifact("Message: [$context.msg]");
         
-        String newUrl = new VelocityArtifactPreprocessor().preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
+        String newUrl = createProcessor().preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
         assertNotNull(newUrl);
         // Verify that it is actually uploaded...
         assertFalse(newUrl.equals(url));
@@ -160,7 +163,7 @@ public class VelocityArtifactPreprocessorTest {
         // Should be something that really doesn't exist somehow...
         String url = "file:///path/to/nowhere-" + System.currentTimeMillis();
         
-        new VelocityArtifactPreprocessor().preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
+        createProcessor().preprocess(url, m_resolver, TARGET, VERSION1, m_obrUrl);
     }
 
     private String createArtifact(String string) throws IOException {
@@ -174,6 +177,18 @@ public class VelocityArtifactPreprocessorTest {
         writer.close();
 
         return tmpFile.toURI().toURL().toExternalForm();
+    }
+
+    private VelocityArtifactPreprocessor createProcessor() {
+        return new VelocityArtifactPreprocessor(new ConnectionFactory() {
+            public URLConnection createConnection(URL url, User user) throws IOException {
+                return createConnection(url);
+            }
+
+            public URLConnection createConnection(URL url) throws IOException {
+                return url.openConnection();
+            }
+        });
     }
 
     private String updateArtifact(String url, String string) throws IOException {

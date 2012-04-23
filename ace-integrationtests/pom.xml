@@ -107,9 +107,29 @@
 
         <dependency>
             <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.connectionfactory</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.authentication</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.apache.ace</groupId>
+        	<artifactId>org.apache.ace.authenticationprocessor.basicauth</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.apache.ace</groupId>
+        	<artifactId>org.apache.ace.authenticationprocessor.clientcert</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.apache.ace</groupId>
+        	<artifactId>org.apache.ace.authenticationprocessor.password</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.scheduler</artifactId>
         </dependency>
-      <dependency>
+        <dependency>
             <groupId>org.apache.ace</groupId>
             <artifactId>org.apache.ace.discovery.property</artifactId>
         </dependency>

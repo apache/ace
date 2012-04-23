@@ -75,6 +75,19 @@ public class Main {
             return "agents: configures multiple management agents: agent-id,identification,discovery[;agent-id,identification,discovery]*";
         }
     };
+    
+    private Argument m_auth = new KeyValueArgument() {
+        @Override
+        protected void handle(String key, String value) {
+            if ("auth".equals(key)) {
+                System.setProperty("auth", value);
+            }
+        }
+        
+        public String getDescription() {
+            return "auth: point to the properties file containing the authentication credentials for a certain subsystem: <dir/file/url>";
+        }
+    };
 
     private Argument m_help = new Argument() {
         public void handle(String argument) {
@@ -88,7 +101,7 @@ public class Main {
             return "help: prints this help message";
         }
     };
-    
+
     private Argument m_additionalBundles = new KeyValueArgument() {
         public void handle(String key, String value) {
             if ("bundle".equals(key)) {
@@ -113,6 +126,7 @@ public class Main {
     private FrameworkOption m_fwOptionHandler = new FrameworkOption();
     
     private final List<Argument> m_arguments = Arrays.asList(
+        m_auth,
         m_additionalBundles,
         m_identification,
         m_discovery,

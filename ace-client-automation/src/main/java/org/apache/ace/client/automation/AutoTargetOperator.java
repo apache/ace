@@ -71,9 +71,14 @@ public class AutoTargetOperator implements ManagedService {
             String customerName = getConfigValue( ConfigItem.CUSTOMER_NAME);
 
             RepositoryAdminLoginContext loginContext = m_reposAdmin.createLoginContext(user);
-            loginContext.addShopRepository(url, customerName, getConfigValue( ConfigItem.STORE_REPOSITORY), false)
-            .addTargetRepository(url, customerName, getConfigValue( ConfigItem.TARGET_REPOSITORY), true)
-            .addDeploymentRepository(url, customerName, getConfigValue( ConfigItem.DEPLOYMENT_REPOSITORY), true);
+            loginContext
+                .add(loginContext.createShopRepositoryContext()
+                    .setLocation(url).setCustomer(customerName).setName(getConfigValue(ConfigItem.STORE_REPOSITORY)))
+                .add(loginContext.createTargetRepositoryContext()
+                    .setLocation(url).setCustomer(customerName).setName(getConfigValue(ConfigItem.TARGET_REPOSITORY)).setWriteable())
+                .add(loginContext.createDeploymentRepositoryContext()
+                    .setLocation(url).setCustomer(customerName).setName(getConfigValue(ConfigItem.DEPLOYMENT_REPOSITORY)).setWriteable());
+
             m_reposAdmin.login(loginContext);
 
             // start refresh task

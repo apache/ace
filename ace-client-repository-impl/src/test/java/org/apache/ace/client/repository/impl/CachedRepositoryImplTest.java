@@ -43,7 +43,7 @@ public class CachedRepositoryImplTest {
         m_repository.commit(new ByteArrayInputStream(testContent), 0);
         BackupRepository m_backupRepository = new MockBackupRepository();
 
-        CachedRepository m_cachedRepository = new CachedRepositoryImpl(null, m_repository, m_backupRepository, 0);
+        CachedRepository m_cachedRepository = new CachedRepositoryImpl(m_repository, m_backupRepository, 0);
 
         InputStream input = m_cachedRepository.checkout(1);
         byte[] inputBytes = AdminTestUtil.copy(input);
@@ -67,13 +67,13 @@ public class CachedRepositoryImplTest {
         Repository m_repository = new MockRepository();
         BackupRepository m_backupRepository = new MockBackupRepository();
 
-        CachedRepository m_cachedRepository = new CachedRepositoryImpl(null, m_repository, m_backupRepository, 0);
+        CachedRepository m_cachedRepository = new CachedRepositoryImpl(m_repository, m_backupRepository, 0);
         byte[] testContent = new byte[] {'i', 'n', 'i', 't', 'i', 'a', 'l'};
 
         InputStream input = new ByteArrayInputStream(testContent);
         m_cachedRepository.commit(input, 0);
 
-        m_cachedRepository = new CachedRepositoryImpl(null, m_repository, m_backupRepository, 0);
+        m_cachedRepository = new CachedRepositoryImpl(m_repository, m_backupRepository, 0);
         input = m_cachedRepository.checkout(1);
         byte[] inputBytes = AdminTestUtil.copy(input);
         assert AdminTestUtil.byteArraysEqual(inputBytes, testContent) : "We got something different than 'initial' from checkout: " + new String(inputBytes);
@@ -84,7 +84,7 @@ public class CachedRepositoryImplTest {
 
         m_cachedRepository.commit();
 
-        m_cachedRepository = new CachedRepositoryImpl(null, m_repository, m_backupRepository, 0);
+        m_cachedRepository = new CachedRepositoryImpl(m_repository, m_backupRepository, 0);
         input = m_cachedRepository.checkout(2);
         inputBytes = AdminTestUtil.copy(input);
         assert AdminTestUtil.byteArraysEqual(inputBytes, newTestContent) : "We got something different than 'new' from checkout: " + new String(inputBytes);
@@ -100,13 +100,13 @@ public class CachedRepositoryImplTest {
         Repository m_repository = new MockRepository();
         BackupRepository m_backupRepository = new MockBackupRepository();
 
-        CachedRepository m_cachedRepository = new CachedRepositoryImpl(null, m_repository, m_backupRepository, 0);
+        CachedRepository m_cachedRepository = new CachedRepositoryImpl(m_repository, m_backupRepository, 0);
         byte[] testContent = new byte[] {'i', 'n', 'i', 't', 'i', 'a', 'l'};
 
         InputStream input = new ByteArrayInputStream(testContent);
         m_cachedRepository.commit(input, 0);
 
-        m_cachedRepository = new CachedRepositoryImpl(null, m_repository, m_backupRepository, 0);
+        m_cachedRepository = new CachedRepositoryImpl(m_repository, m_backupRepository, 0);
         input = m_cachedRepository.checkout(1);
 
         byte[] newTestContent = new byte[] {'n', 'e', 'w'};

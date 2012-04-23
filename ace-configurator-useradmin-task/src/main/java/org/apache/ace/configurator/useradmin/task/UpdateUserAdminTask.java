@@ -22,14 +22,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Dictionary;
 import java.util.Properties;
 
+import org.apache.ace.repository.Repository;
+import org.apache.ace.repository.ext.BackupRepository;
 import org.apache.ace.repository.ext.CachedRepository;
 import org.apache.ace.repository.ext.impl.CachedRepositoryImpl;
+import org.apache.ace.repository.ext.impl.FilebasedBackupRepository;
 import org.apache.ace.resourceprocessor.useradmin.UserAdminConfigurator;
+import org.apache.felix.dm.Component;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
@@ -56,13 +59,40 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
     private static final String FILE_ROOT = "userrepositories";
     private static final String VERSION = "version";
 
-    private volatile UserAdminConfigurator m_configurator; /* Will be injected by dependency manager */
-    private volatile LogService m_log; /* Will be injected by dependency manager */
-    private volatile BundleContext m_context; /* Will be injected by dependency manager */
+    // Will by injected by Dependency Manager...
+    private volatile UserAdminConfigurator m_configurator;
+    private volatile LogService m_log;
+    private volatile BundleContext m_context;
 
     private CachedRepository m_repo;
+    private BackupRepository m_backup;
+    private String m_repoFilter;
     private File m_properties;
+    
+    /**
+     * Called by Dependency Manager upon initialization of this component.
+     * <p>
+     * Due to the dependency on the configuration; the {@link #updated(Dictionary)} method is already called!
+     * </p>
+     * 
+     * @param comp this component, cannot be <code>null</code>.
+     */
+    public void init(Component comp) {
+        final DependencyManager dm = comp.getDependencyManager();
+        // Add the required dependency to the remote repository...
+        comp.add(dm.createServiceDependency()
+            .setService(Repository.class, m_repoFilter)
+            .setCallbacks("addRepo", "removeRepo")
+            .setInstanceBound(true)
+            .setRequired(true)
+            );
+    }
 
+    /**
+     * Checks whether there are updates to the remote repository, and if so, updates the users' backend with its contents.
+     * 
+     * @see java.lang.Runnable#run()
+     */
     public void run() {
         try {
             if (!m_repo.isCurrent()) {
@@ -78,7 +108,12 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
         }
     }
 
-    public void start() {
+    /**
+     * Called by Dependency Manager upon starting of this component.
+     * 
+     * @param comp this component, cannot be <code>null</code>.
+     */
+    public void start(Component comp) {
         try {
             // Try to read the server data
             m_configurator.setUsers(m_repo.checkout(true));
@@ -94,6 +129,63 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
                 m_log.log(LogService.LOG_DEBUG, "UpdateUserAdminTask failed to load local data.");
             }
         }
+    }
+
+    public void updated(Dictionary dict) throws ConfigurationException {
+        if (dict != null) {
+            String customer = (String) dict.get(KEY_REPOSITORY_CUSTOMER);
+            if (customer == null) {
+                throw new ConfigurationException(KEY_REPOSITORY_CUSTOMER, "Property missing.");
+            }
+            String name = (String) dict.get(KEY_REPOSITORY_NAME);
+            if (name == null) {
+                throw new ConfigurationException(KEY_REPOSITORY_NAME, "Property missing.");
+            }
+
+            String fileRoot = FILE_ROOT + File.separator + customer + File.separator + name + File.separator;
+
+            File local = getFile(fileRoot + "local");
+            File backup = getFile(fileRoot + "backup");
+            m_backup = new FilebasedBackupRepository(local, backup);
+            
+            m_properties = getFile(fileRoot + "properties");
+            
+            m_repoFilter = "(&(customer=" + customer + ")(name=" + name + "))";
+        }
+    }
+
+    /**
+     * Creates the cached repository when given a remote repository.
+     * 
+     * @param remoteRepo the remote repository to add, cannot be <code>null</code>.
+     */
+    final void addRepo(Repository remoteRepo) {
+        m_repo = new CachedRepositoryImpl(remoteRepo, m_backup, loadVersion(m_properties));
+    }
+
+    /**
+     * Removes the cached repository when given a remote repository.
+     * 
+     * @param remoteRepo the remote repository to remove, cannot be <code>null</code>.
+     */
+    final void removeRepo(Repository remoteRepo) {
+        m_repo = null;
+    }
+
+    private File getFile(String name) {
+        File result = m_context.getDataFile(name);
+        if (!result.exists()) {
+            result.getParentFile().mkdirs();
+            try {
+                if (!result.createNewFile()) {
+                    m_log.log(LogService.LOG_ERROR, "Error creating new file " + name);
+                }
+            }
+            catch (IOException e) {
+                m_log.log(LogService.LOG_ERROR, "Error creating new file " + name, e);
+            }
+        }
+        return result;
     }
 
     /**
@@ -126,52 +218,4 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
             m_log.log(LogService.LOG_ERROR, "UpdateUserAdminTask failed to save local version number.");
         }
     }
-
-    public void updated(Dictionary dict) throws ConfigurationException {
-        if (dict != null) {
-            String locationString = (String) dict.get(KEY_REPOSITORY_LOCATION);
-            if (locationString == null) {
-                throw new ConfigurationException(KEY_REPOSITORY_LOCATION, "Property missing.");
-            }
-            URL location;
-            try {
-                location = new URL(locationString);
-            }
-            catch (MalformedURLException e) {
-                throw new ConfigurationException(KEY_REPOSITORY_LOCATION, "Location " + locationString + " is not a valid URL.");
-            }
-            String customer = (String) dict.get(KEY_REPOSITORY_CUSTOMER);
-            if (customer == null) {
-                throw new ConfigurationException(KEY_REPOSITORY_CUSTOMER, "Property missing.");
-            }
-            String name = (String) dict.get(KEY_REPOSITORY_NAME);
-            if (name == null) {
-                throw new ConfigurationException(KEY_REPOSITORY_NAME, "Property missing.");
-            }
-
-            String fileRoot = FILE_ROOT + File.separator + location.getAuthority().replace(':', '-') + location.getPath().replace('/', '\\') + File.separator + customer + File.separator + name + File.separator;
-            File local = getFile(fileRoot + "local");
-            File backup = getFile(fileRoot + "backup");
-            m_properties = getFile(fileRoot + "properties");
-
-            m_repo = new CachedRepositoryImpl(null, location, customer, name, local, backup, loadVersion(m_properties));
-        }
-    }
-
-    private File getFile(String name) {
-        File result = m_context.getDataFile(name);
-        if (!result.exists()) {
-            result.getParentFile().mkdirs();
-            try {
-                if (!result.createNewFile()) {
-                    m_log.log(LogService.LOG_ERROR, "Error creating new file " + name);
-                }
-            }
-            catch (IOException e) {
-                m_log.log(LogService.LOG_ERROR, "Error creating new file " + name, e);
-            }
-        }
-        return result;
-    }
-
 }

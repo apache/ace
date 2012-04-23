@@ -71,6 +71,10 @@
             <artifactId>org.apache.ace.scheduler.api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.connectionfactory</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>

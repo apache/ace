@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.identification.Identification;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
@@ -77,6 +78,7 @@ public class LogSyncConfigurator implements ManagedServiceFactory {
             Component sync = m_manager.createComponent()
                 .setInterface(Runnable.class.getName(), properties)
                 .setImplementation(new LogSyncTask(name))
+                .add(m_manager.createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
                 .add(m_manager.createServiceDependency().setService(LogStore.class, filterString).setRequired(true))
                 .add(m_manager.createServiceDependency().setService(Discovery.class, filterForDiscovery).setRequired(true))
                 .add(m_manager.createServiceDependency().setService(Identification.class, filterForIdentification).setRequired(true))

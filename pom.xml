@@ -74,6 +74,8 @@
         <module>ace-client-repository-helper-user</module>
         <module>ace-client-automation</module>
 
+        <module>ace-connectionfactory</module>
+
         <module>ace-client-rest</module>
 
         <module>ace-deployment-provider-api</module>
@@ -106,7 +108,9 @@
         <module>ace-resourceprocessor-useradmin</module>
         <module>ace-configurator-useradmin-task</module>
 
+<!-- XXX no longer in use?
         <module>ace-client-repository-useradmin</module>
+-->
 
         <module>ace-server-action</module>
         <module>ace-server-action-popupmessage</module>

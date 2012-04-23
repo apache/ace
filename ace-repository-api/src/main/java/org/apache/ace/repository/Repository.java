@@ -28,10 +28,9 @@ import org.apache.ace.range.SortedRangeSet;
  */
 public interface Repository
 {
-
     /**
      * Determines the versions inside the repository.
-     *
+     * 
      * @returns A <code>SortedRangeSet</code> representing all the versions currently inside the repository.
      * @throws java.io.IOException If there is an error determining the current versions.
      */
@@ -39,7 +38,7 @@ public interface Repository
 
     /**
      * Commits data into the repository.
-     *
+     * 
      * @param data The data to be committed.
      * @param fromVersion The version the data is based upon.
      * @return True if the commit succeeded, false otherwise if the <code>fromVersion</code> is not the latest version.
@@ -52,8 +51,9 @@ public interface Repository
     /**
      * Checks out the version of the repository that have been passed to this
      * method as parameter.
+     * 
      * @return a stream containing a checkout of the passed in version of
-     * the repository, or null if the version does not exist
+     *         the repository, or null if the version does not exist
      * @throws java.io.IOException if there is an error reading the version
      * @throws IllegalArgumentException if the version is invalid.
      */

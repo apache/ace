@@ -18,7 +18,23 @@
  */
 package org.apache.ace.it.useradminconfigurator;
 
+import static org.apache.ace.it.Options.jetty;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.provision;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
 import org.apache.ace.it.IntegrationTestBase;
+import org.apache.ace.it.Options.Ace;
+import org.apache.ace.it.Options.Felix;
+import org.apache.ace.it.Options.Knopflerfish;
+import org.apache.ace.it.Options.Osgi;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
 import org.apache.ace.test.constants.TestConstants;
@@ -32,21 +48,13 @@ import org.ops4j.pax.exam.options.WrappedUrlProvisionOption;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import static org.apache.ace.it.Options.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.ops4j.pax.exam.CoreOptions.*;
-
 @RunWith(JUnit4TestRunner.class)
 public class ConfiguratorTest extends IntegrationTestBase {
 
     @Configuration
     public Option[] configuration() {
         return options(
-            systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),    
+            systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
             provision(
                 wrappedBundle(maven("org.apache.ace", "org.apache.ace.util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL), // we do this because we need access to some test classes that aren't exported
                 Osgi.compendium(),
@@ -56,6 +64,8 @@ public class ConfiguratorTest extends IntegrationTestBase {
                 Felix.configAdmin(),
                 Knopflerfish.useradmin(),
                 Knopflerfish.log(),
+                Ace.authenticationApi(),
+                Ace.connectionFactory(),
                 Ace.rangeApi(),
                 Ace.scheduler(),
                 Ace.httplistener(),
@@ -87,12 +97,9 @@ public class ConfiguratorTest extends IntegrationTestBase {
                 RepositoryConstants.REPOSITORY_NAME, "users",
                 RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
                 RepositoryConstants.REPOSITORY_MASTER, "true");
-        configure("org.apache.ace.repository.servlet.RepositoryServlet",
-                "org.apache.ace.server.servlet.endpoint", "/repository");
         configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
                 "repositoryName", "users",
-                "repositoryCustomer", "apache",
-                "repositoryLocation", "http://localhost:" + TestConstants.PORT + "/repository");
+                "repositoryCustomer", "apache");
         configure("org.apache.ace.scheduler",
                 "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "1000");
     }

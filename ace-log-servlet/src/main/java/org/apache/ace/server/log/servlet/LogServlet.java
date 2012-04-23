@@ -18,23 +18,28 @@
  */
 package org.apache.ace.server.log.servlet;
 
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.server.log.store.LogStore;
 import org.osgi.service.log.LogService;
+import org.osgi.service.useradmin.User;
 
 /**
  * This class acts as a servlet and handles the log protocol. This means a number of requests will be handled:
@@ -72,14 +77,18 @@ public class LogServlet extends HttpServlet {
     private static final String FILTER_KEY = "filter";
     private static final String LOGID_KEY = "logid";
     private static final String RANGE_KEY = "range";
-
-    private volatile LogService m_log; /* will be injected by dependencymanager */
-    private volatile LogStore m_store; /* will be injected by dependencymanager */
+    
+    // injected by Dependency Manager
+    private volatile LogService m_log;
+    private volatile LogStore m_store;
+    private volatile AuthenticationService m_authService;
 
     private final String m_name;
+    private final boolean m_useAuth;
 
-    public LogServlet(String name) {
+    public LogServlet(String name, boolean useAuth) {
         m_name = name;
+        m_useAuth = useAuth;
     }
 
     @Override
@@ -133,6 +142,37 @@ public class LogServlet extends HttpServlet {
                 m_log.log(LogService.LOG_WARNING, "Exception trying to close stream after request: " + request.getRequestURL(), ex);
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (!authenticate(req)) {
+            // Authentication failed; don't proceed with the original request...
+            resp.sendError(SC_UNAUTHORIZED);
+        } else {
+            // Authentication successful, proceed with original request...
+            super.service(req, resp);
+        }
+    }
+
+    /**
+     * Authenticates, if needed the user with the information from the given request.
+     * 
+     * @param request the request to obtain the credentials from, cannot be <code>null</code>.
+     * @return <code>true</code> if the authentication was successful, <code>false</code> otherwise.
+     */
+    private boolean authenticate(HttpServletRequest request) {
+        if (m_useAuth) {
+            User user = m_authService.authenticate(request);
+            if (user == null) {
+                m_log.log(LogService.LOG_INFO, "Authentication failure!");
+            }
+            return (user != null);
+        }
+        return true;
     }
 
     // Handle a call to the query 'command'

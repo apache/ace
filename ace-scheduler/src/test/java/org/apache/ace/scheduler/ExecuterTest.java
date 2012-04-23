@@ -20,6 +20,7 @@ package org.apache.ace.scheduler;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -66,5 +67,25 @@ public class ExecuterTest {
         executer.stop();
         Thread.sleep(100);
         assert m_sem.tryAcquire(1, TimeUnit.SECONDS);
+    }
+
+    /* start task, which executes longer than the task interval specifies, causing multiple concurrent tasks to be started. */
+    @Test(groups = { UNIT })
+    public void testTooLongTask() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(5);
+        
+        Executer executer = new Executer(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(20);
+                    latch.countDown();
+                }
+                catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        executer.start(10);
+        assert latch.await(1, TimeUnit.SECONDS);
     }
 }

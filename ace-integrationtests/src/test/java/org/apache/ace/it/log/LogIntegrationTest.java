@@ -69,12 +69,14 @@ public class LogIntegrationTest extends IntegrationTestBase {
                 Felix.configAdmin(),
                 jetty(),
                 Ace.util(),
+                Ace.authenticationApi(),
                 Ace.rangeApi(),
                 Ace.discoveryApi(),
                 Ace.discoveryProperty(),
                 Ace.identificationApi(),
                 Ace.identificationProperty(),
                 Ace.httplistener(),
+                Ace.connectionFactory(),
                 Ace.log(),
                 Ace.logListener(),
                 Ace.logServlet(),
@@ -97,14 +99,14 @@ public class LogIntegrationTest extends IntegrationTestBase {
         configureFactory("org.apache.ace.target.log.factory",
                 "name", "auditlog");
         configureFactory("org.apache.ace.target.log.sync.factory",
-            "name", "auditlog");
+            "name", "auditlog", "authentication.enabled", "false");
 
         configure("org.apache.ace.deployment.servlet",
-                HttpConstants.ENDPOINT, DEPLOYMENT);
+                HttpConstants.ENDPOINT, DEPLOYMENT, "authentication.enabled", "false");
 
         configureFactory("org.apache.ace.server.log.servlet.factory",
                 "name", "auditlog",
-                HttpConstants.ENDPOINT, AUDITLOG);
+                HttpConstants.ENDPOINT, AUDITLOG, "authentication.enabled", "false");
         configureFactory("org.apache.ace.server.log.store.factory",
                 "name", "auditlog");
 

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.Deployment;
 import org.apache.ace.deployment.service.DeploymentService;
 import org.apache.ace.discovery.Discovery;
@@ -144,6 +145,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             .setInterface(DeploymentService.class.getName(), deploymentProperties)
             .setImplementation(deploymentService)
             .add(createServiceDependency().setService(Deployment.class).setRequired(true))
+            .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
             .add(createServiceDependency().setService(Identification.class, identificationFilter).setRequired(true))
             .add(createServiceDependency().setService(Discovery.class, discoveryFilter).setRequired(true))
             .add(createServiceDependency().setService(EventAdmin.class).setRequired(false))

@@ -18,6 +18,11 @@
  */
 package org.apache.ace.client.repository.helper.configuration.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+import org.apache.ace.client.repository.helper.ArtifactResource;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,35 +33,57 @@ public class ConfigurationHelperImplTest {
     @Test
     public void testNamespace10Recognized() throws Exception {
         ConfigurationHelperImpl c = new ConfigurationHelperImpl();
-        String mime = c.recognize(this.getClass().getClassLoader().getResource("valid10.xml"));
+        String mime = c.recognize(convertToArtifactResource("valid10.xml"));
         Assert.assertNotNull(mime);
     }
 
     @Test
     public void testNamespace11Recognized() throws Exception {
         ConfigurationHelperImpl c = new ConfigurationHelperImpl();
-        String mime = c.recognize(this.getClass().getClassLoader().getResource("valid11.xml"));
+        String mime = c.recognize(convertToArtifactResource("valid11.xml"));
         Assert.assertNotNull(mime);
     }
 
     @Test
     public void testNamespace12Recognized() throws Exception {
         ConfigurationHelperImpl c = new ConfigurationHelperImpl();
-        String mime = c.recognize(this.getClass().getClassLoader().getResource("valid12.xml"));
+        String mime = c.recognize(convertToArtifactResource("valid12.xml"));
         Assert.assertNotNull(mime);
     }
 
     @Test
     public void testNamespace13NotRecognized() throws Exception {
         ConfigurationHelperImpl c = new ConfigurationHelperImpl();
-        String mime = c.recognize(this.getClass().getClassLoader().getResource("invalid13.xml"));
+        String mime = c.recognize(convertToArtifactResource("invalid13.xml"));
         Assert.assertNull(mime);
     }
 
     @Test
     public void testCanHandleCommentBeforeRoot() throws Exception {
         ConfigurationHelperImpl c = new ConfigurationHelperImpl();
-        String mime = c.recognize(this.getClass().getClassLoader().getResource("validWithComment.xml"));
+        String mime = c.recognize(convertToArtifactResource("validWithComment.xml"));
         Assert.assertNotNull(mime);
+    }
+
+    /**
+     * @param url
+     * @return
+     */
+    private ArtifactResource convertToArtifactResource(final String res) {
+        if (res == null) {
+            return null;
+        }
+        
+        final URL url = getClass().getClassLoader().getResource(res);
+        
+        return new ArtifactResource() {
+            public URL getURL() {
+                return url;
+            }
+            
+            public InputStream openStream() throws IOException {
+                return getURL().openStream();
+            }
+        };
     }
 }

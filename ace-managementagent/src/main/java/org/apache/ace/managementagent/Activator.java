@@ -1,5 +1,6 @@
 package org.apache.ace.managementagent;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
@@ -14,11 +15,13 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 public class Activator extends DependencyActivatorBase {
 
-    private BundleActivator[] m_activators = new BundleActivator[] {
+    private final boolean m_quiet = Boolean.parseBoolean(System.getProperty("quiet", "false"));
+    private final BundleActivator[] m_activators = new BundleActivator[] {
         new org.apache.ace.deployment.deploymentadmin.Activator(),
         new org.apache.ace.deployment.service.impl.Activator(),
         new org.apache.ace.deployment.task.Activator(),
         new org.apache.ace.discovery.property.Activator(),
+        new org.apache.ace.connectionfactory.impl.Activator(),
         new org.apache.ace.target.log.Activator(),
         new org.apache.ace.target.log.store.impl.Activator(),
         new org.apache.ace.identification.property.Activator(),
@@ -30,9 +33,21 @@ public class Activator extends DependencyActivatorBase {
     };
     
     private volatile ConfigurationAdmin m_config;
-    
-    private boolean m_quiet = Boolean.parseBoolean(System.getProperty("quiet", "false"));
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
+        for (int i = 0; i < m_activators.length; i++) {
+            BundleActivator a = m_activators[i];
+            a.stop(context);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         for (int i = 0; i < m_activators.length; i++) {
@@ -48,7 +63,7 @@ public class Activator extends DependencyActivatorBase {
                 System.out.println("Not starting activator " + packageName + ".");
             }
         }
-        
+
         manager.add(createComponent()
             .setImplementation(this)
             .add(createServiceDependency()
@@ -56,14 +71,25 @@ public class Activator extends DependencyActivatorBase {
                 .setRequired(true)));
     }
     
+    /**
+     * Called by the dependency manager when the configuration admin service becomes available.
+     */
     public void start() {
         try {
             String syncInterval = System.getProperty("syncinterval", "2000");
-            configureFactory("org.apache.ace.target.log.factory", "name", "auditlog");
-            configureFactory("org.apache.ace.target.log.store.factory", "name", "auditlog");
-            configure("org.apache.ace.scheduler", "org.apache.ace.deployment.task.DeploymentUpdateTask", syncInterval);
             String stopUnaffectedBundles = System.getProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", "false");
             System.setProperty("org.apache.felix.deploymentadmin.stopunaffectedbundle", stopUnaffectedBundles);
+
+            configureFactory("org.apache.ace.target.log.factory", "name", "auditlog");
+            configureFactory("org.apache.ace.target.log.store.factory", "name", "auditlog");
+
+            configure("org.apache.ace.scheduler", "org.apache.ace.deployment.task.DeploymentUpdateTask", syncInterval);
+
+            String auth = System.getProperty("auth");
+            if (auth != null && !"".equals(auth.trim())) {
+                configureAuth("org.apache.ace.connectionfactory", auth);
+            }
+
             String agents = System.getProperty("agents");
             if (agents != null) {
                 // format: a,b,c;d,e,f
@@ -108,9 +134,10 @@ public class Activator extends DependencyActivatorBase {
             }
             else {
                 String server = System.getProperty("discovery", "http://localhost:8080");
-                configure("org.apache.ace.discovery.property", "serverURL", server);
-                boolean isFileUrl = "file".equals((new URL(server)).getProtocol());
                 String targetId = System.getProperty("identification", "defaultTargetID");
+                boolean isFileUrl = "file".equals((new URL(server)).getProtocol());
+                
+                configure("org.apache.ace.discovery.property", "serverURL", server);
                 configure("org.apache.ace.identification.property", "targetID", targetId);
                 if (!isFileUrl) {
                     configureFactory("org.apache.ace.target.log.sync.factory", "name", "auditlog");
@@ -167,12 +194,38 @@ public class Activator extends DependencyActivatorBase {
             conf.update(properties);
         }
     }
-
-    @Override
-    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
-        for (int i = 0; i < m_activators.length; i++) {
-            BundleActivator a = m_activators[i];
-            a.stop(context);
+    
+    private void configureAuth(String factoryPid, String value) throws IOException {
+        try {
+            File file = new File(value);
+            if (file.exists()) {
+                if (file.isDirectory()) {
+                    for (File f : file.listFiles()) {
+                        loadProperties(factoryPid, f);
+                    }
+                } else {
+                    loadProperties(factoryPid, file);
+                }
+            } else {
+                loadProperties(factoryPid, new URL(value));
+            }
+        } catch (IOException e) {
+            System.err.println("Invalid authentication properties for " + value + " (" + e.getMessage() + ")");
         }
+    }
+    
+    private Properties loadProperties(String factoryPID, File f) throws IOException {
+        return loadProperties(factoryPID, f.toURI().toURL());
+    }
+    
+    private Properties loadProperties(String factoryPID, URL url) throws IOException {
+        Configuration conf = m_config.createFactoryConfiguration(factoryPID, null);
+        
+        Properties props = new Properties();
+        props.load(url.openStream());
+        
+        conf.update(props);
+        
+        return props;
     }
 }

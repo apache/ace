@@ -23,6 +23,7 @@ import static org.apache.ace.test.utils.TestUtils.UNIT;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -35,8 +36,6 @@ import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.target.log.store.LogStore;
-import org.apache.ace.target.log.task.Connection;
-import org.apache.ace.target.log.task.LogSyncTask;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.log.LogService;
 import org.testng.annotations.BeforeMethod;
@@ -44,7 +43,7 @@ import org.testng.annotations.Test;
 
 public class LogSyncTaskTest {
 
-    private static final String GW_ID = "gwID";
+    private static final String TARGET_ID = "gwID";
     private LogSyncTask m_task;
 
     @BeforeMethod(alwaysRun = true)
@@ -53,7 +52,7 @@ public class LogSyncTaskTest {
         TestUtils.configureObject(m_task, LogService.class);
         TestUtils.configureObject(m_task, Identification.class, new Identification() {
             public String getID() {
-                return GW_ID;
+                return TARGET_ID;
             }
         });
         TestUtils.configureObject(m_task, Discovery.class);
@@ -62,7 +61,7 @@ public class LogSyncTaskTest {
 
     @Test(groups = { UNIT })
     public synchronized void getRange() throws Exception {
-        final LogDescriptor range = new LogDescriptor(GW_ID, 1, new SortedRangeSet("1-10"));
+        final LogDescriptor range = new LogDescriptor(TARGET_ID, 1, new SortedRangeSet("1-10"));
         m_task.getDescriptor(new InputStream() {
             int m_count = 0;
             byte[] m_bytes = (range.toRepresentation() + "\n").getBytes();
@@ -81,8 +80,8 @@ public class LogSyncTaskTest {
 
     @Test(groups = { UNIT })
     public synchronized void synchronizeLog() throws Exception {
-        final LogDescriptor range = new LogDescriptor(GW_ID, 1, new SortedRangeSet(new long[] {0}));
-        final LogEvent event = new LogEvent(GW_ID, 1, 1, 1, 1, new Properties());
+        final LogDescriptor range = new LogDescriptor(TARGET_ID, 1, new SortedRangeSet(new long[] {0}));
+        final LogEvent event = new LogEvent(TARGET_ID, 1, 1, 1, 1, new Properties());
         final List<LogEvent> events = new ArrayList<LogEvent>();
         events.add(event);
 
@@ -113,6 +112,7 @@ public class LogSyncTaskTest {
             public LogEvent put(int type, Dictionary props) throws IOException { return null; }
         });
         MockConnection connection = new MockConnection(new URL("http://mock"));
+        
         m_task.synchronizeLog(1, input, connection);
         String expectedString = event.toRepresentation() + "\n";
         String actualString = connection.getString();
@@ -120,7 +120,7 @@ public class LogSyncTaskTest {
         assert actualString.equals(expectedString) : "We expected " + expectedString + " but received " + actualString;
     }
 
-    private class MockConnection extends Connection {
+    private class MockConnection extends HttpURLConnection {
 
         private MockOutputStream m_output;
 
@@ -138,7 +138,20 @@ public class LogSyncTaskTest {
             return m_output;
         }
 
+        @Override
+        public void disconnect() {
+            // Nop
+        }
 
+        @Override
+        public boolean usingProxy() {
+            return false;
+        }
+
+        @Override
+        public void connect() throws IOException {
+            // Nop
+        }
     }
 
     private class MockOutputStream extends OutputStream {
