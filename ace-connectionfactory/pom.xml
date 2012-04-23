@@ -42,6 +42,7 @@
         
     <properties>
         <import.package>
+        	!org.junit,
         	org.apache.ace.connectionfactory;version=${project.version},
         	org.osgi.framework,
         	org.osgi.service.cm,

@@ -55,6 +55,12 @@ final class UrlCredentials {
      * @param credentials the credentials to use, cannot be <code>null</code>, but may be empty.
      */
     public UrlCredentials(AuthType type, URL baseURL, Object... credentials) {
+        if (type == null) {
+            throw new IllegalArgumentException("Type cannot be null!");
+        }
+        if (baseURL == null) {
+            throw new IllegalArgumentException("BaseURL cannot be null!");
+        }
         m_type = type;
         m_baseURL = baseURL;
         m_credentials = (credentials == null) ? new Object[0] : credentials.clone();
@@ -127,5 +133,12 @@ final class UrlCredentials {
         result = prime * result + ((m_baseURL == null) ? 0 : m_baseURL.hashCode());
         result = prime * result + Arrays.hashCode(m_credentials);
         return result;
+    }
+
+    /**
+     * @return the base URL these credentials apply to, cannot be <code>null</code>.
+     */
+    final URL getBaseURL() {
+        return m_baseURL;
     }
 }

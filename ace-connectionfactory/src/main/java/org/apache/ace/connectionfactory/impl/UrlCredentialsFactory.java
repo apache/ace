@@ -85,6 +85,13 @@ final class UrlCredentialsFactory {
      * @throws MissingValueException in case the given properties is missing values.
      */
     public static UrlCredentials getCredentials(Dictionary props, String prefix) throws MissingValueException {
+        if (props == null) {
+            throw new IllegalArgumentException("Properties cannot be null!");
+        }
+        if (prefix == null) {
+            throw new IllegalArgumentException("Prefix cannot be null!");
+        }
+
         AuthType type;
         URL baseURL; 
         Object[] creds;

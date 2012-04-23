@@ -120,17 +120,15 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
             creds = m_credentialMapping.get(pid);
         }
 
-        if (creds == null) {
-            try {
-                creds = UrlCredentialsFactory.getCredentials(properties);
-                
-                synchronized (m_credentialMapping) {
-                    m_credentialMapping.put(pid, creds);
-                }
+        try {
+            creds = UrlCredentialsFactory.getCredentials(properties);
+            
+            synchronized (m_credentialMapping) {
+                m_credentialMapping.put(pid, creds);
             }
-            catch (MissingValueException e) {
-                throw new ConfigurationException(e.getProperty(), e.getMessage());
-            }
+        }
+        catch (MissingValueException e) {
+            throw new ConfigurationException(e.getProperty(), e.getMessage());
         }
     }
     
@@ -141,12 +139,12 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
      * @return a {@link UrlCredentials} instance for the given URL, or <code>null</code> 
      *         if none were found, or if none were necessary.
      */
-    private UrlCredentials getCredentials(URL url) {
+    final UrlCredentials getCredentials(URL url) {
         Collection<UrlCredentials> creds;
         synchronized (m_credentialMapping) {
             creds = new ArrayList<UrlCredentials>(m_credentialMapping.values());
         }
-        
+
         for (UrlCredentials c : creds) {
             if (c.matches(url)) {
                 return c;
