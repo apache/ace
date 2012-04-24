@@ -66,7 +66,9 @@
         <private.package>
             EDU.oswego.cs.dl.util.concurrent;-split-package:=first,
             org.apache.felix.*;-split-package:=first,
-            org.apache.ace.*;-split-package:=first
+            org.apache.ace.*;-split-package:=first,
+            org.apache.commons.codec;-split-package:=first,
+            org.apache.commons.codec.binary;-split-package:=first
         </private.package>
         <bundle.activator>
             org.apache.ace.managementagent.Activator
