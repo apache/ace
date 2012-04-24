@@ -19,10 +19,7 @@
 
 package org.apache.ace.authentication.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -33,8 +30,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.ace.authentication.api.AuthenticationProcessor;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -42,6 +37,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link AuthenticationServiceImpl}.
@@ -50,7 +47,7 @@ public class AuthenticationServiceImplTest {
     
     private LogService m_log;
 
-    @Before
+    @BeforeMethod(alwaysRun = true)
     public void setUp() {
         m_log = mock(LogService.class);
     }
@@ -58,7 +55,7 @@ public class AuthenticationServiceImplTest {
     /**
      * Tests that an exception is thrown if a null context is given.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testAuthenticateFailsWithNullContext() {
         new AuthenticationServiceImpl().authenticate((Object[]) null);
     }
@@ -66,15 +63,15 @@ public class AuthenticationServiceImplTest {
     /**
      * Tests that without any authentication processors, no authentication will take place.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateFailsWithoutAuthProcessors() {
-        assertNull(createAuthenticationService().authenticate("foo", "bar"));
+        assert createAuthenticationService().authenticate("foo", "bar") == null;
     }
 
     /**
      * Tests that an exception is thrown if no context is given.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testAuthenticateFailsWithoutContext() {
         new AuthenticationServiceImpl().authenticate();
     }
@@ -82,7 +79,7 @@ public class AuthenticationServiceImplTest {
     /**
      * Tests that with a single authentication processors, no authentication will take place if it is the wrong context.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateFailsWithSingleAuthProcessorAndWrongContext() {
         AuthenticationServiceImpl authService = createAuthenticationService();
         
@@ -91,13 +88,13 @@ public class AuthenticationServiceImplTest {
 
         registerAuthProcessor(authService, authProc);
 
-        assertNull(authService.authenticate("foo", "bar"));
+        assert authService.authenticate("foo", "bar") == null;
     }
 
     /**
      * Tests that with multiple authentication processors, authentication will take place if it is given the correct context.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateSucceedsWithMultipleAuthProcessors() {
         Date now = new Date();
         
@@ -128,18 +125,18 @@ public class AuthenticationServiceImplTest {
         registerAuthProcessor(authService, authProc2);
 
         User result = authService.authenticate("foo");
-        assertNotNull(result);
-        assertSame(user2, result);
+        assert result != null;
+        assert user2 == result;
         
         result = authService.authenticate(now);
-        assertNotNull(result);
-        assertSame(user1, result);
+        assert result != null;
+        assert user1 == result;
     }
 
     /**
      * Tests that with a single authentication processors, authentication will take place if it is given the correct context.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateSucceedsWithSingleAuthProcessorAndCorrectContext() {
         AuthenticationServiceImpl authService = createAuthenticationService();
 
@@ -151,13 +148,13 @@ public class AuthenticationServiceImplTest {
 
         registerAuthProcessor(authService, authProc);
 
-        assertNotNull(authService.authenticate("foo"));
+        assert authService.authenticate("foo") != null;
     }
 
     /**
      * Tests that with multiple authentication processors, the correct ones are returned based on the given context.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testGetProcessorsSelectsCorrectProcessorsBasedOnContext() {
         Date now = new Date();
         
@@ -188,16 +185,16 @@ public class AuthenticationServiceImplTest {
         registerAuthProcessor(authService, authProc2);
 
         List<AuthenticationProcessor> processors = authService.getProcessors("foo");
-        assertNotNull(processors);
-        assertEquals(1, processors.size());
+        assert processors != null;
+        assert 1 == processors.size();
         
         processors = authService.getProcessors(now);
-        assertNotNull(processors);
-        assertEquals(1, processors.size());
+        assert processors != null;
+        assert 1 == processors.size();
         
         processors = authService.getProcessors(new Object());
-        assertNotNull(processors);
-        assertEquals(0, processors.size());
+        assert processors != null;
+        assert processors.isEmpty();
     }
 
     /**

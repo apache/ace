@@ -160,7 +160,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
      * @param creds the credentials to supply.
      * @return a string that denotes the basic authentication header ("Basic " + encoded credentials), never <code>null</code>.
      */
-    private String getBasicAuthCredentials(UrlCredentials creds) {
+    final String getBasicAuthCredentials(UrlCredentials creds) {
         final Object[] values = creds.getCredentials();
         if (values.length < 2) {
             throw new IllegalArgumentException("Insufficient credentials passed! Expected 2 values, got " + values.length + " values.");
@@ -181,7 +181,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
             sb.append(new String((byte[]) values[1]));
         }
 
-        return "Basic " + Base64.encodeBase64String(sb.toString().getBytes());
+        return "Basic " + new String(Base64.encodeBase64(sb.toString().getBytes()));
     }
 
     /**

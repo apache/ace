@@ -19,10 +19,12 @@
 
 package org.apache.ace.connectionfactory.impl;
 
+import static org.apache.ace.test.utils.TestUtils.UNIT;
+
 import java.util.Properties;
 
 import org.apache.ace.connectionfactory.impl.UrlCredentialsFactory.MissingValueException;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link UrlCredentialsFactory}.
@@ -32,7 +34,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(expected = MissingValueException.class)
+    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryBasicTypeMissingPasswordFail() {
         Properties props = new Properties();
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, "http://localhost:8080/");
@@ -45,7 +47,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(expected = MissingValueException.class)
+    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryBasicTypeMissingUserNameFail() {
         Properties props = new Properties();
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, "http://localhost:8080/");
@@ -58,7 +60,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testGetCredentialsWithDictionaryBasicTypeOk() {
         Properties props = new Properties();
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, "http://localhost:8080/");
@@ -72,7 +74,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testGetCredentialsWithDictionaryInvalidAuthTypeFail() {
         Properties props = new Properties();
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, "http://localhost:8080/");
@@ -84,7 +86,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(expected = MissingValueException.class)
+    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryMissingBaseUrlFail() {
         Properties props = new Properties();
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "none");
@@ -95,7 +97,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testGetCredentialsWithNullDictionaryFail() {
         UrlCredentialsFactory.getCredentials(null);
     }
@@ -103,7 +105,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary, java.lang.String)}.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testGetCredentialsWithNullPrefixFail() {
         UrlCredentialsFactory.getCredentials(new Properties(), null);
     }
@@ -111,7 +113,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testGetCredentialsWithValidDictionaryOk() {
         Properties props = new Properties();
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, "http://localhost:8080/");

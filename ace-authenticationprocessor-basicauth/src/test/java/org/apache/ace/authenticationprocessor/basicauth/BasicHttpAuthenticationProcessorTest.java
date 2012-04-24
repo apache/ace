@@ -18,12 +18,10 @@
  */
 package org.apache.ace.authenticationprocessor.basicauth;
 
-import static org.apache.ace.authenticationprocessor.basicauth.BasicHttpAuthenticationProcessor.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.apache.ace.authenticationprocessor.basicauth.BasicHttpAuthenticationProcessor.AUTHORIZATION_HEADER;
+import static org.apache.ace.authenticationprocessor.basicauth.BasicHttpAuthenticationProcessor.PROPERTY_KEY_PASSWORD;
+import static org.apache.ace.authenticationprocessor.basicauth.BasicHttpAuthenticationProcessor.PROPERTY_KEY_USERNAME;
+import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -33,11 +31,11 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
-import org.junit.Before;
-import org.junit.Test;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link BasicHttpAuthenticationProcessor}.
@@ -47,7 +45,7 @@ public class BasicHttpAuthenticationProcessorTest {
     private UserAdmin m_userAdmin;
     private HttpServletRequest m_servletRequest;
 
-    @Before
+    @BeforeMethod(alwaysRun = true)
     public void setUp() {
         m_userAdmin = mock(UserAdmin.class);
         m_servletRequest = mock(HttpServletRequest.class);
@@ -56,16 +54,16 @@ public class BasicHttpAuthenticationProcessorTest {
     /**
      * Tests that a null authentication header will yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateEmptyAuthenticationHeaderYieldsNull() {
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNull(result);
+        assert result == null : "Expected no result!";
     }
 
     /**
      * Tests that an invalid authentication header will yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateInvalidAuthenticationHeaderYieldsNull() {
         when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn(createAuthHeaderValue("bob"));
         
@@ -76,13 +74,13 @@ public class BasicHttpAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
         
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNull(result);
+        assert result == null : "Expected no result!";
     }
 
     /**
      * Tests that a known user with an invalid password will yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateKnownUserWithInvalidPasswordYieldsNull() {
         when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn(createAuthHeaderValue("bob:secret"));
         
@@ -93,13 +91,13 @@ public class BasicHttpAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
 
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNull(result);
+        assert result == null : "Expected no result!";
     }
 
     /**
      * Tests that a known user will not yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateKnownUserYieldsValidResult() {
         when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn(createAuthHeaderValue("bob:secret"));
         
@@ -110,26 +108,26 @@ public class BasicHttpAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
 
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNotNull(result);
+        assert result != null : "Expected a valid user to be returned!";
         
-        assertEquals("bob", user.getName());
+        assert "bob".equals(user.getName()) : "Expected user bob to be returned!";
     }
 
     /**
      * Tests that a non Base64 authentication header will yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateNonBase64AuthenticationHeaderYieldsNull() {
         when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn("foo");
         
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNull(result);
+        assert result == null : "Expected no result!";
     }
 
     /**
      * Tests that a class cast exception is thrown for invalid context when calling authenticate.
      */
-    @Test(expected = ClassCastException.class)
+    @Test(groups = { UNIT }, expectedExceptions = ClassCastException.class)
     public void testAuthenticateThrowsClassCastForInvalidContext() {
         new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, new Object());
     }
@@ -137,26 +135,26 @@ public class BasicHttpAuthenticationProcessorTest {
     /**
      * Tests that an unknown user will yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateUnknownUserYieldsNull() {
-        when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn(createAuthHeaderValue("bob:secret"));
+        when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn(createAuthHeaderValue("alice:secret"));
         
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNull(result);
+        assert result == null : "Expected no result!";
     }
 
     /**
      * Tests that canHandle yields false for any object other than {@link HttpServletRequest}.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testCanHandleDoesAcceptServletRequest() {
-        assertTrue(new BasicHttpAuthenticationProcessor().canHandle(mock(HttpServletRequest.class)));
+        assert new BasicHttpAuthenticationProcessor().canHandle(mock(HttpServletRequest.class));
     }
 
     /**
      * Tests that canHandle throws an {@link IllegalArgumentException} for an empty context.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testCanHandleDoesNotAcceptEmptyArray() {
         new BasicHttpAuthenticationProcessor().canHandle(new Object[0]);
     }
@@ -164,7 +162,7 @@ public class BasicHttpAuthenticationProcessorTest {
     /**
      * Tests that canHandle throws an {@link IllegalArgumentException} for a null context.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testCanHandleDoesNotAcceptNull() {
         new BasicHttpAuthenticationProcessor().canHandle((Object[]) null);
     }
@@ -172,15 +170,15 @@ public class BasicHttpAuthenticationProcessorTest {
     /**
      * Tests that canHandle yields false for any object other than {@link HttpServletRequest}.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testCanHandleDoesNotAcceptUnhandledContext() {
-        assertFalse(new BasicHttpAuthenticationProcessor().canHandle(new Object()));
+        assert new BasicHttpAuthenticationProcessor().canHandle(new Object()) == false;
     }
     
     /**
      * Tests that updated throws an exception for missing "key.username" property. 
      */
-    @Test(expected = ConfigurationException.class)
+    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyUsername() throws ConfigurationException {
         Properties props = new Properties();
         props.put(PROPERTY_KEY_USERNAME, "");
@@ -192,7 +190,7 @@ public class BasicHttpAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "key.username" property. 
      */
-    @Test(expected = ConfigurationException.class)
+    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyUsername() throws ConfigurationException {
         Properties props = new Properties();
         props.put(PROPERTY_KEY_PASSWORD, "foo");
@@ -203,7 +201,7 @@ public class BasicHttpAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "key.password" property. 
      */
-    @Test(expected = ConfigurationException.class)
+    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyPassword() throws ConfigurationException {
         Properties props = new Properties();
         props.put(PROPERTY_KEY_USERNAME, "foo");
@@ -214,7 +212,7 @@ public class BasicHttpAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "key.password" property. 
      */
-    @Test(expected = ConfigurationException.class)
+    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyPassword() throws ConfigurationException {
         Properties props = new Properties();
         props.put(PROPERTY_KEY_USERNAME, "foo");
@@ -226,7 +224,7 @@ public class BasicHttpAuthenticationProcessorTest {
     /**
      * Tests that updated does not throw an exception for a correct configuration.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testUpdatedDoesAcceptCorrectProperties() throws ConfigurationException {
         final String keyUsername = "foo";
         final String keyPassword = "bar";
@@ -249,9 +247,9 @@ public class BasicHttpAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq(keyUsername), eq("bob"))).thenReturn(user);
 
         User result = processor.authenticate(m_userAdmin, m_servletRequest);
-        assertNotNull(result);
+        assert result != null : "Expected a valid user to be returned!";
         
-        assertEquals("bob", user.getName());
+        assert "bob".equals(user.getName()) : "Expected user bob to be returned!";
     }
 
 
@@ -259,6 +257,6 @@ public class BasicHttpAuthenticationProcessorTest {
      * @return the basic authentication header, never <code>null</code>.
      */
     private String createAuthHeaderValue(String credentials) {
-        return "Basic " + new Base64().encodeAsString(credentials.getBytes());
+        return "Basic " + new Base64().encodeToString(credentials.getBytes());
     }
 }

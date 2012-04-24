@@ -25,7 +25,6 @@ import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -40,7 +39,6 @@ import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.property.constants.DiscoveryConstants;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.property.constants.IdentificationConstants;
-import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.it.Options.Ace;
 import org.apache.ace.it.Options.Felix;
 import org.apache.ace.it.Options.Knopflerfish;
@@ -52,11 +50,11 @@ import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
 import org.apache.ace.server.log.store.LogStore;
 import org.apache.ace.test.constants.TestConstants;
-import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.container.def.options.CleanCachesOption;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.framework.Constants;
@@ -69,7 +67,7 @@ import org.osgi.service.useradmin.UserAdmin;
  * replicated to the server.
  */
 @RunWith(JUnit4TestRunner.class)
-public class LogAuthenticationTest extends IntegrationTestBase {
+public class LogAuthenticationTest extends AuthenticationTestBase {
 
     private static final String AUDITLOG_ENDPOINT = "/auditlog";
 
@@ -90,6 +88,7 @@ public class LogAuthenticationTest extends IntegrationTestBase {
     public Option[] configuration() {
         return options(
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
+            new CleanCachesOption(),
             provision(
                 // Misc bundles...
                 Osgi.compendium(),
@@ -135,6 +134,30 @@ public class LogAuthenticationTest extends IntegrationTestBase {
                 Ace.configuratorUseradminTask()
             )
         );
+    }
+
+    @Override
+    public void setupTest() throws Exception {
+        super.setupTest();
+
+        String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
+
+        URL testURL = new URL(baseURL.concat(AUDITLOG_ENDPOINT));
+        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
+
+        String userName = "d";
+        String password = "f";
+
+        importSingleUser(m_userRepository, userName, password);
+        waitForUser(m_userAdmin, userName);
+
+        configureFactory("org.apache.ace.connectionfactory", 
+            "authentication.baseURL", baseURL.concat(AUDITLOG_ENDPOINT), 
+            "authentication.type", "basic",
+            "authentication.user.name", userName,
+            "authentication.user.password", password);
+
+        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
     }
 
     /**
@@ -241,20 +264,6 @@ public class LogAuthenticationTest extends IntegrationTestBase {
             "authentication.enabled", "true");
         configureFactory("org.apache.ace.server.log.store.factory",
             "name", "auditlog");
-
-        URL testURL = new URL(baseURL.concat(AUDITLOG_ENDPOINT));
-        assertTrue("Failed to access auditlog in time!", NetUtils.waitForURL(testURL, 401, 15000));
-        
-        String userName = "d";
-        String password = "f";
-
-        importSingleUser(userName, password);
-
-        configureFactory("org.apache.ace.connectionfactory", 
-            "authentication.baseURL", baseURL.concat(AUDITLOG_ENDPOINT), 
-            "authentication.type", "basic",
-            "authentication.user.name", userName,
-            "authentication.user.password", password);
     }
 
     /**
@@ -305,30 +314,5 @@ public class LogAuthenticationTest extends IntegrationTestBase {
             }
         }
         return result;
-    }
-
-    /**
-     * Imports a single user into the user repository.
-     * 
-     * @param userName the name of the user to import;
-     * @param password the password of the user to import.
-     * @throws Exception in case of exceptions during the import.
-     */
-    private void importSingleUser(String userName, String password) throws Exception {
-        ByteArrayInputStream bis = new ByteArrayInputStream((
-            "<roles>" +
-                "<user name=\"" + userName + "\">" +
-                "<properties><username>" + userName + "</username></properties>" +
-                "<credentials><password type=\"String\">" + password + "</password></credentials>" +
-                "</user>" +
-            "</roles>").getBytes());
-
-        assertTrue("Committing test user data failed!", m_userRepository.commit(bis, m_userRepository.getRange().getHigh()));
-
-        int count = 0;
-        while ((m_userAdmin.getRole(userName) == null) && (count++ < 60)) {
-            Thread.sleep(100);
-        }
-        assertTrue("Failed to obtain user from userAdmin!", count != 60);
     }
 }

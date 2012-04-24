@@ -128,8 +128,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         m_log.log(LogService.LOG_DEBUG, "Authenticating user for: " + context);
 
         final List<AuthenticationProcessor> processors = getProcessors(context);
-        for (AuthenticationProcessor processor : processors) {
-            result = processor.authenticate(m_userAdmin, context);
+        
+        int size = processors.size();
+        for (int i = 0; i < size; i++) {
+            result = processors.get(i).authenticate(m_userAdmin, context);
             if (result != null) {
                 m_log.log(LogService.LOG_DEBUG, "Authenticated user (" + context + ") as: " + result.getName());
                 break;

@@ -19,14 +19,14 @@
 
 package org.apache.ace.connectionfactory.impl;
 
-import static org.junit.Assert.*;
+import static org.apache.ace.test.utils.TestUtils.UNIT;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link ConnectionFactoryImpl}.
@@ -47,7 +47,7 @@ public class ConnectionFactoryImplTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#createConnection(java.net.URL)}.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testCreateConnectionNullUrlFail() throws Exception {
         new ConnectionFactoryImpl().createConnection(null);
     }
@@ -55,7 +55,7 @@ public class ConnectionFactoryImplTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#createConnection(java.net.URL, org.osgi.service.useradmin.User)}.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testCreateConnectionNullUserFail() throws Exception {
         new ConnectionFactoryImpl().createConnection(new URL("file:///tmp/foo"), null);
     }
@@ -63,16 +63,16 @@ public class ConnectionFactoryImplTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#createConnection(java.net.URL, org.osgi.service.useradmin.User)}.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testCreateConnectionOk() throws Exception {
         URLConnection conn = new ConnectionFactoryImpl().createConnection(new URL("file:///tmp/foo"));
-        assertNotNull(conn);
+        assert conn != null : "Expected valid connection to be created!";
     }
 
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#deleted(java.lang.String)}.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testDeleted() throws Exception {
         ConnectionFactoryImpl connFactory = new ConnectionFactoryImpl();
 
@@ -81,36 +81,56 @@ public class ConnectionFactoryImplTest {
         connFactory.updated("pid1", props);
         
         UrlCredentials credentials = connFactory.getCredentials(TEST_URL);
-        assertNotNull(credentials);
-        
+        assert credentials != null : "Expected valid credentials to be found!";
+
         connFactory.deleted("pid1");
         
         credentials = connFactory.getCredentials(TEST_URL);
-        assertNull(credentials);
+        assert credentials == null : "Expected no credentials to be found!";
+    }
+
+    /**
+     * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#getBasicAuthCredentials(UrlCredentials)}.
+     */
+    @Test(groups = { UNIT })
+    public void testGetBasicAuthCredentialsOk() throws Exception {
+        ConnectionFactoryImpl connFactory = new ConnectionFactoryImpl();
+
+        Properties props = createBasicAuthConfig(TEST_URL.toExternalForm());
+
+        connFactory.updated("pid1", props);
+        
+        UrlCredentials credentials = connFactory.getCredentials(TEST_URL);
+        assert credentials != null : "Expected valid credentials to be found!";
+
+        String header = new ConnectionFactoryImpl().getBasicAuthCredentials(credentials);
+        assert header != null : "Expected valid HTTP header to be returned!";
+        assert header.equals(header.trim()) : "Expected HTTP header not to contain any leading/trailing whitespace!";
+        assert "Basic Zm9vOmJhcg==".equals(header) : "Expected HTTP header to be constant!";
     }
 
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#updated(java.lang.String, java.util.Dictionary)}.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testUpdatedInsertsCredentialsOk() throws Exception {
         ConnectionFactoryImpl connFactory = new ConnectionFactoryImpl();
         
         UrlCredentials credentials = connFactory.getCredentials(TEST_URL);
-        assertNull(credentials);
+        assert credentials == null : "Expected no credentials to be found!";
         
         Properties props = createBasicAuthConfig(TEST_URL.toExternalForm());
 
         connFactory.updated("pid1", props);
         
         credentials = connFactory.getCredentials(TEST_URL);
-        assertNotNull(credentials);
+        assert credentials != null : "Expected valid credentials to be found!";
     }
 
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#updated(java.lang.String, java.util.Dictionary)}.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testUpdatedUpdatesCredentialsOk() throws Exception {
         ConnectionFactoryImpl connFactory = new ConnectionFactoryImpl();
 
@@ -119,7 +139,7 @@ public class ConnectionFactoryImplTest {
         connFactory.updated("pid1", props);
         
         UrlCredentials credentials1 = connFactory.getCredentials(TEST_URL);
-        assertNotNull(credentials1);
+        assert credentials1 != null : "Expected valid credentials to be found!";
         
         URL newURL = new URL("http://localhost:8181/test/");
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, newURL.toExternalForm());
@@ -127,12 +147,12 @@ public class ConnectionFactoryImplTest {
         connFactory.updated("pid1", props);
 
         UrlCredentials credentials2 = connFactory.getCredentials(TEST_URL);
-        assertNull(credentials2);
+        assert credentials2 == null : "Expected no credentials to be found!";
 
         credentials2 = connFactory.getCredentials(newURL);
-        assertNotNull(credentials2);
+        assert credentials2 != null : "Expected valid credentials to be found!";
         
-        assertNotSame(credentials1, credentials2);
+        assert credentials1 != credentials2 && !credentials1.equals(credentials2) : "Expected not the same credentials to be returned!";
     }
 
     /**

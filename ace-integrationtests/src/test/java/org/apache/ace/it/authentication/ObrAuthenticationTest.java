@@ -27,7 +27,6 @@ import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,7 +40,6 @@ import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.connectionfactory.ConnectionFactory;
-import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.it.Options.Ace;
 import org.apache.ace.it.Options.Felix;
 import org.apache.ace.it.Options.Knopflerfish;
@@ -54,11 +52,10 @@ import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.container.def.options.VMOption;
+import org.ops4j.pax.exam.container.def.options.CleanCachesOption;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.framework.Constants;
@@ -70,7 +67,7 @@ import org.osgi.service.useradmin.UserAdmin;
  * rest of ACE has to remain function correctly.
  */
 @RunWith(JUnit4TestRunner.class)
-public class ObrAuthenticationTest extends IntegrationTestBase {
+public class ObrAuthenticationTest extends AuthenticationTestBase {
     
     private volatile String m_endpoint;
     private volatile File m_storeLocation;
@@ -90,7 +87,7 @@ public class ObrAuthenticationTest extends IntegrationTestBase {
     public Option[] configuration() {
         return options(
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
-            new VMOption("-ea"),
+            new CleanCachesOption(),
             provision(
                 // Misc bundles...
                 Osgi.compendium(),
@@ -129,19 +126,37 @@ public class ObrAuthenticationTest extends IntegrationTestBase {
         );
     }
 
-    /**
-     * Sets up of the test case.
-     * 
-     * @throws java.lang.Exception not part of this test case.
-     */
-    @Before
-    public void setUp() throws Exception {
+    @Override
+    public void setupTest() throws Exception {
         m_endpoint = "/obr";
-
+        
         String tmpDir = System.getProperty("java.io.tmpdir");
         m_storeLocation = new File(tmpDir, "store");
         m_storeLocation.delete();
         m_storeLocation.mkdirs();
+        
+        super.setupTest();
+
+        String userName = "d";
+        String password = "f";
+
+        importSingleUser(m_userRepository, userName, password);
+        waitForUser(m_userAdmin, userName);
+
+        URL obrURL = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/");
+        m_artifactRepository.setObrBase(obrURL);
+
+        URL testURL = new URL(obrURL, "repository.xml");
+
+        assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
+
+        m_authConfigPID = configureFactory("org.apache.ace.connectionfactory", 
+                "authentication.baseURL", obrURL.toExternalForm(), 
+                "authentication.type", "basic",
+                "authentication.user.name", userName,
+                "authentication.user.password", password);
+
+        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
     }
 
     /**
@@ -301,25 +316,6 @@ public class ObrAuthenticationTest extends IntegrationTestBase {
         configure("org.apache.ace.obr.storage.file", 
             "OBRInstance", "singleOBRStore",
             OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
-
-        String userName = "d";
-        String password = "f";
-
-        importSingleUser(userName, password);
-
-        URL obrURL = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/");
-
-        m_authConfigPID = configureFactory("org.apache.ace.connectionfactory", 
-                "authentication.baseURL", obrURL.toExternalForm(), 
-                "authentication.type", "basic",
-                "authentication.user.name", userName,
-                "authentication.user.password", password);
-
-        URL testURL = new URL(obrURL, "repository.xml");
-
-        assertTrue("Failed to access OBR in time!", NetUtils.waitForURL(testURL, 401, 15000));
-        
-        m_artifactRepository.setObrBase(obrURL);
     }
 
     /**
@@ -338,30 +334,5 @@ public class ObrAuthenticationTest extends IntegrationTestBase {
                     .setService(Repository.class, "(&(" + RepositoryConstants.REPOSITORY_NAME + "=users)(" + RepositoryConstants.REPOSITORY_CUSTOMER + "=apache))")
                     .setRequired(true))
         };
-    }           
-
-    /**
-     * Imports a single user into the user repository.
-     * 
-     * @param userName the name of the user to import;
-     * @param password the password of the user to import.
-     * @throws Exception in case of exceptions during the import.
-     */
-    private void importSingleUser(String userName, String password) throws Exception {
-        ByteArrayInputStream bis = new ByteArrayInputStream((
-            "<roles>" +
-                "<user name=\"" + userName + "\">" +
-                "<properties><username>" + userName + "</username></properties>" +
-                "<credentials><password type=\"String\">" + password + "</password></credentials>" +
-                "</user>" +
-            "</roles>").getBytes());
-
-        assertTrue("Committing test user data failed!", m_userRepository.commit(bis, m_userRepository.getRange().getHigh()));
-
-        int count = 0;
-        while ((m_userAdmin.getRole(userName) == null) && (count++ < 60)) {
-            Thread.sleep(100);
-        }
-        assertTrue("Failed to obtain user from userAdmin!", count != 60);
     }
 }

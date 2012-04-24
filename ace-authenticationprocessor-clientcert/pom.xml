@@ -77,5 +77,10 @@
 			<version>140</version>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.util</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

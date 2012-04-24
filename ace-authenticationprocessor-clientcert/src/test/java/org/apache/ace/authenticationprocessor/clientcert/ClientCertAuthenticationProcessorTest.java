@@ -22,11 +22,7 @@ import static org.apache.ace.authenticationprocessor.clientcert.ClientCertAuthen
 import static org.apache.ace.authenticationprocessor.clientcert.ClientCertAuthenticationProcessor.ATTRIBUTE_X509_CERTIFICATE;
 import static org.apache.ace.authenticationprocessor.clientcert.ClientCertAuthenticationProcessor.PROPERTY_KEY_PUBLICKEY;
 import static org.apache.ace.authenticationprocessor.clientcert.ClientCertAuthenticationProcessor.PROPERTY_KEY_USERNAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,13 +36,14 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.mockito.Mockito;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link ClientCertAuthenticationProcessor}.
@@ -110,7 +107,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Creates an in-memory keystore for this test case.
      */
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public static void init() {
         m_keystore = new MemoryKeyStore("cn=testCA", dayBeforeYesterday(), dayAfterTomorrow());
     }
@@ -118,7 +115,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Set up for each individual test.
      */
-    @Before
+    @BeforeMethod(alwaysRun = true)
     public void setUp() {
         m_log = mock(LogService.class);
 
@@ -132,27 +129,27 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that a null certificate chain will yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateNoCertificateChainYieldsNull() {
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNull(result);
+        assert result == null : "Did not expect a valid user to be returned!";
     }
 
     /**
      * Tests that an empty certificate chain will yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateEmptyCertificateChainYieldsNull() {
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(new X509Certificate[0]);
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNull(result);
+        assert result == null : "Did not expect a valid user to be returned!";
     }
 
     /**
      * Tests that authenticating a known user with an invalid (expired) certificate will yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateKnownUserWithExpiredCertificateYieldsNull() {
         X509Certificate[] certificateChain = createExpiredCertificateChain("bob");
         PublicKey publickey = certificateChain[0].getPublicKey();
@@ -166,13 +163,13 @@ public class ClientCertAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNull(result);
+        assert result == null : "Did not expect a valid user to be returned!";
     }
 
     /**
      * Tests that authenticating a known user with an invalid (not valid) certificate will yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateKnownUserWithNotValidCertificateYieldsNull() {
         X509Certificate[] certificateChain = createExpiredCertificateChain("bob");
         PublicKey publickey = certificateChain[0].getPublicKey();
@@ -187,13 +184,13 @@ public class ClientCertAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNull(result);
+        assert result == null : "Did not expect a valid user to be returned!";
     }
 
     /**
      * Tests that authenticating a known user with a valid certificate will not yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateKnownUserYieldsValidResult() {
         X509Certificate[] certChain = createValidCertificateChain("bob");
         PublicKey publicKey = certChain[0].getPublicKey();
@@ -207,27 +204,27 @@ public class ClientCertAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNotNull(result);
+        assert result != null : "Expected a valid user to be returned!";
 
-        assertEquals("bob", user.getName());
+        assert "bob".equals(user.getName()) : "Expected bob to be returned as user!";
     }
 
     /**
      * Tests that a missing cipher suite header will the authenticate method to yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateMissingCipherSuiteHeaderYieldsNull() {
         when(m_servletRequest.getAttribute(ATTRIBUTE_CIPHER_SUITE)).thenReturn(null);
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(createValidCertificateChain("bob"));
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNull(result);
+        assert result == null : "Did not expect a valid user to be returned!";
     }
 
     /**
      * Tests that a class cast exception is thrown for invalid context when calling authenticate.
      */
-    @Test(expected = ClassCastException.class)
+    @Test(groups = { UNIT }, expectedExceptions = ClassCastException.class)
     public void testAuthenticateThrowsClassCastForInvalidContext() {
         createAuthorizationProcessor().authenticate(m_userAdmin, new Object());
     }
@@ -235,26 +232,26 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that an unknown user will yield null.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testAuthenticateUnknownUserYieldsNull() {
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(createValidCertificateChain("bob"));
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assertNull(result);
+        assert result == null : "Did not expect a valid user to be returned!";
     }
 
     /**
      * Tests that canHandle yields false for any object other than {@link HttpServletRequest}.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testCanHandleDoesAcceptServletRequest() {
-        assertTrue(createAuthorizationProcessor().canHandle(mock(HttpServletRequest.class)));
+        assert createAuthorizationProcessor().canHandle(mock(HttpServletRequest.class));
     }
 
     /**
      * Tests that canHandle throws an {@link IllegalArgumentException} for an empty context.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testCanHandleDoesNotAcceptEmptyArray() {
         createAuthorizationProcessor().canHandle(new Object[0]);
     }
@@ -262,7 +259,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that canHandle throws an {@link IllegalArgumentException} for a null context.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testCanHandleDoesNotAcceptNull() {
         createAuthorizationProcessor().canHandle((Object[]) null);
     }
@@ -270,18 +267,20 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that canHandle yields false for any object other than {@link HttpServletRequest}.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testCanHandleDoesNotAcceptUnhandledContext() {
-        assertFalse(createAuthorizationProcessor().canHandle(new Object()));
+        assert createAuthorizationProcessor().canHandle(new Object()) == false;
     }
 
     /**
      * Tests that updated does not throw an exception for a correct configuration.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testUpdatedDoesAcceptCorrectProperties() throws ConfigurationException {
         final String keyUsername = "foo";
         final String keyPublicKey = "bar";
+        
+        Mockito.reset(m_userAdmin, m_servletRequest);
 
         Properties props = new Properties();
         props.put(PROPERTY_KEY_USERNAME, keyUsername);
@@ -291,28 +290,29 @@ public class ClientCertAuthenticationProcessorTest {
 
         processor.updated(props);
 
-        X509Certificate[] certificateChain = createValidCertificateChain("bob");
+        X509Certificate[] certificateChain = createValidCertificateChain("alice");
         PublicKey publickey = certificateChain[0].getPublicKey();
 
         // Test whether we can use the new properties...
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(certificateChain);
+        when(m_servletRequest.getAttribute(ATTRIBUTE_CIPHER_SUITE)).thenReturn("bogus-cipher-suite");
 
         User user = mock(User.class);
-        when(user.getName()).thenReturn("bob");
+        when(user.getName()).thenReturn("alice");
         when(user.hasCredential(eq(keyPublicKey), eq(publickey.getEncoded()))).thenReturn(Boolean.TRUE);
 
-        when(m_userAdmin.getUser(eq(keyUsername), eq("bob"))).thenReturn(user);
+        when(m_userAdmin.getUser(eq(keyUsername), eq("alice"))).thenReturn(user);
 
         User result = processor.authenticate(m_userAdmin, m_servletRequest);
-        assertNotNull(result);
+        assert result != null : "Expected a valid user to be returned!";
 
-        assertEquals("bob", user.getName());
+        assert "alice".equals(user.getName()) : "Expected alice to be returned as user!";
     }
 
     /**
      * Tests that updated throws an exception for missing "key.password" property.
      */
-    @Test(expected = ConfigurationException.class)
+    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyPassword() throws ConfigurationException {
         Properties props = new Properties();
         props.put(PROPERTY_KEY_USERNAME, "foo");
@@ -324,7 +324,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "key.username" property.
      */
-    @Test(expected = ConfigurationException.class)
+    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyUsername() throws ConfigurationException {
         Properties props = new Properties();
         props.put(PROPERTY_KEY_USERNAME, "");
@@ -336,7 +336,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "key.password" property.
      */
-    @Test(expected = ConfigurationException.class)
+    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyPassword() throws ConfigurationException {
         Properties props = new Properties();
         props.put(PROPERTY_KEY_USERNAME, "foo");
@@ -347,7 +347,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "key.username" property.
      */
-    @Test(expected = ConfigurationException.class)
+    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyUsername() throws ConfigurationException {
         Properties props = new Properties();
         props.put(PROPERTY_KEY_PUBLICKEY, "foo");
