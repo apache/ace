@@ -147,15 +147,10 @@
             <artifactId>org.apache.felix.prefs</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <!-- TODO validate if these are the right artifacts -->
         <dependency>
-            <groupId>org.ops4j.pax.web</groupId>
-            <artifactId>pax-web-extender-war</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.web</groupId>
-            <artifactId>pax-web-jetty-bundle</artifactId>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.http.jetty</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

@@ -148,6 +148,7 @@
         <felix.metatype.version>1.0.4</felix.metatype.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
         <felix.shell.version>1.4.2</felix.shell.version>
+        <felix.http.version>2.2.0</felix.http.version>
         <junit.version>4.4</junit.version>
         <knopflerfish.version>2.0.2</knopflerfish.version>
         <kxml2.version>2.3.0</kxml2.version>
@@ -857,6 +858,11 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.prefs</artifactId>
                 <version>${felix.prefs.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.http.jetty</artifactId>
+                <version>${felix.http.version}</version>
             </dependency>
 
             <!-- Knopflerfish -->
