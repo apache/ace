@@ -81,7 +81,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
             return version;
         }
         catch (IOException e) {
-            throw new IllegalStateException("Problem generating new deployment version: " + e);
+            throw new IllegalStateException("Problem generating new deployment version: " + e.getMessage(), e);
         }
     }
 

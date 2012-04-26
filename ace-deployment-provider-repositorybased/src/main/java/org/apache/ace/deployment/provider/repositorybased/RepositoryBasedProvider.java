@@ -204,7 +204,8 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
             }
         }
 
-        System.out.println("Cache added: " + targetId);
+        m_log.log(LogService.LOG_DEBUG, "Cache added for " + targetId);
+
         m_cachedVersionLists.put(targetId, stringVersionList);
         return stringVersionList;
     }

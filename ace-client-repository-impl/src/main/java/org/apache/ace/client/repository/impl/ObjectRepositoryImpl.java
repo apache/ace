@@ -80,7 +80,7 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         if (add(result)) {
             return result;
         }
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Failed to add new object: entity already exists!");
     }
 
     /**
