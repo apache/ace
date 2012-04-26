@@ -270,7 +270,8 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
     private byte[] getBytesFromUrl(String url) throws IOException {
         byte[] result = null;
 
-        InputStream in = new URL(url).openStream();
+        // ACE-267
+        InputStream in = m_connectionFactory.createConnection(new URL(url)).getInputStream();
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
