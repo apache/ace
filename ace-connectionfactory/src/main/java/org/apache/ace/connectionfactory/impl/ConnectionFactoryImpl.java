@@ -28,6 +28,9 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.connectionfactory.impl.UrlCredentials.AuthType;
 import org.apache.ace.connectionfactory.impl.UrlCredentialsFactory.MissingValueException;
@@ -37,7 +40,7 @@ import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.useradmin.User;
 
 /**
- * Provides a default implementation for {@link ConnectionFactory} based on the standard <code>java.net</code> 
+ * Provides a default implementation for {@link ConnectionFactory} based on the standard <code>java.net</code>
  * implementation of {@link URLConnection}.
  */
 public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceFactory {
@@ -45,9 +48,9 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
     public static final String FACTORY_PID = "org.apache.ace.connectionfactory";
 
     private static final String HTTP_HEADER_AUTHORIZATION = "Authorization";
-    
+
     private final Map<String /* config PID */, UrlCredentials> m_credentialMapping;
-    
+
     /**
      * Creates a new {@link ConnectionFactoryImpl}.
      */
@@ -122,7 +125,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
 
         try {
             creds = UrlCredentialsFactory.getCredentials(properties);
-            
+
             synchronized (m_credentialMapping) {
                 m_credentialMapping.put(pid, creds);
             }
@@ -131,12 +134,12 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
             throw new ConfigurationException(e.getProperty(), e.getMessage());
         }
     }
-    
+
     /**
      * Returns the credentials to access the given URL.
      * 
      * @param url the URL to find the credentials for, cannot be <code>null</code>.
-     * @return a {@link UrlCredentials} instance for the given URL, or <code>null</code> 
+     * @return a {@link UrlCredentials} instance for the given URL, or <code>null</code>
      *         if none were found, or if none were necessary.
      */
     final UrlCredentials getCredentials(URL url) {
@@ -150,20 +153,19 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
                 return c;
             }
         }
-        
+
         return null;
     }
 
     /**
      * Returns the authorization header for HTTP Basic Authentication.
      * 
-     * @param creds the credentials to supply.
+     * @param values the credential values to supply, cannot be <code>null</code> and should be an array of two elements.
      * @return a string that denotes the basic authentication header ("Basic " + encoded credentials), never <code>null</code>.
      */
-    final String getBasicAuthCredentials(UrlCredentials creds) {
-        final Object[] values = creds.getCredentials();
-        if (values.length < 2) {
-            throw new IllegalArgumentException("Insufficient credentials passed! Expected 2 values, got " + values.length + " values.");
+    final String getBasicAuthCredentials(Object[] values) {
+        if ((values == null) || values.length < 2) {
+            throw new IllegalArgumentException("Insufficient credentials passed: expected 2 values!");
         }
 
         StringBuilder sb = new StringBuilder();
@@ -185,19 +187,45 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
     }
 
     /**
+     * Applies basic authentication to the given connection, if it is a {@link HttpURLConnection}.
+     * 
+     * @param conn the connection to apply basic authentication to;
+     * @param values the credentials to apply.
+     */
+    private void applyBasicAuthentication(URLConnection conn, Object[] values) {
+        if (conn instanceof HttpURLConnection) {
+            conn.setRequestProperty(HTTP_HEADER_AUTHORIZATION, getBasicAuthCredentials(values));
+        }
+    }
+
+    /**
+     * Applies the use of client certificates to the given connection, if it a {@link HttpsURLConnection}.
+     * 
+     * @param conn the connection to apply client certs to;
+     * @param values the credentials to apply.
+     */
+    private void applyClientCertificate(URLConnection conn, Object[] values) {
+        if (conn instanceof HttpsURLConnection) {
+            ((HttpsURLConnection) conn).setSSLSocketFactory(((SSLContext) values[0]).getSocketFactory());
+        }
+    }
+
+    /**
      * Supplies the actual credentials to the given {@link URLConnection}.
      * 
      * @param conn the connection to supply the credentials to, cannot be <code>null</code>;
-     * @param creds the credentials to supply, cannot be <code>null</code>.
+     * @param urlCreds the URL credentials to supply, cannot be <code>null</code>.
      * @throws IOException in case of I/O problems.
      */
-    private void supplyCredentials(URLConnection conn, UrlCredentials creds) throws IOException {
-        final AuthType type = creds.getType();
-        
+    private void supplyCredentials(URLConnection conn, UrlCredentials urlCreds) throws IOException {
+        final AuthType type = urlCreds.getType();
+        final Object[] creds = urlCreds.getCredentials();
+
         if (AuthType.BASIC.equals(type)) {
-            if (conn instanceof HttpURLConnection) {
-                conn.setRequestProperty(HTTP_HEADER_AUTHORIZATION, getBasicAuthCredentials(creds));
-            }
+            applyBasicAuthentication(conn, creds);
+        }
+        else if (AuthType.CLIENT_CERT.equals(type)) {
+            applyClientCertificate(conn, creds);
         }
         else if (!AuthType.NONE.equals(type)) {
             throw new IllegalArgumentException("Unknown authentication type: " + type);

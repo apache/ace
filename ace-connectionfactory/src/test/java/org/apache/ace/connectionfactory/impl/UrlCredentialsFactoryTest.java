@@ -48,6 +48,87 @@ public class UrlCredentialsFactoryTest {
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
     @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
+    public void testGetCredentialsWithDictionaryClientCertTypeMissingKeystorePasswordFail() {
+        Properties props = new Properties();
+        props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, "http://localhost:8080/");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "client_cert");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TRUSTSTORE_FILE, "bar");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TRUSTSTORE_PASS, "qux");
+        props.put(UrlCredentialsFactory.KEY_AUTH_KEYSTORE_FILE, "foo");
+
+        UrlCredentialsFactory.getCredentials(props);
+    }
+
+    /**
+     * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
+     */
+    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
+    public void testGetCredentialsWithDictionaryClientCertTypeMissingKeystoreFileFail() {
+        Properties props = new Properties();
+        props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, "http://localhost:8080/");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "client_cert");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TRUSTSTORE_FILE, "bar");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TRUSTSTORE_PASS, "qux");
+        props.put(UrlCredentialsFactory.KEY_AUTH_KEYSTORE_PASS, "foo");
+
+        UrlCredentialsFactory.getCredentials(props);
+    }
+
+    /**
+     * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
+     */
+    @Test(groups = { UNIT })
+    public void testGetCredentialsWithDictionaryClientCertTypeOk() {
+        Properties props = new Properties();
+        props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, "http://localhost:8080/");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "client_cert");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TRUSTSTORE_FILE, "foo");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TRUSTSTORE_PASS, "bar");
+        props.put(UrlCredentialsFactory.KEY_AUTH_KEYSTORE_FILE, "qux");
+        props.put(UrlCredentialsFactory.KEY_AUTH_KEYSTORE_PASS, "quu");
+
+        try {
+            UrlCredentialsFactory.getCredentials(props);
+        }
+        catch (IllegalArgumentException e) {
+            // Ok; expected as the implementation tries to open the files "foo" and "qux"...
+        }
+    }
+
+    /**
+     * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
+     */
+    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
+    public void testGetCredentialsWithDictionaryClientCertTypeMissingTruststorePasswordFail() {
+        Properties props = new Properties();
+        props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, "http://localhost:8080/");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "client_cert");
+        props.put(UrlCredentialsFactory.KEY_AUTH_KEYSTORE_FILE, "bar");
+        props.put(UrlCredentialsFactory.KEY_AUTH_KEYSTORE_PASS, "qux");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TRUSTSTORE_FILE, "foo");
+
+        UrlCredentialsFactory.getCredentials(props);
+    }
+
+    /**
+     * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
+     */
+    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
+    public void testGetCredentialsWithDictionaryClientCertTypeMissingTruststoreFileFail() {
+        Properties props = new Properties();
+        props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, "http://localhost:8080/");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "client_cert");
+        props.put(UrlCredentialsFactory.KEY_AUTH_KEYSTORE_FILE, "bar");
+        props.put(UrlCredentialsFactory.KEY_AUTH_KEYSTORE_PASS, "qux");
+        props.put(UrlCredentialsFactory.KEY_AUTH_TRUSTSTORE_PASS, "foo");
+
+        UrlCredentialsFactory.getCredentials(props);
+    }
+
+    /**
+     * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
+     */
+    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryBasicTypeMissingUserNameFail() {
         Properties props = new Properties();
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, "http://localhost:8080/");

@@ -22,6 +22,7 @@ package org.apache.ace.authenticationprocessor.clientcert;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -34,7 +35,7 @@ import org.bouncycastle.x509.X509V1CertificateGenerator;
  * Provides a memory-only certificate keystore.
  */
 final class MemoryKeyStore {
-    private static final String SIGNATURE_ALGORITHM = "SHA1withRSA"; // MD5withRSA
+    private static final String SIGNATURE_ALGORITHM = "SHA1withRSA";
 
     private final X509V1CertificateGenerator m_certGen = new X509V1CertificateGenerator();
     private final KeyPair m_caKey;
@@ -59,13 +60,27 @@ final class MemoryKeyStore {
             throw new RuntimeException(e);
         }
     }
+    
+    /**
+     * @return the {@link KeyPair} of the CA, never <code>null</code>.
+     */
+    public KeyPair getCA_KeyPair() {
+        return m_caKey;
+    }
 
     /**
-     * Generates a new 512-bit keypair.
+     * @return
+     */
+    public X500Principal getCA_DN() {
+        return m_rootCert.getIssuerX500Principal();
+    }
+
+    /**
+     * Generates a new 1024-bit keypair.
      * 
      * @return a new {@link KeyPair}, never <code>null</code>.
      */
-    public final KeyPair generateKeyPair() {
+    public KeyPair generateKeyPair() {
         try {
             return m_generator.generateKeyPair();
         }
@@ -78,19 +93,26 @@ final class MemoryKeyStore {
      * @throws IllegalStateException if an internal exception occurs.
      * @throws IllegalArgumentException if the alias already exists.
      */
-    public X509Certificate createCertificate(String alias, String name, Date before, Date after, PublicKey key)
-        throws IllegalStateException, IllegalArgumentException {
+    public X509Certificate createCertificate(String alias, String name, Date before, Date after, PublicKey key) throws IllegalArgumentException {
+        return createCertificate(getCA_DN(), m_caKey.getPrivate(), alias, name, before, after, key);
+    }
+
+    /**
+     * @throws IllegalStateException if an internal exception occurs.
+     * @throws IllegalArgumentException if the alias already exists.
+     */
+    public X509Certificate createCertificate(X500Principal issuerDN, PrivateKey issuerKey, String alias, String name, Date notBefore, Date notAfter, PublicKey key) throws IllegalArgumentException {
         try {
             m_certGen.reset();
             m_certGen.setSerialNumber(BigInteger.valueOf(++m_serial));
-            m_certGen.setIssuerDN(m_rootCert.getIssuerX500Principal());
-            m_certGen.setNotBefore(before);
-            m_certGen.setNotAfter(after);
+            m_certGen.setIssuerDN(issuerDN);
+            m_certGen.setNotBefore(notBefore);
+            m_certGen.setNotAfter(notAfter);
             m_certGen.setSubjectDN(new X500Principal(name));
             m_certGen.setPublicKey(key);
             m_certGen.setSignatureAlgorithm(SIGNATURE_ALGORITHM);
 
-            X509Certificate cert = m_certGen.generate(m_caKey.getPrivate());
+            X509Certificate cert = m_certGen.generate(issuerKey);
 
             return cert;
         }

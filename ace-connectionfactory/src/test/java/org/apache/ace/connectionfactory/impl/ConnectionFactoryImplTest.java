@@ -99,11 +99,11 @@ public class ConnectionFactoryImplTest {
         Properties props = createBasicAuthConfig(TEST_URL.toExternalForm());
 
         connFactory.updated("pid1", props);
-        
+
         UrlCredentials credentials = connFactory.getCredentials(TEST_URL);
         assert credentials != null : "Expected valid credentials to be found!";
 
-        String header = new ConnectionFactoryImpl().getBasicAuthCredentials(credentials);
+        String header = new ConnectionFactoryImpl().getBasicAuthCredentials(credentials.getCredentials());
         assert header != null : "Expected valid HTTP header to be returned!";
         assert header.equals(header.trim()) : "Expected HTTP header not to contain any leading/trailing whitespace!";
         assert "Basic Zm9vOmJhcg==".equals(header) : "Expected HTTP header to be constant!";

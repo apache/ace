@@ -31,7 +31,9 @@ final class UrlCredentials {
         /** Indicates no authentication. */
         NONE,
         /** Indicates basic HTTP authentication. */
-        BASIC;
+        BASIC,
+        /** Indicates the use of client certificates. */
+        CLIENT_CERT;
     }
 
     private final AuthType m_type;

@@ -43,6 +43,7 @@
     <properties>
         <import.package>
         	!org.junit,
+        	javax.net.ssl,
         	org.apache.ace.connectionfactory;version=${project.version},
         	org.osgi.framework,
         	org.osgi.service.cm,

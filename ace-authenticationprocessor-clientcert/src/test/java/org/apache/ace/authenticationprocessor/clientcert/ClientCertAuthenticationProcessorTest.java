@@ -20,8 +20,9 @@ package org.apache.ace.authenticationprocessor.clientcert;
 
 import static org.apache.ace.authenticationprocessor.clientcert.ClientCertAuthenticationProcessor.ATTRIBUTE_CIPHER_SUITE;
 import static org.apache.ace.authenticationprocessor.clientcert.ClientCertAuthenticationProcessor.ATTRIBUTE_X509_CERTIFICATE;
-import static org.apache.ace.authenticationprocessor.clientcert.ClientCertAuthenticationProcessor.PROPERTY_KEY_PUBLICKEY;
-import static org.apache.ace.authenticationprocessor.clientcert.ClientCertAuthenticationProcessor.PROPERTY_KEY_USERNAME;
+import static org.apache.ace.authenticationprocessor.clientcert.ClientCertAuthenticationProcessor.PROPERTY_USERNAME_LOOKUPKEY;
+import static org.apache.ace.authenticationprocessor.clientcert.ClientCertAuthenticationProcessor.PROPERTY_USERNAME_MATCH_POLICY;
+import static org.apache.ace.authenticationprocessor.clientcert.ClientCertAuthenticationProcessor.PROPERTY_VERIFY_CERT_VALIDITY;
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -34,9 +35,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 
-import org.mockito.Mockito;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
@@ -122,7 +123,6 @@ public class ClientCertAuthenticationProcessorTest {
         m_userAdmin = mock(UserAdmin.class);
         m_servletRequest = mock(HttpServletRequest.class);
 
-        when(m_servletRequest.getAuthType()).thenReturn(HttpServletRequest.CLIENT_CERT_AUTH);
         when(m_servletRequest.getAttribute(ATTRIBUTE_CIPHER_SUITE)).thenReturn("bogus-cipher-suite");
     }
 
@@ -193,17 +193,46 @@ public class ClientCertAuthenticationProcessorTest {
     @Test(groups = { UNIT })
     public void testAuthenticateKnownUserYieldsValidResult() {
         X509Certificate[] certChain = createValidCertificateChain("bob");
-        PublicKey publicKey = certChain[0].getPublicKey();
 
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(certChain);
 
         User user = mock(User.class);
         when(user.getName()).thenReturn("bob");
-        when(user.hasCredential(eq("publickey"), eq(publicKey.getEncoded()))).thenReturn(Boolean.TRUE);
 
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
+        assert result != null : "Expected a valid user to be returned!";
+
+        assert "bob".equals(user.getName()) : "Expected bob to be returned as user!";
+    }
+
+    /**
+     * Tests that authenticating a known user with a valid certificate chain will not yield null.
+     */
+    @Test(groups = { UNIT })
+    public void testAuthenticateKnownUserWithValidCertificateChainYieldsValidResult() throws ConfigurationException {
+        ClientCertAuthenticationProcessor processor = createAuthorizationProcessor();
+
+        final String lookupKey = "anyKey";
+        final String matchPolicy = "dn";
+
+        Properties props = new Properties();
+        props.put(PROPERTY_USERNAME_LOOKUPKEY, lookupKey);
+        props.put(PROPERTY_USERNAME_MATCH_POLICY, matchPolicy);
+        props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
+        processor.updated(props);
+
+        X509Certificate[] certChain = createValidCertificateChainWithDN("cn=Alice,dc=acme,dc=corp", "cn=Fido,ou=dev,dc=acme,dc=corp", "cn=Bob,ou=dev,dc=acme,dc=corp");
+
+        when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(certChain);
+
+        User user = mock(User.class);
+        when(user.getName()).thenReturn("bob");
+
+        when(m_userAdmin.getUser(eq(lookupKey), eq("CN=Bob,OU=dev,DC=acme,DC=corp"))).thenReturn(user);
+
+        User result = processor.authenticate(m_userAdmin, m_servletRequest);
         assert result != null : "Expected a valid user to be returned!";
 
         assert "bob".equals(user.getName()) : "Expected bob to be returned as user!";
@@ -245,7 +274,9 @@ public class ClientCertAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT })
     public void testCanHandleDoesAcceptServletRequest() {
-        assert createAuthorizationProcessor().canHandle(mock(HttpServletRequest.class));
+        when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(createValidCertificateChain("alice"));
+
+        assert createAuthorizationProcessor().canHandle(m_servletRequest);
     }
 
     /**
@@ -277,31 +308,27 @@ public class ClientCertAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT })
     public void testUpdatedDoesAcceptCorrectProperties() throws ConfigurationException {
-        final String keyUsername = "foo";
-        final String keyPublicKey = "bar";
-        
-        Mockito.reset(m_userAdmin, m_servletRequest);
+        final String lookupKey = "anyKey";
+        final String matchPolicy = "cn";
 
         Properties props = new Properties();
-        props.put(PROPERTY_KEY_USERNAME, keyUsername);
-        props.put(PROPERTY_KEY_PUBLICKEY, keyPublicKey);
+        props.put(PROPERTY_USERNAME_LOOKUPKEY, lookupKey);
+        props.put(PROPERTY_USERNAME_MATCH_POLICY, matchPolicy);
+        props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
 
         ClientCertAuthenticationProcessor processor = createAuthorizationProcessor();
 
         processor.updated(props);
 
         X509Certificate[] certificateChain = createValidCertificateChain("alice");
-        PublicKey publickey = certificateChain[0].getPublicKey();
 
         // Test whether we can use the new properties...
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(certificateChain);
-        when(m_servletRequest.getAttribute(ATTRIBUTE_CIPHER_SUITE)).thenReturn("bogus-cipher-suite");
 
         User user = mock(User.class);
         when(user.getName()).thenReturn("alice");
-        when(user.hasCredential(eq(keyPublicKey), eq(publickey.getEncoded()))).thenReturn(Boolean.TRUE);
 
-        when(m_userAdmin.getUser(eq(keyUsername), eq("alice"))).thenReturn(user);
+        when(m_userAdmin.getUser(eq(lookupKey), eq("alice"))).thenReturn(user);
 
         User result = processor.authenticate(m_userAdmin, m_servletRequest);
         assert result != null : "Expected a valid user to be returned!";
@@ -310,47 +337,76 @@ public class ClientCertAuthenticationProcessorTest {
     }
 
     /**
-     * Tests that updated throws an exception for missing "key.password" property.
+     * Tests that updated throws an exception for missing "username match policy" property.
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
-    public void testUpdatedDoesNotAcceptEmptyKeyPassword() throws ConfigurationException {
+    public void testUpdatedDoesNotAcceptEmptyMatchPolicy() throws ConfigurationException {
         Properties props = new Properties();
-        props.put(PROPERTY_KEY_USERNAME, "foo");
-        props.put(PROPERTY_KEY_PUBLICKEY, "");
+        props.put(PROPERTY_USERNAME_LOOKUPKEY, "foo");
+        props.put(PROPERTY_USERNAME_MATCH_POLICY, "");
+        props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
 
         createAuthorizationProcessor().updated(props);
     }
 
     /**
-     * Tests that updated throws an exception for missing "key.username" property.
+     * Tests that updated throws an exception for missing "username lookup key" property.
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
-    public void testUpdatedDoesNotAcceptEmptyKeyUsername() throws ConfigurationException {
+    public void testUpdatedDoesNotAcceptEmptyLookupKey() throws ConfigurationException {
         Properties props = new Properties();
-        props.put(PROPERTY_KEY_USERNAME, "");
-        props.put(PROPERTY_KEY_PUBLICKEY, "foo");
+        props.put(PROPERTY_USERNAME_LOOKUPKEY, "");
+        props.put(PROPERTY_USERNAME_MATCH_POLICY, "foo");
+        props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
 
         createAuthorizationProcessor().updated(props);
     }
 
     /**
-     * Tests that updated throws an exception for missing "key.password" property.
+     * Tests that updated throws an exception for missing "verify cert validity" property.
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
-    public void testUpdatedDoesNotAcceptMissingKeyPassword() throws ConfigurationException {
+    public void testUpdatedDoesNotAcceptEmptyVerifyCertValidity() throws ConfigurationException {
         Properties props = new Properties();
-        props.put(PROPERTY_KEY_USERNAME, "foo");
+        props.put(PROPERTY_USERNAME_LOOKUPKEY, "foo");
+        props.put(PROPERTY_USERNAME_MATCH_POLICY, "bar");
+        props.put(PROPERTY_VERIFY_CERT_VALIDITY, "");
 
         createAuthorizationProcessor().updated(props);
     }
 
     /**
-     * Tests that updated throws an exception for missing "key.username" property.
+     * Tests that updated throws an exception for missing "username match policy" property.
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
-    public void testUpdatedDoesNotAcceptMissingKeyUsername() throws ConfigurationException {
+    public void testUpdatedDoesNotAcceptMissingMatchPolicy() throws ConfigurationException {
         Properties props = new Properties();
-        props.put(PROPERTY_KEY_PUBLICKEY, "foo");
+        props.put(PROPERTY_USERNAME_LOOKUPKEY, "foo");
+        props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
+
+        createAuthorizationProcessor().updated(props);
+    }
+
+    /**
+     * Tests that updated throws an exception for missing "user name lookup key" property.
+     */
+    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    public void testUpdatedDoesNotAcceptMissingUsernameLookupKey() throws ConfigurationException {
+        Properties props = new Properties();
+        props.put(PROPERTY_USERNAME_MATCH_POLICY, "foo");
+        props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
+
+        createAuthorizationProcessor().updated(props);
+    }
+
+    /**
+     * Tests that updated throws an exception for missing "verify cert validity" property.
+     */
+    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    public void testUpdatedDoesNotAcceptMissingVerifyCertValidity() throws ConfigurationException {
+        Properties props = new Properties();
+        props.put(PROPERTY_USERNAME_LOOKUPKEY, "foo");
+        props.put(PROPERTY_USERNAME_MATCH_POLICY, "foo");
 
         createAuthorizationProcessor().updated(props);
     }
@@ -375,6 +431,33 @@ public class ClientCertAuthenticationProcessorTest {
     private X509Certificate createCertificate(String name, final Date notBefore, final Date notAfter) {
         KeyPair keypair = m_keystore.generateKeyPair();
         return m_keystore.createCertificate("alias", "cn=" + name, notBefore, notAfter, keypair.getPublic());
+    }
+
+    /**
+     * Creates a new (valid) chain with certificate(s) valid from yesterday until tomorrow.
+     * 
+     * @param dns the distinguished names of the certificates in the returned chain.
+     * @return a new chain with {@link X509Certificate}s, never <code>null</code>.
+     */
+    private X509Certificate[] createValidCertificateChainWithDN(String... dns) {
+        X509Certificate[] result = new X509Certificate[dns.length];
+        
+        X500Principal signerDN = m_keystore.getCA_DN();
+        KeyPair signerKeyPair = m_keystore.getCA_KeyPair();
+
+        for (int i = 0; i < result.length; i++) {
+            KeyPair certKeyPair = m_keystore.generateKeyPair();
+            
+            String alias = String.format("alias%d", i);
+            String dn = dns[i];
+            int idx = result.length - i - 1;
+            
+            result[idx] = m_keystore.createCertificate(signerDN, signerKeyPair.getPrivate(), alias, dn, yesterday(), tomorrow(), certKeyPair.getPublic());
+            
+            signerDN = result[idx].getSubjectX500Principal();
+            signerKeyPair = certKeyPair;
+        }
+        return result;
     }
 
     /**
