@@ -103,4 +103,23 @@ public final class TestUtil {
         }
         return sb.toString();
     }
+    
+    /**
+     * Creates a unique temporary directory.
+     * 
+     * @return the unique temporary directory
+     */
+    public static File createTempDir() throws IOException {
+
+        File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        String baseName = System.currentTimeMillis() + "-";
+
+        for (int counter = 0; counter < 1000; counter++) {
+            File tempDir = new File(baseDir, baseName + counter);
+            if (tempDir.mkdir()) {
+                return tempDir;
+            }
+        }
+        throw new IOException("Failed to create tmp directory");
+    }
 }

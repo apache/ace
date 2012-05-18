@@ -18,6 +18,7 @@
  */
 package org.apache.ace.processlauncher.test.impl;
 
+import static org.apache.ace.processlauncher.test.impl.TestUtil.createTempDir;
 import static org.apache.ace.processlauncher.test.impl.TestUtil.getOSName;
 import static org.apache.ace.processlauncher.test.impl.TestUtil.sleep;
 
@@ -36,7 +37,7 @@ import org.osgi.service.log.LogService;
  * Test cases for {@link ProcessManager}.
  */
 public class ProcessManagerImplTest extends TestCase {
-
+    
     private ProcessManagerImpl m_processManager;
 
     /**
@@ -82,7 +83,7 @@ public class ProcessManagerImplTest extends TestCase {
             return;
         }
 
-        LaunchConfiguration launchConfig = createLaunchConfiguration("PING", "-n", "1", "127.0.0.1");
+        LaunchConfiguration launchConfig = createLaunchConfiguration("PING", "-n", "2", "127.0.0.1");
 
         int processCountBefore = m_processManager.getRunningProcessesCount();
 
@@ -298,8 +299,8 @@ public class ProcessManagerImplTest extends TestCase {
      * @return a {@link LaunchConfigurationImpl} instance, never <code>null</code>.
      */
     private LaunchConfiguration createLaunchConfiguration(boolean respawnAutomatically, String execName,
-        String... execArgs) {
-        return new LaunchConfigurationImpl(1, "/tmp", execName, execArgs, 0, null /* processStreamListenerFilter */,
+        String... execArgs) throws Exception {
+        return new LaunchConfigurationImpl(1, createTempDir().getAbsolutePath(), execName, execArgs, 0, null /* processStreamListenerFilter */,
             null /* processLifecycleListenerFilter */, respawnAutomatically);
     }
 
@@ -311,7 +312,7 @@ public class ProcessManagerImplTest extends TestCase {
      * 
      * @return a {@link LaunchConfigurationImpl} instance, never <code>null</code>.
      */
-    private LaunchConfiguration createLaunchConfiguration(String execName, String... execArgs) {
+    private LaunchConfiguration createLaunchConfiguration(String execName, String... execArgs) throws Exception {
         return createLaunchConfiguration(false /* respawnAutomatically */, execName, execArgs);
     }
 }
