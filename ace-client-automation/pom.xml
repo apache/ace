@@ -42,6 +42,7 @@
     </scm>
 
     <properties>
+        <bundle.activator>org.apache.ace.client.automation.Activator</bundle.activator>
         <import.package>
             org.apache.ace.client.repository;version=${project.version},
             org.apache.ace.client.repository.repository;version=${project.version},
