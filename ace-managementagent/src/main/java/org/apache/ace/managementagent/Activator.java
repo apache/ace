@@ -44,9 +44,16 @@ public class Activator extends DependencyActivatorBase {
      */
     @Override
     public void destroy(BundleContext context, DependencyManager manager) throws Exception {
+        // ACE-276 same logic as init()
         for (int i = 0; i < m_activators.length; i++) {
             BundleActivator a = m_activators[i];
-            a.stop(context);
+            String packageName = a.getClass().getPackage().getName();
+            if (!"disabled".equals(System.getProperty(packageName))) {
+                a.stop(context);
+            }
+            else if (!m_quiet) {
+                System.out.println("Not stopping activator " + packageName + ".");
+            }
         }
     }
 
