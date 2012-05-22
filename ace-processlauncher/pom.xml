@@ -55,6 +55,10 @@
 
         <org.apache.felix.framework.version>4.0.2</org.apache.felix.framework.version>
         <org.apache.felix.prefs.version>1.0.4</org.apache.felix.prefs.version>
+
+	<bundle.activator>org.apache.ace.processlauncher.osgi.Activator</bundle.activator>
+	<export.package>org.apache.ace.processlauncher;version=${project.version}, org.apache.ace.processlauncher.util;version=${project.version}</export.package>
+	<private.package>org.apache.ace.processlauncher.impl,org.apache.ace.processlauncher.osgi</private.package>
     </properties>
 
     <dependencies>
