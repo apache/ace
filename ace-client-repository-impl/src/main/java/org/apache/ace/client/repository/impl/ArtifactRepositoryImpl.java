@@ -389,7 +389,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             is = openInputStream(artifact);
         }
         catch (IOException ioe) {
-            throw new IllegalArgumentException("Artifact " + artifact.toString() + " does not point to a valid file.");
+            throw new IllegalArgumentException("Artifact " + artifact + " does not point to a valid file.");
         }
         finally {
             if (is != null) {
@@ -403,9 +403,10 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         }
 
         // Then, check whether the name is legal.
-        for (byte b : artifact.toString().substring(artifact.toString().lastIndexOf('/') + 1).getBytes()) {
+        String artifactName = artifact.toString();
+        for (byte b : artifactName.substring(artifactName.lastIndexOf('/') + 1).getBytes()) {
             if (!(((b >= 'A') && (b <= 'Z')) || ((b >= 'a') && (b <= 'z')) || ((b >= '0') && (b <= '9')) || (b == '.') || (b == '-') || (b == '_'))) {
-                throw new IllegalArgumentException("Artifact " + artifact.toString() + "'s name contains an illegal character '" + new String(new byte[] {b}) + "'");
+                throw new IllegalArgumentException("Artifact " + artifactName + "'s name contains an illegal character '" + new String(new byte[] {b}) + "'");
             }
         }
     }

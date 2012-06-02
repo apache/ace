@@ -42,7 +42,7 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
      * As a general rule, RepositoryObjects do not know about their repository. However, since the Helper
      * to be used is dictated by the repository, this rule is broken for this class.
      */
-    private ArtifactRepositoryImpl m_repo;
+    private final ArtifactRepositoryImpl m_repo;
 
     ArtifactObjectImpl(Map<String, String> attributes, String[] mandatoryAttributes, ChangeNotifier notifier, ArtifactRepositoryImpl repo) {
         super(checkAttributes(attributes, completeMandatoryAttributes(mandatoryAttributes)), notifier, XML_NODE);
@@ -54,6 +54,11 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
         m_repo = repo;
     }
 
+    ArtifactObjectImpl(HierarchicalStreamReader reader, ChangeNotifier notifier, ArtifactRepositoryImpl repo) {
+        super(reader, notifier, XML_NODE);
+        m_repo = repo;
+    }
+    
     private static String[] completeMandatoryAttributes(String[] mandatory) {
         String[] result = new String[mandatory.length + 1];
         for (int i = 0; i < mandatory.length; i++) {
@@ -61,11 +66,6 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
         }
         result[mandatory.length] = KEY_MIMETYPE;
         return result;
-    }
-
-    ArtifactObjectImpl(HierarchicalStreamReader reader, ChangeNotifier notifier, ArtifactRepositoryImpl repo) {
-        super(reader, notifier, XML_NODE);
-        m_repo = repo;
     }
 
     public List<FeatureObject> getFeatures() {
@@ -89,11 +89,6 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
     @Override
     public Comparator<ArtifactObject> getComparator() {
         return getHelper().getComparator();
-    }
-
-    @Override
-    String[] getDefiningKeys() {
-        return getHelper().getDefiningKeys().clone();
     }
 
     public String getURL() {
@@ -124,11 +119,18 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
         return getAttribute(KEY_ARTIFACT_DESCRIPTION);
     }
 
-    private synchronized ArtifactHelper getHelper() {
-        return m_repo.getHelper(getMimetype());
-    }
-
     public void setDescription(String value) {
         addAttribute(KEY_ARTIFACT_DESCRIPTION, value);
+    }
+
+    @Override
+    String[] getDefiningKeys() {
+        return getHelper().getDefiningKeys().clone();
+    }
+    
+    private ArtifactHelper getHelper() {
+        // getMimetype is safe, as is getHelper, and m_repo is final, so no
+        // need to synchronize here...
+        return m_repo.getHelper(getMimetype());
     }
 }
