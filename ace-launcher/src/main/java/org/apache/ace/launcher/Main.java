@@ -153,24 +153,47 @@ public class Main {
         activators.add(new Activator());
         activators.addAll(m_additionalBundleActivators);
         
+        String[] extraSystemPackageArray = {
+            "org.osgi.service.deploymentadmin;version=\"1.0\"",
+            "org.osgi.service.deploymentadmin.spi;version=\"1.0\"",
+            "org.osgi.service.cm;version=\"1.3\"",
+            "org.osgi.service.event;version=\"1.2\"",
+            "org.osgi.service.log;version=\"1.3\"",
+            "org.osgi.service.metatype;version=\"1.1\"",
+            "org.apache.felix.dm;version=\"3.0\"",
+            "org.apache.felix.dm.tracker;version=\"3.0\"",
+            "org.apache.ace.log;version=\"0.8.1.SNAPSHOT\"",
+            "org.apache.ace.deployment.service;version=\"0.8.1.SNAPSHOT\""
+        };
+        
+        String extraSystemPackages = createExtraSystemPackages(extraSystemPackageArray);
+
         Map frameworkProperties = new HashMap();
         frameworkProperties.put("felix.systembundle.activators", activators);
-        frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, 
-    		"org.osgi.service.deploymentadmin;managementagent=true;mandatory:=managementagent;version=\"1.0\","
-            + "org.osgi.service.deploymentadmin.spi;managementagent=true;mandatory:=managementagent;version=\"1.0\","
-            + "org.osgi.service.cm;managementagent=true;mandatory:=managementagent;version=\"1.3\","
-            + "org.osgi.service.event;managementagent=true;mandatory:=managementagent;version=\"1.2\","
-            + "org.osgi.service.log;managementagent=true;mandatory:=managementagent;version=\"1.3\","
-            + "org.osgi.service.metatype;managementagent=true;mandatory:=managementagent;version=\"1.1\","
-            + "org.apache.felix.dm;managementagent=true;mandatory:=managementagent;version=\"3.0\","
-            + "org.apache.felix.dm.tracker;managementagent=true;mandatory:=managementagent;version=\"3.0\","
-            + "org.apache.ace.log;managementagent=true;mandatory:=managementagent;version=\"0.8.1.SNAPSHOT\","
-            + "org.apache.ace.deployment.service;managementagent=true;mandatory:=managementagent;version=\"0.8.1.SNAPSHOT\""
-        );
-        
+        frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, extraSystemPackages);
         frameworkProperties.putAll(m_fwOptionHandler.getProperties());
 
         factory.newFramework(frameworkProperties).start();
+    }
+
+    /**
+     * @param extraSystemPackages
+     * @return
+     */
+    private String createExtraSystemPackages(String[] extraSystemPackages) {
+        String isolateMA = System.getProperty("isolateMA", "managementagent");
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < extraSystemPackages.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(extraSystemPackages[i]);
+            if (isolateMA != null && !"".equals(isolateMA.trim())) {
+                sb.append(String.format(";%1$s=true;mandatory:=%1$s", isolateMA));
+            }
+        }
+        return sb.toString();
     }
 
     private void showHelp() {
