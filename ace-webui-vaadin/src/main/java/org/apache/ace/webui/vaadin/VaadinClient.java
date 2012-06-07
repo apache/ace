@@ -966,10 +966,23 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             m_admin.login(context);
             initGrid(user);
             m_admin.checkout();
+
             return true;
         }
         catch (Exception e) {
-            m_log.log(LogService.LOG_WARNING, "Login failed!", e);
+            m_log.log(LogService.LOG_WARNING, "Login failed! Destroying session...", e);
+            
+            try {
+                // Avoid errors when the user tries to login again (due to the stale session)...
+                m_admin.logout(true /* force */);
+            }
+            catch (IllegalStateException inner) {
+                // Ignore; probably we're not logged...
+            }
+            catch (IOException inner) {
+                m_log.log(LogService.LOG_WARNING, "Logout failed! Session possibly not destroyed...", inner);
+            }
+
             return false;
         }
     }
