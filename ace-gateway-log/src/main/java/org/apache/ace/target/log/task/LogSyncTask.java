@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -97,6 +98,9 @@ public class LogSyncTask implements Runnable {
             
             // Make sure to send the actual POST request...
             sendConnection.getContent();
+        }
+        catch (ConnectException e) {
+            m_log.log(LogService.LOG_WARNING, "Unable to connect to remote (endpoint=" + m_endpoint + ")");
         }
         catch (IOException e) {
             m_log.log(LogService.LOG_ERROR, "Unable to (fully) synchronize log with remote (endpoint=" + m_endpoint + ")", e);
