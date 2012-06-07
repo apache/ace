@@ -19,6 +19,7 @@
 package org.apache.ace.it.repository;
 
 import static org.apache.ace.it.Options.jetty;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
@@ -48,8 +49,8 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.container.def.options.VMOption;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.extra.VMOption;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -68,6 +69,7 @@ public class RepositoryTest extends IntegrationTestBase {
         return options(
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
             new VMOption("-ea"),
+            junitBundles(),
             provision(
                 Osgi.compendium(),
                 Felix.dependencyManager(),

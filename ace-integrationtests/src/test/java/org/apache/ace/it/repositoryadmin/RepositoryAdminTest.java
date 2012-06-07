@@ -28,6 +28,7 @@ import static org.apache.ace.client.repository.stateful.StatefulTargetObject.TOP
 import static org.apache.ace.client.repository.stateful.StatefulTargetObject.TOPIC_STATUS_CHANGED;
 import static org.apache.ace.client.repository.stateful.StatefulTargetObject.UNKNOWN_VERSION;
 import static org.apache.ace.it.Options.jetty;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
@@ -112,9 +113,9 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.container.def.options.CleanCachesOption;
-import org.ops4j.pax.exam.container.def.options.VMOption;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.extra.CleanCachesOption;
+import org.ops4j.pax.exam.options.extra.VMOption;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -136,6 +137,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
             new VMOption("-ea"),
             new CleanCachesOption(),
+            junitBundles(),
             provision(
                 Osgi.compendium(),
                 Felix.dependencyManager(),

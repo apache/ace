@@ -27,7 +27,6 @@ import java.util.zip.ZipInputStream;
 import org.ops4j.pax.exam.Option;
 
 import static org.ops4j.pax.exam.CoreOptions.*;
-import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.*;
 
 /**
  * @author Toni Menzel

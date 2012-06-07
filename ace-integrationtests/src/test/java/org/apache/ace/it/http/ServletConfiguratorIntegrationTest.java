@@ -19,6 +19,7 @@
 package org.apache.ace.it.http;
 
 import static org.apache.ace.it.Options.jetty;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
@@ -44,9 +45,9 @@ import org.apache.felix.dm.Component;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.container.def.options.VMOption;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.extra.VMOption;
 import org.osgi.service.http.HttpService;
 
 @RunWith(JUnit4TestRunner.class)
@@ -57,6 +58,7 @@ public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
         return options(
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
             new VMOption("-ea"),
+            junitBundles(),
             provision(
                 Osgi.compendium(),
                 Felix.dependencyManager(),

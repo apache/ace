@@ -20,15 +20,17 @@ package org.apache.ace.it.server;
 
 import static junit.framework.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.felix;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.OptionUtils.combine;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Inject;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -49,7 +51,7 @@ public class MinimalGatewayTest
 
         return combine(
             options(
-                felix().version( "3.0.2" )
+                felix().version( "3.2.2" )
             ),
             // TODO avoid to use hard coded version
             AssemblyConfigure.get( "ace-target", "mvn:org.apache.ace/org.apache.ace.target.devgateway/0.8.1-SNAPSHOT/zip/distribution" )

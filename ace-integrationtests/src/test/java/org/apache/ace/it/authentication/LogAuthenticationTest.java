@@ -21,6 +21,7 @@ package org.apache.ace.it.authentication;
 import static org.apache.ace.it.Options.jetty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
@@ -54,9 +55,9 @@ import org.apache.felix.dm.Component;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.container.def.options.CleanCachesOption;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.extra.CleanCachesOption;
 import org.osgi.framework.Constants;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.useradmin.UserAdmin;
@@ -89,6 +90,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
         return options(
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
             new CleanCachesOption(),
+            junitBundles(),
             provision(
                 // Misc bundles...
                 Osgi.compendium(),

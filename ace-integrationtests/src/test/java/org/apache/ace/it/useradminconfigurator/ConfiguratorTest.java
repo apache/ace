@@ -21,6 +21,7 @@ package org.apache.ace.it.useradminconfigurator;
 import static org.apache.ace.it.Options.jetty;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
@@ -55,6 +56,7 @@ public class ConfiguratorTest extends IntegrationTestBase {
     public Option[] configuration() {
         return options(
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
+            junitBundles(),
             provision(
                 wrappedBundle(maven("org.apache.ace", "org.apache.ace.util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL), // we do this because we need access to some test classes that aren't exported
                 Osgi.compendium(),

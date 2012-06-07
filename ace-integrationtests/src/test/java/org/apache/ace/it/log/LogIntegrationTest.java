@@ -18,6 +18,20 @@
  */
 package org.apache.ace.it.log;
 
+import static org.apache.ace.it.Options.jetty;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.provision;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.ace.discovery.property.constants.DiscoveryConstants;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.property.constants.IdentificationConstants;
@@ -34,22 +48,11 @@ import org.apache.felix.dm.Component;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.container.def.options.VMOption;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.extra.VMOption;
 import org.osgi.framework.Constants;
 import org.osgi.service.http.HttpService;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.ace.it.Options.jetty;
-import static org.ops4j.pax.exam.CoreOptions.*;
 
 /**
  * Integration tests for the audit log. Both a server and a target are setup
@@ -63,6 +66,7 @@ public class LogIntegrationTest extends IntegrationTestBase {
         return options(
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
             new VMOption("-ea"),
+            junitBundles(),
             provision(
                 Osgi.compendium(),
                 Felix.dependencyManager(),

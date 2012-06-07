@@ -18,6 +18,14 @@
  */
 package org.apache.ace.it;
 
+import static org.junit.Assert.assertEquals;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.*;
+
+import java.io.IOException;
+
+import org.apache.ace.it.Options.Felix;
+import org.apache.ace.it.Options.Osgi;
 import org.apache.felix.dm.Component;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,13 +33,6 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.service.packageadmin.PackageAdmin;
-
-import java.io.IOException;
-
-import static org.apache.ace.it.Options.*;
-import static org.junit.Assert.assertEquals;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.provision;
 
 /**
  * This class serves as a minimal example of our integration tests. Also, if this test fails, something is likely
@@ -44,6 +45,7 @@ public class ExampleTest extends IntegrationTestBase {
     public Option[] configuration() {
         return options(
             // you can add additional directives, e.g. systemProperty or VMOptions here
+            junitBundles(),
             provision(
                 Osgi.compendium(),
                 Felix.dependencyManager()

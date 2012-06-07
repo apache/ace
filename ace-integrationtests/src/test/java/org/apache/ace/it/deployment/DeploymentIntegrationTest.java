@@ -19,6 +19,7 @@
 package org.apache.ace.it.deployment;
 
 import static org.apache.ace.it.Options.jetty;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
@@ -54,8 +55,8 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.container.def.options.VMOption;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.extra.VMOption;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
@@ -77,6 +78,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
         return options(
             systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
             new VMOption("-ea"),
+            junitBundles(),
             provision(
                 wrappedBundle(maven("org.apache.ace", "org.apache.ace.deployment.provider.base")), // necessary since we use an impl class here...
                 Ace.util(),

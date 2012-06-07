@@ -18,15 +18,9 @@
  */
 package org.apache.ace.it;
 
-import org.apache.felix.dm.*;
-import org.junit.Before;
-import org.ops4j.pax.exam.Inject;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.util.tracker.ServiceTracker;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.ace.test.utils.Util.properties;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,9 +30,20 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.ace.test.utils.Util.properties;
-import static org.junit.Assert.fail;
+import javax.inject.Inject;
+
+import org.apache.felix.dm.Component;
+import org.apache.felix.dm.ComponentDependencyDeclaration;
+import org.apache.felix.dm.ComponentStateListener;
+import org.apache.felix.dm.DependencyManager;
+import org.apache.felix.dm.ServiceDependency;
+import org.junit.Before;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * Base class for integration tests. There is no technical reason to use this, but it might make
