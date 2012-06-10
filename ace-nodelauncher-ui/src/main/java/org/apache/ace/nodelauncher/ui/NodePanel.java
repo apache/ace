@@ -18,15 +18,18 @@
  */
 package org.apache.ace.nodelauncher.ui;
 
+import com.vaadin.data.Property;
+import com.vaadin.ui.*;
+import com.vaadin.ui.Button.ClickListener;
+import org.apache.ace.nodelauncher.amazon.JcloudsNodeLauncherConfig;
+import org.jclouds.compute.domain.Hardware;
+import org.jclouds.compute.domain.Image;
+import org.osgi.service.log.LogService;
+
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import com.vaadin.ui.*;
-import org.osgi.service.log.LogService;
-
-import com.vaadin.ui.Button.ClickListener;
 
 @SuppressWarnings("serial")
 public class NodePanel extends Panel {
@@ -36,7 +39,25 @@ public class NodePanel extends Panel {
     private final NodeLauncherPanelFactory m_factory;
     private final Map<Action, Runnable> m_runners = new HashMap<Action, Runnable>();
     private final Runnable m_statusGetter = new StatusGetter();
-    
+    private TextField m_locationInput;
+    private Select m_hardwareIdSelect;
+    private TextField m_ImageOwnerIdInput;
+    private Select m_ImageIdSelect;
+    private TextField m_keyPairInput;
+    private TextField m_tagPrefixInput;
+    private TextField m_extraPortsInput;
+    private CheckBox m_runAsRootCheckbox;
+    private TextField m_privateKeyFileInput;
+    private TextField m_vmOptionsInput;
+    private TextField m_launcherArgumentsInput;
+    private TextField m_nodeBootstrapInput;
+    private TextField m_aceLauncherInput;
+    private TextField m_additionalObrDownloadsInput;
+    private TextField m_externalDownloadsInput;
+    private TextField m_sshUserInput;
+
+    private JcloudsNodeLauncherConfig config;
+
     {
         m_runners.put(Action.Start, new StartRunner());
         m_runners.put(Action.Stop, new StopRunner());
@@ -45,6 +66,7 @@ public class NodePanel extends Panel {
     public NodePanel(NodeLauncherPanelFactory factory, String target) {
         m_factory = factory;
         m_targetId = target;
+        config = (JcloudsNodeLauncherConfig)m_factory.getCloudService().getDefaultConfig();
         setContent();
         setCaption(m_targetId);
     }
@@ -64,15 +86,106 @@ public class NodePanel extends Panel {
         buttonPanel.addComponent(startButton);
         buttonPanel.addComponent(stopButton);
         buttonPanel.setSpacing(true);
+        
 
         Table propertiesTable = new PropertiesTable(m_handler);
         propertiesTable.setWidth("100%");
 
         panel.addComponent(status);
         panel.addComponent(buttonPanel);
+
+        m_locationInput = new TextField("Location", config.getLocation());
+        panel.addComponent(m_locationInput);
+
+        Set<? extends Hardware> hardwares = config.listHardwareIds();
+
+        m_hardwareIdSelect = new Select("Node type");
+        createHardwareItems(hardwares);
+        panel.addComponent(m_hardwareIdSelect);
+
+        m_ImageOwnerIdInput = new TextField("Image owner ID", config.getImageOwnerId());
+
+        panel.addComponent(m_ImageOwnerIdInput);
+
+        m_ImageIdSelect = new Select("Image ID");
+        createImageItems();
+        panel.addComponent(m_ImageIdSelect);
+
+        m_ImageOwnerIdInput.addListener(new Property.ValueChangeListener() {
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                config.setImageOwnerId((String) valueChangeEvent.getProperty().getValue());
+                m_ImageIdSelect.removeAllItems();
+
+                createImageItems();
+            }
+        });
+
+
+        m_keyPairInput = new TextField("Keypair", config.getKeyPair());
+        panel.addComponent(m_keyPairInput);
+
+        m_tagPrefixInput = new TextField("Tag prefix", config.getTagPrefix());
+        panel.addComponent(m_tagPrefixInput);
+
+        String[] extraPorts = config.getExtraPorts();
+        StringBuilder extraPortsValue = new StringBuilder();
+        for (String extraPort : extraPorts) {
+            extraPortsValue.append(extraPort).append(",");
+        }
+        m_extraPortsInput = new TextField("Extra ports (comma separated", extraPortsValue.toString());
+        panel.addComponent(m_extraPortsInput);
+
+        m_runAsRootCheckbox = new CheckBox("Run as root", config.isRunAsRoot());
+        panel.addComponent(m_runAsRootCheckbox);
+
+        m_privateKeyFileInput = new TextField("Private key file", config.getPrivateKeyFile());
+        panel.addComponent(m_privateKeyFileInput);
+
+        m_vmOptionsInput = new TextField("VM options", config.getVmOptions());
+        panel.addComponent(m_vmOptionsInput);
+
+        m_launcherArgumentsInput = new TextField("Launcher arguments", config.getLauncherArguments());
+        panel.addComponent(m_launcherArgumentsInput);
+
+        m_nodeBootstrapInput = new TextField("Node bootstrap script", config.getNodeBootstrap());
+        panel.addComponent(m_nodeBootstrapInput);
+
+        m_aceLauncherInput = new TextField("ACE launcher", config.getAceLauncher());
+        panel.addComponent(m_aceLauncherInput);
+
+        m_additionalObrDownloadsInput = new TextField("Additional OBR downloads (comma separated", config.getAdditionalObrDownloads());
+        panel.addComponent(m_additionalObrDownloadsInput);
+
+        m_externalDownloadsInput = new TextField("External download urls (comman separated", config.getExternalDownloadUrls());
+        panel.addComponent(m_externalDownloadsInput);
+
+        m_sshUserInput = new TextField("SSH username", "ec2-user");
+        panel.addComponent(m_sshUserInput);
+
         panel.addComponent(propertiesTable);
 
         m_factory.submit(m_statusGetter);
+    }
+
+    private void createHardwareItems(Set<? extends Hardware> hardwares) {
+        for (Hardware hardware : hardwares) {
+            m_hardwareIdSelect.addItem(hardware.getId());
+            m_hardwareIdSelect.setItemCaption(hardware.getId(), hardware.getName());
+            if(hardware.getId().equals(config.getHardwareId())) {
+                m_hardwareIdSelect.select(hardware.getId());
+            }
+        }
+    }
+
+    private void createImageItems() {
+        Set<? extends Image> images = config.listImages();
+        for (Image image : images) {
+            m_ImageIdSelect.addItem(image.getId());
+            m_ImageIdSelect.setItemCaption(image.getId(), image.getName());
+            if(image.getId().endsWith(config.getImageId())) {
+                m_ImageIdSelect.select(image.getId());
+            }
+        }
     }
 
     @SuppressWarnings("serial")
@@ -158,8 +271,49 @@ public class NodePanel extends Panel {
         protected void doRun() {
             try {
                 m_handler.setStatus(NodeStatus.STARTING);
-                m_factory.getCloudService().start(m_targetId);
+
+                String sshUser = (String) m_sshUserInput.getValue();
+                String location = (String) m_locationInput.getValue();
+                String hardwareId = (String) m_hardwareIdSelect.getValue();
+                String imageOwnerId = (String) m_ImageOwnerIdInput.getValue();
+                String imageId = (String) m_ImageIdSelect.getValue();
+                String keyPair = (String) m_keyPairInput.getValue();
+                String tagPrefix = (String) m_tagPrefixInput.getValue();
+                String[] extraPorts = ((String)m_extraPortsInput.getValue()).split(",");
+                boolean runAsRoot = m_runAsRootCheckbox.booleanValue();
+                String privateKeyFile = (String)m_privateKeyFileInput.getValue();
+                String vmOptions = (String)m_vmOptionsInput.getValue();
+                String laucherArgs = (String)m_launcherArgumentsInput.getValue();
+                String nodeBootStrap = (String)m_nodeBootstrapInput.getValue();
+                String aceLauncher = (String)m_aceLauncherInput.getValue();
+                String additionalObrDownloads = (String)m_additionalObrDownloadsInput.getValue();
+                String externalDownloads = (String)m_externalDownloadsInput.getValue();
+
+                config.setSshUser(sshUser);
+                config.setLocation(location);
+                config.setHardwareId(hardwareId);
+
+                if(imageOwnerId.length() > 0) {
+                    config.setImageOwnerId(imageOwnerId);
+                }
+
+                config.setImageId(imageId);
+                config.setKeyPair(keyPair);
+                config.setTagPrefix(tagPrefix);
+                config.setExtraPorts(extraPorts);
+                config.setRunAsRoot(runAsRoot);
+                config.setPrivateKeyFile(privateKeyFile);
+                config.setVmOptions(vmOptions);
+                config.setLauncherArguments(laucherArgs);
+                config.setNodeBootstrap(nodeBootStrap);
+                config.setAceLauncher(aceLauncher);
+                config.setAdditionalObrDownloads(additionalObrDownloads);
+                config.setExternalDownloadUrls(externalDownloads);
+
+                m_factory.getCloudService().start(m_targetId, config);
                 m_handler.setStatus(NodeStatus.INITIALIZING);
+                disableInputFields();
+
             }
             catch (Exception e) {
                 m_handler.setStatus(NodeStatus.ERROR);
@@ -168,7 +322,25 @@ public class NodePanel extends Panel {
             m_factory.submit(m_statusGetter);
         }
     }
-    
+
+    private void disableInputFields() {
+        m_locationInput.setEnabled(false);
+        m_hardwareIdSelect.setEnabled(false);
+        m_ImageOwnerIdInput.setEnabled(false);
+        m_ImageIdSelect.setEnabled(false);
+        m_keyPairInput.setEnabled(false);
+        m_tagPrefixInput.setEnabled(false);
+        m_extraPortsInput.setEnabled(false);
+        m_runAsRootCheckbox.setEnabled(false);
+        m_privateKeyFileInput.setEnabled(false);
+        m_vmOptionsInput.setEnabled(false);
+        m_launcherArgumentsInput.setEnabled(false);
+        m_nodeBootstrapInput.setEnabled(false);
+        m_aceLauncherInput.setEnabled(false);
+        m_additionalObrDownloadsInput.setEnabled(false);
+        m_externalDownloadsInput.setEnabled(false);
+    }
+
     private class StopRunner extends LockedRunner {
         @Override
         protected void doRun() {

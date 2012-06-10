@@ -38,11 +38,32 @@ public interface NodeLauncher {
     void start(String id) throws Exception;
 
     /**
+     * Starts a new node with the given ID. Does not check whether this ID is already in use.
+     * The provided properties override the configuration provided in configuration. Depending on the underlying
+     * provider this could be used to specify a node type, image id etc.
+     * @param id A textual ID for the node.
+     * @param config Configuration object to override configuration properties such as node type.
+     * @throws Exception Be aware that the implementation may pass through implementation-specific exceptions.
+     */
+    void start(String id, NodeLauncherConfig config) throws Exception;
+
+    /**
      * Destroys the node with the given ID. Does not check whether this ID actually exists.
      * @param id A textual ID for the node.
      * @throws Exception Be aware that the implementation may pass through implementation-specific exceptions.
      */
     void stop(String id) throws Exception;
+
+    /**
+     * If available, return a default configuration object. May return null if not available in an implementation.
+     * @return Default launcher configuration, or null if not available.
+     */
+    NodeLauncherConfig getDefaultConfig();
+
+    /**
+     * @return  The currently set configuration object if available, or null if not available.
+     */
+    NodeLauncherConfig getCurrentConfig();
     
     /**
      * Retrieves properties from the node. These will include, at least

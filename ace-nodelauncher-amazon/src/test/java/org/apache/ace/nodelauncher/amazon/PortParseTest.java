@@ -8,10 +8,9 @@ public class PortParseTest {
     @Test(groups = { UNIT })
     public void testParsePortsFromString() throws Exception {
         AmazonNodeLauncher instance = new AmazonNodeLauncher();
-        Assert.assertTrue(assertEquals(instance.parseExtraPorts("1,2,3"), new int[] {1, 2, 3}));
-        Assert.assertTrue(assertEquals(instance.parseExtraPorts(""), new int[] {}));
-        Assert.assertTrue(assertEquals(instance.parseExtraPorts("1 ,2 , 3 "), new int[] {1, 2, 3}));
-        Assert.assertTrue(assertEquals(instance.parseExtraPorts("800,900"), new int[] {800, 900}));
+        Assert.assertTrue(assertEquals(instance.parseExtraPorts(new String[] {"1", "2", "3"}), new int[] {1, 2, 3}));
+        Assert.assertTrue(assertEquals(instance.parseExtraPorts(new String[] {}), new int[] {}));
+        Assert.assertTrue(assertEquals(instance.parseExtraPorts(new String[] {"800","900"}), new int[] {800, 900}));
     }
     
     @Test(groups = { UNIT })

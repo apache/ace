@@ -65,7 +65,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>
-            <artifactId>org.apache.ace.nodelauncher.api</artifactId>
+            <artifactId>org.apache.ace.nodelauncher.amazon</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ace</groupId>

@@ -18,23 +18,20 @@
  */
 package org.apache.ace.nodelauncher.amazon;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
-import com.google.inject.Module;
 import org.apache.ace.nodelauncher.NodeLauncher;
+import org.apache.ace.nodelauncher.NodeLauncherConfig;
 import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.ComputeServiceContext;
-import org.jclouds.compute.ComputeServiceContextFactory;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeState;
-import org.jclouds.compute.domain.Template;
+import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.RunScriptOptions;
-import org.jclouds.domain.Credentials;
+import org.jclouds.compute.options.TemplateOptions;
+import org.jclouds.domain.LoginCredentials;
 import org.jclouds.ec2.compute.options.EC2TemplateOptions;
 import org.jclouds.ec2.domain.InstanceType;
 import org.jclouds.scriptbuilder.domain.Statements;
-import org.jclouds.sshj.config.SshjSshClientModule;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 
@@ -42,10 +39,11 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Dictionary;
+import java.util.Properties;
+import java.util.Set;
 
 import static org.jclouds.compute.predicates.NodePredicates.runningInGroup;
-
 /**
  * Simple NodeLauncher implementation that launches nodes based on a given AMI in Amazon EC2.
  * We expect the AMI we launch to have a java on its path, at least after bootstrap.<br><br>
@@ -69,6 +67,11 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
      * in the location ("availability zone") you configure.
      */
     public static final String AMI_ID = "amiId";
+
+    /**
+     * Configuration key: The ID of the AMI owner to use. You need this when you want to use your own AMIs.
+     */
+    public static final String AMI_OWNER_ID = "amiOwnerId";
 
     /**
      * Configuration key: The location where the node should be started; this is an Amazon "availability zone",
@@ -134,7 +137,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
     /**
      * Default set of ports to open on a node.
      */
-    public static final int[] DEFAULT_PORTS = new int[] {22, 80, 8080};
+    public static final int[] DEFAULT_PORTS = new int[]{22, 80, 8080};
 
     /**
      * Configuration key: The (optional) name of the JAR to launch to
@@ -154,69 +157,88 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
      * bootstrapping.
      */
     public static final String EXTERNAL_DOWNLOAD_URLS = "externalDownloadUrls";
-    
+
+    /**
+     * Configuration key: The (optional) ssh user to use when connecting to the node. Uses jclouds defaults by default,
+     * which is root and ec2-user.
+     */
+    public static final String SSH_USER = "sshUser";
+
     /**
      * Configuration key: The (optional) private key file, which you must install on
      * the ACE server locally if you want it to be used when creating new nodes.
      */
     private static final String PRIVATE_KEY_FILE = "privateKeyFile";
 
-    private URL m_server;
-    private String m_amiId;
-    private String m_location;
-    private String m_hardwareId;
-    private String m_accessKeyId;
-    private String m_secretAccessKey;
-    private String m_keypair;
-    private String m_privateKeyFile;
-    private String m_tagPrefix;
-    private String m_vmOptions;
-    private String m_nodeBootstrap;
-    private String m_launcherArguments;
-    private String m_extraPorts;
-    private boolean m_runAsRoot;
-    private String m_aceLauncher;
-    private String m_additionalObrDownloads;
-    private String m_externalDownloadUrls;
+    /**
+     * Default configuration object. Properties are read from the nodelauncher configuration file.
+     */
+    private JcloudsNodeLauncherConfig m_defaultNodeConfig;
 
+    /**
+     * Current configuration object. This reflects settings done from the UI for example.
+     * This instance is set when a node is started.
+     */
+    private JcloudsNodeLauncherConfig m_currentConfig;
 
-    private ComputeServiceContext m_computeServiceContext;
-
-    public void start() {
-        Properties props = new Properties();
-        m_computeServiceContext = new ComputeServiceContextFactory().createContext("aws-ec2", m_accessKeyId, m_secretAccessKey, ImmutableSet.<Module> of(new SshjSshClientModule()), props);
-    }
 
     public void start(String id) throws Exception {
-        ComputeService computeService = m_computeServiceContext.getComputeService();
-        Template template = computeService.templateBuilder()
-            .imageId(m_location + "/" + m_amiId)
-            .hardwareId(m_hardwareId)
-            .locationId(m_location)
-            .build();
 
-        int[] extraPorts = parseExtraPorts(m_extraPorts);
-        int[] inboundPorts = mergePorts(DEFAULT_PORTS, extraPorts);
-        template.getOptions().as(EC2TemplateOptions.class).inboundPorts(inboundPorts);
-        template.getOptions().blockOnComplete(false);
-        template.getOptions().runAsRoot(m_runAsRoot);
-
-        if (useConfiguredKeyPair()) {
-            template.getOptions().as(EC2TemplateOptions.class).keyPair(m_keypair);
-            template.getOptions().overrideCredentialsWith(new Credentials("ec2-user", Files.toString(new File(m_privateKeyFile), Charset.defaultCharset())));
-        }
-
-        Set<? extends NodeMetadata> tag = computeService.createNodesInGroup(m_tagPrefix + id, 1, template);
-        if (!useConfiguredKeyPair()) {
-            System.out.println("In case you need it, this is the key to ssh to " + id + ":\n" + tag.iterator().next().getCredentials().credential);
-        }
-        computeService.runScriptOnNodesMatching(runningInGroup(m_tagPrefix + id),
-            Statements.exec(buildStartupScript(id)),
-            RunScriptOptions.Builder.blockOnComplete(false));
+        start(id, m_defaultNodeConfig);
     }
 
-    private boolean useConfiguredKeyPair() {
-        return m_keypair != null && m_keypair.length() > 0;
+    public void start(String id, NodeLauncherConfig cfg) throws Exception {
+        JcloudsNodeLauncherConfig config = (JcloudsNodeLauncherConfig) cfg;
+        m_currentConfig = config;
+
+        ComputeService computeService = config.getComputeService();
+        TemplateBuilder template = computeService.templateBuilder()
+                .imageId(config.getImageId())
+                .hardwareId(config.getHardwareId())
+                .locationId(config.getLocation());
+
+        int[] extraPorts = parseExtraPorts(config.getExtraPorts());
+        int[] inboundPorts = mergePorts(DEFAULT_PORTS, extraPorts);
+
+        TemplateOptions options = new EC2TemplateOptions()
+                .as(EC2TemplateOptions.class).inboundPorts(inboundPorts)
+                .blockOnComplete(false)
+                .runAsRoot(config.isRunAsRoot());
+
+        if (useConfiguredKeyPair(config)) {
+            options.as(EC2TemplateOptions.class).keyPair(config.getKeyPair());
+        }
+
+        template.options(options);
+
+        Set<? extends NodeMetadata> tag = computeService.createNodesInGroup(config.getTagPrefix() + id, 1, template.build());
+        if (!useConfiguredPrivateKey(config)) {
+            System.out.println("In case you need it, this is the key to ssh to " + id + ":\n" + tag.iterator().next().getCredentials().credential);
+        }
+
+        LoginCredentials.Builder loginBuilder = LoginCredentials.builder();
+
+        if (config.getSshUser() != null && config.getSshUser().length() > 0) {
+            loginBuilder.user(config.getSshUser());
+        } else {
+            loginBuilder.user("ec2-user");
+        }
+
+        if (useConfiguredPrivateKey(config)) {
+            loginBuilder.privateKey(Files.toString(new File(config.getPrivateKeyFile()), Charset.defaultCharset()));
+        }
+
+        computeService.runScriptOnNodesMatching(runningInGroup(config.getTagPrefix() + id),
+                Statements.exec(buildStartupScript(id, config)),
+                RunScriptOptions.Builder.blockOnComplete(false).overrideLoginCredentials(loginBuilder.build()));
+    }
+
+    private boolean useConfiguredPrivateKey(JcloudsNodeLauncherConfig config) {
+        return config.getPrivateKeyFile() != null && config.getPrivateKeyFile().length() > 0;
+    }
+
+    private boolean useConfiguredKeyPair(JcloudsNodeLauncherConfig config) {
+        return config.getKeyPair() != null && config.getKeyPair().length() > 0;
     }
 
     int[] mergePorts(int[] first, int[] last) {
@@ -227,53 +249,56 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         return result;
     }
 
-    int[] parseExtraPorts(String extraPorts) {
-        extraPorts = extraPorts.trim();
-        if (extraPorts.isEmpty()) {
-            return new int[]{};
+    int[] parseExtraPorts(String[] extraPorts) {
+        if(extraPorts == null || extraPorts.length == 0) {
+            return new int[0];
         }
-        String[] ports = extraPorts.split(",");
-        int[] result = new int[ports.length];
-        for (int i = 0; i < ports.length; i++) {
-            result[i] = Integer.parseInt(ports[i].trim());
+
+        int[] result = new int[extraPorts.length];
+
+        for (int i = 0; i < extraPorts.length; i++) {
+            result[i] = Integer.parseInt(extraPorts[i].trim());
         }
+
         return result;
     }
 
-    private String buildStartupScript(String id) throws MalformedURLException {
-        StringBuilder script = new StringBuilder();
-        if (m_nodeBootstrap != null && m_nodeBootstrap.length() > 0) {
-            script.append(m_nodeBootstrap).append(" ; ");
+    private String buildStartupScript(String id, JcloudsNodeLauncherConfig config) throws MalformedURLException {
+        StringBuilder script = new StringBuilder("cd ~; ");
+        if (config.getNodeBootstrap() != null && config.getNodeBootstrap().length() > 0) {
+            script.append(config.getNodeBootstrap()).append(" ; ");
         }
 
-        script.append("wget ").append(new URL(m_server, "/obr/" + m_aceLauncher)).append(" ;");
-        if (m_additionalObrDownloads.length() > 0) {
-            for (String additonalDownload : m_additionalObrDownloads.split(",")) {
-                script.append("wget ").append(new URL(m_server, "/obr/" + additonalDownload.trim())).append(" ;");
+        script.append("wget ").append(new URL(config.getServer(), "/obr/" + config.getAceLauncher())).append(" ;");
+        if (config.getAdditionalObrDownloads().length() > 0) {
+            for (String additonalDownload : config.getAdditionalObrDownloads().split(",")) {
+                script.append("wget ").append(new URL(config.getServer(), "/obr/" + additonalDownload.trim())).append(" ;");
             }
         }
 
-        if (m_externalDownloadUrls.length() > 0) {
-            for (String additonalDownload : m_externalDownloadUrls.split(",")) {
+        if (config.getExternalDownloadUrls().length() > 0) {
+            for (String additonalDownload : config.getExternalDownloadUrls().split(",")) {
                 script.append("wget ").append(additonalDownload.trim()).append(" ;");
             }
         }
-        script.append("nohup java -jar ").append(m_aceLauncher).append(" ");
-        script.append("discovery=").append(m_server.toExternalForm()).append(" ");
+        script.append("nohup java -jar ").append(config.getAceLauncher()).append(" ");
+        script.append("discovery=").append(config.getServer().toExternalForm()).append(" ");
         script.append("identification=").append(id).append(" ");
-        script.append(m_vmOptions).append(" ");
-        script.append(m_launcherArguments);
+        script.append(config.getVmOptions()).append(" ");
+        script.append(config.getLauncherArguments());
         return script.toString();
     }
 
     public void stop(String id) {
-        m_computeServiceContext.getComputeService().destroyNodesMatching(runningInGroup(m_tagPrefix + id));
+
+        getActiveConfig().getComputeService().destroyNodesMatching(runningInGroup(getActiveConfig().getTagPrefix() + id));
     }
 
     public Properties getProperties(String id) throws Exception {
         Properties result = new Properties();
 
-        NodeMetadata nodeMetadata = getNodeMetadataForRunningNodeWithTag(m_tagPrefix + id);
+        JcloudsNodeLauncherConfig config = getActiveConfig();
+        NodeMetadata nodeMetadata = getNodeMetadataForRunningNodeWithTag(config.getTagPrefix() + id, config);
         if (nodeMetadata == null) {
             return null;
         }
@@ -284,9 +309,14 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         return result;
     }
 
-    private NodeMetadata getNodeMetadataForRunningNodeWithTag(String tag) {
-        for (ComputeMetadata node : m_computeServiceContext.getComputeService().listNodes()) {
-            NodeMetadata candidate = m_computeServiceContext.getComputeService().getNodeMetadata(node.getId());
+    private JcloudsNodeLauncherConfig getActiveConfig() {
+        return m_currentConfig != null ? m_currentConfig : m_defaultNodeConfig;
+    }
+
+    private NodeMetadata getNodeMetadataForRunningNodeWithTag(String tag, JcloudsNodeLauncherConfig config) {
+
+        for (ComputeMetadata node : config.getComputeService().listNodes()) {
+            NodeMetadata candidate = config.getComputeService().getNodeMetadata(node.getId());
             if (tag.equals(candidate.getGroup()) && candidate.getState().equals(NodeState.RUNNING)) {
                 return candidate;
             }
@@ -299,11 +329,11 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             URL server;
             try {
                 server = new URL(getConfigProperty(properties, SERVER));
-            }
-            catch (MalformedURLException e) {
+            } catch (MalformedURLException e) {
                 throw new ConfigurationException(SERVER, getConfigProperty(properties, SERVER) + " is not a valid URL.", e);
             }
             String amiId = getConfigProperty(properties, AMI_ID);
+            String amiOwnerId = getConfigProperty(properties, AMI_OWNER_ID, "");
             String location = getConfigProperty(properties, LOCATION);
             String hardwareId = getConfigProperty(properties, HARDWARE_ID, InstanceType.C1_MEDIUM);
             String accessKeyId = getConfigProperty(properties, ACCESS_KEY_ID);
@@ -319,26 +349,35 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
             String aceLauncher = getConfigProperty(properties, ACE_LAUNCHER, "ace-launcher.jar");
             String additionalObrDownloads = getConfigProperty(properties, ADDITIONAL_OBR_DOWNLOADS, "");
             String externalDownloadUrls = getConfigProperty(properties, EXTERNAL_DOWNLOAD_URLS, "");
+            String sshUser = getConfigProperty(properties, SSH_USER, "ec2-user");
 
-            m_server = server;
-            m_amiId = amiId;
-            m_location = location;
-            m_hardwareId = hardwareId;
-            m_accessKeyId = accessKeyId;
-            m_secretAccessKey = secretAccessKey;
-            m_keypair = keyPair;
-            m_privateKeyFile = privateKeyFile;
-            m_tagPrefix = tagPrefix;
-            m_vmOptions = vmOptions;
-            m_nodeBootstrap = nodeBootstrap;
-            m_launcherArguments = launcherArguments;
-            m_extraPorts = extraPorts;
-            m_runAsRoot = "true".equals(runAsRoot);
-            m_aceLauncher = aceLauncher;
-            m_additionalObrDownloads = additionalObrDownloads;
-            m_externalDownloadUrls = externalDownloadUrls;
+            m_defaultNodeConfig = new JcloudsNodeLauncherConfig()
+                    .setAccessKeyId(accessKeyId)
+                    .setSecretAccessKey(secretAccessKey)
+                    .setServer(server)
+                    .setImageId(amiId)
+                    .setImageOwnerId(amiOwnerId)
+                    .setLocation(location)
+                    .setHardwareId(hardwareId)
+                    .setKeyPair(keyPair)
+                    .setPrivateKeyFile(privateKeyFile)
+                    .setTagPrefix(tagPrefix)
+                    .setVmOptions(vmOptions)
+                    .setLauncherArguments(launcherArguments)
+                    .setExtraPorts(extraPorts)
+                    .setRunAsRoot(Boolean.parseBoolean(runAsRoot))
+                    .setAccessKeyId(accessKeyId)
+                    .setSecretAccessKey(secretAccessKey)
+                    .setNodeBootstrap(nodeBootstrap)
+                    .setAceLauncher(aceLauncher)
+                    .setAdditionalObrDownloads(additionalObrDownloads)
+                    .setExternalDownloadUrls(externalDownloadUrls)
+                    .setSshUser(sshUser);
+
+            m_defaultNodeConfig.createComputeServiceContext();
         }
     }
+
 
     private String getConfigProperty(@SuppressWarnings("rawtypes") Dictionary settings, String id) throws ConfigurationException {
         return getConfigProperty(settings, id, null);
@@ -349,11 +388,24 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
         if (result == null) {
             if (defaultValue == null) {
                 throw new ConfigurationException(id, "key missing");
-            }
-            else {
+            } else {
                 return defaultValue;
             }
         }
         return result;
+    }
+
+    public void stop() {
+        if (m_currentConfig != null) {
+            m_currentConfig.close();
+        }
+    }
+
+    public NodeLauncherConfig getDefaultConfig() {
+        return m_defaultNodeConfig;
+    }
+
+    public JcloudsNodeLauncherConfig getCurrentConfig() {
+        return m_currentConfig;
     }
 }

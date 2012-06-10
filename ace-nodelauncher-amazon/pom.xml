@@ -67,6 +67,10 @@
         </bundle.activator>
         <embed.dependency>*;scope=compile;groupId=!org.osgi|org.apache.felix|org.apache.ace</embed.dependency>
         <embed.transitive>true</embed.transitive>
+        <export.package>
+            org.apache.ace.nodelauncher.amazon;version=${project.version},
+            org.jclouds.compute.domain
+        </export.package>
     </properties>
 
     <dependencies>
