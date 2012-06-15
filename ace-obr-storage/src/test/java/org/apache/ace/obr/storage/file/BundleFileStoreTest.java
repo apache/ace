@@ -20,6 +20,7 @@ package org.apache.ace.obr.storage.file;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -249,27 +250,42 @@ public class BundleFileStoreTest {
 
     @Test(groups = { UNIT })
     public void putBundle() throws Exception {
-        m_bundleStore.put("filename", new InputStream() {
-            private int i = 0;
-
-            @Override
-            public int read() throws IOException {
-                if (i < 1) {
-                    i++;
-                    return 'a';
-                }
-                else {
-                    return -1;
-                }
-            }
-        });
-        File file = new File(m_directory, "filename");
+        String fileName = "filename";
+        m_bundleStore.put(fileName, new ByteArrayInputStream("a".getBytes()));
+        File file = new File(m_directory, fileName);
         FileInputStream input = new FileInputStream(file);
         assert input.read() == 'a';
         assert input.read() == -1;
         input.close();
     }
 
+    @Test(groups = { UNIT })
+    public void putBundleInPathAndRemoveItAgain() throws Exception {
+        String fileName = "path/to/filename";
+        m_bundleStore.put(fileName, new ByteArrayInputStream("a".getBytes()));
+        File file = new File(m_directory, fileName);
+        FileInputStream input = new FileInputStream(file);
+        assert input.read() == 'a';
+        assert input.read() == -1;
+        input.close();
+        assert m_bundleStore.remove(fileName);
+    }
+
+    @Test(groups = { UNIT })
+    public void putBundleInInvalidPathShouldFail() throws Exception {
+        String fileName = "path/to/name";
+        String fileName2 = "path/to/name/invalid";
+        m_bundleStore.put(fileName, new ByteArrayInputStream("a".getBytes()));
+        try {
+            m_bundleStore.put(fileName2, new ByteArrayInputStream("a".getBytes()));
+            assert false;
+        }
+        catch (IOException e) {
+            // we expect this to happen
+        }
+    }
+
+    
     @Test(groups = { UNIT })
     public void removeExistingBundle() throws Exception {
         m_bundleStore.put("filename", new InputStream() {

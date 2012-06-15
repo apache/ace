@@ -77,6 +77,10 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
         boolean success = false;
         if (!file.exists()) {
+            File folder = file.getAbsoluteFile().getParentFile();
+            if (!folder.isDirectory() && !folder.mkdirs()) {
+                throw new IOException("Could not create folder " + folder);
+            }
             try {
                 // the reason for first writing to a temporary file is that we want to minimize
                 // the window where someone could be looking at a "partial" file that is still being
