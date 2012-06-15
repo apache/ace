@@ -49,11 +49,17 @@ public class MockBundleStore implements BundleStore {
         if (fileName.equals("NewFile")) {
             return true;
         }
+        if (fileName.equals("path/to/file")) {
+            return true;
+        }
         return false;
     }
 
     public boolean remove(String fileName) throws IOException {
         if (fileName.equals("RemoveMe")) {
+            return true;
+        }
+        if (fileName.equals("path/to/file")) {
             return true;
         }
         return false;

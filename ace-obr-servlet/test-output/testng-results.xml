@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="6" passed="6">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="86" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+    <groups>
+      <group name="unit">
+        <method signature="BundleServletTest.testGetInValidResource()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testGetInValidResource" class="org.apache.ace.obr.servlet.BundleServletTest"/>
+        <method signature="BundleServletTest.testGetValidResource()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testGetValidResource" class="org.apache.ace.obr.servlet.BundleServletTest"/>
+        <method signature="BundleServletTest.testPostResource()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testPostResource" class="org.apache.ace.obr.servlet.BundleServletTest"/>
+        <method signature="BundleServletTest.testPostResourceInPath()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testPostResourceInPath" class="org.apache.ace.obr.servlet.BundleServletTest"/>
+        <method signature="BundleServletTest.testRemoveResource()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testRemoveResource" class="org.apache.ace.obr.servlet.BundleServletTest"/>
+        <method signature="BundleServletTest.testRemoveResourceInPath()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testRemoveResourceInPath" class="org.apache.ace.obr.servlet.BundleServletTest"/>
+      </group> <!-- unit -->
+    </groups>
+    <test name="Default test" duration-ms="86" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+      <class name="org.apache.ace.obr.servlet.BundleServletTest">
+        <test-method status="PASS" signature="setUp()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="setUp" is-config="true" duration-ms="49" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- setUp -->
+        <test-method status="PASS" signature="testGetInValidResource()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testGetInValidResource" duration-ms="4" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- testGetInValidResource -->
+        <test-method status="PASS" signature="tearDown()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="tearDown" is-config="true" duration-ms="0" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- tearDown -->
+        <test-method status="PASS" signature="setUp()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="setUp" is-config="true" duration-ms="1" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- setUp -->
+        <test-method status="PASS" signature="testGetValidResource()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testGetValidResource" duration-ms="8" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- testGetValidResource -->
+        <test-method status="PASS" signature="tearDown()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="tearDown" is-config="true" duration-ms="0" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- tearDown -->
+        <test-method status="PASS" signature="setUp()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="setUp" is-config="true" duration-ms="1" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- setUp -->
+        <test-method status="PASS" signature="testPostResource()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testPostResource" duration-ms="0" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- testPostResource -->
+        <test-method status="PASS" signature="tearDown()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="tearDown" is-config="true" duration-ms="0" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- tearDown -->
+        <test-method status="PASS" signature="setUp()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="setUp" is-config="true" duration-ms="1" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- setUp -->
+        <test-method status="PASS" signature="testPostResourceInPath()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testPostResourceInPath" duration-ms="0" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- testPostResourceInPath -->
+        <test-method status="PASS" signature="tearDown()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="tearDown" is-config="true" duration-ms="0" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- tearDown -->
+        <test-method status="PASS" signature="setUp()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="setUp" is-config="true" duration-ms="0" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- setUp -->
+        <test-method status="PASS" signature="testRemoveResource()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testRemoveResource" duration-ms="1" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- testRemoveResource -->
+        <test-method status="PASS" signature="tearDown()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="tearDown" is-config="true" duration-ms="0" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- tearDown -->
+        <test-method status="PASS" signature="setUp()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="setUp" is-config="true" duration-ms="1" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- setUp -->
+        <test-method status="PASS" signature="testRemoveResourceInPath()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="testRemoveResourceInPath" duration-ms="0" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- testRemoveResourceInPath -->
+        <test-method status="PASS" signature="tearDown()[pri:0, instance:org.apache.ace.obr.servlet.BundleServletTest@c5a67c9]" name="tearDown" is-config="true" duration-ms="0" started-at="2012-06-15T16:51:00Z" finished-at="2012-06-15T16:51:00Z">
+        </test-method> <!-- tearDown -->
+      </class> <!-- org.apache.ace.obr.servlet.BundleServletTest -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>

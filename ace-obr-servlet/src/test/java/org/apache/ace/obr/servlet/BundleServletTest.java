@@ -189,11 +189,28 @@ public class BundleServletTest {
     }
 
     @Test(groups = { UNIT })
+    public void testPostResourceInPath() throws Exception {
+        m_requestFile = "path/to/file";
+        m_bundleServlet.doPost(m_request, m_response);
+        assert m_status == HttpServletResponse.SC_OK;
+    }
+
+    @Test(groups = { UNIT })
     public void testRemoveResource() throws Exception {
         m_requestFile = "RemoveMe";
         m_bundleServlet.doDelete(m_request, m_response);
         assert m_status == HttpServletResponse.SC_OK;
         m_requestFile = "NonExistingFile";
+        m_bundleServlet.doDelete(m_request, m_response);
+        assert m_status == HttpServletResponse.SC_NOT_FOUND;
+    }
+
+    @Test(groups = { UNIT })
+    public void testRemoveResourceInPath() throws Exception {
+        m_requestFile = "path/to/file";
+        m_bundleServlet.doDelete(m_request, m_response);
+        assert m_status == HttpServletResponse.SC_OK;
+        m_requestFile = "path/to/NonExistingFile";
         m_bundleServlet.doDelete(m_request, m_response);
         assert m_status == HttpServletResponse.SC_NOT_FOUND;
     }
