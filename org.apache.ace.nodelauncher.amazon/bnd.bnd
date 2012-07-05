@@ -55,6 +55,7 @@ Import-Package: !com.google.*,\
     !org.bouncycastle.*,\
     !sun.misc,\
     !com.sun.*,\
+    !org.slf4j.*,\
 	*
 Export-Package: org.jclouds.compute.domain,\
 	org.apache.ace.nodelauncher.amazon
