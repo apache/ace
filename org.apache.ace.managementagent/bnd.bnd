@@ -42,8 +42,8 @@ Export-Package: org.osgi.service.cm;version="1.3";managementagent=true;mandatory
     org.osgi.service.event;version="1.2";managementagent=true;mandatory:=managementagent;-split-package:=first,\
     org.osgi.service.log;version="1.3";managementagent=true;mandatory:=managementagent;-split-package:=first,\
     org.osgi.service.metatype;version="1.1";managementagent=true;mandatory:=managementagent;-split-package:=first,\
+    org.apache.ace.log;version="1.0";managementagent=true;mandatory:=managementagent;-split-package:=first,\
+    org.apache.ace.deployment.service;version="1.0";managementagent=true;mandatory:=managementagent;-split-package:=first,\
     org.apache.felix.dm;version="3.0";managementagent=true;mandatory:=managementagent;-split-package:=first,\
-    org.apache.felix.dm.tracker;version="3.0";managementagent=true;mandatory:=managementagent;-split-package:=first,\
-    org.apache.ace.log;managementagent=true;mandatory:=managementagent;-split-package:=first,\
-    org.apache.ace.deployment.service;managementagent=true;mandatory:=managementagent;-split-package:=first
+    org.apache.felix.dm.tracker;version="3.0";managementagent=true;mandatory:=managementagent;-split-package:=first
 Bundle-Activator: org.apache.ace.managementagent.Activator

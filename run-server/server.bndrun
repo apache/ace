@@ -50,63 +50,67 @@
 	bundle:(symbolicname=org.apache.felix.prefs),\
 	bundle:(symbolicname=org.knopflerfish.bundle.useradmin),\
 	bundle:(symbolicname=org.knopflerfish.log),\
-	bundle:(symbolicname=org.apache.felix.eventadmin)
+	bundle:(symbolicname=org.apache.felix.eventadmin),\
+	bundle:(symbolicname=org.apache.ace.nodelauncher.ui)
 -runee: JavaSE-1.6
--runbundles: org.apache.felix.dependencymanager;resolution=file:/Users/jawi/Sources/ace-marrs/cnf/repo/org.apache.felix.dependencymanager/org.apache.felix.dependencymanager-3.1.0.jar;version='[3.1.0,3.1.1)',\
-	org.knopflerfish.bundle.useradmin;resolution=file:/Users/jawi/Sources/ace-marrs/cnf/repo/org.knopflerfish.bundle.useradmin/org.knopflerfish.bundle.useradmin-2.0.2.jar;version='[2.0.2,2.0.3)',\
-	org.apache.ace.configurator.useradmin.task;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.configurator.useradmin.task/generated/org.apache.ace.configurator.useradmin.task.jar;version=latest,\
-	org.apache.ace.http.redirector;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.http.redirector/generated/org.apache.ace.http.redirector.jar;version=latest,\
-	org.apache.felix.prefs;resolution=file:/Users/jawi/Sources/ace-marrs/cnf/repo/org.apache.felix.prefs/org.apache.felix.prefs-1.0.4.jar;version='[1.0.4,1.0.5)',\
-	org.apache.ace.target.mgmt.ui;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.target.mgmt.ui/generated/org.apache.ace.target.mgmt.ui.jar;version=latest,\
-	org.apache.ace.log.servlet;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.log.servlet/generated/org.apache.ace.log.servlet.jar;version=latest,\
-	org.apache.ace.deployment.streamgenerator;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.deployment.streamgenerator/generated/org.apache.ace.deployment.streamgenerator.jar;version=latest,\
+-runbundles: org.apache.felix.dependencymanager;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.apache.felix.dependencymanager/org.apache.felix.dependencymanager-3.1.0.jar;version='[3.1.0,3.1.1)',\
+	org.knopflerfish.bundle.useradmin;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.knopflerfish.bundle.useradmin/org.knopflerfish.bundle.useradmin-2.0.2.jar;version='[2.0.2,2.0.3)',\
+	org.apache.ace.configurator.useradmin.task;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.configurator.useradmin.task/generated/org.apache.ace.configurator.useradmin.task.jar;version=latest,\
+	org.apache.ace.http.redirector;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.http.redirector/generated/org.apache.ace.http.redirector.jar;version=latest,\
+	org.apache.felix.prefs;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.apache.felix.prefs/org.apache.felix.prefs-1.0.4.jar;version='[1.0.4,1.0.5)',\
+	org.apache.ace.target.mgmt.ui;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.target.mgmt.ui/generated/org.apache.ace.target.mgmt.ui.jar;version=latest,\
+	org.apache.ace.log.servlet;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.log.servlet/generated/org.apache.ace.log.servlet.jar;version=latest,\
+	org.apache.ace.deployment.streamgenerator;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.deployment.streamgenerator/generated/org.apache.ace.deployment.streamgenerator.jar;version=latest,\
 	org.apache.felix.fileinstall;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.fileinstall/org.apache.felix.fileinstall-3.1.4.jar;version='[3.1.4,3.1.5)',\
-	org.apache.ace.authentication.api;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.authentication.api/generated/org.apache.ace.authentication.api.jar;version=latest,\
+	org.apache.ace.authentication.api;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.authentication.api/generated/org.apache.ace.authentication.api.jar;version=latest,\
 	org.apache.felix.gogo.shell;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.shell/org.apache.felix.gogo.shell-0.10.0.jar;version='[0.10.0,0.10.1)',\
-	org.knopflerfish.log;resolution=file:/Users/jawi/Sources/ace-marrs/cnf/repo/org.knopflerfish.log/org.knopflerfish.log-2.0.2.jar;version='[2.0.2,2.0.3)',\
-	org.apache.ace.client.repository.impl;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.client.repository.impl/generated/org.apache.ace.client.repository.impl.jar;version=latest,\
+	org.knopflerfish.log;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.knopflerfish.log/org.knopflerfish.log-2.0.2.jar;version='[2.0.2,2.0.3)',\
+	org.apache.ace.client.repository.impl;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.client.repository.impl/generated/org.apache.ace.client.repository.impl.jar;version=latest,\
 	org.apache.felix.http.jetty;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.http.jetty/org.apache.felix.http.jetty-2.2.0.jar;version='[2.2.0,2.2.1)',\
-	org.apache.felix.dependencymanager.shell;resolution=file:/Users/jawi/Sources/ace-marrs/cnf/repo/org.apache.felix.dependencymanager.shell/org.apache.felix.dependencymanager.shell-3.0.1.jar;version='[3.0.1,3.0.2)',\
-	org.apache.ace.tageditor;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.tageditor/generated/org.apache.ace.tageditor.jar;version=latest,\
-	org.apache.ace.client.repository.helper.bundle;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.client.repository.helper.bundle/generated/org.apache.ace.client.repository.helper.bundle.jar;version=latest,\
-	org.apache.ace.discovery.api;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.discovery.api/generated/org.apache.ace.discovery.api.jar;version=latest,\
-	org.apache.ace.client.rest;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.client.rest/generated/org.apache.ace.client.rest.jar;version=latest,\
-	org.apache.ace.range.api;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.range.api/generated/org.apache.ace.range.api.jar;version=latest,\
-	org.apache.ace.log;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.log/generated/org.apache.ace.log.jar;version=latest,\
-	org.apache.ace.authenticationprocessor.password;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.authenticationprocessor.password/generated/org.apache.ace.authenticationprocessor.password.jar;version=latest,\
-	com.vaadin;resolution=file:/Users/jawi/Sources/ace-marrs/cnf/repo/com.vaadin/com.vaadin-6.5.1.jar;version='[6.5.1,6.5.2)',\
+	org.apache.felix.dependencymanager.shell;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.apache.felix.dependencymanager.shell/org.apache.felix.dependencymanager.shell-3.0.1.jar;version='[3.0.1,3.0.2)',\
+	org.apache.ace.tageditor;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.tageditor/generated/org.apache.ace.tageditor.jar;version=latest,\
+	org.apache.ace.client.repository.helper.bundle;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.client.repository.helper.bundle/generated/org.apache.ace.client.repository.helper.bundle.jar;version=latest,\
+	org.apache.ace.discovery.api;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.discovery.api/generated/org.apache.ace.discovery.api.jar;version=latest,\
+	org.apache.ace.client.rest;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.client.rest/generated/org.apache.ace.client.rest.jar;version=latest,\
+	org.apache.ace.range.api;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.range.api/generated/org.apache.ace.range.api.jar;version=latest,\
+	org.apache.ace.log;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.log/generated/org.apache.ace.log.jar;version=latest,\
+	org.apache.ace.authenticationprocessor.password;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.authenticationprocessor.password/generated/org.apache.ace.authenticationprocessor.password.jar;version=latest,\
+	com.vaadin;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/com.vaadin/com.vaadin-6.5.1.jar;version='[6.5.1,6.5.2)',\
 	org.apache.felix.gogo.command;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.command/org.apache.felix.gogo.command-0.12.0.jar;version='[0.12.0,0.12.1)',\
-	org.apache.ace.util;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.util/generated/org.apache.ace.util.jar;version=latest,\
-	org.apache.ace.webui.vaadin;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.webui.vaadin/generated/org.apache.ace.webui.vaadin.jar;version=latest,\
-	org.apache.ace.resourceprocessor.useradmin;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.resourceprocessor.useradmin/generated/org.apache.ace.resourceprocessor.useradmin.jar;version=latest,\
-	org.apache.ace.server.log.ui;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.server.log.ui/generated/org.apache.ace.server.log.ui.jar;version=latest,\
-	org.apache.ace.deployment.verifier.ui;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.deployment.verifier.ui/generated/org.apache.ace.deployment.verifier.ui.jar;version=latest,\
-	org.apache.ace.managementagent;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.managementagent/generated/org.apache.ace.managementagent.jar;version=latest,\
-	org.apache.ace.repository.api;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.repository.api/generated/org.apache.ace.repository.api.jar;version=latest,\
-	org.apache.ace.server.log.store;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.server.log.store/generated/org.apache.ace.server.log.store.jar;version=latest,\
-	org.apache.ace.client.repository.api;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.client.repository.api/generated/org.apache.ace.client.repository.api.jar;version=latest,\
-	org.apache.ace.repository.servlet;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.repository.servlet/generated/org.apache.ace.repository.servlet.jar;version=latest,\
-	org.apache.ace.obr.storage;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.obr.storage/generated/org.apache.ace.obr.storage.jar;version=latest,\
-	org.apache.ace.client.repository.helper.configuration;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.client.repository.helper.configuration/generated/org.apache.ace.client.repository.helper.configuration.jar;version=latest,\
-	org.apache.ace.consolelogger;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.consolelogger/generated/org.apache.ace.consolelogger.jar;version=latest,\
+	org.apache.ace.util;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.util/generated/org.apache.ace.util.jar;version=latest,\
+	org.apache.ace.webui.vaadin;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.webui.vaadin/generated/org.apache.ace.webui.vaadin.jar;version=latest,\
+	org.apache.ace.resourceprocessor.useradmin;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.resourceprocessor.useradmin/generated/org.apache.ace.resourceprocessor.useradmin.jar;version=latest,\
+	org.apache.ace.server.log.ui;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.server.log.ui/generated/org.apache.ace.server.log.ui.jar;version=latest,\
+	org.apache.ace.deployment.verifier.ui;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.deployment.verifier.ui/generated/org.apache.ace.deployment.verifier.ui.jar;version=latest,\
+	org.apache.ace.repository.api;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.repository.api/generated/org.apache.ace.repository.api.jar;version=latest,\
+	org.apache.ace.server.log.store;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.server.log.store/generated/org.apache.ace.server.log.store.jar;version=latest,\
+	org.apache.ace.client.repository.api;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.client.repository.api/generated/org.apache.ace.client.repository.api.jar;version=latest,\
+	org.apache.ace.repository.servlet;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.repository.servlet/generated/org.apache.ace.repository.servlet.jar;version=latest,\
+	org.apache.ace.obr.storage;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.obr.storage/generated/org.apache.ace.obr.storage.jar;version=latest,\
+	org.apache.ace.client.repository.helper.configuration;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.client.repository.helper.configuration/generated/org.apache.ace.client.repository.helper.configuration.jar;version=latest,\
+	org.apache.ace.consolelogger;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.consolelogger/generated/org.apache.ace.consolelogger.jar;version=latest,\
 	org.apache.felix.configadmin;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.configadmin/org.apache.felix.configadmin-1.2.8.jar;version='[1.2.8,1.2.9)',\
-	org.apache.ace.httplistener;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.httplistener/generated/org.apache.ace.httplistener.jar;version=latest,\
-	org.apache.ace.obr.servlet;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.obr.servlet/generated/org.apache.ace.obr.servlet.jar;version=latest,\
-	org.apache.ace.nodelauncher.api;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.nodelauncher.api/generated/org.apache.ace.nodelauncher.api.jar;version=latest,\
-	org.apache.ace.deployment.provider.api;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.deployment.provider.api/generated/org.apache.ace.deployment.provider.api.jar;version=latest,\
+	org.apache.ace.httplistener;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.httplistener/generated/org.apache.ace.httplistener.jar;version=latest,\
+	org.apache.ace.obr.servlet;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.obr.servlet/generated/org.apache.ace.obr.servlet.jar;version=latest,\
+	org.apache.ace.nodelauncher.api;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.nodelauncher.api/generated/org.apache.ace.nodelauncher.api.jar;version=latest,\
+	org.apache.ace.deployment.provider.api;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.deployment.provider.api/generated/org.apache.ace.deployment.provider.api.jar;version=latest,\
 	org.apache.felix.gogo.runtime;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.runtime/org.apache.felix.gogo.runtime-0.10.0.jar;version='[0.10.0,0.10.1)',\
-	org.apache.ace.deployment.servlet;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.deployment.servlet/generated/org.apache.ace.deployment.servlet.jar;version=latest,\
-	org.apache.ace.scheduler;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.scheduler/generated/org.apache.ace.scheduler.jar;version=latest,\
-	org.apache.ace.obr.metadata;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.obr.metadata/generated/org.apache.ace.obr.metadata.jar;version=latest,\
-	org.apache.ace.configurator;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.configurator/generated/org.apache.ace.configurator.jar;version=latest,\
-	org.apache.ace.connectionfactory;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.connectionfactory/generated/org.apache.ace.connectionfactory.jar;version=latest,\
-	org.apache.ace.authentication;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.authentication/generated/org.apache.ace.authentication.jar;version=latest,\
-	org.apache.ace.nodelauncher.amazon;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.nodelauncher.amazon/generated/org.apache.ace.nodelauncher.amazon.jar;version=latest,\
-	org.apache.ace.configurator.serveruseradmin;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.configurator.serveruseradmin/generated/org.apache.ace.configurator.serveruseradmin.jar;version=latest,\
-	org.apache.ace.repository.impl;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.repository.impl/generated/org.apache.ace.repository.impl.jar;version=latest,\
-	org.apache.ace.deployment.provider.repositorybased;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.deployment.provider.repositorybased/generated/org.apache.ace.deployment.provider.repositorybased.jar;version=latest,\
+	org.apache.ace.deployment.servlet;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.deployment.servlet/generated/org.apache.ace.deployment.servlet.jar;version=latest,\
+	org.apache.ace.scheduler;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.scheduler/generated/org.apache.ace.scheduler.jar;version=latest,\
+	org.apache.ace.obr.metadata;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.obr.metadata/generated/org.apache.ace.obr.metadata.jar;version=latest,\
+	org.apache.ace.configurator;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.configurator/generated/org.apache.ace.configurator.jar;version=latest,\
+	org.apache.ace.connectionfactory;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.connectionfactory/generated/org.apache.ace.connectionfactory.jar;version=latest,\
+	org.apache.ace.authentication;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.authentication/generated/org.apache.ace.authentication.jar;version=latest,\
+	org.apache.ace.nodelauncher.amazon;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.nodelauncher.amazon/generated/org.apache.ace.nodelauncher.amazon.jar;version=latest,\
+	org.apache.ace.configurator.serveruseradmin;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.configurator.serveruseradmin/generated/org.apache.ace.configurator.serveruseradmin.jar;version=latest,\
+	org.apache.ace.repository.impl;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.repository.impl/generated/org.apache.ace.repository.impl.jar;version=latest,\
+	org.apache.ace.deployment.provider.repositorybased;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.deployment.provider.repositorybased/generated/org.apache.ace.deployment.provider.repositorybased.jar;version=latest,\
 	osgi.cmpn;resolution=http://bundles.bndtools.org.s3.amazonaws.com/osgi.cmpn/osgi.cmpn-4.2.1.jar;version='[4.2.1,4.2.2)',\
-	org.apache.ace.deployment.verifier;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.deployment.verifier/generated/org.apache.ace.deployment.verifier.jar;version=latest,\
-	org.apache.felix.eventadmin;resolution=file:/Users/jawi/Sources/ace-marrs/cnf/repo/org.apache.felix.eventadmin/org.apache.felix.eventadmin-1.2.14.jar;version='[1.2.14,1.2.15)',\
-	org.apache.ace.client.repository.helper.base;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.client.repository.helper.base/generated/org.apache.ace.client.repository.helper.base.jar;version=latest,\
-	org.apache.ace.authenticationprocessor.basicauth;resolution=file:/Users/jawi/Sources/ace-marrs/org.apache.ace.authenticationprocessor.basicauth/generated/org.apache.ace.authenticationprocessor.basicauth.jar;version=latest
+	org.apache.ace.deployment.verifier;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.deployment.verifier/generated/org.apache.ace.deployment.verifier.jar;version=latest,\
+	org.apache.felix.eventadmin;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.apache.felix.eventadmin/org.apache.felix.eventadmin-1.2.14.jar;version='[1.2.14,1.2.15)',\
+	org.apache.ace.client.repository.helper.base;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.client.repository.helper.base/generated/org.apache.ace.client.repository.helper.base.jar;version=latest,\
+	org.apache.ace.authenticationprocessor.basicauth;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.authenticationprocessor.basicauth/generated/org.apache.ace.authenticationprocessor.basicauth.jar;version=latest,\
+	org.apache.ace.nodelauncher.ui;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.nodelauncher.ui/generated/org.apache.ace.nodelauncher.ui.jar;version=latest
+-runrepos: Workspace,\
+	Local Repository,\
+	Release
