@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <?xml-stylesheet type='text/xsl' href='http://www.osgi.org/www/obr2html.xsl'?>
 
-<repository lastmodified='20120705084857.878' name='Local Repository'>
+<repository lastmodified='20120705151751.388' name='Local Repository'>
   <resource id='aws-common/1.4.0' presentationname='jclouds Amazon AWS Components Core' symbolicname='aws-common' uri='aws-common/aws-common-1.4.0.jar' version='1.4.0'>
     <description>
       jclouds Core components to access Amazon AWS
@@ -3548,6 +3548,57 @@
     </require>
     <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
       Import package org.osgi.framework ;version=[1.3.0,2.0.0)
+    </require>
+  </resource>
+  <resource id='org.apache.felix.deploymentadmin/0.9.1.SNAPSHOT' presentationname='Apache Felix Deployment Admin' symbolicname='org.apache.felix.deploymentadmin' uri='org.apache.felix.deploymentadmin/org.apache.felix.deploymentadmin-0.9.1.jar' version='0.9.1.SNAPSHOT'>
+    <description>
+      A bundle that implements the Deployment Admin.
+    </description>
+    <size>
+      85411
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+    </license>
+    <documentation>
+      http://www.apache.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='Apache Felix Deployment Admin'/>
+      <p n='symbolicname' v='org.apache.felix.deploymentadmin'/>
+      <p n='version' t='version' v='0.9.1.SNAPSHOT'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.osgi.service.deploymentadmin'/>
+      <p n='uses' v='org.osgi.framework'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.osgi.service.deploymentadmin.spi'/>
+      <p n='uses' v='org.osgi.framework,org.osgi.service.deploymentadmin'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=org.apache.felix.dm)(version&gt;=3.0.0)(!(version&gt;=4.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.apache.felix.dm ;version=[3.0.0,4.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=1.5.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework ;version=[1.5.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.deploymentadmin)(version&gt;=1.0.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.deploymentadmin ;version=[1.0.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.deploymentadmin.spi)(version&gt;=1.0.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.deploymentadmin.spi ;version=[1.0.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.event)(version&gt;=1.2.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.event ;version=[1.2.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.log ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.packageadmin)(version&gt;=1.2.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.packageadmin ;version=[1.2.0,2.0.0)
     </require>
   </resource>
   <resource id='org.apache.felix.eventadmin/1.2.14' presentationname='Apache Felix EventAdmin' symbolicname='org.apache.felix.eventadmin' uri='org.apache.felix.eventadmin/org.apache.felix.eventadmin-1.2.14.jar' version='1.2.14'>

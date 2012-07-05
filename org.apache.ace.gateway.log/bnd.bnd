@@ -7,3 +7,6 @@
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.gateway.log.store;version=latest
+Private-Package: org.apache.ace.target.log,\
+	org.apache.ace.target.log.task
+Bundle-Activator: org.apache.ace.target.log.Activator

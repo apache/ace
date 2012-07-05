@@ -33,7 +33,6 @@ Import-Package: !javax.swing,\
 	!org.apache.ace.target.log,\
 	!org.apache.felix.dm.tracker,\
 	!org.osgi.service.useradmin,\
-	!org.osgi.util.tracker,\
 	org.osgi.service.deploymentadmin;version='[1,2)',\
 	org.osgi.service.deploymentadmin.spi;version='[1,2)',\
 	*

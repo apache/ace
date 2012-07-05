@@ -4,3 +4,6 @@
 	osgi.core,\
 	org.apache.ace.util;version=latest,\
 	org.mockito.mockito-all
+Private-Package: org.apache.ace.identification.property,\
+	org.apache.ace.identification.property.constants
+Bundle-Activator: org.apache.ace.identification.property.Activator
