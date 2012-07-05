@@ -15,6 +15,7 @@
 		
 		<dirname property="projectdir" file="${ant.file}" />
 		<dirname property="workspacedir" file="${projectdir}" />
+		<echo message="bnd ant tasks..." />
 		<taskdef resource="aQute/bnd/ant/taskdef.properties">
 			<classpath>
 				<path location="${workspacedir}/cnf/repo/biz.aQute.bnd/biz.aQute.bnd-1.51.1.jar"/>
@@ -22,14 +23,19 @@
 		</taskdef>
 		
 		<!-- TestNG support -->
+		<echo message="testng ant tasks..." />
 		<taskdef resource="testngtasks" classpath="${workspacedir}/cnf/lib/testng-6.5.2.jar" />
         
-
+		<echo message="bnd prepare..." />
 		<bndprepare basedir="${projectdir}" print="false" top="${release.dir}" />
 
 		<!-- mark init has been run -->
 		<property name="initialized" value="set" />
 		<echo message="Enter project ${project.name}"/>
+
+		<!-- Test compilation condition -->
+		<available file="${project}/test" type="dir" property="project.testpathexists" />
+	    <echo message="found test path: ${project.testpathexists}" />
 	</target>
 
 	<!-- 
@@ -69,7 +75,7 @@
 		</copy>
 	</target>
 
-	<target name="compiletest" depends="dependencies" if="project.sourcepath">
+	<target name="compiletest" depends="dependencies" if="project.testpathexists">
 		<mkdir dir="${project}/bin_test"/>
 		<javac fork="yes" executable="${javac}" srcdir="${project}/test" destdir="${project}/bin_test" classpath="${project.buildpath}:${workspacedir}/cnf/lib/testng-6.5.2.jar" bootclasspath="${project.bootclasspath}" deprecation="true" listfiles="true" target="${javac.target}" source="${javac.source}" debug="${javac.debug}" includeAntRuntime="no" verbose="${verbose}" />
 		<!-- 
@@ -114,7 +120,11 @@
 	</target>
 	
 	<!-- TestNG support -->
-	<target name="testng" depends="build, compiletest">
+	<target name="deeptestng" depends="init" if="project.dependson">
+		<subant target="testng" inheritAll="false" buildpath="${project.dependson}" />
+	</target>
+
+	<target name="testng" depends="build, compiletest" if="project.testpathexists">
 	    <mkdir dir="tmp" />
         <testng classpath="${project}/bin_test:${project.buildpath}:${workspacedir}/cnf/lib/testng-6.5.2.jar"
                 outputDir="tmp"

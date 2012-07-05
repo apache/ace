@@ -2,17 +2,17 @@
 <testng-results skipped="0" failed="0" total="1" passed="1">
   <reporter-output>
   </reporter-output>
-  <suite name="Ant suite" duration-ms="22" started-at="2012-07-03T19:58:48Z" finished-at="2012-07-03T19:58:48Z">
+  <suite name="Ant suite" duration-ms="40" started-at="2012-07-06T01:47:00Z" finished-at="2012-07-06T01:47:00Z">
     <groups>
       <group name="unit">
         <method signature="IfconfigIdentificationTest.testMacAddressVerifying()[pri:0, instance:org.apache.ace.identification.ifconfig.IfconfigIdentificationTest@a39ab89]" name="testMacAddressVerifying" class="org.apache.ace.identification.ifconfig.IfconfigIdentificationTest"/>
       </group> <!-- unit -->
     </groups>
-    <test name="Ant test" duration-ms="22" started-at="2012-07-03T19:58:48Z" finished-at="2012-07-03T19:58:48Z">
+    <test name="Ant test" duration-ms="40" started-at="2012-07-06T01:47:00Z" finished-at="2012-07-06T01:47:00Z">
       <class name="org.apache.ace.identification.ifconfig.IfconfigIdentificationTest">
-        <test-method status="PASS" signature="setUp()[pri:0, instance:org.apache.ace.identification.ifconfig.IfconfigIdentificationTest@a39ab89]" name="setUp" is-config="true" duration-ms="14" started-at="2012-07-03T19:58:48Z" finished-at="2012-07-03T19:58:48Z">
+        <test-method status="PASS" signature="setUp()[pri:0, instance:org.apache.ace.identification.ifconfig.IfconfigIdentificationTest@a39ab89]" name="setUp" is-config="true" duration-ms="24" started-at="2012-07-06T01:47:00Z" finished-at="2012-07-06T01:47:00Z">
         </test-method> <!-- setUp -->
-        <test-method status="PASS" signature="testMacAddressVerifying()[pri:0, instance:org.apache.ace.identification.ifconfig.IfconfigIdentificationTest@a39ab89]" name="testMacAddressVerifying" duration-ms="0" started-at="2012-07-03T19:58:48Z" finished-at="2012-07-03T19:58:48Z">
+        <test-method status="PASS" signature="testMacAddressVerifying()[pri:0, instance:org.apache.ace.identification.ifconfig.IfconfigIdentificationTest@a39ab89]" name="testMacAddressVerifying" duration-ms="1" started-at="2012-07-06T01:47:00Z" finished-at="2012-07-06T01:47:00Z">
         </test-method> <!-- testMacAddressVerifying -->
       </class> <!-- org.apache.ace.identification.ifconfig.IfconfigIdentificationTest -->
     </test> <!-- Ant test -->

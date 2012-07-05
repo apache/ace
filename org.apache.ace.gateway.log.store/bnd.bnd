@@ -2,6 +2,7 @@
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.identification.api;version=latest,\
+	org.apache.ace.util;version=latest,\
 	org.apache.ace.log;version=latest
 Private-Package: org.apache.ace.target.log.store.impl
 Bundle-Activator: org.apache.ace.target.log.store.impl.Activator
