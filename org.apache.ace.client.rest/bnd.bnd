@@ -1,0 +1,19 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.connectionfactory;version=latest,\
+	org.apache.ace.authentication.api;version=latest,\
+	org.apache.ace.client.repository.api;version=latest,\
+	org.apache.ace.repository.api;version=latest,\
+	org.apache.ace.range.api;version=latest,\
+	org.apache.ace.util;version=latest,\
+	javax.servlet,\
+	../cnf/lib/gson-1.7.1.jar;version=file,\
+	org.mockito.mockito-all
+
+Private-Package: org.apache.ace.client.rest,\
+	com.google.gson,\
+	com.google.gson.annotations,\
+	com.google.gson.internal,\
+	com.google.gson.reflect,\
+	com.google.gson.stream

@@ -1,0 +1,10 @@
+-buildpath: org.apache.ace.client.repository.api;version=latest,\
+	org.apache.ace.client.repository.helper.base;version=latest,\
+	org.apache.ace.connectionfactory;version=latest,\
+	osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager
+Private-Package: org.apache.ace.client.repository.helper.configuration.impl
+Bundle-Activator: org.apache.ace.client.repository.helper.configuration.impl.Activator
+Export-Package: org.apache.ace.client.repository.helper.configuration
+Deployment-ProvidesResourceProcessor: org.osgi.deployment.rp.autoconf

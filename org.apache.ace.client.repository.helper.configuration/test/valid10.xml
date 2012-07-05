@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0">
+  <OCD name="Apache Felix Http Config" id="org.osgi.service.http">
+    <AD id="org.osgi.service.http.port" type="STRING" cardinality="0" />
+  </OCD>
+  <Designate pid="org.apache.felix.http" bundle="*">
+    <Object ocdref="org.osgi.service.http">
+      <Attribute adref="org.osgi.service.http.port">
+        <Value>8080</Value>
+      </Attribute>
+    </Object>
+  </Designate>
+</MetaData>

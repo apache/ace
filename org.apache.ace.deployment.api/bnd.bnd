@@ -1,0 +1,3 @@
+-buildpath: osgi.core,\
+	osgi.cmpn
+Export-Package: org.apache.ace.deployment

@@ -1,0 +1,2 @@
+@echo off
+call java -jar pax-runner.jar --vmOptions="-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y" --ups --workingDirectory=. scan-dir:required-bundles scan-dir:ace-bundles scan-file:file:platform.properties %1 %2 %3

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="2" passed="2">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="429" started-at="2012-07-04T12:17:19Z" finished-at="2012-07-04T12:17:20Z">
+    <groups>
+      <group name="unit">
+        <method signature="RESTClientTest.testPathTransforms()[pri:0, instance:org.apache.ace.client.rest.RESTClientTest@44050988]" name="testPathTransforms" class="org.apache.ace.client.rest.RESTClientTest"/>
+        <method signature="RESTClientTest.testPropertyGetter()[pri:0, instance:org.apache.ace.client.rest.RESTClientTest@44050988]" name="testPropertyGetter" class="org.apache.ace.client.rest.RESTClientTest"/>
+      </group> <!-- unit -->
+    </groups>
+    <test name="Default test" duration-ms="429" started-at="2012-07-04T12:17:19Z" finished-at="2012-07-04T12:17:20Z">
+      <class name="org.apache.ace.client.rest.RESTClientTest">
+        <test-method status="PASS" signature="testPathTransforms()[pri:0, instance:org.apache.ace.client.rest.RESTClientTest@44050988]" name="testPathTransforms" duration-ms="414" started-at="2012-07-04T12:17:19Z" finished-at="2012-07-04T12:17:20Z">
+        </test-method> <!-- testPathTransforms -->
+        <test-method status="PASS" signature="testPropertyGetter()[pri:0, instance:org.apache.ace.client.rest.RESTClientTest@44050988]" name="testPropertyGetter" duration-ms="1" started-at="2012-07-04T12:17:20Z" finished-at="2012-07-04T12:17:20Z">
+        </test-method> <!-- testPropertyGetter -->
+      </class> <!-- org.apache.ace.client.rest.RESTClientTest -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>

@@ -1,0 +1,12 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.ace.util;version=latest,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.authentication.api;version=latest,\
+	../cnf/lib/commons-codec-1.4.jar;version=file,\
+	org.mockito.mockito-all
+Private-Package: org.apache.ace.authenticationprocessor.password,\
+	org.apache.commons.codec,\
+	org.apache.commons.codec.binary,\
+	org.apache.commons.codec.digest
+Bundle-Activator: org.apache.ace.authenticationprocessor.password.Activator

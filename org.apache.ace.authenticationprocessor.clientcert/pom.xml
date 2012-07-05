@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!--
+
+        Licensed to the Apache Software Foundation (ASF) under one or more
+        contributor license agreements.  See the NOTICE file distributed with
+        this work for additional information regarding copyright ownership.
+        The ASF licenses this file to You under the Apache License, Version 2.0
+        (the "License"); you may not use this file except in compliance with
+        the License.  You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    -->
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.ace</groupId>
+        <artifactId>ace-pom</artifactId>
+        <version>0.8.1-SNAPSHOT</version>
+        <relativePath>../pom/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>org.apache.ace.authenticationprocessor.clientcert</artifactId>
+
+    <name>Apache ACE :: Authentication :: Client certificate</name>
+    <description>Provides an authentication processor that can handle client certificate authentication.</description>
+    <packaging>bundle</packaging>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/ace/trunk/ace-authentication-clientcert</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ace/trunk/ace-authentication-clientcert</developerConnection>
+        <url>http://svn.apache.org/repos/asf/ace/trunk/ace-authentication-clientcert</url>
+    </scm>
+        
+    <properties>
+        <import.package>
+            *
+        </import.package>
+        <private.package>
+            org.apache.ace.authenticationprocessor.clientcert
+        </private.package>
+        <bundle.activator>org.apache.ace.authenticationprocessor.clientcert.Activator</bundle.activator>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.authentication.api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.dependencymanager</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>bouncycastle</groupId>
+			<artifactId>bcprov-jdk14</artifactId>
+			<version>140</version>
+			<scope>test</scope>
+		</dependency>
+        <dependency>
+            <groupId>org.apache.ace</groupId>
+            <artifactId>org.apache.ace.util</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

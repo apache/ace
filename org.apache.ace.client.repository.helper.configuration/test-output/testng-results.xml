@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="5" passed="5">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="44" started-at="2012-07-04T11:37:46Z" finished-at="2012-07-04T11:37:46Z">
+    <groups>
+      <group name="unit">
+        <method signature="ConfigurationHelperImplTest.testCanHandleCommentBeforeRoot()[pri:0, instance:org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest@26b4e29b]" name="testCanHandleCommentBeforeRoot" class="org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest"/>
+        <method signature="ConfigurationHelperImplTest.testNamespace10Recognized()[pri:0, instance:org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest@26b4e29b]" name="testNamespace10Recognized" class="org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest"/>
+        <method signature="ConfigurationHelperImplTest.testNamespace11Recognized()[pri:0, instance:org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest@26b4e29b]" name="testNamespace11Recognized" class="org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest"/>
+        <method signature="ConfigurationHelperImplTest.testNamespace12Recognized()[pri:0, instance:org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest@26b4e29b]" name="testNamespace12Recognized" class="org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest"/>
+        <method signature="ConfigurationHelperImplTest.testNamespace13NotRecognized()[pri:0, instance:org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest@26b4e29b]" name="testNamespace13NotRecognized" class="org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest"/>
+      </group> <!-- unit -->
+    </groups>
+    <test name="Default test" duration-ms="44" started-at="2012-07-04T11:37:46Z" finished-at="2012-07-04T11:37:46Z">
+      <class name="org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest">
+        <test-method status="PASS" signature="testCanHandleCommentBeforeRoot()[pri:0, instance:org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest@26b4e29b]" name="testCanHandleCommentBeforeRoot" duration-ms="17" started-at="2012-07-04T11:37:46Z" finished-at="2012-07-04T11:37:46Z">
+        </test-method> <!-- testCanHandleCommentBeforeRoot -->
+        <test-method status="PASS" signature="testNamespace10Recognized()[pri:0, instance:org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest@26b4e29b]" name="testNamespace10Recognized" duration-ms="4" started-at="2012-07-04T11:37:46Z" finished-at="2012-07-04T11:37:46Z">
+        </test-method> <!-- testNamespace10Recognized -->
+        <test-method status="PASS" signature="testNamespace11Recognized()[pri:0, instance:org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest@26b4e29b]" name="testNamespace11Recognized" duration-ms="3" started-at="2012-07-04T11:37:46Z" finished-at="2012-07-04T11:37:46Z">
+        </test-method> <!-- testNamespace11Recognized -->
+        <test-method status="PASS" signature="testNamespace12Recognized()[pri:0, instance:org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest@26b4e29b]" name="testNamespace12Recognized" duration-ms="3" started-at="2012-07-04T11:37:46Z" finished-at="2012-07-04T11:37:46Z">
+        </test-method> <!-- testNamespace12Recognized -->
+        <test-method status="PASS" signature="testNamespace13NotRecognized()[pri:0, instance:org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest@26b4e29b]" name="testNamespace13NotRecognized" duration-ms="3" started-at="2012-07-04T11:37:46Z" finished-at="2012-07-04T11:37:46Z">
+        </test-method> <!-- testNamespace13NotRecognized -->
+      </class> <!-- org.apache.ace.client.repository.helper.configuration.impl.ConfigurationHelperImplTest -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>

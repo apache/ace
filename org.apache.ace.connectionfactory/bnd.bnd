@@ -1,0 +1,9 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.ace.util;version=latest,\
+	../cnf/lib/commons-codec-1.4.jar;version=file
+Private-Package: org.apache.ace.connectionfactory.impl,\
+	org.apache.commons.codec,\
+	org.apache.commons.codec.binary
+Bundle-Activator: org.apache.ace.connectionfactory.impl.Activator
+Export-Package: org.apache.ace.connectionfactory
