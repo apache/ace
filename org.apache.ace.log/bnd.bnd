@@ -1,0 +1,3 @@
+-buildpath: org.apache.ace.range.api;version=latest,\
+	org.apache.ace.util;version=latest
+Export-Package: org.apache.ace.log

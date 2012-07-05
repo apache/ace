@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+  <title>TestNG new reports</title>
+
+    <link type="text/css" href="testng-reports.css" rel="stylesheet" />  
+    <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="testng-reports.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type='text/javascript'>
+      google.load('visualization', '1', {packages:['table']});
+      google.setOnLoadCallback(drawTable);
+      var suiteTableInitFunctions = new Array();
+      var suiteTableData = new Array();
+    </script>
+    <!--
+      <script type="text/javascript" src="jquery-ui/js/jquery-ui-1.8.16.custom.min.js"></script>
+     -->
+  </head>
+
+  <body>
+    <div class="top-banner-root">
+      <span class="top-banner-title-font">Test results</span>
+      <br/>
+      <span class="top-banner-font-1">1 suite</span>
+    </div> <!-- top-banner-root -->
+    <div class="navigator-root">
+      <div class="navigator-suite-header">
+        <span>All suites</span>
+        <a href="#" class="collapse-all-link" title="Collapse/expand all the suites">
+          <img class="collapse-all-icon" src="collapseall.gif">
+          </img> <!-- collapse-all-icon -->
+        </a> <!-- collapse-all-link -->
+      </div> <!-- navigator-suite-header -->
+      <div class="suite">
+        <div class="rounded-window">
+          <div class="suite-header light-rounded-window-top">
+            <a href="#" class="navigator-link" panel-name="suite-Default_suite">
+              <span class="suite-name border-passed">Default suite</span>
+            </a> <!-- navigator-link -->
+          </div> <!-- suite-header light-rounded-window-top -->
+          <div class="navigator-suite-content">
+            <div class="suite-section-title">
+              <span>Info</span>
+            </div> <!-- suite-section-title -->
+            <div class="suite-section-content">
+              <ul>
+                <li>
+                  <a href="#" class="navigator-link " panel-name="test-xml-Default_suite">
+                    <span>testng-customsuite.xml</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" class="navigator-link " panel-name="testlist-Default_suite">
+                    <span class="test-stats">1 test</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" class="navigator-link " panel-name="group-Default_suite">
+                    <span>2 groups</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" class="navigator-link " panel-name="times-Default_suite">
+                    <span>Times</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" class="navigator-link " panel-name="reporter-Default_suite">
+                    <span>Reporter output</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" class="navigator-link " panel-name="ignored-methods-Default_suite">
+                    <span>Ignored methods</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" class="navigator-link " panel-name="chronological-Default_suite">
+                    <span>Chronological view</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+              </ul>
+            </div> <!-- suite-section-content -->
+            <div class="result-section">
+              <div class="suite-section-title">
+                <span>Results</span>
+              </div> <!-- suite-section-title -->
+              <div class="suite-section-content">
+                <ul>
+                  <li>
+                    <span class="method-stats">30 methods,   30 passed</span>
+                  </li>
+                  <li>
+                    <span class="method-list-title passed">Passed methods</span>
+                    <span class="show-or-hide-methods passed">
+                      <a href="#" panel-name="suite-Default_suite" class="hide-methods passed suite-Default_suite"> (hide)</a> <!-- hide-methods passed suite-Default_suite -->
+                      <a href="#" panel-name="suite-Default_suite" class="show-methods passed suite-Default_suite"> (show)</a> <!-- show-methods passed suite-Default_suite -->
+                    </span>
+                    <div class="method-list-content passed suite-Default_suite">
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testAddedBundleMultipleVersions">testAddedBundleMultipleVersions</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testArtifactDataManifestGeneration">testArtifactDataManifestGeneration</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testBundleDataWithResources">testBundleDataWithResources</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testEmptyDeploymentVersion">testEmptyDeploymentVersion</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testEmptyRepository">testEmptyRepository</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.CacheTest" hash-for-method="testFillCacheToLimitAndCheckIfEverythingFits">testFillCacheToLimitAndCheckIfEverythingFits</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest" hash-for-method="testGatherArtifactsOfMultipleVersionTargetWithInvalidVersionOk">testGatherArtifactsOfMultipleVersionTargetWithInvalidVersionOk</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest" hash-for-method="testGatherMultipleArtifactsOfMultipleVersionTargetOk">testGatherMultipleArtifactsOfMultipleVersionTargetOk</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest" hash-for-method="testGatherMultipleVersionOk">testGatherMultipleVersionOk</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest" hash-for-method="testGatherNonExistingArtifactsOfMultipleVersionTargetOk">testGatherNonExistingArtifactsOfMultipleVersionTargetOk</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest" hash-for-method="testGatherSingleArtifactOk">testGatherSingleArtifactOk</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest" hash-for-method="testGatherSingleArtifactsOfMultipleVersionTargetOk">testGatherSingleArtifactsOfMultipleVersionTargetOk</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest" hash-for-method="testGatherSingleVersionOk">testGatherSingleVersionOk</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testGetLiteralTargetIllegalVersion">testGetLiteralTargetIllegalVersion</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testGetLiteralTargetVersion">testGetLiteralTargetVersion</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testGetVersion">testGetVersion</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testIllegalVersion">testIllegalVersion</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testInvalidTargetBundleData">testInvalidTargetBundleData</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testInvalidVersionBundleData">testInvalidVersionBundleData</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testMultipleBundleSingleVersionBundleData">testMultipleBundleSingleVersionBundleData</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testMultipleBundlesMultipleVersions">testMultipleBundlesMultipleVersions</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testMultipleChangedBundlesMultipleVersions">testMultipleChangedBundlesMultipleVersions</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testMultipleVersions">testMultipleVersions</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.CacheTest" hash-for-method="testOverflowCacheAndValidateOldestElementDisappears">testOverflowCacheAndValidateOldestElementDisappears</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testRemovedBundleMultipleVersions">testRemovedBundleMultipleVersions</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest" hash-for-method="testSingleBundleMultipleVersionBundleDataFromHugeXml">testSingleBundleMultipleVersionBundleDataFromHugeXml</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testSingleBundleSingleVersionBundleData">testSingleBundleSingleVersionBundleData</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest" hash-for-method="testSingleBundleSingleVersionBundleDataFromHugeXml">testSingleBundleSingleVersionBundleDataFromHugeXml</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testSingleChangedBundleMultipleVersions">testSingleChangedBundleMultipleVersions</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img width="3%" src="passed.png"/>
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest" hash-for-method="testSingleUnchangedBundleMultipleVersions">testSingleUnchangedBundleMultipleVersions</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                    </div> <!-- method-list-content passed suite-Default_suite -->
+                  </li>
+                </ul>
+              </div> <!-- suite-section-content -->
+            </div> <!-- result-section -->
+          </div> <!-- navigator-suite-content -->
+        </div> <!-- rounded-window -->
+      </div> <!-- suite -->
+    </div> <!-- navigator-root -->
+    <div class="wrapper">
+      <div class="main-panel-root">
+        <div panel-name="suite-Default_suite" class="panel Default_suite">
+          <div class="suite-Default_suite-class-passed">
+            <div class="main-panel-header rounded-window-top">
+              <img src="passed.png"/>
+              <span class="class-name">org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest</span>
+            </div> <!-- main-panel-header rounded-window-top -->
+            <div class="main-panel-content rounded-window-bottom">
+              <div class="method">
+                <div class="method-content">
+                  <a name="testSingleBundleMultipleVersionBundleDataFromHugeXml">
+                  </a> <!-- testSingleBundleMultipleVersionBundleDataFromHugeXml -->
+                  <span class="method-name">testSingleBundleMultipleVersionBundleDataFromHugeXml</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testSingleBundleSingleVersionBundleDataFromHugeXml">
+                  </a> <!-- testSingleBundleSingleVersionBundleDataFromHugeXml -->
+                  <span class="method-name">testSingleBundleSingleVersionBundleDataFromHugeXml</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+            </div> <!-- main-panel-content rounded-window-bottom -->
+          </div> <!-- suite-Default_suite-class-passed -->
+          <div class="suite-Default_suite-class-passed">
+            <div class="main-panel-header rounded-window-top">
+              <img src="passed.png"/>
+              <span class="class-name">org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</span>
+            </div> <!-- main-panel-header rounded-window-top -->
+            <div class="main-panel-content rounded-window-bottom">
+              <div class="method">
+                <div class="method-content">
+                  <a name="testAddedBundleMultipleVersions">
+                  </a> <!-- testAddedBundleMultipleVersions -->
+                  <span class="method-name">testAddedBundleMultipleVersions</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testArtifactDataManifestGeneration">
+                  </a> <!-- testArtifactDataManifestGeneration -->
+                  <span class="method-name">testArtifactDataManifestGeneration</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testBundleDataWithResources">
+                  </a> <!-- testBundleDataWithResources -->
+                  <span class="method-name">testBundleDataWithResources</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testEmptyDeploymentVersion">
+                  </a> <!-- testEmptyDeploymentVersion -->
+                  <span class="method-name">testEmptyDeploymentVersion</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testEmptyRepository">
+                  </a> <!-- testEmptyRepository -->
+                  <span class="method-name">testEmptyRepository</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testGetLiteralTargetIllegalVersion">
+                  </a> <!-- testGetLiteralTargetIllegalVersion -->
+                  <span class="method-name">testGetLiteralTargetIllegalVersion</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testGetLiteralTargetVersion">
+                  </a> <!-- testGetLiteralTargetVersion -->
+                  <span class="method-name">testGetLiteralTargetVersion</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testGetVersion">
+                  </a> <!-- testGetVersion -->
+                  <span class="method-name">testGetVersion</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testIllegalVersion">
+                  </a> <!-- testIllegalVersion -->
+                  <span class="method-name">testIllegalVersion</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testInvalidTargetBundleData">
+                  </a> <!-- testInvalidTargetBundleData -->
+                  <span class="method-name">testInvalidTargetBundleData</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testInvalidVersionBundleData">
+                  </a> <!-- testInvalidVersionBundleData -->
+                  <span class="method-name">testInvalidVersionBundleData</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testMultipleBundleSingleVersionBundleData">
+                  </a> <!-- testMultipleBundleSingleVersionBundleData -->
+                  <span class="method-name">testMultipleBundleSingleVersionBundleData</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testMultipleBundlesMultipleVersions">
+                  </a> <!-- testMultipleBundlesMultipleVersions -->
+                  <span class="method-name">testMultipleBundlesMultipleVersions</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testMultipleChangedBundlesMultipleVersions">
+                  </a> <!-- testMultipleChangedBundlesMultipleVersions -->
+                  <span class="method-name">testMultipleChangedBundlesMultipleVersions</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testMultipleVersions">
+                  </a> <!-- testMultipleVersions -->
+                  <span class="method-name">testMultipleVersions</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testRemovedBundleMultipleVersions">
+                  </a> <!-- testRemovedBundleMultipleVersions -->
+                  <span class="method-name">testRemovedBundleMultipleVersions</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testSingleBundleSingleVersionBundleData">
+                  </a> <!-- testSingleBundleSingleVersionBundleData -->
+                  <span class="method-name">testSingleBundleSingleVersionBundleData</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testSingleChangedBundleMultipleVersions">
+                  </a> <!-- testSingleChangedBundleMultipleVersions -->
+                  <span class="method-name">testSingleChangedBundleMultipleVersions</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testSingleUnchangedBundleMultipleVersions">
+                  </a> <!-- testSingleUnchangedBundleMultipleVersions -->
+                  <span class="method-name">testSingleUnchangedBundleMultipleVersions</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+            </div> <!-- main-panel-content rounded-window-bottom -->
+          </div> <!-- suite-Default_suite-class-passed -->
+          <div class="suite-Default_suite-class-passed">
+            <div class="main-panel-header rounded-window-top">
+              <img src="passed.png"/>
+              <span class="class-name">org.apache.ace.deployment.provider.repositorybased.CacheTest</span>
+            </div> <!-- main-panel-header rounded-window-top -->
+            <div class="main-panel-content rounded-window-bottom">
+              <div class="method">
+                <div class="method-content">
+                  <a name="testFillCacheToLimitAndCheckIfEverythingFits">
+                  </a> <!-- testFillCacheToLimitAndCheckIfEverythingFits -->
+                  <span class="method-name">testFillCacheToLimitAndCheckIfEverythingFits</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testOverflowCacheAndValidateOldestElementDisappears">
+                  </a> <!-- testOverflowCacheAndValidateOldestElementDisappears -->
+                  <span class="method-name">testOverflowCacheAndValidateOldestElementDisappears</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+            </div> <!-- main-panel-content rounded-window-bottom -->
+          </div> <!-- suite-Default_suite-class-passed -->
+          <div class="suite-Default_suite-class-passed">
+            <div class="main-panel-header rounded-window-top">
+              <img src="passed.png"/>
+              <span class="class-name">org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest</span>
+            </div> <!-- main-panel-header rounded-window-top -->
+            <div class="main-panel-content rounded-window-bottom">
+              <div class="method">
+                <div class="method-content">
+                  <a name="testGatherArtifactsOfMultipleVersionTargetWithInvalidVersionOk">
+                  </a> <!-- testGatherArtifactsOfMultipleVersionTargetWithInvalidVersionOk -->
+                  <span class="method-name">testGatherArtifactsOfMultipleVersionTargetWithInvalidVersionOk</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testGatherMultipleArtifactsOfMultipleVersionTargetOk">
+                  </a> <!-- testGatherMultipleArtifactsOfMultipleVersionTargetOk -->
+                  <span class="method-name">testGatherMultipleArtifactsOfMultipleVersionTargetOk</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testGatherMultipleVersionOk">
+                  </a> <!-- testGatherMultipleVersionOk -->
+                  <span class="method-name">testGatherMultipleVersionOk</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testGatherNonExistingArtifactsOfMultipleVersionTargetOk">
+                  </a> <!-- testGatherNonExistingArtifactsOfMultipleVersionTargetOk -->
+                  <span class="method-name">testGatherNonExistingArtifactsOfMultipleVersionTargetOk</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testGatherSingleArtifactOk">
+                  </a> <!-- testGatherSingleArtifactOk -->
+                  <span class="method-name">testGatherSingleArtifactOk</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testGatherSingleArtifactsOfMultipleVersionTargetOk">
+                  </a> <!-- testGatherSingleArtifactsOfMultipleVersionTargetOk -->
+                  <span class="method-name">testGatherSingleArtifactsOfMultipleVersionTargetOk</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testGatherSingleVersionOk">
+                  </a> <!-- testGatherSingleVersionOk -->
+                  <span class="method-name">testGatherSingleVersionOk</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+            </div> <!-- main-panel-content rounded-window-bottom -->
+          </div> <!-- suite-Default_suite-class-passed -->
+        </div> <!-- panel Default_suite -->
+        <div panel-name="test-xml-Default_suite" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">/private/var/folders/4k/58plh09n605ffjkhv0kpcx540000gn/T/testng-eclipse--1138627406/testng-customsuite.xml</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+            <pre>
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE suite SYSTEM &quot;http://testng.org/testng-1.0.dtd&quot;&gt;
+&lt;suite name=&quot;Default suite&quot;&gt;
+  &lt;test verbose=&quot;2&quot; name=&quot;Default test&quot; preserve-order=&quot;true&quot;&gt;
+    &lt;classes&gt;
+      &lt;class name=&quot;org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest&quot;/&gt;
+      &lt;class name=&quot;org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest&quot;/&gt;
+      &lt;class name=&quot;org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest&quot;/&gt;
+      &lt;class name=&quot;org.apache.ace.deployment.provider.repositorybased.CacheTest&quot;/&gt;
+      &lt;class name=&quot;org.apache.ace.deployment.provider.repositorybased.MockDeploymentRepository&quot;/&gt;
+    &lt;/classes&gt;
+  &lt;/test&gt; &lt;!-- Default test --&gt;
+&lt;/suite&gt; &lt;!-- Default suite --&gt;
+            </pre>
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="testlist-Default_suite" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">Tests for Default suite</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+            <ul>
+              <li>
+                <span class="test-name">Default test (5 classes)</span>
+              </li>
+            </ul>
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="group-Default_suite" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">Groups for Default suite</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+            <div class="test-group">
+              <span class="test-group-name">performance</span>
+              <br/>
+              <div class="method-in-group">
+                <span class="method-in-group-name">testSingleBundleMultipleVersionBundleDataFromHugeXml</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testSingleBundleSingleVersionBundleDataFromHugeXml</span>
+                <br/>
+              </div> <!-- method-in-group -->
+            </div> <!-- test-group -->
+            <div class="test-group">
+              <span class="test-group-name">unit</span>
+              <br/>
+              <div class="method-in-group">
+                <span class="method-in-group-name">testAddedBundleMultipleVersions</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testArtifactDataManifestGeneration</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testBundleDataWithResources</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testEmptyDeploymentVersion</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testEmptyRepository</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testFillCacheToLimitAndCheckIfEverythingFits</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testGatherArtifactsOfMultipleVersionTargetWithInvalidVersionOk</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testGatherMultipleArtifactsOfMultipleVersionTargetOk</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testGatherMultipleVersionOk</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testGatherNonExistingArtifactsOfMultipleVersionTargetOk</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testGatherSingleArtifactOk</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testGatherSingleArtifactsOfMultipleVersionTargetOk</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testGatherSingleVersionOk</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testGetLiteralTargetIllegalVersion</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testGetLiteralTargetVersion</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testGetVersion</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testIllegalVersion</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testInvalidTargetBundleData</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testInvalidVersionBundleData</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testMultipleBundleSingleVersionBundleData</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testMultipleBundlesMultipleVersions</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testMultipleChangedBundlesMultipleVersions</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testMultipleVersions</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testOverflowCacheAndValidateOldestElementDisappears</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testRemovedBundleMultipleVersions</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testSingleBundleSingleVersionBundleData</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testSingleChangedBundleMultipleVersions</span>
+                <br/>
+              </div> <!-- method-in-group -->
+              <div class="method-in-group">
+                <span class="method-in-group-name">testSingleUnchangedBundleMultipleVersions</span>
+                <br/>
+              </div> <!-- method-in-group -->
+            </div> <!-- test-group -->
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="times-Default_suite" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">Times for Default suite</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+            <div class="times-div">
+              <script type="text/javascript">
+suiteTableInitFunctions.push('tableData_Default_suite');
+function tableData_Default_suite() {
+var data = new google.visualization.DataTable();
+data.addColumn('number', 'Number');
+data.addColumn('string', 'Method');
+data.addColumn('string', 'Class');
+data.addColumn('number', 'Time (ms)');
+data.addRows(30);
+data.setCell(0, 0, 0)
+data.setCell(0, 1, 'testSingleBundleMultipleVersionBundleDataFromHugeXml')
+data.setCell(0, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest')
+data.setCell(0, 3, 703);
+data.setCell(1, 0, 1)
+data.setCell(1, 1, 'testSingleBundleSingleVersionBundleDataFromHugeXml')
+data.setCell(1, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest')
+data.setCell(1, 3, 209);
+data.setCell(2, 0, 2)
+data.setCell(2, 1, 'testEmptyDeploymentVersion')
+data.setCell(2, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(2, 3, 13);
+data.setCell(3, 0, 3)
+data.setCell(3, 1, 'testGetLiteralTargetVersion')
+data.setCell(3, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(3, 3, 10);
+data.setCell(4, 0, 4)
+data.setCell(4, 1, 'testGatherArtifactsOfMultipleVersionTargetWithInvalidVersionOk')
+data.setCell(4, 2, 'org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest')
+data.setCell(4, 3, 9);
+data.setCell(5, 0, 5)
+data.setCell(5, 1, 'testBundleDataWithResources')
+data.setCell(5, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(5, 3, 7);
+data.setCell(6, 0, 6)
+data.setCell(6, 1, 'testAddedBundleMultipleVersions')
+data.setCell(6, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(6, 3, 7);
+data.setCell(7, 0, 7)
+data.setCell(7, 1, 'testGatherSingleArtifactOk')
+data.setCell(7, 2, 'org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest')
+data.setCell(7, 3, 6);
+data.setCell(8, 0, 8)
+data.setCell(8, 1, 'testGatherMultipleArtifactsOfMultipleVersionTargetOk')
+data.setCell(8, 2, 'org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest')
+data.setCell(8, 3, 5);
+data.setCell(9, 0, 9)
+data.setCell(9, 1, 'testGatherSingleVersionOk')
+data.setCell(9, 2, 'org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest')
+data.setCell(9, 3, 5);
+data.setCell(10, 0, 10)
+data.setCell(10, 1, 'testMultipleVersions')
+data.setCell(10, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(10, 3, 4);
+data.setCell(11, 0, 11)
+data.setCell(11, 1, 'testGatherNonExistingArtifactsOfMultipleVersionTargetOk')
+data.setCell(11, 2, 'org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest')
+data.setCell(11, 3, 4);
+data.setCell(12, 0, 12)
+data.setCell(12, 1, 'testGatherMultipleVersionOk')
+data.setCell(12, 2, 'org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest')
+data.setCell(12, 3, 4);
+data.setCell(13, 0, 13)
+data.setCell(13, 1, 'testSingleUnchangedBundleMultipleVersions')
+data.setCell(13, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(13, 3, 4);
+data.setCell(14, 0, 14)
+data.setCell(14, 1, 'testGatherSingleArtifactsOfMultipleVersionTargetOk')
+data.setCell(14, 2, 'org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest')
+data.setCell(14, 3, 4);
+data.setCell(15, 0, 15)
+data.setCell(15, 1, 'testRemovedBundleMultipleVersions')
+data.setCell(15, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(15, 3, 3);
+data.setCell(16, 0, 16)
+data.setCell(16, 1, 'testSingleChangedBundleMultipleVersions')
+data.setCell(16, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(16, 3, 3);
+data.setCell(17, 0, 17)
+data.setCell(17, 1, 'testMultipleBundlesMultipleVersions')
+data.setCell(17, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(17, 3, 3);
+data.setCell(18, 0, 18)
+data.setCell(18, 1, 'testFillCacheToLimitAndCheckIfEverythingFits')
+data.setCell(18, 2, 'org.apache.ace.deployment.provider.repositorybased.CacheTest')
+data.setCell(18, 3, 3);
+data.setCell(19, 0, 19)
+data.setCell(19, 1, 'testGetLiteralTargetIllegalVersion')
+data.setCell(19, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(19, 3, 3);
+data.setCell(20, 0, 20)
+data.setCell(20, 1, 'testMultipleChangedBundlesMultipleVersions')
+data.setCell(20, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(20, 3, 3);
+data.setCell(21, 0, 21)
+data.setCell(21, 1, 'testSingleBundleSingleVersionBundleData')
+data.setCell(21, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(21, 3, 3);
+data.setCell(22, 0, 22)
+data.setCell(22, 1, 'testInvalidTargetBundleData')
+data.setCell(22, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(22, 3, 3);
+data.setCell(23, 0, 23)
+data.setCell(23, 1, 'testMultipleBundleSingleVersionBundleData')
+data.setCell(23, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(23, 3, 3);
+data.setCell(24, 0, 24)
+data.setCell(24, 1, 'testGetVersion')
+data.setCell(24, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(24, 3, 3);
+data.setCell(25, 0, 25)
+data.setCell(25, 1, 'testIllegalVersion')
+data.setCell(25, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(25, 3, 2);
+data.setCell(26, 0, 26)
+data.setCell(26, 1, 'testArtifactDataManifestGeneration')
+data.setCell(26, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(26, 3, 1);
+data.setCell(27, 0, 27)
+data.setCell(27, 1, 'testOverflowCacheAndValidateOldestElementDisappears')
+data.setCell(27, 2, 'org.apache.ace.deployment.provider.repositorybased.CacheTest')
+data.setCell(27, 3, 1);
+data.setCell(28, 0, 28)
+data.setCell(28, 1, 'testEmptyRepository')
+data.setCell(28, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(28, 3, 1);
+data.setCell(29, 0, 29)
+data.setCell(29, 1, 'testInvalidVersionBundleData')
+data.setCell(29, 2, 'org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest')
+data.setCell(29, 3, 0);
+window.suiteTableData['Default_suite']= { tableData: data, tableDiv: 'times-div-Default_suite'}
+return data;
+}
+              </script>
+              <span class="suite-total-time">Total running time: 1 seconds</span>
+              <div id="times-div-Default_suite">
+              </div> <!-- times-div-Default_suite -->
+            </div> <!-- times-div -->
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="reporter-Default_suite" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">Reporter output for Default suite</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="ignored-methods-Default_suite" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">0 ignored methods</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="chronological-Default_suite" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">Methods in chronological order</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+            <div class="chronological-class">
+              <div class="chronological-class-name">org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest</div> <!-- chronological-class-name -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">0 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testGatherArtifactsOfMultipleVersionTargetWithInvalidVersionOk</span>
+                <span class="method-start">42 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">52 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testGatherMultipleArtifactsOfMultipleVersionTargetOk</span>
+                <span class="method-start">62 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">68 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testGatherMultipleVersionOk</span>
+                <span class="method-start">78 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">83 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testGatherNonExistingArtifactsOfMultipleVersionTargetOk</span>
+                <span class="method-start">91 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">96 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testGatherSingleArtifactOk</span>
+                <span class="method-start">106 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">113 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testGatherSingleArtifactsOfMultipleVersionTargetOk</span>
+                <span class="method-start">128 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">133 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testGatherSingleVersionOk</span>
+                <span class="method-start">143 ms</span>
+              </div> <!-- test-method -->
+            </div> <!-- chronological-class -->
+            <div class="chronological-class">
+              <div class="chronological-class-name">org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</div> <!-- chronological-class-name -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">151 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testAddedBundleMultipleVersions</span>
+                <span class="method-start">190 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">197 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testArtifactDataManifestGeneration</span>
+                <span class="method-start">211 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">213 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testBundleDataWithResources</span>
+                <span class="method-start">227 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">235 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testEmptyDeploymentVersion</span>
+                <span class="method-start">249 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">263 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testEmptyRepository</span>
+                <span class="method-start">280 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">282 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testGetLiteralTargetIllegalVersion</span>
+                <span class="method-start">299 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">303 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testGetLiteralTargetVersion</span>
+                <span class="method-start">317 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">328 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testGetVersion</span>
+                <span class="method-start">342 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">345 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testIllegalVersion</span>
+                <span class="method-start">359 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">362 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testInvalidTargetBundleData</span>
+                <span class="method-start">376 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">379 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testInvalidVersionBundleData</span>
+                <span class="method-start">392 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">393 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testMultipleBundleSingleVersionBundleData</span>
+                <span class="method-start">405 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">409 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testMultipleBundlesMultipleVersions</span>
+                <span class="method-start">427 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">431 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testMultipleChangedBundlesMultipleVersions</span>
+                <span class="method-start">444 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">447 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testMultipleVersions</span>
+                <span class="method-start">461 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">466 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testRemovedBundleMultipleVersions</span>
+                <span class="method-start">546 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">550 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testSingleBundleSingleVersionBundleData</span>
+                <span class="method-start">565 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">569 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testSingleChangedBundleMultipleVersions</span>
+                <span class="method-start">581 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">584 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testSingleUnchangedBundleMultipleVersions</span>
+                <span class="method-start">599 ms</span>
+              </div> <!-- test-method -->
+            </div> <!-- chronological-class -->
+            <div class="chronological-class">
+              <div class="chronological-class-name">org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest</div> <!-- chronological-class-name -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">604 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testSingleBundleMultipleVersionBundleDataFromHugeXml</span>
+                <span class="method-start">881 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">1585 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">testSingleBundleSingleVersionBundleDataFromHugeXml</span>
+                <span class="method-start">1740 ms</span>
+              </div> <!-- test-method -->
+            </div> <!-- chronological-class -->
+            <div class="chronological-class">
+              <div class="chronological-class-name">org.apache.ace.deployment.provider.repositorybased.CacheTest</div> <!-- chronological-class-name -->
+              <div class="test-method">
+                <span class="method-name">testFillCacheToLimitAndCheckIfEverythingFits</span>
+                <span class="method-start">1950 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testOverflowCacheAndValidateOldestElementDisappears</span>
+                <span class="method-start">1953 ms</span>
+              </div> <!-- test-method -->
+            </div> <!-- chronological-class -->
+            <div class="chronological-class">
+              <div class="chronological-class-name">org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</div> <!-- chronological-class-name -->
+              <div class="configuration-test after">
+                <span class="method-name">tearDown</span>
+                <span class="method-start">1955 ms</span>
+              </div> <!-- configuration-test after -->
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+      </div> <!-- main-panel-root -->
+    </div> <!-- wrapper -->
+  </body>
+</html>

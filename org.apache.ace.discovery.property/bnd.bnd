@@ -1,0 +1,6 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.ace.util;version=latest,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.discovery.api;version=latest,\
+	org.mockito.mockito-all

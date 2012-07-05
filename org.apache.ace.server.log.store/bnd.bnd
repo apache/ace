@@ -1,0 +1,8 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.range.api;version=latest,\
+	org.apache.ace.log;version=latest
+Private-Package: org.apache.ace.server.log.store.impl
+Bundle-Activator: org.apache.ace.server.log.store.impl.Activator
+Export-Package: org.apache.ace.server.log.store

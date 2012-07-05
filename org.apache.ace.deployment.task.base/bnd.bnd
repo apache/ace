@@ -1,0 +1,13 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.deployment.api;version=latest,\
+	org.apache.ace.scheduler.api;version=latest,\
+	org.apache.ace.identification.api;version=latest,\
+	org.apache.ace.connectionfactory;version=latest,\
+	org.apache.ace.util;version=latest,\
+	org.apache.ace.discovery.api;version=latest,\
+	org.apache.ace.gateway.log.store;version=latest
+Private-Package: org.apache.ace.deployment.service.impl
+Bundle-Activator: org.apache.ace.deployment.service.impl.Activator
+Export-Package: org.apache.ace.deployment.service

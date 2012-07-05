@@ -1,0 +1,229 @@
+<html>
+<head>
+<title>TestNG:  Default test</title>
+<link href="../testng.css" rel="stylesheet" type="text/css" />
+<link href="../my-testng.css" rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+.log { display: none;} 
+.stack-trace { display: none;} 
+</style>
+<script type="text/javascript">
+<!--
+function flip(e) {
+  current = e.style.display;
+  if (current == 'block') {
+    e.style.display = 'none';
+    return 0;
+  }
+  else {
+    e.style.display = 'block';
+    return 1;
+  }
+}
+
+function toggleBox(szDivId, elem, msg1, msg2)
+{
+  var res = -1;  if (document.getElementById) {
+    res = flip(document.getElementById(szDivId));
+  }
+  else if (document.all) {
+    // this is the way old msie versions work
+    res = flip(document.all[szDivId]);
+  }
+  if(elem) {
+    if(res == 0) elem.innerHTML = msg1; else elem.innerHTML = msg2;
+  }
+
+}
+
+function toggleAllBoxes() {
+  if (document.getElementsByTagName) {
+    d = document.getElementsByTagName('div');
+    for (i = 0; i < d.length; i++) {
+      if (d[i].className == 'log') {
+        flip(d[i]);
+      }
+    }
+  }
+}
+
+// -->
+</script>
+
+</head>
+<body>
+<h2 align='center'>Default test</h2><table border='1' align="center">
+<tr>
+<td>Tests passed/Failed/Skipped:</td><td>30/0/0</td>
+</tr><tr>
+<td>Started on:</td><td>Wed Jul 04 13:30:20 CEST 2012</td>
+</tr>
+<tr><td>Total time:</td><td>1 seconds (1968 ms)</td>
+</tr><tr>
+<td>Included groups:</td><td></td>
+</tr><tr>
+<td>Excluded groups:</td><td></td>
+</tr>
+</table><p/>
+<small><i>(Hover the method name to see the test class name)</i></small><p/>
+<table width='100%' border='1' class='invocation-passed'>
+<tr><td colspan='4' align='center'><b>PASSED TESTS</b></td></tr>
+<tr><td><b>Test method</b></td>
+<td width="30%"><b>Exception</b></td>
+<td width="10%"><b>Time (seconds)</b></td>
+<td><b>Instance</b></td>
+</tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testAddedBundleMultipleVersions()'><b>testAddedBundleMultipleVersions</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testArtifactDataManifestGeneration()'><b>testArtifactDataManifestGeneration</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testBundleDataWithResources()'><b>testBundleDataWithResources</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testEmptyDeploymentVersion()'><b>testEmptyDeploymentVersion</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testEmptyRepository()'><b>testEmptyRepository</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.CacheTest.testFillCacheToLimitAndCheckIfEverythingFits()'><b>testFillCacheToLimitAndCheckIfEverythingFits</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.CacheTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.CacheTest@4979935d</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest.testGatherArtifactsOfMultipleVersionTargetWithInvalidVersionOk()'><b>testGatherArtifactsOfMultipleVersionTargetWithInvalidVersionOk</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest@48067064</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest.testGatherMultipleArtifactsOfMultipleVersionTargetOk()'><b>testGatherMultipleArtifactsOfMultipleVersionTargetOk</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest@48067064</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest.testGatherMultipleVersionOk()'><b>testGatherMultipleVersionOk</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest@48067064</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest.testGatherNonExistingArtifactsOfMultipleVersionTargetOk()'><b>testGatherNonExistingArtifactsOfMultipleVersionTargetOk</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest@48067064</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest.testGatherSingleArtifactOk()'><b>testGatherSingleArtifactOk</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest@48067064</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest.testGatherSingleArtifactsOfMultipleVersionTargetOk()'><b>testGatherSingleArtifactsOfMultipleVersionTargetOk</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest@48067064</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest.testGatherSingleVersionOk()'><b>testGatherSingleVersionOk</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.BaseRepositoryHandlerTest@48067064</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testGetLiteralTargetIllegalVersion()'><b>testGetLiteralTargetIllegalVersion</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testGetLiteralTargetVersion()'><b>testGetLiteralTargetVersion</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testGetVersion()'><b>testGetVersion</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testIllegalVersion()'><b>testIllegalVersion</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testInvalidTargetBundleData()'><b>testInvalidTargetBundleData</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testInvalidVersionBundleData()'><b>testInvalidVersionBundleData</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testMultipleBundleSingleVersionBundleData()'><b>testMultipleBundleSingleVersionBundleData</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testMultipleBundlesMultipleVersions()'><b>testMultipleBundlesMultipleVersions</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testMultipleChangedBundlesMultipleVersions()'><b>testMultipleChangedBundlesMultipleVersions</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testMultipleVersions()'><b>testMultipleVersions</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.CacheTest.testOverflowCacheAndValidateOldestElementDisappears()'><b>testOverflowCacheAndValidateOldestElementDisappears</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.CacheTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.CacheTest@4979935d</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testRemovedBundleMultipleVersions()'><b>testRemovedBundleMultipleVersions</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest.testSingleBundleMultipleVersionBundleDataFromHugeXml()'><b>testSingleBundleMultipleVersionBundleDataFromHugeXml</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest@6f9bb25a</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testSingleBundleSingleVersionBundleData()'><b>testSingleBundleSingleVersionBundleData</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest.testSingleBundleSingleVersionBundleDataFromHugeXml()'><b>testSingleBundleSingleVersionBundleDataFromHugeXml</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderPerformanceTest@6f9bb25a</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testSingleChangedBundleMultipleVersions()'><b>testSingleChangedBundleMultipleVersions</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+<tr>
+<td title='org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest.testSingleUnchangedBundleMultipleVersions()'><b>testSingleUnchangedBundleMultipleVersions</b><br>Test class: org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest</td>
+<td></td>
+<td>0</td>
+<td>org.apache.ace.deployment.provider.repositorybased.RepositoryBasedProviderTest@9d7fbfb</td></tr>
+</table><p>
+</body>
+</html>

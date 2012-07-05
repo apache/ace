@@ -1,0 +1,10 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	javax.servlet,\
+	org.apache.ace.util;version=latest,\
+	org.apache.ace.obr.metadata;version=latest,\
+	org.apache.ace.authentication.api;version=latest,\
+	org.apache.ace.obr.storage;version=latest
+Private-Package: org.apache.ace.obr.servlet
+Bundle-Activator: org.apache.ace.obr.servlet.Activator

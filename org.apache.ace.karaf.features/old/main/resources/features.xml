@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features>
+
+    <!--
+
+        Licensed to the Apache Software Foundation (ASF) under one or more
+        contributor license agreements.  See the NOTICE file distributed with
+        this work for additional information regarding copyright ownership.
+        The ASF licenses this file to You under the Apache License, Version 2.0
+        (the "License"); you may not use this file except in compliance with
+        the License.  You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    -->
+
+    <feature name="ace-common" version="${project.version}" resolver="(obr)">
+        <feature>eventadmin</feature>
+        <feature>http</feature>
+        <bundle dependency="true">mvn:org.apache.felix/org.apache.felix.metatype/${felix.metatype.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.felix/org.apache.felix.dependencymanager/${felix.dependencymanager.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.felix/org.apache.felix.dependencymanager.shell/${felix.dependencymanager.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.felix/org.apache.felix.deploymentadmin/${felix.deploymentadmin.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.felix/org.apache.felix.prefs/${felix.prefs.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.log/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.log.servlet/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.consolelogger/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.range.api/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.repository.api/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.httplistener/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.server.log.store/${project.version}</bundle>
+        <bundle>mvn:org.knopflerfish.bundle/useradmin/${knopflerfish.version}</bundle>
+    </feature>
+
+    <feature name="ace-client" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">ace-common</feature>
+        <bundle>mvn:org.apache.ace/org.apache.ace.client.repository.api/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.client.repository.helper.base/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.client.repository.helper.bundle/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.client.repository.helper.configuration/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.client.repository.impl/${project.version}</bundle>
+    </feature>
+
+    <feature name="ace-configurator" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">ace-common</feature>
+        <configfile finalname="/etc/org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask.cfg">
+            mvn:org.apache.ace.karaf/apache-ace/${project.version}/cfg/UpdateUserAdminTask
+        </configfile>
+        <bundle>mvn:org.apache.ace/org.apache.ace.configurator/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.configurator.serveruseradmin/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.configurator.useradmin.task/${project.version}</bundle>
+    </feature>
+
+    <feature name="ace-deployment" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.apache.ace/org.apache.ace.deployment.api/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.deployment.deploymentadmin/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.deployment.task/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.deployment.provider.api/${project.version}</bundle>
+        <configfile finalname="/etc/org.apache.ace.deployment.provider.repositorybased.cfg">
+            mvn:org.apache.ace.karaf/apache-ace/${project.version}/cfg/deployment-provider-repositorybased
+        </configfile>
+        <bundle>mvn:org.apache.ace/org.apache.ace.deployment.provider.repositorybased/${project.version}</bundle>
+        <configfile finalname="/etc/org.apache.ace.deployment.servlet.cfg">
+            mvn:org.apache.ace.karaf/apache-ace/${project.version}/cfg/deployment-servlet
+        </configfile>
+        <bundle>mvn:org.apache.ace/org.apache.ace.deployment.servlet/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.deployment.streamgenerator/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.resourceprocessor.useradmin/${project.version}</bundle>
+    </feature>
+
+    <feature name="ace-discovery" version="${project.version}" resolver="(obr)">
+        <configfile finalname="/etc/org.apache.ace.discovery.property.cfg">
+            mvn:org.apache.ace.karaf/apache-ace/${project.version}/cfg/discovery-property
+        </configfile>
+        <bundle>mvn:org.apache.ace/org.apache.ace.discovery.api/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.discovery.property/${project.version}</bundle>
+    </feature>
+
+    <feature name="ace-nodelauncher" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.apache.ace/org.apache.ace.nodelauncher.api/${project.version}</bundle>
+        <configfile name="/etc/org.apache.ace.nodelauncher.amazon.cfg">
+            mvn:org.apache.ace.karaf/apache-ace/${project.version}/cfg/nodelauncher-amazon
+        </configfile>
+        <bundle>mvn:org.apache.ace/org.apache.ace.nodelauncher.amazon/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.nodelauncher.ui/${project.version}</bundle>
+    </feature>
+
+    <feature name="ace-obr" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.apache.ace/org.apache.ace.obr.metadata/${project.version}</bundle>
+        <configfile finalname="/etc/org.apache.ace.obr.storage.file.cfg">
+            mvn:org.apache.ace.karaf/apache-ace/${project.version}/cfg/obr-storage-file
+        </configfile>
+        <bundle>mvn:org.apache.ace/org.apache.ace.obr.storage/${project.version}</bundle>
+        <configfile finalname="/etc/org.apache.ace.obr.servlet.cfg">
+            mvn:org.apache.ace.karaf/apache-ace/${project.version}/cfg/obr-servlet
+        </configfile>
+        <bundle>mvn:org.apache.ace/org.apache.ace.obr.servlet/${project.version}</bundle>
+    </feature>
+
+    <feature name="ace-repository" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.apache.ace/org.apache.ace.repository.impl/${project.version}</bundle>
+        <configfile finalname="/etc/org.apache.ace.repository.servlet.RepositoryServlet.cfg">
+            mvn:org.apache.ace.karaf/apache-ace/${project.version}/cfg/repository-servlet
+        </configfile>
+        <configfile finalname="/etc/org.apache.ace.repository.servlet.RepositoryReplicationServlet.cfg">
+            mvn:org.apache.ace.karaf/apache-ace/${project.version}/cfg/repository-replication-servlet
+        </configfile>
+        <bundle>mvn:org.apache.ace/org.apache.ace.repository.servlet/${project.version}</bundle>
+    </feature>
+
+    <feature name="ace-scheduler" version="${project.version}" resolver="(obr)">
+        <configfile finalname="/etc/org.apache.ace.scheduler.cfg">
+            mvn:org.apache.ace.karaf/apache-ace/${project.version}/cfg/scheduler
+        </configfile>
+        <bundle>mvn:org.apache.ace/org.apache.ace.scheduler/${project.version}</bundle>
+    </feature>
+
+    <feature name="ace-webconsole" version="${project.version}" resolver="(obr)">
+        <feature>war</feature>
+        <configfile finalname="/etc/org.apache.ace.webui.vaadin.cfg">
+            mvn:org.apache.ace.karaf/apache-ace/${project.version}/cfg/vaadin
+        </configfile>
+        <bundle>mvn:com.vaadin/vaadin/${vaadin.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.webconsole.plugin/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.tageditor/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.webui.vaadin/${project.version}</bundle>
+    </feature>
+
+    <feature name="ace-server" version="${project.version}" resolver="(obr)">
+        <!-- TODO provided features assembly -->
+    </feature>
+
+    <feature name="ace-agent" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.apache.ace/org.apache.ace.managementagent/${project.version}</bundle>
+    </feature>
+
+    <feature name="ace-target" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.apache.ace/org.apache.ace.gateway.log/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.gateway.log.store/${project.version}</bundle>
+    </feature>
+
+    <feature name="ace-identification" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.apache.ace/org.apache.ace.identification.api/${project.version}</bundle>
+        <bundle>mvn:org.apache.ace/org.apache.ace.identification.property/${project.version}</bundle>
+    </feature>
+
+</features>

@@ -1,0 +1,9 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.log;version=latest,\
+	javax.servlet,\
+	org.apache.ace.authentication.api;version=latest,\
+	org.apache.ace.server.log.store;version=latest
+Private-Package: org.apache.ace.server.log.servlet
+Bundle-Activator: org.apache.ace.server.log.servlet.Activator

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0"
+  localization="OSGI-INF/metatype/metatype">
+  <metatype:OCD id="org.apache.ace.target.log" name="%log.service.name" description="%log.service.desc">
+    <metatype:AD id="name" type="String" name="%name.name" description="%name.desc"/>
+  </metatype:OCD>
+  <metatype:OCD id="org.apache.ace.target.log.sync" name="%sync.service.name" description="%sync.service.desc">
+    <metatype:AD id="name" type="String" name="%name.name" description="%name.desc"/>
+    <metatype:AD id="ma" type="String" name="%ma.name" description="%ma.desc" required="false"/>
+  </metatype:OCD>
+  <metatype:Designate pid="org.apache.ace.target.log.factory"
+      factoryPid="org.apache.ace.target.log.factory">
+    <metatype:Object ocdref="org.apache.ace.target.log"/>
+  </metatype:Designate>
+  <metatype:Designate pid="org.apache.ace.target.log.sync.factory"
+      factoryPid="org.apache.ace.target.log.sync.factory">
+    <metatype:Object ocdref="org.apache.ace.target.log.sync"/>
+  </metatype:Designate>
+</metatype:MetaData>

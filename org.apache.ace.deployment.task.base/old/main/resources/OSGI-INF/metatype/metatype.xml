@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" localization="OSGI-INF/metatype/metatype">
+	<metatype:OCD id="org.apache.ace.deployment" name="%service.name" description="%service.desc">
+		<metatype:AD id="ma" type="String" name="%ma.name" description="%ma.desc" required="false" />
+	</metatype:OCD>
+	<metatype:Designate factoryPid="org.apache.ace.deployment.task.base.factory">
+		<metatype:Object ocdref="org.apache.ace.deployment" />
+	</metatype:Designate>
+</metatype:MetaData>

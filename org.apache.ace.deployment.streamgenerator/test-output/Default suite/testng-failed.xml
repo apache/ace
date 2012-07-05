@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [Default suite]">
+  <test name="Default test(failed)" preserve-order="true">
+    <classes>
+      <class name="org.apache.ace.deployment.streamgenerator.impl.StreamTest">
+        <methods>
+          <include name="setUp"/>
+          <include name="hundredStreamsConcurrently"/>
+          <include name="hundredStreamsSequentially"/>
+          <include name="isJarInputStreamReadable"/>
+        </methods>
+      </class> <!-- org.apache.ace.deployment.streamgenerator.impl.StreamTest -->
+    </classes>
+  </test> <!-- Default test(failed) -->
+</suite> <!-- Failed suite [Default suite] -->

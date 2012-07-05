@@ -1,0 +1,7 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	com.vaadin,\
+	org.apache.ace.nodelauncher.amazon;version=latest,\
+	org.apache.ace.webui.vaadin;version=latest,\
+	org.apache.ace.client.repository.api;version=latest

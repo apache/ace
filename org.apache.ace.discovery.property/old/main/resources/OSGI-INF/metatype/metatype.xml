@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0"
+  localization="OSGI-INF/metatype/metatype">
+  <metatype:OCD id="org.apache.ace.discovery.property" name="%service.name" description="%service.desc">
+    <metatype:AD id="serverURL" type="String" name="%serverURL.name" description="%serverURL.desc"/>
+  </metatype:OCD>
+  <metatype:Designate pid="org.apache.ace.discovery.property">
+    <metatype:Object ocdref="org.apache.ace.discovery.property"/>
+  </metatype:Designate>
+  <metatype:Designate pid="org.apache.ace.discovery.property.factory">
+    <metatype:Object ocdref="org.apache.ace.discovery.property"/>
+  </metatype:Designate>
+</metatype:MetaData>

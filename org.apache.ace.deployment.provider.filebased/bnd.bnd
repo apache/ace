@@ -1,0 +1,8 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.deployment.provider.api;version=latest,\
+	org.apache.ace.deployment.provider.base;version=latest
+Private-Package: org.apache.ace.deployment.provider.filebased,\
+	org.apache.ace.deployment.provider.impl
+Bundle-Activator: org.apache.ace.deployment.provider.filebased.Activator

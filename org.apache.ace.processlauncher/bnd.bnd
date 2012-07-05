@@ -1,0 +1,23 @@
+-buildpath: org.apache.felix.dependencymanager,\
+	org.apache.ace.util;version=latest,\
+	org.mockito.mockito-all,\
+	osgi.core,\
+	osgi.cmpn,\
+	slf4j.simple,\
+	../cnf/lib/junit-4.8.2.jar;version=file,\
+	../cnf/lib/javax.inject-1.jar;version=file,\
+	../cnf/lib/pax-exam-2.3.0.jar;version=file,\
+	../cnf/lib/pax-exam-container-native-2.3.0.jar;version=file,\
+	../cnf/lib/pax-exam-inject-2.3.0.jar;version=file,\
+	../cnf/lib/pax-exam-junit4-2.3.0.jar;version=file,\
+	../cnf/lib/pax-exam-link-mvn-2.3.0.jar;version=file,\
+	../cnf/lib/pax-url-aether-1.3.5.jar;version=file,\
+	../cnf/lib/pax-url-assembly-1.3.5.jar;version=file,\
+	../cnf/lib/pax-url-link-1.3.5.jar;version=file,\
+	../cnf/lib/pax-url-wrap-1.3.5.jar;version=file
+	
+Private-Package: org.apache.ace.processlauncher.osgi,\
+	org.apache.ace.processlauncher.impl
+Bundle-Activator: org.apache.ace.processlauncher.osgi.Activator
+Export-Package: org.apache.ace.processlauncher,\
+	org.apache.ace.processlauncher.util

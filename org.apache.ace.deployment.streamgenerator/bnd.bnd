@@ -1,0 +1,13 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.connectionfactory;version=latest,\
+	org.apache.ace.util;version=latest,\
+	org.apache.ace.deployment.provider.api;version=latest,\
+	org.ops4j.pax.swissbox.tinybundles,\
+	../cnf/lib/commons-logging-1.1.1.jar;version=file,\
+	org.ops4j.base.store
+	
+Private-Package: org.apache.ace.deployment.streamgenerator.impl
+Bundle-Activator: org.apache.ace.deployment.streamgenerator.impl.Activator
+Export-Package: org.apache.ace.deployment.streamgenerator
