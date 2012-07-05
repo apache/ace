@@ -1,7 +1,8 @@
 -buildpath: osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
-	org.apache.ace.client.repository.api;version=latest
+	org.apache.ace.client.repository.api;version=latest,\
+	org.apache.ace.util;version=latest
 Private-Package: org.apache.ace.client.repository.helper.bundle.impl,\
 	org.apache.ace.util
 Bundle-Activator: org.apache.ace.client.repository.helper.bundle.impl.Activator
