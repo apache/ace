@@ -55,7 +55,6 @@
 	org.knopflerfish.bundle.useradmin;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.knopflerfish.bundle.useradmin/org.knopflerfish.bundle.useradmin-2.0.2.jar;version='[2.0.2,2.0.3)',\
 	org.apache.ace.configurator.useradmin.task;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.configurator.useradmin.task/generated/org.apache.ace.configurator.useradmin.task.jar;version=latest,\
 	org.apache.ace.http.redirector;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.http.redirector/generated/org.apache.ace.http.redirector.jar;version=latest,\
-	slf4j.api;resolution=http://bundles.bndtools.org.s3.amazonaws.com/slf4j.api/slf4j.api-1.6.2.jar;version='[1.6.2,1.6.3)',\
 	org.apache.felix.prefs;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.apache.felix.prefs/org.apache.felix.prefs-1.0.4.jar;version='[1.0.4,1.0.5)',\
 	org.apache.ace.log.servlet;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.log.servlet/generated/org.apache.ace.log.servlet.jar;version=latest,\
 	org.apache.ace.deployment.streamgenerator;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.deployment.streamgenerator/generated/org.apache.ace.deployment.streamgenerator.jar;version=latest,\
