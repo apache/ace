@@ -25,6 +25,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
+import junit.framework.Assert;
+
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.repository.Repository;
@@ -51,7 +53,7 @@ public class AuthenticationTestBase extends IntegrationTestBase {
                 "</user>" +
             "</roles>").getBytes());
 
-        assertTrue("Committing test user data failed!", userRepository.commit(bis, userRepository.getRange().getHigh()));
+        Assert.assertTrue("Committing test user data failed!", userRepository.commit(bis, userRepository.getRange().getHigh()));
     }
 
     /**
@@ -109,6 +111,6 @@ public class AuthenticationTestBase extends IntegrationTestBase {
         while ((userAdmin.getRole(userName) == null) && (count++ < 60)) {
             Thread.sleep(100);
         }
-        assertTrue("Failed to obtain user from userAdmin!", count != 60);
+        Assert.assertTrue("Failed to obtain user from userAdmin!", count != 60);
     }
 }

@@ -140,6 +140,8 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
             "authentication.user.password", password);
 
         assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
+
+        before();
     }
 
     /**

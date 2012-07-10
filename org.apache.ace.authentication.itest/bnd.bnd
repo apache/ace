@@ -73,7 +73,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.ace.scheduler;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.scheduler/generated/org.apache.ace.scheduler.jar;version=latest,\
 	org.apache.ace.log.servlet;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.log.servlet/generated/org.apache.ace.log.servlet.jar;version=latest,\
 	org.apache.ace.gateway.log;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.gateway.log/generated/org.apache.ace.gateway.log.jar;version=latest,\
-	biz.aQute.junit;resolution=http://bundles.bndtools.org.s3.amazonaws.com/biz.aQute.junit/biz.aQute.junit-1.0.0.jar;version='[1.0.0,1.0.1)',\
 	org.apache.ace.obr.metadata;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.obr.metadata/generated/org.apache.ace.obr.metadata.jar;version=latest,\
 	org.apache.ace.authentication.api;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.authentication.api/generated/org.apache.ace.authentication.api.jar;version=latest,\
 	org.knopflerfish.log;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.knopflerfish.log/org.knopflerfish.log-2.0.2.jar;version='[2.0.2,2.0.3)',\

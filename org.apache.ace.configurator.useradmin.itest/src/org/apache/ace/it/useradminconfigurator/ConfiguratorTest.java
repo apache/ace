@@ -18,68 +18,47 @@
  */
 package org.apache.ace.it.useradminconfigurator;
 
-import static org.apache.ace.it.Options.jetty;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.provision;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.apache.ace.it.IntegrationTestBase;
-import org.apache.ace.it.Options.Ace;
-import org.apache.ace.it.Options.Felix;
-import org.apache.ace.it.Options.Knopflerfish;
-import org.apache.ace.it.Options.Osgi;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.options.WrappedUrlProvisionOption;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-@RunWith(JUnit4TestRunner.class)
 public class ConfiguratorTest extends IntegrationTestBase {
 
-    @Configuration
-    public Option[] configuration() {
-        return options(
-            systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
-            junitBundles(),
-            provision(
-                wrappedBundle(maven("org.apache.ace", "org.apache.ace.util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL), // we do this because we need access to some test classes that aren't exported
-                Osgi.compendium(),
-                jetty(),
-                Felix.preferences(),
-                Felix.dependencyManager(),
-                Felix.configAdmin(),
-                Knopflerfish.useradmin(),
-                Knopflerfish.log(),
-                Ace.authenticationApi(),
-                Ace.connectionFactory(),
-                Ace.rangeApi(),
-                Ace.scheduler(),
-                Ace.httplistener(),
-                Ace.repositoryApi(),
-                Ace.repositoryImpl(),
-                Ace.repositoryServlet(),
-                Ace.resourceprocessorUseradmin(),
-                Ace.configuratorUseradminTask(),
-                Ace.deploymentProviderApi()
-            )
-        );
-    }
+//    @Configuration
+//    public Option[] configuration() {
+//        return options(
+//            systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
+//            junitBundles(),
+//            provision(
+//                wrappedBundle(maven("org.apache.ace", "org.apache.ace.util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL), // we do this because we need access to some test classes that aren't exported
+//                Osgi.compendium(),
+//                jetty(),
+//                Felix.preferences(),
+//                Felix.dependencyManager(),
+//                Felix.configAdmin(),
+//                Knopflerfish.useradmin(),
+//                Knopflerfish.log(),
+//                Ace.authenticationApi(),
+//                Ace.connectionFactory(),
+//                Ace.rangeApi(),
+//                Ace.scheduler(),
+//                Ace.httplistener(),
+//                Ace.repositoryApi(),
+//                Ace.repositoryImpl(),
+//                Ace.repositoryServlet(),
+//                Ace.resourceprocessorUseradmin(),
+//                Ace.configuratorUseradminTask(),
+//                Ace.deploymentProviderApi()
+//            )
+//        );
+//    }
 
     protected Component[] getDependencies() {
         return new Component[] {
@@ -94,7 +73,8 @@ public class ConfiguratorTest extends IntegrationTestBase {
         };
     }
 
-    protected void before() throws IOException {
+    @Override
+	protected void before() throws Exception {
         configureFactory("org.apache.ace.server.repository.factory",
                 RepositoryConstants.REPOSITORY_NAME, "users",
                 RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
@@ -104,6 +84,12 @@ public class ConfiguratorTest extends IntegrationTestBase {
                 "repositoryCustomer", "apache");
         configure("org.apache.ace.scheduler",
                 "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "1000");
+        configure("org.apache.ace.repository.servlet.RepositoryServlet",
+        		"org.apache.ace.server.servlet.endpoint", "/repository",
+        		"authentication.enabled", "false");
+        configure("org.apache.ace.repository.servlet.RepositoryReplicationServlet",
+        		"org.apache.ace.server.servlet.endpoint", "/replication",
+        		"authentication.enabled", "false");
     }
 
     private volatile Repository m_repository;
@@ -113,8 +99,7 @@ public class ConfiguratorTest extends IntegrationTestBase {
      * Creates a file in the repository, waits for the UserAdmin to have a new user
      * present, and inspects that user.
      */
-    @Test
-    public void configuratorTest() throws IllegalArgumentException, IOException, InterruptedException {
+    public void testConfigurator() throws IllegalArgumentException, IOException, InterruptedException {
         ByteArrayInputStream bis = new ByteArrayInputStream((
             "<roles>" +
             "    <user name=\"TestUser\">" +
