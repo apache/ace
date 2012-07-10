@@ -59,7 +59,7 @@ public class IntegrationTestBase extends TestCase {
      */
     private static final int SERVICE_TIMEOUT = 5;
 
-    protected BundleContext m_bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+    protected BundleContext m_bundleContext;
     protected DependencyManager m_dependencyManager;
 
     /**
@@ -106,7 +106,7 @@ public class IntegrationTestBase extends TestCase {
     }
 
     public void setUp() throws Exception {
-    	System.out.println("setup");
+    	m_bundleContext = FrameworkUtil.getBundle(IntegrationTestBase.class).getBundleContext();
         m_dependencyManager = new DependencyManager(m_bundleContext);
         Component[] components = getDependencies();
         ComponentCounter listener = new ComponentCounter(components);
