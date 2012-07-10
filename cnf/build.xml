@@ -148,6 +148,9 @@
 		
 		<delete dir="${workspacedir}/cnf/tmp"/>
 		<delete dir="${workspacedir}/cnf/p2target"/>
+		
+		<!-- Clean up test tmp folder. -->
+		<delete dir="tmp" />
 	</target>
 
 	<!--
