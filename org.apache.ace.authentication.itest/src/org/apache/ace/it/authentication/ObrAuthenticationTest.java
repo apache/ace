@@ -40,6 +40,7 @@ import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Constants;
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -61,63 +62,152 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
     private volatile ConnectionFactory m_connectionFactory;
 
     /**
-     * @return the PAX Exam configuration options, never <code>null</code>.
+     * Tears down the set up of the test case.
+     * 
+     * @throws java.lang.Exception not part of this test case.
      */
-//    @Configuration
-//    public Option[] configuration() {
-//        return options(
-//            systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
-//            new CleanCachesOption(),
-//            junitBundles(),
-//            provision(
-//                // Misc bundles...
-//                Osgi.compendium(),
-//                Felix.dependencyManager(),
-//                jetty(),
-//                Felix.configAdmin(),
-//                Felix.preferences(),
-//                Felix.eventAdmin(),
-//                Knopflerfish.useradmin(),
-//                Knopflerfish.log(),
-//                // ACE core bundles...
-//                Ace.util(),
-//                Ace.authentication(),
-//                Ace.authenticationProcessorBasicAuth(),
-//                Ace.connectionFactory(),
-//                Ace.rangeApi(),
-//                Ace.log(),
-//                Ace.serverLogStore(),
-//                Ace.httplistener(),
-//                Ace.repositoryApi(),
-//                Ace.repositoryImpl(),
-//                Ace.repositoryServlet(),
-//                Ace.configuratorServeruseradmin(),
-//                Ace.obrMetadata(),
-//                Ace.obrServlet(),
-//                Ace.obrStorage(),
-//                Ace.clientRepositoryApi(),
-//                Ace.clientRepositoryImpl(),
-//                Ace.clientRepositoryHelperBase(),
-//                Ace.clientRepositoryHelperBundle(),
-//                Ace.clientRepositoryHelperConfiguration(),
-//                Ace.scheduler(),
-//                Ace.resourceprocessorUseradmin(),
-//                Ace.configuratorUseradminTask()
-//            )
-//        );
-//    }
+    public void tearDown() throws Exception {
+        FileUtils.removeDirectoryWithContent(m_storeLocation);
+        
+        Configuration configuration = getConfiguration(m_authConfigPID);
+        if (configuration != null) {
+        	configuration.delete();
+        }
+    }
+
+    /**
+     * Test that we can retrieve the 'repository.xml' from the OBR.
+     */
+    public void testAccessObrRepositoryWithCredentialsOk() throws IOException {
+        URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
+        
+        URLConnection conn = m_connectionFactory.createConnection(url);
+        assertNotNull(conn);
+
+        Object content = conn.getContent();
+        assertNotNull(content);
+    }
+
+    /**
+     * Test that we cannot retrieve the 'repository.xml' from the OBR without any credentials.
+     */
+    public void testAccessObrRepositoryWithoutCredentialsFail() throws IOException {
+        URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
+        
+        // do NOT use connection factory as it will supply the credentials for us...
+        URLConnection conn = url.openConnection();
+        assertNotNull(conn);
+
+        // we expect a 401 for this URL...
+        NetUtils.waitForURL(url, 401, 15000);
+
+        try {
+	        // ...causing all other methods on URLConnection to fail...
+	        conn.getContent(); // should fail!
+	        fail("IOException expected!");
+        } catch (IOException exception) {
+        	// Ok; ignored...
+        }
+    }
+
+    /**
+     * Test that we cannot retrieve the 'repository.xml' from the OBR with incorrect credentials.
+     */
+    public void testAccessObrRepositoryWithWrongCredentialsFail() throws IOException {
+        org.osgi.service.cm.Configuration configuration = m_configAdmin.getConfiguration(m_authConfigPID);
+        assertNotNull(configuration);
+
+        // Simulate incorrect credentials by updating the config of the connection factory...
+        configuration.getProperties().put("authentication.user.name", "foo");
+        
+        configuration.update();
+
+        URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
+        
+        // do NOT use connection factory as it will supply the credentials for us...
+        URLConnection conn = url.openConnection();
+        assertNotNull(conn);
+
+        // we expect a 401 for this URL...
+        NetUtils.waitForURL(url, 401, 15000);
+
+        try {
+	        // ...causing all other methods on URLConnection to fail...
+	        conn.getContent(); // should fail!
+	        fail("IOException expected!");
+        } catch (IOException exception) {
+        	// Ok; ignored...
+        }
+    }
+
+    /**
+     * Test that an import of an artifact through the API of ACE works, making sure they can access an authenticated OBR as well.
+     */
+    public void testImportArtifactWithCredentialsOk() throws Exception {
+        // Use a valid JAR file, without a Bundle-SymbolicName header.
+        Manifest manifest = new Manifest();
+        Attributes attributes = manifest.getMainAttributes();
+        attributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1");
+        attributes.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
+        attributes.putValue(BundleHelper.KEY_SYMBOLICNAME, "org.apache.ace.test1");
+
+        File temp = File.createTempFile("org.apache.ace.test1", ".jar");
+        temp.deleteOnExit();
+        JarOutputStream jos = new JarOutputStream(new FileOutputStream(temp), manifest);
+        jos.close();
+
+        m_artifactRepository.importArtifact(temp.toURI().toURL(), true /* upload */);
+
+        assertEquals(1, m_artifactRepository.get().size());
+        assertTrue(m_artifactRepository.getResourceProcessors().isEmpty());
+
+        // Create a JAR file which looks like a resource processor supplying bundle.
+        attributes.putValue(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, "someProcessor");
+        attributes.putValue(BundleHelper.KEY_VERSION, "1.0.0.processor");
+
+        temp = File.createTempFile("org.apache.ace.test2", ".jar");
+        temp.deleteOnExit();
+        jos = new JarOutputStream(new FileOutputStream(temp), manifest);
+        jos.close();
+
+        m_artifactRepository.importArtifact(temp.toURI().toURL(), true);
+
+        assertEquals(1, m_artifactRepository.get().size());
+        assertEquals(1, m_artifactRepository.getResourceProcessors().size());
+    }
+
+    /**
+     * Test that an import of an artifact through the API of ACE works, making sure they can access an authenticated OBR as well.
+     */
+    public void testImportArtifactWithoutCredentialsFail() throws Exception {
+        org.osgi.service.cm.Configuration configuration = m_configAdmin.getConfiguration(m_authConfigPID);
+        assertNotNull(configuration);
+
+        // Delete the credentials for the OBR-URL, thereby simulating wrong credentials for the OBR...
+        configuration.delete();
+
+        // Use a valid JAR file, without a Bundle-SymbolicName header.
+        Manifest manifest = new Manifest();
+        Attributes attributes = manifest.getMainAttributes();
+        attributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1");
+        attributes.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
+        attributes.putValue(BundleHelper.KEY_SYMBOLICNAME, "org.apache.ace.test3");
+
+        File temp = File.createTempFile("org.apache.ace.test3", ".jar");
+        temp.deleteOnExit();
+        JarOutputStream jos = new JarOutputStream(new FileOutputStream(temp), manifest);
+        jos.close();
+
+        try {
+        	m_artifactRepository.importArtifact(temp.toURI().toURL(), true /* upload */); // should fail!
+        	fail("IOException expected!");
+        } catch (IOException exception) {
+        	// Ok; expected...
+        }
+    }
 
     @Override
-    public void setUp() throws Exception {
-        m_endpoint = "/obr";
-        
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        m_storeLocation = new File(tmpDir, "store");
-        m_storeLocation.delete();
-        m_storeLocation.mkdirs();
-        
-        super.setUp();
-
+    protected void after() throws Exception {
         String userName = "d";
         String password = "f";
 
@@ -141,138 +231,17 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
     }
 
     /**
-     * Tears down the set up of the test case.
-     * 
-     * @throws java.lang.Exception not part of this test case.
-     */
-    public void tearDown() throws Exception {
-        FileUtils.removeDirectoryWithContent(m_storeLocation);
-    }
-
-    /**
-     * Test that we can retrieve the 'repository.xml' from the OBR.
-     */
-    public void testAccessObrRepositoryWithCredentialsOk() throws IOException {
-        URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
-        
-        URLConnection conn = m_connectionFactory.createConnection(url);
-        assertNotNull(conn);
-
-        Object content = conn.getContent();
-        assertNotNull(content);
-    }
-
-    /**
-     * Test that we cannot retrieve the 'repository.xml' from the OBR without any credentials.
-     */
-    //@Test(expected = IOException.class)
-    public void testAccessObrRepositoryWithoutCredentialsFail() throws IOException {
-        URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
-        
-        // do NOT use connection factory as it will supply the credentials for us...
-        URLConnection conn = url.openConnection();
-        assertNotNull(conn);
-
-        // we expect a 401 for this URL...
-        NetUtils.waitForURL(url, 401, 15000);
-
-        // ...causing all other methods on URLConnection to fail...
-        conn.getContent(); // should fail!
-    }
-
-    /**
-     * Test that we cannot retrieve the 'repository.xml' from the OBR with incorrect credentials.
-     */
-    //@Test(expected = IOException.class)
-    public void testAccessObrRepositoryWithWrongCredentialsFail() throws IOException {
-        org.osgi.service.cm.Configuration configuration = m_configAdmin.getConfiguration(m_authConfigPID);
-        assertNotNull(configuration);
-
-        // Simulate incorrect credentials by updating the config of the connection factory...
-        configuration.getProperties().put("authentication.user.name", "foo");
-        
-        configuration.update();
-
-        URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
-        
-        // do NOT use connection factory as it will supply the credentials for us...
-        URLConnection conn = url.openConnection();
-        assertNotNull(conn);
-
-        // we expect a 401 for this URL...
-        NetUtils.waitForURL(url, 401, 15000);
-
-        // ...causing all other methods on URLConnection to fail...
-        conn.getContent(); // should fail!
-    }
-
-    /**
-     * Test that an import of an artifact through the API of ACE works, making sure they can access an authenticated OBR as well.
-     */
-    public void testImportArtifactWithCredentialsOk() throws Exception {
-        // Use a valid JAR file, without a Bundle-SymbolicName header.
-        Manifest manifest = new Manifest();
-        Attributes attributes = manifest.getMainAttributes();
-        attributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1");
-        attributes.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
-        attributes.putValue(BundleHelper.KEY_SYMBOLICNAME, "org.apache.ace.test");
-
-        File temp = File.createTempFile("org.apache.ace.test", ".jar");
-        temp.deleteOnExit();
-        JarOutputStream jos = new JarOutputStream(new FileOutputStream(temp), manifest);
-        jos.close();
-
-        m_artifactRepository.importArtifact(temp.toURI().toURL(), true /* upload */);
-
-        assertEquals(1, m_artifactRepository.get().size());
-        assertTrue(m_artifactRepository.getResourceProcessors().isEmpty());
-
-        // Create a JAR file which looks like a resource processor supplying bundle.
-        attributes.putValue(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, "someProcessor");
-        attributes.putValue(BundleHelper.KEY_VERSION, "1.0.0.processor");
-
-        temp = File.createTempFile("org.apache.ace.test", ".jar");
-        temp.deleteOnExit();
-        jos = new JarOutputStream(new FileOutputStream(temp), manifest);
-        jos.close();
-
-        m_artifactRepository.importArtifact(temp.toURI().toURL(), true);
-
-        assertEquals(1, m_artifactRepository.get().size());
-        assertEquals(1, m_artifactRepository.getResourceProcessors().size());
-    }
-
-    /**
-     * Test that an import of an artifact through the API of ACE works, making sure they can access an authenticated OBR as well.
-     */
-    //@Test(expected = IOException.class)
-    public void testImportArtifactWithoutCredentialsFail() throws Exception {
-        org.osgi.service.cm.Configuration configuration = m_configAdmin.getConfiguration(m_authConfigPID);
-        assertNotNull(configuration);
-
-        // Delete the credentials for the OBR-URL, thereby simulating wrong credentials for the OBR...
-        configuration.delete();
-
-        // Use a valid JAR file, without a Bundle-SymbolicName header.
-        Manifest manifest = new Manifest();
-        Attributes attributes = manifest.getMainAttributes();
-        attributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1");
-        attributes.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
-        attributes.putValue(BundleHelper.KEY_SYMBOLICNAME, "org.apache.ace.test");
-
-        File temp = File.createTempFile("org.apache.ace.test", ".jar");
-        temp.deleteOnExit();
-        JarOutputStream jos = new JarOutputStream(new FileOutputStream(temp), manifest);
-        jos.close();
-
-        m_artifactRepository.importArtifact(temp.toURI().toURL(), true /* upload */); // should fail!
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
     protected void before() throws Exception {
+        m_endpoint = "/obr";
+        
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        m_storeLocation = new File(tmpDir, "store");
+        m_storeLocation.delete();
+        m_storeLocation.mkdirs();
+
         final String fileLocation = m_storeLocation.getAbsolutePath();
 
         getService(SessionFactory.class).createSession("test-session-ID");

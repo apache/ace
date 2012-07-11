@@ -31,8 +31,6 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
-import static junit.framework.Assert.*;
-
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.ComponentDependencyDeclaration;
 import org.apache.felix.dm.ComponentStateListener;
@@ -58,7 +56,7 @@ public class IntegrationTestBase extends TestCase {
      * If we have to wait for a service, wait this amount of seconds.
      */
     private static final int SERVICE_TIMEOUT = 5;
-
+    
     protected BundleContext m_bundleContext;
     protected DependencyManager m_dependencyManager;
 
@@ -105,9 +103,11 @@ public class IntegrationTestBase extends TestCase {
         return config.getPid();
     }
 
-    public void setUp() throws Exception {
+    public final void setUp() throws Exception {
     	m_bundleContext = FrameworkUtil.getBundle(IntegrationTestBase.class).getBundleContext();
+    	m_bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
         m_dependencyManager = new DependencyManager(m_bundleContext);
+
         Component[] components = getDependencies();
         ComponentCounter listener = new ComponentCounter(components);
 
@@ -121,19 +121,31 @@ public class IntegrationTestBase extends TestCase {
             m_dependencyManager.add(component);
         }
 
-        // Call back the implementation...
-        before();
+		// Call back the implementation...
+		before();
 
         // And wait for all components to come online.
         try {
             if (!listener.waitForEmpty(SERVICE_TIMEOUT, SECONDS)) {
                 fail("Not all components were started. Still missing the following:\n" + listener.componentsString());
             }
+            
+        	after();
         }
         catch (InterruptedException e) {
             fail("Interrupted while waiting for services to get started.");
         }
     }
+    
+    /* (non-Javadoc)
+     * @see junit.framework.TestCase#tearDown()
+     */
+    @Override
+    protected void tearDown() throws Exception {
+    	super.tearDown();
+    }
+    
+    protected void after() throws Exception {}
 
     @SuppressWarnings("unchecked")
     protected <T> T getService(Class<T> serviceClass, String filterString) throws InvalidSyntaxException {
@@ -177,12 +189,12 @@ public class IntegrationTestBase extends TestCase {
         }
     }
 
-    private Configuration getConfiguration(String pid) throws IOException {
+    protected Configuration getConfiguration(String pid) throws IOException {
         ConfigurationAdmin admin = getService(ConfigurationAdmin.class);
         return admin.getConfiguration(pid, null);
     }
 
-    private Configuration createFactoryConfiguration(String factoryPid) throws IOException {
+    protected Configuration createFactoryConfiguration(String factoryPid) throws IOException {
         ConfigurationAdmin admin = getService(ConfigurationAdmin.class);
         return admin.createFactoryConfiguration(factoryPid, null);
     }
