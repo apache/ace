@@ -27,11 +27,6 @@ import static org.apache.ace.client.repository.stateful.StatefulTargetObject.TOP
 import static org.apache.ace.client.repository.stateful.StatefulTargetObject.TOPIC_REMOVED;
 import static org.apache.ace.client.repository.stateful.StatefulTargetObject.TOPIC_STATUS_CHANGED;
 import static org.apache.ace.client.repository.stateful.StatefulTargetObject.UNKNOWN_VERSION;
-import static org.apache.ace.it.Options.jetty;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.provision;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -96,10 +91,6 @@ import org.apache.ace.client.repository.stateful.StatefulTargetObject.StoreState
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
-import org.apache.ace.it.Options.Ace;
-import org.apache.ace.it.Options.Felix;
-import org.apache.ace.it.Options.Knopflerfish;
-import org.apache.ace.it.Options.Osgi;
 import org.apache.ace.log.AuditEvent;
 import org.apache.ace.log.LogEvent;
 import org.apache.ace.obr.storage.file.constants.OBRFileStoreConstants;
@@ -109,13 +100,6 @@ import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.apache.ace.server.log.store.LogStore;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.options.extra.CleanCachesOption;
-import org.ops4j.pax.exam.options.extra.VMOption;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -128,49 +112,49 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.useradmin.User;
 import org.osgi.util.tracker.ServiceTracker;
 
-@RunWith(JUnit4TestRunner.class)
 public class RepositoryAdminTest extends IntegrationTestBase implements EventHandler {
 
-    @org.ops4j.pax.exam.junit.Configuration
-    public Option[] configuration() {
-        return options(
-            systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
-            new VMOption("-ea"),
-            new CleanCachesOption(),
-            junitBundles(),
-            provision(
-                Osgi.compendium(),
-                Felix.dependencyManager(),
-                jetty(),
-                Felix.configAdmin(),
-                Felix.preferences(),
-                Felix.eventAdmin(),
-                Knopflerfish.useradmin(),
-                Knopflerfish.log(),
-                Ace.util(),
-                Ace.authenticationApi(),
-                Ace.connectionFactory(),
-                Ace.rangeApi(),
-                Ace.log(),
-                Ace.serverLogStore(),
-                Ace.httplistener(),
-                Ace.repositoryApi(),
-                Ace.repositoryImpl(),
-                Ace.repositoryServlet(),
-                Ace.configuratorServeruseradmin(),
-                Ace.obrMetadata(),
-                Ace.obrServlet(),
-                Ace.obrStorage(),
-                Ace.clientRepositoryApi(),
-                Ace.clientRepositoryImpl(),
-                Ace.clientRepositoryHelperBase(),
-                Ace.clientRepositoryHelperBundle(),
-                Ace.clientRepositoryHelperConfiguration(),
-                Ace.clientAutomation()
-            ));
-    }
+//    @org.ops4j.pax.exam.junit.Configuration
+//    public Option[] configuration() {
+//        return options(
+//            systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
+//            new VMOption("-ea"),
+//            new CleanCachesOption(),
+//            junitBundles(),
+//            provision(
+//                Osgi.compendium(),
+//                Felix.dependencyManager(),
+//                jetty(),
+//                Felix.configAdmin(),
+//                Felix.preferences(),
+//                Felix.eventAdmin(),
+//                Knopflerfish.useradmin(),
+//                Knopflerfish.log(),
+//                Ace.util(),
+//                Ace.authenticationApi(),
+//                Ace.connectionFactory(),
+//                Ace.rangeApi(),
+//                Ace.log(),
+//                Ace.serverLogStore(),
+//                Ace.httplistener(),
+//                Ace.repositoryApi(),
+//                Ace.repositoryImpl(),
+//                Ace.repositoryServlet(),
+//                Ace.configuratorServeruseradmin(),
+//                Ace.obrMetadata(),
+//                Ace.obrServlet(),
+//                Ace.obrStorage(),
+//                Ace.clientRepositoryApi(),
+//                Ace.clientRepositoryImpl(),
+//                Ace.clientRepositoryHelperBase(),
+//                Ace.clientRepositoryHelperBundle(),
+//                Ace.clientRepositoryHelperConfiguration(),
+//                Ace.clientAutomation()
+//            ));
+//    }
 
-    protected void before() throws IOException {
+	@Override
+	protected void before() throws Exception {
         getService(SessionFactory.class).createSession("test-session-ID");
         configureFactory("org.apache.ace.server.log.store.factory",
             "name", "auditlog", "authentication.enabled", "false");
@@ -248,7 +232,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
      * 
      * @throws Exception
      */
-    @Test
     public void testRemoveBundleFeature() throws Exception {
         final ArtifactObject b1 = createBasicBundleObject("thebundle", "1", null);
         final FeatureObject g1 = createBasicFeatureObject("thefeature");
@@ -296,7 +279,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         cleanUp();
     }
 
-    @Test
     public void testAssociationsWithMovingEndpoints() throws Exception {
         final ArtifactObject b1 = createBasicBundleObject("thebundle", "1", null);
         final FeatureObject g1 = createBasicFeatureObject("thefeature");
@@ -386,7 +368,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
      * 
      * @throws Exception
      */
-    @Test
     public void testRepositoryAdmin() throws Exception {
         final User user1 = new MockUser("user1");
         final User user2 = new MockUser("user2");
@@ -598,7 +579,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         cleanUp();
     }
 
-    @Test
     public void testAutoApprove() throws Exception {
         User user = new MockUser("user");
 
@@ -688,7 +668,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         cleanUp();
     }
 
-    @Test
     public void testStateful() throws Exception {
         User user = new MockUser("user");
 
@@ -714,14 +693,14 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
          * I would prefer to test without an auditlog present at all, but that
          * is not so easily done.
          */
-        testStatefulCreateRemove();
-        testStatefulSetAutoApprove();
-        testStatefulApprove();
+        doStatefulCreateRemove();
+        doStatefulSetAutoApprove();
+        doStatefulApprove();
 
-        testStatefulAuditlog();
-        testStatefulAuditAndRegister();
-        testStatefulAuditAndRemove();
-        testStrangeNamesInTargets();
+        doStatefulAuditlog();
+        doStatefulAuditAndRegister();
+        doStatefulAuditAndRemove();
+        doStrangeNamesInTargets();
 
         try {
             removeAllRepositories();
@@ -734,7 +713,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         cleanUp();
     }
 
-    private void testStatefulSetAutoApprove() throws Exception {
+    private void doStatefulSetAutoApprove() throws Exception {
 
         // register target with
         final Map<String, String> attr = new HashMap<String, String>();
@@ -768,7 +747,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         }, false, TargetObject.TOPIC_REMOVED, TOPIC_REMOVED);
     }
 
-    private void testStatefulCreateRemove() throws Exception {
+    private void doStatefulCreateRemove() throws Exception {
         final Map<String, String> attr = new HashMap<String, String>();
         attr.put(TargetObject.KEY_ID, "myNewTarget1");
         final Map<String, String> tags = new HashMap<String, String>();
@@ -799,7 +778,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         cleanUp();
     }
 
-    private void testStatefulAuditAndRemove() throws Exception {
+    private void doStatefulAuditAndRemove() throws Exception {
         // preregister gateway
         final Map<String, String> attr = new HashMap<String, String>();
         attr.put(TargetObject.KEY_ID, "myNewGatewayA");
@@ -923,7 +902,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         cleanUp();
     }
 
-    private void testStatefulApprove() throws Exception {
+    private void doStatefulApprove() throws Exception {
         final Map<String, String> attr = new HashMap<String, String>();
         attr.put(TargetObject.KEY_ID, "myNewTarget2");
         final Map<String, String> tags = new HashMap<String, String>();
@@ -1041,7 +1020,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         assert m_statefulTargetRepository.get().size() == 0;
     }
 
-    private void testStrangeNamesInTargets() throws InvalidSyntaxException, IOException {
+    private void doStrangeNamesInTargets() throws InvalidSyntaxException, IOException {
         List<LogEvent> events = new ArrayList<LogEvent>();
         Properties props = new Properties();
 
@@ -1064,7 +1043,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
 
     }
 
-    private void testStatefulAuditlog() throws IOException, InvalidSyntaxException {
+    private void doStatefulAuditlog() throws IOException, InvalidSyntaxException {
         List<LogEvent> events = new ArrayList<LogEvent>();
         Properties props = new Properties();
         events.add(new LogEvent("myTarget", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
@@ -1150,7 +1129,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             + sgo.getProvisioningState();
     }
 
-    private void testStatefulAuditAndRegister() throws Exception {
+    private void doStatefulAuditAndRegister() throws Exception {
         // preregister target
         final Map<String, String> attr = new HashMap<String, String>();
         attr.put(TargetObject.KEY_ID, "myNewTarget3");
@@ -1303,7 +1282,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         return null;
     }
 
-    @Test
     public void testStatefulApprovalWithArtifacts() throws Exception {
         // some setup: we need a helper.
         ArtifactHelper myHelper = new MockArtifactHelper("mymime");
@@ -1432,7 +1410,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             }
         }, true, RepositoryAdmin.TOPIC_LOGIN);
 
-        testAutoTargetReg();
+        doAutoTargetReg();
 
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
@@ -1452,7 +1430,7 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         cleanUp();
     }
 
-    private void testAutoTargetReg() throws Exception {
+    private void doAutoTargetReg() throws Exception {
         List<LogEvent> events = new ArrayList<LogEvent>();
         Properties props = new Properties();
         events.add(new LogEvent("anotherTarget", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
@@ -1512,7 +1490,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         }
     }
 
-    @Test
     public void testImportArtifactInvalidURL() throws Exception {
         try {
             m_artifactRepository.importArtifact(null, true);
@@ -1535,7 +1512,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         cleanUp();
     }
 
-    @Test
     public void testImportArtifactGeneralBundle() throws Exception {
         // Use a valid JAR file, without a Bundle-SymbolicName header.
         Manifest manifest = new Manifest();
@@ -1635,7 +1611,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
         }
     }
 
-    @Test
     public void testLoginLogoutAndLoginOnceAgainWhileCreatingAnAssociation() throws IOException, InterruptedException,
         InvalidSyntaxException {
         User user1 = new MockUser("user1");
@@ -1675,7 +1650,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
      * Tests read only repository access: marking a repository as readonly for a login should
      * mean that it does not get committed, but local changes will stay around between logins.
      */
-    @Test
     public void testReadOnlyRepositoryAccess() throws Exception {
         User user1 = new MockUser("user1");
 
@@ -1733,7 +1707,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
      * Tests the template processing mechanism: given a custom processor, do the correct calls go out?
      */
     @SuppressWarnings("unchecked")
-    @Test
     public void testTemplateProcessingInfrastructure() throws Exception {
         // create a preprocessor
         MockArtifactPreprocessor preprocessor = new MockArtifactPreprocessor();
@@ -1799,7 +1772,6 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
      * versions with it. It uses the configuration (autoconf) helper, which uses a VelocityBased preprocessor.
      */
     @SuppressWarnings("unchecked")
-    @Test
     public void testTemplateProcessing() throws Exception {
         addObr("/obr", "store");
         m_artifactRepository.setObrBase(new URL("http://localhost:" + TestConstants.PORT + "/obr/"));
@@ -2061,8 +2033,8 @@ public class RepositoryAdminTest extends IntegrationTestBase implements EventHan
             ENDPOINT, "authentication.enabled", "false");
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @Override
+	protected void after() throws Exception {
         // remove all repositories, in case a test case does not reach it's cleanup section due to an exception
         removeAllRepositories();
     }
