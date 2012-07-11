@@ -37,25 +37,43 @@ import org.osgi.service.http.HttpService;
 
 public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
 
-//    @Configuration
-//    public Option[] configuration() {
-//        return options(
-//            systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
-//            new VMOption("-ea"),
-//            junitBundles(),
-//            provision(
-//                Osgi.compendium(),
-//                Felix.dependencyManager(),
-//                jetty(),
-//                Felix.configAdmin(),
-//                Ace.httplistener()
-//            )
-//        );
-//    }
+    private HttpServlet m_echoServlet;
+    private Component m_echoServletService;
+    private MockHttpService m_mockHttp;
+    private Component m_mockHttpService;
 
-	@Override
+    /**
+     * Start the http service and then register a servlet and see if it works
+     * After that, try to unregister
+     */
+    public void testRegisterServlet() throws Exception {
+        m_dependencyManager.add(m_echoServletService);
+        assertTrue("TestValue not echo'd back", waitForEchoServlet(true));
+
+        m_dependencyManager.remove(m_echoServletService);
+        assertFalse("The servlet should not be available anymore", waitForEchoServlet(false));
+    }
+
+    /**
+     * Register a servlet with 2 http services, try to unregister and see if it is removed from both
+     */
+    public void testServletOnTwoHttpServices() throws Exception {
+        // also use the mock version
+        m_dependencyManager.add(m_mockHttpService);
+        m_dependencyManager.add(m_echoServletService);
+        assertTrue("TestValue not echo'd back", waitForEchoServlet(true));
+        assertTrue("Servlet not registered with the mock service", m_mockHttp.isRegisterCalled());
+
+
+        m_dependencyManager.remove(m_echoServletService);
+        assertFalse("The servlet should not be available anymore", waitForEchoServlet(false));
+        assertTrue("Servlet not unregistered with the mock service", m_mockHttp.isUnregisterCalled());
+    }
+
+    @Override
 	protected void before() throws Exception {
         m_echoServlet = new EchoServlet();
+
         Dictionary<String, String> dictionary = new Hashtable<String, String>();
         dictionary.put(HttpConstants.ENDPOINT, "/echoServlet");
         m_echoServletService = m_dependencyManager.createComponent()
@@ -66,44 +84,6 @@ public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
         m_mockHttpService = m_dependencyManager.createComponent()
             .setImplementation(m_mockHttp)
             .setInterface(HttpService.class.getName(), null);
-    }
-
-    // the echo servlet
-    private HttpServlet m_echoServlet;
-    // echo servlet service-reference
-    private Component m_echoServletService;
-    // mock http service
-    private MockHttpService m_mockHttp;
-
-    //mock http service-reference
-    private Component m_mockHttpService;
-
-    /**
-     * Start the http service and then register a servlet and see if it works
-     * After that, try to unregister
-     */
-    public void testRegisterServlet() throws Exception {
-        m_dependencyManager.add(m_echoServletService);
-        assert waitForEchoServlet(true) : "TestValue not echo'd back";
-
-        m_dependencyManager.remove(m_echoServletService);
-        assert !waitForEchoServlet(false) : "The servlet should not be available anymore";
-    }
-
-    /**
-     * Register a servlet with 2 http services, try to unregister and see if it is removed from both
-     */
-    public void testServletOnTwoHttpServices() throws Exception {
-        // also use the mock version
-        m_dependencyManager.add(m_mockHttpService);
-        m_dependencyManager.add(m_echoServletService);
-        assert waitForEchoServlet(true) : "TestValue not echo'd back";
-        assert m_mockHttp.isRegisterCalled() : "Servlet not registered with the mock service";
-
-
-        m_dependencyManager.remove(m_echoServletService);
-        assert !waitForEchoServlet(false) : "The servlet should not be available anymore";
-        assert m_mockHttp.isUnregisterCalled() : "Servlet not unregistered with the mock service";
     }
 
     /**
@@ -143,11 +123,11 @@ public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
             }
         }catch (MalformedURLException e) {
             e.printStackTrace();
-            assert false : "No MalformedURLException expected";
+            fail("No MalformedURLException expected");
         }
         catch (InterruptedException e) {
             e.printStackTrace();
-            assert false : "No interruptedException expected";
+            fail("No interruptedException expected");
         } catch (Throwable t) {
             t.printStackTrace();
         } finally {
@@ -162,5 +142,4 @@ public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
         }
         return success;
     }
-
 }

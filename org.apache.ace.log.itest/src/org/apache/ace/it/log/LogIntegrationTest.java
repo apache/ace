@@ -45,38 +45,25 @@ import org.osgi.service.http.HttpService;
  * replicated to the server.
  */
 public class LogIntegrationTest extends IntegrationTestBase {
-//    @Configuration
-//    public Option[] configuration() {
-//        return options(
-//            systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
-//            new VMOption("-ea"),
-//            junitBundles(),
-//            provision(
-//                Osgi.compendium(),
-//                Felix.dependencyManager(),
-//                Felix.configAdmin(),
-//                jetty(),
-//                Ace.util(),
-//                Ace.authenticationApi(),
-//                Ace.rangeApi(),
-//                Ace.discoveryApi(),
-//                Ace.discoveryProperty(),
-//                Ace.identificationApi(),
-//                Ace.identificationProperty(),
-//                Ace.httplistener(),
-//                Ace.connectionFactory(),
-//                Ace.log(),
-//                Ace.logListener(),
-//                Ace.logServlet(),
-//                Ace.serverLogStore(),
-//                Ace.logTask(),
-//                Ace.targetLog(),
-//                Ace.targetLogStore()
-//            )
-//        );
-//    }
 
-	@Override
+	private static final String AUDITLOG = "/auditlog";
+    private static final String DEPLOYMENT = "/deployment";
+
+    public static final String HOST = "localhost";
+    public static final String TARGET_ID = "target-id";
+
+    private volatile Log m_auditLog;
+    private volatile LogStore m_serverStore;
+
+    private volatile Runnable m_auditLogSyncTask;
+    
+    public void testLog() throws Exception {
+    	// XXX there appears to be a dependency between both these test-methods!!!
+        doTestReplication();
+        doTestServlet();
+    }
+
+    @Override
 	protected void before() throws Exception {
         configure(DiscoveryConstants.DISCOVERY_PID,
                 DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + TestConstants.PORT);
@@ -111,22 +98,7 @@ public class LogIntegrationTest extends IntegrationTestBase {
         };
     }
 
-    private static final String AUDITLOG = "/auditlog";
-    private static final String DEPLOYMENT = "/deployment";
-
-    public static final String HOST = "localhost";
-    public static final String TARGET_ID = "target-id";
-
-    private volatile Log m_auditLog;
-    private volatile LogStore m_serverStore;
-    private volatile Runnable m_auditLogSyncTask;
-
-    public void testLog() throws Exception {
-        doReplication();
-        doServlet();
-    }
-
-    public void doReplication() throws Exception {
+    private void doTestReplication() throws Exception {
         // now log another event
         Properties props = new Properties();
         props.put("one", "value1");
@@ -142,14 +114,14 @@ public class LogIntegrationTest extends IntegrationTestBase {
             // get and evaluate results (note that there is some concurrency that might interfere with this test)
             List<LogDescriptor> ranges2 = m_serverStore.getDescriptors();
             if (ranges2.size() > 0) {
-//              assert ranges2.size() == 1 : "We should still have audit log events for one target on the server, but found " + ranges2.size();
+            	assertEquals("We should still have audit log events for one target on the server, but found " + ranges2.size(), 1, ranges2.size()); 
                 LogDescriptor range = ranges2.get(0);
                 List<LogEvent> events = m_serverStore.get(range);
                 if (events.size() > 1) {
-//                  assert events.size() > 1 : "We should have a couple of events, at least more than the one we added ourselves.";
+                	assertTrue("We should have a couple of events, at least more than the one we added ourselves.", events.size() > 1);
                     for (LogEvent event : events) {
                         if (event.getType() == 12345) {
-                            assert event.getProperties().get("two").equals("value2") : "We could not retrieve a property of our audit log event.";
+                            assertEquals("We could not retrieve a property of our audit log event.", "value2", event.getProperties().get("two"));
                             found = true;
                             break;
                         }
@@ -159,13 +131,13 @@ public class LogIntegrationTest extends IntegrationTestBase {
 
             // wait if we have not found anything yet
             if (!found) {
-                try { TimeUnit.MILLISECONDS.sleep(100); } catch (InterruptedException ie) {}
+                TimeUnit.MILLISECONDS.sleep(100);
             }
         }
-        assert found : "We could not retrieve our audit log event (after 5 seconds).";
+        assertTrue("We could not retrieve our audit log event (after 5 seconds).", found);
     }
 
-    public void doServlet() throws Exception {
+    private void doTestServlet() throws Exception {
         // prepare the store
         List<LogEvent> events = new ArrayList<LogEvent>();
         events.add(new LogEvent("42", 1, 1, 1, 1, new Properties()));
@@ -175,55 +147,24 @@ public class LogIntegrationTest extends IntegrationTestBase {
         m_serverStore.put(events);
 
         List<String> result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/query");
-        assert result.size() > 1 : "We expect at least two logs on the server.";
+        assertTrue("We expect at least two logs on the server.", result.size() > 1);
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=42");
-        assert result.size() == 1 : "Target 42 has a single audit log event.";
+        assertEquals("Target 42 has a single audit log event.", 1, result.size());
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=47");
-        assert result.size() == 3 : "Target 47 has 3 audit log events.";
+        assertEquals("Target 47 has 3 audit log events.", 3, result.size());
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=47&logid=1");
-        assert result.size() == 1 : "Target 47, logid 1 has 1 audit log event.";
+        assertEquals("Target 47, logid 1 has 1 audit log event.", 1, result.size());
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=47&logid=2");
-        assert result.size() == 2 : "Target 47, logid 2 has 2 audit log events.";
+        assertEquals("Target 47, logid 2 has 2 audit log events.", 2, result.size());
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=47&logid=2&range=1");
-        assert result.size() == 1 : "Target 47, logid 2, range 1 has 1 audit log event.";
+        assertEquals("Target 47, logid 2, range 1 has 1 audit log event.", 1, result.size());
 
         result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/receive?tid=47&logid=2&range=3,5");
-        assert result.size() == 0 : "Target 47, logid 2, range 3,5 has 0 audit log event.";
-    }
-
-    private List<String> getResponse(String request) throws IOException {
-        List<String> result = new ArrayList<String>();
-        InputStream in = null;
-        try {
-            in = new URL(request).openConnection().getInputStream();
-            byte[] response = new byte[in.available()];
-            in.read(response);
-
-            StringBuilder element = new StringBuilder();
-            for (byte b : response) {
-                switch(b) {
-                    case '\n' :
-                        result.add(element.toString());
-                        element = new StringBuilder();
-                        break;
-                    default :
-                        element.append(b);
-                }
-            }
-        }
-        finally {
-            try {
-                in.close();
-            }
-            catch (Exception e) {
-                // no problem.
-            }
-        }
-        return result;
+        assertEquals("Target 47, logid 2, range 3,5 has 0 audit log event.", 0, result.size());
     }
 }

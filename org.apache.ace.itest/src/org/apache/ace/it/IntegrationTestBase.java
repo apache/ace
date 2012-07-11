@@ -22,6 +22,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.ace.test.utils.Util.properties;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,13 +54,66 @@ import org.osgi.util.tracker.ServiceTracker;
  *
  */
 public class IntegrationTestBase extends TestCase {
+    private static class ComponentCounter implements ComponentStateListener {
+        private final List<Component> m_components = new ArrayList<Component>();
+        private final CountDownLatch m_latch;
+
+        public ComponentCounter(Component[] components) {
+            m_components.addAll(Arrays.asList(components));
+            m_latch = new CountDownLatch(components.length);
+        }
+
+        public String componentsString() {
+            StringBuilder result = new StringBuilder();
+            for (Component component : m_components) {
+                result.append(component).append('\n');
+                for (ComponentDependencyDeclaration dependency : (List<ComponentDependencyDeclaration>) component.getDependencies()) {
+                    result.append("  ")
+                            .append(dependency.toString())
+                            .append(" ")
+                            .append(ComponentDependencyDeclaration.STATE_NAMES[dependency.getState()])
+                            .append('\n');
+                }
+                result.append('\n');
+            }
+            return result.toString();
+        }
+
+        public void started(Component component) {
+            m_components.remove(component);
+            m_latch.countDown();
+        }
+
+        public void starting(Component component) {
+        }
+
+        public void stopped(Component component) {
+        }
+
+        public void stopping(Component component) {
+        }
+
+        public boolean waitForEmpty(long timeout, TimeUnit unit) throws InterruptedException {
+            return m_latch.await(timeout, unit);
+        }
+    }
+    
     /**
      * If we have to wait for a service, wait this amount of seconds.
      */
     private static final int SERVICE_TIMEOUT = 5;
-    
     protected BundleContext m_bundleContext;
+
     protected DependencyManager m_dependencyManager;
+
+    /**
+     * The 'after' callback will be called after all components from {@link #getDependencies} have been
+     * started.<br>
+     * <br>
+     * The {@link #after} callback is most useful for configuring additional services after all mandatory 
+     * services are resolved.
+     */
+    protected void after() throws Exception {}
 
     /**
      * The 'before' callback will be called after the components from {@link #getDependencies} have been
@@ -69,15 +124,6 @@ public class IntegrationTestBase extends TestCase {
      * in the 'configuration' method.
      */
     protected void before() throws Exception {}
-
-    /**
-     * Gets a list of components that must be started before the test is started; this useful to
-     * (a) add additional services, e.g. services that should be picked up by the service under
-     * test, or (b) to declare 'this' as a component, and get services injected.
-     */
-    protected Component[] getDependencies() {
-        return new Component[0];
-    }
 
     /**
      * Write configuration for a single service. For example,
@@ -102,51 +148,130 @@ public class IntegrationTestBase extends TestCase {
         config.update(props);
         return config.getPid();
     }
-
-    public final void setUp() throws Exception {
-    	m_bundleContext = FrameworkUtil.getBundle(IntegrationTestBase.class).getBundleContext();
-    	m_bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
-        m_dependencyManager = new DependencyManager(m_bundleContext);
-
-        Component[] components = getDependencies();
-        ComponentCounter listener = new ComponentCounter(components);
-
-        // Register our listener for all the services...
-        for (Component component : components) {
-            component.addStateListener(listener);
-        }
-
-        // Then give them to the dependency manager...
-        for (Component component : components) {
-            m_dependencyManager.add(component);
-        }
-
-		// Call back the implementation...
-		before();
-
-        // And wait for all components to come online.
-        try {
-            if (!listener.waitForEmpty(SERVICE_TIMEOUT, SECONDS)) {
-                fail("Not all components were started. Still missing the following:\n" + listener.componentsString());
-            }
-            
-        	after();
-        }
-        catch (InterruptedException e) {
-            fail("Interrupted while waiting for services to get started.");
-        }
-    }
     
-    /* (non-Javadoc)
-     * @see junit.framework.TestCase#tearDown()
+    /**
+     * Bridge method for dependency manager.
+     * 
+     * @return a new {@link Component}.
      */
-    @Override
-    protected void tearDown() throws Exception {
-    	super.tearDown();
+    protected Component createComponent() {
+        return m_dependencyManager.createComponent();
     }
     
-    protected void after() throws Exception {}
+    /**
+     * Creates a new factory configuration.
+     * 
+     * @param factoryPid the PID of the factory to create a new configuration for.
+     * @return a new {@link Configuration} object, never <code>null</code>.
+     * @throws IOException if access to the persistent storage failed.
+     */
+    protected Configuration createFactoryConfiguration(String factoryPid) throws IOException {
+        ConfigurationAdmin admin = getService(ConfigurationAdmin.class);
+        return admin.createFactoryConfiguration(factoryPid, null);
+    }
 
+    /**
+     * Bridge method for dependency manager.
+     * 
+     * @return a new {@link ServiceDependency}.
+     */
+    protected ServiceDependency createServiceDependency() {
+        return m_dependencyManager.createServiceDependency();
+    }
+
+    /**
+     * Gets an existing configuration or creates a new one, in case it does not exist.
+     * 
+     * @param pid the PID of the configuration to return.
+     * @return a {@link Configuration} instance, never <code>null</code>.
+     * @throws IOException if access to the persistent storage failed.
+     */
+    protected Configuration getConfiguration(String pid) throws IOException {
+        ConfigurationAdmin admin = getService(ConfigurationAdmin.class);
+        return admin.getConfiguration(pid, null);
+    }
+
+    /**
+     * Gets a list of components that must be started before the test is started; this useful to
+     * (a) add additional services, e.g. services that should be picked up by the service under
+     * test, or (b) to declare 'this' as a component, and get services injected.
+     */
+    protected Component[] getDependencies() {
+        return new Component[0];
+    }
+
+    /**
+     * Returns a list of strings representing the result of the given request URL.
+     * 
+     * @param requestURL the URL to access and return the response as strings.
+     * @return a list of strings, never <code>null</code>.
+     * @throws IOException in case accessing the requested URL failed.
+     */
+    protected List<String> getResponse(String requestURL) throws IOException {
+    	return getResponse(new URL(requestURL));
+    }
+
+    /**
+     * Returns a list of strings representing the result of the given request URL.
+     * 
+     * @param requestURL the URL to access and return the response as strings.
+     * @return a list of strings, never <code>null</code>.
+     * @throws IOException in case accessing the requested URL failed.
+     */
+    protected List<String> getResponse(URL requestURL) throws IOException {
+        List<String> result = new ArrayList<String>();
+        InputStream in = null;
+        try {
+            in = requestURL.openConnection().getInputStream();
+            byte[] response = new byte[in.available()];
+            in.read(response);
+
+            final StringBuilder element = new StringBuilder();
+            for (byte b : response) {
+                switch(b) {
+                    case '\n' :
+                        result.add(element.toString());
+                        element.delete(0, element.length());
+                        break;
+                    default :
+                        element.append(b);
+                }
+            }
+        }
+        finally {
+            try {
+                in.close();
+            }
+            catch (Exception e) {
+                // no problem.
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Convenience method to return an OSGi service.
+     * 
+     * @param serviceClass the service class to return.
+     * @return a service instance, can be <code>null</code>.
+     */
+    protected <T> T getService(Class<T> serviceClass) {
+        try {
+            return getService(serviceClass, null);
+        }
+        catch (InvalidSyntaxException e) {
+            return null;
+            // Will not happen, since we don't pass in a filter.
+        }
+    }
+
+    /**
+     * Convenience method to return an OSGi service.
+     * 
+     * @param serviceClass the service class to return;
+     * @param filterString the (optional) filter string, can be <code>null</code>.
+     * @return a service instance, can be <code>null</code>.
+     */
     @SuppressWarnings("unchecked")
     protected <T> T getService(Class<T> serviceClass, String filterString) throws InvalidSyntaxException {
         T serviceInstance = null;
@@ -179,78 +304,39 @@ public class IntegrationTestBase extends TestCase {
         return serviceInstance;
     }
 
-    protected <T> T getService(Class<T> serviceClass) {
+    /**
+     * Set up of this test case.
+     */
+    protected final void setUp() throws Exception {
+    	m_bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
+        m_dependencyManager = new DependencyManager(m_bundleContext);
+
+        Component[] components = getDependencies();
+        ComponentCounter listener = new ComponentCounter(components);
+
+        // Register our listener for all the services...
+        for (Component component : components) {
+            component.addStateListener(listener);
+        }
+
+        // Then give them to the dependency manager...
+        for (Component component : components) {
+            m_dependencyManager.add(component);
+        }
+
+		// Call back the implementation...
+		before();
+
+        // And wait for all components to come online.
         try {
-            return getService(serviceClass, null);
-        }
-        catch (InvalidSyntaxException e) {
-            return null;
-            // Will not happen, since we don't pass in a filter.
-        }
-    }
-
-    protected Configuration getConfiguration(String pid) throws IOException {
-        ConfigurationAdmin admin = getService(ConfigurationAdmin.class);
-        return admin.getConfiguration(pid, null);
-    }
-
-    protected Configuration createFactoryConfiguration(String factoryPid) throws IOException {
-        ConfigurationAdmin admin = getService(ConfigurationAdmin.class);
-        return admin.createFactoryConfiguration(factoryPid, null);
-    }
-
-    // Dependency Manager bridge methods
-
-    protected Component createComponent() {
-        return m_dependencyManager.createComponent();
-    }
-
-    protected ServiceDependency createServiceDependency() {
-        return m_dependencyManager.createServiceDependency();
-    }
-
-
-    private static class ComponentCounter implements ComponentStateListener {
-        private final List<Component> m_components = new ArrayList<Component>();
-        private final CountDownLatch m_latch;
-
-        public ComponentCounter(Component[] components) {
-            m_components.addAll(Arrays.asList(components));
-            m_latch = new CountDownLatch(components.length);
-        }
-
-        public void starting(Component component) {
-        }
-
-        public void started(Component component) {
-            m_components.remove(component);
-            m_latch.countDown();
-        }
-
-        public void stopping(Component component) {
-        }
-
-        public void stopped(Component component) {
-        }
-
-        public boolean waitForEmpty(long timeout, TimeUnit unit) throws InterruptedException {
-            return m_latch.await(timeout, unit);
-        }
-
-        public String componentsString() {
-            StringBuilder result = new StringBuilder();
-            for (Component component : m_components) {
-                result.append(component).append('\n');
-                for (ComponentDependencyDeclaration dependency : (List<ComponentDependencyDeclaration>) component.getDependencies()) {
-                    result.append("  ")
-                            .append(dependency.toString())
-                            .append(" ")
-                            .append(ComponentDependencyDeclaration.STATE_NAMES[dependency.getState()])
-                            .append('\n');
-                }
-                result.append('\n');
+            if (!listener.waitForEmpty(SERVICE_TIMEOUT, SECONDS)) {
+                fail("Not all components were started. Still missing the following:\n" + listener.componentsString());
             }
-            return result.toString();
+            
+        	after();
         }
-    };
+        catch (InterruptedException e) {
+            fail("Interrupted while waiting for services to get started.");
+        }
+    }
 }

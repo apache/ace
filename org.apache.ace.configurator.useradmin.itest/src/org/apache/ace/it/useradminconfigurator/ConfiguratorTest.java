@@ -30,67 +30,6 @@ import org.osgi.service.useradmin.UserAdmin;
 
 public class ConfiguratorTest extends IntegrationTestBase {
 
-//    @Configuration
-//    public Option[] configuration() {
-//        return options(
-//            systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
-//            junitBundles(),
-//            provision(
-//                wrappedBundle(maven("org.apache.ace", "org.apache.ace.util")).overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL), // we do this because we need access to some test classes that aren't exported
-//                Osgi.compendium(),
-//                jetty(),
-//                Felix.preferences(),
-//                Felix.dependencyManager(),
-//                Felix.configAdmin(),
-//                Knopflerfish.useradmin(),
-//                Knopflerfish.log(),
-//                Ace.authenticationApi(),
-//                Ace.connectionFactory(),
-//                Ace.rangeApi(),
-//                Ace.scheduler(),
-//                Ace.httplistener(),
-//                Ace.repositoryApi(),
-//                Ace.repositoryImpl(),
-//                Ace.repositoryServlet(),
-//                Ace.resourceprocessorUseradmin(),
-//                Ace.configuratorUseradminTask(),
-//                Ace.deploymentProviderApi()
-//            )
-//        );
-//    }
-
-    protected Component[] getDependencies() {
-        return new Component[] {
-            createComponent()
-                .setImplementation(this)
-                .add(createServiceDependency()
-                    .setService(UserAdmin.class)
-                    .setRequired(true))
-                .add(createServiceDependency()
-                    .setService(Repository.class, "(&(" + RepositoryConstants.REPOSITORY_NAME + "=users)(" + RepositoryConstants.REPOSITORY_CUSTOMER + "=apache))")
-                    .setRequired(true))
-        };
-    }
-
-    @Override
-	protected void before() throws Exception {
-        configureFactory("org.apache.ace.server.repository.factory",
-                RepositoryConstants.REPOSITORY_NAME, "users",
-                RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
-                RepositoryConstants.REPOSITORY_MASTER, "true");
-        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
-                "repositoryName", "users",
-                "repositoryCustomer", "apache");
-        configure("org.apache.ace.scheduler",
-                "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "1000");
-        configure("org.apache.ace.repository.servlet.RepositoryServlet",
-        		"org.apache.ace.server.servlet.endpoint", "/repository",
-        		"authentication.enabled", "false");
-        configure("org.apache.ace.repository.servlet.RepositoryReplicationServlet",
-        		"org.apache.ace.server.servlet.endpoint", "/replication",
-        		"authentication.enabled", "false");
-    }
-
     private volatile Repository m_repository;
     private volatile UserAdmin m_userAdmin;
 
@@ -136,5 +75,37 @@ public class ConfiguratorTest extends IntegrationTestBase {
 
         assertTrue("A second after our user becoming available, there is no (correct) password.", foundPassword);
         assertTrue("A second after our user becoming available, there is no (correct) certificate.", foundCertificate);
+    }
+
+    @Override
+	protected void before() throws Exception {
+        configureFactory("org.apache.ace.server.repository.factory",
+                RepositoryConstants.REPOSITORY_NAME, "users",
+                RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
+                RepositoryConstants.REPOSITORY_MASTER, "true");
+        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
+                "repositoryName", "users",
+                "repositoryCustomer", "apache");
+        configure("org.apache.ace.scheduler",
+                "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "1000");
+        configure("org.apache.ace.repository.servlet.RepositoryServlet",
+        		"org.apache.ace.server.servlet.endpoint", "/repository",
+        		"authentication.enabled", "false");
+        configure("org.apache.ace.repository.servlet.RepositoryReplicationServlet",
+        		"org.apache.ace.server.servlet.endpoint", "/replication",
+        		"authentication.enabled", "false");
+    }
+
+    protected Component[] getDependencies() {
+        return new Component[] {
+            createComponent()
+                .setImplementation(this)
+                .add(createServiceDependency()
+                    .setService(UserAdmin.class)
+                    .setRequired(true))
+                .add(createServiceDependency()
+                    .setService(Repository.class, "(&(" + RepositoryConstants.REPOSITORY_NAME + "=users)(" + RepositoryConstants.REPOSITORY_CUSTOMER + "=apache))")
+                    .setRequired(true))
+        };
     }
 }

@@ -79,7 +79,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
         m_serverStore.put(events);
 
         List<String> result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/query");
-        assert result.size() > 1 : "We expect at least two logs on the server.";
+        assertTrue("We expect at least two logs on the server.", result.size() > 1);
     }
     
     /**
@@ -151,8 +151,6 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
             "authentication.user.password", password);
 
         assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
-
-        before();
     }
 
     /**
@@ -213,15 +211,11 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
             };
     }
 
+    /**
+     * Overridden in order to use the connection factory for accessing URLs.
+     */
     @Override
-    protected void tearDown() throws Exception {
-    	super.tearDown();
-    	
-    	// Remove the configuration to start without any configured authentication...
-    	getConfiguration(m_configurationPID).delete();
-    }
-
-    private List<String> getResponse(String request) throws IOException {
+    protected List<String> getResponse(String request) throws IOException {
         List<String> result = new ArrayList<String>();
         InputStream in = null;
         try {
@@ -250,5 +244,13 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
             }
         }
         return result;
+    }
+    
+    @Override
+    protected void tearDown() throws Exception {
+    	super.tearDown();
+    	
+    	// Remove the configuration to start without any configured authentication...
+    	getConfiguration(m_configurationPID).delete();
     }
 }
