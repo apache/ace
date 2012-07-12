@@ -234,8 +234,11 @@ public class IntegrationTestBase extends TestCase {
                         element.delete(0, element.length());
                         break;
                     default :
-                        element.append(b);
+                        element.append((char) b);
                 }
+            }
+            if (element.length() > 0) {
+            	result.add(element.toString());
             }
         }
         finally {
