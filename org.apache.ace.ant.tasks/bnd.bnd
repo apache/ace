@@ -1,0 +1,3 @@
+-buildpath: ../cnf/lib/ant.jar;version=file,\
+	org.apache.ace.builder;version=latest
+Export-Package: org.apache.ace.ant.deploymentpackage
