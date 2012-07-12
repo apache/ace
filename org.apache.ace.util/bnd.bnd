@@ -1,3 +1,0 @@
--buildpath: osgi.cmpn,\
-	org.apache.ace.deployment.provider.api;version=latest,\
-	osgi.core
