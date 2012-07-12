@@ -2,6 +2,6 @@
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.scheduler.api;version=latest,\
-	org.apache.ace.itest;version=latest
+	org.apache.ace.test;version=latest
 Private-Package: org.apache.ace.scheduler
 Bundle-Activator: org.apache.ace.scheduler.Activator

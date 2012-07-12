@@ -7,7 +7,7 @@
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.range.api;version=latest,\
-	org.apache.ace.util;version=latest,\
+	org.apache.ace.test;version=latest,\
 	javax.servlet,\
 	../cnf/lib/gson-1.7.1.jar;version=file,\
 	org.mockito.mockito-all

@@ -6,7 +6,7 @@
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.range.api;version=latest,\
-	org.apache.ace.util;version=latest,\
+	org.apache.ace.test;version=latest,\
 	../cnf/lib/xpp3-1.1.4c.jar;version=file,\
 	../cnf/lib/xstream-1.2.2.jar;version=file,\
 	org.apache.ace.repository.ext;version=latest,\
@@ -28,7 +28,6 @@ Private-Package: org.apache.ace.client.repository.impl,\
 	org.xmlpull.v1.wrapper,\
 	org.xmlpull.v1.wrapper.classic,\
 	org.apache.ace.client.repository.stateful.impl,\
-	org.apache.ace.util,\
 	org.apache.ace.repository.ext,\
 	org.apache.ace.repository.ext.impl,\
 	com.thoughtworks.xstream,\

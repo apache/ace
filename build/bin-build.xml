@@ -65,7 +65,6 @@
 			<file file="../org.apache.ace.repository.servlet/generated/org.apache.ace.repository.servlet.jar" />
 			<file file="../org.apache.ace.obr.storage/generated/org.apache.ace.obr.storage.jar" />
 			<file file="../org.apache.ace.client.repository.helper.configuration/generated/org.apache.ace.client.repository.helper.configuration.jar" />
-			<file file="../org.apache.ace.consolelogger/generated/org.apache.ace.consolelogger.jar" />
 			<file file="../org.apache.ace.httplistener/generated/org.apache.ace.httplistener.jar" />
 			<file file="../org.apache.ace.obr.servlet/generated/org.apache.ace.obr.servlet.jar" />
 			<file file="../org.apache.ace.nodelauncher.api/generated/org.apache.ace.nodelauncher.api.jar" />
@@ -127,9 +126,16 @@
 				<include name="*.sh"/>
 			</tarfileset>
 		</tar>
+
 		<!-- create one giant ZIP-file with everything in it -->
 		<zip destfile="${server.zipball}">
-			<tarfileset src="${server.tarball}" />
+			<tarfileset dir="${target.server.dir}">
+				<include name="**"/>
+				<exclude name="*.sh"/>
+			</tarfileset>
+			<tarfileset dir="${target.server.dir}">
+				<include name="*.sh"/>
+			</tarfileset>
 		</zip>
 	</target>
 

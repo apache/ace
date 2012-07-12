@@ -1,7 +1,7 @@
 -buildpath: osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
-	org.apache.ace.util;version=latest,\
+	org.apache.ace.test;version=latest,\
 	org.apache.ace.log;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	javax.servlet,\

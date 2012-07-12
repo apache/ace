@@ -3,7 +3,7 @@
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.authentication.api;version=latest,\
 	../cnf/lib/commons-codec-1.4.jar;version=file,\
-	org.apache.ace.itest;version=latest,\
+	org.apache.ace.test;version=latest,\
 	org.mockito.mockito-all
 Private-Package: org.apache.ace.authenticationprocessor.password,\
 	org.apache.commons.codec,\

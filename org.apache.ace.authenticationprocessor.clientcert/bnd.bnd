@@ -4,7 +4,7 @@
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.authentication.api;version=latest,\
 	../cnf/lib/bcprov-jdk14-140.jar;version=file,\
-	org.apache.ace.itest;version=latest,\
+	org.apache.ace.test;version=latest,\
 	org.mockito.mockito-all
 Private-Package: org.apache.ace.authenticationprocessor.clientcert
 Bundle-Activator: org.apache.ace.authenticationprocessor.clientcert.Activator

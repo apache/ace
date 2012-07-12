@@ -3,7 +3,7 @@
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.log;version=latest,\
-	org.apache.ace.util;version=latest,\
+	org.apache.ace.test;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	../cnf/lib/commons-lang-2.4.jar;version=file,\
 	../cnf/lib/commons-collections-3.2.1.jar;version=file,\

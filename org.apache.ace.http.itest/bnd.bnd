@@ -3,7 +3,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
-	org.apache.ace.itest;version=latest,\
+	org.apache.ace.test;version=latest,\
 	org.apache.ace.log;version=latest,\
 	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
@@ -13,7 +13,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.server.log.store;version=latest,\
 	javax.servlet
 -runfw: org.apache.felix.framework;version='[4,5)'
--runbundles: org.apache.ace.itest;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.itest/generated/org.apache.ace.itest.jar;version=latest,\
+-runbundles: org.apache.ace.test;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.itest/generated/org.apache.ace.itest.jar;version=latest,\
 	org.apache.felix.dependencymanager;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.apache.felix.dependencymanager/org.apache.felix.dependencymanager-3.1.0.jar;version='[3.1.0,3.1.1)',\
 	org.apache.felix.configadmin;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.configadmin/org.apache.felix.configadmin-1.2.8.jar;version='[1.2.8,1.2.9)',\
 	org.apache.ace.httplistener;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.httplistener/generated/org.apache.ace.httplistener.jar;version=latest,\

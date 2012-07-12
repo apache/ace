@@ -2,7 +2,7 @@
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	javax.servlet,\
-	org.apache.ace.util;version=latest,\
+	org.apache.ace.test;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.deployment.api;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\

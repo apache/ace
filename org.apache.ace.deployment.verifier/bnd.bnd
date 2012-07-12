@@ -1,6 +1,6 @@
 -buildpath: osgi.cmpn,\
 	osgi.core;version=4.3.0.201102171602,\
-	org.apache.ace.itest;version=latest
+	org.apache.ace.test;version=latest
 Export-Package: org.apache.ace.deployment.verifier,\
 	org.osgi.service.log,\
 	org.osgi.framework.wiring

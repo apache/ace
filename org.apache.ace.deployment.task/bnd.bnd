@@ -4,7 +4,7 @@
 	org.apache.ace.deployment.api;version=latest,\
 	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
-	org.apache.ace.util;version=latest,\
+	org.apache.ace.test;version=latest,\
 	org.apache.ace.deployment.task.base;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.gateway.log.store;version=latest

@@ -29,7 +29,7 @@ Import-Package: !javax.swing,\
 	!javax.microedition.io,\
 	!org.osgi.service.condpermadmin,\
 	!javax.net.ssl,\
-	!org.apache.ace.util,\
+	!org.apache.ace.test,\
 	!org.apache.ace.target.log,\
 	!org.apache.felix.dm.tracker,\
 	!org.osgi.service.useradmin,\

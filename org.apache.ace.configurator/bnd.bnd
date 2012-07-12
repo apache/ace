@@ -1,7 +1,7 @@
 -buildpath: osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
-	org.apache.ace.itest;version=latest,\
+	org.apache.ace.test;version=latest,\
 	../cnf/lib/commons-io-2.0.1.jar;version=file
 Bundle-Activator: org.apache.ace.configurator.Activator
 Private-Package: org.apache.ace.configurator

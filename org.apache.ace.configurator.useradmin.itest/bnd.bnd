@@ -2,9 +2,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 -buildpath: junit.osgi,\
 	osgi.core,\
 	osgi.cmpn,\
-	org.apache.ace.util;version=latest,\
 	org.apache.felix.dependencymanager,\
-	org.apache.ace.itest;version=latest,\
+	org.apache.ace.test;version=latest,\
 	org.apache.ace.log;version=latest,\
 	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
@@ -23,7 +22,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	osgi.cmpn;version='[4.2.1,4.2.2)',\
 	org.knopflerfish.bundle.useradmin;version='[2.0.2,2.0.3)',\
 	org.knopflerfish.log;version='[2.0.2,2.0.3)',\
-    org.apache.ace.itest;version=latest,\
+    org.apache.ace.test;version=latest,\
 	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\

@@ -1,12 +1,11 @@
 -buildpath: osgi.core,\
 	osgi.cmpn,\
-	org.apache.ace.util;version=latest,\
+	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.felix.dependencymanager,\
 	junit.osgi
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runee: JavaSE-1.6
 -runbundles: \
-	org.apache.ace.util;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.util/generated/org.apache.ace.util.jar;version=latest,\
 	org.apache.ace.deployment.provider.api;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.deployment.provider.api/generated/org.apache.ace.deployment.provider.api.jar;version=latest,\
 	org.apache.felix.dependencymanager;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.apache.felix.dependencymanager/org.apache.felix.dependencymanager-3.1.0.jar;version='[3.1.0,3.1.1)',\
 	org.apache.felix.shell;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.shell/org.apache.felix.shell-1.4.2.jar;version='[1.4.2,1.4.3)',\
