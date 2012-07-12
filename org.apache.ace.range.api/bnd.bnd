@@ -1,2 +1,2 @@
--buildpath: org.apache.ace.util;version=latest
+-buildpath: org.apache.ace.itest;version=latest
 Export-Package: org.apache.ace.range

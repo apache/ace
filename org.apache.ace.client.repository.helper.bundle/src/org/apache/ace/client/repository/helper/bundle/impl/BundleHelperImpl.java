@@ -33,7 +33,6 @@ import org.apache.ace.client.repository.helper.ArtifactRecognizer;
 import org.apache.ace.client.repository.helper.ArtifactResource;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.util.VersionRange;
 import org.osgi.framework.Version;
 
 /**

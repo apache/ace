@@ -1,7 +1,3 @@
 -buildpath: osgi.cmpn,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	osgi.core
-Export-Package: org.apache.ace.test.constants,\
-	org.apache.ace.test.utils,\
-	org.apache.ace.test.utils.deployment,\
-	org.apache.ace.util

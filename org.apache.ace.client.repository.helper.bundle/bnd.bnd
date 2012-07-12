@@ -3,6 +3,5 @@
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.util;version=latest
-Private-Package: org.apache.ace.client.repository.helper.bundle.impl,\
-	org.apache.ace.util
+Private-Package: org.apache.ace.client.repository.helper.bundle.impl
 Bundle-Activator: org.apache.ace.client.repository.helper.bundle.impl.Activator

@@ -22,7 +22,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import org.apache.ace.util.Codec;
+import org.apache.ace.log.util.Codec;
 
 /**
  * Log event from a specific target and log.

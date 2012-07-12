@@ -52,7 +52,6 @@ import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.connectionfactory.ConnectionFactory;
-import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.ace.webui.vaadin.LoginWindow.LoginFunction;
@@ -164,6 +163,26 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     }
 
     /**
+     * Remove the given directory and all it's files and subdirectories
+     * @param directory the name of the directory to remove
+     */
+    private static void removeDirectoryWithContent(File directory) {
+        if ((directory == null) || !directory.exists()) {
+            return;
+        }
+        File[] filesAndSubDirs = directory.listFiles();
+        for (int i=0; i < filesAndSubDirs.length; i++) {
+            File file = filesAndSubDirs[i];
+            if (file.isDirectory()) {
+                removeDirectoryWithContent(file);
+            }
+            // else just remove the file
+            file.delete();
+        }
+        directory.delete();
+    }
+
+    /**
      * Creates a new {@link VaadinClient} instance.
      * 
      * @param aceHost the hostname where the management service can be reached;
@@ -216,7 +235,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     public void destroyDependencies() {
         m_sessionFactory.destroySession(m_sessionID);
-        FileUtils.removeDirectoryWithContent(m_sessionDir);
+        removeDirectoryWithContent(m_sessionDir);
     }
 
     public void init() {

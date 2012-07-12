@@ -2,6 +2,6 @@
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.deployment.api;version=latest,\
-	org.apache.ace.util;version=latest
+	org.apache.ace.itest;version=latest
 Private-Package: org.apache.ace.deployment.deploymentadmin
 Bundle-Activator: org.apache.ace.deployment.deploymentadmin.Activator

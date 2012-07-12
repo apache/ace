@@ -2,7 +2,7 @@
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.nodelauncher.api;version=latest,\
-	org.apache.ace.util;version=latest,\
+	org.apache.ace.itest;version=latest,\
 	com.google.inject,\
 	com.google.gson,\
 	com.google.inject.assistedinject,\

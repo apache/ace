@@ -1,10 +1,10 @@
 -buildpath: osgi.core,\
 	osgi.cmpn,\
 	javax.servlet,\
-	org.apache.ace.authentication.api;version=latest,\
-	org.apache.ace.util;version=latest,\
-	../cnf/lib/bcprov-jdk14-140.jar;version=file,\
 	org.apache.felix.dependencymanager,\
+	org.apache.ace.authentication.api;version=latest,\
+	../cnf/lib/bcprov-jdk14-140.jar;version=file,\
+	org.apache.ace.itest;version=latest,\
 	org.mockito.mockito-all
 Private-Package: org.apache.ace.authenticationprocessor.clientcert
 Bundle-Activator: org.apache.ace.authenticationprocessor.clientcert.Activator

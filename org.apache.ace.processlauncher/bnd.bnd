@@ -1,5 +1,5 @@
 -buildpath: org.apache.felix.dependencymanager,\
-	org.apache.ace.util;version=latest,\
+	org.apache.ace.itest;version=latest,\
 	org.mockito.mockito-all,\
 	osgi.core,\
 	osgi.cmpn,\

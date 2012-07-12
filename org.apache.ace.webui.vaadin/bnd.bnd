@@ -10,8 +10,7 @@
 	javax.servlet
 Private-Package: org.apache.ace.webui.domain,\
 	org.apache.ace.webui.vaadin,\
-	org.apache.ace.webui.vaadin.component,\
-	org.apache.ace.test.utils
+	org.apache.ace.webui.vaadin.component
 Export-Package: org.apache.ace.webui
 Include-Resource: resources/
 Bundle-Activator: org.apache.ace.webui.vaadin.Activator

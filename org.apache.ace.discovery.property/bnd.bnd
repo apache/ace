@@ -1,8 +1,8 @@
 -buildpath: osgi.core,\
 	osgi.cmpn,\
-	org.apache.ace.util;version=latest,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.discovery.api;version=latest,\
+	org.apache.ace.itest;version=latest,\
 	org.mockito.mockito-all
 Private-Package: org.apache.ace.discovery.property,\
 	org.apache.ace.discovery.property.constants

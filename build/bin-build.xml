@@ -55,7 +55,6 @@
 			<file file="../org.apache.ace.range.api/generated/org.apache.ace.range.api.jar" />
 			<file file="../org.apache.ace.log/generated/org.apache.ace.log.jar" />
 			<file file="../org.apache.ace.authenticationprocessor.password/generated/org.apache.ace.authenticationprocessor.password.jar" />
-			<file file="../org.apache.ace.util/generated/org.apache.ace.util.jar" />
 			<file file="../org.apache.ace.webui.vaadin/generated/org.apache.ace.webui.vaadin.jar" />
 			<file file="../org.apache.ace.resourceprocessor.useradmin/generated/org.apache.ace.resourceprocessor.useradmin.jar" />
 			<file file="../org.apache.ace.server.log.ui/generated/org.apache.ace.server.log.ui.jar" />

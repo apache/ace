@@ -12,5 +12,8 @@
 	org.apache.felix.shell;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.shell/org.apache.felix.shell-1.4.2.jar;version='[1.4.2,1.4.3)',\
 	org.apache.felix.shell.tui;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.shell.tui/org.apache.felix.shell.tui-1.4.1.jar;version='[1.4.1,1.4.2)',\
 	osgi.cmpn;resolution=http://bundles.bndtools.org.s3.amazonaws.com/osgi.cmpn/osgi.cmpn-4.2.1.jar;version='[4.2.1,4.2.2)'
-Export-Package: org.apache.ace.it
-Private-Package: org.apache.ace.test.utils
+Export-Package: org.apache.ace.it,\
+	org.apache.ace.test.constants,\
+	org.apache.ace.test.utils,\
+	org.apache.ace.test.utils.deployment
+

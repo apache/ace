@@ -2,7 +2,7 @@
 	org.apache.felix.dependencymanager,\
 	osgi.cmpn,\
 	osgi.core,\
-	org.apache.ace.util;version=latest,\
+	org.apache.ace.itest;version=latest,\
 	org.mockito.mockito-all
 Private-Package: org.apache.ace.identification.property,\
 	org.apache.ace.identification.property.constants

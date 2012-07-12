@@ -22,7 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 import org.apache.ace.range.SortedRangeSet;
-import org.apache.ace.util.Codec;
+import org.apache.ace.log.util.Codec;
 
 /**
  * Instances of this class represent a range of log events. Such a range is defined by:

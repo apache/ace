@@ -2,7 +2,7 @@
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.connectionfactory;version=latest,\
-	org.apache.ace.util;version=latest,\
+	org.apache.ace.itest;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.ops4j.pax.swissbox.tinybundles,\
 	../cnf/lib/commons-logging-1.1.1.jar;version=file,\

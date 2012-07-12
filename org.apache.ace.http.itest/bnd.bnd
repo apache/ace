@@ -2,7 +2,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 -buildpath: junit.osgi,\
 	osgi.core,\
 	osgi.cmpn,\
-	org.apache.ace.util;version=latest,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.itest;version=latest,\
 	org.apache.ace.log;version=latest,\
