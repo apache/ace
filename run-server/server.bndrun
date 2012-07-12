@@ -1,57 +1,4 @@
 -runfw: org.apache.felix.framework;version='[4.0.2,4.0.2]'
--runrequire: bundle:(symbolicname=org.apache.ace.authentication),\
-	bundle:(symbolicname=org.apache.ace.authenticationprocessor.basicauth),\
-	bundle:(symbolicname=org.apache.ace.authenticationprocessor.password),\
-	bundle:(symbolicname=org.apache.ace.client.repository.api),\
-	bundle:(symbolicname=org.apache.ace.client.repository.helper.base),\
-	bundle:(symbolicname=org.apache.ace.client.repository.helper.bundle),\
-	bundle:(symbolicname=org.apache.ace.client.repository.helper.configuration),\
-	bundle:(symbolicname=org.apache.ace.client.repository.impl),\
-	bundle:(symbolicname=org.apache.ace.client.rest),\
-	bundle:(symbolicname=org.apache.ace.configurator),\
-	bundle:(symbolicname=org.apache.ace.configurator.serveruseradmin),\
-	bundle:(symbolicname=org.apache.ace.configurator.useradmin.task),\
-	bundle:(symbolicname=org.apache.ace.connectionfactory),\
-	bundle:(symbolicname=org.apache.ace.consolelogger),\
-	bundle:(symbolicname=org.apache.ace.deployment.provider.api),\
-	bundle:(symbolicname=org.apache.ace.deployment.provider.repositorybased),\
-	bundle:(symbolicname=org.apache.ace.deployment.servlet),\
-	bundle:(symbolicname=org.apache.ace.deployment.streamgenerator),\
-	bundle:(symbolicname=org.apache.ace.deployment.verifier),\
-	bundle:(symbolicname=org.apache.ace.deployment.verifier.ui),\
-	bundle:(symbolicname=org.apache.ace.discovery.api),\
-	bundle:(symbolicname=org.apache.ace.http.redirector),\
-	bundle:(symbolicname=org.apache.ace.httplistener),\
-	bundle:(symbolicname=org.apache.ace.log),\
-	bundle:(symbolicname=org.apache.ace.log.servlet),\
-	bundle:(symbolicname=org.apache.ace.nodelauncher.amazon),\
-	bundle:(symbolicname=org.apache.ace.nodelauncher.api),\
-	bundle:(symbolicname=org.apache.ace.obr.metadata),\
-	bundle:(symbolicname=org.apache.ace.obr.servlet),\
-	bundle:(symbolicname=org.apache.ace.obr.storage),\
-	bundle:(symbolicname=org.apache.ace.range.api),\
-	bundle:(symbolicname=org.apache.ace.repository.api),\
-	bundle:(symbolicname=org.apache.ace.repository.impl),\
-	bundle:(symbolicname=org.apache.ace.repository.servlet),\
-	bundle:(symbolicname=org.apache.ace.resourceprocessor.useradmin),\
-	bundle:(symbolicname=org.apache.ace.scheduler),\
-	bundle:(symbolicname=org.apache.ace.server.log.store),\
-	bundle:(symbolicname=org.apache.ace.server.log.ui),\
-	bundle:(symbolicname=org.apache.ace.tageditor),\
-	bundle:(symbolicname=org.apache.ace.target.mgmt.ui),\
-	bundle:(symbolicname=org.apache.ace.webui.vaadin),\
-	bundle:(symbolicname=org.apache.felix.configadmin),\
-	bundle:(symbolicname=org.apache.felix.dependencymanager),\
-	bundle:(symbolicname=org.apache.felix.fileinstall),\
-	bundle:(symbolicname=org.apache.felix.gogo.command),\
-	bundle:(symbolicname=org.apache.felix.gogo.runtime),\
-	bundle:(symbolicname=org.apache.felix.gogo.shell),\
-	bundle:(symbolicname=org.apache.felix.dependencymanager.shell),\
-	bundle:(symbolicname=org.apache.felix.prefs),\
-	bundle:(symbolicname=org.knopflerfish.bundle.useradmin),\
-	bundle:(symbolicname=org.knopflerfish.log),\
-	bundle:(symbolicname=org.apache.felix.eventadmin),\
-	bundle:(symbolicname=org.apache.ace.nodelauncher.ui)
 -runee: JavaSE-1.6
 -runbundles: org.apache.felix.dependencymanager;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.apache.felix.dependencymanager/org.apache.felix.dependencymanager-3.1.0.jar;version='[3.1.0,3.1.1)',\
 	org.knopflerfish.bundle.useradmin;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.knopflerfish.bundle.useradmin/org.knopflerfish.bundle.useradmin-2.0.2.jar;version='[2.0.2,2.0.3)',\
@@ -77,7 +24,6 @@
 	org.apache.ace.authenticationprocessor.password;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.authenticationprocessor.password/generated/org.apache.ace.authenticationprocessor.password.jar;version=latest,\
 	com.vaadin;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/com.vaadin/com.vaadin-6.5.1.jar;version='[6.5.1,6.5.2)',\
 	org.apache.felix.gogo.command;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.command/org.apache.felix.gogo.command-0.12.0.jar;version='[0.12.0,0.12.1)',\
-	org.apache.ace.util;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.util/generated/org.apache.ace.util.jar;version=latest,\
 	org.apache.ace.webui.vaadin;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.webui.vaadin/generated/org.apache.ace.webui.vaadin.jar;version=latest,\
 	org.apache.ace.resourceprocessor.useradmin;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.resourceprocessor.useradmin/generated/org.apache.ace.resourceprocessor.useradmin.jar;version=latest,\
 	org.apache.ace.server.log.ui;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.server.log.ui/generated/org.apache.ace.server.log.ui.jar;version=latest,\
