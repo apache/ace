@@ -34,8 +34,11 @@
 		<echo message="Enter project ${project.name}"/>
 
 		<!-- Test compilation condition -->
-		<available file="${project}/test" type="dir" property="project.testpathexists" />
-	    <echo message="found test path: ${project.testpathexists}" />
+		<condition property="project.testpathexists">
+			<length length="0" when="greater">
+				<fileset dir="${project}/test" erroronmissingdir="false" />
+			</length>
+		</condition>
 	</target>
 
 	<!-- 
@@ -49,9 +52,19 @@
 	</target>
 
 	<!--
-	     Test
+	     TEST
+	     Runs the integration tests.
 	-->
+	<target name="deeptest" depends="init" if="project.dependson">
+		<subant target="test" inheritAll="false" buildpath="${project.dependson}">
+			<property name="donotrecurse" value="true" />
+		</subant>
+	</target>
+
 	<target name="test" depends="compile">
+		<!-- XXX this is a workaround for the fact that Bnd doesn't inherit the runvm option -->
+		<property name="org.osgi.service.http.port" value="9000" />
+
 		<bnd command="test" exceptions="true" basedir="${project}" />
 	</target>
 
@@ -125,12 +138,11 @@
 	</target>
 
 	<target name="testng" depends="build, compiletest" if="project.testpathexists">
-	    <mkdir dir="tmp" />
-        <testng classpath="${project}/bin_test:${project.buildpath}:${workspacedir}/cnf/lib/testng-6.5.2.jar"
-                outputDir="tmp"
-                haltOnfailure="true">
-            <classfileset dir="${project}/bin_test" includes="**/*.class" />
-        </testng>
+		<mkdir dir="tmp" />
+		<testng classpath="${project}/bin_test:${project.buildpath}:${workspacedir}/cnf/lib/testng-6.5.2.jar"
+			outputDir="tmp" haltOnfailure="true">
+			<classfileset dir="${project}/bin_test" includes="**/*.class" />
+		</testng>
 	</target>
 
 	<!--
