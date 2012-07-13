@@ -256,9 +256,7 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         ArtifactObject a1 = m_artifactRepository.importArtifact(noTemplateFile.toURI().toURL(), true);
         Artifact2FeatureAssociation a2g = m_artifact2featureRepository.create(a1, go);
 
-        final StatefulTargetObject sgo =
-            m_statefulTargetRepository.get(
-                m_bundleContext.createFilter("(" + TargetObject.KEY_ID + "=templatetarget2)")).get(0);
+        final StatefulTargetObject sgo = findStatefulTarget("templatetarget2");
 
         // create a deploymentversion
         assertTrue("With the new assignments, the SGO should need approval.", sgo.needsApprove());
