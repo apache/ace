@@ -2,14 +2,10 @@ repo:           ${build}/repo
 releaserepo:    ${build}/releaserepo
 
 -plugin:        aQute.lib.deployer.obr.LocalOBR;name='Local Repository';local=${repo};locations='http://bundles.bndtools.org.s3.amazonaws.com/repository.xml',\
-				aQute.lib.deployer.obr.LocalOBR;name='Apache ACE Repository';local=${build}/dummy;locations='http://bundles.bndtools.org.s3.amazonaws.com/repository.xml,https://svn.apache.org/repos/asf/ace/sandbox/marrs/cnf/repo/repository.xml',\
-                aQute.lib.deployer.obr.LocalOBR;name='Library Repository';local=${build}/lib;locations='file://${build}/lib/repository.xml',\
+                aQute.lib.deployer.obr.OBR;name='Library Repository';locations='file://${build}/lib/repository.xml',\
                 aQute.lib.deployer.obr.OBR;name='Build Repository';mode=build;locations='http://buildrepo.bndtools.org.s3.amazonaws.com/repository.xml',\
                 aQute.lib.deployer.obr.LocalOBR;name='Release';local=${releaserepo},\
                 org.osgi.impl.bundle.bindex.BundleAndLibraryIndexer;path:='${build}/bin/'
 
 -releaserepo:   Release
-
-## org.osgi.impl.bundle.bindex.BundleIndexerImpl;path:=${repo}/org.osgi.impl.bundle.bindex/org.osgi.impl.bundle.bindex-2.2.0.jar,\
-## org.apache.ace.bnd.LibraryRepository;name='ACE Libraries';local=${build}/lib;path:='${build}/bin/'
 
