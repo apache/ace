@@ -50,7 +50,6 @@ import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
-import org.osgi.framework.InvalidSyntaxException;
 
 /**
  * Test cases for the template processing functionality.
@@ -333,7 +332,7 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
                 m_distribution2targetRepository.create(lo, gwo);
                 return null;
             }
-        }, false, TOPIC_ADDED, TOPIC_STATUS_CHANGED);
+        }, false, TOPIC_ADDED);
 
         StatefulTargetObject sgo = findStatefulTarget(targetId);
         assertNotNull("Failed to find our target in the repository?!", sgo);
@@ -388,12 +387,16 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
      * The following code is borrowed from RepositoryTest.java, and is used to instantiate and
      * use repository servlets.
      */
-    private StatefulTargetObject findStatefulTarget(String targetID) throws InvalidSyntaxException {
-        for (StatefulTargetObject sgo : m_statefulTargetRepository.get()) {
-            if (sgo.getID().equals(targetID)) {
-                return sgo;
-            }
-        }
+    private StatefulTargetObject findStatefulTarget(String targetID) throws Exception {
+    	int count = 10;
+    	while (count-- > 0) {
+	        for (StatefulTargetObject sgo : m_statefulTargetRepository.get()) {
+	            if (sgo.getID().equals(targetID)) {
+	                return sgo;
+	            }
+	        }
+	        Thread.sleep(100);
+    	}
         return null;
     }
 
