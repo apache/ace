@@ -17,6 +17,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.configadmin;version='[1.2.8,1.2.9)',\
 	org.apache.felix.prefs;version='[1.0.4,1.0.5)',\
 	org.apache.felix.http.jetty;version='[2.2.0,2.2.1)',\
+	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.test;version=latest,\
@@ -25,4 +26,3 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlet;version=latest
 Private-Package: org.apache.ace.it.repository
--runvm: -Dorg.osgi.service.http.port=9000 -ea

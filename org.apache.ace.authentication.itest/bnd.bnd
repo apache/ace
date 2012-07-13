@@ -64,4 +64,3 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.ace.scheduler;version=latest,\
 	org.apache.ace.log.servlet;version=latest
 Private-Package: org.apache.ace.it.authentication
--runvm: -Dorg.osgi.service.http.port=9000

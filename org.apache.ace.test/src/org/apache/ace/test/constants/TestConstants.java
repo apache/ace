@@ -25,5 +25,5 @@ package org.apache.ace.test.constants;
  */
 public interface TestConstants {
     /** The port the webserver is running on for testing. */
-    public static final int PORT = 9000;
+    public static final int PORT = 8080;
 }
