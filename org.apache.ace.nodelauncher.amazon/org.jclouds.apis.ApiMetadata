@@ -1,0 +1,2 @@
+org.jclouds.ec2.EC2ApiMetadata
+org.jclouds.compute.stub.StubApiMetadata

@@ -21,6 +21,8 @@ package org.apache.ace.nodelauncher.amazon;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
 import org.apache.ace.nodelauncher.NodeLauncherConfig;
+import org.jclouds.Context;
+import org.jclouds.ContextBuilder;
 import org.jclouds.aws.ec2.reference.AWSEC2Constants;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
@@ -253,8 +255,10 @@ public class JcloudsNodeLauncherConfig implements NodeLauncherConfig {
             props.setProperty(AWSEC2Constants.PROPERTY_EC2_AMI_QUERY, "owner-id=" + m_ImageOwnerId + ";state=available;image-type=machine;root-device-type=ebs");
             props.setProperty(AWSEC2Constants.PROPERTY_EC2_CC_AMI_QUERY, "");
         }
-
-        m_computeServiceContext = new ComputeServiceContextFactory().createContext("aws-ec2", m_accessKeyId, m_secretAccessKey, ImmutableSet.<Module>of(new SshjSshClientModule()), props);
+        
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+        m_computeServiceContext = ContextBuilder.newBuilder("aws-ec2").credentials(m_accessKeyId, m_secretAccessKey).modules(ImmutableSet.<Module>of(new SshjSshClientModule())).overrides(props).build(ComputeServiceContext.class);
+        //m_computeServiceContext = new ComputeServiceContextFactory().createContext("aws-ec2", m_accessKeyId, m_secretAccessKey, ImmutableSet.<Module>of(new SshjSshClientModule()), props);
     }
 
     public ComputeService getComputeService() {
