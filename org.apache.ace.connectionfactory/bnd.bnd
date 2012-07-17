@@ -1,7 +1,7 @@
 -buildpath: osgi.core,\
 	osgi.cmpn,\
 	org.apache.ace.test;version=latest,\
-	../cnf/lib/commons-codec-1.4.jar;version=file
+	commons-codec;version=1.4
 Private-Package: org.apache.ace.connectionfactory.impl,\
 	org.apache.commons.codec,\
 	org.apache.commons.codec.binary

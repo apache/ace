@@ -2,6 +2,6 @@
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
-	../cnf/lib/commons-io-2.0.1.jar;version=file
+	commons-io;version=2.0.1
 Bundle-Activator: org.apache.ace.configurator.Activator
 Private-Package: org.apache.ace.configurator

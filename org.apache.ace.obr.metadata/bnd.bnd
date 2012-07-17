@@ -4,7 +4,7 @@
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.deployment.provider.base;version=latest,\
-	../cnf/lib/kxml2-2.3.0.jar;version=file
+	kxml2;version=2.3.0
 Private-Package: org.apache.ace.obr.metadata.bindex,\
 	org.kxml2.io,\
 	org.kxml2.kdom,\

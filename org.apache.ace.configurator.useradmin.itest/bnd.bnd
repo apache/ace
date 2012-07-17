@@ -20,8 +20,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.http.jetty;version='[2.2.0,2.2.1)',\
 	org.apache.felix.prefs;version='[1.0.4,1.0.5)',\
 	osgi.cmpn;version='[4.2.1,4.2.2)',\
-	org.knopflerfish.bundle.useradmin;version='[2.0.2,2.0.3)',\
-	org.knopflerfish.log;version='[2.0.2,2.0.3)',\
+	org.apache.felix.useradmin;version='[0.9.9,1.0.0)',\
+	org.apache.felix.log;version='[1.0.1,1.0.2)',\
     org.apache.ace.test;version=latest,\
 	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\

@@ -9,9 +9,8 @@
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.test;version=latest,\
 	javax.servlet,\
-	../cnf/lib/gson-1.7.1.jar;version=file,\
+	gson;version=1.7.1,\
 	org.mockito.mockito-all
-
 Private-Package: org.apache.ace.client.rest,\
 	com.google.gson,\
 	com.google.gson.annotations,\
