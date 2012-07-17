@@ -6,6 +6,6 @@
 	org.apache.ace.nodelauncher.amazon;version=latest,\
 	org.apache.ace.webui.vaadin;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
-	jclouds-compute
+	../org.apache.ace.nodelauncher.amazon/lib/jclouds-compute-1.5.0-beta.6.jar;version=file
 Bundle-Activator: org.apache.ace.nodelauncher.ui.Activator
 Private-Package: org.apache.ace.nodelauncher.ui

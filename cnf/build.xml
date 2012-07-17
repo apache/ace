@@ -24,7 +24,7 @@
 		
 		<!-- TestNG support -->
 		<echo message="testng ant tasks..." />
-		<taskdef resource="testngtasks" classpath="${workspacedir}/cnf/lib/testng-6.5.2.jar" />
+		<taskdef resource="testngtasks" classpath="${workspacedir}/cnf/lib/testng/testng-6.5.2.jar" />
         
 		<echo message="bnd prepare..." />
 		<bndprepare basedir="${projectdir}" print="false" top="${release.dir}" />
