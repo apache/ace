@@ -1,7 +1,7 @@
 -buildpath: org.apache.ace.managementagent;version=latest,\
-	osgi.core,\
 	org.apache.felix.dependencymanager,\
-	org.apache.felix.framework;version=4.0.2
+	osgi.core;version=4.2.0,\
+	org.apache.felix.framework;version=3.2.2
 Private-Package: org.apache.ace.*;-split-package:=first,\
     org.apache.felix.*;-split-package:=first,\
 	EDU.oswego.cs.dl.util.concurrent;-split-package:=first,\
