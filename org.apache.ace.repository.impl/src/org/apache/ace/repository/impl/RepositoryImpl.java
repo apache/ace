@@ -170,11 +170,12 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         }
         long[] results = new long[versions.length];
         for (int i = 0; i < versions.length; i++) {
-            try {
-                results[i] = Long.parseLong(versions[i].getName());
+            String name = versions[i].getName();
+			try {
+                results[i] = Long.parseLong(name);
             }
             catch (NumberFormatException nfe) {
-                m_log.log(LogService.LOG_WARNING, "Unable to determine version number for '" + results[i] + "', skipping it.");
+                m_log.log(LogService.LOG_WARNING, "Unable to determine version number for '" + name + "', skipping it.");
             }
         }
         Arrays.sort(results);
