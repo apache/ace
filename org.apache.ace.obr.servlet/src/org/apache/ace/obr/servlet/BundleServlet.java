@@ -216,6 +216,52 @@ public class BundleServlet extends HttpServlet implements ManagedService {
                 sendResponse(response, SC_INTERNAL_SERVER_ERROR);
             }
             finally {
+                closeSafely(fileStream, request);
+                closeSafely(output, request);
+            }
+        }
+    }
+    
+    /**
+     * Responds to HEAD requests sent to http://host:port/obr/resource with a stream to the specified filename.
+     * Will send out a response that contains one of the following status codes:
+     * <br>
+     * <li><code>HttpServletResponse.SC_BAD_REQUEST</code> - if no resource is specified
+     * <li><code>HttpServletResponse.SC_INTERNAL_SERVER_ERROR</code> - if there was a problem storing the resource
+     * <li><code>HttpServletResponse.SC_NOT_FOUND</code> - if the requested resource does not exist
+     * <li><code>HttpServletResponse.SC_OK</code> - if all went fine
+     * <br>
+     * The response is empty in all situations.
+     */
+    @Override
+    protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String path = request.getPathInfo();
+        if ((path == null) || (path.length() <= 1)) {
+            sendResponse(response, SC_BAD_REQUEST);
+        }
+        else {
+            // Remove leasing slash...
+            String id = path.substring(1);
+
+            ServletOutputStream output = null;
+            InputStream fileStream = null;
+            try {
+            	// TODO extend the store with an exists method???
+                fileStream = m_store.get(id);
+                if (fileStream == null) {
+                    sendResponse(response, HttpServletResponse.SC_NOT_FOUND);
+                }
+                else {
+                    sendResponse(response, HttpServletResponse.SC_OK);
+                }
+            }
+            catch (IOException ex) {
+                // ACE-260: all other exception are logged, as we might have a possible resource leak...
+                m_log.log(LogService.LOG_WARNING, "Exception in request: " + request.getRequestURL(), ex);
+                sendResponse(response, SC_INTERNAL_SERVER_ERROR);
+            }
+            finally {
+                closeSafely(fileStream, request);
                 closeSafely(output, request);
             }
         }
