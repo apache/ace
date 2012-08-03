@@ -281,12 +281,13 @@ class BaseRepositoryHandler extends DefaultHandler {
          * @return a {@link XmlTag} representation of the given tag-name, never <code>null</code>.
          */
         public static XmlTag asXmlTag(String name) {
-            try {
-                return valueOf(name);
-            }
-            catch (Exception e) {
-                return XmlTag.unknown;
-            }
+        	XmlTag[] values = { artifacts, attributes, deploymentArtifact, deploymentversion, deploymentversions, directives, repository, tags, targetID, url, version };
+			for (int i = 0; i < values.length; i++) {
+        		if (values[i].name().equals(name)) {
+        			return values[i];
+        		}
+        	}
+            return XmlTag.unknown;
         }
     }
 }
