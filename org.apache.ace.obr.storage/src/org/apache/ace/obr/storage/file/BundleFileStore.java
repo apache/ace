@@ -21,6 +21,7 @@ package org.apache.ace.obr.storage.file;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,7 +70,13 @@ public class BundleFileStore implements BundleStore, ManagedService {
         if (REPOSITORY_XML.equals(fileName) && directoryChanged(getWorkingDir())) {
             generateMetadata(); // might be called too often
         }
-        return new FileInputStream(createFile(fileName));
+        FileInputStream result = null;
+        try {
+			result = new FileInputStream(createFile(fileName));
+		} catch (FileNotFoundException e) {
+			// Resource does not exist; notify caller by returning null...
+		}
+		return result;
     }
 
     public boolean put(String fileName, InputStream data) throws IOException {
