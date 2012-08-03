@@ -351,7 +351,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             else if (pathElements.length == 3) {
                 // Possible repository object creation...
                 RepositoryValueObject data = getRepositoryValueObject(req);
-                createRepositoryObject(workspace, pathElements[2], data, resp);
+                createRepositoryObject(workspace, pathElements[2], data, req, resp);
             }
             else if (pathElements.length == 5) {
                 // Possible workspace action...
@@ -379,7 +379,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
 
         RepositoryValueObject data = getRepositoryValueObject(req);
-        updateRepositoryObject(workspace, pathElements[2], pathElements[3], data, resp);
+        updateRepositoryObject(workspace, pathElements[2], pathElements[3], data, req, resp);
     }
 
     /**
@@ -408,11 +408,11 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
      * @param resp the servlet response to write the response data to.
      * @throws IOException in case of I/O errors.
      */
-    private void createRepositoryObject(Workspace workspace, String entityType, RepositoryValueObject data, HttpServletResponse resp) throws IOException {
+    private void createRepositoryObject(Workspace workspace, String entityType, RepositoryValueObject data, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             RepositoryObject object = workspace.addRepositoryObject(entityType, data.attributes, data.tags);
 
-            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, workspace.getSessionID(), entityType, object.getDefinition()));
+            resp.sendRedirect(req.getServletPath() + "/" + buildPathFromElements(WORK_FOLDER, workspace.getSessionID(), entityType, object.getDefinition()));
         }
         catch (IllegalArgumentException e) {
             m_logger.log(LogService.LOG_WARNING, "Failed to add entity of type: " + entityType, e);
@@ -445,8 +445,9 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
         if (!workspace.login(req)) {
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-        } else {
-            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, sessionID));
+        }
+        else {
+            resp.sendRedirect(req.getServletPath() + "/" + buildPathFromElements(WORK_FOLDER, sessionID));
         }
     }
 
@@ -666,11 +667,11 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
      * @param resp the servlet response to write the response data to.
      * @throws IOException in case of I/O errors.
      */
-    private void updateRepositoryObject(Workspace workspace, String entityType, String entityId, RepositoryValueObject data, HttpServletResponse resp) throws IOException {
+    private void updateRepositoryObject(Workspace workspace, String entityType, String entityId, RepositoryValueObject data, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             workspace.updateObjectWithData(entityType, entityId, data);
 
-            resp.sendRedirect(buildPathFromElements(WORK_FOLDER, workspace.getSessionID(), entityType, entityId));
+            resp.sendRedirect(req.getServletPath() + "/" + buildPathFromElements(WORK_FOLDER, workspace.getSessionID(), entityType, entityId));
         }
         catch (IllegalArgumentException e) {
             m_logger.log(LogService.LOG_WARNING, "Failed to update entity of type: " + entityType, e);
