@@ -388,6 +388,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             for (RepositorySet set : m_repositorySets) {
                 set.clearRepositories();
                 set.unregisterHandler();
+                set.deleteLocal();
             }
 
             m_user = null;
@@ -472,11 +473,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         String sessionLocation = PREFS_LOCAL_FILE_LOCATION + m_sessionID;
         String directory = repositoryPrefs.get(sessionLocation, "");
 
-        if ((directory == "") || !m_context.getDataFile(PREFS_LOCAL_FILE_ROOT + "/" + directory).isDirectory()) {
-            if (!m_context.getDataFile(PREFS_LOCAL_FILE_ROOT + "/" + directory).isDirectory() && (directory != "")) {
-                m_log.log(LogService.LOG_WARNING, "Directory '" + directory + "' should exist according to the preferences, but it does not.");
-            }
-            // The file did not exist, so create a new one.
+        if (directory == "") {
             File directoryFile = null;
             try {
                 File bundleDataDir = m_context.getDataFile(PREFS_LOCAL_FILE_ROOT);
@@ -486,22 +483,20 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
                     }
                 }
                 directoryFile = File.createTempFile("repo", "", bundleDataDir);
+                if (!directoryFile.delete()) {
+                    throw new IOException("Cannot delete temporary file: " + directoryFile.getName());
+                }
             }
             catch (IOException e) {
-                // We cannot create the temp file? Then something is seriously wrong, so rethrow.
+                // We cannot create or delete the temp file? Then something is seriously wrong, so rethrow.
                 throw e;
             }
-
-            directoryFile.delete(); // No problem if this goes wrong, it just means it wasn't there yet.
-            if (!directoryFile.mkdir()) {
-                throw new IOException("Error creating the local repository storage directory.");
-            }
             repositoryPrefs.put(sessionLocation, directoryFile.getName());
-            return new File(directoryFile, type);
+            return new File(directoryFile + "-" + type);
         }
         else {
             // Get the given file from that location.
-            return m_context.getDataFile(PREFS_LOCAL_FILE_ROOT + "/" + directory + "/" + type);
+            return m_context.getDataFile(PREFS_LOCAL_FILE_ROOT + "/" + directory + "-" + type);
         }
     }
 

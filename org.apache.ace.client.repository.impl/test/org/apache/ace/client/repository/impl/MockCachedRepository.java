@@ -82,4 +82,8 @@ public class MockCachedRepository implements CachedRepository {
         return 0;
     }
 
+    @Override
+    public void deleteLocal() throws IOException {
+    	// TODO Auto-generated method stub
+    }
 }

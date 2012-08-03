@@ -190,7 +190,16 @@ public class Workspace {
     }
 
     public void commit() throws IOException {
-        m_repositoryAdmin.commit();
+		m_repositoryAdmin.commit();
+    }
+    
+    public void logout() throws IOException {
+        try {
+            m_repositoryAdmin.logout(true);
+        }
+        catch (IllegalStateException ise) {
+            m_log.log(LogService.LOG_DEBUG, "Nobody was logged into this session, continuing.");
+        }
     }
 
     public RepositoryObject getRepositoryObject(String entityType, String entityId) {

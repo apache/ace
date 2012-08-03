@@ -129,6 +129,10 @@ public class CachedRepositoryImpl implements CachedRepository {
     public boolean isCurrent() throws IOException {
         return highestRemoteVersion() == m_mostRecentVersion;
     }
+    
+    public void deleteLocal() throws IOException {
+    	m_local.delete();
+    }
 
     private long highestRemoteVersion() throws IOException {
         long result = 0;

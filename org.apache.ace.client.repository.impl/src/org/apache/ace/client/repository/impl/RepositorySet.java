@@ -265,6 +265,16 @@ class RepositorySet {
             }
         }
     }
+    
+    void deleteLocal() {
+    	try {
+			m_repository.deleteLocal();
+		}
+    	catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
 
     /* ********
      * Event handling

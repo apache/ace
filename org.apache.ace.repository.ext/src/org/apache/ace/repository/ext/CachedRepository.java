@@ -84,4 +84,11 @@ public interface CachedRepository extends Repository {
      * @throws java.io.IOException Thrown when an error occurs communicating with the server.
      */
     public boolean isCurrent() throws IOException;
+    
+    /**
+     * Deletes the local repository.
+     * 
+     * @throws IOException when the local repository could not be deleted
+     */
+    public void deleteLocal() throws IOException;
 }

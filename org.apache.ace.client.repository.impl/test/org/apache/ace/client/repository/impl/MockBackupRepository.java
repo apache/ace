@@ -52,4 +52,9 @@ public class MockBackupRepository implements BackupRepository {
     public void write(InputStream data) throws IOException {
         m_current = AdminTestUtil.copy(data);
     }
+    
+    public void delete() throws IOException {
+    	m_current = null;
+    	m_backup = null;
+    }
 }

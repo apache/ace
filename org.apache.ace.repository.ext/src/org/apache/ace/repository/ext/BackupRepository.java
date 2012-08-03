@@ -63,4 +63,10 @@ public interface BackupRepository
      */
     public boolean backup() throws IOException;
 
+    /**
+     * Deletes the whole repository.
+     * 
+     * @throws IOException when the repository could not be deleted.
+     */
+    public void delete() throws IOException;
 }

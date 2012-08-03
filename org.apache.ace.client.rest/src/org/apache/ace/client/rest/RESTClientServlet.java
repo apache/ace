@@ -26,6 +26,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -110,6 +111,21 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         
         m_workspaces = new HashMap<String, Workspace>();
         m_workspaceComponents = new HashMap<String, Component>();
+    }
+    
+    public void destroy() {
+    	Set<String> keySet = m_workspaces.keySet();
+    	if (!keySet.isEmpty()) {
+    		String[] keys = keySet.toArray(new String[keySet.size()]);
+    		for (String key : keys) {
+    			try {
+					removeWorkspace(key);
+				}
+    			catch (IOException e) {
+    				m_logger.log(LogService.LOG_WARNING, "Could not properly remove workspace.", e);
+				}
+    		}
+    	}
     }
 
     public void updated(Dictionary properties) throws ConfigurationException {
@@ -227,7 +243,12 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
 
         if (pathElements.length == 2) {
-            removeWorkspace(id, resp);
+        	try {
+        		removeWorkspace(id);
+        	}
+        	catch (IOException ioe) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not delete work area: " + ioe.getMessage());
+        	}
         }
         else if (pathElements.length == 4) {
             deleteRepositoryObject(workspace, pathElements[2], pathElements[3], resp);
@@ -615,7 +636,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
      * @param resp the servlet response to write the response data to.
      * @throws IOException in case of I/O problems.
      */
-    private void removeWorkspace(final String id, HttpServletResponse resp) throws IOException {
+    private void removeWorkspace(final String id) throws IOException {
         final Workspace workspace;
         final Component component;
 
@@ -625,13 +646,13 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
 
         if ((workspace != null) && (component != null)) {
-            workspace.destroy();
-
-            m_dm.remove(component);
-            m_sessionFactory.destroySession(id);
-        }
-        else {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not delete work area.");
+            try {
+                workspace.logout();
+            }
+            finally {
+                m_dm.remove(component);
+                m_sessionFactory.destroySession(id);
+            }
         }
     }
 

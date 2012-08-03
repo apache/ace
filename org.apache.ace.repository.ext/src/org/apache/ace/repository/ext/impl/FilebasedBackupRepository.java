@@ -59,7 +59,7 @@ public class FilebasedBackupRepository implements BackupRepository {
             return new FileInputStream(m_current);
         }
         catch (FileNotFoundException e) {
-            throw new IOException("Unable to open file:" + e.getMessage());
+            throw new IOException("Unable to open file: " + e.getMessage(), e);
         }
     }
 
@@ -70,7 +70,7 @@ public class FilebasedBackupRepository implements BackupRepository {
             }
         }
         catch (IOException e) {
-            throw new IOException("Unable to create file:" + e.getMessage());
+            throw new IOException("Unable to create file: " + e.getMessage(), e);
         }
 
         try {
@@ -79,7 +79,7 @@ public class FilebasedBackupRepository implements BackupRepository {
             out.close();
         }
         catch (FileNotFoundException e) {
-            throw new IOException("Unable to open file:" + e.getMessage());
+            throw new IOException("Unable to open file: " + e.getMessage(), e);
         }
     }
 
@@ -99,6 +99,19 @@ public class FilebasedBackupRepository implements BackupRepository {
         return true;
     }
 
+    public void delete() throws IOException {
+        boolean deletedCurrent = true, deletedBackup = true;
+        if (m_current.exists()) {
+            deletedCurrent = m_current.delete();
+        }
+        if (m_backup.exists()) {
+            deletedBackup = m_backup.delete();
+        }
+        if (!(deletedCurrent && deletedBackup)) {
+            throw new IOException("Could not delete: " + (deletedCurrent ? "" : "current ") + (deletedBackup ? "" : "backup"));
+        }
+    }
+
     /**
      * Helper function that writes the contents of one file to another.
      * @param source The source file.
@@ -114,9 +127,17 @@ public class FilebasedBackupRepository implements BackupRepository {
         FileOutputStream out = new FileOutputStream(destination);
         FileInputStream in = new FileInputStream(source);
 
-        copy(in, out);
-        in.close();
-        out.close();
+        try {
+            copy(in, out);
+        }
+        finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
     }
 
     /**
