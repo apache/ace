@@ -24,16 +24,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
-import org.apache.ace.client.repository.helper.PropertyResolver;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 
 /**
@@ -42,126 +43,38 @@ import org.apache.ace.connectionfactory.ConnectionFactory;
  */
 public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
 
-    protected static final int BUFFER_SIZE = 4 * 1024;
+	/** 64k buffers should be enough for everybody... */
+    protected static final int BUFFER_SIZE = 64 * 1024;
     
     protected final ConnectionFactory m_connectionFactory;
+    private final ExecutorService m_executor;
 
     /**
-     * @param connectionFactory
+     * Creates a new {@link ArtifactPreprocessorBase} instance.
+     * 
+     * @param connectionFactory the connection factory to use, cannot be <code>null</code>.
      */
     protected ArtifactPreprocessorBase(ConnectionFactory connectionFactory) {
         m_connectionFactory = connectionFactory;
+        m_executor = Executors.newCachedThreadPool();
     }
 
     /**
-     * Uploads an artifact to an OBR.
+     * Creates a new URL for given (file) name and OBR base URL.
      * 
-     * @param input A inputstream from which the artifact can be read.
-     * @param name The name of the artifact. If the name is not unique, an IOException will be thrown.
-     * @param obrBase The base URL of the obr to which this artifact should be written.
-     * @return A URL to the uploaded artifact; this is identical to calling <code>determineNewUrl(name, obrBase)</code>
-     * @throws IOException If there was an error reading from <code>input</code>, or if there was a problem communicating
-     *         with the OBR.
+     * @param name the name of the file to create the URL for;
+     * @param obrBase the OBR base URL to use.
+     * @return a new URL for the file, never <code>null</code>.
+     * @throws MalformedURLException in case of invalid characters in the given name. 
      */
-    protected URL upload(InputStream input, String name, URL obrBase) throws IOException {
-        if (obrBase == null) {
-            throw new IOException("There is no storage available for this artifact.");
-        }
-        if ((name == null) || (input == null)) {
-            throw new IllegalArgumentException("None of the parameters can be null.");
-        }
-
-        URL url = null;
-        try {
-            url = determineNewUrl(name, obrBase);
-
-            if ("file".equals(url.getProtocol())) {
-                uploadToFile(input, url);
-            }
-            else {
-                uploadToRemote(input, url);
-            }
-        }
-        catch (IOException ioe) {
-            throw new IOException("Error uploading " + name + ": " + ioe.getMessage());
-        }
-        finally {
-            silentlyClose(input);
-        }
-
-        return url;
-    }
-
-    /**
-     * Gets a stream to write an artifact to, which will be uploaded to the OBR.
-     * 
-     * @param name The name of the artifact.
-     * @param obrBase The base URL of the obr to which this artifact should be written.
-     * @return An outputstream, to which the artifact can be written.
-     * @throws IOException If there is a problem setting up the outputstream.
-     */
-    protected OutputStream upload(final String name, final URL obrBase) throws IOException {
-        /*
-         * This function works by starting a thread which reads from the outputstream which is passed out,
-         * and writing it to another stream, which is read by a thread that does the Upload.
-         */
-        final PipedOutputStream externalOutput = new PipedOutputStream();
-        final PipedInputStream externalInput = new PipedInputStream(externalOutput);
-
-        final PipedOutputStream internalOutput = new PipedOutputStream();
-        final PipedInputStream internalInput = new PipedInputStream(internalOutput);
-
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    byte[] buffer = new byte[BUFFER_SIZE];
-                    for (int count = externalInput.read(buffer); count != -1; count = externalInput.read(buffer)) {
-                        internalOutput.write(buffer, 0, count);
-                    }
-                }
-                catch (IOException e) {
-                    // We cannot signal this to the user, but he will notice (in the original thread)
-                    // that the pipe has been broken.
-                    e.printStackTrace();
-                }
-                finally {
-                    silentlyClose(internalOutput);
-                    silentlyClose(externalInput);
-                }
-            }
-        }, "upload-Outputstream(" + name + ")").start();
-
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    upload(internalInput, name, obrBase);
-                }
-                catch (IOException e) {
-                    // We cannot signal this to the user, but he will notice (in the original thread)
-                    // that the pipe has been broken.
-                    e.printStackTrace();
-                }
-                finally {
-                    silentlyClose(internalInput);
-                    silentlyClose(externalOutput);
-                }
-            }
-        }, "upload-Inputstream(" + name + ")").start();
-
-        return externalOutput;
-    }
-
     protected URL determineNewUrl(String name, URL obrBase) throws MalformedURLException {
         return new URL(obrBase, name);
     }
 
-    public abstract String preprocess(String url, PropertyResolver props, String targetID, String version, URL obrBase) throws IOException;
-
-    public abstract boolean needsNewVersion(String url, PropertyResolver props, String targetID, String fromVersion);
-
     /**
-     * @param closable
-     * @throws IOException
+     * Silently closes the given {@link Closeable} instance.
+     * 
+     * @param closable the closeable to close, may be <code>null</code>.
      */
     protected final void silentlyClose(Closeable closable) {
         if (closable != null) {
@@ -175,6 +88,79 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
     }
 
     /**
+     * Gets a stream to write an artifact to, which will be uploaded asynchronously to the OBR.
+     * 
+     * @param name The name of the artifact.
+     * @param obrBase The base URL of the obr to which this artifact should be written.
+     * @param inputStream the input stream with data to upload.
+     */
+    protected final Future<URL> uploadAsynchronously(final String name, final URL obrBase, final InputStream inputStream) {
+        return m_executor.submit(new Callable<URL>() {
+            public URL call() throws IOException {
+            	return upload(inputStream, name, obrBase);
+            }
+        });
+    }
+
+	/**
+	 * Converts a given URL to a {@link File} object.
+	 * 
+	 * @param url the URL to convert, cannot be <code>null</code>.
+	 * @return a {@link File} object, never <code>null</code>.
+	 */
+	protected final File urlToFile(URL url) {
+		File file;
+        try {
+            file = new File(url.toURI());
+        }
+        catch (URISyntaxException e) {
+            file = new File(url.getPath());
+        }
+		return file;
+	}
+
+    /**
+     * Uploads an artifact synchronously to an OBR.
+     * 
+     * @param input A inputstream from which the artifact can be read.
+     * @param name The name of the artifact. If the name is not unique, an IOException will be thrown.
+     * @param obrBase The base URL of the obr to which this artifact should be written.
+     * @return A URL to the uploaded artifact; this is identical to calling <code>determineNewUrl(name, obrBase)</code>
+     * @throws IOException If there was an error reading from <code>input</code>, or if there was a problem communicating
+     *         with the OBR.
+     */
+    private URL upload(InputStream input, String name, URL obrBase) throws IOException {
+        if (obrBase == null) {
+            throw new IOException("There is no storage available for this artifact.");
+        }
+        if ((name == null) || (input == null)) {
+            throw new IllegalArgumentException("None of the parameters can be null.");
+        }
+
+        URL url = null;
+        try {
+            url = determineNewUrl(name, obrBase);
+
+            if (!urlPointsToExistingFile(url)) {
+	            if ("file".equals(url.getProtocol())) {
+	                uploadToFile(input, url);
+	            }
+	            else {
+	                uploadToRemote(input, url);
+	            }
+            }
+        }
+        catch (IOException ioe) {
+            throw new IOException("Error uploading " + name + ": " + ioe.getMessage());
+        }
+        finally {
+            silentlyClose(input);
+        }
+
+        return url;
+    }
+
+    /**
      * Uploads an artifact to a local file location.
      * 
      * @param input the input stream of the (local) artifact to upload.
@@ -182,13 +168,7 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
      * @throws IOException in case of I/O problems.
      */
     private void uploadToFile(InputStream input, URL url) throws IOException {
-        File file;
-        try {
-            file = new File(url.toURI());
-        }
-        catch (URISyntaxException e) {
-            file = new File(url.getPath());
-        }
+        File file = urlToFile(url);
 
         OutputStream output = null;
 
@@ -217,9 +197,8 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
 
         try {
             URLConnection connection = m_connectionFactory.createConnection(url);
-
             connection.setDoOutput(true);
-            connection.setDoInput(true);
+            
             output = connection.getOutputStream();
 
             byte[] buffer = new byte[BUFFER_SIZE];
@@ -246,5 +225,49 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
         finally {
             silentlyClose(output);
         }
+    }
+    
+    /**
+     * Determines whether the given URL points to an existing file.
+     * 
+     * @param url the URL to test, cannot be <code>null</code>.
+     * @return <code>true</code> if the given URL points to an existing file, <code>false</code> otherwise.
+     */
+    private boolean urlPointsToExistingFile(URL url) {
+    	boolean result = false;
+
+    	if ("file".equals(url.getProtocol())) {
+    		result = urlToFile(url).exists();
+    	} else {
+    		try {
+				URLConnection connection = m_connectionFactory.createConnection(url);
+
+				if (connection instanceof HttpURLConnection) {
+					HttpURLConnection hc = (HttpURLConnection) connection;
+
+					// Perform a HEAD on the file, to see whether it exists...
+					hc.setRequestMethod("HEAD");
+					try {
+						int responseCode = hc.getResponseCode();
+						result = (responseCode == HttpURLConnection.HTTP_OK);
+					} finally {
+						hc.disconnect();
+					}
+				} else {
+					// In all other scenario's: try to read a single byte from the input 
+					// stream, if this succeeds, we can assume the file exists...
+					InputStream is = connection.getInputStream();
+					try {
+						is.read();
+					} finally {
+						silentlyClose(is);
+					}
+				}
+			} catch (IOException e) {
+				// Ignore; assume file does not exist...
+			}
+    	}
+    	
+    	return result;
     }
 }

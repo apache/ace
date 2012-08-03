@@ -20,11 +20,9 @@ package org.apache.ace.client.repository.helper.base;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.Reference;
@@ -127,9 +125,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         
         String name = getFilename(url, targetID, version);
         
-        OutputStream output = upload(name, obrBase);
-        output.write(result);
-        output.close();
+        uploadAsynchronously(name, obrBase, new ByteArrayInputStream(result));
 
         return determineNewUrl(name, obrBase).toString();
     }
@@ -168,7 +164,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
      * @throws MalformedURLException
      */
     private String getFilename(String url, String targetID, String version) throws MalformedURLException {
-        return new File(new URL(url).getFile()).getName() + "-" + targetID + "-" + version;
+        return urlToFile(new URL(url)).getName() + "-" + targetID + "-" + version;
     }
 
     /**
