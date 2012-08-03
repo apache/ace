@@ -44,7 +44,7 @@ public class RemoteRepository implements Repository {
     
     private static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
     
-    private static final int COPY_BUFFER_SIZE = 4096;
+    private static final int COPY_BUFFER_SIZE = 64 * 1024;
 
     private final URL m_url;
     private final String m_customer;
@@ -78,13 +78,16 @@ public class RemoteRepository implements Repository {
         HttpURLConnection connection = (HttpURLConnection) m_connectionFactory.createConnection(url);
 
         if (connection.getResponseCode() == HttpServletResponse.SC_NOT_FOUND) {
-            throw new IllegalArgumentException("Requested version not found in remote repository. (" + connection.getResponseMessage() + ")");
+        	connection.disconnect();
+    		throw new IllegalArgumentException("Requested version not found in remote repository. (" + connection.getResponseMessage() + ")");
         }
         if (connection.getResponseCode() != HttpServletResponse.SC_OK) {
+        	connection.disconnect();
             throw new IOException("Connection error: " + connection.getResponseMessage());
         }
 
         return connection.getInputStream();
+        
     }
 
     public boolean commit(InputStream data, long fromVersion) throws IOException, IllegalArgumentException {
@@ -95,29 +98,45 @@ public class RemoteRepository implements Repository {
         connection.setRequestProperty("Content-Type", MIME_APPLICATION_OCTET_STREAM);
 
         OutputStream out = connection.getOutputStream();
-        copy(data, out);
-        out.flush();
-        out.close();
-
-        return connection.getResponseCode() == HttpServletResponse.SC_OK;
+        try {
+        	copy(data, out);
+        } finally {
+        	out.flush();
+        	out.close();
+        }
+        
+        try {
+			return connection.getResponseCode() == HttpServletResponse.SC_OK;
+		} finally {
+			connection.disconnect();
+		}
     }
 
     public SortedRangeSet getRange() throws IOException {
         URL url = buildCommand(m_url, COMMAND_QUERY, 0);
+        
         HttpURLConnection connection = (HttpURLConnection) m_connectionFactory.createConnection(url);
         
-        if (connection.getResponseCode() == HttpServletResponse.SC_OK) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line = reader.readLine();
-            if (line == null) {
-                throw new IOException("Repository not found: customer=" + m_customer + ", name=" + m_name);
-            }
-            String representation = line.substring(line.lastIndexOf(','));
-            reader.close();
-            return new SortedRangeSet(representation);
-        }
+        try {
+	        if (connection.getResponseCode() == HttpServletResponse.SC_OK) {
+	            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+	            try {
+		            String line = reader.readLine();
+		            if (line == null) {
+		                throw new IOException("Repository not found: customer=" + m_customer + ", name=" + m_name);
+		            }
 
-        throw new IOException("Connection error: " + connection.getResponseMessage());
+		            String representation = line.substring(line.lastIndexOf(','));
+		            return new SortedRangeSet(representation);
+	            } finally {
+	            	reader.close();
+	            }
+	        }
+	
+	        throw new IOException("Connection error: " + connection.getResponseMessage());
+        } finally {
+        	connection.disconnect();
+        }
     }
 
     /**
@@ -145,34 +164,36 @@ public class RemoteRepository implements Repository {
      * @return The command string.
      */
     private URL buildCommand(URL url, String command, long version) {
-        StringBuffer result = new StringBuffer();
+        StringBuilder params = new StringBuilder();
 
         if (m_customer != null) {
-            if (result.length() != 0) {
-                result.append("&");
+            if (params.length() != 0) {
+                params.append("&");
             }
-            result.append("customer=").append(m_customer);
+            params.append("customer=").append(m_customer);
         }
         if (m_name != null) {
-            if (result.length() != 0) {
-                result.append("&");
+            if (params.length() != 0) {
+                params.append("&");
             }
-            result.append("name=").append(m_name);
+            params.append("name=").append(m_name);
         }
         if (command != COMMAND_QUERY) {
-            if (result.length() != 0) {
-                result.append("&");
+            if (params.length() != 0) {
+                params.append("&");
             }
-            result.append("version=").append(version);
+            params.append("version=").append(version);
+        }
+        
+        StringBuilder newURL = new StringBuilder();
+        newURL.append(url.toExternalForm());
+        newURL.append(command);
+        if (params.length() > 0) {
+        	newURL.append("?").append(params);
         }
 
         try {
-            if (result.length() > 0) {
-                return new URL(url.toString() + command + "?" + result.toString());
-            }
-            else {
-                return new URL(url.toString() + command);
-            }
+            return new URL(newURL.toString());
         }
         catch (MalformedURLException e) {
             throw new IllegalArgumentException("Could not create URL: " + e.getMessage());
