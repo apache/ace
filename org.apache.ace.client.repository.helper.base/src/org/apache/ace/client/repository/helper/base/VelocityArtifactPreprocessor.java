@@ -161,10 +161,13 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
      * @param targetID
      * @param version
      * @return
-     * @throws MalformedURLException
      */
-    private String getFilename(String url, String targetID, String version) throws MalformedURLException {
-        return urlToFile(new URL(url)).getName() + "-" + targetID + "-" + version;
+    private String getFilename(String url, String targetID, String version) {
+        int indexOfLastSlash = url.lastIndexOf('/');
+        if (indexOfLastSlash != -1) {
+            url = url.substring(indexOfLastSlash + 1);
+        }
+        return url + "-" + targetID + "-" + version;
     }
 
     /**
@@ -172,9 +175,8 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
      * @param targetID
      * @param version
      * @return
-     * @throws MalformedURLException
      */
-    private String getFullUrl(String url, String targetID, String version) throws MalformedURLException {
+    private String getFullUrl(String url, String targetID, String version) {
         return url + "-" + targetID + "-" + version;
     }
 
