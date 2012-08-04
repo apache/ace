@@ -17,6 +17,7 @@
     org.apache.ace.client.repository.impl,\
     org.apache.ace.client.repository.itest,\
     org.apache.ace.client.rest,\
+    org.apache.ace.client.rest.itest,\
     org.apache.ace.configurator.serveruseradmin,\
     org.apache.ace.configurator.useradmin.task,\
     org.apache.ace.configurator.useradmin.itest,\
