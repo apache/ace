@@ -155,4 +155,12 @@ public interface RepositoryAdmin
      * and have the given working state.
      */
     public int getNumberWithWorkingState(Class<? extends RepositoryObject> clazz, WorkingState state);
+    
+    /**
+     * Cleans up the local files that make up the client-side cache. This method
+     * can be invoked after logging out of a session to clean up. This operation
+     * is optional, since you might want to be able to log back in in which case
+     * you probably don't want to delete the cache.
+     */
+    public void deleteLocal();
 }

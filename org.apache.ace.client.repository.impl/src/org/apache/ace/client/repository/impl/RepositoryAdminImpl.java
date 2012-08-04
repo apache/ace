@@ -388,15 +388,21 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             for (RepositorySet set : m_repositorySets) {
                 set.clearRepositories();
                 set.unregisterHandler();
-                set.deleteLocal();
+//                set.deleteLocal();
             }
 
             m_user = null;
-            m_repositorySets = new RepositorySet[0];
+//            m_repositorySets = new RepositorySet[0];
         }
         m_changeNotifier.notifyChanged(TOPIC_LOGOUT_SUFFIX, null);
         if (exception != null) {
             throw exception;
+        }
+    }
+    
+    public void deleteLocal() {
+        for (RepositorySet set : m_repositorySets) {
+            set.deleteLocal();
         }
     }
 

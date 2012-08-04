@@ -196,6 +196,7 @@ public class Workspace {
     public void logout() throws IOException {
         try {
             m_repositoryAdmin.logout(true);
+            m_repositoryAdmin.deleteLocal();
         }
         catch (IllegalStateException ise) {
             m_log.log(LogService.LOG_DEBUG, "Nobody was logged into this session, continuing.");

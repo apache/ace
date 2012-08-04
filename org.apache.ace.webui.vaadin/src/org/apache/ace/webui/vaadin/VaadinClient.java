@@ -268,7 +268,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         // Authenticate the user either by showing a login window; or by another means...
         authenticate();
     }
-
+    
     /**
      * Shows the login window on the center of the main window.
      */
@@ -935,9 +935,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     @Override
     public void close() {
+        m_admin.deleteLocal();
         super.close();
-        // when the session times out
-        // TODO: clean up the ace client session?
     }
 
     private void showAddArtifactDialog() {
