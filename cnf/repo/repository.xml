@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <?xml-stylesheet type='text/xsl' href='http://www.osgi.org/www/obr2html.xsl'?>
 
-<repository lastmodified='20120717154205.850' name='Local Repository'>
+<repository lastmodified='20120804183628.749' name='Local Repository'>
   <resource id='bcprov/1.46.0' presentationname='bcprov' symbolicname='bcprov' uri='bcprov/bcprov-1.46.0.jar' version='1.46.0'>
     <size>
       1878175
@@ -601,6 +601,330 @@
     </require>
     <require extend='false' filter='(|(ee=J2SE-1.5))' multiple='false' name='ee' optional='false'>
       Execution Environment (|(ee=J2SE-1.5))
+    </require>
+  </resource>
+  <resource id='com.sun.jersey.client/1.13.0' presentationname='jersey-client' symbolicname='com.sun.jersey.client' uri='com.sun.jersey.client/com.sun.jersey.client-1.13.0.jar' version='1.13.0'>
+    <description>
+      Jersey is the open source (under dual CDDL+GPL license) JAX-RS
+       (JSR 311)        production quality Reference Implementation
+       for building        RESTful Web services.
+    </description>
+    <size>
+      131269
+    </size>
+    <license>
+      http://glassfish.java.net/public/CDDL+GPL_1_1.html, http://glassfish.java.net/public/CDDL+GPL_1_1.html
+    </license>
+    <documentation>
+      http://www.oracle.com/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jersey-client'/>
+      <p n='symbolicname' v='com.sun.jersey.client'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.api.client.filter'/>
+      <p n='uses' v='com.sun.jersey.api.client,com.sun.jersey.core.util,javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.api.client.async'/>
+      <p n='uses' v='com.sun.jersey.api.client'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.api.client.config'/>
+      <p n='uses' v='com.sun.jersey.core.util'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.api.client'/>
+      <p n='uses' v='com.sun.jersey.api.client.async,javax.ws.rs.core,com.sun.jersey.client.impl,com.sun.jersey.api.client.filter,com.sun.jersey.client.proxy,com.sun.jersey.client.impl.async,com.sun.jersey.api.client.config,com.sun.jersey.core.spi.component.ioc,com.sun.jersey.spi.inject,com.sun.jersey.core.util,com.sun.jersey.core.spi.factory,javax.ws.rs.ext,com.sun.jersey.core.spi.component,com.sun.jersey.client.urlconnection,com.sun.jersey.spi,com.sun.jersey.spi.service,com.sun.jersey.core.provider,com.sun.jersey.core.header,com.sun.jersey.core.reflection'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.client.urlconnection'/>
+      <p n='uses' v='javax.net.ssl,com.sun.jersey.api.client,javax.ws.rs.core,com.sun.jersey.core.header,com.sun.jersey.spi'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.client.osgi'/>
+      <p n='uses' v='com.sun.ws.rs.ext,org.osgi.framework,javax.ws.rs.ext'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.client.impl.async'/>
+      <p n='uses' v='com.sun.jersey.api.client.async,com.sun.jersey.api.client'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.client.proxy'/>
+      <p n='uses' v='com.sun.jersey.api.client.async,com.sun.jersey.api.client'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.client.impl'/>
+      <p n='uses' v='com.sun.jersey.core.header,com.sun.jersey.api.client,javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.ws.rs.ext'/>
+      <p n='uses' v='com.sun.jersey.core.spi.factory,javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.header)(version&gt;=1.13.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.header ;version=[1.13.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.provider)(version&gt;=1.13.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.provider ;version=[1.13.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.reflection)(version&gt;=1.13.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.reflection ;version=[1.13.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.spi.component)(version&gt;=1.13.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.spi.component ;version=[1.13.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.spi.component.ioc)(version&gt;=1.13.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.spi.component.ioc ;version=[1.13.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.spi.factory)(version&gt;=1.13.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.spi.factory ;version=[1.13.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.util)(version&gt;=1.13.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.util ;version=[1.13.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.spi)(version&gt;=1.13.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.spi ;version=[1.13.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.spi.inject)(version&gt;=1.13.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.spi.inject ;version=[1.13.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.spi.service)(version&gt;=1.13.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.spi.service ;version=[1.13.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.net.ssl)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.net.ssl
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.ws.rs.core)(version&gt;=1.1.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package javax.ws.rs.core ;version=[1.1.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.ws.rs.ext)(version&gt;=1.1.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package javax.ws.rs.ext ;version=[1.1.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework ;version=[1.3.0,2.0.0)
+    </require>
+  </resource>
+  <resource id='com.sun.jersey.core/1.13.0' presentationname='jersey-core' symbolicname='com.sun.jersey.core' uri='com.sun.jersey.core/com.sun.jersey.core-1.13.0.jar' version='1.13.0'>
+    <description>
+      Jersey is the open source (under dual CDDL+GPL license) JAX-RS
+       (JSR 311)        production quality Reference Implementation
+       for building        RESTful Web services.
+    </description>
+    <size>
+      465649
+    </size>
+    <license>
+      http://glassfish.java.net/public/CDDL+GPL_1_1.html, http://glassfish.java.net/public/CDDL+GPL_1_1.html
+    </license>
+    <documentation>
+      http://www.oracle.com/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jersey-core'/>
+      <p n='symbolicname' v='com.sun.jersey.core'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='javax.ws.rs'/>
+      <p n='uses' v='javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.1.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='javax.ws.rs.core'/>
+      <p n='uses' v='javax.ws.rs.ext,javax.ws.rs'/>
+      <p n='version' t='version' v='1.1.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='javax.ws.rs.ext'/>
+      <p n='uses' v='javax.ws.rs.core,javax.ws.rs'/>
+      <p n='version' t='version' v='1.1.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.provider.jaxb'/>
+      <p n='uses' v='javax.ws.rs,javax.ws.rs.ext,javax.xml.bind,javax.ws.rs.core,javax.xml.parsers,com.sun.jersey.core.util,com.sun.jersey.core.provider,org.xml.sax,com.sun.jersey.api.provider.jaxb,javax.xml.transform.sax,javax.xml.bind.annotation,com.sun.jersey.core.impl.provider.entity,javax.xml.stream,javax.xml.transform,javax.xml.transform.stream'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.impl.provider.header'/>
+      <p n='uses' v='com.sun.jersey.core.header.reader,com.sun.jersey.spi,javax.ws.rs.core,com.sun.jersey.core.header'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.impl'/>
+      <p n='uses' v='com.sun.jersey.localization'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.util'/>
+      <p n='uses' v='com.sun.jersey.impl,javax.ws.rs.core,javax.xml.parsers'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.provider'/>
+      <p n='uses' v='com.sun.jersey.core.util,javax.ws.rs.ext,javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.spi.scanning'/>
+      <p n='uses' v='com.sun.jersey.core.util,com.sun.jersey.core.spi.scanning.uri,com.sun.jersey.spi.service,com.sun.jersey.core.reflection,com.sun.jersey.api.uri'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.api.provider.jaxb'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.header'/>
+      <p n='uses' v='com.sun.jersey.core.header.reader,javax.ws.rs.core,com.sun.jersey.core.util,com.sun.jersey.core.impl.provider.header,javax.ws.rs'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.impl.provider.xml'/>
+      <p n='uses' v='javax.xml.parsers,com.sun.jersey.core.util,javax.ws.rs.core,com.sun.jersey.core.spi.component,com.sun.jersey.spi.inject,org.xml.sax,javax.xml.validation,org.xml.sax.helpers,com.sun.jersey.impl,javax.xml.transform,javax.xml.stream'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.header.reader'/>
+      <p n='uses' v='javax.ws.rs.core,com.sun.jersey.core.header,com.sun.jersey.core.impl.provider.header'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.osgi'/>
+      <p n='uses' v='com.sun.jersey.core.spi.scanning,org.osgi.framework,com.sun.jersey.core.spi.scanning.uri,com.sun.jersey.impl,com.sun.jersey.spi.service'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.spi'/>
+      <p n='uses' v='javax.ws.rs.ext,javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.spi.inject'/>
+      <p n='uses' v='com.sun.jersey.core.spi.component'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.localization'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.spi.scanning.uri'/>
+      <p n='uses' v='com.sun.jersey.core.spi.scanning,com.sun.jersey.core.util,com.sun.jersey.api.uri,javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.spi.component'/>
+      <p n='uses' v='com.sun.jersey.spi.inject,com.sun.jersey.core.reflection,javax.ws.rs,com.sun.jersey.core.spi.factory,com.sun.jersey.spi.service'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.spi.factory'/>
+      <p n='uses' v='com.sun.jersey.spi,com.sun.jersey.spi.service,javax.ws.rs.ext,com.sun.jersey.api.uri,javax.ws.rs.core,com.sun.jersey.core.spi.component,com.sun.jersey.spi.inject,javax.ws.rs,com.sun.jersey.core.header,com.sun.jersey.core.util,com.sun.jersey.core.reflection'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.spi.component.ioc'/>
+      <p n='uses' v='com.sun.jersey.core.spi.component,com.sun.jersey.spi.inject'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.api.representation'/>
+      <p n='uses' v='com.sun.jersey.core.util'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.reflection'/>
+      <p n='uses' v='javax.ws.rs,javax.ws.rs.core,com.sun.jersey.impl'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.impl.provider.entity'/>
+      <p n='uses' v='javax.ws.rs,com.sun.jersey.core.util,com.sun.jersey.core.provider,javax.ws.rs.core,javax.activation,javax.xml.parsers,javax.xml.transform.dom,org.w3c.dom,org.xml.sax,javax.xml.transform,javax.xml.transform.stream,com.sun.jersey.spi.inject,com.sun.jersey.spi,javax.ws.rs.ext,com.sun.jersey.api.representation,javax.mail.internet,javax.mail.util,javax.mail,javax.imageio.stream,javax.imageio.spi,javax.imageio,javax.xml.transform.sax,com.sun.jersey.core.provider.jaxb,javax.xml.bind,javax.xml.stream,javax.xml.bind.annotation,com.sun.jersey.impl'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.spi.service'/>
+      <p n='uses' v='com.sun.jersey.impl,com.sun.jersey.core.reflection'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.api.uri'/>
+      <p n='uses' v='javax.ws.rs,com.sun.jersey.core.util,javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.13.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=javax.activation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.activation
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.imageio)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.imageio
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.imageio.spi)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.imageio.spi
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.imageio.stream)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.imageio.stream
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.mail)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package javax.mail
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.mail.internet)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package javax.mail.internet
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.mail.util)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package javax.mail.util
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.bind)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.bind
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.bind.annotation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.bind.annotation
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.parsers)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.parsers
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.stream)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.stream
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.transform)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.transform
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.transform.dom)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.transform.dom
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.transform.sax)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.transform.sax
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.transform.stream)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.transform.stream
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.validation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.validation
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.w3c.dom)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.w3c.dom
+    </require>
+    <require extend='false' filter='(&amp;(package=org.xml.sax)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.xml.sax
+    </require>
+    <require extend='false' filter='(&amp;(package=org.xml.sax.helpers)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.xml.sax.helpers
     </require>
   </resource>
   <resource id='com.vaadin/6.5.1' presentationname='Vaadin' symbolicname='com.vaadin' uri='com.vaadin/com.vaadin-6.5.1.jar' version='6.5.1'>

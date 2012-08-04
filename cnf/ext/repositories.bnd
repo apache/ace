@@ -8,4 +8,3 @@ releaserepo:    ${build}/releaserepo
                 org.osgi.impl.bundle.bindex.BundleAndLibraryIndexer;path:='${build}/bin/'
 
 -releaserepo:   Release
-

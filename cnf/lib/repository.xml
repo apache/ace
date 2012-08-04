@@ -1,5 +1,6 @@
 <repository>
  <resource id='ant/1.8.4' symbolicname='ant' uri='ant/ant-1.8.4.jar' version='1.8.4'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='ant'/><p n='version' t='version' v='1.8.4'/></capability></resource>
+ <resource id='bcprov-jdk14/1.40' symbolicname='bcprov-jdk14' uri='bcprov-jdk14/bcprov-jdk14-1.40.jar' version='1.40'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='bcprov-jdk14'/><p n='version' t='version' v='1.40'/></capability></resource>
  <resource id='commons-codec/1.4' symbolicname='commons-codec' uri='commons-codec/commons-codec-1.4.jar' version='1.4'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='commons-codec'/><p n='version' t='version' v='1.4'/></capability></resource>
  <resource id='commons-collections/3.2.1' symbolicname='commons-collections' uri='commons-collections/commons-collections-3.2.1.jar' version='3.2.1'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='commons-collections'/><p n='version' t='version' v='3.2.1'/></capability></resource>
  <resource id='commons-io/2.0.1' symbolicname='commons-io' uri='commons-io/commons-io-2.0.1.jar' version='2.0.1'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='commons-io'/><p n='version' t='version' v='2.0.1'/></capability></resource>
