@@ -19,7 +19,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	com.sun.jersey.client,\
-	com.sun.jersey.core
+	com.sun.jersey.core,\
+	gson,\
+	biz.aQute.bndlib
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager;version='[3.1.0,3.1.1)',\
@@ -70,4 +72,10 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	com.sun.jersey.client,\
 	com.sun.jersey.core,\
 	org.apache.ace.deployment.provider.repositorybased;version=latest
-Private-Package: org.apache.ace.client.rest.itest
+Private-Package: org.apache.ace.client.rest.itest,\
+	com.google.gson,\
+	com.google.gson.*,\
+	aQute.*,\
+	org.osgi.service.bindex
+	
+	
