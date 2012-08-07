@@ -66,7 +66,7 @@ public class Logger implements LogService {
         }
         System.out.println("[" + LEVEL[level] + "]" + bundle + service + message);
         if (throwable != null) {
-            throwable.printStackTrace();
+            throwable.printStackTrace(System.out);
         }
     }
 }
