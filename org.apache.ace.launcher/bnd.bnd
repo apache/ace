@@ -26,4 +26,5 @@ Private-Package: org.apache.ace.*;-split-package:=first,\
     org.osgi.service.metatype;version="1.1";-split-package:=first,\
 	org.osgi.util.tracker
 Include-Resource: default.properties
+-sources: false
 Main-Class: org.apache.ace.launcher.Main
