@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <?xml-stylesheet type='text/xsl' href='http://www.osgi.org/www/obr2html.xsl'?>
 
-<repository lastmodified='20120804183628.749' name='Local Repository'>
+<repository lastmodified='20120807131937.783' name='Local Repository'>
   <resource id='bcprov/1.46.0' presentationname='bcprov' symbolicname='bcprov' uri='bcprov/bcprov-1.46.0.jar' version='1.46.0'>
     <size>
       1878175
@@ -1803,6 +1803,43 @@
       <p n='version' t='version' v='1.5.0'/>
     </capability>
   </resource>
+  <resource id='org.apache.felix.log/1.0.1' presentationname='Apache Felix Log Service' symbolicname='org.apache.felix.log' uri='org.apache.felix.log/org.apache.felix.log-1.0.1.jar' version='1.0.1'>
+    <description>
+      A simple implementation of the OSGi R4 Log service.
+    </description>
+    <size>
+      22243
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+    </license>
+    <documentation>
+      http://www.apache.org/
+    </documentation>
+    <capability name='service'>
+      <p n='service' v='org.osgi.service.log.LogService'/>
+    </capability>
+    <capability name='service'>
+      <p n='service' v='org.osgi.service.log.LogReaderService'/>
+    </capability>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='Apache Felix Log Service'/>
+      <p n='symbolicname' v='org.apache.felix.log'/>
+      <p n='version' t='version' v='1.0.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.osgi.service.log'/>
+      <p n='uses' v='org.osgi.framework'/>
+      <p n='version' t='version' v='1.3.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=1.4.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework ;version=[1.4.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.log ;version=[1.3.0,2.0.0)
+    </require>
+  </resource>
   <resource id='org.apache.felix.prefs/1.0.4' presentationname='Apache Felix Preferences Service' symbolicname='org.apache.felix.prefs' uri='org.apache.felix.prefs/org.apache.felix.prefs-1.0.4.jar' version='1.0.4'>
     <description>
       Implementation of the OSGi Preferences Service Specification
@@ -1893,6 +1930,205 @@
     </require>
     <require extend='false' filter='(&amp;(package=org.osgi.util.tracker)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
       Import package org.osgi.util.tracker ;version=[1.3.0,2.0.0)
+    </require>
+  </resource>
+  <resource id='org.apache.felix.useradmin/1.0.2' presentationname='Apache Felix User Admin Service' symbolicname='org.apache.felix.useradmin' uri='org.apache.felix.useradmin/org.apache.felix.useradmin-1.0.2.jar' version='1.0.2'>
+    <description>
+      An implementation of the OSGi User Admin Compendium Service
+    </description>
+    <size>
+      33774
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+    </license>
+    <documentation>
+      http://www.apache.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='Apache Felix User Admin Service'/>
+      <p n='symbolicname' v='org.apache.felix.useradmin'/>
+      <p n='version' t='version' v='1.0.2'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.apache.felix.useradmin'/>
+      <p n='uses' v='org.osgi.service.useradmin'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.event)(version&gt;=1.0.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.event ;version=[1.0.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.useradmin)(version&gt;=1.1.0)(!(version&gt;=1.2.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.useradmin ;version=[1.1.0,1.2.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.util.tracker)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.util.tracker ;version=[1.3.0,2.0.0)
+    </require>
+  </resource>
+  <resource id='org.apache.felix.useradmin.filestore/1.0.0' presentationname='Apache Felix User Admin file-based repository store' symbolicname='org.apache.felix.useradmin.filestore' uri='org.apache.felix.useradmin.filestore/org.apache.felix.useradmin.filestore-1.0.0.jar' version='1.0.0'>
+    <description>
+      A file-based repository store for User Admin Service of Apache
+       Felix.
+    </description>
+    <size>
+      16788
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+    </license>
+    <documentation>
+      http://www.apache.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='Apache Felix User Admin file-based repository store'/>
+      <p n='symbolicname' v='org.apache.felix.useradmin.filestore'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=org.apache.felix.useradmin)(version&gt;=1.0.0)(!(version&gt;=1.1.0)))' multiple='false' name='package' optional='false'>
+      Import package org.apache.felix.useradmin ;version=[1.0.0,1.1.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.apache.felix.useradmin.impl.role)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.apache.felix.useradmin.impl.role
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.cm ;version=[1.2.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.useradmin)(version&gt;=1.1.0)(!(version&gt;=1.2.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.useradmin ;version=[1.1.0,1.2.0)
+    </require>
+  </resource>
+  <resource id='org.apache.felix.useradmin.filestore/1.0.1' presentationname='Apache Felix User Admin file-based repository store' symbolicname='org.apache.felix.useradmin.filestore' uri='org.apache.felix.useradmin.filestore/org.apache.felix.useradmin.filestore-1.0.1.jar' version='1.0.1'>
+    <description>
+      A file-based repository store for User Admin Service of Apache
+       Felix.
+    </description>
+    <size>
+      16852
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+    </license>
+    <documentation>
+      http://www.apache.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='Apache Felix User Admin file-based repository store'/>
+      <p n='symbolicname' v='org.apache.felix.useradmin.filestore'/>
+      <p n='version' t='version' v='1.0.1'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=org.apache.felix.useradmin)(version&gt;=1.0.0)(!(version&gt;=1.1.0)))' multiple='false' name='package' optional='false'>
+      Import package org.apache.felix.useradmin ;version=[1.0.0,1.1.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.cm ;version=[1.2.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.useradmin)(version&gt;=1.1.0)(!(version&gt;=1.2.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.useradmin ;version=[1.1.0,1.2.0)
+    </require>
+  </resource>
+  <resource id='org.knopflerfish.bundle.useradmin/2.0.2' presentationname='UserAdmin' symbolicname='org.knopflerfish.bundle.useradmin' uri='org.knopflerfish.bundle.useradmin/org.knopflerfish.bundle.useradmin-2.0.2.jar' version='2.0.2'>
+    <description>
+      User Administration Service
+    </description>
+    <size>
+      41359
+    </size>
+    <documentation>
+      http://www.knopflerfish.org
+    </documentation>
+    <category id='service'/>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='UserAdmin'/>
+      <p n='symbolicname' v='org.knopflerfish.bundle.useradmin'/>
+      <p n='version' t='version' v='2.0.2'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.knopflerfish.service.um.ipam'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.knopflerfish.service.um.useradmin'/>
+      <p n='uses' v='org.osgi.service.useradmin'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.osgi.service.useradmin'/>
+      <p n='uses' v='org.osgi.framework'/>
+      <p n='version' t='version' v='1.1.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=org.knopflerfish.service.log)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.knopflerfish.service.log
+    </require>
+    <require extend='false' filter='(&amp;(package=org.knopflerfish.service.um.ipam)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.knopflerfish.service.um.ipam
+    </require>
+    <require extend='false' filter='(&amp;(package=org.knopflerfish.service.um.useradmin)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.knopflerfish.service.um.useradmin
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.event)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.event
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.useradmin)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.useradmin
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.util.tracker)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.util.tracker
+    </require>
+  </resource>
+  <resource id='org.knopflerfish.log/2.0.2' presentationname='LogService' symbolicname='org.knopflerfish.log' uri='org.knopflerfish.log/org.knopflerfish.log-2.0.2.jar' version='2.0.2'>
+    <description>
+      The Knopflerfish OSGi log service
+    </description>
+    <size>
+      36693
+    </size>
+    <documentation>
+      http://www.knopflerfish.org
+    </documentation>
+    <category id='service'/>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='LogService'/>
+      <p n='symbolicname' v='org.knopflerfish.log'/>
+      <p n='version' t='version' v='2.0.2'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.osgi.service.log'/>
+      <p n='uses' v='org.osgi.framework'/>
+      <p n='version' t='version' v='1.3.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.knopflerfish.service.log'/>
+      <p n='uses' v='org.osgi.framework,org.osgi.service.log'/>
+      <p n='version' t='version' v='1.1.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.cm
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.log ;version=1.3.0
+    </require>
+    <require extend='false' filter='(&amp;(package=org.knopflerfish.service.log)(version&gt;=1.1.0))' multiple='false' name='package' optional='false'>
+      Import package org.knopflerfish.service.log ;version=1.1.0
     </require>
   </resource>
   <resource id='org.ops4j.base.store/1.2.2' presentationname='OPS4J Base - Store' symbolicname='org.ops4j.base.store' uri='org.ops4j.base.store/org.ops4j.base.store-1.2.2.jar' version='1.2.2'>
