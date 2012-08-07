@@ -43,7 +43,7 @@
 			<file file="../cnf/repo/org.apache.felix.log/org.apache.felix.log-1.0.1.jar" />
 			<file file="../cnf/repo/com.vaadin/com.vaadin-6.5.1.jar" />
 			<file file="../org.apache.ace.configurator.useradmin.task/generated/org.apache.ace.configurator.useradmin.task.jar" />
-			<file file="../org.apache.ace.http.redirector/generated/org.apache.ace.http.redirector.jar" />
+
 			<file file="../org.apache.ace.target.mgmt.ui/generated/org.apache.ace.target.mgmt.ui.jar" />
 			<file file="../org.apache.ace.log.servlet/generated/org.apache.ace.log.servlet.jar" />
 			<file file="../org.apache.ace.deployment.streamgenerator/generated/org.apache.ace.deployment.streamgenerator.jar" />
@@ -119,22 +119,22 @@
 
 		<!-- create one giant TAR.GZ-file with everything in it -->
 		<tar destfile="${server.tarball}" compression="gzip">
-			<tarfileset dir="${target.server.dir}">
+			<tarfileset dir="${target.server.dir}" prefix="ace-devserver">
 				<include name="**"/>
 				<exclude name="*.sh"/>
 			</tarfileset>
-			<tarfileset dir="${target.server.dir}" mode="755">
+			<tarfileset dir="${target.server.dir}" mode="755" prefix="ace-devserver">
 				<include name="*.sh"/>
 			</tarfileset>
 		</tar>
 
 		<!-- create one giant ZIP-file with everything in it -->
 		<zip destfile="${server.zipball}">
-			<tarfileset dir="${target.server.dir}">
+			<tarfileset dir="${target.server.dir}" prefix="ace-devserver">
 				<include name="**"/>
 				<exclude name="*.sh"/>
 			</tarfileset>
-			<tarfileset dir="${target.server.dir}">
+			<tarfileset dir="${target.server.dir}" prefix="ace-devserver">
 				<include name="*.sh"/>
 			</tarfileset>
 		</zip>
