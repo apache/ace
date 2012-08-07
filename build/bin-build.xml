@@ -85,6 +85,11 @@
 			<file file="../org.apache.ace.authenticationprocessor.basicauth/generated/org.apache.ace.authenticationprocessor.basicauth.jar" />
 			<file file="../org.apache.ace.nodelauncher.ui/generated/org.apache.ace.nodelauncher.ui.jar" />
 		</resources>
+		
+		<resources id="devserver-store">
+		  <file file="../cnf/repo/org.apache.felix.deployment.rp.autoconf/org.apache.felix.deployment.rp.autoconf-0.1.1.jar" />
+			<file file="../org.apache.ace.launcher/generated/org.apache.ace.launcher.jar" />
+		</resources>
 
 		<!-- create right directory structure -->
 		<mkdir dir="${target.server.dir}/required-bundles" />
@@ -106,6 +111,13 @@
 		<copy todir="${target.server.dir}/conf">
 			<fileset dir="../run-server/conf" />
 		</copy>
+		
+		<!-- add jar files to store directory -->
+		<copy todir="${target.server.dir}/store" flatten="true">
+			<resources refid="devserver-store" />
+		</copy>
+		
+		<move file="${target.server.dir}/store/org.apache.ace.launcher.jar" toFile="${target.server.dir}/store/ace-launcher.jar"/>
 
 		<!-- copy the additional resources -->
 		<copy todir="${target.server.dir}">
