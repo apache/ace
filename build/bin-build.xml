@@ -38,8 +38,9 @@
 			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.shell/org.apache.felix.gogo.shell-0.10.0.jar" />
 			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.command/org.apache.felix.gogo.command-0.12.0.jar" />
 			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.runtime/org.apache.felix.gogo.runtime-0.10.0.jar" />
-			<file file="../cnf/repo/org.knopflerfish.bundle.useradmin/org.knopflerfish.bundle.useradmin-2.0.2.jar" />
-			<file file="../cnf/repo/org.knopflerfish.log/org.knopflerfish.log-2.0.2.jar" />
+			<file file="../cnf/repo/org.apache.felix.useradmin/org.apache.felix.useradmin-1.0.2.jar" />
+			<file file="../cnf/repo/org.apache.felix.useradmin.filestore/org.apache.felix.useradmin.filestore-1.0.1.jar" />
+			<file file="../cnf/repo/org.apache.felix.log/org.apache.felix.log-1.0.1.jar" />
 			<file file="../cnf/repo/com.vaadin/com.vaadin-6.5.1.jar" />
 			<file file="../org.apache.ace.configurator.useradmin.task/generated/org.apache.ace.configurator.useradmin.task.jar" />
 			<file file="../org.apache.ace.http.redirector/generated/org.apache.ace.http.redirector.jar" />
