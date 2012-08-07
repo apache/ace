@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <?xml-stylesheet type='text/xsl' href='http://www.osgi.org/www/obr2html.xsl'?>
 
-<repository lastmodified='20120807131937.783' name='Local Repository'>
+<repository lastmodified='20120807151443.802' name='Local Repository'>
   <resource id='bcprov/1.46.0' presentationname='bcprov' symbolicname='bcprov' uri='bcprov/bcprov-1.46.0.jar' version='1.46.0'>
     <size>
       1878175
@@ -2011,7 +2011,7 @@
        Felix.
     </description>
     <size>
-      16852
+      16849
     </size>
     <license>
       http://www.apache.org/licenses/LICENSE-2.0.txt
