@@ -19,17 +19,22 @@
 
 package org.apache.ace.launcher;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.ace.managementagent.Activator;
+import org.apache.felix.framework.util.FelixConstants;
 import org.osgi.framework.Constants;
+import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 
 /**
@@ -37,150 +42,180 @@ import org.osgi.framework.launch.FrameworkFactory;
  */
 public class Main {
 
-    private final boolean m_quiet = Boolean.parseBoolean(System.getProperty("quiet", "false"));
-    private final List m_additionalBundleActivators = new ArrayList();
-
-    private Argument m_identification = new KeyValueArgument() {
-        public void handle(String key, String value) {
-            if ("identification".equals(key)) {
-                System.setProperty("identification", value);
-            }
-        }
-
-        public String getDescription() {
-            return "identification: sets the target ID to use";
-        }
-    };
-
-    private Argument m_discovery = new KeyValueArgument() {
-        public void handle(String key, String value) {
-            if ("discovery".equals(key)) {
-                System.setProperty("discovery", value);
-            }
-        }
-
-        public String getDescription() {
-            return "discovery: sets the ACE server to connect to";
-        }
-    };
-
-    private Argument m_agents = new KeyValueArgument() {
-        public void handle(String key, String value) {
-            if ("agents".equals(key)) {
-                System.setProperty("agents", value);
-            }
-        }
-
-        public String getDescription() {
-            return "agents: configures multiple management agents: agent-id,identification,discovery[;agent-id,identification,discovery]*";
-        }
-    };
-    
-    private Argument m_auth = new KeyValueArgument() {
-        @Override
-        protected void handle(String key, String value) {
-            if ("auth".equals(key)) {
-                System.setProperty("auth", value);
-            }
-        }
+	private static class AdditionalBundlesOption extends KeyValueArgument {
+        private final List<String> m_additionalBundleActivators;
         
-        public String getDescription() {
-            return "auth: point to the properties file containing the authentication credentials for a certain subsystem: <dir/file/url>";
-        }
-    };
+		public AdditionalBundlesOption() {
+			super("bundle");
+			
+			m_additionalBundleActivators = new ArrayList<String>();
+		}
+		
+		/**
+		 * @return the additionalBundleActivators
+		 */
+		public List<String> getAdditionalBundleActivators() {
+			return new ArrayList<String>(m_additionalBundleActivators);
+		}
 
-    private Argument m_help = new Argument() {
+		@Override
+		public String getDescription() {
+			return "bundle: adds an additional bundle to be started with this management agent: bundle=my.fully.qualified.BundleActivator";
+		}
+
+		@Override
+		protected void doHandle(String value) {
+			if (!"".equals(value.trim()) && !m_additionalBundleActivators.contains(value)) {
+				m_additionalBundleActivators.add(value);
+			}
+		}
+    }
+
+    private interface Argument {
+        String getDescription();
+        void handle(String argument);
+    }
+    
+    private static class FrameworkOption extends KeyValueArgument {
+    	private Properties m_properties = new Properties();
+    	
+		public FrameworkOption() {
+			super("fwOption");
+		}
+		
+        public String getDescription() {
+            return "fwOption: sets framework options for the OSGi framework to be created. This argument may be repeated";
+        }
+
+        public Properties getProperties() {
+            return m_properties;
+        }
+
+        @Override
+        protected void doHandle(String value) {
+            Pattern pattern = Pattern.compile("([^=]*)=(.*)");
+            Matcher m = pattern.matcher(value);
+            if (!m.matches()) {
+                throw new IllegalArgumentException(value + " is not a valid framework option.");
+            }
+            m_properties.put(m.group(1), m.group(2));
+        }
+    }
+
+    private static abstract class KeyValueArgument implements Argument {
+    	protected final String m_key;
+    	
+		public KeyValueArgument(String key) {
+			m_key = key;
+		}
+    	
         public void handle(String argument) {
-            if ("help".equals(argument)) {
-                showHelp();
-                System.exit(0);
+            Pattern pattern = Pattern.compile(m_key + "=(.*)");
+            Matcher m = pattern.matcher(argument);
+            if (m.matches()) {
+                doHandle(m.group(1));
             }
         }
 
-        public String getDescription() {
-            return "help: prints this help message";
-        }
-    };
+        protected abstract void doHandle(String value);
+    }
 
-    private Argument m_additionalBundles = new KeyValueArgument() {
-        public void handle(String key, String value) {
-            if ("bundle".equals(key)) {
-                try {
-                    Class clazz = Class.forName(value);
-                    if (!m_quiet) {
-                        System.out.println("Adding additional bundle activator: " + clazz.getName());
-                    }
-                    m_additionalBundleActivators.add(clazz.newInstance());
-                }
-                catch (Exception e) {
-                    System.err.println("Bundle (" + value + ") not added! Details: " + e.getMessage());
-                }
-            }
-        }
+    private static class SystemPropertyArgument extends KeyValueArgument {
+    	private final String m_description;
+    	
+		public SystemPropertyArgument(String key, String description) {
+			super(key);
+			m_description = description;
+		}
+		
+		@Override
+		public String getDescription() {
+			return m_key + ": " + m_description;
+		}
+		
+		@Override
+		protected void doHandle(String value) {
+			System.setProperty(m_key, value);
+		}
+    }
 
-        public String getDescription() {
-            return "bundle: adds an additional bundle to be started with this management agent: bundle=my.fully.qualified.BundleActivator";
-        }
-    };
-    
-    private FrameworkOption m_fwOptionHandler = new FrameworkOption();
-    
-    private final List<Argument> m_arguments = Arrays.asList(
-        m_auth,
-        m_additionalBundles,
-        m_identification,
-        m_discovery,
-        m_agents,
-        m_fwOptionHandler,
-        m_help);
+    private static final boolean m_quiet = Boolean.parseBoolean(System.getProperty("quiet", "false"));
 
+	/**
+     * MAIN ENTRY POINT
+     * 
+     * @param args the command line arguments, never <code>null</code>.
+     * @throws Exception in case of errors.
+     */
     public static void main(String[] args) throws Exception {
         new Main(args).run();
     }
+    
+    private final FrameworkOption m_fwOptionHandler;
+    private final AdditionalBundlesOption m_additionalBundleHandler;
 
+	/**
+     * Creates a new {@link Main} instance.
+     * 
+     * @param args the command line arguments, never <code>null</code>.
+     */
     public Main(String[] args) {
+    	m_additionalBundleHandler = new AdditionalBundlesOption();
+    	m_fwOptionHandler = new FrameworkOption();
+    	
+        final List<Argument> arguments = new ArrayList<Argument>();
+
+    	Argument agents = new SystemPropertyArgument("agents", "configures multiple management agents: agent-id,identification,discovery[;agent-id,identification,discovery]*");
+        Argument auth = new SystemPropertyArgument("auth", "point to the properties file containing the authentication credentials for a certain subsystem: <dir/file/url>");
+        Argument discovery = new SystemPropertyArgument("discovery", "sets the ACE server to connect to");
+        Argument identification = new SystemPropertyArgument("id(?:entification)?", "sets the target ID to use") {
+        	@Override
+        	protected void doHandle(String value) {
+        		System.setProperty("identification", value);
+        	}
+        };
+    	Argument help = new Argument() {
+            public String getDescription() {
+                return "help: prints this help message";
+            }
+
+            public void handle(String argument) {
+                if ("help".equals(argument)) {
+                    showHelp(arguments);
+                    System.exit(0);
+                }
+            }
+        };
+
+        arguments.addAll(Arrays.asList(agents, auth, discovery, identification, m_additionalBundleHandler, m_fwOptionHandler, help));
+        
         for (String arg : args) {
-            for (Argument argument : m_arguments) {
+            for (Argument argument : arguments) {
                 argument.handle(arg);
             }
         }
     }
-
+    
     public void run() throws Exception {
-        FrameworkFactory factory = (FrameworkFactory) Class.forName("org.apache.felix.framework.FrameworkFactory").newInstance();
-
-        List activators = new ArrayList();
-        activators.add(new Activator());
-        activators.addAll(m_additionalBundleActivators);
+        Map frameworkProperties = createFrameworkProperties();
+        FrameworkFactory factory = createFrameworkFactory();
         
-        String[] extraSystemPackageArray = {
-            "org.osgi.service.deploymentadmin;version=\"1.0\"",
-            "org.osgi.service.deploymentadmin.spi;version=\"1.0\"",
-            "org.osgi.service.cm;version=\"1.3\"",
-            "org.osgi.service.event;version=\"1.2\"",
-            "org.osgi.service.log;version=\"1.3\"",
-            "org.osgi.service.metatype;version=\"1.1\"",
-            "org.apache.felix.dm;version=\"3.0\"",
-            "org.apache.felix.dm.tracker;version=\"3.0\"",
-            "org.apache.ace.log;version=\"0.8.1.SNAPSHOT\"",
-            "org.apache.ace.deployment.service;version=\"0.8.1.SNAPSHOT\""
-        };
-        
-        String extraSystemPackages = createExtraSystemPackages(extraSystemPackageArray);
+        Framework framework = factory.newFramework(frameworkProperties);
 
-        Map frameworkProperties = new HashMap();
-        frameworkProperties.put("felix.systembundle.activators", activators);
-        frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, extraSystemPackages);
-        frameworkProperties.putAll(m_fwOptionHandler.getProperties());
+		framework.start();
 
-        factory.newFramework(frameworkProperties).start();
+		try {
+		    framework.waitForStop(0);
+		} finally {
+		    System.exit(0);
+		}
     }
-
+    
     /**
      * @param extraSystemPackages
      * @return
      */
-    private String createExtraSystemPackages(String[] extraSystemPackages) {
+    private String getExtraSystemPackages(String[] extraSystemPackages) {
         String isolateMA = System.getProperty("isolateMA", "managementagent");
 
         StringBuilder sb = new StringBuilder();
@@ -196,58 +231,109 @@ public class Main {
         return sb.toString();
     }
 
-    private void showHelp() {
+    /**
+     * @return
+     */
+    private FrameworkFactory createFrameworkFactory() {
+    	try {
+			Class<?> clazz = Class.forName("org.apache.felix.framework.FrameworkFactory");
+			return (FrameworkFactory) clazz.newInstance();
+		} catch (Exception e) {
+    		throw new RuntimeException("Failed to create framework factory?!", e);
+		}
+    }
+
+    /**
+	 * @return
+	 * @throws Exception
+	 */
+	private Map createFrameworkProperties() throws Exception {
+		String[] extraSystemPackageArray = {
+            "org.osgi.service.deploymentadmin;version=\"1.0\"",
+            "org.osgi.service.deploymentadmin.spi;version=\"1.0\"",
+            "org.osgi.service.cm;version=\"1.3\"",
+            "org.osgi.service.event;version=\"1.2\"",
+            "org.osgi.service.log;version=\"1.3\"",
+            "org.osgi.service.metatype;version=\"1.1\"",
+            "org.apache.felix.dm;version=\"3.0\"",
+            "org.apache.felix.dm.tracker;version=\"3.0\"",
+            "org.apache.ace.log;version=\"0.8\"",
+            "org.apache.ace.deployment.service;version=\"0.8\""
+        };
+
+        Map frameworkProperties = new HashMap();
+        frameworkProperties.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, getSystemBundleActivators());
+        frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, getExtraSystemPackages(extraSystemPackageArray));
+        frameworkProperties.putAll(m_fwOptionHandler.getProperties());
+
+		return frameworkProperties;
+	}
+    
+    /**
+	 * @return
+	 * @throws IOException
+	 */
+	private List<String> getAdditionalBundleActivators() throws IOException {
+		List<String> bundleActivators = m_additionalBundleHandler.getAdditionalBundleActivators();
+		
+		// The actual management agent itself...
+		bundleActivators.add(0, "org.apache.ace.managementagent.Activator");
+
+    	// Pull in all the additional mentioned bundles on the classpath...
+    	ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    	Enumeration<URL> resources = cl.getResources("META-INF/MANIFEST.MF");
+    	while (resources.hasMoreElements()) {
+    		URL resource = resources.nextElement();
+    		try {
+				Manifest mf = new Manifest(resource.openStream());
+				String bundleActivator = mf.getMainAttributes().getValue(Constants.BUNDLE_ACTIVATOR);
+				if (bundleActivator != null) {
+					bundleActivators.add(bundleActivator);
+				}
+			} catch (Exception e) {
+				System.err.println("Failed to read resource: " + resource + "!\nPossible reason: " + e);
+			}
+    	}
+		return bundleActivators;
+	}
+    
+    /**
+     * @return
+     * @throws Exception
+     */
+    private List<Object> getSystemBundleActivators() throws Exception {
+    	ClassLoader cl = Thread.currentThread().getContextClassLoader();
+
+    	List<Object> result = new ArrayList<Object>();
+
+    	List<String> bundleActivators = getAdditionalBundleActivators();
+    	for (String bundleActivator : bundleActivators) {
+    		try {
+				Object instance = cl.loadClass(bundleActivator).newInstance();
+				if (!m_quiet) {
+					System.out.println("Adding additional bundle activator: " + bundleActivator);
+				}
+				result.add(instance);
+			} catch (Exception e) {
+				System.err.println("Failed to add bundle activator: " + bundleActivator + "!\nPossible reason: " + e);
+			}
+    	}
+
+    	return result;
+    }
+
+    private void showHelp(List<Argument> arguments) {
         System.out.println("Apache ACE Launcher\n"
                 + "Usage:\n"
                 + "  java -jar ace-launcher.jar [identification=<id>] [discovery=<ace-server>] [options...]");
 
-        System.out.println("All known options are,");
-        for (Argument argument : m_arguments) {
+        System.out.println("All known options are:");
+        for (Argument argument : arguments) {
             System.out.println("  " + argument.getDescription());
         }
 
         System.out.println("Example:\n"
                 + "  java -jar ace-launcher.jar identification=MyTarget discovery=http://provisioning.company.com:8080 "
                 + "fwOption=org.osgi.framework.system.packages.extra=sun.misc,com.sun.management");
-    }
-
-    private interface Argument {
-        void handle(String argument);
-        String getDescription();
-    }
-
-    private static abstract class KeyValueArgument implements Argument {
-        public void handle(String argument) {
-            Pattern pattern = Pattern.compile("(\\w*)=(.*)");
-            Matcher m = pattern.matcher(argument);
-            if (m.matches()) {
-                handle(m.group(1), m.group(2));
-            }
-        }
-
-        protected abstract void handle(String key, String value);
-    }
-
-    private static class FrameworkOption extends KeyValueArgument {
-        private Properties m_properties = new Properties();
-        @Override
-        protected void handle(String key, String value) {
-            if (key.equals("fwOption")) {
-                Pattern pattern = Pattern.compile("([^=]*)=(.*)");
-                Matcher m = pattern.matcher(value);
-                if (!m.matches()) {
-                    throw new IllegalArgumentException(value + " is not a valid framework option.");
-                }
-                m_properties.put(m.group(1), m.group(2));
-            }
-        }
-
-        public String getDescription() {
-            return "fwOption: sets framework options for the OSGi framework to be created. This argument may be repeated";
-        }
-
-        public Properties getProperties() {
-            return m_properties;
-        }
     }
 }
