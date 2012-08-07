@@ -51,8 +51,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.streamgenerator;version=latest,\
 	org.apache.ace.deployment.provider.base;version=latest,\
 	org.apache.felix.prefs,\
-	org.apache.felix.useradmin;version='[0.9.9,1.0.0)',\
-	org.apache.felix.log;version='[1.0.1,1.0.2)',\
+	org.apache.felix.useradmin;version='[1.0.2,1.0.3)',\
+	org.apache.felix.useradmin.filestore;version='[1.0.1,1.0.2)',\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.log;version=latest,\
 	org.apache.ace.server.log.store;version=latest,\
@@ -77,5 +77,3 @@ Private-Package: org.apache.ace.client.rest.itest,\
 	com.google.gson.*,\
 	aQute.*,\
 	org.osgi.service.bindex
-	
-	
