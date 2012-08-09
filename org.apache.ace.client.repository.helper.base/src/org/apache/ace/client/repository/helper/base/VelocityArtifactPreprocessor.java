@@ -27,7 +27,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

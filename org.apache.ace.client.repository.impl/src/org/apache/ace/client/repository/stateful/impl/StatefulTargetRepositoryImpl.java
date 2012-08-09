@@ -624,13 +624,13 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                         if (!m_bundleHelper.canUse(artifact)) {
                             String processorPID = artifact.getProcessorPID();
                             if (processorPID == null) {
-                                m_log.log(LogService.LOG_ERROR, "No processor PID found for " + artifact.getName());
+                                m_log.log(LogService.LOG_ERROR, "Cannot gather necessary artifacts: no processor PID defined for " + artifact.getName());
                                 return null;
                             }
                             ArtifactObject processor = allProcessors.get(processorPID);
                             if (processor == null) {
                                 // this means we cannot create a useful version; return null.
-                                m_log.log(LogService.LOG_ERROR, "No processor found for " + artifact.getName() + " with processor PID " + processorPID);
+                            	m_log.log(LogService.LOG_ERROR, "Cannot gather necessary artifacts: failed to find resource processor named '" + artifact.getProcessorPID() + "' for artifact '" + artifact.getName() + "'!");
                                 return null;
                             }
                             result.add(processor);
