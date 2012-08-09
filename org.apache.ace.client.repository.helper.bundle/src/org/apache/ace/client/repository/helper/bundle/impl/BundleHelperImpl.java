@@ -232,7 +232,9 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
         }
         finally {
             try {
-                jis.close();
+                if (jis != null) {
+                    jis.close();
+                }
             }
             catch (IOException e) {
                 // Too bad.
@@ -262,7 +264,9 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
         }
         finally {
             try {
-                jis.close();
+                if (jis != null) {
+                    jis.close();
+                }
             }
             catch (Exception e) {
                 // Too bad.
