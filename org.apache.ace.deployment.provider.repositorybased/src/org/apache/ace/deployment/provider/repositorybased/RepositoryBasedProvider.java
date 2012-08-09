@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -256,11 +258,24 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
      */
     private ArtifactData getArtifactData(URL url, Collection<ArtifactData> data) {
         ArtifactData bundle = null;
+        URI uri = null;
+        try {
+            uri = url.toURI();
+        }
+        catch (URISyntaxException e) {
+            m_log.log(LogService.LOG_ERROR, "Could not convert URL " + url + " to a URI");
+            return null;
+        }
         Iterator<ArtifactData> it = data.iterator();
         while (it.hasNext()) {
             bundle = it.next();
-            if (bundle.getUrl().equals(url)) {
-                return bundle;
+            try {
+                if (uri.equals(bundle.getUrl().toURI())) {
+                    return bundle;
+                }
+            }
+            catch (URISyntaxException e) {
+                m_log.log(LogService.LOG_ERROR, "Could not convert bundle URL for " + bundle.getFilename() + " to a URI");
             }
         }
         return null;
@@ -278,7 +293,8 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         Iterator<ArtifactData> it = data.iterator();
         while (it.hasNext()) {
             bundle = it.next();
-            if ((bundle.getSymbolicName() != null) && bundle.getSymbolicName().equals(symbolicName)) {
+            String bsn = bundle.getSymbolicName();
+            if ((bsn != null) && bsn.equals(symbolicName)) {
                 return bundle;
             }
         }
