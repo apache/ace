@@ -141,7 +141,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         synchronized (m_workspaces) {
             m_useAuthentication = Boolean.valueOf(useAuth);
             m_repositoryURL = getProperty(properties, KEY_REPOSITORY_URL, "http://localhost:8080/repository");
-            m_obrURL = getProperty(properties, KEY_OBR_URL, "http://localhost:8080/obr");
+            m_obrURL = getProperty(properties, KEY_OBR_URL, "http://localhost:8080/obr/");
             m_customerName = getProperty(properties, KEY_CUSTOMER_NAME, "apache");
             m_storeRepositoryName = getProperty(properties, KEY_STORE_REPOSITORY_NAME, "shop");
             m_targetRepositoryName = getProperty(properties, KEY_DISTRIBUTION_REPOSITORY_NAME, "target");
