@@ -622,9 +622,15 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                     for (ArtifactObject artifact : feature.getArtifacts()) {
                         result.add(artifact);
                         if (!m_bundleHelper.canUse(artifact)) {
-                            ArtifactObject processor = allProcessors.get(artifact.getProcessorPID());
+                            String processorPID = artifact.getProcessorPID();
+                            if (processorPID == null) {
+                                m_log.log(LogService.LOG_ERROR, "No processor PID found for " + artifact.getName());
+                                return null;
+                            }
+                            ArtifactObject processor = allProcessors.get(processorPID);
                             if (processor == null) {
                                 // this means we cannot create a useful version; return null.
+                                m_log.log(LogService.LOG_ERROR, "No processor found for " + artifact.getName() + " with processor PID " + processorPID);
                                 return null;
                             }
                             result.add(processor);
