@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.jar.Manifest;
 
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.helper.configuration.ConfigurationHelper;
+import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.felix.dm.Component;
@@ -150,7 +150,6 @@ public class RESTClientTest extends IntegrationTestBase {
 
     public void testDeployConfigurationTemplateToTargets() throws Exception {
         try {
-            Gson gson = new Gson();
             Client c = Client.create();
             c.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
             
@@ -175,25 +174,26 @@ public class RESTClientTest extends IntegrationTestBase {
             File rp = new File("rp.jar");
             createBundleOnDisk(rp, "rp", "1.0.0", BundleHelper.KEY_RESOURCE_PROCESSOR_PID, ConfigurationHelper.PROCESSOR, "DeploymentPackage-Customizer", "true");
             rp.deleteOnExit();
-            
+
             WebResource w1 = createWorkspace(c);
             createResourceProcessor(c, w1, "rp", "resourceprocessor", "1.0.0", rp.toURI().toURL().toString(), BundleHelper.MIMETYPE, ConfigurationHelper.PROCESSOR);
-            createConfiguration(c, w1, "c1", config.toURI().toURL().toString(), ConfigurationHelper.MIMETYPE, "template.xml");
-            createAssociationA2F(c, w1, "artifact2feature", "c1", "f1");
-            createFeature(c, w1, "f1");
-            createAssociationF2D(c, w1, "feature2distribution", "f1", "d1");
-            createDistribution(c, w1, "d1");
-            createAssociationD2T(c, w1, "distribution2target", "d1", "t1");
-            createAssociationD2T(c, w1, "distribution2target", "d1", "t2");
-            createAssociationD2T(c, w1, "distribution2target", "d1", "t3");
-            createTarget(c, w1, "t1", "test", "one");
-            createTarget(c, w1, "t2", "test", "two");
-            createTarget(c, w1, "t3", "test", "three");
+            createConfiguration(c, w1, "c1", config.toURI().toURL().toString(), ConfigurationHelper.MIMETYPE, "template.xml", ConfigurationHelper.PROCESSOR);
+            createAssociationA2F(c, w1, "artifact2feature", "c1", "f4");
+            createFeature(c, w1, "f4");
+            createAssociationF2D(c, w1, "feature2distribution", "f4", "d2");
+            createDistribution(c, w1, "d2");
+            createAssociationD2T(c, w1, "distribution2target", "d2", "t4");
+            createAssociationD2T(c, w1, "distribution2target", "d2", "t5");
+            createAssociationD2T(c, w1, "distribution2target", "d2", "t6");
+            createTarget(c, w1, "t4", "test", "one");
+            createTarget(c, w1, "t5", "test", "two");
+            createTarget(c, w1, "t6", "test", "three");
             w1.post();
             w1.delete();
             
             /* TODO: temporarily disabled these checks, because between test methods nothing
              * is cleaned up right now and this part of the test does rely on that
+            Gson gson = new Gson();
             WebResource w2 = createWorkspace(c);
             assertResources(gson, w2, "artifact", 1);
             assertResources(gson, w2, "artifact2feature", 1);
@@ -203,13 +203,13 @@ public class RESTClientTest extends IntegrationTestBase {
             assertResources(gson, w2, "distribution2target", 3);
             assertResources(gson, w2, "target", 3);
             w2.delete();
-            */
+             */
 
             // just for debugging
             showLog();
             showBundles();
             
-            WebResource t1versions = c.resource("http://localhost:8080/deployment/t1/versions");
+            WebResource t1versions = c.resource("http://localhost:8080/deployment/t4/versions");
             assertEquals("1.0.0\n", t1versions.get(String.class));
         }
         catch (Exception e) {
@@ -298,8 +298,7 @@ public class RESTClientTest extends IntegrationTestBase {
         }
         WebResource t1versions = c.resource("http://localhost:8080/deployment/t1/versions");
         assertEquals("1.0.0\n", t1versions.get(String.class));
-    }
-    
+    }    
     
     /** Asserts that a list of entities exist by trying to GET them. */
     private void assertEntitiesExist(WebResource... entities) throws Exception {
@@ -359,12 +358,13 @@ public class RESTClientTest extends IntegrationTestBase {
     }
 
     /** Creates a configuration artifact. */
-    private WebResource createConfiguration(Client c, WebResource work, String name, String url, String mimetype, String filename) throws IOException {
+    private WebResource createConfiguration(Client c, WebResource work, String name, String url, String mimetype, String filename, String processorID) throws IOException {
         return createEntity(c, work, "artifact", "{attributes: {" +
             "artifactName: \"" + name + "\", " +
             "filename: \"" + filename + "\", " +
             "mimetype: \"" + mimetype + "\", " +
-            "url: \"" + url + "\"" +
+            "url: \"" + url + "\", " +
+            ArtifactObject.KEY_PROCESSOR_PID + ": \"" + processorID + "\"" +
             "}, tags: {}}");
     }
     
@@ -420,14 +420,18 @@ public class RESTClientTest extends IntegrationTestBase {
     /** Creates a bundle on disk, using the specified file, symbolic name and version. */
     private void createBundleOnDisk(File f, String bsn, String v, String... headers) throws Exception {
         Builder b = new Builder();
-        b.setProperty("Bundle-SymbolicName", bsn);
-        b.setProperty("Bundle-Version", v);
-        for (int i = 0; i < headers.length; i += 2) {
-            b.setProperty(headers[i], headers[i + 1]);
+        try {
+	        b.setProperty("Bundle-SymbolicName", bsn);
+	        b.setProperty("Bundle-Version", v);
+	        for (int i = 0; i < headers.length; i += 2) {
+	            b.setProperty(headers[i], headers[i + 1]);
+	        }
+	        Jar jar = b.build();
+	        jar.getManifest(); // Not sure whether this is needed...
+	        jar.write(f);
+        } finally {
+        	b.close();
         }
-        Jar jar = b.build();
-        Manifest m = jar.getManifest();
-        jar.write(f);
     }
     
     /** Configure the server for this test. */
