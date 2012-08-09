@@ -126,14 +126,20 @@ public class RepositoryObjectSerializer implements JsonSerializer<RepositoryObje
         state.addProperty(AUTO_APPROVE, Boolean.toString(targetObject.getAutoApprove()));
 
         JsonArray artifactsFromShop = new JsonArray();
-        for (ArtifactObject a : targetObject.getArtifactsFromShop()) {
-            artifactsFromShop.add(new JsonPrimitive(a.getDefinition()));
+        ArtifactObject[] artifactObjects = targetObject.getArtifactsFromShop();
+        if (artifactObjects != null) {
+            for (ArtifactObject a : artifactObjects) {
+                artifactsFromShop.add(new JsonPrimitive(a.getDefinition()));
+            }
         }
         state.add(ARTIFACTS_FROM_SHOP, artifactsFromShop);
 
         JsonArray artifactsFromDeployment = new JsonArray();
-        for (DeploymentArtifact a : targetObject.getArtifactsFromDeployment()) {
-            artifactsFromDeployment.add(new JsonPrimitive(a.getUrl()));
+        DeploymentArtifact[] deploymentArtifacts = targetObject.getArtifactsFromDeployment();
+        if (deploymentArtifacts != null) {
+            for (DeploymentArtifact a : deploymentArtifacts) {
+                artifactsFromDeployment.add(new JsonPrimitive(a.getUrl()));
+            }
         }
         state.add(ARTIFACTS_FROM_DEPLOYMENT, artifactsFromDeployment);
 
