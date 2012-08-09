@@ -139,7 +139,7 @@ public interface StatefulTargetObject extends RepositoryObject {
 
     /**
      * Gets the list of artifact objects that should be on the target, according to the shop.
-     * @return the list of artifact objects that should be on the target, according to the shop.
+     * @return the list of artifact objects that should be on the target, according to the shop, can only be <code>null</code> in case something went wrong gathering artifacts.
      */
     public ArtifactObject[] getArtifactsFromShop();
 
