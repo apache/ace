@@ -21,7 +21,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	com.sun.jersey.client,\
 	com.sun.jersey.core,\
 	gson,\
-	biz.aQute.bndlib
+	biz.aQute.bndlib,\
+	org.apache.ace.client.repository.helper.configuration;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager;version='[3.1.0,3.1.1)',\
@@ -46,8 +47,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.api;version=latest,\
 	org.apache.ace.deployment.deploymentadmin;version=latest,\
 	org.apache.ace.deployment.servlet;version=latest,\
-	org.apache.ace.deployment.task;version=latest,\
-	org.apache.ace.deployment.task.base;version=latest,\
 	org.apache.ace.deployment.streamgenerator;version=latest,\
 	org.apache.ace.deployment.provider.base;version=latest,\
 	org.apache.felix.prefs,\
@@ -71,9 +70,14 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.client.rest;version=latest,\
 	com.sun.jersey.client,\
 	com.sun.jersey.core,\
-	org.apache.ace.deployment.provider.repositorybased;version=latest
+	org.apache.ace.deployment.provider.repositorybased;version=latest,\
+	org.apache.felix.log
+-runproperties: org.apache.felix.log.storeDebug=true,\
+	org.apache.felix.eventadmin.Timeout=0,\
+	org.apache.felix.log.maxSize=1000
 Private-Package: org.apache.ace.client.rest.itest,\
 	com.google.gson,\
 	com.google.gson.*,\
 	aQute.*,\
 	org.osgi.service.bindex
+

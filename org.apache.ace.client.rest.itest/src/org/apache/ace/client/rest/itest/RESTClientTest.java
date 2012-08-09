@@ -1,14 +1,23 @@
 package org.apache.ace.client.rest.itest;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.jar.Manifest;
 
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
+import org.apache.ace.client.repository.helper.configuration.ConfigurationHelper;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.felix.dm.Component;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.log.LogEntry;
+import org.osgi.service.log.LogReaderService;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -25,17 +34,22 @@ import com.sun.jersey.api.client.config.ClientConfig;
 
 public class RESTClientTest extends IntegrationTestBase {
     private static boolean m_hasBeenSetup = false;
+    private volatile BundleContext m_context;
     private volatile UserAdmin m_user;
+    private volatile LogReaderService m_logReader;
     
     @Override
     protected Component[] getDependencies() {
         return new Component[] {
-            createComponent().setImplementation(this).add(createServiceDependency().setService(UserAdmin.class).setRequired(true))
+            createComponent()
+                .setImplementation(this)
+                .add(createServiceDependency().setService(UserAdmin.class).setRequired(true))
+                .add(createServiceDependency().setService(LogReaderService.class).setRequired(true))
         };
     }
     
     @Override
-    protected void before() throws Exception {
+    protected void after() throws Exception {
         // there is some setup we only want to do once, before the first test we run, and since we cannot
         // predict which one that is, we use a static flag
         if (!m_hasBeenSetup) {
@@ -80,23 +94,24 @@ public class RESTClientTest extends IntegrationTestBase {
      * has indeed led to a new version of the software for this target.
      */
     public void testDeployBundlesToTarget() throws Exception {
+        Gson gson = new Gson();
         Client c = Client.create();
         c.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
         
         File b1 = new File("b1.jar");
         File b2 = new File("b2.jar");
         File b3 = new File("b3.jar");
-        createBundle(b1, "b1", "1.0.0");
-        createBundle(b2, "b2", "1.0.0");
-        createBundle(b3, "b3", "1.0.0");
+        createBundleOnDisk(b1, "b1", "1.0.0");
+        createBundleOnDisk(b2, "b2", "1.0.0");
+        createBundleOnDisk(b3, "b3", "1.0.0");
         b1.deleteOnExit();
         b2.deleteOnExit();
         b3.deleteOnExit();
         
         WebResource w1 = createWorkspace(c);
-        WebResource a1 = createArtifact(c, w1, "a1", "b1", "1.0.0", b1.toURI().toURL().toString(), BundleHelper.MIMETYPE);
-        WebResource a2 = createArtifact(c, w1, "a2", "b2", "1.0.0", b2.toURI().toURL().toString(), BundleHelper.MIMETYPE);
-        WebResource a3 = createArtifact(c, w1, "a3", "b3", "1.0.0", b3.toURI().toURL().toString(), BundleHelper.MIMETYPE);
+        WebResource a1 = createBundle(c, w1, "a1", "b1", "1.0.0", b1.toURI().toURL().toString(), BundleHelper.MIMETYPE);
+        WebResource a2 = createBundle(c, w1, "a2", "b2", "1.0.0", b2.toURI().toURL().toString(), BundleHelper.MIMETYPE);
+        WebResource a3 = createBundle(c, w1, "a3", "b3", "1.0.0", b3.toURI().toURL().toString(), BundleHelper.MIMETYPE);
         assertEntitiesExist(a1, a2, a3);
         WebResource a1f1 = createAssociationA2F(c, w1, "artifact2feature", "a1", "f1");
         WebResource a2f2 = createAssociationA2F(c, w1, "artifact2feature", "a2", "f2");
@@ -119,7 +134,6 @@ public class RESTClientTest extends IntegrationTestBase {
         w1.post();
         w1.delete();
         
-        Gson gson = new Gson();
         WebResource w2 = createWorkspace(c);
         assertResources(gson, w2, "artifact", 3);
         assertResources(gson, w2, "artifact2feature", 3);
@@ -133,7 +147,97 @@ public class RESTClientTest extends IntegrationTestBase {
         WebResource t1versions = c.resource("http://localhost:8080/deployment/t1/versions");
         assertEquals("1.0.0\n", t1versions.get(String.class));
     }
-    
+
+    public void testDeployConfigurationTemplateToTargets() throws Exception {
+        try {
+            Gson gson = new Gson();
+            Client c = Client.create();
+            c.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
+            
+            File config = new File("template.xml");
+            BufferedWriter bw = new BufferedWriter(new FileWriter(config));
+            bw.write(
+                "<MetaData xmlns='http://www.osgi.org/xmlns/metatype/v1.0.0'>\n" + 
+                "  <OCD name='ocd' id='ocd'>\n" + 
+                "    <AD id='name' type='STRING' cardinality='0' />\n" + 
+                "  </OCD>\n" + 
+                "  <Designate pid='simple' bundle='osgi-dp:location'>\n" + 
+                "    <Object ocdref='ocd'>\n" + 
+                "      <Attribute adref='name'>\n" + 
+                "        <Value><![CDATA[${context.test}]]></Value>\n" + 
+                "      </Attribute>\n" + 
+                "    </Object>\n" + 
+                "  </Designate>\n" + 
+                "</MetaData>\n"
+            );
+            bw.close();
+            config.deleteOnExit();
+            File rp = new File("rp.jar");
+            createBundleOnDisk(rp, "rp", "1.0.0", BundleHelper.KEY_RESOURCE_PROCESSOR_PID, ConfigurationHelper.PROCESSOR, "DeploymentPackage-Customizer", "true");
+            rp.deleteOnExit();
+            
+            WebResource w1 = createWorkspace(c);
+            createResourceProcessor(c, w1, "rp", "resourceprocessor", "1.0.0", rp.toURI().toURL().toString(), BundleHelper.MIMETYPE, ConfigurationHelper.PROCESSOR);
+            createConfiguration(c, w1, "c1", config.toURI().toURL().toString(), ConfigurationHelper.MIMETYPE, "template.xml");
+            createAssociationA2F(c, w1, "artifact2feature", "c1", "f1");
+            createFeature(c, w1, "f1");
+            createAssociationF2D(c, w1, "feature2distribution", "f1", "d1");
+            createDistribution(c, w1, "d1");
+            createAssociationD2T(c, w1, "distribution2target", "d1", "t1");
+            createAssociationD2T(c, w1, "distribution2target", "d1", "t2");
+            createAssociationD2T(c, w1, "distribution2target", "d1", "t3");
+            createTarget(c, w1, "t1", "test", "one");
+            createTarget(c, w1, "t2", "test", "two");
+            createTarget(c, w1, "t3", "test", "three");
+            w1.post();
+            w1.delete();
+            
+            /* TODO: temporarily disabled these checks, because between test methods nothing
+             * is cleaned up right now and this part of the test does rely on that
+            WebResource w2 = createWorkspace(c);
+            assertResources(gson, w2, "artifact", 1);
+            assertResources(gson, w2, "artifact2feature", 1);
+            assertResources(gson, w2, "feature", 1);
+            assertResources(gson, w2, "feature2distribution", 1);
+            assertResources(gson, w2, "distribution", 1);
+            assertResources(gson, w2, "distribution2target", 3);
+            assertResources(gson, w2, "target", 3);
+            w2.delete();
+            */
+
+            // just for debugging
+            showLog();
+            showBundles();
+            
+            WebResource t1versions = c.resource("http://localhost:8080/deployment/t1/versions");
+            assertEquals("1.0.0\n", t1versions.get(String.class));
+        }
+        catch (Exception e) {
+            showLog();
+            throw e;
+        }
+    }
+
+    /** Shows all log messages in the OSGi log service. */
+    private void showLog() {
+        Enumeration e = m_logReader.getLog();
+        System.out.println("Log:");
+        while (e.hasMoreElements()) {
+            LogEntry entry = (LogEntry) e.nextElement();
+            System.out.println(" * " + (new Date(entry.getTime())) + " - " + entry.getMessage() + " - " + entry.getBundle().getBundleId() + " - " + entry.getException());
+            if (entry.getException() != null) {
+                entry.getException().printStackTrace();
+            }
+        }
+    }
+
+    /** Shows all bundles in the framework. */
+    private void showBundles() {
+        for (Bundle b : m_context.getBundles()) {
+            System.out.println(" * [" + b.getBundleId() + "] " + b.getState() + " - " + b.getSymbolicName() + " " + b.getVersion());
+        }
+    }
+
     /**
      * Creates and deletes a number of workspaces.
      */
@@ -168,14 +272,14 @@ public class RESTClientTest extends IntegrationTestBase {
         
         File b1 = new File("b1.jar");
         File b2 = new File("b2.jar");
-        createBundle(b1, "b1", "1.0.0");
-        createBundle(b2, "b2", "1.0.0");
+        createBundleOnDisk(b1, "b1", "1.0.0");
+        createBundleOnDisk(b2, "b2", "1.0.0");
         b1.deleteOnExit();
         b2.deleteOnExit();
         
         WebResource w1 = createWorkspace(c);
-        createArtifact(c, w1, "a1", "b1", "1.0.0", b1.toURI().toURL().toString(), BundleHelper.MIMETYPE);
-        createArtifact(c, w1, "a2", "b2", "1.0.0", b2.toURI().toURL().toString(), BundleHelper.MIMETYPE);
+        createBundle(c, w1, "a1", "b1", "1.0.0", b1.toURI().toURL().toString(), BundleHelper.MIMETYPE);
+        createBundle(c, w1, "a2", "b2", "1.0.0", b2.toURI().toURL().toString(), BundleHelper.MIMETYPE);
         createTarget(c, w1, "t1");
         w1.post();
         w1.delete();
@@ -229,17 +333,41 @@ public class RESTClientTest extends IntegrationTestBase {
         }
     }
 
-    /** Creates an artifact. */
-    private WebResource createArtifact(Client c, WebResource work, String name, String bsn, String v, String url, String mimetype) throws IOException {
+    /** Creates a bundle artifact. */
+    private WebResource createBundle(Client c, WebResource work, String name, String bsn, String v, String url, String mimetype) throws IOException {
         return createEntity(c, work, "artifact", "{attributes: {" +
-    		"artifactName: \"" + name + "\", " +
-			"url: \"" + url + "\", " +
+            "artifactName: \"" + name + "\", " +
             "Bundle-SymbolicName: \"" + bsn + "\", " +
-    		"Bundle-Version: \"" + v + "\", " +
-			"mimetype: \"" + mimetype + "\"" +
-			"}, tags: {}}");
+            "Bundle-Version: \"" + v + "\", " +
+            "mimetype: \"" + mimetype + "\", " +
+            "url: \"" + url + "\"" +
+            "}, tags: {}}");
     }
 
+    /** Creates a resource processor bundle artifact. */
+    private WebResource createResourceProcessor(Client c, WebResource work, String name, String bsn, String v, String url, String mimetype, String processorID) throws IOException {
+        return createEntity(c, work, "artifact", "{attributes: {" +
+            "artifactName: \"" + name + "\", " +
+            "description: \"\", " +
+            "Bundle-SymbolicName: \"" + bsn + "\", " +
+            "Bundle-Version: \"" + v + "\", " +
+            "mimetype: \"" + mimetype + "\", " +
+            BundleHelper.KEY_RESOURCE_PROCESSOR_PID + ": \"" + processorID + "\", " +
+            "DeploymentPackage-Customizer: \"true\", " +
+            "url: \"" + url + "\"" +
+            "}, tags: {}}");
+    }
+
+    /** Creates a configuration artifact. */
+    private WebResource createConfiguration(Client c, WebResource work, String name, String url, String mimetype, String filename) throws IOException {
+        return createEntity(c, work, "artifact", "{attributes: {" +
+            "artifactName: \"" + name + "\", " +
+            "filename: \"" + filename + "\", " +
+            "mimetype: \"" + mimetype + "\", " +
+            "url: \"" + url + "\"" +
+            "}, tags: {}}");
+    }
+    
     /** Creates a feature. */
     private WebResource createFeature(Client c, WebResource work, String name) throws IOException {
         return createEntity(c, work, "feature", "{attributes: {name: \"" + name + "\"}, tags: {}}");
@@ -251,8 +379,15 @@ public class RESTClientTest extends IntegrationTestBase {
     }
 
     /** Creates a target. */
-    private WebResource createTarget(Client c, WebResource work, String name) throws IOException {
-        return createEntity(c, work, "target", "{attributes: {id: \"" + name + "\", autoapprove: \"true\"}, tags: {}}");
+    private WebResource createTarget(Client c, WebResource work, String name, String... tags) throws IOException {
+        StringBuffer result = new StringBuffer();
+        for (int i = 0; i < tags.length; i += 2) {
+            if (result.length() > 0) {
+                result.append(", ");
+            }
+            result.append(tags[i] + ": \"" + tags[i + 1] + "\"");
+        }
+        return createEntity(c, work, "target", "{attributes: {id: \"" + name + "\", autoapprove: \"true\"}, tags: {" + result.toString() + "}}");
     }
 
     /** Creates an association between an artifact and a feature. */
@@ -283,10 +418,13 @@ public class RESTClientTest extends IntegrationTestBase {
     }
 
     /** Creates a bundle on disk, using the specified file, symbolic name and version. */
-    private void createBundle(File f, String bsn, String v) throws Exception {
+    private void createBundleOnDisk(File f, String bsn, String v, String... headers) throws Exception {
         Builder b = new Builder();
         b.setProperty("Bundle-SymbolicName", bsn);
         b.setProperty("Bundle-Version", v);
+        for (int i = 0; i < headers.length; i += 2) {
+            b.setProperty(headers[i], headers[i + 1]);
+        }
         Jar jar = b.build();
         Manifest m = jar.getManifest();
         jar.write(f);
