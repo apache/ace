@@ -39,6 +39,11 @@
 				<fileset dir="${project}/test" erroronmissingdir="false" />
 			</length>
 		</condition>
+		
+		<!-- Is this project an itest? -->
+		<condition property="project.itest">
+			<matches string="${project}" pattern="\.itest$" />
+		</condition>
 	</target>
 
 	<!-- 
@@ -61,10 +66,7 @@
 		</subant>
 	</target>
 
-	<target name="test" depends="compile">
-		<!-- XXX this is a workaround for the fact that Bnd doesn't inherit the runvm option -->
-		<property name="org.osgi.service.http.port" value="9000" />
-
+	<target name="test" depends="compile" if="project.itest">
 		<bnd command="test" exceptions="true" basedir="${project}" />
 	</target>
 
