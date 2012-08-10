@@ -95,18 +95,11 @@ public class BundleFileStoreTest {
     }
 
     /**
-     * Test whether the metadata is generated when getting a bundle from the repository.
+     * Test that the bundle store reutrns null for non-existing files.
      */
     @Test(groups = { UNIT })
-    public void getUnexistingBundle() throws Exception {
-        try {
-            m_bundleStore.get("blaat");
-        }
-        catch (IOException e) {
-            // exception is expected
-            return;
-        }
-        assert false : "Getting an unexisting file did not result in an exception";
+    public void getNonExistingBundle() throws Exception {
+    	assert m_bundleStore.get("blaat") == null : "Getting an non-existing file did not result in null?";
     }
 
     /**
