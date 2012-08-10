@@ -1,12 +1,12 @@
 -nobundles=true
 -dependson \
-    org.apache.ace.test,\
+    org.apache.ace.ant.tasks,\
     org.apache.ace.authentication,\
     org.apache.ace.authentication.api,\
+    org.apache.ace.authentication.itest,\
     org.apache.ace.authenticationprocessor.basicauth,\
     org.apache.ace.authenticationprocessor.clientcert,\
     org.apache.ace.authenticationprocessor.password,\
-    org.apache.ace.authentication.itest,\
     org.apache.ace.builder,\
     org.apache.ace.client.automation,\
     org.apache.ace.client.repository.api,\
@@ -18,10 +18,10 @@
     org.apache.ace.client.repository.itest,\
     org.apache.ace.client.rest,\
     org.apache.ace.client.rest.itest,\
-    org.apache.ace.configurator.serveruseradmin,\
-    org.apache.ace.configurator.useradmin.task,\
-    org.apache.ace.configurator.useradmin.itest,\
     org.apache.ace.configurator,\
+    org.apache.ace.configurator.serveruseradmin,\
+    org.apache.ace.configurator.useradmin.itest,\
+    org.apache.ace.configurator.useradmin.task,\
     org.apache.ace.connectionfactory,\
     org.apache.ace.consolelogger,\
     org.apache.ace.deployment.api,\
@@ -33,15 +33,15 @@
     org.apache.ace.deployment.provider.repositorybased,\
     org.apache.ace.deployment.servlet,\
     org.apache.ace.deployment.streamgenerator,\
-    org.apache.ace.deployment.task.base,\
     org.apache.ace.deployment.task,\
-    org.apache.ace.deployment.verifier.ui,\
+    org.apache.ace.deployment.task.base,\
     org.apache.ace.deployment.verifier,\
+    org.apache.ace.deployment.verifier.ui,\
     org.apache.ace.discovery.api,\
     org.apache.ace.discovery.property,\
     org.apache.ace.discovery.upnp,\
-    org.apache.ace.gateway.log.store,\
     org.apache.ace.gateway.log,\
+    org.apache.ace.gateway.log.store,\
     org.apache.ace.http.itest,\
     org.apache.ace.http.redirector,\
     org.apache.ace.httplistener,\
@@ -51,10 +51,10 @@
     org.apache.ace.launcher,\
     org.apache.ace.location.upnp,\
     org.apache.ace.log,\
+    org.apache.ace.log.itest,\
     org.apache.ace.log.listener,\
     org.apache.ace.log.servlet,\
     org.apache.ace.log.task,\
-    org.apache.ace.log.itest,\
     org.apache.ace.managementagent,\
     org.apache.ace.nodelauncher.amazon,\
     org.apache.ace.nodelauncher.api,\
@@ -67,9 +67,9 @@
     org.apache.ace.repository.api,\
     org.apache.ace.repository.ext,\
     org.apache.ace.repository.impl,\
+    org.apache.ace.repository.itest,\
     org.apache.ace.repository.servlet,\
     org.apache.ace.repository.task,\
-    org.apache.ace.repository.itest,\
     org.apache.ace.resourceprocessor.useradmin,\
     org.apache.ace.scheduler,\
     org.apache.ace.scheduler.api,\
@@ -79,4 +79,5 @@
     org.apache.ace.server.log.ui,\
     org.apache.ace.tageditor,\
     org.apache.ace.target.mgmt.ui,\
+    org.apache.ace.test,\
     org.apache.ace.webui.vaadin

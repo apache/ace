@@ -22,7 +22,10 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	com.sun.jersey.core,\
 	gson,\
 	biz.aQute.bndlib,\
-	org.apache.ace.client.repository.helper.configuration;version=latest
+	org.apache.ace.client.repository.helper.configuration;version=latest,\
+	org.apache.ace.client.repository.helper.bundle;version=latest,\
+	org.apache.ace.client.repository.helper.base;version=latest,\
+	org.apache.ace.client.repository.api;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager;version='[3.1.0,3.1.1)',\
