@@ -15,6 +15,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
 	org.apache.ace.httplistener;version=latest,\
+	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.obr.storage;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: \
