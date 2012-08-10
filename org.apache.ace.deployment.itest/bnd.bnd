@@ -14,6 +14,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	javax.servlet,\
 	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.deployment.servlet;version=latest,\
+	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.deployment.provider.filebased;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: \
