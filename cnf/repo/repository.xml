@@ -1,7 +1,482 @@
 <?xml version='1.0' encoding='utf-8'?>
 <?xml-stylesheet type='text/xsl' href='http://www.osgi.org/www/obr2html.xsl'?>
 
-<repository lastmodified='20120807155010.240' name='Local Repository'>
+<repository lastmodified='20120810104411.202' name='Local Repository'>
+  <resource id='aws-common/1.5.0.beta_6' presentationname='jclouds Amazon AWS Components Core' symbolicname='aws-common' uri='aws-common/aws-common-1.5.0.jar' version='1.5.0.beta_6'>
+    <description>
+      jclouds Core components to access Amazon AWS
+    </description>
+    <size>
+      34847
+    </size>
+    <license>
+      jar:file:/Users/jawi/Sources/ace-marrs/cnf/repo/aws-common/aws-common-1.5.0.jar!/resources/LICENSE.txt
+    </license>
+    <documentation>
+      http://www.jclouds.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jclouds Amazon AWS Components Core'/>
+      <p n='symbolicname' v='aws-common'/>
+      <p n='version' t='version' v='1.5.0.beta_6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.util'/>
+      <p n='uses' v='com.google.common.base,org.jclouds.domain,javax.inject,org.jclouds.http.functions,javax.annotation,org.jclouds.rest,com.google.common.collect,org.jclouds.aws.xml,org.jclouds.io,org.jclouds.logging,org.jclouds.rest.internal,org.jclouds.http,org.jclouds.http.utils,org.jclouds.aws.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.filters'/>
+      <p n='uses' v='org.jclouds.http,com.google.common.collect,javax.annotation,org.jclouds.rest,com.google.common.base,org.jclouds.rest.annotations,org.jclouds.util,org.jclouds.io,javax.crypto,org.jclouds.crypto,org.jclouds.logging,org.jclouds.date,com.google.common.io,org.jclouds.http.utils,javax.inject,org.jclouds.http.internal'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.config'/>
+      <p n='uses' v='org.jclouds.rest,org.jclouds.http,org.jclouds.http.annotation,com.google.common.reflect,com.google.inject.binder,org.jclouds.aws.handlers,org.jclouds.rest.config,org.jclouds.date,org.jclouds.aws.filters,javax.inject,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.xml'/>
+      <p n='uses' v='org.jclouds.http.functions,org.jclouds.aws.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.domain'/>
+      <p n='uses' v='com.google.common.collect,com.google.common.base'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws'/>
+      <p n='uses' v='org.jclouds.http,org.jclouds.aws.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.handlers'/>
+      <p n='uses' v='org.jclouds.http.handlers,org.jclouds.aws.util,org.jclouds.http,com.google.common.collect,org.jclouds.aws.domain,org.jclouds.io,com.google.inject,org.jclouds.rest,javax.annotation,org.jclouds.util,org.jclouds.aws,org.jclouds.logging,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.reference'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.google.common.base)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.base ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.collect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.collect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.io)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.io ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.reflect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.reflect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.binder)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.binder ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.annotation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.annotation
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.crypto)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.crypto
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.crypto)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.crypto ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.date)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.date ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.annotation)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.annotation ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.handlers)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.handlers ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.utils)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.utils ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.io)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.io ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.logging)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.logging ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.annotations)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.annotations ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.config)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.config ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.util)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.util ;version=1.5.0.beta6
+    </require>
+  </resource>
+  <resource id='aws-ec2/1.5.0.beta_6' presentationname='jclouds Amazon EC2 provider' symbolicname='aws-ec2' uri='aws-ec2/aws-ec2-1.5.0.jar' version='1.5.0.beta_6'>
+    <description>
+      EC2 implementation targeted to Amazon Web Services
+    </description>
+    <size>
+      196969
+    </size>
+    <license>
+      jar:file:/Users/jawi/Sources/ace-marrs/cnf/repo/aws-ec2/aws-ec2-1.5.0.jar!/resources/LICENSE.txt
+    </license>
+    <documentation>
+      http://www.jclouds.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jclouds Amazon EC2 provider'/>
+      <p n='symbolicname' v='aws-ec2'/>
+      <p n='version' t='version' v='1.5.0.beta_6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.compute.strategy'/>
+      <p n='uses' v='org.jclouds.ec2.domain,com.google.common.base,org.jclouds.ec2.compute.predicates,javax.annotation,org.jclouds.ec2,org.jclouds.ec2.options,org.jclouds.aws.ec2,org.jclouds.aws.ec2.functions,com.google.common.cache,org.jclouds.logging,org.jclouds.ec2.compute.domain,org.jclouds.aws.ec2.services,org.jclouds.domain,org.jclouds.compute.domain,org.jclouds.aws.ec2.options,com.google.common.collect,org.jclouds.compute.options,org.jclouds.aws.ec2.compute,org.jclouds.aws.ec2.compute.predicates,org.jclouds.ec2.compute.strategy,com.google.common.util.concurrent,org.jclouds.compute.util,javax.inject,org.jclouds.aws.ec2.domain,org.jclouds.compute.strategy,org.jclouds.location,org.jclouds.concurrent,org.jclouds.scriptbuilder.domain,org.jclouds.ec2.compute.options,org.jclouds.compute.functions'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.compute.functions'/>
+      <p n='uses' v='org.jclouds.compute.domain,org.jclouds.ec2.domain,org.jclouds.collect,com.google.common.base,org.jclouds.ec2.compute.functions,com.google.common.cache,org.jclouds.compute.functions,org.jclouds.ec2.compute.domain,org.jclouds.domain,org.jclouds.compute.util,javax.inject,org.jclouds.aws.ec2.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.options'/>
+      <p n='uses' v='com.google.common.collect,org.jclouds.ec2.options,com.google.common.base,org.jclouds.ec2.domain,org.jclouds.aws.ec2.domain,org.jclouds.ec2.options.internal,org.jclouds.date,org.jclouds.date.internal'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2'/>
+      <p n='uses' v='com.google.common.reflect,org.jclouds.apis.internal,org.jclouds.ec2,com.google.common.collect,org.jclouds.aws.ec2.compute,org.jclouds.ec2.compute.config,org.jclouds.aws.ec2.compute.config,org.jclouds.apis,org.jclouds.aws.ec2.config,org.jclouds.rest.internal,org.jclouds.rest,org.jclouds.aws.ec2.services,org.jclouds.rest.annotations,org.jclouds.concurrent,org.jclouds.providers,org.jclouds.providers.internal,org.jclouds.aws.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.functions'/>
+      <p n='uses' v='javax.annotation,org.jclouds.aws.ec2,com.google.common.base,org.jclouds.aws,com.google.common.cache,org.jclouds.logging,org.jclouds.ec2.compute.domain,org.jclouds.aws.ec2.services,org.jclouds.aws.domain,javax.inject,org.jclouds.aws.ec2.domain,org.jclouds.ec2.domain,com.google.common.collect,org.jclouds.crypto'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.compute'/>
+      <p n='uses' v='org.jclouds.compute.domain,com.google.common.base,org.jclouds.compute.options,org.jclouds.ec2.domain,org.jclouds.ec2,org.jclouds.aws.ec2,org.jclouds.compute,org.jclouds.util,org.jclouds.scriptbuilder.functions,com.google.common.cache,org.jclouds.logging,org.jclouds.compute.functions,org.jclouds.aws.util,org.jclouds.ec2.compute.domain,org.jclouds.aws.ec2.services,org.jclouds.domain,org.jclouds.compute.extensions,org.jclouds.compute.strategy,org.jclouds.compute.internal,org.jclouds.ec2.compute,org.jclouds.collect,com.google.common.collect,org.jclouds.ec2.compute.options,org.jclouds.compute.callables,org.jclouds.compute.reference,com.google.common.util.concurrent,javax.inject,org.jclouds.aws.ec2.domain,org.jclouds.aws.ec2.compute.internal,com.google.inject,org.jclouds.ec2.compute.internal,org.jclouds.javax.annotation,org.jclouds.aws.ec2.options,org.jclouds.scriptbuilder.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.binders'/>
+      <p n='uses' v='org.jclouds.rest,org.jclouds.http,org.jclouds.aws.ec2.options,com.google.common.collect,org.jclouds.http.utils,com.google.common.base,javax.inject,org.jclouds.aws.ec2.domain,org.jclouds.aws.util'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.compute.predicates'/>
+      <p n='uses' v='org.jclouds.ec2.compute.predicates,org.jclouds.ec2.compute.domain,org.jclouds.ec2,org.jclouds.aws.ec2.services,com.google.common.collect,org.jclouds.aws.ec2,com.google.common.base,javax.inject,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.compute.config'/>
+      <p n='uses' v='org.jclouds.compute.domain,com.google.common.base,org.jclouds.aws.ec2.compute.suppliers,org.jclouds.ec2.compute.config,com.google.inject,com.google.common.collect,com.google.common.cache,org.jclouds.ec2.compute.domain,org.jclouds.ec2.compute.loaders,org.jclouds.rest,org.jclouds.rest.suppliers,org.jclouds.concurrent,org.jclouds.aws.ec2.compute.strategy,org.jclouds.ec2.compute.predicates,org.jclouds.aws.ec2.compute.functions,org.jclouds.ec2.compute.functions,org.jclouds.ec2.compute.suppliers,org.jclouds.compute.extensions,org.jclouds.ec2.compute.options,org.jclouds.compute.options,org.jclouds.aws.ec2.compute,org.jclouds.aws.ec2.compute.predicates,org.jclouds.ec2.compute.strategy,org.jclouds.ec2.compute.internal,org.jclouds.compute.config,com.google.inject.binder,javax.inject,org.jclouds.predicates,org.jclouds.ec2.compute.extensions,org.jclouds.aws.ec2.functions,com.google.inject.assistedinject,org.jclouds.compute,org.jclouds.config,com.google.inject.name,org.jclouds.aws.ec2.predicates,org.jclouds.aws.ec2.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.config'/>
+      <p n='uses' v='org.jclouds.ec2.domain,org.jclouds.rest,org.jclouds.aws.ec2.options,org.jclouds.ec2,org.jclouds.ec2.options,com.google.common.collect,org.jclouds.aws.ec2,org.jclouds.ec2.services,org.jclouds.aws.ec2.services,org.jclouds.ec2.config,com.google.common.reflect,com.google.inject.binder,javax.inject,com.google.inject,org.jclouds.aws.ec2.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.services'/>
+      <p n='uses' v='org.jclouds.javax.annotation,org.jclouds.ec2.binders,org.jclouds.aws.filters,javax.ws.rs,com.google.common.util.concurrent,org.jclouds.ec2.services,org.jclouds.location.functions,org.jclouds.rest.annotations,org.jclouds.aws.ec2.xml,org.jclouds.concurrent,org.jclouds.ec2.domain,org.jclouds.ec2.options,org.jclouds.rest.functions,org.jclouds.aws.ec2.domain,org.jclouds.ec2.xml,org.jclouds.ec2.functions,org.jclouds.aws.ec2.options,org.jclouds.aws.ec2.binders,org.jclouds.aws.ec2.util'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.compute.internal'/>
+      <p n='uses' v='org.jclouds.ec2.compute,org.jclouds.ec2.compute.internal,org.jclouds.location,org.jclouds.compute,com.google.common.reflect,javax.inject,org.jclouds.aws.ec2.compute,org.jclouds'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.util'/>
+      <p n='uses' v='com.google.common.base,com.google.common.collect'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.reference'/>
+      <p n='uses' v='org.jclouds.ec2.reference'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.predicates'/>
+      <p n='uses' v='org.jclouds.rest,javax.annotation,com.google.common.collect,org.jclouds.aws.ec2,com.google.common.base,org.jclouds.logging,org.jclouds.aws.ec2.services,javax.inject,com.google.inject,org.jclouds.aws.ec2.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.xml'/>
+      <p n='uses' v='org.jclouds.ec2.domain,com.google.common.collect,com.google.common.base,org.jclouds.util,org.xml.sax,org.jclouds.date,org.jclouds.location,javax.inject,com.google.inject,org.jclouds.aws.ec2.domain,org.jclouds.http.functions,javax.annotation,org.jclouds.logging,org.jclouds.aws.util,org.jclouds.rest.internal,org.jclouds.rest,org.jclouds.http,org.jclouds.aws.ec2.util'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.compute.suppliers'/>
+      <p n='uses' v='org.jclouds.aws.ec2.compute.config,org.jclouds.compute.domain,org.jclouds.ec2.compute.domain,org.jclouds.ec2.compute.suppliers,com.google.common.collect,javax.inject,com.google.common.base,com.google.common.cache,javax.annotation,org.jclouds.ec2.compute.functions,org.jclouds.logging,com.google.common.util.concurrent,org.jclouds.location,org.jclouds.aws.ec2.options,com.google.inject.assistedinject,org.jclouds.ec2.compute.strategy'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.aws.ec2.domain'/>
+      <p n='uses' v='org.jclouds.ec2.domain,com.google.common.collect,com.google.common.base,org.jclouds.javax.annotation,org.jclouds.ec2.compute.domain,org.jclouds.aws.ec2.util'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.google.common.base)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.base ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.cache)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.cache ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.collect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.collect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.reflect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.reflect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.util.concurrent)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.util.concurrent ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.assistedinject)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.assistedinject ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.binder)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.binder ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.name)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.name ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.annotation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.annotation
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.ws.rs)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.ws.rs
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.apis)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.apis ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.apis.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.apis.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.aws)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.aws ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.aws.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.aws.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.aws.filters)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.aws.filters ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.aws.util)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.aws.util ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.collect)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.collect ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.callables)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.callables ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.config)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.config ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.extensions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.extensions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.options)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.options ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.reference)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.reference ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.strategy)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.strategy ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.util)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.util ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.concurrent)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.concurrent ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.config)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.config ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.crypto)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.crypto ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.date)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.date ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.date.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.date.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2 ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.binders)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.binders ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.compute)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.compute ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.compute.config)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.compute.config ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.compute.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.compute.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.compute.extensions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.compute.extensions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.compute.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.compute.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.compute.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.compute.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.compute.loaders)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.compute.loaders ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.compute.options)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.compute.options ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.compute.predicates)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.compute.predicates ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.compute.strategy)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.compute.strategy ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.compute.suppliers)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.compute.suppliers ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.config)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.config ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.options)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.options ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.options.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.options.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.reference)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.reference ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.services)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.services ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ec2.xml)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ec2.xml ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.utils)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.utils ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.javax.annotation)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.javax.annotation ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.location)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.location ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.location.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.location.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.logging)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.logging ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.predicates)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.predicates ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.providers)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.providers ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.providers.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.providers.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.annotations)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.annotations ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.suppliers)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.suppliers ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.scriptbuilder.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.scriptbuilder.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.scriptbuilder.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.scriptbuilder.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.util)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.util ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.xml.sax)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.xml.sax
+    </require>
+  </resource>
   <resource id='bcprov/1.46.0' presentationname='bcprov' symbolicname='bcprov' uri='bcprov/bcprov-1.46.0.jar' version='1.46.0'>
     <size>
       1878175
@@ -603,6 +1078,232 @@
       Execution Environment (|(ee=J2SE-1.5))
     </require>
   </resource>
+  <resource id='com.google.gson/2.2.0' presentationname='Gson' symbolicname='com.google.gson' uri='com.google.gson/com.google.gson-2.2.0.jar' version='2.2.0'>
+    <description>
+      Google Gson library
+    </description>
+    <size>
+      192270
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='Gson'/>
+      <p n='symbolicname' v='com.google.gson'/>
+      <p n='version' t='version' v='2.2.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gson'/>
+      <p n='version' t='version' v='2.2.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gson.annotations'/>
+      <p n='version' t='version' v='2.2.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gson.reflect'/>
+      <p n='version' t='version' v='2.2.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gson.stream'/>
+      <p n='version' t='version' v='2.2.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gson.internal'/>
+      <p n='version' t='version' v='2.2.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gson.internal.bind'/>
+      <p n='version' t='version' v='2.2.0'/>
+    </capability>
+    <require extend='false' filter='(|(ee=J2SE-1.5))' multiple='false' name='ee' optional='false'>
+      Execution Environment (|(ee=J2SE-1.5))
+    </require>
+  </resource>
+  <resource id='com.google.guava/12.0.0' presentationname='Guava: Google Core Libraries for Java' symbolicname='com.google.guava' uri='com.google.guava/com.google.guava-12.0.0.jar' version='12.0.0'>
+    <description>
+      Guava is a suite of core and expanded libraries that include
+          utility classes, google's collections, io classes, and
+       much    much more.    Guava has only one code dependency -
+       javax.annotation,    per the JSR-305 spec.
+    </description>
+    <size>
+      1817834
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+    </license>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='Guava: Google Core Libraries for Java'/>
+      <p n='symbolicname' v='com.google.guava'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.net'/>
+      <p n='uses' v='com.google.common.base,javax.annotation,com.google.common.hash,com.google.common.io,com.google.common.primitives,com.google.common.collect'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.collect'/>
+      <p n='uses' v='com.google.common.base,javax.annotation,com.google.common.primitives,com.google.common.math'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.primitives'/>
+      <p n='uses' v='javax.annotation,com.google.common.base,sun.misc'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.base'/>
+      <p n='uses' v='javax.annotation'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.cache'/>
+      <p n='uses' v='com.google.common.collect,com.google.common.util.concurrent,javax.annotation,com.google.common.base,com.google.common.primitives'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.eventbus'/>
+      <p n='uses' v='com.google.common.collect,com.google.common.base,com.google.common.cache'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.util.concurrent'/>
+      <p n='uses' v='com.google.common.base,javax.annotation,com.google.common.collect'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.hash'/>
+      <p n='uses' v='com.google.common.base,com.google.common.math,com.google.common.primitives,javax.annotation'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.io'/>
+      <p n='uses' v='com.google.common.hash,com.google.common.base,javax.annotation,com.google.common.primitives'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.reflect'/>
+      <p n='uses' v='javax.annotation,com.google.common.base,com.google.common.collect'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.math'/>
+      <p n='uses' v='com.google.common.base,javax.annotation'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.common.annotations'/>
+      <p n='version' t='version' v='12.0.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=javax.annotation)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package javax.annotation
+    </require>
+    <require extend='false' filter='(&amp;(package=sun.misc)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package sun.misc
+    </require>
+  </resource>
+  <resource id='com.google.inject/3.0.0' presentationname='guice' symbolicname='com.google.inject' uri='com.google.inject/com.google.inject-3.0.0.jar' version='3.0.0'>
+    <description>
+      Guice is a lightweight dependency injection framework for Java
+       5 and above
+    </description>
+    <size>
+      719884
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+    </license>
+    <documentation>
+      http://code.google.com/p/google-guice/
+    </documentation>
+    <copyright>
+      Copyright (C) 2006 Google Inc.
+    </copyright>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='guice'/>
+      <p n='symbolicname' v='com.google.inject'/>
+      <p n='version' t='version' v='3.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.inject.matcher'/>
+      <p n='version' t='version' v='1.3.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.inject.name'/>
+      <p n='version' t='version' v='1.3.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.inject.spi'/>
+      <p n='version' t='version' v='1.3.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.inject.binder'/>
+      <p n='version' t='version' v='1.3.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.inject.util'/>
+      <p n='version' t='version' v='1.3.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.inject'/>
+      <p n='version' t='version' v='1.3.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=javax.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=org.aopalliance.intercept)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.aopalliance.intercept
+    </require>
+    <require extend='false' filter='(|(ee=J2SE-1.5)(ee=JavaSE-1.6))' multiple='false' name='ee' optional='false'>
+      Execution Environment (|(ee=J2SE-1.5)(ee=JavaSE-1.6))
+    </require>
+  </resource>
+  <resource id='com.google.inject.assistedinject/3.0.0' presentationname='guice-assistedinject' symbolicname='com.google.inject.assistedinject' uri='com.google.inject.assistedinject/com.google.inject.assistedinject-3.0.0.jar' version='3.0.0'>
+    <description>
+      Guice is a lightweight dependency injection framework for Java
+       5 and above
+    </description>
+    <size>
+      37440
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+    </license>
+    <documentation>
+      http://code.google.com/p/google-guice/
+    </documentation>
+    <copyright>
+      Copyright (C) 2006 Google Inc.
+    </copyright>
+    <capability name='fragment'>
+      <p n='host' v='com.google.inject'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='bundle'>
+      <p n='host' v='com.google.inject'/>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='guice-assistedinject'/>
+      <p n='symbolicname' v='com.google.inject.assistedinject'/>
+      <p n='version' t='version' v='3.0.0'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.inject.assistedinject'/>
+      <p n='version' t='version' v='1.3.0'/>
+    </capability>
+    <require extend='true' filter='(&amp;(symbolicname=com.google.inject)(version&gt;=0.0.0))' multiple='false' name='bundle' optional='false'>
+      Required Host com.google.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.inject
+    </require>
+    <require extend='false' filter='(|(ee=J2SE-1.5)(ee=JavaSE-1.6))' multiple='false' name='ee' optional='false'>
+      Execution Environment (|(ee=J2SE-1.5)(ee=JavaSE-1.6))
+    </require>
+  </resource>
   <resource id='com.sun.jersey.client/1.13.0' presentationname='jersey-client' symbolicname='com.sun.jersey.client' uri='com.sun.jersey.client/com.sun.jersey.client-1.13.0.jar' version='1.13.0'>
     <description>
       Jersey is the open source (under dual CDDL+GPL license) JAX-RS
@@ -925,6 +1626,279 @@
     </require>
     <require extend='false' filter='(&amp;(package=org.xml.sax.helpers)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
       Import package org.xml.sax.helpers
+    </require>
+  </resource>
+  <resource id='com.sun.jersey.jersey-core/1.12.0' presentationname='jersey-core' symbolicname='com.sun.jersey.jersey-core' uri='com.sun.jersey.jersey-core/com.sun.jersey.jersey-core-1.12.0.jar' version='1.12.0'>
+    <description>
+      Jersey is the open source (under dual CDDL+GPL license) JAX-RS
+       (JSR 311)        production quality Reference Implementation
+       for building        RESTful Web services.
+    </description>
+    <size>
+      461868
+    </size>
+    <license>
+      http://glassfish.java.net/public/CDDL+GPL_1_1.html, http://glassfish.java.net/public/CDDL+GPL_1_1.html
+    </license>
+    <documentation>
+      http://www.oracle.com/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jersey-core'/>
+      <p n='symbolicname' v='com.sun.jersey.jersey-core'/>
+      <p n='version' t='version' v='1.12.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.provider.jaxb'/>
+      <p n='uses' v='javax.ws.rs,javax.xml.parsers,com.sun.jersey.core.util,com.sun.jersey.core.provider,com.sun.jersey.core.impl.provider.entity,javax.ws.rs.ext,org.xml.sax,com.sun.jersey.api.provider.jaxb,javax.xml.stream,javax.xml.transform,javax.xml.bind.annotation,javax.xml.transform.stream,javax.xml.transform.sax,javax.xml.bind,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.impl.provider.header'/>
+      <p n='uses' v='com.sun.jersey.core.header,com.sun.jersey.core.header.reader,com.sun.jersey.spi,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='javax.ws.rs'/>
+      <p n='uses' v='javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.impl'/>
+      <p n='uses' v='com.sun.jersey.localization'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.util'/>
+      <p n='uses' v='com.sun.jersey.impl,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.provider'/>
+      <p n='uses' v='com.sun.jersey.core.util,javax.ws.rs.ext,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.api.provider.jaxb'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.spi.scanning'/>
+      <p n='uses' v='com.sun.jersey.core.spi.scanning.uri,com.sun.jersey.spi.service,com.sun.jersey.core.util,com.sun.jersey.core.reflection,com.sun.jersey.api.uri'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.impl.provider.xml'/>
+      <p n='uses' v='javax.xml.stream,com.sun.jersey.core.spi.component,javax.xml.transform,javax.xml.parsers,com.sun.jersey.core.util,com.sun.jersey.spi.inject,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.header'/>
+      <p n='uses' v='com.sun.jersey.core.impl.provider.header,javax.ws.rs,com.sun.jersey.core.header.reader,com.sun.jersey.core.util,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.header.reader'/>
+      <p n='uses' v='com.sun.jersey.core.impl.provider.header,com.sun.jersey.core.header,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.osgi'/>
+      <p n='uses' v='com.sun.jersey.core.spi.scanning.uri,com.sun.jersey.impl,com.sun.jersey.core.spi.scanning,org.osgi.framework,com.sun.jersey.spi.service'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.spi'/>
+      <p n='uses' v='javax.ws.rs.ext,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.spi.inject'/>
+      <p n='uses' v='com.sun.jersey.core.spi.component'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='javax.ws.rs.core'/>
+      <p n='uses' v='javax.ws.rs,javax.ws.rs.ext'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.localization'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.spi.scanning.uri'/>
+      <p n='uses' v='com.sun.jersey.core.spi.scanning,com.sun.jersey.core.util,javax.ws.rs.core,com.sun.jersey.api.uri'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.spi.component'/>
+      <p n='uses' v='javax.ws.rs,com.sun.jersey.core.spi.factory,com.sun.jersey.spi.service,com.sun.jersey.core.reflection,com.sun.jersey.spi.inject'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.spi.factory'/>
+      <p n='uses' v='com.sun.jersey.core.spi.component,javax.ws.rs,com.sun.jersey.core.util,com.sun.jersey.core.reflection,javax.ws.rs.ext,com.sun.jersey.core.header,com.sun.jersey.spi,com.sun.jersey.spi.service,com.sun.jersey.spi.inject,com.sun.jersey.api.uri,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.spi.component.ioc'/>
+      <p n='uses' v='com.sun.jersey.core.spi.component,com.sun.jersey.spi.inject'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.api.representation'/>
+      <p n='uses' v='com.sun.jersey.core.util'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.reflection'/>
+      <p n='uses' v='javax.ws.rs,com.sun.jersey.impl,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='javax.ws.rs.ext'/>
+      <p n='uses' v='javax.ws.rs,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.core.impl.provider.entity'/>
+      <p n='uses' v='com.sun.jersey.core.provider.jaxb,javax.ws.rs,javax.mail.internet,javax.imageio.stream,com.sun.jersey.impl,javax.imageio.spi,javax.mail.util,com.sun.jersey.core.util,com.sun.jersey.core.provider,javax.xml.transform.dom,org.xml.sax,javax.imageio,javax.xml.stream,com.sun.jersey.spi,javax.xml.transform.sax,com.sun.jersey.spi.inject,javax.ws.rs.core,javax.xml.parsers,com.sun.jersey.api.representation,javax.ws.rs.ext,org.w3c.dom,javax.activation,javax.xml.transform,javax.xml.bind.annotation,javax.xml.transform.stream,javax.mail,javax.xml.bind'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.spi.service'/>
+      <p n='uses' v='com.sun.jersey.impl,com.sun.jersey.core.reflection'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.sun.jersey.api.uri'/>
+      <p n='uses' v='javax.ws.rs,com.sun.jersey.core.util,javax.ws.rs.core'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.api.provider.jaxb)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.api.provider.jaxb
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.api.representation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.api.representation
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.api.uri)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.api.uri
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.header)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.header
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.header.reader)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.header.reader
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.impl.provider.entity)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.impl.provider.entity
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.impl.provider.header)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.impl.provider.header
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.impl.provider.xml)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.impl.provider.xml
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.osgi)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.osgi
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.provider)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.provider
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.provider.jaxb)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.provider.jaxb
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.reflection)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.reflection
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.spi.component)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.spi.component
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.spi.component.ioc)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.spi.component.ioc
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.spi.factory)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.spi.factory
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.spi.scanning)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.spi.scanning
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.spi.scanning.uri)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.spi.scanning.uri
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.core.util)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.core.util
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.impl)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.impl
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.localization)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.localization
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.spi)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.spi
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.spi.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.spi.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.spi.service)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.spi.service
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.activation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.activation
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.imageio)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.imageio
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.imageio.spi)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.imageio.spi
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.imageio.stream)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.imageio.stream
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.mail)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package javax.mail
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.mail.internet)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package javax.mail.internet
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.mail.util)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package javax.mail.util
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.bind)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.bind
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.bind.annotation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.bind.annotation
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.parsers)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.parsers
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.stream)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.stream
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.transform)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.transform
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.transform.dom)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.transform.dom
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.transform.sax)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.transform.sax
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.transform.stream)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.transform.stream
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework
+    </require>
+    <require extend='false' filter='(&amp;(package=org.w3c.dom)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.w3c.dom
+    </require>
+    <require extend='false' filter='(&amp;(package=org.xml.sax)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.xml.sax
     </require>
   </resource>
   <resource id='com.vaadin/6.5.1' presentationname='Vaadin' symbolicname='com.vaadin' uri='com.vaadin/com.vaadin-6.5.1.jar' version='6.5.1'>
@@ -1558,6 +2532,1669 @@
     <require extend='false' filter='(|(ee=J2SE-1.5))' multiple='false' name='ee' optional='false'>
       Execution Environment (|(ee=J2SE-1.5))
     </require>
+  </resource>
+  <resource id='ec2/1.5.0.beta_6' presentationname='jcloud ec2 api' symbolicname='ec2' uri='ec2/ec2-1.5.0.jar' version='1.5.0.beta_6'>
+    <description>
+      jclouds components to access an implementation of EC2
+    </description>
+    <size>
+      344780
+    </size>
+    <license>
+      jar:file:/Users/jawi/Sources/ace-marrs/cnf/repo/ec2/ec2-1.5.0.jar!/resources/LICENSE.txt
+    </license>
+    <documentation>
+      http://www.jclouds.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jcloud ec2 api'/>
+      <p n='symbolicname' v='ec2'/>
+      <p n='version' t='version' v='1.5.0.beta_6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.reference'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute.predicates'/>
+      <p n='uses' v='org.jclouds.compute.domain,org.jclouds.ec2.domain,com.google.common.base,org.jclouds.compute.predicates,org.jclouds.predicates,javax.annotation,com.google.common.collect,org.jclouds.ec2,org.jclouds.ec2.options,org.jclouds.ec2.services,org.jclouds.ec2.compute.functions,org.jclouds.logging,org.jclouds.aws.util,javax.inject,org.jclouds.rest,org.jclouds.ec2.compute.domain,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.domain'/>
+      <p n='uses' v='com.google.common.base,com.google.common.collect,org.jclouds.javax.annotation,org.jclouds.util,org.jclouds.crypto'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute.extensions'/>
+      <p n='uses' v='org.jclouds.predicates,org.jclouds.compute.domain,com.google.common.util.concurrent,org.jclouds.ec2.domain,javax.annotation,org.jclouds.ec2,org.jclouds.ec2.options,com.google.common.collect,org.jclouds.ec2.services,com.google.common.base,org.jclouds.logging,org.jclouds.aws.util,org.jclouds.concurrent,javax.inject,com.google.inject,org.jclouds.compute.extensions'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.options'/>
+      <p n='uses' v='com.google.common.collect,com.google.common.base,org.jclouds.rest.annotations,org.jclouds.ec2.options.internal,com.google.inject,org.jclouds.ec2.domain,org.jclouds.javax.annotation,org.jclouds.encryption.internal'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2'/>
+      <p n='uses' v='com.google.common.reflect,org.jclouds.apis,org.jclouds.apis.internal,org.jclouds.ec2.compute,org.jclouds.rest.internal,com.google.common.collect,org.jclouds.ec2.config,org.jclouds.ec2.compute.config,org.jclouds.rest,org.jclouds.ec2.services,org.jclouds.rest.annotations,org.jclouds.concurrent'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.xml'/>
+      <p n='uses' v='org.jclouds.logging,org.jclouds.http.functions,javax.annotation,org.jclouds.ec2.domain,com.google.common.base,org.jclouds.aws.util,org.jclouds.date,org.jclouds.rest.internal,org.jclouds.location,javax.inject,com.google.common.collect,org.jclouds.util,org.xml.sax,com.google.inject,org.jclouds.rest,org.jclouds.http,org.jclouds.encryption.internal,org.jclouds.crypto'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.services'/>
+      <p n='uses' v='org.jclouds.ec2.domain,org.jclouds.ec2.binders,org.jclouds.aws.filters,org.jclouds.ec2.options,javax.ws.rs,org.jclouds.ec2.xml,org.jclouds.location.functions,org.jclouds.rest.annotations,org.jclouds.javax.annotation,org.jclouds.rest.functions,com.google.common.util.concurrent,org.jclouds.concurrent,org.jclouds.ec2.functions'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute.loaders'/>
+      <p n='uses' v='org.jclouds.ec2.domain,javax.annotation,org.jclouds.ec2,com.google.common.collect,org.jclouds.ec2.services,com.google.common.base,com.google.common.cache,org.jclouds.logging,org.jclouds.ec2.compute.domain,javax.inject,org.jclouds.compute.domain,org.jclouds.ec2.options,org.jclouds.ec2.compute.functions'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.options.internal'/>
+      <p n='uses' v='com.google.common.base,com.google.common.collect,org.jclouds.http.options'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute.functions'/>
+      <p n='uses' v='org.jclouds.compute.domain,org.jclouds.aws.util,org.jclouds.ec2.compute.domain,com.google.common.collect,com.google.common.base,javax.inject,com.google.common.cache,org.jclouds.logging,org.jclouds.compute.functions,org.jclouds.ec2.domain,javax.annotation,org.jclouds.ec2,org.jclouds.ec2.services,com.google.inject,org.jclouds.domain,org.jclouds.compute.strategy,org.jclouds.collect,org.jclouds.ec2.compute.strategy,org.jclouds.compute.util,org.jclouds.compute.domain.internal,org.jclouds.util,com.google.common.util.concurrent,javax.crypto,org.jclouds.crypto,org.jclouds.encryption.internal'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute.config'/>
+      <p n='uses' v='org.jclouds.ec2.compute.strategy,org.jclouds.compute.strategy,org.jclouds.compute.config,org.jclouds.compute.domain,org.jclouds.ec2.compute.suppliers,com.google.common.base,com.google.inject,com.google.common.collect,com.google.common.cache,org.jclouds.ec2.compute.domain,org.jclouds.ec2.compute.loaders,org.jclouds.rest,org.jclouds.rest.suppliers,org.jclouds.concurrent,com.google.inject.name,javax.inject,org.jclouds.compute.extensions,org.jclouds.predicates,org.jclouds.ec2.compute.predicates,org.jclouds.ec2.domain,org.jclouds.ec2.compute.extensions,org.jclouds.compute,org.jclouds.ec2.compute.functions,org.jclouds.domain,org.jclouds.ec2.compute,org.jclouds.ec2.compute.options,org.jclouds.compute.options,org.jclouds.ec2.compute.internal,com.google.inject.binder'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute.domain'/>
+      <p n='uses' v='org.jclouds.compute.domain,com.google.common.base,org.jclouds.ec2.domain,org.jclouds.compute.domain.internal,com.google.common.collect,org.jclouds.domain,org.jclouds.compute.predicates'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute.suppliers'/>
+      <p n='uses' v='org.jclouds.compute.domain,org.jclouds.ec2.compute.domain,com.google.common.collect,com.google.common.base,javax.inject,javax.annotation,org.jclouds.ec2.options,org.jclouds.ec2.compute.functions,com.google.common.cache,org.jclouds.ec2.compute.strategy,org.jclouds.logging,org.jclouds.location'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.functions'/>
+      <p n='uses' v='com.google.common.base,javax.inject,org.jclouds.crypto,org.jclouds.aws.domain,org.jclouds.aws'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.util'/>
+      <p n='uses' v='org.jclouds.ec2.domain,com.google.common.collect,com.google.common.base,org.jclouds.util'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.binders'/>
+      <p n='uses' v='org.jclouds.ec2.domain,org.jclouds.rest,org.jclouds.http,com.google.common.collect,org.jclouds.http.utils,com.google.common.base,org.jclouds.aws.util,javax.inject,org.jclouds.ec2.util,org.jclouds.aws.filters,org.jclouds.crypto'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute'/>
+      <p n='uses' v='org.jclouds.ec2.domain,com.google.common.collect,com.google.common.base,org.jclouds.logging,org.jclouds.predicates,org.jclouds.ec2,org.jclouds.ec2.services,org.jclouds.compute,org.jclouds.util,org.jclouds.scriptbuilder.functions,com.google.common.cache,org.jclouds.compute.functions,org.jclouds.aws.util,org.jclouds.ec2.compute.domain,org.jclouds.domain,org.jclouds.compute.extensions,org.jclouds.compute.domain,org.jclouds.compute.strategy,org.jclouds.compute.internal,org.jclouds.collect,org.jclouds.ec2.compute.options,org.jclouds.compute.options,org.jclouds.compute.callables,org.jclouds.compute.reference,javax.inject,com.google.inject,org.jclouds.ec2.compute.internal'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute.options'/>
+      <p n='uses' v='org.jclouds.ec2.domain,org.jclouds.javax.annotation,org.jclouds.domain,org.jclouds.scriptbuilder.domain,com.google.common.collect,com.google.common.base,org.jclouds.util,org.jclouds.compute.options'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute.strategy'/>
+      <p n='uses' v='org.jclouds.compute.domain,org.jclouds.ec2.domain,org.jclouds.scriptbuilder.domain,org.jclouds.ec2.options,com.google.common.collect,org.jclouds.ec2.compute.options,com.google.common.base,org.jclouds.compute.options,org.jclouds.crypto,com.google.common.cache,org.jclouds.compute.functions,org.jclouds.javax.annotation,org.jclouds.ec2.compute.domain,javax.inject,com.google.inject,com.google.common.util.concurrent,org.jclouds.ec2,org.jclouds.ec2.services,javax.annotation,org.jclouds.logging,org.jclouds.concurrent,org.jclouds.ec2.compute.predicates,org.jclouds.aws.util,org.jclouds.domain,org.jclouds.compute.strategy,org.jclouds.compute.config,org.jclouds.compute.util,org.jclouds.ec2.compute.util,org.jclouds.location,org.jclouds.compute.predicates,org.jclouds.compute.strategy.impl'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.suppliers'/>
+      <p n='uses' v='org.jclouds.ec2.domain,com.google.common.base,javax.annotation,org.jclouds.ec2,com.google.common.collect,org.jclouds.ec2.options,org.jclouds.ec2.services,org.jclouds.util,org.jclouds.logging,org.jclouds.http,org.jclouds.location,org.jclouds.location.suppliers,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute.internal'/>
+      <p n='uses' v='org.jclouds.compute.internal,org.jclouds.ec2.compute,org.jclouds.location,org.jclouds.compute,com.google.common.reflect,javax.inject,org.jclouds,org.jclouds.compute.domain,org.jclouds.ec2.compute.domain,com.google.common.util.concurrent,com.google.common.base,org.jclouds.util,com.google.common.cache,org.jclouds.collect,com.google.common.collect,org.jclouds.compute.options,org.jclouds.compute.domain.internal,org.jclouds.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.predicates'/>
+      <p n='uses' v='org.jclouds.ec2.domain,javax.annotation,org.jclouds.ec2,com.google.common.collect,org.jclouds.ec2.services,com.google.common.base,org.jclouds.aws,org.jclouds.logging,org.jclouds.aws.domain,javax.inject,com.google.inject,org.jclouds.rest,org.jclouds.ec2.options'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.config'/>
+      <p n='uses' v='org.jclouds.location.suppliers.derived,org.jclouds.rest,org.jclouds.aws.config,com.google.common.collect,org.jclouds.ec2,org.jclouds.ec2.services,org.jclouds.location.config,org.jclouds.ec2.suppliers,com.google.common.reflect,org.jclouds.location.suppliers,com.google.inject.binder,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ec2.compute.util'/>
+      <p n='uses' v='org.jclouds.domain,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.google.common.base)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.base ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.cache)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.cache ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.collect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.collect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.reflect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.reflect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.util.concurrent)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.util.concurrent ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.binder)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.binder ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.name)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.name ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.annotation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.annotation
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.crypto)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.crypto
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.ws.rs)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.ws.rs
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.apis)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.apis ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.apis.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.apis.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.aws)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.aws ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.aws.config)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.aws.config ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.aws.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.aws.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.aws.filters)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.aws.filters ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.aws.util)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.aws.util ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.collect)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.collect ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.callables)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.callables ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.config)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.config ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.domain.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.domain.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.extensions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.extensions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.options)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.options ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.predicates)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.predicates ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.reference)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.reference ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.strategy)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.strategy ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.strategy.impl)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.strategy.impl ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.util)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.util ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.concurrent)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.concurrent ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.crypto)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.crypto ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.date)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.date ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.encryption.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.encryption.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.options)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.options ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.utils)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.utils ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.javax.annotation)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.javax.annotation ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.location)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.location ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.location.config)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.location.config ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.location.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.location.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.location.suppliers)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.location.suppliers ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.location.suppliers.derived)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.location.suppliers.derived ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.logging)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.logging ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.predicates)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.predicates ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.annotations)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.annotations ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.suppliers)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.suppliers ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.scriptbuilder.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.scriptbuilder.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.scriptbuilder.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.scriptbuilder.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.util)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.util ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.xml.sax)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.xml.sax
+    </require>
+  </resource>
+  <resource id='jclouds-bouncycastle/1.5.0.beta_6' presentationname='jclouds bouncycastle EncryptionService Module' symbolicname='jclouds-bouncycastle' uri='jclouds-bouncycastle/jclouds-bouncycastle-1.5.0.jar' version='1.5.0.beta_6'>
+    <description>
+      jclouds bouncycastle EncryptionService Module
+    </description>
+    <size>
+      10134
+    </size>
+    <license>
+      jar:file:/Users/jawi/Sources/ace-marrs/cnf/repo/jclouds-bouncycastle/jclouds-bouncycastle-1.5.0.jar!/resources/LICENSE.txt
+    </license>
+    <documentation>
+      http://www.jclouds.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jclouds bouncycastle EncryptionService Module'/>
+      <p n='symbolicname' v='jclouds-bouncycastle'/>
+      <p n='version' t='version' v='1.5.0.beta_6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.encryption.bouncycastle'/>
+      <p n='uses' v='org.bouncycastle.jce.provider,javax.inject,org.jclouds.encryption.internal'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.encryption.bouncycastle.config'/>
+      <p n='uses' v='org.jclouds.encryption.bouncycastle,com.google.inject.binder,org.jclouds.crypto,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.google.inject)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.binder)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.binder ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=org.bouncycastle.jce.provider)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.bouncycastle.jce.provider
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.crypto)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.crypto ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.encryption.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.encryption.internal ;version=1.5.0.beta6
+    </require>
+  </resource>
+  <resource id='jclouds-compute/1.5.0.beta_6' presentationname='jclouds compute core' symbolicname='jclouds-compute' uri='jclouds-compute/jclouds-compute-1.5.0.jar' version='1.5.0.beta_6'>
+    <description>
+      jclouds components to access compute providers
+    </description>
+    <size>
+      470098
+    </size>
+    <license>
+      jar:file:/Users/jawi/Sources/ace-marrs/cnf/repo/jclouds-compute/jclouds-compute-1.5.0.jar!/resources/LICENSE.txt
+    </license>
+    <documentation>
+      http://www.jclouds.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jclouds compute core'/>
+      <p n='symbolicname' v='jclouds-compute'/>
+      <p n='version' t='version' v='1.5.0.beta_6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.cim.xml'/>
+      <p n='uses' v='org.jclouds.http.functions,org.jclouds.util,org.xml.sax,org.jclouds.cim,com.google.common.base,com.google.common.collect'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.cim.functions'/>
+      <p n='uses' v='org.jclouds.compute.domain,com.google.common.base,org.jclouds.cim,org.jclouds.compute.domain.internal,com.google.common.collect,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.cim'/>
+      <p n='uses' v='com.google.common.base,com.google.common.collect,org.jclouds.compute.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute'/>
+      <p n='uses' v='org.jclouds.compute.domain,org.jclouds.compute.internal,org.jclouds.scriptbuilder.domain,com.google.common.util.concurrent,com.google.common.base,org.jclouds.compute.options,org.jclouds.domain,com.google.inject,org.jclouds.compute.extensions,org.jclouds.javax.annotation,org.jclouds.rest,org.jclouds,org.jclouds.apis,org.jclouds.providers,com.google.common.collect,org.jclouds.compute.util,org.jclouds.ssh'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.events'/>
+      <p n='uses' v='org.jclouds.compute.domain,org.jclouds.scriptbuilder.domain,org.jclouds.scriptbuilder,com.google.common.base'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.functions'/>
+      <p n='uses' v='org.jclouds.compute.domain,javax.annotation,com.google.common.net,com.google.common.base,org.jclouds.logging,org.jclouds.compute.reference,org.jclouds.domain,org.jclouds.compute.util,javax.inject,com.google.inject,org.jclouds.ssh,org.jclouds.javax.annotation,org.jclouds.compute.options,org.jclouds.compute.internal,org.jclouds.scriptbuilder.domain,org.jclouds.scriptbuilder.statements.ssh,com.google.common.collect,org.jclouds.scriptbuilder'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.domain.internal'/>
+      <p n='uses' v='org.jclouds.compute.domain,com.google.common.collect,org.jclouds.domain.internal,com.google.common.base,org.jclouds.domain,org.jclouds.javax.annotation,org.jclouds.compute.util,com.google.common.primitives,javax.annotation,org.jclouds.collect,org.jclouds.compute.options,org.jclouds.util,org.jclouds.logging,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.stub.config'/>
+      <p n='uses' v='org.jclouds.compute.domain,com.google.common.base,org.jclouds.rest,com.google.common.collect,org.jclouds.compute,org.jclouds.compute.options,org.jclouds.location.suppliers.all,org.jclouds.domain,org.jclouds.compute.util,javax.inject,org.jclouds.compute.predicates,org.jclouds.concurrent,org.jclouds.compute.config,com.google.inject,com.google.common.cache,org.jclouds.predicates,com.google.common.net,org.jclouds.compute.domain.internal,org.jclouds.rest.annotations'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.predicates.internal'/>
+      <p n='uses' v='org.jclouds.logging,org.jclouds.compute.domain,javax.annotation,com.google.common.collect,com.google.common.base,org.jclouds.domain,org.jclouds.compute.util,javax.inject,org.jclouds.compute.strategy,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.extensions'/>
+      <p n='uses' v='org.jclouds.compute.domain,com.google.common.util.concurrent'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.domain'/>
+      <p n='uses' v='org.jclouds.javax.annotation,org.jclouds.cim,org.jclouds.ovf,org.jclouds.ovf.internal,org.jclouds.compute.domain.internal,org.jclouds.domain,com.google.inject,com.google.common.collect,com.google.common.base,com.google.common.io,org.jclouds.compute.config,org.jclouds.compute.predicates,org.jclouds.compute.options'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.strategy'/>
+      <p n='uses' v='org.jclouds.compute.domain,com.google.common.collect,org.jclouds.compute.strategy.impl,org.jclouds.compute.config,com.google.inject,com.google.common.base,org.jclouds.compute.options,javax.annotation,org.jclouds.scriptbuilder.domain,com.google.common.net,com.google.inject.assistedinject,org.jclouds.compute.callables,org.jclouds.logging,org.jclouds.compute.reference,org.jclouds.javax.annotation,org.jclouds.compute.util,javax.inject,org.jclouds.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.internal'/>
+      <p n='uses' v='org.jclouds.compute.domain,org.jclouds.javax.annotation,com.google.common.base,org.jclouds.logging,org.jclouds.compute.strategy,com.google.common.util.concurrent,org.jclouds.scriptbuilder.domain,org.jclouds.compute.options,org.jclouds.compute.callables,org.jclouds.predicates,javax.annotation,org.jclouds.compute,org.jclouds.util,org.jclouds.scriptbuilder.functions,org.jclouds.domain,org.jclouds.compute.extensions,org.jclouds.collect,com.google.common.collect,org.jclouds.compute.reference,org.jclouds.concurrent,org.jclouds.compute.util,javax.inject,org.jclouds.compute.predicates,org.jclouds.rest,org.jclouds.location,com.google.common.reflect,org.jclouds.internal,org.jclouds,org.jclouds.compute.functions,com.google.common.cache,org.jclouds.predicates.validators,com.google.inject,org.jclouds.xml,org.jclouds.json,org.jclouds.crypto,com.google.common.eventbus,org.jclouds.rest.internal,org.jclouds.date,org.jclouds.ssh'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.strategy.impl'/>
+      <p n='uses' v='org.jclouds.compute.domain,com.google.common.base,org.jclouds.domain,org.jclouds.compute.strategy,javax.annotation,com.google.common.collect,org.jclouds.compute,org.jclouds.compute.options,org.jclouds.logging,org.jclouds.compute.util,javax.inject,org.jclouds.compute.predicates,org.jclouds.compute.functions,com.google.common.util.concurrent,org.jclouds.compute.config,org.jclouds.concurrent,org.jclouds.javax.annotation'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.callables'/>
+      <p n='uses' v='org.jclouds.compute.domain,com.google.common.base,org.jclouds.predicates,com.google.common.util.concurrent,javax.annotation,org.jclouds.scriptbuilder.domain,com.google.common.primitives,com.google.inject.assistedinject,org.jclouds.compute.events,org.jclouds.scriptbuilder,com.google.common.eventbus,org.jclouds.compute.reference,org.jclouds.logging,com.google.inject.name,com.google.inject,javax.inject,org.jclouds.compute.options,org.jclouds.scriptbuilder.statements.login,org.jclouds.domain,org.jclouds.ssh,com.google.common.collect'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.options'/>
+      <p n='uses' v='org.jclouds.domain,org.jclouds.javax.annotation,com.google.common.base,org.jclouds.scriptbuilder.domain,com.google.common.collect,com.google.common.primitives'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.reference'/>
+      <p n='uses' v='javax.inject,com.google.inject,com.google.common.base'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.stub'/>
+      <p n='uses' v='org.jclouds.apis,org.jclouds.apis.internal,org.jclouds.compute.stub.config,org.jclouds.compute'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.config'/>
+      <p n='uses' v='com.google.inject,org.jclouds.compute.domain,com.google.common.base,org.jclouds.compute.reference,org.jclouds.json,com.google.common.collect,org.jclouds.scriptbuilder.domain,org.jclouds.compute.callables,org.jclouds.compute.options,javax.inject,com.google.common.util.concurrent,org.jclouds.rest,com.google.inject.assistedinject,org.jclouds.util,org.jclouds.compute.functions,org.jclouds.rest.suppliers,org.jclouds.location,org.jclouds.domain,org.jclouds.config,com.google.inject.name,org.jclouds.compute.extensions,org.jclouds.compute.strategy,org.jclouds.collect,com.google.inject.binder,org.jclouds.compute.strategy.impl,org.jclouds.compute,org.jclouds.location.suppliers,org.jclouds.predicates,org.jclouds.compute.predicates,org.jclouds.javax.annotation,org.jclouds.functions,org.jclouds.scriptbuilder.functions,org.jclouds.compute.internal'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.util'/>
+      <p n='uses' v='org.jclouds.compute.domain,com.google.common.base,org.jclouds.rest,org.jclouds.scriptbuilder.domain,com.google.common.collect,org.jclouds.compute,org.jclouds.compute.options,org.jclouds.http,com.google.common.reflect,org.jclouds.compute.strategy,org.jclouds.compute.config,javax.inject,com.google.common.net,org.jclouds.logging,org.jclouds.predicates,javax.annotation,com.google.common.util.concurrent,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.compute.predicates'/>
+      <p n='uses' v='org.jclouds.compute.domain,org.jclouds.compute.strategy,com.google.common.collect,org.jclouds.compute.predicates.internal,javax.inject,com.google.common.base,com.google.inject,org.jclouds.javax.annotation,org.jclouds.domain,org.jclouds.util,org.jclouds.ssh,org.jclouds.logging,javax.annotation'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.net.util'/>
+      <p n='uses' v='org.jclouds.net.domain,com.google.common.collect,com.google.common.base'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.net.domain'/>
+      <p n='uses' v='com.google.common.collect,com.google.common.base'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ovf'/>
+      <p n='uses' v='com.google.common.collect,com.google.common.base,org.jclouds.ovf.internal,org.jclouds.javax.annotation,org.jclouds.cim'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ovf.xml'/>
+      <p n='uses' v='org.jclouds.ovf,org.jclouds.util,javax.inject,org.xml.sax,org.jclouds.logging,javax.annotation,org.jclouds.ovf.xml.internal,org.jclouds.http.functions,org.jclouds.cim.xml,com.google.common.base,org.jclouds.cim'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ovf.xml.internal'/>
+      <p n='uses' v='org.jclouds.http.functions,org.jclouds.ovf,org.jclouds.ovf.internal,com.google.common.collect,org.jclouds.util,org.jclouds.ovf.xml,javax.inject,com.google.inject,org.xml.sax'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ovf.internal'/>
+      <p n='uses' v='org.jclouds.ovf,com.google.common.collect,com.google.common.base'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.ssh'/>
+      <p n='uses' v='com.google.common.net,org.jclouds.domain,org.jclouds.compute.domain,org.jclouds.io'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.google.common.base)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.base ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.cache)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.cache ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.collect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.collect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.eventbus)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.eventbus ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.io)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.io ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.net)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.net ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.primitives)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.primitives ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.reflect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.reflect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.util.concurrent)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.util.concurrent ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.assistedinject)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.assistedinject ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.binder)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.binder ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.name)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.name ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.annotation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.annotation
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.apis)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.apis ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.apis.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.apis.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.collect)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.collect ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.concurrent)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.concurrent ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.config)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.config ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.crypto)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.crypto ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.date)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.date ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.domain.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.domain.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.io)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.io ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.javax.annotation)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.javax.annotation ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.json)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.json ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.location)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.location ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.location.suppliers)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.location.suppliers ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.location.suppliers.all)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.location.suppliers.all ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.logging)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.logging ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.predicates)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.predicates ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.predicates.validators)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.predicates.validators ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.providers)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.providers ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.annotations)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.annotations ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.internal)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.internal ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest.suppliers)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest.suppliers ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.scriptbuilder)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.scriptbuilder ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.scriptbuilder.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.scriptbuilder.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.scriptbuilder.functions)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.scriptbuilder.functions ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.scriptbuilder.statements.login)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.scriptbuilder.statements.login ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.scriptbuilder.statements.ssh)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.scriptbuilder.statements.ssh ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.util)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.util ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.xml)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.xml ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.xml.sax)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.xml.sax
+    </require>
+  </resource>
+  <resource id='jclouds-core/1.5.0.beta_6' presentationname='jclouds Components Core' symbolicname='jclouds-core' uri='jclouds-core/jclouds-core-1.5.0.jar' version='1.5.0.beta_6'>
+    <description>
+      Core components to access jclouds services
+    </description>
+    <size>
+      743250
+    </size>
+    <license>
+      jar:file:/Users/jawi/Sources/ace-marrs/cnf/repo/jclouds-core/jclouds-core-1.5.0.jar!/resources/LICENSE.txt
+    </license>
+    <documentation>
+      http://www.jclouds.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jclouds Components Core'/>
+      <p n='symbolicname' v='jclouds-core'/>
+      <p n='version' t='version' v='1.5.0.beta_6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.events.handlers'/>
+      <p n='uses' v='com.google.common.eventbus,org.jclouds.logging,javax.annotation,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.xml.internal'/>
+      <p n='uses' v='org.jclouds.xml,com.google.inject.name,javax.inject,javax.xml.bind'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.logging.internal'/>
+      <p n='uses' v='org.jclouds.logging,javax.annotation,com.google.common.io,com.google.common.base,org.jclouds.io'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.rest.annotations'/>
+      <p n='uses' v='javax.inject,org.jclouds.rest,com.google.common.base,org.jclouds.predicates,org.jclouds.http,org.jclouds.http.functions'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.util'/>
+      <p n='uses' v='com.google.common.base,com.google.common.io,org.jclouds.javax.annotation,org.jclouds.domain,com.google.common.net,com.google.common.collect,javax.inject,com.google.inject,com.google.common.cache,org.xml.sax,javax.annotation,org.jclouds.logging,org.jclouds.rest,org.jclouds.http,org.jclouds.concurrent,com.google.inject.spi,com.google.common.reflect'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.location.reference'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.http.options'/>
+      <p n='uses' v='com.google.common.collect,org.jclouds.date,com.google.common.base,org.jclouds.date.internal'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.location.config'/>
+      <p n='uses' v='com.google.inject,com.google.common.collect,com.google.common.base,org.jclouds.rest,org.jclouds.collect,org.jclouds.util,org.jclouds.location.predicates,org.jclouds.rest.functions,org.jclouds.rest.suppliers,org.jclouds.location,org.jclouds.domain,org.jclouds.location.suppliers,com.google.inject.binder,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.location.suppliers.all'/>
+      <p n='uses' v='com.google.common.collect,com.google.common.base,org.jclouds.location,org.jclouds.domain,javax.inject,org.jclouds.location.suppliers,org.jclouds.logging,javax.annotation,org.jclouds.location.predicates'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.logging'/>
+      <p n='uses' v='com.google.common.base,org.jclouds.logging.jdk.config,com.google.common.collect,org.jclouds.logging.config'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.json.config'/>
+      <p n='uses' v='com.google.gson.reflect,com.google.gson,com.google.inject,org.jclouds.date,com.google.gson.stream,javax.inject,org.jclouds.crypto,com.google.common.primitives,com.google.common.collect,org.jclouds.json.internal,org.jclouds.domain,com.google.gson.internal,org.jclouds.json,com.google.inject.binder'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.rest.internal'/>
+      <p n='uses' v='com.google.inject,com.google.common.cache,com.google.common.base,javax.inject,org.jclouds.http,javax.annotation,org.jclouds.rest,com.google.common.collect,org.jclouds.rest.annotations,org.jclouds.util,org.jclouds.logging,com.google.common.util.concurrent,org.jclouds.concurrent,org.jclouds.internal,com.google.inject.util,com.google.common.reflect,org.jclouds.apis,org.jclouds.apis.internal,org.jclouds.io,org.jclouds.javax.annotation,org.jclouds.io.payloads,org.jclouds.http.options,org.jclouds.http.functions,javax.ws.rs,org.jclouds.http.utils,org.jclouds.location,javax.ws.rs.core,org.jclouds.functions,org.jclouds.rest.functions,org.jclouds.rest.binders,org.jclouds.json.internal,org.jclouds.providers,org.jclouds.lifecycle,org.jclouds.xml,org.jclouds.json,org.jclouds.crypto,com.google.common.eventbus,org.jclouds.date,org.jclouds.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.http'/>
+      <p n='uses' v='org.jclouds.io,com.google.common.collect,com.google.common.base,org.jclouds.javax.annotation,org.jclouds.http.internal,org.jclouds.io.payloads,org.jclouds.util,org.jclouds.logging.internal,org.jclouds.crypto,org.jclouds.logging,com.google.common.io,javax.inject,com.google.inject,org.jclouds.http.handlers,com.google.common.util.concurrent,org.jclouds.concurrent,javax.annotation,org.jclouds.rest.internal'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.http.utils'/>
+      <p n='uses' v='org.jclouds.javax.annotation,org.jclouds.http,com.google.common.collect,org.jclouds.io.payloads,com.google.common.base,org.jclouds.util,org.jclouds.io,javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.location.predicates.fromconfig'/>
+      <p n='uses' v='org.jclouds.location.predicates,org.jclouds.location.suppliers.fromconfig,com.google.common.base,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.location.suppliers.fromconfig'/>
+      <p n='uses' v='com.google.common.base,com.google.common.collect,org.jclouds.location,org.jclouds.location.suppliers,javax.inject,org.jclouds.logging,javax.annotation,com.google.inject.assistedinject,org.jclouds.config,org.jclouds.providers,org.jclouds.rest.suppliers'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.logging.config'/>
+      <p n='uses' v='org.jclouds.logging,com.google.inject.spi,com.google.inject,javax.annotation,com.google.common.base,com.google.common.collect,javax.inject,com.google.inject.matcher'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.location'/>
+      <p n='uses' v='javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.internal'/>
+      <p n='uses' v='com.google.common.collect,com.google.common.base,org.jclouds.location,com.google.common.reflect,javax.inject,org.jclouds,org.jclouds.javax.annotation,org.jclouds.providers,org.jclouds.rest,org.jclouds.rest.annotations,org.jclouds.apis,com.google.common.io,org.jclouds.lifecycle,org.jclouds.domain,com.google.inject,com.google.inject.name'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.config'/>
+      <p n='uses' v='com.google.common.base,org.nnsoft.guice.rocoto.configuration,org.jclouds.internal,javax.inject,com.google.inject,org.nnsoft.guice.rocoto,org.jclouds.rest,org.jclouds.rest.internal,com.google.common.reflect,com.google.inject.binder,com.google.inject.util,com.google.inject.name'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.encryption.internal'/>
+      <p n='uses' v='javax.crypto.spec,org.jclouds.javax.annotation,javax.inject,javax.crypto,org.jclouds.crypto'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds'/>
+      <p n='uses' v='org.jclouds.providers,org.jclouds.rest,org.jclouds.javax.annotation,org.jclouds.internal,org.jclouds.domain,com.google.inject,org.jclouds.apis,com.google.common.base,org.jclouds.http.config,org.jclouds.events.config,org.jclouds.concurrent.config,org.jclouds.concurrent,org.jclouds.providers.internal,org.jclouds.providers.config,org.jclouds.util,org.jclouds.logging.config,org.jclouds.config,org.jclouds.rest.config,com.google.common.collect,org.jclouds.lifecycle.config,org.jclouds.logging.jdk.config,com.google.common.util.concurrent,com.google.common.reflect'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.rest.config'/>
+      <p n='uses' v='org.jclouds.rest,javax.inject,com.google.inject,com.google.common.collect,com.google.inject.binder,org.jclouds.concurrent.internal,com.google.common.base,com.google.inject.name,com.google.common.cache,org.jclouds.internal,org.jclouds.util,org.jclouds.logging,javax.annotation,org.jclouds.domain,org.jclouds.json,org.jclouds.collect,com.google.common.io,com.google.common.reflect,org.jclouds.rest.internal,com.google.inject.util,org.jclouds.http,org.jclouds.functions,com.google.inject.assistedinject,org.jclouds.http.functions.config,org.jclouds.location.config,org.jclouds.json.config,org.jclouds.rest.binders,com.sun.jersey.api.uri,javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.collect'/>
+      <p n='uses' v='org.jclouds.javax.annotation,com.google.common.base,org.jclouds.logging,javax.annotation,com.google.common.collect,javax.inject,com.google.common.io'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.cache'/>
+      <p n='uses' v='com.google.common.base,com.google.common.cache,com.google.common.util.concurrent,org.jclouds.cache.internal'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.events.config.annotations'/>
+      <p n='uses' v='javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.javax.annotation.concurrent'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.location.suppliers.implicit'/>
+      <p n='uses' v='org.jclouds.location.predicates,org.jclouds.collect,com.google.common.collect,org.jclouds.location.functions,com.google.common.base,org.jclouds.domain,org.jclouds.location.suppliers,javax.inject,org.jclouds.suppliers,org.jclouds.location'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.xml'/>
+      <p n='uses' v='org.jclouds.xml.internal,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.location.functions'/>
+      <p n='uses' v='org.jclouds.javax.annotation,com.google.common.base,org.jclouds.location,javax.inject,org.jclouds.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.lifecycle.config'/>
+      <p n='uses' v='javax.inject,com.google.inject,org.jclouds.lifecycle,com.google.inject.spi,com.google.common.base,com.google.common.util.concurrent,org.jclouds.concurrent,javax.annotation,com.google.inject.binder,com.google.inject.matcher'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.io'/>
+      <p n='uses' v='org.jclouds.javax.annotation,com.google.common.collect,org.jclouds.io.payloads,com.google.common.base,org.jclouds.logging,javax.annotation,org.jclouds.date,com.google.inject,org.jclouds.crypto,org.jclouds.collect,com.google.common.io,javax.inject,org.jclouds.encryption.internal,org.jclouds.io.internal'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.http.pool'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.json'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.logging.jdk.config'/>
+      <p n='uses' v='org.jclouds.logging,org.jclouds.logging.jdk,org.jclouds.logging.config'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.cache.internal'/>
+      <p n='uses' v='com.google.common.util.concurrent,org.jclouds.cache,com.google.common.base,com.google.common.cache,com.google.common.collect,org.jclouds.util'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.crypto.pem'/>
+      <p n='uses' v='net.oauth.signature.pem'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.rest.binders'/>
+      <p n='uses' v='org.jclouds.rest,com.google.common.net,org.jclouds.http,com.google.common.base,javax.inject,javax.ws.rs.core,org.jclouds.http.utils,org.jclouds.rest.annotations,org.jclouds.io,org.jclouds.rest.internal,org.jclouds.io.payloads,org.jclouds.json,com.google.common.collect,com.google.inject.assistedinject,org.jclouds.xml'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.json.internal'/>
+      <p n='uses' v='com.google.common.base,com.google.gson.stream,com.google.gson,com.google.gson.internal,com.google.gson.reflect,com.google.gson.internal.bind,com.google.common.cache,com.google.common.collect,javax.inject,org.jclouds.json,com.google.gson.annotations'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.domain.internal'/>
+      <p n='uses' v='org.jclouds.javax.annotation,com.google.common.collect,com.google.common.base,org.jclouds.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.logging.jdk'/>
+      <p n='uses' v='org.jclouds.logging'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.events.config'/>
+      <p n='uses' v='org.jclouds.events.handlers,com.google.common.eventbus,org.jclouds.events.config.annotations,com.google.inject.binder,javax.inject,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.location.suppliers'/>
+      <p n='uses' v='org.jclouds.location.suppliers.implicit,com.google.common.base,com.google.inject,org.jclouds.location.suppliers.fromconfig,org.jclouds.location.suppliers.all,org.jclouds.javax.annotation,com.google.inject.assistedinject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.http.functions'/>
+      <p n='uses' v='org.jclouds.http,org.jclouds.logging,javax.annotation,org.jclouds.rest,com.google.common.base,org.jclouds.io,javax.inject,com.google.gson.stream,com.google.common.collect,com.google.common.io,org.jclouds.json.internal,com.google.inject,com.google.gson,org.jclouds.util,org.jclouds.json,org.jclouds.rest.internal,org.xml.sax.helpers,org.jclouds.javax.annotation,org.xml.sax,javax.ws.rs.core,org.jclouds.xml'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.location.suppliers.derived'/>
+      <p n='uses' v='com.google.common.base,org.jclouds.location,org.jclouds.location.suppliers,javax.inject,com.google.inject,com.google.common.collect'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.predicates'/>
+      <p n='uses' v='org.jclouds.logging,javax.annotation,com.google.common.net,javax.inject,com.google.inject,com.google.common.base,org.jclouds.util,org.jclouds.javax.annotation'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.http.handlers'/>
+      <p n='uses' v='org.jclouds.logging,javax.annotation,org.jclouds.http,com.google.common.base,javax.inject,com.google.inject,org.jclouds.util,org.jclouds.io,org.jclouds.http.annotation,org.jclouds.http.utils,javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.rest'/>
+      <p n='uses' v='org.jclouds.apis,org.jclouds.apis.internal,org.jclouds.rest.internal,javax.inject,com.google.inject.util,com.google.inject,org.jclouds.http,org.jclouds.http.functions,org.jclouds.rest.functions,javax.ws.rs,com.google.common.util.concurrent,org.jclouds.rest.annotations,org.jclouds.io,org.jclouds.concurrent,org.jclouds.predicates,com.google.common.collect,com.google.common.base,org.jclouds.providers,com.google.common.reflect,org.jclouds,org.jclouds.javax.annotation,org.jclouds.xml,org.jclouds.json,org.jclouds.crypto,org.jclouds.logging,com.google.common.eventbus,org.jclouds.date,org.jclouds.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.io.internal'/>
+      <p n='uses' v='org.jclouds.io.payloads,com.google.common.io,com.google.common.base,org.jclouds.io,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.providers.internal'/>
+      <p n='uses' v='org.jclouds.providers,org.jclouds.apis,org.jclouds.javax.annotation,com.google.common.collect,com.google.common.base'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.providers.config'/>
+      <p n='uses' v='com.google.inject,org.jclouds.providers,com.google.common.base,org.jclouds.rest.annotations,org.jclouds.apis,org.jclouds.location,com.google.common.reflect,org.jclouds.domain,com.google.inject.name,com.google.inject.binder,javax.inject,com.google.inject.util,org.jclouds'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.suppliers'/>
+      <p n='uses' v='org.jclouds.logging,javax.annotation,com.google.common.collect,com.google.common.base'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.http.functions.config'/>
+      <p n='uses' v='org.jclouds.http.functions,com.google.common.base,javax.xml.parsers,javax.inject,com.google.inject,org.xml.sax,com.google.inject.binder'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.date.internal'/>
+      <p n='uses' v='org.jclouds.date,com.google.common.base,javax.inject,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.http.config'/>
+      <p n='uses' v='org.jclouds.http,com.google.inject.binder,org.jclouds.http.internal,com.google.inject,org.jclouds.logging,javax.annotation,com.google.common.collect,javax.net.ssl,javax.inject,com.google.common.base,com.google.inject.name'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.apis'/>
+      <p n='uses' v='org.jclouds.javax.annotation,com.google.common.reflect,com.google.inject,org.jclouds,com.google.common.base,org.jclouds.rest,org.jclouds.util,com.google.common.collect'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.javax.annotation'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.rest.suppliers'/>
+      <p n='uses' v='org.jclouds.rest,com.google.common.base,org.jclouds.util,com.google.common.cache,com.google.common.util.concurrent,com.google.common.collect,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.io.payloads'/>
+      <p n='uses' v='com.google.common.base,org.jclouds.io,javax.crypto,org.jclouds.javax.annotation,com.google.common.io,com.google.common.collect,org.jclouds.http.utils,org.jclouds.util'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.lifecycle'/>
+      <p n='uses' v='org.jclouds.logging,javax.annotation,com.google.common.collect,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.domain'/>
+      <p n='uses' v='com.google.common.collect,com.google.common.base,org.jclouds.util,org.jclouds.domain.internal,org.jclouds.javax.annotation,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.http.internal'/>
+      <p n='uses' v='com.google.common.io,org.jclouds.logging,org.jclouds.http.handlers,org.jclouds.http,org.jclouds.logging.internal,org.jclouds.util,org.jclouds.io,javax.annotation,com.google.common.base,javax.inject,com.google.common.collect,org.jclouds.rest.internal,org.jclouds.io.payloads,javax.net.ssl,com.google.inject,org.jclouds,org.jclouds.javax.annotation'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.functions'/>
+      <p n='uses' v='org.jclouds.javax.annotation,com.google.common.collect,com.google.common.base,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.apis.internal'/>
+      <p n='uses' v='org.jclouds.apis,com.google.common.collect,com.google.common.base,com.google.common.reflect,com.google.inject,org.jclouds'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.providers'/>
+      <p n='uses' v='org.jclouds.apis,org.jclouds.providers.internal,com.google.common.base,org.jclouds.rest,org.jclouds.javax.annotation,com.google.common.reflect,org.jclouds,org.jclouds.util,com.google.common.collect'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.predicates.validators'/>
+      <p n='uses' v='org.jclouds.predicates,org.jclouds.javax.annotation,com.google.common.base,javax.inject,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.concurrent.internal'/>
+      <p n='uses' v='com.google.common.collect,com.google.common.base,org.jclouds.rest.annotations,org.jclouds.util,com.google.common.cache,com.google.common.util.concurrent,org.jclouds.internal,org.jclouds.concurrent,javax.inject,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.http.annotation'/>
+      <p n='uses' v='javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.http.filters'/>
+      <p n='uses' v='org.jclouds.http,org.jclouds.http.utils,com.google.common.base,org.jclouds.rest.annotations,javax.inject,org.jclouds.crypto'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.osgi'/>
+      <p n='uses' v='org.jclouds.apis,org.jclouds.providers,org.osgi.framework'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.crypto'/>
+      <p n='uses' v='org.jclouds.encryption.internal,javax.crypto,com.google.inject,com.google.common.io,com.google.common.base,org.jclouds.io,net.oauth.signature.pem,org.jclouds.crypto.pem,com.google.common.collect,org.bouncycastle.asn1,org.jclouds.javax.annotation,org.bouncycastle.asn1.pkcs,org.bouncycastle.openssl,org.jclouds.util'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.concurrent.config'/>
+      <p n='uses' v='com.google.common.base,org.jclouds.logging,javax.annotation,com.google.common.util.concurrent,org.jclouds.lifecycle,org.jclouds.concurrent,javax.inject,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.location.predicates'/>
+      <p n='uses' v='org.jclouds.domain,com.google.common.base,javax.inject,org.jclouds.location.predicates.fromconfig,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.date'/>
+      <p n='uses' v='org.jclouds.date.internal,com.google.inject,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.rest.functions'/>
+      <p n='uses' v='com.google.common.base,org.jclouds.internal,com.google.inject,org.jclouds.rest,org.jclouds.http,javax.inject,org.jclouds.http.functions,com.google.common.collect'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.concurrent'/>
+      <p n='uses' v='com.google.common.util.concurrent,com.google.common.base,org.jclouds.logging,org.jclouds.http.handlers,javax.annotation,org.jclouds.rest,com.google.common.collect,org.jclouds.util,org.jclouds.javax.annotation,javax.inject,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.google.common.base)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.base ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.cache)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.cache ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.collect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.collect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.eventbus)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.eventbus ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.io)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.io ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.net)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.net ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.primitives)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.primitives ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.reflect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.reflect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.util.concurrent)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.util.concurrent ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.gson)(version&gt;=2.2.0)(!(version&gt;=3.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.gson ;version=[2.2.0,3.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.gson.annotations)(version&gt;=2.2.0)(!(version&gt;=3.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.gson.annotations ;version=[2.2.0,3.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.gson.internal)(version&gt;=2.2.0)(!(version&gt;=3.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.gson.internal ;version=[2.2.0,3.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.gson.internal.bind)(version&gt;=2.2.0)(!(version&gt;=3.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.gson.internal.bind ;version=[2.2.0,3.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.gson.reflect)(version&gt;=2.2.0)(!(version&gt;=3.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.gson.reflect ;version=[2.2.0,3.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.gson.stream)(version&gt;=2.2.0)(!(version&gt;=3.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.gson.stream ;version=[2.2.0,3.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.assistedinject)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.assistedinject ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.binder)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.binder ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.matcher)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.matcher ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.name)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.name ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.spi)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.spi ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.util)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.util ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.sun.jersey.api.uri)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.sun.jersey.api.uri
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.annotation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.annotation
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.crypto)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.crypto
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.crypto.spec)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.crypto.spec
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.net.ssl)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.net.ssl
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.ws.rs)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.ws.rs
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.ws.rs.core)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.ws.rs.core
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.bind)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.bind
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.parsers)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.parsers
+    </require>
+    <require extend='false' filter='(&amp;(package=net.oauth.signature.pem)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package net.oauth.signature.pem
+    </require>
+    <require extend='false' filter='(&amp;(package=org.bouncycastle.asn1)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package org.bouncycastle.asn1
+    </require>
+    <require extend='false' filter='(&amp;(package=org.bouncycastle.asn1.pkcs)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package org.bouncycastle.asn1.pkcs
+    </require>
+    <require extend='false' filter='(&amp;(package=org.bouncycastle.openssl)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package org.bouncycastle.openssl
+    </require>
+    <require extend='false' filter='(&amp;(package=org.nnsoft.guice.rocoto)(version&gt;=6.1.0)(!(version&gt;=7.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.nnsoft.guice.rocoto ;version=[6.1.0,7.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.nnsoft.guice.rocoto.configuration)(version&gt;=6.1.0)(!(version&gt;=7.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.nnsoft.guice.rocoto.configuration ;version=[6.1.0,7.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=1.5.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework ;version=[1.5.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.xml.sax)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.xml.sax
+    </require>
+    <require extend='false' filter='(&amp;(package=org.xml.sax.helpers)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.xml.sax.helpers
+    </require>
+  </resource>
+  <resource id='jclouds-scriptbuilder/1.5.0.beta_6' presentationname='jclouds script builder' symbolicname='jclouds-scriptbuilder' uri='jclouds-scriptbuilder/jclouds-scriptbuilder-1.5.0.jar' version='1.5.0.beta_6'>
+    <description>
+      creates scripts that can be used to manage services
+    </description>
+    <size>
+      115339
+    </size>
+    <license>
+      jar:file:/Users/jawi/Sources/ace-marrs/cnf/repo/jclouds-scriptbuilder/jclouds-scriptbuilder-1.5.0.jar!/resources/LICENSE.txt
+    </license>
+    <documentation>
+      http://www.jclouds.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jclouds script builder'/>
+      <p n='symbolicname' v='jclouds-scriptbuilder'/>
+      <p n='version' t='version' v='1.5.0.beta_6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.scriptbuilder.domain'/>
+      <p n='uses' v='org.jclouds.scriptbuilder.statements.login,com.google.common.collect,com.google.common.base,org.jclouds.scriptbuilder.util,org.jclouds.scriptbuilder,com.google.common.cache'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.scriptbuilder.statements.java'/>
+      <p n='uses' v='org.jclouds.scriptbuilder.domain'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.scriptbuilder.statements.ssh'/>
+      <p n='uses' v='org.jclouds.scriptbuilder.domain,com.google.common.collect,com.google.common.base'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.scriptbuilder.statements.login'/>
+      <p n='uses' v='com.google.common.io,com.google.common.base,org.jclouds.crypto,org.jclouds.javax.annotation,org.jclouds.domain,com.google.inject,org.jclouds.scriptbuilder.domain,org.jclouds.scriptbuilder.statements.ssh,com.google.common.collect,org.jclouds.util,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.scriptbuilder.functionloader'/>
+      <p n='uses' v='org.jclouds.scriptbuilder.domain,com.google.common.io,com.google.common.base,org.jclouds.util'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.scriptbuilder.functionloader.osgi'/>
+      <p n='uses' v='org.osgi.framework,org.jclouds.scriptbuilder.functionloader,org.jclouds.scriptbuilder.domain,com.google.common.io,com.google.common.base'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.scriptbuilder.functions'/>
+      <p n='uses' v='org.jclouds.scriptbuilder.domain,org.jclouds.domain,org.jclouds.javax.annotation,com.google.common.base,org.jclouds.scriptbuilder.statements.login,javax.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.scriptbuilder.util'/>
+      <p n='uses' v='org.jclouds.scriptbuilder.domain,com.google.common.base,com.google.common.collect,org.jclouds.util,org.jclouds.scriptbuilder.functionloader'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.scriptbuilder'/>
+      <p n='uses' v='org.jclouds.scriptbuilder.domain,com.google.common.collect,com.google.common.base,org.jclouds.scriptbuilder.util'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.google.common.base)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.base ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.cache)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.cache ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.collect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.collect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.io)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.io ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.crypto)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.crypto ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.javax.annotation)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.javax.annotation ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.util)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.util ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=1.5.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework ;version=[1.5.0,2.0.0)
+    </require>
+  </resource>
+  <resource id='jclouds-slf4j/1.5.0.beta_6' presentationname='jclouds SLF4J Logging Module' symbolicname='jclouds-slf4j' uri='jclouds-slf4j/jclouds-slf4j-1.5.0.jar' version='1.5.0.beta_6'>
+    <description>
+      jclouds SLF4J Logging Module
+    </description>
+    <size>
+      11299
+    </size>
+    <license>
+      jar:file:/Users/jawi/Sources/ace-marrs/cnf/repo/jclouds-slf4j/jclouds-slf4j-1.5.0.jar!/resources/LICENSE.txt
+    </license>
+    <documentation>
+      http://www.jclouds.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jclouds SLF4J Logging Module'/>
+      <p n='symbolicname' v='jclouds-slf4j'/>
+      <p n='version' t='version' v='1.5.0.beta_6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.logging.slf4j.config'/>
+      <p n='uses' v='org.jclouds.logging,org.jclouds.logging.config,org.jclouds.logging.slf4j'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.logging.slf4j'/>
+      <p n='uses' v='org.jclouds.logging,org.slf4j'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=org.jclouds.logging)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.logging ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.logging.config)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.logging.config ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.slf4j)(version&gt;=1.6.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.slf4j ;version=[1.6.0,2.0.0)
+    </require>
+  </resource>
+  <resource id='jclouds-sshj/1.5.0.beta_6' presentationname='jclouds sshj ssh client' symbolicname='jclouds-sshj' uri='jclouds-sshj/jclouds-sshj-1.5.0.jar' version='1.5.0.beta_6'>
+    <description>
+      jclouds sshj ssh client
+    </description>
+    <size>
+      34930
+    </size>
+    <license>
+      jar:file:/Users/jawi/Sources/ace-marrs/cnf/repo/jclouds-sshj/jclouds-sshj-1.5.0.jar!/resources/LICENSE.txt
+    </license>
+    <documentation>
+      http://www.jclouds.org/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jclouds sshj ssh client'/>
+      <p n='symbolicname' v='jclouds-sshj'/>
+      <p n='version' t='version' v='1.5.0.beta_6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.sshj.config'/>
+      <p n='uses' v='org.jclouds.http.handlers,com.google.common.net,org.jclouds.sshj,org.jclouds.domain,javax.inject,com.google.inject,org.jclouds.ssh,com.google.inject.binder'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.jclouds.sshj'/>
+      <p n='uses' v='com.google.common.net,org.jclouds.domain,org.jclouds.logging,javax.annotation,net.schmizz.sshj.transport.verification,com.google.common.base,net.schmizz.sshj,javax.inject,net.schmizz.sshj.userauth.keyprovider,net.schmizz.sshj.sftp,com.google.common.collect,net.schmizz.sshj.connection.channel.direct,net.schmizz.sshj.connection,net.schmizz.sshj.transport,com.google.common.io,org.apache.commons.io.input,org.jclouds.compute.domain,net.schmizz.sshj.common,org.jclouds.io.payloads,org.jclouds.io,net.schmizz.sshj.xfer,org.jclouds.http.handlers,org.jclouds.rest,net.schmizz.sshj.userauth,org.jclouds.util,org.jclouds.ssh,org.jclouds.crypto,com.google.inject'/>
+      <p n='version' t='version' v='1.5.0.beta6'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.google.common.base)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.base ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.collect)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.collect ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.io)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.io ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.common.net)(version&gt;=12.0.0)(!(version&gt;=13.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.common.net ;version=[12.0.0,13.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=com.google.inject.binder)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.google.inject.binder ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.annotation)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.annotation
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=net.schmizz.sshj)(version&gt;=0.8.0)(!(version&gt;=1.0.0)))' multiple='false' name='package' optional='false'>
+      Import package net.schmizz.sshj ;version=[0.8.0,1.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=net.schmizz.sshj.common)(version&gt;=0.8.0)(!(version&gt;=1.0.0)))' multiple='false' name='package' optional='false'>
+      Import package net.schmizz.sshj.common ;version=[0.8.0,1.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=net.schmizz.sshj.connection)(version&gt;=0.8.0)(!(version&gt;=1.0.0)))' multiple='false' name='package' optional='false'>
+      Import package net.schmizz.sshj.connection ;version=[0.8.0,1.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=net.schmizz.sshj.connection.channel.direct)(version&gt;=0.8.0)(!(version&gt;=1.0.0)))' multiple='false' name='package' optional='false'>
+      Import package net.schmizz.sshj.connection.channel.direct ;version=[0.8.0,1.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=net.schmizz.sshj.sftp)(version&gt;=0.8.0)(!(version&gt;=1.0.0)))' multiple='false' name='package' optional='false'>
+      Import package net.schmizz.sshj.sftp ;version=[0.8.0,1.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=net.schmizz.sshj.transport)(version&gt;=0.8.0)(!(version&gt;=1.0.0)))' multiple='false' name='package' optional='false'>
+      Import package net.schmizz.sshj.transport ;version=[0.8.0,1.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=net.schmizz.sshj.transport.verification)(version&gt;=0.8.0)(!(version&gt;=1.0.0)))' multiple='false' name='package' optional='false'>
+      Import package net.schmizz.sshj.transport.verification ;version=[0.8.0,1.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=net.schmizz.sshj.userauth)(version&gt;=0.8.0)(!(version&gt;=1.0.0)))' multiple='false' name='package' optional='false'>
+      Import package net.schmizz.sshj.userauth ;version=[0.8.0,1.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=net.schmizz.sshj.userauth.keyprovider)(version&gt;=0.8.0)(!(version&gt;=1.0.0)))' multiple='false' name='package' optional='false'>
+      Import package net.schmizz.sshj.userauth.keyprovider ;version=[0.8.0,1.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=net.schmizz.sshj.xfer)(version&gt;=0.8.0)(!(version&gt;=1.0.0)))' multiple='false' name='package' optional='false'>
+      Import package net.schmizz.sshj.xfer ;version=[0.8.0,1.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.apache.commons.io.input)(version&gt;=1.4.0)(!(version&gt;=3.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.apache.commons.io.input ;version=[1.4.0,3.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.compute.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.compute.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.crypto)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.crypto ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.domain)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.domain ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.http.handlers)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.http.handlers ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.io)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.io ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.io.payloads)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.io.payloads ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.logging)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.logging ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.rest)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.rest ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.ssh)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.ssh ;version=1.5.0.beta6
+    </require>
+    <require extend='false' filter='(&amp;(package=org.jclouds.util)(version&gt;=1.5.0.beta6))' multiple='false' name='package' optional='false'>
+      Import package org.jclouds.util ;version=1.5.0.beta6
+    </require>
+  </resource>
+  <resource id='net.schmizz.sshj/0.8.1' presentationname='sshj' symbolicname='net.schmizz.sshj' uri='net.schmizz.sshj/net.schmizz.sshj-0.8.1.jar' version='0.8.1'>
+    <description>
+      SSHv2 library for Java
+    </description>
+    <size>
+      349526
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+    </license>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='sshj'/>
+      <p n='symbolicname' v='net.schmizz.sshj'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.sftp'/>
+      <p n='uses' v='net.schmizz.sshj.xfer,net.schmizz.sshj.common,net.schmizz.sshj.connection.channel.direct,net.schmizz.concurrent,org.slf4j'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.userauth.method'/>
+      <p n='uses' v='net.schmizz.sshj.userauth.password,net.schmizz.sshj.userauth,net.schmizz.sshj.common,net.schmizz.sshj.transport,org.slf4j,net.schmizz.sshj.userauth.keyprovider,net.schmizz.sshj.signature,net.schmizz.sshj'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.userauth.password'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.connection.channel.forwarded'/>
+      <p n='uses' v='net.schmizz.sshj.connection,net.schmizz.concurrent,net.schmizz.sshj.common,net.schmizz.sshj.connection.channel,net.schmizz.sshj.transport,org.slf4j'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.connection.channel.direct'/>
+      <p n='uses' v='net.schmizz.sshj.common,net.schmizz.sshj.connection,net.schmizz.concurrent,net.schmizz.sshj.connection.channel,net.schmizz.sshj.transport,org.slf4j'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.userauth'/>
+      <p n='uses' v='net.schmizz.sshj.transport,net.schmizz.sshj.userauth.method,net.schmizz.sshj,net.schmizz.concurrent,net.schmizz.sshj.common,org.slf4j'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.transport.compression'/>
+      <p n='uses' v='net.schmizz.sshj.common,net.schmizz.sshj.transport,com.jcraft.jzlib'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.xfer.scp'/>
+      <p n='uses' v='net.schmizz.sshj.common,net.schmizz.sshj.xfer,net.schmizz.sshj.connection.channel.direct,org.slf4j'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.transport.digest'/>
+      <p n='uses' v='net.schmizz.sshj.common'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.transport.mac'/>
+      <p n='uses' v='javax.crypto.spec,net.schmizz.sshj.common,javax.crypto'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.concurrent'/>
+      <p n='uses' v='org.slf4j'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.transport.cipher'/>
+      <p n='uses' v='net.schmizz.sshj.common,javax.crypto.spec,javax.crypto'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj'/>
+      <p n='uses' v='net.schmizz.sshj.common,net.schmizz.sshj.transport,org.slf4j,net.schmizz.sshj.transport.random,net.schmizz.sshj.signature,net.schmizz.sshj.transport.compression,net.schmizz.sshj.transport.mac,net.schmizz.sshj.transport.kex,net.schmizz.sshj.transport.cipher,net.schmizz.sshj.userauth.keyprovider,net.schmizz.sshj.transport.verification,net.schmizz.sshj.userauth.password,net.schmizz.sshj.userauth.method,net.schmizz.sshj.sftp,net.schmizz.sshj.connection.channel.forwarded,net.schmizz.sshj.userauth,net.schmizz.sshj.connection.channel.direct,net.schmizz.sshj.xfer.scp,net.schmizz.sshj.connection,javax.net'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.transport'/>
+      <p n='uses' v='net.schmizz.sshj.transport.compression,net.schmizz.sshj.transport.mac,net.schmizz.sshj.transport.cipher,net.schmizz.sshj.common,org.slf4j,net.schmizz.sshj.transport.random,net.schmizz.sshj.transport.digest,net.schmizz.concurrent,net.schmizz.sshj,net.schmizz.sshj.transport.verification,net.schmizz.sshj.transport.kex'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.userauth.keyprovider'/>
+      <p n='uses' v='net.schmizz.sshj.userauth.password,net.schmizz.sshj.common,org.slf4j,org.bouncycastle.openssl'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.signature'/>
+      <p n='uses' v='net.schmizz.sshj.common'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.transport.verification'/>
+      <p n='uses' v='net.schmizz.sshj.common,org.slf4j,net.schmizz.sshj.transport.mac'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.connection'/>
+      <p n='uses' v='net.schmizz.sshj.connection.channel.forwarded,net.schmizz.concurrent,net.schmizz.sshj.connection.channel,net.schmizz.sshj.common,net.schmizz.sshj.transport,net.schmizz.sshj,org.slf4j'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.transport.kex'/>
+      <p n='uses' v='net.schmizz.sshj.signature,net.schmizz.sshj.transport.digest,net.schmizz.sshj.common,net.schmizz.sshj,net.schmizz.sshj.transport,org.slf4j,javax.crypto.interfaces,javax.crypto.spec,javax.crypto'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.connection.channel'/>
+      <p n='uses' v='net.schmizz.sshj.common,net.schmizz.sshj.connection,net.schmizz.concurrent,net.schmizz.sshj.transport,org.slf4j'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.common'/>
+      <p n='uses' v='org.slf4j,net.schmizz.concurrent,org.bouncycastle.jce.provider,javax.crypto'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.transport.random'/>
+      <p n='uses' v='net.schmizz.sshj.common,org.bouncycastle.crypto.prng'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='net.schmizz.sshj.xfer'/>
+      <p n='uses' v='org.slf4j,net.schmizz.sshj.common'/>
+      <p n='version' t='version' v='0.8.1'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.jcraft.jzlib)(version&gt;=1.0.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package com.jcraft.jzlib ;version=[1.0.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.crypto)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.crypto
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.crypto.interfaces)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.crypto.interfaces
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.crypto.spec)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.crypto.spec
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.net)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.net
+    </require>
+    <require extend='false' filter='(&amp;(package=org.bouncycastle.crypto.prng)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.bouncycastle.crypto.prng
+    </require>
+    <require extend='false' filter='(&amp;(package=org.bouncycastle.jce.provider)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.bouncycastle.jce.provider
+    </require>
+    <require extend='false' filter='(&amp;(package=org.bouncycastle.openssl)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.bouncycastle.openssl
+    </require>
+    <require extend='false' filter='(&amp;(package=org.slf4j)(version&gt;=1.6.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.slf4j ;version=[1.6.0,2.0.0)
+    </require>
+  </resource>
+  <resource id='org.apache.commons.io/2.0.0' presentationname='Commons IO' symbolicname='org.apache.commons.io' uri='org.apache.commons.io/org.apache.commons.io-2.0.0.jar' version='2.0.0'>
+    <description>
+      Commons-IO contains utility classes, stream implementations,
+       file filters, file comparators and endian classes.
+    </description>
+    <size>
+      161213
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+    </license>
+    <documentation>
+      http://commons.apache.org/io/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='Commons IO'/>
+      <p n='symbolicname' v='org.apache.commons.io'/>
+      <p n='version' t='version' v='2.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.apache.commons.io.output'/>
+      <p n='version' t='version' v='2.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.apache.commons.io.comparator'/>
+      <p n='version' t='version' v='2.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.apache.commons.io'/>
+      <p n='version' t='version' v='2.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.apache.commons.io.monitor'/>
+      <p n='version' t='version' v='2.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.apache.commons.io.input'/>
+      <p n='version' t='version' v='2.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.apache.commons.io.filefilter'/>
+      <p n='version' t='version' v='2.0.0'/>
+    </capability>
   </resource>
   <resource id='org.apache.felix.dependencymanager/3.1.0.SNAPSHOT' presentationname='Apache Felix Dependency Manager' symbolicname='org.apache.felix.dependencymanager' uri='org.apache.felix.dependencymanager/org.apache.felix.dependencymanager-3.1.0.jar' version='3.1.0.SNAPSHOT'>
     <description>
@@ -2313,6 +4950,64 @@
     </require>
     <require extend='false' filter='(&amp;(package=org.osgi.service.bindex)(version&gt;=1.0.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
       Import package org.osgi.service.bindex ;version=[1.0.0,2.0.0)
+    </require>
+  </resource>
+  <resource id='rocoto/6.1.0' presentationname='99soft :: Rocoto' symbolicname='rocoto' uri='rocoto/rocoto-6.1.0.jar' version='6.1.0'>
+    <description>
+      Add some spice to Google Guice through configuration files!
+    </description>
+    <size>
+      45678
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+    </license>
+    <documentation>
+      http://www.99soft.org/
+    </documentation>
+    <capability name='fragment'>
+      <p n='host' v='com.google.inject'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='bundle'>
+      <p n='host' v='com.google.inject'/>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='99soft :: Rocoto'/>
+      <p n='symbolicname' v='rocoto'/>
+      <p n='version' t='version' v='6.1.0'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.nnsoft.guice.rocoto.converters'/>
+      <p n='uses' v='javax.sql.rowset.serial'/>
+      <p n='version' t='version' v='6.1.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.nnsoft.guice.rocoto.variables'/>
+      <p n='version' t='version' v='6.1.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.nnsoft.guice.rocoto.configuration.binder'/>
+      <p n='version' t='version' v='6.1.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.nnsoft.guice.rocoto.configuration'/>
+      <p n='uses' v='org.nnsoft.guice.rocoto.configuration.binder'/>
+      <p n='version' t='version' v='6.1.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.nnsoft.guice.rocoto'/>
+      <p n='uses' v='org.nnsoft.guice.rocoto.variables,javax.inject'/>
+      <p n='version' t='version' v='6.1.0'/>
+    </capability>
+    <require extend='true' filter='(&amp;(symbolicname=com.google.inject)(version&gt;=0.0.0))' multiple='false' name='bundle' optional='false'>
+      Required Host com.google.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.inject)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.inject
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.sql.rowset.serial)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.sql.rowset.serial
     </require>
   </resource>
   <resource id='slf4j.api/1.6.4' presentationname='slf4j-api' symbolicname='slf4j.api' uri='slf4j.api/slf4j.api-1.6.4.jar' version='1.6.4'>

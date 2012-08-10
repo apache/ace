@@ -1,33 +1,35 @@
--buildpath:osgi.core,\
+-buildpath: \
+	osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.nodelauncher.api;version=latest,\
 	org.apache.ace.test;version=latest,\
-	lib/aopalliance-1.0.jar;version=file,\
-	lib/aws-common-1.5.0-beta.6.jar;version=file,\
-	lib/aws-ec2-1.5.0-beta.6.jar;version=file,\
-	lib/bcprov-jdk16-1.46.jar;version=file,\
-	lib/commons-io-2.0.jar;version=file,\
-	lib/ec2-1.5.0-beta.6.jar;version=file,\
-	lib/gson-2.2.jar;version=file,\
-	lib/guava-12.0.jar;version=file,\
-	lib/guice-3.0.jar;version=file,\
-	lib/guice-assistedinject-3.0.jar;version=file,\
-	lib/javax.inject-1.jar;version=file,\
-	lib/jclouds-bouncycastle-1.5.0-beta.6.jar;version=file,\
-	lib/jclouds-compute-1.5.0-beta.6.jar;version=file,\
-	lib/jclouds-core-1.5.0-beta.6.jar;version=file,\
-	lib/jclouds-scriptbuilder-1.5.0-beta.6.jar;version=file,\
-	lib/jclouds-slf4j-1.5.0-beta.6.jar;version=file,\
-	lib/jclouds-sshj-1.5.0-beta.6.jar;version=file,\
-	lib/jersey-core-1.12.jar;version=file,\
-	lib/jsr250-api-1.0.jar;version=file,\
-	lib/jsr305-1.3.9.jar;version=file,\
-	lib/oauth-20100527.jar;version=file,\
-	lib/rocoto-6.1.jar;version=file,\
-	lib/slf4j-api-1.6.4.jar;version=file,\
-	lib/sshj-0.8.1.jar;version=file
-Private-Package:org.jclouds.*,\
+	aopalliance;version=1.0,\
+	aws-common;version=1.5.0.beta_6,\
+	aws-ec2;version=1.5.0.beta_6,\
+	bcprov;version=1.46.0,\
+	commons-io;version=2.0,\
+	ec2;version=1.5.0.beta_6,\
+	com.google.gson;version=2.2,\
+	com.google.guava;version=12.0,\
+	com.google.inject;version=3.0,\
+	com.google.inject.assistedinject;version=3.0,\
+	javax.inject;version=1,\
+	jclouds-bouncycastle;version=1.5.0.beta_6,\
+	jclouds-compute;version=1.5.0.beta_6,\
+	jclouds-core;version=1.5.0.beta_6,\
+	jclouds-scriptbuilder;version=1.5.0.beta_6,\
+	jclouds-slf4j;version=1.5.0.beta_6,\
+	jclouds-sshj;version=1.5.0.beta_6,\
+	com.sun.jersey.core;version=1.13.0,\
+	jsr250-api;version=1.0,\
+	jsr305;version=1.3.9,\
+	oauth;version=20100527,\
+	rocoto;version=6.1,\
+	slf4j.api;version=1.6.4,\
+	net.schmizz.sshj;version=0.8.1
+Private-Package: \
+	org.jclouds.*,\
 	com.google.*,\
 	net.schmizz.*,\
 	org.nnsoft.*,\
@@ -39,8 +41,10 @@ Private-Package:org.jclouds.*,\
 	javax.annotation.*,\
 	org.bouncycastle.*,\
 	com.sun.jersey.*
-Bundle-Activator:org.apache.ace.nodelauncher.amazon.Activator
-Import-Package:!com.google.*,\
+Bundle-Activator: \
+	org.apache.ace.nodelauncher.amazon.Activator
+Import-Package: \
+	!com.google.*,\
 	!junit.*,\
 	!javax.mail.*,\
 	!javax.inject.*,\
@@ -63,31 +67,32 @@ Import-Package:!com.google.*,\
 	!org.apache.tools.ant.types,\
 	!sun.reflect,\
 	*
-Export-Package:org.jclouds.compute.domain,\
+Export-Package: \
+	org.jclouds.compute.domain,\
 	org.apache.ace.nodelauncher.amazon
 Include-Resource:\
-	@lib/aopalliance-1.0.jar,\
-	@lib/aws-common-1.5.0-beta.6.jar,\
-	@lib/aws-ec2-1.5.0-beta.6.jar,\
-	@lib/bcprov-jdk16-1.46.jar,\
-	@lib/commons-io-2.0.jar,\
-	@lib/ec2-1.5.0-beta.6.jar,\
-	@lib/gson-2.2.jar,\
-	@lib/guava-12.0.jar,\
-	@lib/guice-3.0.jar,\
-	@lib/guice-assistedinject-3.0.jar,\
-	@lib/javax.inject-1.jar,\
-	@lib/jclouds-bouncycastle-1.5.0-beta.6.jar,\
-	@lib/jclouds-compute-1.5.0-beta.6.jar,\
-	@lib/jclouds-core-1.5.0-beta.6.jar,\
-	@lib/jclouds-scriptbuilder-1.5.0-beta.6.jar,\
-	@lib/jclouds-slf4j-1.5.0-beta.6.jar,\
-	@lib/jclouds-sshj-1.5.0-beta.6.jar,\
-	@lib/jersey-core-1.12.jar,\
-	@lib/jsr250-api-1.0.jar,\
-	@lib/jsr305-1.3.9.jar,\
-	@lib/oauth-20100527.jar,\
-	@lib/rocoto-6.1.jar,\
-	@lib/slf4j-api-1.6.4.jar,\
-	@lib/sshj-0.8.1.jar,\
+	@../cnf/lib/aopalliance/aopalliance-1.0.jar,\
+	@../cnf/repo/aws-common/aws-common-1.5.0.jar,\
+	@../cnf/repo/aws-ec2/aws-ec2-1.5.0.jar,\
+	@../cnf/repo/bcprov/bcprov-1.46.0.jar,\
+	@../cnf/repo/ec2/ec2-1.5.0.jar,\
+	@../cnf/repo/com.google.gson/com.google.gson-2.2.0.jar,\
+	@../cnf/repo/com.google.guava/com.google.guava-12.0.0.jar,\
+	@../cnf/repo/com.google.inject/com.google.inject-3.0.0.jar,\
+	@../cnf/repo/com.google.inject.assistedinject/com.google.inject.assistedinject-3.0.0.jar,\
+	@../cnf/repo/jclouds-bouncycastle/jclouds-bouncycastle-1.5.0.jar,\
+	@../cnf/repo/jclouds-compute/jclouds-compute-1.5.0.jar,\
+	@../cnf/repo/jclouds-core/jclouds-core-1.5.0.jar,\
+	@../cnf/repo/jclouds-scriptbuilder/jclouds-scriptbuilder-1.5.0.jar,\
+	@../cnf/repo/jclouds-slf4j/jclouds-slf4j-1.5.0.jar,\
+	@../cnf/repo/jclouds-sshj/jclouds-sshj-1.5.0.jar,\
+	@../cnf/repo/com.sun.jersey.core/com.sun.jersey.core-1.13.0.jar,\
+	@../cnf/repo/rocoto/rocoto-6.1.0.jar,\
+	@../cnf/repo/slf4j.api/slf4j.api-1.6.4.jar,\
+	@../cnf/repo/net.schmizz.sshj/net.schmizz.sshj-0.8.1.jar,\
+	@../cnf/lib/commons-io/commons-io-2.0.1.jar,\
+	@../cnf/lib/javax.inject/javax.inject-1.jar,\
+	@../cnf/lib/jsr250-api/jsr250-api-1.0.jar,\
+	@../cnf/lib/jsr305/jsr305-1.3.9.jar,\
+	@../cnf/lib/oauth/oauth-20100527.jar,\
 	META-INF/services/org.jclouds.apis.ApiMetadata=org.jclouds.apis.ApiMetadata

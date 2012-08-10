@@ -6,6 +6,7 @@ import java.io.FileWriter;
 public class LibraryIndexer {
 	public static void main(String[] args) throws Exception {
 		File dir = new File("lib");
+		System.out.printf("Creating 'repository.xml' in %s ... ", dir.getName());
 		StringBuffer repo = new StringBuffer();
 		repo.append("<repository>\n");
 		index(repo, dir, dir);
@@ -20,11 +21,18 @@ public class LibraryIndexer {
 				fw.close();
 			}
 		}
+		System.out.println("done.");
 	}
 
 	private static void index(StringBuffer repo, File baseDir, File dir) {
 		int baseDirLength = baseDir.getAbsolutePath().length() + 1;
-		for (File f : dir.listFiles()) {
+		
+		File[] files = dir.listFiles();
+		if (files == null) {
+			throw new RuntimeException("Failed to list files for " + dir);
+		}
+
+		for (File f : files) {
 			if (f.isDirectory()) {
 				index(repo, baseDir, f);
 			}
