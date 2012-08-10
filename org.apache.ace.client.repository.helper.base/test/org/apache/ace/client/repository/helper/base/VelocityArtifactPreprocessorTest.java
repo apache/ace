@@ -46,7 +46,7 @@ public class VelocityArtifactPreprocessorTest {
     
     @BeforeTest
     public void setUp() throws Exception {
-        m_obrUrl = new URL("file://" + System.getProperty("java.io.tmpdir"));
+        m_obrUrl = new URL("file://" + System.getProperty("java.io.tmpdir") + "/");
         
         m_resolver = new PropertyResolver() {
             public String get(String key) {
