@@ -90,7 +90,7 @@
 
 	<target name="compiletest" depends="dependencies" if="project.testpathexists">
 		<mkdir dir="${project}/bin_test"/>
-		<javac fork="yes" executable="${javac}" srcdir="${project}/test" destdir="${project}/bin_test" classpath="${project.buildpath}:${workspacedir}/cnf/lib/testng-6.5.2.jar" bootclasspath="${project.bootclasspath}" deprecation="true" listfiles="true" target="${javac.target}" source="${javac.source}" debug="${javac.debug}" includeAntRuntime="no" verbose="${verbose}" />
+		<javac fork="yes" executable="${javac}" srcdir="${project}/test" destdir="${project}/bin_test" classpath="${project.buildpath}:${workspacedir}/cnf/lib/testng/testng-6.5.2.jar" bootclasspath="${project.bootclasspath}" deprecation="true" listfiles="true" target="${javac.target}" source="${javac.source}" debug="${javac.debug}" includeAntRuntime="no" verbose="${verbose}" />
 		<!-- 
 		  The eclipse compiler copies resources but the Javac compiler does not
 		  If ${src} == ${bin} then this is not necessary, but unfortunately, now 
@@ -139,7 +139,7 @@
 
 	<target name="testng" depends="build, compiletest" if="project.testpathexists">
 		<mkdir dir="tmp" />
-		<testng classpath="${project}/bin_test:${project.buildpath}:${workspacedir}/cnf/lib/testng-6.5.2.jar"
+		<testng classpath="${project}/bin_test:${project.buildpath}:${workspacedir}/cnf/lib/testng/testng-6.5.2.jar"
 			outputDir="tmp" haltOnfailure="true">
 			<classfileset dir="${project}/bin_test" includes="**/*.class" />
 		</testng>
