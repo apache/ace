@@ -17,7 +17,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.provider.filebased;version=latest,\
 	org.apache.ace.obr.storage;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
-	org.apache.ace.repository.impl;version=latest
+	org.apache.ace.repository.impl;version=latest,\
+	org.apache.ace.client.repository.api;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: \
 	org.apache.ace.test;version=latest,\
