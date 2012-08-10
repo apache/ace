@@ -150,7 +150,7 @@ public class VelocityArtifactPreprocessorTest {
         // Verify that it is actually uploaded...
         assertFalse(newUrl.equals(url));
         // Verify that it is actually uploaded to our (fake) OBR...
-        assertTrue(newUrl.startsWith(m_obrUrl.toExternalForm()));
+        assertTrue(newUrl.startsWith(m_obrUrl.toExternalForm()), "newUrl (" + newUrl + ") should start with: " + m_obrUrl.toExternalForm());
     }
 
     /**
