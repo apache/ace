@@ -1,0 +1,10 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	javax.servlet,\
+	org.apache.ace.test;version=latest,\
+	org.apache.ace.range.api;version=latest,\
+	org.apache.ace.repository.api;version=latest,\
+	org.apache.ace.connectionfactory;version=latest,\
+	org.apache.ace.deployment.provider.api;version=latest
+Export-Package: org.apache.ace.repository.ext,\
+	org.apache.ace.repository.ext.impl

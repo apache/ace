@@ -1,0 +1,12 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	javax.servlet,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.authentication.api;version=latest,\
+	commons-codec;version=1.4,\
+	org.apache.ace.test;version=latest,\
+	org.mockito.mockito-all
+Private-Package: org.apache.ace.authenticationprocessor.basicauth,\
+	org.apache.commons.codec,\
+	org.apache.commons.codec.binary
+Bundle-Activator: org.apache.ace.authenticationprocessor.basicauth.Activator

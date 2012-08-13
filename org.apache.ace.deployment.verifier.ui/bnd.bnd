@@ -1,0 +1,12 @@
+-buildpath: osgi.core;version=4.3.0.201102171602,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.deployment.verifier;version=latest,\
+	org.apache.ace.connectionfactory;version=latest,\
+	org.apache.ace.client.repository.api;version=latest,\
+	com.vaadin,\
+	org.apache.ace.webui.vaadin;version=latest
+Private-Package: org.apache.ace.deployment.verifier.ui
+Bundle-Activator: org.apache.ace.deployment.verifier.ui.Activator
+Import-Package: org.osgi.framework;version='[1.5,2)',\
+	*

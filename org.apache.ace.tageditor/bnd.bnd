@@ -1,0 +1,8 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.client.repository.api;version=latest,\
+	com.vaadin,\
+	org.apache.ace.webui.vaadin;version=latest
+Private-Package: org.apache.ace.tageditor
+Bundle-Activator: org.apache.ace.tageditor.Activator

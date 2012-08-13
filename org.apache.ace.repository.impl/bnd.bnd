@@ -1,0 +1,11 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	javax.servlet,\
+	org.apache.ace.repository.ext;version=latest,\
+	org.apache.ace.repository.api;version=latest,\
+	org.apache.ace.range.api;version=latest,\
+	org.apache.ace.test;version=latest
+Private-Package: org.apache.ace.repository.impl,\
+	org.apache.ace.repository.impl.constants
+Bundle-Activator: org.apache.ace.repository.impl.Activator

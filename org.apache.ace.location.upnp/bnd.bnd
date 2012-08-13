@@ -1,0 +1,8 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	javax.servlet
+Export-Package: org.apache.ace.location,\
+	org.apache.ace.location.upnp,\
+	org.apache.ace.location.upnp.actions,\
+	org.apache.ace.location.upnp.util

@@ -1,0 +1,9 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.ace.test;version=latest,\
+	commons-codec;version=1.4
+Private-Package: org.apache.ace.connectionfactory.impl,\
+	org.apache.commons.codec,\
+	org.apache.commons.codec.binary
+Bundle-Activator: org.apache.ace.connectionfactory.impl.Activator
+Export-Package: org.apache.ace.connectionfactory

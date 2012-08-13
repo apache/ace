@@ -1,0 +1,7 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager
+Private-Package: org.apache.ace.resourceprocessor.useradmin.impl
+Bundle-Activator: org.apache.ace.resourceprocessor.useradmin.impl.Activator
+Export-Package: org.apache.ace.resourceprocessor.useradmin
+Deployment-ProvidesResourceProcessor: org.apache.ace.resourceprocessor.useradmin

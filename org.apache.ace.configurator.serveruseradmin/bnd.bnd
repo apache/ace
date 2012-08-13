@@ -1,0 +1,5 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager
+Private-Package: org.apache.ace.configurator.serveruseradmin
+Bundle-Activator: org.apache.ace.configurator.serveruseradmin.Activator

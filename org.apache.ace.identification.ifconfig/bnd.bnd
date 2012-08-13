@@ -1,0 +1,7 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.ace.identification.api;version=latest,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.test;version=latest
+Private-Package: org.apache.ace.identification.ifconfig
+Bundle-Activator: org.apache.ace.identification.ifconfig.Activator

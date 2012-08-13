@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="bin-build" default="init">
+
+	<property name="version" value="0.8.1-SNAPSHOT" />
+
+	<property name="target.base.dir" value="generated" />
+	<property name="target.server.dir" value="${target.base.dir}/ace-devserver" />
+	<property name="target.target.dir" value="${target.base.dir}/ace-dev-target" />
+	<property name="server.zipball" value="${target.base.dir}/ace-devserver-${version}.zip" />
+	<property name="server.tarball" value="${target.base.dir}/ace-devserver-${version}.tar.gz" />
+
+	<target name="init" unless="initialized">
+		<mkdir dir="${target.server.dir}" />
+		<mkdir dir="${target.target.dir}" />
+
+		<property name="init" value="set" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${target.server.dir}" />
+		<delete dir="${target.target.dir}" />
+	</target>
+
+	<target name="package" description="Packages ACE into a binary distribution." depends="package-server" />
+
+	<target name="package-server">
+		<resources id="required-bundles">
+			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.configadmin/org.apache.felix.configadmin-1.2.8.jar" />
+			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.http.jetty/org.apache.felix.http.jetty-2.2.0.jar" />
+			<url url="http://bundles.bndtools.org.s3.amazonaws.com/osgi.cmpn/osgi.cmpn-4.2.1.jar" />
+			<file file="../cnf/repo/org.apache.felix.dependencymanager/org.apache.felix.dependencymanager-3.1.0.jar" />
+			<file file="../cnf/repo/org.apache.felix.dependencymanager.shell/org.apache.felix.dependencymanager.shell-3.0.1.jar" />
+			<file file="../cnf/repo/org.apache.felix.eventadmin/org.apache.felix.eventadmin-1.2.14.jar" />
+			<file file="../cnf/repo/org.apache.felix.prefs/org.apache.felix.prefs-1.0.4.jar" />
+		</resources>
+
+		<resources id="ace-bundles">
+			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.shell/org.apache.felix.gogo.shell-0.10.0.jar" />
+			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.command/org.apache.felix.gogo.command-0.12.0.jar" />
+			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.runtime/org.apache.felix.gogo.runtime-0.10.0.jar" />
+			<file file="../cnf/repo/org.apache.felix.useradmin/org.apache.felix.useradmin-1.0.2.jar" />
+			<file file="../cnf/repo/org.apache.felix.useradmin.filestore/org.apache.felix.useradmin.filestore-1.0.1.jar" />
+			<file file="../cnf/repo/org.apache.felix.log/org.apache.felix.log-1.0.1.jar" />
+			<file file="../cnf/repo/com.vaadin/com.vaadin-6.5.1.jar" />
+			<file file="../org.apache.ace.configurator.useradmin.task/generated/org.apache.ace.configurator.useradmin.task.jar" />
+
+			<file file="../org.apache.ace.target.mgmt.ui/generated/org.apache.ace.target.mgmt.ui.jar" />
+			<file file="../org.apache.ace.log.servlet/generated/org.apache.ace.log.servlet.jar" />
+			<file file="../org.apache.ace.deployment.streamgenerator/generated/org.apache.ace.deployment.streamgenerator.jar" />
+			<file file="../org.apache.ace.authentication.api/generated/org.apache.ace.authentication.api.jar" />
+			<file file="../org.apache.ace.client.repository.impl/generated/org.apache.ace.client.repository.impl.jar" />
+			<file file="../org.apache.ace.tageditor/generated/org.apache.ace.tageditor.jar" />
+			<file file="../org.apache.ace.client.repository.helper.bundle/generated/org.apache.ace.client.repository.helper.bundle.jar" />
+			<file file="../org.apache.ace.discovery.api/generated/org.apache.ace.discovery.api.jar" />
+			<file file="../org.apache.ace.client.rest/generated/org.apache.ace.client.rest.jar" />
+			<file file="../org.apache.ace.range.api/generated/org.apache.ace.range.api.jar" />
+			<file file="../org.apache.ace.log/generated/org.apache.ace.log.jar" />
+			<file file="../org.apache.ace.authenticationprocessor.password/generated/org.apache.ace.authenticationprocessor.password.jar" />
+			<file file="../org.apache.ace.webui.vaadin/generated/org.apache.ace.webui.vaadin.jar" />
+			<file file="../org.apache.ace.resourceprocessor.useradmin/generated/org.apache.ace.resourceprocessor.useradmin.jar" />
+			<file file="../org.apache.ace.server.log.ui/generated/org.apache.ace.server.log.ui.jar" />
+			<file file="../org.apache.ace.deployment.verifier.ui/generated/org.apache.ace.deployment.verifier.ui.jar" />
+			<file file="../org.apache.ace.repository.api/generated/org.apache.ace.repository.api.jar" />
+			<file file="../org.apache.ace.server.log.store/generated/org.apache.ace.server.log.store.jar" />
+			<file file="../org.apache.ace.client.repository.api/generated/org.apache.ace.client.repository.api.jar" />
+			<file file="../org.apache.ace.repository.servlet/generated/org.apache.ace.repository.servlet.jar" />
+			<file file="../org.apache.ace.obr.storage/generated/org.apache.ace.obr.storage.jar" />
+			<file file="../org.apache.ace.client.repository.helper.configuration/generated/org.apache.ace.client.repository.helper.configuration.jar" />
+			<file file="../org.apache.ace.httplistener/generated/org.apache.ace.httplistener.jar" />
+			<file file="../org.apache.ace.obr.servlet/generated/org.apache.ace.obr.servlet.jar" />
+			<file file="../org.apache.ace.nodelauncher.api/generated/org.apache.ace.nodelauncher.api.jar" />
+			<file file="../org.apache.ace.deployment.provider.api/generated/org.apache.ace.deployment.provider.api.jar" />
+			<file file="../org.apache.ace.deployment.servlet/generated/org.apache.ace.deployment.servlet.jar" />
+			<file file="../org.apache.ace.scheduler/generated/org.apache.ace.scheduler.jar" />
+			<file file="../org.apache.ace.obr.metadata/generated/org.apache.ace.obr.metadata.jar" />
+			<file file="../org.apache.ace.configurator/generated/org.apache.ace.configurator.jar" />
+			<file file="../org.apache.ace.connectionfactory/generated/org.apache.ace.connectionfactory.jar" />
+			<file file="../org.apache.ace.authentication/generated/org.apache.ace.authentication.jar" />
+			<file file="../org.apache.ace.nodelauncher.amazon/generated/org.apache.ace.nodelauncher.amazon.jar" />
+			<file file="../org.apache.ace.configurator.serveruseradmin/generated/org.apache.ace.configurator.serveruseradmin.jar" />
+			<file file="../org.apache.ace.repository.impl/generated/org.apache.ace.repository.impl.jar" />
+			<file file="../org.apache.ace.deployment.provider.repositorybased/generated/org.apache.ace.deployment.provider.repositorybased.jar" />
+			<file file="../org.apache.ace.deployment.verifier/generated/org.apache.ace.deployment.verifier.jar" />
+			<file file="../org.apache.ace.client.repository.helper.base/generated/org.apache.ace.client.repository.helper.base.jar" />
+			<file file="../org.apache.ace.authenticationprocessor.basicauth/generated/org.apache.ace.authenticationprocessor.basicauth.jar" />
+			<file file="../org.apache.ace.nodelauncher.ui/generated/org.apache.ace.nodelauncher.ui.jar" />
+		</resources>
+		
+		<resources id="devserver-store">
+		  <file file="../cnf/repo/org.apache.felix.deployment.rp.autoconf/org.apache.felix.deployment.rp.autoconf-0.1.1.jar" />
+			<file file="../org.apache.ace.launcher/generated/org.apache.ace.launcher.jar" />
+		</resources>
+
+		<!-- create right directory structure -->
+		<mkdir dir="${target.server.dir}/required-bundles" />
+		<mkdir dir="${target.server.dir}/ace-bundles" />
+		<mkdir dir="${target.server.dir}/conf" />
+		<mkdir dir="${target.server.dir}/store" />
+
+		<!-- copy the required bundles -->
+		<copy todir="${target.server.dir}/required-bundles" flatten="true">
+			<resources refid="required-bundles" />
+		</copy>
+
+		<!-- copy the ACE bundles -->
+		<copy todir="${target.server.dir}/ace-bundles" flatten="true">
+			<resources refid="ace-bundles" />
+		</copy>
+
+		<!-- copy the configuration files -->
+		<copy todir="${target.server.dir}/conf">
+			<fileset dir="../run-server/conf" />
+		</copy>
+		
+		<!-- add jar files to store directory -->
+		<copy todir="${target.server.dir}/store" flatten="true">
+			<resources refid="devserver-store" />
+		</copy>
+		
+		<move file="${target.server.dir}/store/org.apache.ace.launcher.jar" toFile="${target.server.dir}/store/ace-launcher.jar"/>
+
+		<!-- copy the additional resources -->
+		<copy todir="${target.server.dir}">
+			<fileset dir="resources" />
+		</copy>
+		<copy todir="${target.server.dir}">
+			<fileset dir="lib" />
+		</copy>
+		<!-- ensure all scripts are executable by default -->
+		<chmod perm="755" dir="${target.server.dir}" includes="*.sh" />
+
+		<!-- create one giant TAR.GZ-file with everything in it -->
+		<tar destfile="${server.tarball}" compression="gzip">
+			<tarfileset dir="${target.server.dir}" prefix="ace-devserver">
+				<include name="**"/>
+				<exclude name="*.sh"/>
+			</tarfileset>
+			<tarfileset dir="${target.server.dir}" mode="755" prefix="ace-devserver">
+				<include name="*.sh"/>
+			</tarfileset>
+		</tar>
+
+		<!-- create one giant ZIP-file with everything in it -->
+		<zip destfile="${server.zipball}">
+			<tarfileset dir="${target.server.dir}" prefix="ace-devserver">
+				<include name="**"/>
+				<exclude name="*.sh"/>
+			</tarfileset>
+			<tarfileset dir="${target.server.dir}" prefix="ace-devserver">
+				<include name="*.sh"/>
+			</tarfileset>
+		</zip>
+	</target>
+
+	<target name="package-target">
+		<resources id="target-bundles">
+			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.command/org.apache.felix.gogo.command-0.12.0.jar" />
+			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.runtime/org.apache.felix.gogo.runtime-0.10.0.jar" />
+			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.shell/org.apache.felix.gogo.shell-0.10.0.jar" />
+			<file file="../org.apache.ace.managementagent/generated/org.apache.ace.managementagent.jar" />
+		</resources>
+
+		<copy todir="${target.target.dir}" flatten="true">
+			<resources refid="target-bundles" />
+		</copy>
+	</target>
+</project>

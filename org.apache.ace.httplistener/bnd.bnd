@@ -1,0 +1,7 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	javax.servlet
+Private-Package: org.apache.ace.http.listener
+Bundle-Activator: org.apache.ace.http.listener.Activator
+Export-Package: org.apache.ace.http.listener.constants

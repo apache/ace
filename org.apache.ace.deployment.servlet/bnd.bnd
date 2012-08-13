@@ -1,0 +1,12 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	javax.servlet,\
+	org.apache.ace.test;version=latest,\
+	org.apache.ace.authentication.api;version=latest,\
+	org.apache.ace.deployment.api;version=latest,\
+	org.apache.ace.deployment.provider.api;version=latest,\
+	org.apache.ace.deployment.streamgenerator;version=latest
+Private-Package: org.apache.ace.deployment.servlet
+Bundle-Activator: org.apache.ace.deployment.servlet.Activator
+Export-Package: org.apache.ace.deployment.processor

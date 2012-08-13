@@ -1,0 +1,2 @@
+-buildpath: osgi.cmpn
+Export-Package: org.apache.ace.authentication.api

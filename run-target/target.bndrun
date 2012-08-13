@@ -1,0 +1,7 @@
+-runfw: org.apache.felix.framework;version='[4,5)'
+-runee: JavaSE-1.6
+-runbundles: org.apache.felix.gogo.command;version='[0.12.0,0.12.1)',\
+	org.apache.felix.gogo.runtime;version='[0.10.0,0.10.1)',\
+	org.apache.ace.managementagent;version=latest,\
+	org.apache.felix.gogo.shell;version='[0.10.0,0.10.1)'
+-runvm: -Dlog=true

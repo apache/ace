@@ -1,0 +1,2 @@
+-buildpath: org.apache.ace.test;version=latest
+Export-Package: org.apache.ace.range

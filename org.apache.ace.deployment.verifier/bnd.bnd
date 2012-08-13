@@ -1,0 +1,15 @@
+-buildpath: osgi.cmpn,\
+	osgi.core;version=4.3.0.201102171602,\
+	org.apache.ace.test;version=latest
+Export-Package: org.apache.ace.deployment.verifier,\
+	org.osgi.service.log,\
+	org.osgi.framework.wiring
+Private-Package: org.apache.felix.framework,\
+	org.apache.felix.framework.capabilityset,\
+	org.apache.felix.framework.resolver,\
+	org.apache.felix.framework.util,\
+	org.apache.felix.framework.util.manifestparser,\
+	org.apache.felix.framework.wiring,\
+	org.apache.ace.deployment.verifier.impl
+Import-Package: org.osgi.framework;version='[1.5,2)',\
+	*
