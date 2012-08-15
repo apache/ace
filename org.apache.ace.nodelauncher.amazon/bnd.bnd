@@ -29,6 +29,8 @@
 	slf4j.api;version=1.6.4,\
 	net.schmizz.sshj;version=0.8.1
 Private-Package: \
+	META-INF.services,\
+	functions,\
 	org.jclouds.*,\
 	com.google.*,\
 	net.schmizz.*,\
@@ -39,6 +41,8 @@ Private-Package: \
 	javax.inject,\
 	com.jcraft.*,\
 	javax.annotation.*,\
+	javax.ws.*,\
+	org.slf4j.*,\
 	org.bouncycastle.*,\
 	com.sun.jersey.*
 Bundle-Activator: \
@@ -71,28 +75,4 @@ Export-Package: \
 	org.jclouds.compute.domain,\
 	org.apache.ace.nodelauncher.amazon
 Include-Resource:\
-	@../cnf/lib/aopalliance/aopalliance-1.0.jar,\
-	@../cnf/repo/aws-common/aws-common-1.5.0.jar,\
-	@../cnf/repo/aws-ec2/aws-ec2-1.5.0.jar,\
-	@../cnf/repo/bcprov/bcprov-1.46.0.jar,\
-	@../cnf/repo/ec2/ec2-1.5.0.jar,\
-	@../cnf/repo/com.google.gson/com.google.gson-2.2.0.jar,\
-	@../cnf/repo/com.google.guava/com.google.guava-12.0.0.jar,\
-	@../cnf/repo/com.google.inject/com.google.inject-3.0.0.jar,\
-	@../cnf/repo/com.google.inject.assistedinject/com.google.inject.assistedinject-3.0.0.jar,\
-	@../cnf/repo/jclouds-bouncycastle/jclouds-bouncycastle-1.5.0.jar,\
-	@../cnf/repo/jclouds-compute/jclouds-compute-1.5.0.jar,\
-	@../cnf/repo/jclouds-core/jclouds-core-1.5.0.jar,\
-	@../cnf/repo/jclouds-scriptbuilder/jclouds-scriptbuilder-1.5.0.jar,\
-	@../cnf/repo/jclouds-slf4j/jclouds-slf4j-1.5.0.jar,\
-	@../cnf/repo/jclouds-sshj/jclouds-sshj-1.5.0.jar,\
-	@../cnf/repo/com.sun.jersey.core/com.sun.jersey.core-1.13.0.jar,\
-	@../cnf/repo/rocoto/rocoto-6.1.0.jar,\
-	@../cnf/repo/slf4j.api/slf4j.api-1.6.4.jar,\
-	@../cnf/repo/net.schmizz.sshj/net.schmizz.sshj-0.8.1.jar,\
-	@../cnf/lib/commons-io/commons-io-2.0.1.jar,\
-	@../cnf/lib/javax.inject/javax.inject-1.jar,\
-	@../cnf/lib/jsr250-api/jsr250-api-1.0.jar,\
-	@../cnf/lib/jsr305/jsr305-1.3.9.jar,\
-	@../cnf/lib/oauth/oauth-20100527.jar,\
-	META-INF/services/org.jclouds.apis.ApiMetadata=org.jclouds.apis.ApiMetadata
+	META-INF/services/org.jclouds.apis.ApiMetadata=resources/org.jclouds.apis.ApiMetadata

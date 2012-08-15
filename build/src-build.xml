@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="src-build" default="package-src">
+
+	<property name="version" value="0.8.1-SNAPSHOT" />
+
+	<property name="target.base.dir" value="generated" />
+	<property name="src.zip" value="${target.base.dir}/ace-sources-${version}.zip" />
+
+	<target name="init">
+		<mkdir dir="${target.server.dir}" />
+		<property name="init" value="set" />
+	</target>
+
+	<target name="clean">
+		<delete file="${src.zip}" />
+	</target>
+
+	<target name="package-src" depends="init">
+		<!-- copy the required projects -->
+		<zip destfile="${src.zip}" basedir=".." includes="
+			*/.project,
+			*/.classpath,
+			*/.settings/**,
+			*/src/**,
+			*/test/**,
+			*/resources/**,
+			*/*.bnd,
+			*/*.bndrun,
+			*/build.xml,
+			run-server/conf/**,
+			cnf/ext/**,
+			cnf/repo/repository.xml
+			">
+		</zip>
+	</target>
+</project>

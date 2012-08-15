@@ -1,8 +1,8 @@
 repo:           ${build}/repo
 releaserepo:    ${build}/releaserepo
 
--plugin:        aQute.lib.deployer.obr.LocalOBR;name='Local Repository';local=${repo};locations='http://bundles.bndtools.org.s3.amazonaws.com/repository.xml',\
-                aQute.lib.deployer.obr.OBR;name='Library Repository';locations='file://${build}/lib/repository.xml',\
+-plugin:        aQute.lib.deployer.obr.LocalOBR;name='Local Repository';local=${repo};locations='http://svn.apache.org/repos/asf/ace/trunk/cnf/repo/repository.xml,http://bundles.bndtools.org.s3.amazonaws.com/repository.xml',\
+                aQute.lib.deployer.obr.OBR;name='Library Repository';locations='http://svn.apache.org/repos/asf/ace/trunk/cnf/lib/repository.xml,file://${build}/lib/repository.xml',\
                 aQute.lib.deployer.obr.OBR;name='Build Repository';mode=build;locations='http://buildrepo.bndtools.org.s3.amazonaws.com/repository.xml',\
                 aQute.lib.deployer.obr.LocalOBR;name='Release';local=${releaserepo},\
                 org.osgi.impl.bundle.bindex.BundleAndLibraryIndexer;path:='${build}/bin/'

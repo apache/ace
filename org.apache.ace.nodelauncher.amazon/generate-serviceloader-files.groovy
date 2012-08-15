@@ -9,7 +9,7 @@ libDir.listFiles().each {
 	}
 }
 
-def output = new File('org.jclouds.apis.ApiMetadata')
+def output = new File('resources/org.jclouds.apis.ApiMetadata')
 serviceProviders.each {
 	output << it
 	output << '\n'

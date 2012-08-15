@@ -45,6 +45,18 @@
 			<matches string="${project}" pattern="\.itest$" />
 		</condition>
 	</target>
+	
+	<target name="bootstrap">
+		<dirname property="projectdir" file="${ant.file}" />
+		<dirname property="workspacedir" file="${projectdir}" />
+		<property name="remote.repository" value="http://svn.apache.org/repos/asf/ace/trunk" />
+		<mkdir dir="${workspacedir}/cnf/lib/testng" />
+		<get src="${remote.repository}/cnf/lib/testng/testng-6.5.2.jar" dest="${workspacedir}/cnf/lib/testng/testng-6.5.2.jar" skipexisting="true" verbose="true" />
+		<mkdir dir="${workspacedir}/cnf/repo/biz.aQute.bnd" />
+		<get src="${remote.repository}/cnf/repo/biz.aQute.bnd/biz.aQute.bnd-1.51.1.jar" dest="${workspacedir}/cnf/repo/biz.aQute.bnd/biz.aQute.bnd-1.51.1.jar" skipexisting="true" verbose="true" />
+		<mkdir dir="${workspacedir}/cnf/repo/org.osgi.impl.bundle.bindex" />
+		<get src="${remote.repository}/cnf/repo/org.osgi.impl.bundle.bindex/org.osgi.impl.bundle.bindex-2.2.0.jar" dest="${workspacedir}/cnf/repo/org.osgi.impl.bundle.bindex/org.osgi.impl.bundle.bindex-2.2.0.jar" skipexisting="true" verbose="true" />
+	</target>
 
 	<!-- 
 		DEPENDENCIES
