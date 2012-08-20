@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="src-build" default="package-src">
-	<property name="version" value="1.0.0" />
-	<property name="target.base.dir" value="generated" />
+	<property name="version" value="0.0.0.CHANGEME" />
+	<property name="target.base.dir" value="generated/ace-sources-${version}" />
 	<property name="src.zip" value="${target.base.dir}/ace-sources-${version}.zip" />
+	<property name="src.asc" value="${src.zip}.asc" />
+	<property name="src.md5" value="${src.zip}.md5" />
+	<property name="src.sha" value="${src.zip}.sha" />
+	<property name="svn.staging.path" value="https://dist.apache.org/repos/dist/dev/ace" />
+	<property name="svn.release.path" value="https://dist.apache.org/repos/dist/release/ace" />
 
 	<target name="clean">
-		<delete file="${src.zip}" />
+		<delete dir="${target.base.dir}" />
 	</target>
 
 	<target name="package-src">
-		<!-- copy the required projects -->
+		<mkdir dir="${target.base.dir}" />
 		<zip destfile="${src.zip}" basedir=".." includes="
 			*/.project,
 			*/.classpath,
@@ -25,5 +30,23 @@
 			cnf/repo/repository.xml
 			">
 		</zip>
+	</target>
+	
+	<target name="sign-src">
+		<exec executable="gpg"><arg line="--armor --output ${src.asc} --detach-sig ${src.zip}" /></exec>
+		<exec executable="gpg"><arg line="--print-md MD5 ${src.zip} > ${src.md5}" /></exec>
+		<exec executable="gpg"><arg line="--print-md SHA512 ${src.zip} > ${src.sha}" /></exec>
+	</target>
+	
+	<target name="commit-to-staging">
+		<exec executable="svn"><arg line="import ${target.base.dir} ${svn.staging.path}/ace-sources-${version}/ -m 'Staging Apache ACE source archive version ${version}.'" /></exec>
+	</target>
+
+	<target name="promote-to-release">
+		<exec executable="svn"><arg line="move ${svn.staging.path} ${svn.release.path} -m 'Releasing Apache ACE source archive version ${version}.'" /></exec>
+	</target>
+
+	<target name="delete-from-staging">
+		<exec executable="svn"><arg line="delete ${svn.staging.path}/ace-sources-${version}/ -m 'Removing Apache ACE source archive version ${version} from staging.'" /></exec>
 	</target>
 </project>
