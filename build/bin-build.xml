@@ -126,6 +126,8 @@
 		<copy todir="${target.server.dir}">
 			<fileset dir="lib" />
 		</copy>
+		<copy file="NOTICE" todir="${target.server.dir}" />
+		<copy file="LICENSE" todir="${target.server.dir}" />
 		<!-- ensure all scripts are executable by default -->
 		<chmod perm="755" dir="${target.server.dir}" includes="*.sh" />
 

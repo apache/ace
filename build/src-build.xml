@@ -27,7 +27,8 @@
 			*/build.xml,
 			run-server/conf/**,
 			cnf/ext/**,
-			cnf/repo/repository.xml
+			cnf/repo/repository.xml,
+			NOTICE, LICENSE, README
 			">
 		</zip>
 	</target>
