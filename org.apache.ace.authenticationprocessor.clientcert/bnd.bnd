@@ -8,3 +8,4 @@
 	org.mockito.mockito-all
 Private-Package: org.apache.ace.authenticationprocessor.clientcert
 Bundle-Activator: org.apache.ace.authenticationprocessor.clientcert.Activator
+Bundle-Version: 1.0.0

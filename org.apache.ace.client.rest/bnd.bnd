@@ -18,3 +18,4 @@ Private-Package: org.apache.ace.client.rest,\
 	com.google.gson.reflect,\
 	com.google.gson.stream
 Bundle-Activator: org.apache.ace.client.rest.Activator
+Bundle-Version: 1.0.0

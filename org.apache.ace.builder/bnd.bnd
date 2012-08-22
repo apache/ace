@@ -1,2 +1,3 @@
 -buildpath: org.apache.ace.test;version=latest
 Export-Package: org.apache.ace.builder
+Bundle-Version: 1.0.0

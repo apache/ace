@@ -26,3 +26,4 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest
 Private-Package: org.apache.ace.it.http
+Bundle-Version: 1.0.0

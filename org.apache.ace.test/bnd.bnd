@@ -16,3 +16,4 @@ Export-Package: org.apache.ace.it,\
 	org.apache.ace.test.utils,\
 	org.apache.ace.test.utils.deployment
 
+Bundle-Version: 1.0.0

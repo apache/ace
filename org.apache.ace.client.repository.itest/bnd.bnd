@@ -71,3 +71,4 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.client.repository.helper.configuration;version=latest,\
 	org.apache.ace.client.repository.impl;version=latest
 Private-Package: org.apache.ace.it.repositoryadmin
+Bundle-Version: 1.0.0

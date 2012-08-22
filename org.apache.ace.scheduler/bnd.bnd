@@ -5,3 +5,4 @@
 	org.apache.ace.test;version=latest
 Private-Package: org.apache.ace.scheduler
 Bundle-Activator: org.apache.ace.scheduler.Activator
+Bundle-Version: 1.0.0

@@ -6,3 +6,4 @@
 	org.apache.ace.webui.vaadin;version=latest
 Private-Package: org.apache.ace.target.management.ui
 Bundle-Activator: org.apache.ace.target.management.ui.Activator
+Bundle-Version: 1.0.0

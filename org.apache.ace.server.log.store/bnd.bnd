@@ -7,3 +7,4 @@
 Private-Package: org.apache.ace.server.log.store.impl
 Bundle-Activator: org.apache.ace.server.log.store.impl.Activator
 Export-Package: org.apache.ace.server.log.store
+Bundle-Version: 1.0.0

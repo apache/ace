@@ -8,3 +8,4 @@ Export-Package: org.apache.ace.client.repository,\
 	org.apache.ace.client.repository.object,\
 	org.apache.ace.client.repository.repository,\
 	org.apache.ace.client.repository.stateful
+Bundle-Version: 1.0.0

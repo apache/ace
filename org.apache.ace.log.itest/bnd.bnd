@@ -45,3 +45,4 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.shell.tui,\
 	org.apache.felix.dependencymanager.shell
 Private-Package: org.apache.ace.it.log
+Bundle-Version: 1.0.0

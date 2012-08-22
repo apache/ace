@@ -8,3 +8,4 @@
 	org.apache.ace.obr.storage;version=latest
 Private-Package: org.apache.ace.obr.servlet
 Bundle-Activator: org.apache.ace.obr.servlet.Activator
+Bundle-Version: 1.0.0

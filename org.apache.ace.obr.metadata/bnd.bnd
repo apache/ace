@@ -19,3 +19,4 @@ Bundle-Activator: org.apache.ace.obr.metadata.bindex.Activator
 Export-Package: org.apache.ace.obr.metadata,\
 	org.osgi.impl.bundle.obr.resource,\
 	org.osgi.service.obr
+Bundle-Version: 1.0.0

@@ -9,3 +9,4 @@
 Private-Package: org.apache.ace.repository.impl,\
 	org.apache.ace.repository.impl.constants
 Bundle-Activator: org.apache.ace.repository.impl.Activator
+Bundle-Version: 1.0.0

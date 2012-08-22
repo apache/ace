@@ -13,3 +13,4 @@ Private-Package: org.apache.ace.webui.domain,\
 Export-Package: org.apache.ace.webui
 Include-Resource: resources/
 Bundle-Activator: org.apache.ace.webui.vaadin.Activator
+Bundle-Version: 1.0.0

@@ -12,3 +12,4 @@
 Private-Package: org.apache.ace.target.log,\
 	org.apache.ace.target.log.task
 Bundle-Activator: org.apache.ace.target.log.Activator
+Bundle-Version: 1.0.0

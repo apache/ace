@@ -8,3 +8,4 @@
 	org.apache.ace.deployment.provider.api;version=latest
 Export-Package: org.apache.ace.repository.ext,\
 	org.apache.ace.repository.ext.impl
+Bundle-Version: 1.0.0

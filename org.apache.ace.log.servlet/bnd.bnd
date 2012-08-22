@@ -9,3 +9,4 @@
 	org.apache.ace.server.log.store;version=latest
 Private-Package: org.apache.ace.server.log.servlet
 Bundle-Activator: org.apache.ace.server.log.servlet.Activator
+Bundle-Version: 1.0.0

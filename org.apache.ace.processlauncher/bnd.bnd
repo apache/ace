@@ -20,3 +20,4 @@ Private-Package: org.apache.ace.processlauncher.osgi,\
 Bundle-Activator: org.apache.ace.processlauncher.osgi.Activator
 Export-Package: org.apache.ace.processlauncher,\
 	org.apache.ace.processlauncher.util
+Bundle-Version: 1.0.0

@@ -8,3 +8,4 @@
 	org.apache.ace.webui.vaadin;version=latest
 Private-Package: org.apache.ace.server.log.ui
 Bundle-Activator: org.apache.ace.server.log.ui.Activator
+Bundle-Version: 1.0.0

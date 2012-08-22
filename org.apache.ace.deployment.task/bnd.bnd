@@ -10,3 +10,4 @@
 	org.apache.ace.gateway.log.store;version=latest
 Private-Package: org.apache.ace.deployment.task
 Bundle-Activator: org.apache.ace.deployment.task.Activator
+Bundle-Version: 1.0.0

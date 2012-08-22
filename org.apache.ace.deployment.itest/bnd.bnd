@@ -47,3 +47,4 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.provider.base;version=latest,\
 	org.apache.ace.test;version=latest
 Private-Package: org.apache.ace.it.deployment
+Bundle-Version: 1.0.0

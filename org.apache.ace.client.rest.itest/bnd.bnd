@@ -84,3 +84,4 @@ Private-Package: org.apache.ace.client.rest.itest,\
 	aQute.*,\
 	org.osgi.service.bindex
 
+Bundle-Version: 1.0.0

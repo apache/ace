@@ -91,3 +91,4 @@ Import-Package: !javax.servlet,\
 	!org.apache.commons.logging,\
 	!org.apache.oro.text.perl,\
 	*
+Bundle-Version: 1.0.0

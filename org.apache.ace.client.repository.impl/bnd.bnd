@@ -73,3 +73,4 @@ Import-Package: !javax.security.auth,\
     !sun.reflect,\
     *
 Bundle-Activator: org.apache.ace.client.repository.impl.Activator
+Bundle-Version: 1.0.0

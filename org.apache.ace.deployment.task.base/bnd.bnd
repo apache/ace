@@ -11,3 +11,4 @@
 Private-Package: org.apache.ace.deployment.service.impl
 Bundle-Activator: org.apache.ace.deployment.service.impl.Activator
 Export-Package: org.apache.ace.deployment.service
+Bundle-Version: 1.0.0

@@ -37,3 +37,4 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.repository.servlet;version=latest,\
 	org.apache.ace.configurator.useradmin.task;version=latest
 Private-Package: org.apache.ace.it.useradminconfigurator
+Bundle-Version: 1.0.0

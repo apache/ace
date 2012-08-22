@@ -3,3 +3,4 @@
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest
 Export-Package: org.apache.ace.deployment.provider.impl
+Bundle-Version: 1.0.0
