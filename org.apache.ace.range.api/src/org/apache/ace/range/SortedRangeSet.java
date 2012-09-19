@@ -189,6 +189,15 @@ public class SortedRangeSet
     public RangeIterator iterator() {
         return new RangeIterator(m_ranges.iterator());
     }
+    
+    /**
+     * Returns an iterator that iterates over all the <code>Range</code> instances in this set.
+     * 
+     * @return an iterator of <code>Range</code> objects
+     */
+    public Iterator rangeIterator() {
+        return m_ranges.iterator();
+    }
 
     /**
      * Returns the highest value present in any of the ranges in this <code>SortredRangeSet</code>.

@@ -20,9 +20,8 @@ package org.apache.ace.range;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
-import org.apache.ace.range.Range;
-import org.apache.ace.range.RangeIterator;
-import org.apache.ace.range.SortedRangeSet;
+import java.util.Iterator;
+
 import org.testng.annotations.Test;
 
 public class SortedRangeSetTest {
@@ -69,6 +68,23 @@ public class SortedRangeSetTest {
         assert new SortedRangeSet("1-20").diffDest(new SortedRangeSet("5-25")).toRepresentation().equals("21-25") : "Result of diff should be 21-25";
         assert new SortedRangeSet(new long[] {1,3,5,7,9}).diffDest(new SortedRangeSet("1-10")).toRepresentation().equals("2,4,6,8,10") : "Result of diff should be 2,4,6,8,10";
         assert new SortedRangeSet("1-5,8,12").diffDest(new SortedRangeSet("1-5,7,9,12,20")).toRepresentation().equals("7,9,20") : "Result of diff should be 7,9,20";
+    }
+    
+    @Test(groups = { UNIT })
+    public void validateRangeIterators() {
+        SortedRangeSet srs1 = new SortedRangeSet("1-10");
+        Iterator i1 = srs1.rangeIterator();
+        assert i1.hasNext() : "We should have one Range instance in our iterator.";
+        assert ((Range) i1.next()).toRepresentation().equals("1-10");
+        assert !i1.hasNext() : "There should be only one instance in our iterator.";
+        SortedRangeSet srs2 = new SortedRangeSet("1-5,8,10-15");
+        Iterator i2 = srs2.rangeIterator();
+        assert i2.hasNext() && i2.next() instanceof Range
+            && i2.hasNext() && i2.next() instanceof Range
+            && i2.hasNext() && i2.next() instanceof Range
+            && !i2.hasNext() : "There should be exactly three Range instances in our iterator.";
+        SortedRangeSet srs3 = new SortedRangeSet("");
+        assert !srs3.iterator().hasNext() : "Iterator should be empty.";
     }
 
     @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
