@@ -7,7 +7,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.log;version=latest,\
-	org.apache.ace.server.log.store;version=latest,\
+	org.apache.ace.server.log.store.api;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
@@ -43,7 +43,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.ace.client.repository.helper.base;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
-	org.apache.ace.server.log.store;version=latest,\
+	org.apache.ace.server.log.store.api;version=latest,\
+	org.apache.ace.server.log.store.filelogstore;version=latest,\
 	org.apache.ace.repository.servlet;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.resourceprocessor.useradmin;version=latest,\

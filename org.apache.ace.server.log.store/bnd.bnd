@@ -3,8 +3,7 @@
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.log;version=latest,\
-	org.apache.ace.test;version=latest
-Private-Package: org.apache.ace.server.log.store.impl
-Bundle-Activator: org.apache.ace.server.log.store.impl.Activator
-Export-Package: org.apache.ace.server.log.store
-Bundle-Version: 1.0.0
+	org.apache.ace.test;version=latest,\
+	org.amdatu.mongo,\
+	com.mongodb
+-sub: *.bnd

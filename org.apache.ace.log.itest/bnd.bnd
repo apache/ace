@@ -10,7 +10,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
-	org.apache.ace.server.log.store;version=latest
+	org.apache.ace.server.log.store.api;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: org.apache.ace.test;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.itest/generated/org.apache.ace.itest.jar;version=latest,\
 	org.apache.felix.dependencymanager;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.apache.felix.dependencymanager/org.apache.felix.dependencymanager-3.1.0.jar;version='[3.1.0,3.1.1)',\
@@ -36,13 +36,14 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.client.repository.helper.base;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.client.repository.helper.base/generated/org.apache.ace.client.repository.helper.base.jar;version=latest,\
 	org.apache.ace.repository.api;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.repository.api/generated/org.apache.ace.repository.api.jar;version=latest,\
 	org.apache.ace.client.repository.api;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.client.repository.api/generated/org.apache.ace.client.repository.api.jar;version=latest,\
-	org.apache.ace.server.log.store;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.server.log.store/generated/org.apache.ace.server.log.store.jar;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	javax.servlet,\
 	org.apache.felix.http.jetty,\
 	org.apache.ace.consolelogger;version=latest,\
 	org.apache.felix.shell,\
 	org.apache.felix.shell.tui,\
-	org.apache.felix.dependencymanager.shell
+	org.apache.felix.dependencymanager.shell,\
+	org.apache.ace.server.log.store.api;version=latest,\
+	org.apache.ace.server.log.store.filelogstore;version=latest
 Private-Package: org.apache.ace.it.log
 Bundle-Version: 1.0.0

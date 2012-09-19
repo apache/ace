@@ -32,7 +32,8 @@
 	org.apache.ace.server.log.ui;version=latest,\
 	org.apache.ace.deployment.verifier.ui;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
-	org.apache.ace.server.log.store;version=latest,\
+	org.apache.ace.server.log.store.api;version=latest,\
+	org.apache.ace.server.log.store.filelogstore;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.repository.servlet;version=latest,\
 	org.apache.ace.obr.storage;version=latest,\

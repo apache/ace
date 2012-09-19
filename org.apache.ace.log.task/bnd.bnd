@@ -6,5 +6,5 @@
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.log;version=latest,\
-	org.apache.ace.server.log.store;version=latest
+	org.apache.ace.server.log.store.api;version=latest
 Bundle-Version: 1.0.0

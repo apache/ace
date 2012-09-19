@@ -10,9 +10,9 @@
 	xpp3;version=1.1.4,\
 	xstream;version=1.2.2,\
 	org.apache.ace.repository.ext;version=latest,\
-	org.apache.ace.server.log.store;version=latest,\
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
-	org.mockito.mockito-all
+	org.mockito.mockito-all,\
+	org.apache.ace.server.log.store.api;version=latest
 Private-Package: org.apache.ace.client.repository.impl,\
 	javax.xml.namespace,\
 	org.xmlpull.mxp1,\

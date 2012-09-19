@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <?xml-stylesheet type='text/xsl' href='http://www.osgi.org/www/obr2html.xsl'?>
 
-<repository lastmodified='20120814125005.285' name='Local Repository'>
+<repository lastmodified='20120831104826.681' name='Local Repository'>
   <resource id='aws-common/1.5.0.beta_6' presentationname='jclouds Amazon AWS Components Core' symbolicname='aws-common' uri='aws-common/aws-common-1.5.0.jar' version='1.5.0.beta_6'>
     <description>
       jclouds Core components to access Amazon AWS
@@ -10,7 +10,7 @@
       34847
     </size>
     <license>
-      jar:file:/Users/marcel/dev/ace/cnf/repo/aws-common/aws-common-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/aws-common/aws-common-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -144,7 +144,7 @@
       196969
     </size>
     <license>
-      jar:file:/Users/marcel/dev/ace/cnf/repo/aws-ec2/aws-ec2-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/aws-ec2/aws-ec2-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -1302,6 +1302,58 @@
     </require>
     <require extend='false' filter='(|(ee=J2SE-1.5)(ee=JavaSE-1.6))' multiple='false' name='ee' optional='false'>
       Execution Environment (|(ee=J2SE-1.5)(ee=JavaSE-1.6))
+    </require>
+  </resource>
+  <resource id='com.mongodb/2.7.3' presentationname='MongoDB' symbolicname='com.mongodb' uri='com.mongodb/com.mongodb-2.7.3.jar' version='2.7.3'>
+    <size>
+      295160
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='MongoDB'/>
+      <p n='symbolicname' v='com.mongodb'/>
+      <p n='version' t='version' v='2.7.3'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.mongodb'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.mongodb.io'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.mongodb.util'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.mongodb.gridfs'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.bson'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.bson.util'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.bson.types'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.bson.io'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=javax.management)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.management
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.net)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.net
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.net.ssl)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.net.ssl
     </require>
   </resource>
   <resource id='com.sun.jersey.client/1.13.0' presentationname='jersey-client' symbolicname='com.sun.jersey.client' uri='com.sun.jersey.client/com.sun.jersey.client-1.13.0.jar' version='1.13.0'>
@@ -2541,7 +2593,7 @@
       344780
     </size>
     <license>
-      jar:file:/Users/marcel/dev/ace/cnf/repo/ec2/ec2-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/ec2/ec2-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -2868,7 +2920,7 @@
       10134
     </size>
     <license>
-      jar:file:/Users/marcel/dev/ace/cnf/repo/jclouds-bouncycastle/jclouds-bouncycastle-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-bouncycastle/jclouds-bouncycastle-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -2916,7 +2968,7 @@
       470098
     </size>
     <license>
-      jar:file:/Users/marcel/dev/ace/cnf/repo/jclouds-compute/jclouds-compute-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-compute/jclouds-compute-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -3229,7 +3281,7 @@
       743250
     </size>
     <license>
-      jar:file:/Users/marcel/dev/ace/cnf/repo/jclouds-core/jclouds-core-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-core/jclouds-core-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -3747,7 +3799,7 @@
       115339
     </size>
     <license>
-      jar:file:/Users/marcel/dev/ace/cnf/repo/jclouds-scriptbuilder/jclouds-scriptbuilder-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-scriptbuilder/jclouds-scriptbuilder-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -3845,7 +3897,7 @@
       11299
     </size>
     <license>
-      jar:file:/Users/marcel/dev/ace/cnf/repo/jclouds-slf4j/jclouds-slf4j-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-slf4j/jclouds-slf4j-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -3884,7 +3936,7 @@
       34930
     </size>
     <license>
-      jar:file:/Users/marcel/dev/ace/cnf/repo/jclouds-sshj/jclouds-sshj-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-sshj/jclouds-sshj-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -4149,6 +4201,40 @@
     </require>
     <require extend='false' filter='(&amp;(package=org.slf4j)(version&gt;=1.6.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
       Import package org.slf4j ;version=[1.6.0,2.0.0)
+    </require>
+  </resource>
+  <resource id='org.amdatu.mongo/1.0.3' presentationname='org.amdatu.mongo' symbolicname='org.amdatu.mongo' uri='org.amdatu.mongo/org.amdatu.mongo-1.0.3.jar' version='1.0.3'>
+    <size>
+      12112
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='org.amdatu.mongo'/>
+      <p n='symbolicname' v='org.amdatu.mongo'/>
+      <p n='version' t='version' v='1.0.3'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.amdatu.mongo'/>
+      <p n='uses' v='com.mongodb'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=com.mongodb)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package com.mongodb
+    </require>
+    <require extend='false' filter='(&amp;(package=org.amdatu.mongo)(version&gt;=1.0.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.amdatu.mongo ;version=[1.0.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.apache.felix.dm)(version&gt;=3.0.0)(!(version&gt;=4.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.apache.felix.dm ;version=[3.0.0,4.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=1.5.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework ;version=[1.5.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.cm ;version=[1.3.0,2.0.0)
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.log ;version=[1.3.0,2.0.0)
     </require>
   </resource>
   <resource id='org.apache.commons.io/2.0.0' presentationname='Commons IO' symbolicname='org.apache.commons.io' uri='org.apache.commons.io/org.apache.commons.io-2.0.0.jar' version='2.0.0'>

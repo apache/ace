@@ -6,7 +6,7 @@
 	org.apache.ace.range.api;version=latest,\
 	javax.servlet,\
 	org.apache.ace.authentication.api;version=latest,\
-	org.apache.ace.server.log.store;version=latest
+	org.apache.ace.server.log.store.api;version=latest
 Private-Package: org.apache.ace.server.log.servlet
 Bundle-Activator: org.apache.ace.server.log.servlet.Activator
 Bundle-Version: 1.0.0

@@ -10,7 +10,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
-	org.apache.ace.server.log.store;version=latest,\
 	javax.servlet,\
 	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.deployment.servlet;version=latest,\
@@ -19,7 +18,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
-	org.apache.ace.client.repository.helper.bundle;version=latest
+	org.apache.ace.client.repository.helper.bundle;version=latest,\
+	org.apache.ace.server.log.store.api;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: \
 	org.apache.ace.test;version=latest,\
@@ -56,7 +56,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.log;version='[1.0.1,1.0.2)',\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.log;version=latest,\
-	org.apache.ace.server.log.store;version=latest,\
+	org.apache.ace.server.log.store.api;version=latest,\
+	org.apache.ace.server.log.store.filelogstore;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlet;version=latest,\
