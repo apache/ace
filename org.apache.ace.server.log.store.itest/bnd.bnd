@@ -18,7 +18,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.gogo.shell
 Private-Package: org.example.tests
 -runvm: -ea
--runfw: org.apache.felix.framework;version='[4.0.2,4.0.2]'
+-runfw: org.apache.felix.framework;version='[4,5)'
 -buildpath: osgi.core;version='[4.1,5)',\
 	osgi.cmpn,\
 	junit.osgi,\
@@ -29,4 +29,3 @@ Private-Package: org.example.tests
 	com.mongodb,\
 	org.amdatu.mongo
 -runsystempackages: sun.reflect
--runee: JavaSE-1.6
