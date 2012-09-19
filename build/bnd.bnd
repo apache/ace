@@ -76,6 +76,7 @@
     org.apache.ace.server.action,\
     org.apache.ace.server.action.popupmessage,\
     org.apache.ace.server.log.store,\
+    org.apache.ace.server.log.store.itest,\
     org.apache.ace.server.log.ui,\
     org.apache.ace.tageditor,\
     org.apache.ace.target.mgmt.ui,\
