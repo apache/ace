@@ -119,8 +119,15 @@ public class LogSyncTask implements Runnable, LogSync {
         OutputStream sendOutput = null;
         try {
             URLConnection sendConnection = m_connectionFactory.createConnection(new URL(host, m_endpoint + "/" + COMMAND_SEND));
-            sendConnection.setDoOutput(true);
             
+            if (sendConnection instanceof HttpURLConnection) {
+                // ACE-294: enable streaming mode causing only small amounts of memory to be
+                // used for this commit. Otherwise, the entire input stream is cached into 
+                // memory prior to sending it to the server...
+                ((HttpURLConnection) sendConnection).setChunkedStreamingMode(8192);
+            }
+            sendConnection.setDoOutput(true);
+
             sendOutput = sendConnection.getOutputStream();
 
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sendOutput));

@@ -52,23 +52,23 @@ import org.osgi.service.log.LogService;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the ArtifactRepository. For 'what it does', see ArtifactRepository,
- * for 'how it works', see ObjectRepositoryImpl.<br>
+ * Implementation class for the ArtifactRepository. For 'what it does', see ArtifactRepository, for 'how it works', see
+ * ObjectRepositoryImpl.<br>
  * <br>
  * This class has some extended functionality when compared to <code>ObjectRepositoryImpl</code>,
  * <ul>
- * <li> it keeps track of all <code>ArtifactHelper</code>s, and serves them to its inhabitants.
- * <li> it handles importing of artifacts.
+ * <li>it keeps track of all <code>ArtifactHelper</code>s, and serves them to its inhabitants.
+ * <li>it handles importing of artifacts.
  * </ul>
  */
 public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectImpl, ArtifactObject> implements ArtifactRepository {
     private final static String XML_NODE = "artifacts";
-    
+
     // Injected by Dependency Manager
     private volatile BundleContext m_context;
     private volatile LogService m_log;
     private volatile ConnectionFactory m_connectionFactory;
-    
+
     private final Map<String, ArtifactHelper> m_helpers = new HashMap<String, ArtifactHelper>();
     private URL m_obrBase;
 
@@ -121,10 +121,11 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
     ArtifactObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
         ArtifactHelper helper = getHelper(attributes.get(ArtifactObject.KEY_MIMETYPE));
         ArtifactObjectImpl ao = new ArtifactObjectImpl(helper.checkAttributes(attributes), helper.getMandatoryAttributes(), tags, this, this);
-        if ((ao.getAttribute("upload") != null) && (m_obrBase != null)){
+        if ((ao.getAttribute("upload") != null) && (m_obrBase != null)) {
             try {
                 ao.addAttribute(ArtifactObject.KEY_URL, new URL(m_obrBase, ao.getDefinition() + ao.getAttribute("upload")).toString());
-            } catch (MalformedURLException e) {
+            }
+            catch (MalformedURLException e) {
                 throw new IllegalStateException(e);
             }
         }
@@ -138,12 +139,15 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
 
     /**
      * Helper method for this repository's inhabitants, which finds the necessary helpers.
-     * @param mimetype The mimetype for which a helper should be found.
+     * 
+     * @param mimetype
+     *            The mimetype for which a helper should be found.
      * @return An artifact helper for the given mimetype.
-     * @throws IllegalArgumentException when the mimetype is invalid, or no helpers are available.
+     * @throws IllegalArgumentException
+     *             when the mimetype is invalid, or no helpers are available.
      */
     ArtifactHelper getHelper(String mimetype) {
-        synchronized(m_helpers) {
+        synchronized (m_helpers) {
             if ((mimetype == null) || (mimetype.length() == 0)) {
                 throw new IllegalArgumentException("Without a mimetype, we cannot find a helper.");
             }
@@ -162,7 +166,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
      * Method intended for adding artifact helpers by the bundle's activator.
      */
     void addHelper(String mimetype, ArtifactHelper helper) {
-        synchronized(m_helpers) {
+        synchronized (m_helpers) {
             if ((mimetype == null) || (mimetype.length() == 0)) {
                 m_log.log(LogService.LOG_WARNING, "An ArtifactHelper has been published without a proper mimetype.");
             }
@@ -176,7 +180,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
      * Method intended for removing artifact helpers by the bundle's activator.
      */
     void removeHelper(String mimetype, ArtifactHelper helper) {
-        synchronized(m_helpers) {
+        synchronized (m_helpers) {
             if ((mimetype == null) || (mimetype.length() == 0)) {
                 m_log.log(LogService.LOG_WARNING, "An ArtifactHelper is being removed without a proper mimetype.");
             }
@@ -187,13 +191,14 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
     }
 
     /**
-     * Utility function that takes either a URL or a String representing a mimetype,
-     * and returns the corresponding <code>ArtifactHelper</code>, <code>ArtifactRecognizer</code>
-     * and, if not specified, the mimetype.
-     * @param input Either a <code>URL</code> pointing to a physical artifact, or a <code>String</code>
-     * representing a mime type.
+     * Utility function that takes either a URL or a String representing a mimetype, and returns the corresponding
+     * <code>ArtifactHelper</code>, <code>ArtifactRecognizer</code> and, if not specified, the mimetype.
+     * 
+     * @param input
+     *            Either a <code>URL</code> pointing to a physical artifact, or a <code>String</code> representing a
+     *            mime type.
      * @return A mapping from a class (<code>ArtifactRecognizer</code>, <code>ArtifactHelper</code> or
-     * <code>String</code> to an instance of that class as a result.
+     *         <code>String</code> to an instance of that class as a result.
      */
     protected Map<Class<?>, Object> findRecognizerAndHelper(Object input) throws IllegalArgumentException {
         // check input.
@@ -248,7 +253,8 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
                         break;
                     }
                 }
-            } finally {
+            }
+            finally {
                 m_context.ungetService(ref);
             }
         }
@@ -278,7 +284,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             return mimetype != null;
         }
         catch (Exception e) {
-            //too bad... Nothing to do now.
+            // too bad... Nothing to do now.
             return false;
         }
     }
@@ -336,7 +342,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
 
     private ArtifactObject importArtifact(URL artifact, ArtifactRecognizer recognizer, ArtifactHelper helper, String mimetype, boolean overwrite, boolean upload) throws IOException {
         ArtifactResource resource = convertToArtifactResource(artifact);
-        
+
         Map<String, String> attributes = recognizer.extractMetaData(resource);
         Map<String, String> tags = new HashMap<String, String>();
 
@@ -347,39 +353,44 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         }
 
         String artifactURL = artifact.toString();
-        
+
         attributes.put(ArtifactObject.KEY_URL, artifactURL);
-        
+
         if (upload) {
             attributes.put("upload", recognizer.getExtension(resource));
         }
 
         ArtifactObject result = create(attributes, tags);
-        
+
         if (upload) {
             try {
                 upload(artifact, result.getDefinition() + attributes.get("upload"), mimetype);
-            } catch (IOException ex) {
+            }
+            catch (IOException ex) {
                 remove(result);
                 throw ex;
             }
             finally {
                 try {
                     attributes.remove("upload");
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     // Not much we can do
                 }
             }
         }
         return result;
-        
+
     }
 
     /**
-     * Helper method which checks a given URL for 'validity', that is, does this URL point
-     * to something that can be read.
-     * @param artifact A URL pointing to an artifact.
-     * @throws IllegalArgumentException when the URL does not point to a valid file.
+     * Helper method which checks a given URL for 'validity', that is, does this URL point to something that can be
+     * read.
+     * 
+     * @param artifact
+     *            A URL pointing to an artifact.
+     * @throws IllegalArgumentException
+     *             when the URL does not point to a valid file.
      */
 
     private void checkURL(URL artifact) throws IllegalArgumentException {
@@ -406,17 +417,21 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         String artifactName = artifact.toString();
         for (byte b : artifactName.substring(artifactName.lastIndexOf('/') + 1).getBytes()) {
             if (!(((b >= 'A') && (b <= 'Z')) || ((b >= 'a') && (b <= 'z')) || ((b >= '0') && (b <= '9')) || (b == '.') || (b == '-') || (b == '_'))) {
-                throw new IllegalArgumentException("Artifact " + artifactName + "'s name contains an illegal character '" + new String(new byte[] {b}) + "'");
+                throw new IllegalArgumentException("Artifact " + artifactName + "'s name contains an illegal character '" + new String(new byte[] { b }) + "'");
             }
         }
     }
 
     /**
      * Uploads an artifact to the OBR.
-     * @param artifact URL pointing to the local artifact.
-     * @param mimetype The mimetype of this artifact.
+     * 
+     * @param artifact
+     *            URL pointing to the local artifact.
+     * @param mimetype
+     *            The mimetype of this artifact.
      * @return The persistent URL of this artifact.
-     * @throws IOException for any problem uploading the artifact.
+     * @throws IOException
+     *             for any problem uploading the artifact.
      */
     private URL upload(URL artifact, String definition, String mimetype) throws IOException {
         if (m_obrBase == null) {
@@ -432,11 +447,18 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             url = new URL(m_obrBase, definition);
 
             URLConnection connection = m_connectionFactory.createConnection(url);
-            
+
             connection.setDoOutput(true);
             connection.setDoInput(true);
             connection.setUseCaches(false);
+
             connection.setRequestProperty("Content-Type", mimetype);
+            if (connection instanceof HttpURLConnection) {
+                // ACE-294: enable streaming mode causing only small amounts of memory to be
+                // used for this commit. Otherwise, the entire input stream is cached into
+                // memory prior to sending it to the server...
+                ((HttpURLConnection) connection).setChunkedStreamingMode(8192);
+            }
 
             output = connection.getOutputStream();
 
@@ -446,11 +468,11 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             }
 
             output.close();
-            
+
             if (connection instanceof HttpURLConnection) {
                 int responseCode = ((HttpURLConnection) connection).getResponseCode();
                 switch (responseCode) {
-                    case HttpURLConnection.HTTP_OK :
+                    case HttpURLConnection.HTTP_OK:
                         break;
                     case HttpURLConnection.HTTP_CONFLICT:
                         throw new IOException("Artifact already exists in storage.");
@@ -517,7 +539,13 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
     /**
      * Custom comparator which sorts service references by service rank, highest rank first.
      */
-    private static Comparator<ServiceReference> SERVICE_RANK_COMPARATOR = new Comparator<ServiceReference>() { // TODO ServiceReferences are comparable by default now
+    private static Comparator<ServiceReference> SERVICE_RANK_COMPARATOR = new Comparator<ServiceReference>() { // TODO
+                                                                                                               // ServiceReferences
+                                                                                                               // are
+                                                                                                               // comparable
+                                                                                                               // by
+                                                                                                               // default
+                                                                                                               // now
         public int compare(ServiceReference o1, ServiceReference o2) {
             int rank1 = 0;
             int rank2 = 0;
@@ -539,18 +567,19 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             return rank1 - rank2;
         }
     };
-    
+
     private InputStream openInputStream(URL artifactURL) throws IOException {
         URLConnection connection = m_connectionFactory.createConnection(artifactURL);
         return connection.getInputStream();
     }
 
     /**
-     * Converts a given URL to a {@link ArtifactResource} that abstracts the way we access the contents of 
-     * the URL away from the URL itself. This way, we can avoid having to pass authentication credentials,
-     * or a {@link ConnectionFactory} to the artifact recognizers. 
-     *  
-     * @param url the URL to convert, can be <code>null</code> in which case <code>null</code> is returned.
+     * Converts a given URL to a {@link ArtifactResource} that abstracts the way we access the contents of the URL away
+     * from the URL itself. This way, we can avoid having to pass authentication credentials, or a
+     * {@link ConnectionFactory} to the artifact recognizers.
+     * 
+     * @param url
+     *            the URL to convert, can be <code>null</code> in which case <code>null</code> is returned.
      * @return an {@link ArtifactResource}, or <code>null</code> if the given URL was <code>null</code>.
      */
     private ArtifactResource convertToArtifactResource(final URL url) {
@@ -562,7 +591,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             public URL getURL() {
                 return url;
             }
-            
+
             public InputStream openStream() throws IOException {
                 // Take care of the fact that an URL could need credentials to be accessible!!!
                 URLConnection conn = m_connectionFactory.createConnection(getURL());

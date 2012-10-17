@@ -62,8 +62,7 @@ public class LogSyncTask implements Runnable {
     }
 
     /**
-     * Synchronize the log events available remote with the events available
-     * locally.
+     * Synchronize the log events available remote with the events available locally.
      */
     public void run() {
         URL host = m_discovery.discover();
@@ -74,28 +73,34 @@ public class LogSyncTask implements Runnable {
             m_log.log(LogService.LOG_WARNING, "Unable to synchronize log with remote (endpoint=" + m_endpoint + ") - none available");
             return;
         }
-        
-    	if ("file".equals(host.getProtocol())) {
-    		// if the discovery URL is a file, we cannot sync, so we silently return here
-    		return;
-    	}
 
-    	String targetId = m_identification.getID();
+        if ("file".equals(host.getProtocol())) {
+            // if the discovery URL is a file, we cannot sync, so we silently return here
+            return;
+        }
+
+        String targetId = m_identification.getID();
         URLConnection sendConnection = null;
         try {
             sendConnection = m_connectionFactory.createConnection(new URL(host, m_endpoint + "/" + COMMAND_SEND));
             sendConnection.setDoOutput(true);
+            if (sendConnection instanceof HttpURLConnection) {
+                // ACE-294: enable streaming mode causing only small amounts of memory to be
+                // used for this commit. Otherwise, the entire input stream is cached into
+                // memory prior to sending it to the server...
+                ((HttpURLConnection) sendConnection).setChunkedStreamingMode(8192);
+            }
 
             long[] logIDs = m_LogStore.getLogIDs();
             for (int i = 0; i < logIDs.length; i++) {
                 URL url = new URL(host, m_endpoint + "/" + COMMAND_QUERY + "?" + PARAMETER_TARGETID + "=" + targetId + "&" + PARAMETER_LOGID + "=" + logIDs[i]);
-                
+
                 URLConnection queryConnection = m_connectionFactory.createConnection(url);
                 // TODO: make sure no actual call is made using sendConnection
                 // when there's nothing to sync
                 synchronizeLog(logIDs[i], queryConnection.getInputStream(), sendConnection);
             }
-            
+
             // Make sure to send the actual POST request...
             sendConnection.getContent();
         }
@@ -113,20 +118,16 @@ public class LogSyncTask implements Runnable {
     }
 
     /**
-     * Synchronizes a single log (there can be multiple log/logid's per
-     * target).
+     * Synchronizes a single log (there can be multiple log/logid's per target).
      * 
      * @param logID
      *            ID of the log to synchronize.
      * @param queryInput
-     *            Stream pointing to a query result for the events available
-     *            remotely for this log id
+     *            Stream pointing to a query result for the events available remotely for this log id
      * @param sendConnection
-     *            .getOutputStream() Stream to write the events to that are
-     *            missing on the remote side.
+     *            .getOutputStream() Stream to write the events to that are missing on the remote side.
      * @throws java.io.IOException
-     *             If synchronization could not be completed due to an I/O
-     *             failure.
+     *             If synchronization could not be completed due to an I/O failure.
      */
     protected void synchronizeLog(long logID, InputStream queryInput, URLConnection sendConnection) throws IOException {
         long highestLocal = m_LogStore.getHighestID(logID);
@@ -134,14 +135,14 @@ public class LogSyncTask implements Runnable {
             // No events, no need to synchronize
             return;
         }
-        
+
         SortedRangeSet localRange = new SortedRangeSet("1-" + highestLocal);
         SortedRangeSet remoteRange = getDescriptor(queryInput).getRangeSet();
         SortedRangeSet delta = remoteRange.diffDest(localRange);
         RangeIterator rangeIterator = delta.iterator();
 
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sendConnection.getOutputStream()));
-        
+
         if (rangeIterator.hasNext()) {
             long lowest = rangeIterator.next();
             long highest = delta.getHigh();
@@ -171,8 +172,7 @@ public class LogSyncTask implements Runnable {
      * 
      * @param queryInput
      *            Stream containing a LogDescriptor object.
-     * @return LogDescriptor object reflecting the range contained in the
-     *         stream.
+     * @return LogDescriptor object reflecting the range contained in the stream.
      * @throws java.io.IOException
      *             If no range could be determined due to an I/O failure.
      */
@@ -184,7 +184,7 @@ public class LogSyncTask implements Runnable {
             if (rangeString != null) {
                 try {
                     return new LogDescriptor(rangeString);
-                } 
+                }
                 catch (IllegalArgumentException iae) {
                     throw new IOException("Could not determine highest remote event id, received malformed event range (" + rangeString + ")");
                 }
@@ -192,12 +192,12 @@ public class LogSyncTask implements Runnable {
             else {
                 throw new IOException("Could not construct LogDescriptor from stream because stream is empty");
             }
-        } 
+        }
         finally {
             if (queryReader != null) {
                 try {
                     queryReader.close();
-                } 
+                }
                 catch (Exception ex) {
                     // not much we can do
                 }

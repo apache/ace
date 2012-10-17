@@ -60,6 +60,10 @@ final class Utils {
         URL url = new URL(host, endpoint + "?customer=" + customer + "&name=" + name + "&version=" + version);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
+        // ACE-294: enable streaming mode causing only small amounts of memory to be
+        // used for this commit. Otherwise, the entire input stream is cached into
+        // memory prior to sending it to the server...
+        connection.setChunkedStreamingMode(8192);
         connection.setRequestProperty("Content-Type", MIME_APPLICATION_OCTET_STREAM);
         OutputStream out = connection.getOutputStream();
         copy(in, out);
