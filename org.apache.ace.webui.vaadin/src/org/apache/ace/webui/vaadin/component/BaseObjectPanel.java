@@ -223,6 +223,19 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
                 }
             });
         }
+        
+        addListener(new ItemClickListener() {
+            @Override
+            public void itemClick(ItemClickEvent event) {
+                refreshRowCache();
+                if (m_leftTable != null) {
+                    m_leftTable.refreshRowCache();
+                }
+                if (m_rightTable != null) {
+                    m_rightTable.refreshRowCache();
+                }
+            }
+        });
     }
 
     /**
@@ -323,7 +336,10 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     final void removeLeftSideAssociation(REPO_OBJ object, RepositoryObject other) {
         if (doRemoveLeftSideAssociation(object, other)) {
             m_associations.removeAssociatedItem(object);
-            requestRepaint();
+            refreshRowCache();
+            if (m_leftTable != null) {
+                m_leftTable.refreshRowCache();
+            }
         }
     }
 
@@ -336,7 +352,10 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     final void removeRightSideAssocation(REPO_OBJ object, RepositoryObject other) {
         if (doRemoveRightSideAssociation(object, other)) {
             m_associations.removeAssociatedItem(object);
-            requestRepaint();
+            refreshRowCache();
+            if (m_rightTable != null) {
+                m_rightTable.refreshRowCache();
+            }
         }
     }
 
