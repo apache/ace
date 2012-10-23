@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <?xml-stylesheet type='text/xsl' href='http://www.osgi.org/www/obr2html.xsl'?>
 
-<repository lastmodified='20120831104826.681' name='Local Repository'>
+<repository lastmodified='20121023100027.628' name='Local Repository'>
   <resource id='aws-common/1.5.0.beta_6' presentationname='jclouds Amazon AWS Components Core' symbolicname='aws-common' uri='aws-common/aws-common-1.5.0.jar' version='1.5.0.beta_6'>
     <description>
       jclouds Core components to access Amazon AWS
@@ -10,7 +10,7 @@
       34847
     </size>
     <license>
-      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/aws-common/aws-common-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/jawi/Sources/ace/cnf/repo/aws-common/aws-common-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -144,7 +144,7 @@
       196969
     </size>
     <license>
-      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/aws-ec2/aws-ec2-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/jawi/Sources/ace/cnf/repo/aws-ec2/aws-ec2-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -1953,6 +1953,866 @@
       Import package org.xml.sax
     </require>
   </resource>
+  <resource id='com.vaadin/6.8.4' presentationname='Vaadin' symbolicname='com.vaadin' uri='com.vaadin/com.vaadin-6.8.4.jar' version='6.8.4'>
+    <size>
+      5040858
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='Vaadin'/>
+      <p n='symbolicname' v='com.vaadin'/>
+      <p n='version' t='version' v='6.8.4'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.absolutelayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.accordion'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.button'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.caption'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.common'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.common.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.csslayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.customcomponent'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.customlayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.datefield'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.dragwrapper'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.embedded'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.formlayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.gridlayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.link'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.loginform'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.menubar'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.menubar.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.notification'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.orderedlayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.panel'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.popupview'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.progressindicator'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.select'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.shadow'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.shadow.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.slider'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.splitpanel'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.table'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.tabsheet'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.textfield'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.textfield.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.tree'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.tree.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.treetable'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.treetable.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.upload'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.window'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.window.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.base.window.img.shadow'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.common'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.accordion'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.button'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.datefield'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.label'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.menubar'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.notification'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.panel'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.popupview'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.progressindicator'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.selects'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.slider'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.splitpanel'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.table'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.tabsheet'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.textfield'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.tree'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.components.window'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.compound'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.compound.segment'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.compound.sidebar-menu'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.compound.toolbar'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.icons'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.chameleon.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.accordion'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.button'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.common'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.contextmenu'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.datefield'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.formlayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.menubar'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.notification'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.panel'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.popupview'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.progressindicator'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.select'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.slider'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.splitpanel'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.table'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.tabsheet'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.textfield'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.tree'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.liferay.window'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.a-sprite-definitions'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.accordion'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.button'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.button.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.button.img.black'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.common'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.common.icons'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.common.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.datefield'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.datefield.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.formlayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.label'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.layouts'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.layouts.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.link'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.menubar'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.menubar.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.notification'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.notification.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.panel'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.popupview'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.progressindicator'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.progressindicator.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.select'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.select.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.select.img.black'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.slider'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.slider.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.splitpanel'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.splitpanel.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.table'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.table.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.tabsheet'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.tabsheet.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.tabsheet.img.bar'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.tabsheet.img.framed'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.textfield'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.textfield.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.tree'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.tree.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.window'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.window.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.reindeer.window.img.black'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.absolutelayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.accordion'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.accordion.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.button'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.button.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.caption'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.common'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.common.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.datefield'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.datefield.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.formlayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.gridlayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.icons'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.icons.16'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.icons.32'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.icons.64'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.label'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.link'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.menubar'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.notification'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.notification.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.orderedlayout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.panel'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.panel.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.popupview'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.progressindicator'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.progressindicator.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.select'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.select.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.shadow'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.shadow.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.slider'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.slider.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.splitpanel'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.splitpanel.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.table'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.table.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.tabsheet'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.tabsheet.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.textfield'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.textfield.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.tree'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.tree.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.tree.img.connectors'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.window'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.window.img'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.window.img.dialog'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='VAADIN.themes.runo.window.img.shadow'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gwt.dom.client'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.annotations'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.data'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.data.util'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.data.util.filter'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.data.util.sqlcontainer'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.data.util.sqlcontainer.connection'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.data.util.sqlcontainer.query'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.data.util.sqlcontainer.query.generator'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.data.util.sqlcontainer.query.generator.filter'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.data.validator'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.event'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.event.dd'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.event.dd.acceptcriteria'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.service'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.terminal'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.terminal.gwt.client'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.terminal.gwt.client.ui'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.terminal.gwt.client.ui.dd'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.terminal.gwt.client.ui.layout'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.terminal.gwt.client.ui.richtextarea'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.terminal.gwt.server'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.terminal.gwt.widgetsetutils'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.tools'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.ui'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.ui.themes'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.ui.treetable'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.vaadin.util'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=javax.servlet)(version&gt;=2.3.0))' multiple='false' name='package' optional='false'>
+      Import package javax.servlet ;version=2.3.0
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.servlet.http)(version&gt;=2.3.0))' multiple='false' name='package' optional='false'>
+      Import package javax.servlet.http ;version=2.3.0
+    </require>
+    <require extend='false' filter='(|(ee=J2SE-1.5))' multiple='false' name='ee' optional='false'>
+      Execution Environment (|(ee=J2SE-1.5))
+    </require>
+  </resource>
   <resource id='com.vaadin/6.5.1' presentationname='Vaadin' symbolicname='com.vaadin' uri='com.vaadin/com.vaadin-6.5.1.jar' version='6.5.1'>
     <size>
       4070164
@@ -2593,7 +3453,7 @@
       344780
     </size>
     <license>
-      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/ec2/ec2-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/jawi/Sources/ace/cnf/repo/ec2/ec2-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -2920,7 +3780,7 @@
       10134
     </size>
     <license>
-      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-bouncycastle/jclouds-bouncycastle-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/jawi/Sources/ace/cnf/repo/jclouds-bouncycastle/jclouds-bouncycastle-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -2968,7 +3828,7 @@
       470098
     </size>
     <license>
-      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-compute/jclouds-compute-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/jawi/Sources/ace/cnf/repo/jclouds-compute/jclouds-compute-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -3281,7 +4141,7 @@
       743250
     </size>
     <license>
-      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-core/jclouds-core-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/jawi/Sources/ace/cnf/repo/jclouds-core/jclouds-core-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -3799,7 +4659,7 @@
       115339
     </size>
     <license>
-      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-scriptbuilder/jclouds-scriptbuilder-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/jawi/Sources/ace/cnf/repo/jclouds-scriptbuilder/jclouds-scriptbuilder-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -3897,7 +4757,7 @@
       11299
     </size>
     <license>
-      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-slf4j/jclouds-slf4j-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/jawi/Sources/ace/cnf/repo/jclouds-slf4j/jclouds-slf4j-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
@@ -3936,7 +4796,7 @@
       34930
     </size>
     <license>
-      jar:file:/Users/paul/work/luminis/apache-ace/cnf/repo/jclouds-sshj/jclouds-sshj-1.5.0.jar!/resources/LICENSE.txt
+      jar:file:/Users/jawi/Sources/ace/cnf/repo/jclouds-sshj/jclouds-sshj-1.5.0.jar!/resources/LICENSE.txt
     </license>
     <documentation>
       http://www.jclouds.org/
