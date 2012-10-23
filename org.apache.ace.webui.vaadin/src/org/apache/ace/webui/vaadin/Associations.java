@@ -207,8 +207,9 @@ public class Associations {
                         }
                     }
 
+                    m_table.refreshRowCache();
                     for (Table t : m_tablesToRefresh) {
-                        t.requestRepaint();
+                        t.refreshRowCache();
                     }
                 }
             }

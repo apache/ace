@@ -223,19 +223,6 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
                 }
             });
         }
-        
-        addListener(new ItemClickListener() {
-            @Override
-            public void itemClick(ItemClickEvent event) {
-                refreshRowCache();
-                if (m_leftTable != null) {
-                    m_leftTable.refreshRowCache();
-                }
-                if (m_rightTable != null) {
-                    m_rightTable.refreshRowCache();
-                }
-            }
-        });
     }
 
     /**
