@@ -21,6 +21,8 @@ package org.apache.ace.server.log.ui;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -39,29 +41,41 @@ import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.osgi.service.log.LogService;
 
+import com.vaadin.data.Container.Filterable;
+import com.vaadin.data.Property;
+import com.vaadin.data.util.filter.SimpleStringFilter;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+
+//import com.vaadin.data.util.
 
 /**
  * Provides a simple AuditLog viewer for targets.
  */
 public class LogViewerExtension implements UIExtensionFactory {
-    
+
     private static final String CAPTION = "LogViewer";
 
     private static final String COL_TIME = "Time";
     private static final String COL_TYPE = "Type";
     private static final String COL_PROPERTIES = "Properties";
-    
+
     private static final String FILL_AREA = "100%";
-    
+    private Table m_table;
+
     private volatile LogStore m_store;
     private volatile LogService m_logService;
 
-    /** contains a mapping of event type to a string representation of that type. */
+    /**
+     * contains a mapping of event type to a string representation of that type.
+     */
     private final Map<Integer, String> m_eventTypeMapping = new HashMap<Integer, String>();
 
     /**
@@ -69,57 +83,105 @@ public class LogViewerExtension implements UIExtensionFactory {
      */
     public Component create(Map<String, Object> context) {
         RepositoryObject object = getRepositoryObjectFromContext(context);
-        if (object instanceof StatefulTargetObject && !((StatefulTargetObject) object).isRegistered()) {
+        if (object instanceof StatefulTargetObject
+            && !((StatefulTargetObject) object).isRegistered()) {
             VerticalLayout result = new VerticalLayout();
             result.setCaption(CAPTION);
-            result.addComponent(new Label("This target is not yet registered, so it has no log."));
+            result.addComponent(new Label(
+                "This target is not yet registered, so it has no log."));
             return result;
         }
 
-        Table table = new Table();
-        table.setWidth(FILL_AREA);
-        table.setHeight(FILL_AREA);
-        table.setCaption(CAPTION);
-        table.addContainerProperty(COL_TIME, Date.class, null);
-        table.addContainerProperty(COL_TYPE, String.class, null);
-        table.addContainerProperty(COL_PROPERTIES, TextArea.class, null);
-        table.setColumnExpandRatio(COL_PROPERTIES, 1);
+        m_table = new Table() {
+            @Override
+            protected String formatPropertyValue(Object rowId, Object colId, Property property) {
+                DateFormat formatter = SimpleDateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, getApplication().getLocale());
+                if (COL_TIME.equals(colId)) {
+                    return formatter.format(property.getValue());
+                }
+                return super.formatPropertyValue(rowId, colId, property);
+            }
+        };
+        m_table.setWidth(FILL_AREA);
+        m_table.setHeight(FILL_AREA);
+        m_table.addContainerProperty(COL_TIME, Date.class, null, "Time", null, null);
+        m_table.addContainerProperty(COL_TYPE, String.class, null, "Type", null, null);
+        m_table.addContainerProperty(COL_PROPERTIES, TextArea.class, null, "Properties", null, null);
+
+        m_table.setColumnExpandRatio(COL_PROPERTIES, 2);
+        m_table.setColumnExpandRatio(COL_TYPE, 1);
+        m_table.setColumnExpandRatio(COL_TIME, 1);
+        m_table.setColumnCollapsingAllowed(true);
+
         try {
-            fillTable(object, table);
+            fillTable(object, m_table);
+            // Sort on time in descending order...
+            m_table.setSortAscending(false);
+            m_table.setSortContainerPropertyId(COL_TIME);
         }
         catch (IOException ex) {
             m_logService.log(LogService.LOG_WARNING, "Log viewer failed!", ex);
         }
-        return table;
+
+        TextField tf = makeTextField(COL_TYPE);
+        TextField pf = makeTextField(COL_PROPERTIES);
+
+        HorizontalLayout filters = new HorizontalLayout();
+        filters.setSpacing(true);
+        filters.addComponent(tf);
+        filters.addComponent(pf);
+
+        // main holds the two components:
+        VerticalLayout main = new VerticalLayout();
+        main.setCaption(CAPTION);
+        main.setSpacing(true);
+
+        main.addComponent(filters);
+        main.addComponent(m_table);
+        return main;
     }
 
     /**
-     * Fills the table with all log entries for the given repository object.
+     * Returns a string representation of the given event's type.
      * 
-     * @param object the repository object to get the log for, cannot be <code>null</code>;
-     * @param table the table to fill, cannot be <code>null</code>.
-     * @throws IOException in case of I/O problems accessing the log store.
+     * @param event
+     *            the event to get the type for, cannot be <code>null</code>.
+     * @return a string representation of the event's type, never <code>null</code>.
      */
-    private void fillTable(RepositoryObject object, Table table) throws IOException {
-        String id = object.getAttribute(TargetObject.KEY_ID);
-        List<LogDescriptor> desc = m_store.getDescriptors(id);
-        if (desc != null) {
-            for (LogDescriptor log : desc) {
-                for (LogEvent event : m_store.get(log)) {
-                    table.addItem(
-                        new Object[] { new Date(event.getTime()), getEventType(event), getProperties(event) }, null);
+    final String getEventType(LogEvent event) {
+        if (m_eventTypeMapping.isEmpty()) {
+            // Lazily create a mapping of value -> name of all event-types...
+            for (Field f : AuditEvent.class.getFields()) {
+                if (((f.getModifiers() & Modifier.STATIC) != 0) && (f.getType() == Integer.TYPE)) {
+                    try {
+                        Integer value = (Integer) f.get(null);
+                        m_eventTypeMapping.put(value, normalize(f.getName()));
+                    }
+                    catch (IllegalAccessException e) {
+                        // Should not happen, as all fields are public on an
+                        // interface; otherwise we simply ignore this field...
+                        m_logService.log(LogService.LOG_DEBUG, "Failed to access public field of interface?!", e);
+                    }
                 }
             }
         }
+
+        String type = m_eventTypeMapping.get(event.getType());
+        if (type == null) {
+            type = Integer.toString(event.getType());
+        }
+
+        return type;
     }
 
     /**
      * Creates a {@link TextArea} with a dump of the given event's properties.
      * 
-     * @param event the event to create a textarea for, cannot be <code>null</code>.
+     * @param event
+     *            the event to create a textarea for, cannot be <code>null</code>.
      * @return a {@link TextArea} instance, never <code>null</code>.
      */
-    private TextArea getProperties(LogEvent event) {
+    final TextArea getProperties(LogEvent event) {
         Dictionary props = event.getProperties();
 
         TextArea area = new TextArea("", dumpProperties(props));
@@ -131,10 +193,15 @@ public class LogViewerExtension implements UIExtensionFactory {
         return area;
     }
 
+    final Date getTime(LogEvent event) {
+        return new Date(event.getTime());
+    }
+
     /**
      * Dumps the given dictionary to a string by placing all key,value-pairs on a separate line.
      * 
-     * @param dict the dictionary to dump, may be <code>null</code>.
+     * @param dict
+     *            the dictionary to dump, may be <code>null</code>.
      * @return a string dump of all properties in the given dictionary, never <code>null</code>.
      */
     private String dumpProperties(Dictionary dict) {
@@ -155,38 +222,29 @@ public class LogViewerExtension implements UIExtensionFactory {
     }
 
     /**
-     * Returns a string representation of the given event's type.
+     * Fills the table with all log entries for the given repository object.
      * 
-     * @param event the event to get the type for, cannot be <code>null</code>.
-     * @return a string representation of the event's type, never <code>null</code>.
+     * @param object
+     *            the repository object to get the log for, cannot be <code>null</code>;
+     * @param table
+     *            the table to fill, cannot be <code>null</code>.
+     * @throws IOException
+     *             in case of I/O problems accessing the log store.
      */
-    private String getEventType(LogEvent event) {
-        if (m_eventTypeMapping.isEmpty()) {
-            // Lazily create a mapping of value -> name of all event-types...
-            for (Field f : AuditEvent.class.getFields()) {
-                if (((f.getModifiers() & Modifier.STATIC) == Modifier.STATIC) && (f.getType() == Integer.TYPE)) {
-                    try {
-                        Integer value = (Integer) f.get(null);
-                        m_eventTypeMapping.put(value, f.getName());
-                    }
-                    catch (IllegalAccessException e) {
-                        // Should not happen, as all fields are public on an interface;
-                        // otherwise we simply ignore this field...
-                        m_logService.log(LogService.LOG_DEBUG, "Failed to access public field of interface?!", e);
-                    }
+    private void fillTable(RepositoryObject object, Table table) throws IOException {
+        String id = object.getAttribute(TargetObject.KEY_ID);
+        List<LogDescriptor> desc = m_store.getDescriptors(id);
+        if (desc != null) {
+            for (LogDescriptor log : desc) {
+                for (LogEvent event : m_store.get(log)) {
+                    table.addItem(new Object[] { getTime(event), getEventType(event), getProperties(event) }, null);
                 }
             }
         }
-
-        String type = m_eventTypeMapping.get(event.getType());
-        if (type == null) {
-            type = Integer.toString(event.getType());
-        }
-
-        return type;
     }
 
-    private RepositoryObject getRepositoryObjectFromContext(Map<String, Object> context) {
+    private RepositoryObject getRepositoryObjectFromContext(
+        Map<String, Object> context) {
         Object contextObject = context.get("object");
         if (contextObject == null) {
             throw new IllegalStateException("No context object found");
@@ -195,7 +253,34 @@ public class LogViewerExtension implements UIExtensionFactory {
         // me) why ace is using either the object directly or wraps it in a
         // NamedObject first.
         // Its unclear when it does which so for now we cater for both.
-        return (contextObject instanceof NamedObject ? ((NamedObject) contextObject).getObject()
-            : (RepositoryObject) contextObject);
+        return (contextObject instanceof NamedObject ? ((NamedObject) contextObject)
+            .getObject() : (RepositoryObject) contextObject);
+    }
+
+    private TextField makeTextField(final String colType) {
+        TextField t = new TextField(colType);
+
+        t.addListener(new TextChangeListener() {
+            SimpleStringFilter filter = null;
+
+            public void textChange(TextChangeEvent event) {
+                Filterable f = (Filterable) m_table.getContainerDataSource();
+
+                // Remove old filter
+                if (filter != null) {
+                    f.removeContainerFilter(filter);
+                }
+                // Set new filter for the "Name" column
+                filter = new SimpleStringFilter(colType, event.getText(), true /* ignoreCase */, false /* onlyMatchPrefix */);
+
+                f.addContainerFilter(filter);
+            }
+        });
+
+        return t;
+    }
+    
+    private String normalize(String input) {
+        return input.toLowerCase().replaceAll("_", " ");
     }
 }
