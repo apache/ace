@@ -56,8 +56,7 @@
 	org.apache.ace.deployment.verifier;version=latest,\
 	org.apache.ace.client.repository.helper.base;version=latest,\
 	org.apache.ace.authenticationprocessor.basicauth;version=latest,\
-	org.apache.ace.nodelauncher.ui;version=latest,\
-	org.apache.felix.useradmin.shell;version=latest
+	org.apache.ace.nodelauncher.ui;version=latest
 -runrepos: Workspace,\
 	Local Repository,\
 	Release
