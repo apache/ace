@@ -19,6 +19,8 @@
 	<target name="clean">
 		<delete dir="${target.server.dir}" />
 		<delete dir="${target.target.dir}" />
+		<delete file="${server.tarball}" />
+		<delete file="${server.zipball}" />
 	</target>
 
 	<target name="package" description="Packages ACE into a binary distribution." depends="package-server" />
@@ -41,7 +43,7 @@
 			<file file="../cnf/repo/org.apache.felix.useradmin/org.apache.felix.useradmin-1.0.2.jar" />
 			<file file="../cnf/repo/org.apache.felix.useradmin.filestore/org.apache.felix.useradmin.filestore-1.0.1.jar" />
 			<file file="../cnf/repo/org.apache.felix.log/org.apache.felix.log-1.0.1.jar" />
-			<file file="../cnf/repo/com.vaadin/com.vaadin-6.5.1.jar" />
+			<file file="../cnf/repo/com.vaadin/com.vaadin-6.8.4.jar" />
 			<file file="../org.apache.ace.configurator.useradmin.task/generated/org.apache.ace.configurator.useradmin.task.jar" />
 
 			<file file="../org.apache.ace.target.mgmt.ui/generated/org.apache.ace.target.mgmt.ui.jar" />
@@ -61,7 +63,8 @@
 			<file file="../org.apache.ace.server.log.ui/generated/org.apache.ace.server.log.ui.jar" />
 			<file file="../org.apache.ace.deployment.verifier.ui/generated/org.apache.ace.deployment.verifier.ui.jar" />
 			<file file="../org.apache.ace.repository.api/generated/org.apache.ace.repository.api.jar" />
-			<file file="../org.apache.ace.server.log.store/generated/org.apache.ace.server.log.store.jar" />
+			<file file="../org.apache.ace.server.log.store/generated/org.apache.ace.server.log.store.filelogstore.jar" />
+			<file file="../org.apache.ace.server.log.store/generated/org.apache.ace.server.log.store.api.jar" />
 			<file file="../org.apache.ace.client.repository.api/generated/org.apache.ace.client.repository.api.jar" />
 			<file file="../org.apache.ace.repository.servlet/generated/org.apache.ace.repository.servlet.jar" />
 			<file file="../org.apache.ace.obr.storage/generated/org.apache.ace.obr.storage.jar" />
