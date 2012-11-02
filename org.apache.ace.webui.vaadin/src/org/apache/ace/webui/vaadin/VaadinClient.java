@@ -522,12 +522,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         Properties props = new Properties();
         props.put(EventConstants.EVENT_TOPIC, topics);
         props.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
-        // @formatter:off
         m_manager.add(
             m_manager.createComponent()
                 .setInterface(EventHandler.class.getName(), props)
                 .setImplementation(implementation));
-        // @formatter:on
     }
 
     /**
@@ -545,7 +543,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     private GridLayout createToolbar() {
         final boolean showLogoutButton = m_useAuth;
-        MainActionToolbar mainActionToolbar = new MainActionToolbar(showLogoutButton) {
+        final DependencyManager manager = m_manager;
+        MainActionToolbar mainActionToolbar = new MainActionToolbar(manager, showLogoutButton) {
             @Override
             protected RepositoryAdmin getRepositoryAdmin() {
                 return m_admin;

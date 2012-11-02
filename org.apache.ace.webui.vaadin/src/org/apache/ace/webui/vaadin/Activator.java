@@ -32,6 +32,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.http.HttpService;
 
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -79,7 +80,17 @@ public class Activator extends DependencyActivatorBase {
                     return vl;
                 }
             })
-            );
+        );
+        
+        manager.add(createComponent()
+            .setInterface(UIExtensionFactory.class.getName(), new Properties() {{ put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_MENU); }} )
+            .setImplementation(new UIExtensionFactory() {
+                @Override
+                public Component create(Map<String, Object> context) {
+                    return new Button("Hello world");
+                }
+            })
+        );
     }
 
     @Override

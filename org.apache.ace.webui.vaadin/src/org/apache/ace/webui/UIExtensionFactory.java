@@ -32,6 +32,7 @@ public interface UIExtensionFactory {
     public static final String EXTENSION_POINT_VALUE_FEATURE = "feature";
     public static final String EXTENSION_POINT_VALUE_DISTRIBUTION = "distribution";
     public static final String EXTENSION_POINT_VALUE_TARGET = "target";
+    public static final String EXTENSION_POINT_VALUE_MENU = "menu";
     
     /**
      * Creates a UI component for use in the extension point. The contents of the

@@ -19,13 +19,22 @@
 package org.apache.ace.webui.vaadin.component;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
+import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.felix.dm.DependencyManager;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventHandler;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window.Notification;
 
@@ -267,20 +276,41 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
     private Button m_revertButton;
     private Button m_logoutButton;
 
+    private final DependencyManager m_manager;
+    private final ConcurrentHashMap<ServiceReference, UIExtensionFactory> m_extensions = new ConcurrentHashMap<ServiceReference, UIExtensionFactory>();
+
     /**
      * Creates a new {@link MainActionToolbar} instance.
+     * @param manager 
      * 
      * @param showLogoutButton <code>true</code> if a logout button should be shown, <code>false</code> if it should not.
      */
-    public MainActionToolbar(boolean showLogoutButton) {
+    public MainActionToolbar(DependencyManager manager, boolean showLogoutButton) {
         super(5, 1);
+        m_manager = manager;
 
         m_showLogoutButton = showLogoutButton;
 
         setWidth("100%");
         setSpacing(true);
+        
+        m_manager.add(m_manager.createComponent()
+            .setImplementation(this)
+            .add(m_manager.createServiceDependency()
+                .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_MENU + ")")
+                .setCallbacks("add", "remove")
+            )
+        );
 
         initComponent();
+    }
+    
+    public void add(ServiceReference ref, UIExtensionFactory factory) {
+        m_extensions.put(ref, factory);
+    }
+    
+    public void remove(ServiceReference ref,  UIExtensionFactory factory) {
+        m_extensions.remove(ref);
     }
 
     /**
@@ -355,8 +385,14 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         m_revertButton.addListener(new RevertButtonListener());
         addComponent(m_revertButton, 2, 0);
 
-        Label spacer = new Label(" ");
-        addComponent(spacer, 3, 0);
+        HorizontalLayout bar = new HorizontalLayout();
+        Label spacer = new Label("");
+        spacer.setWidth("2em");
+        bar.addComponent(spacer);
+        for (Component c : getExtraComponents()) {
+            bar.addComponent(c);
+        }
+        addComponent(bar, 3, 0);
 
         m_logoutButton = new Button("Logout");
         m_logoutButton.addListener(new LogoutButtonListener());
@@ -367,5 +403,13 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         // Ensure the spacer gets all the excessive room, causing the logout
         // button to appear at the right side of the screen....
         setColumnExpandRatio(3, 5);
+    }
+    
+    protected List<Component> getExtraComponents() {
+        List<Component> result = new ArrayList<Component>();
+        for (UIExtensionFactory f : m_extensions.values()) {
+            result.add(f.create(Collections.EMPTY_MAP));
+        }
+        return result;
     }
 }
