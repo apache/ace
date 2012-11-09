@@ -30,6 +30,7 @@
 	net.schmizz.sshj;version=0.8.1
 Private-Package: \
 	META-INF.services,\
+	META-INF.maven.*,\
 	functions,\
 	org.jclouds.*,\
 	com.google.*,\
