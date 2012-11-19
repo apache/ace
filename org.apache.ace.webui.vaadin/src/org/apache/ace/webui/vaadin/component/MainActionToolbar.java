@@ -20,8 +20,9 @@ package org.apache.ace.webui.vaadin.component;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
@@ -29,6 +30,7 @@ import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.useradmin.User;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -279,14 +281,18 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
     private final DependencyManager m_manager;
     private final ConcurrentHashMap<ServiceReference, UIExtensionFactory> m_extensions = new ConcurrentHashMap<ServiceReference, UIExtensionFactory>();
 
+    private final User m_user;
+
     /**
      * Creates a new {@link MainActionToolbar} instance.
+     * @param user 
      * @param manager 
      * 
      * @param showLogoutButton <code>true</code> if a logout button should be shown, <code>false</code> if it should not.
      */
-    public MainActionToolbar(DependencyManager manager, boolean showLogoutButton) {
+    public MainActionToolbar(User user, DependencyManager manager, boolean showLogoutButton) {
         super(5, 1);
+        m_user = user;
         m_manager = manager;
 
         m_showLogoutButton = showLogoutButton;
@@ -408,7 +414,9 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
     protected List<Component> getExtraComponents() {
         List<Component> result = new ArrayList<Component>();
         for (UIExtensionFactory f : m_extensions.values()) {
-            result.add(f.create(Collections.EMPTY_MAP));
+            Map<String, Object> context = new HashMap<String, Object>();
+            context.put("user", m_user);
+            result.add(f.create(context));
         }
         return result;
     }

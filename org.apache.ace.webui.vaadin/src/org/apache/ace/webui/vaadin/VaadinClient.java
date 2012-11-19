@@ -292,12 +292,12 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         m_grid.setSpacing(true);
         m_grid.setSizeFull();
 
-        m_grid.addComponent(createToolbar(), 0, 0, count - 1, 0);
+        m_grid.addComponent(createToolbar(user), 0, 0, count - 1, 0);
 
-        m_artifactsPanel = createArtifactsPanel();
+        m_artifactsPanel = createArtifactsPanel(user);
 
         m_artifactToolbar = new HorizontalLayout();
-        m_artifactToolbar.addComponent(createAddArtifactButton());
+        m_artifactToolbar.addComponent(createAddArtifactButton(user));
 
         CheckBox dynamicCheckBox = new CheckBox("Dynamic Links");
         dynamicCheckBox.setImmediate(true);
@@ -316,8 +316,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             count++;
         }
 
-        m_featuresPanel = createFeaturesPanel();
-        m_featureToolbar = createAddFeatureButton();
+        m_featuresPanel = createFeaturesPanel(user);
+        m_featureToolbar = createAddFeatureButton(user);
 
         if (auth.hasRole("viewFeature")) {
             m_grid.addComponent(m_featuresPanel, count, 2);
@@ -325,8 +325,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             count++;
         }
 
-        m_distributionsPanel = createDistributionsPanel();
-        m_distributionToolbar = createAddDistributionButton();
+        m_distributionsPanel = createDistributionsPanel(user);
+        m_distributionToolbar = createAddDistributionButton(user);
 
         if (auth.hasRole("viewDistribution")) {
             m_grid.addComponent(m_distributionsPanel, count, 2);
@@ -334,8 +334,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             count++;
         }
 
-        m_targetsPanel = createTargetsPanel();
-        m_targetToolbar = createAddTargetButton();
+        m_targetsPanel = createTargetsPanel(user);
+        m_targetToolbar = createAddTargetButton(user);
 
         if (auth.hasRole("viewTarget")) {
             m_grid.addComponent(m_targetsPanel, count, 2);
@@ -541,10 +541,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         }
     }
 
-    private GridLayout createToolbar() {
+    private GridLayout createToolbar(User user) {
         final boolean showLogoutButton = m_useAuth;
         final DependencyManager manager = m_manager;
-        MainActionToolbar mainActionToolbar = new MainActionToolbar(manager, showLogoutButton) {
+        MainActionToolbar mainActionToolbar = new MainActionToolbar(user, manager, showLogoutButton) {
             @Override
             protected RepositoryAdmin getRepositoryAdmin() {
                 return m_admin;
@@ -582,7 +582,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         return mainActionToolbar;
     }
 
-    private ArtifactsPanel createArtifactsPanel() {
+    private ArtifactsPanel createArtifactsPanel(User user) {
         return new ArtifactsPanel(m_associations, this) {
             @Override
             protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
@@ -612,7 +612,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         };
     }
 
-    private FeaturesPanel createFeaturesPanel() {
+    private FeaturesPanel createFeaturesPanel(User user) {
         return new FeaturesPanel(m_associations, this) {
             @Override
             protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
@@ -642,7 +642,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         };
     }
 
-    private DistributionsPanel createDistributionsPanel() {
+    private DistributionsPanel createDistributionsPanel(User user) {
         return new DistributionsPanel(m_associations, this) {
             @Override
             protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
@@ -672,7 +672,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         };
     }
 
-    private TargetsPanel createTargetsPanel() {
+    private TargetsPanel createTargetsPanel(User user) {
         return new TargetsPanel(m_associations, this) {
             @Override
             protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
@@ -771,11 +771,12 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     /**
      * Create a button to show a pop window for adding new features.
+     * @param user 
      * 
      * @param main Main Window
      * @return Button
      */
-    private Button createAddArtifactButton() {
+    private Button createAddArtifactButton(User user) {
         Button button = new Button("Add artifact...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -788,10 +789,11 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     /***
      * Create a button to show popup window for adding a new feature. On success
      * this calls the createFeature() method.
+     * @param user 
      * 
      * @return the add-feature button instance.
      */
-    private Button createAddFeatureButton() {
+    private Button createAddFeatureButton(User user) {
         Button button = new Button("Add Feature...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -815,10 +817,11 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     /**
      * Create a button to show a popup window for adding a new distribution. On
      * success this calls the createDistribution() method.
+     * @param user 
      * 
      * @return the add-distribution button instance.
      */
-    private Button createAddDistributionButton() {
+    private Button createAddDistributionButton(User user) {
         Button button = new Button("Add Distribution...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -843,10 +846,11 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     /**
      * Create a button to show a popup window for adding a new target. On
      * success this calls the createTarget() method
+     * @param user 
      * 
      * @return the add-target button instance.
      */
-    private Button createAddTargetButton() {
+    private Button createAddTargetButton(User user) {
         Button button = new Button("Add target...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
