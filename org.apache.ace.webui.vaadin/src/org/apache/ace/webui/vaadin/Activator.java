@@ -81,16 +81,6 @@ public class Activator extends DependencyActivatorBase {
                 }
             })
         );
-        
-        manager.add(createComponent()
-            .setInterface(UIExtensionFactory.class.getName(), new Properties() {{ put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_MENU); }} )
-            .setImplementation(new UIExtensionFactory() {
-                @Override
-                public Component create(Map<String, Object> context) {
-                    return new Button("Hello world");
-                }
-            })
-        );
     }
 
     @Override
