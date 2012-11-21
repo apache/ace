@@ -16,7 +16,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.gogo.command,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.felix.gogo.shell
-Private-Package: org.example.tests
+Private-Package: org.apache.ace.server.log.store.tests
 -runvm: -ea
 -runfw: org.apache.felix.framework;version='[4,5)'
 -buildpath: osgi.core;version='[4.1,5)',\
