@@ -87,6 +87,7 @@
 			<file file="../org.apache.ace.client.repository.helper.base/generated/org.apache.ace.client.repository.helper.base.jar" />
 			<file file="../org.apache.ace.authenticationprocessor.basicauth/generated/org.apache.ace.authenticationprocessor.basicauth.jar" />
 			<file file="../org.apache.ace.nodelauncher.ui/generated/org.apache.ace.nodelauncher.ui.jar" />
+			<file file="../org.apache.ace.useradmin.ui/generated/org.apache.ace.useradmin.ui.jar" />
 		</resources>
 		
 		<resources id="devserver-store">
