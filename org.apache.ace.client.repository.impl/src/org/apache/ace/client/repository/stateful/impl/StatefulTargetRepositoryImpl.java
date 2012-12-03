@@ -236,16 +236,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         return false;
     }
 
-    private Comparator<LogEvent> m_auditEventComparator = new Comparator<LogEvent>() {
-        public int compare(LogEvent left, LogEvent right) {
-            if (left.getLogID() == right.getLogID()) {
-                return (int) (left.getTime() - right.getTime());
-            }
-            else {
-                return (int) (left.getLogID() - right.getLogID());
-            }
-        }
-    };
+    private Comparator<LogEvent> m_auditEventComparator = new LogEventComparator();
 
     /**
      * Gets all auditlog events which are related to a given target ID.
