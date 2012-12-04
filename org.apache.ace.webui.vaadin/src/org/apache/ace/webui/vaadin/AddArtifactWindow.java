@@ -655,7 +655,7 @@ abstract class AddArtifactWindow extends Window {
 
         for (ArtifactObject ao : artifactObjects) {
             String artifactURL = ao.getURL();
-            if (artifactURL.startsWith(baseURL)) {
+            if (artifactURL != null && artifactURL.startsWith(baseURL)) {
                 // we now know this artifact comes from the OBR we are querying,
                 // so we are interested.
                 fromRepository.add(convertToOBREntry(ao, artifactURL));
