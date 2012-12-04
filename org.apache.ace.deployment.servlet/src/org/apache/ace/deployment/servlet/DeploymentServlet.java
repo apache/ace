@@ -211,8 +211,11 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
                 output.write(buffer, 0, bytesRead);
             }
         }
+        catch (IllegalArgumentException e) {
+            throw (AceRestException) new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid").initCause(e);
+        }
         catch (IOException e) {
-            throw new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid");
+            throw (AceRestException) new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not deliver package").initCause(e);
         }
         finally {
             tryClose(output);
