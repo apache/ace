@@ -18,16 +18,17 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.provider.filebased;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: \
-	org.apache.felix.dependencymanager;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.apache.felix.dependencymanager/org.apache.felix.dependencymanager-3.1.0.jar;version='[3.1.0,3.1.1)',\
-	org.apache.felix.configadmin;resolution=http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.configadmin/org.apache.felix.configadmin-1.2.8.jar;version='[1.2.8,1.2.9)',\
-	org.apache.ace.httplistener;resolution=file:/Users/marcel/dev/ace-bndtools/org.apache.ace.httplistener/generated/org.apache.ace.httplistener.jar;version=latest,\
-	osgi.cmpn;resolution=http://bundles.bndtools.org.s3.amazonaws.com/osgi.cmpn/osgi.cmpn-4.2.1.jar;version='[4.2.1,4.2.2)',\
-	org.apache.felix.eventadmin;resolution=file:/Users/marcel/dev/ace-bndtools/cnf/repo/org.apache.felix.eventadmin/org.apache.felix.eventadmin-1.2.14.jar;version='[1.2.14,1.2.15)',\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.felix.configadmin,\
+	org.apache.felix.eventadmin,\
 	org.apache.felix.http.jetty,\
-	org.apache.felix.shell,\
-	org.apache.felix.shell.tui,\
+	org.apache.felix.gogo.command,\
+	org.apache.felix.gogo.runtime,\
+	org.apache.felix.gogo.shell,\
 	org.apache.felix.dependencymanager.shell,\
 	org.apache.felix.deploymentadmin,\
+	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.scheduler;version=latest,\

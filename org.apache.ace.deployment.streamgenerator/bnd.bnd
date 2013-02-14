@@ -5,8 +5,8 @@
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.ops4j.pax.swissbox.tinybundles,\
-	commons-logging;version=1.1.1,\
-	org.ops4j.base.store
+	org.ops4j.base.store,\
+	commons-logging
 Private-Package: org.apache.ace.deployment.streamgenerator.impl
 Bundle-Activator: org.apache.ace.deployment.streamgenerator.impl.Activator
 Export-Package: org.apache.ace.deployment.streamgenerator

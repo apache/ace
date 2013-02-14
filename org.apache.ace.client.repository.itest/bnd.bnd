@@ -22,17 +22,19 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.server.log.store.api;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: \
-	org.apache.ace.test;version=latest,\
-	org.apache.felix.dependencymanager;version='[3.1.0,3.1.1)',\
-	org.apache.felix.configadmin;version='[1.2.8,1.2.9)',\
-	org.apache.ace.httplistener;version=latest,\
-	osgi.cmpn;version='[4.2.1,4.2.2)',\
-	org.apache.felix.eventadmin;version='[1.2.14,1.2.15)',\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.felix.configadmin,\
+	org.apache.felix.eventadmin,\
 	org.apache.felix.http.jetty,\
-	org.apache.felix.shell,\
-	org.apache.felix.shell.tui,\
 	org.apache.felix.dependencymanager.shell,\
 	org.apache.felix.deploymentadmin,\
+	org.apache.felix.prefs,\
+	org.apache.felix.useradmin,\
+	org.apache.felix.useradmin.filestore,\
+	org.apache.felix.log,\
+	org.apache.ace.test;version=latest,\
+	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.scheduler;version=latest,\
@@ -50,10 +52,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.task.base;version=latest,\
 	org.apache.ace.deployment.streamgenerator;version=latest,\
 	org.apache.ace.deployment.provider.base;version=latest,\
-	org.apache.felix.prefs,\
-	org.apache.felix.useradmin;version='[1.0.2,1.0.3)',\
-	org.apache.felix.useradmin.filestore;version='[1.0.1,1.0.2)',\
-	org.apache.felix.log;version='[1.0.1,1.0.2)',\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.log;version=latest,\
 	org.apache.ace.server.log.store.api;version=latest,\

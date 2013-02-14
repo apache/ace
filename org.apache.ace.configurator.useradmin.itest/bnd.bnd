@@ -16,14 +16,14 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.repository.impl;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: \
-	org.apache.felix.dependencymanager;version='[3.1.0,3.1.1)',\
-	org.apache.felix.configadmin;version='[1.2.8,1.2.9)',\
-	org.apache.felix.http.jetty;version='[2.2.0,2.2.1)',\
-	org.apache.felix.prefs;version='[1.0.4,1.0.5)',\
-	osgi.cmpn;version='[4.2.1,4.2.2)',\
-	org.apache.felix.useradmin;version='[1.0.2,1.0.3)',\
-	org.apache.felix.useradmin.filestore;version='[1.0.1,1.0.2)',\
-	org.apache.felix.log;version='[1.0.1,1.0.2)',\
+	org.apache.felix.dependencymanager,\
+	org.apache.felix.configadmin,\
+	org.apache.felix.http.jetty,\
+	org.apache.felix.prefs,\
+	osgi.cmpn,\
+	org.apache.felix.useradmin,\
+	org.apache.felix.useradmin.filestore,\
+	org.apache.felix.log,\
     org.apache.ace.test;version=latest,\
 	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\

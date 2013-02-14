@@ -5,7 +5,7 @@ project.buildpath       = ${p-buildpath;:}
 project.sourcepath      = ${p-sourcepath;:}
 project.allsourcepath   = ${p-allsourcepath;:}
 project.output          = ${p-output}
-project.testpath        = ${p-testpath;:}
+project.testpath        = ${p-testpath;:}:${workspace}/cnf/lib/testng/testng-6.5.2.jar
 
 -verbose:     true
 project:      ${basedir}

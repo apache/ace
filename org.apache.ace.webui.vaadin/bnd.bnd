@@ -1,12 +1,12 @@
--buildpath: osgi.core,\
-	osgi.cmpn,\
+-buildpath: osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	com.vaadin;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication;version=latest,\
-	javax.servlet
+	javax.servlet,\
+	osgi.core;version=4.1.0
 Private-Package: org.apache.ace.webui.domain,\
 	org.apache.ace.webui.vaadin,\
 	org.apache.ace.webui.vaadin.component

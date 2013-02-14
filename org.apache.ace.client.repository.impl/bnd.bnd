@@ -1,5 +1,4 @@
--buildpath: osgi.core,\
-	osgi.cmpn,\
+-buildpath: osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.log;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
@@ -12,7 +11,8 @@
 	org.apache.ace.repository.ext;version=latest,\
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
 	org.mockito.mockito-all,\
-	org.apache.ace.server.log.store.api;version=latest
+	org.apache.ace.server.log.store.api;version=latest,\
+	osgi.core;version=4.3.0
 Private-Package: org.apache.ace.client.repository.impl,\
 	javax.xml.namespace,\
 	org.xmlpull.mxp1,\

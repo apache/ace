@@ -1,4 +1,4 @@
--buildpath: osgi.core;version=4.3.0.201102171602,\
+-buildpath: osgi.core;version=4.3.0,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.deployment.verifier;version=latest,\
