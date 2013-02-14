@@ -1,6 +1,13 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
--buildpath: junit.osgi,\
+-buildpath: \
+	osgi.core,\
 	osgi.cmpn,\
+	junit.osgi,\
+	biz.aQute.bnd,\
+	javax.servlet,\
+	com.sun.jersey.client,\
+	com.sun.jersey.core,\
+	gson,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.log;version=latest,\
@@ -10,22 +17,16 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
 	org.apache.ace.server.log.store.api;version=latest,\
-	javax.servlet,\
 	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.deployment.servlet;version=latest,\
 	org.apache.ace.deployment.provider.filebased;version=latest,\
 	org.apache.ace.obr.storage;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
-	com.sun.jersey.client,\
-	com.sun.jersey.core,\
-	gson,\
 	org.apache.ace.client.repository.helper.configuration;version=latest,\
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
 	org.apache.ace.client.repository.helper.base;version=latest,\
-	org.apache.ace.client.repository.api;version=latest,\
-	biz.aQute.bnd,\
-	osgi.core;version=4.3.0
+	org.apache.ace.client.repository.api;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: osgi.cmpn,\
 	org.apache.felix.dependencymanager,\

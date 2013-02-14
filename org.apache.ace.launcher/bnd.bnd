@@ -1,7 +1,9 @@
--buildpath: org.apache.ace.managementagent;version=latest,\
+-sources: false
+-buildpath: \
+	osgi.core,\
 	org.apache.felix.dependencymanager,\
-	osgi.core;version=4.2.0,\
-	org.apache.felix.framework;version=3.2.2
+	org.apache.felix.framework,\
+	org.apache.ace.managementagent;version=latest
 Private-Package: org.apache.ace.*;-split-package:=first,\
     org.apache.felix.*;-split-package:=first,\
 	EDU.oswego.cs.dl.util.concurrent;-split-package:=first,\
@@ -26,6 +28,5 @@ Private-Package: org.apache.ace.*;-split-package:=first,\
     org.osgi.service.metatype;version="1.1";-split-package:=first,\
 	org.osgi.util.tracker
 Include-Resource: default.properties=resources/default.properties
--sources: false
 Main-Class: org.apache.ace.launcher.Main
 Bundle-Version: 1.0.0

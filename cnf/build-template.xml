@@ -40,6 +40,11 @@
 			<available file="${basedir}/test" type="dir"/>
 		</condition>
 
+		<!-- Is this project an integration test project? -->
+		<condition property="project.itest">
+			<matches string="${project}" pattern="\.itest$" />
+		</condition>
+
 		<!-- Create a marker property to indicate that initialisation has been completed -->
 		<property name="initialized" value="set" />
 		<echo message="Enter project ${project.name}"/>
@@ -58,7 +63,7 @@
 	<!--
 	     Test
 	-->
-	<target name="test" depends="compile">
+	<target name="test" depends="compile" if="project.itest">
 		<bndtest/>
 	</target>
 

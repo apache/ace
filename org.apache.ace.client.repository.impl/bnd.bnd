@@ -1,4 +1,9 @@
--buildpath: osgi.cmpn,\
+-buildpath: \
+	osgi.core,\
+	osgi.cmpn,\
+	org.mockito.mockito-all,\
+	xpp3;version=1.1.4,\
+	xstream;version=1.2.2,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.log;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
@@ -6,13 +11,9 @@
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.test;version=latest,\
-	xpp3;version=1.1.4,\
-	xstream;version=1.2.2,\
 	org.apache.ace.repository.ext;version=latest,\
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
-	org.mockito.mockito-all,\
-	org.apache.ace.server.log.store.api;version=latest,\
-	osgi.core;version=4.3.0
+	org.apache.ace.server.log.store.api;version=latest
 Private-Package: org.apache.ace.client.repository.impl,\
 	javax.xml.namespace,\
 	org.xmlpull.mxp1,\

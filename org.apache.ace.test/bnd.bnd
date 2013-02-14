@@ -1,8 +1,9 @@
--buildpath: org.apache.ace.deployment.provider.api;version=latest,\
-	junit.osgi,\
+-buildpath: \
+	osgi.core,\
 	osgi.cmpn,\
+	junit.osgi,\
 	org.apache.felix.dependencymanager,\
-	osgi.core;version=4.3.0
+	org.apache.ace.deployment.provider.api;version=latest
 Export-Package: org.apache.ace.it,\
 	org.apache.ace.test.constants,\
 	org.apache.ace.test.utils,\

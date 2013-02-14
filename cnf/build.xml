@@ -31,10 +31,6 @@
 				<fileset dir="${project}/test" erroronmissingdir="false" />
 			</length>
 		</condition>
-		<!-- Is this project an integration test project? -->
-		<condition property="project.itest">
-			<matches string="${project}" pattern="\.itest$" />
-		</condition>
 	</target>
 	
 	
@@ -53,10 +49,6 @@
 	
 	
 	<!-- Integration test support -->
-	<target name="test" depends="init" if="project.itest">
-		<subant target="test" inheritAll="false" buildpath="${project.dependson}" />
-	</target>
-	
 	<target name="deeptest" depends="init" if="project.dependson">
 		<subant target="test" inheritAll="false" buildpath="${project.dependson}">
 			<property name="donotrecurse" value="true" />
