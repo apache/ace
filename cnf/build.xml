@@ -36,7 +36,9 @@
 	
 	<!-- TestNG support -->
 	<target name="deeptestng" depends="init" if="project.dependson">
-		<subant target="testng" inheritAll="false" buildpath="${project.dependson}" />
+		<subant target="testng" inheritAll="false" buildpath="${project.dependson}">
+			<property name="donotrecurse" value="true" />
+		</subant>
 	</target>
 
 	<target name="testng" depends="init, compileTests" if="project.testpathexists">
