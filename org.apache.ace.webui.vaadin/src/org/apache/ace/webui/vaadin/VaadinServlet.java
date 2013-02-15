@@ -24,6 +24,7 @@ import java.util.Dictionary;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.client.repository.SessionFactory;
@@ -35,9 +36,12 @@ import org.osgi.service.useradmin.UserAdmin;
 
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
+import com.vaadin.terminal.gwt.server.WebApplicationContext;
 
 public class VaadinServlet extends AbstractApplicationServlet implements ManagedService {
-    private static final long serialVersionUID = 1L;
+    private static final int SESSION_TIMEOUT = 120; // in seconds (so 120 = 2 minutes)
+
+	private static final long serialVersionUID = 1L;
     
     public static final String PID = "org.apache.ace.webui.vaadin";
     
@@ -87,6 +91,14 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         );
         return application;
     }
+    
+    @Override
+	protected WebApplicationContext getApplicationContext(HttpSession session) {
+		if (session.getMaxInactiveInterval() != SESSION_TIMEOUT) {
+			session.setMaxInactiveInterval(SESSION_TIMEOUT);
+		}
+		return super.getApplicationContext(session);
+	}
 
     public void updated(Dictionary dictionary) throws ConfigurationException {
         if (dictionary != null) {
@@ -131,5 +143,4 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
             m_obrUrl = obrUrl;
         }
     }
-
 }
