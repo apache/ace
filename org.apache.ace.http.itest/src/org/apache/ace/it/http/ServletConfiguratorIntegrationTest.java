@@ -64,10 +64,11 @@ public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
         assertTrue("TestValue not echo'd back", waitForEchoServlet(true));
         assertTrue("Servlet not registered with the mock service", m_mockHttp.isRegisterCalled());
 
-
         m_dependencyManager.remove(m_echoServletService);
         assertFalse("The servlet should not be available anymore", waitForEchoServlet(false));
         assertTrue("Servlet not unregistered with the mock service", m_mockHttp.isUnregisterCalled());
+
+        m_dependencyManager.remove(m_mockHttpService);
     }
 
     @Override
@@ -121,16 +122,19 @@ public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
                     Thread.sleep(100);
                 }
             }
-        }catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e) {
             e.printStackTrace();
             fail("No MalformedURLException expected");
         }
         catch (InterruptedException e) {
             e.printStackTrace();
             fail("No interruptedException expected");
-        } catch (Throwable t) {
+        }
+        catch (Throwable t) {
             t.printStackTrace();
-        } finally {
+        }
+        finally {
             if (bufReader != null) {
                 try {
                     bufReader.close();

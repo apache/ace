@@ -33,13 +33,10 @@ public class MockHttpService implements HttpService {
     private boolean m_unregisterCalled = false;
 
     public HttpContext createDefaultHttpContext() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public void registerResources(String arg0, String arg1, HttpContext arg2) throws NamespaceException {
-        // TODO Auto-generated method stub
-
     }
 
     @SuppressWarnings("unchecked")

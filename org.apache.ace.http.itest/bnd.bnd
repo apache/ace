@@ -13,8 +13,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.server.log.store.api;version=latest,\
 	javax.servlet
 -runfw: org.apache.felix.framework;version='[4,5)'
--runbundles: \
-	osgi.cmpn,\
+-runbundles: osgi.cmpn,\
 	org.apache.felix.eventadmin,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.dependencymanager.shell,\
