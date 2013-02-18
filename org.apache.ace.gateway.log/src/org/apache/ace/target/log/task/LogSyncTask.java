@@ -41,6 +41,8 @@ import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.target.log.store.LogStore;
 import org.osgi.service.log.LogService;
 
+// TODO there are two versions of this class around, the other ohne being the server.LogSyncTask,
+// and both are fairly similar
 public class LogSyncTask implements Runnable {
 
     private static final String COMMAND_QUERY = "query";
