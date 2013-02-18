@@ -1,4 +1,4 @@
--nobundles=true
+-nobundles
 -dependson \
     org.apache.ace.ant.tasks,\
     org.apache.ace.authentication,\
