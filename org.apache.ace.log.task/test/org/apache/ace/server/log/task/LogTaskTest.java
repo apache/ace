@@ -36,7 +36,7 @@ public class LogTaskTest {
         public List<LogDescriptor> m_calledWith = new ArrayList<LogDescriptor>();
 
         public MockLogSyncTask(String endpoint, String name) {
-            super(endpoint, name);
+            super(endpoint, name, LogSyncTask.Mode.PUSH);
         }
 
         @Override

@@ -48,7 +48,7 @@ public class LogSyncTask implements Runnable, LogSync {
     private static final String COMMAND_SEND = "send";
     private static final String COMMAND_RECEIVE = "receive";
 
-    private static final String TARGETID_KEY = "gwid";
+    private static final String TARGETID_KEY = "tid";
     private static final String FILTER_KEY = "filter";
     private static final String LOGID_KEY = "logid";
     private static final String RANGE_KEY = "range";
@@ -61,21 +61,35 @@ public class LogSyncTask implements Runnable, LogSync {
     
     private final String m_endpoint;
     private final String m_name;
+	private final Mode m_mode;
 
-    public LogSyncTask(String endpoint, String name) {
+    public static enum Mode { PUSH, PULL, PUSHPULL };
+    
+    public LogSyncTask(String endpoint, String name, Mode mode) {
         m_endpoint = endpoint;
         m_name = name;
+		m_mode = mode;
     }
 
     public void run() {
         try {
-            push();
+        	switch (m_mode) {
+	        	case PULL:
+	        		pull();
+	        		break;
+	        	case PUSH:
+	        		push();
+	        		break;
+	        	case PUSHPULL:
+	        		pushpull();
+	        		break;
+        	}
         }
         catch (MalformedURLException e) {
-            m_log.log(LogService.LOG_ERROR, "Unable to (fully) synchronize log (name=" + m_name + ") with remote");
+            m_log.log(LogService.LOG_ERROR, "Unable to (" + m_mode.toString() + ") synchronize log (name=" + m_name + ") with remote");
         }
         catch (IOException e) {
-            m_log.log(LogService.LOG_ERROR, "Unable to (fully) synchronize log (name=" + m_name + ") with remote", e);
+            m_log.log(LogService.LOG_ERROR, "Unable to (" + m_mode.toString() + ") synchronize log (name=" + m_name + ") with remote", e);
         }
     }
 
