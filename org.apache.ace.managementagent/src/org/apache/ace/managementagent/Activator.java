@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -216,13 +218,16 @@ public class Activator extends DependencyActivatorBase {
                     for (File f : file.listFiles()) {
                         loadProperties(factoryPid, f);
                     }
-                } else {
+                }
+                else {
                     loadProperties(factoryPid, file);
                 }
-            } else {
+            }
+            else {
                 loadProperties(factoryPid, new URL(value));
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.err.println("Invalid authentication properties for " + value + " (" + e.getMessage() + ")");
         }
     }
@@ -236,9 +241,7 @@ public class Activator extends DependencyActivatorBase {
         
         Properties props = new Properties();
         props.load(url.openStream());
-        
-        conf.update(props);
-        
+        conf.update((Dictionary<String, ?>) ((Hashtable) props));
         return props;
     }
 }

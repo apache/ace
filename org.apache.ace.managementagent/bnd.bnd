@@ -1,10 +1,10 @@
 -buildpath: \
 	osgi.core,\
-	osgi.cmpn,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.deploymentadmin,\
 	org.apache.felix.eventadmin,\
+	osgi.cmpn,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.consolelogger;version=latest,\
 	org.apache.ace.gateway.log;version=latest,\
