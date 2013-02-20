@@ -15,3 +15,4 @@ Private-Package: org.apache.felix.framework,\
 Import-Package: org.osgi.framework;version='[1.5,2)',\
 	*
 Bundle-Version: 1.0.0
+Bundle-Activator: org.apache.ace.deployment.verifier.impl.Activator
