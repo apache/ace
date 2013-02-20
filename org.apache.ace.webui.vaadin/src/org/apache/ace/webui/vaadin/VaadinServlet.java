@@ -39,7 +39,7 @@ import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 
 public class VaadinServlet extends AbstractApplicationServlet implements ManagedService {
-    private static final int SESSION_TIMEOUT = 120; // in seconds (so 120 = 2 minutes)
+    private static final int SESSION_TIMEOUT = 30; // in seconds (so 120 = 2 minutes)
 
 	private static final long serialVersionUID = 1L;
     
@@ -68,28 +68,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
 
     @Override
     protected Application getNewApplication(HttpServletRequest request)	throws ServletException {
-        Application application = new VaadinClient(m_aceHost, m_obrUrl, m_useAuth, m_userName);
-        m_manager.add(m_manager.createComponent()
-            .setImplementation(application)
-            .setCallbacks("setupDependencies", "start", "stop", "destroyDependencies")
-            .add(m_manager.createServiceDependency()
-                .setService(SessionFactory.class)
-                .setRequired(true)
-            )
-            .add(m_manager.createServiceDependency()
-                .setService(UserAdmin.class)
-                .setRequired(true)
-            )
-            .add(m_manager.createServiceDependency()
-                .setService(AuthenticationService.class)
-                .setRequired(m_useAuth)
-            )
-            .add(m_manager.createServiceDependency()
-                .setService(LogService.class)
-                .setRequired(false)
-            )
-        );
-        return application;
+        return new VaadinClient(m_manager, m_aceHost, m_obrUrl, m_useAuth, m_userName);
     }
     
     @Override

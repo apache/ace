@@ -401,9 +401,13 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     }
     
     public void deleteLocal() {
-        for (RepositorySet set : m_repositorySets) {
-            set.deleteLocal();
-        }
+    	synchronized (m_lock) {
+    		if (m_user != null && m_repositorySets != null) {
+    			for (RepositorySet set : m_repositorySets) {
+    				set.deleteLocal();
+    			}
+    		}
+    	}
     }
 
     private boolean loggedIn() {

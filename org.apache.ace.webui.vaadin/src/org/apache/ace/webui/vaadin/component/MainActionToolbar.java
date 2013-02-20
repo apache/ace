@@ -300,15 +300,17 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         setWidth("100%");
         setSpacing(true);
         
-        m_manager.add(m_manager.createComponent()
-            .setImplementation(this)
-            .add(m_manager.createServiceDependency()
-                .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_MENU + ")")
-                .setCallbacks("add", "remove")
-            )
-        );
-
         initComponent();
+    }
+    
+    public void init(org.apache.felix.dm.Component component) {
+    	DependencyManager dm = component.getDependencyManager();
+    	component.add(dm.createServiceDependency()
+            .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_MENU + ")")
+            .setCallbacks("add", "remove")
+            .setRequired(false)
+            .setInstanceBound(true)
+        );
     }
     
     public void add(ServiceReference ref, UIExtensionFactory factory) {

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,7 @@ import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.TargetDetails;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.event.dd.acceptcriteria.Or;
+import com.vaadin.service.ApplicationContext;
 import com.vaadin.ui.AbstractSelect.AbstractSelectTargetDetails;
 import com.vaadin.ui.AbstractSelect.VerticalLocationIs;
 import com.vaadin.ui.Button;
@@ -109,7 +111,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     private static final long serialVersionUID = 1L;
 
-    private static long SESSION_ID = 12345;
+    private static long SESSION_ID = 1;
 
     private static String targetRepo = "target";
     private static String shopRepo = "shop";
@@ -118,7 +120,6 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     private static String endpoint = "/repository";
 
     private volatile AuthenticationService m_authenticationService;
-    private volatile DependencyManager m_manager;
     private volatile BundleContext m_context;
     private volatile SessionFactory m_sessionFactory;
     private volatile UserAdmin m_userAdmin;
@@ -156,6 +157,9 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
 
     private ProgressIndicator m_progress;
+    private DependencyManager m_manager;
+	private Component m_component;
+	private final List<Component> m_eventHandlers = new ArrayList<Component>();
 
     // basic session ID generator
     private static long generateSessionID() {
@@ -184,13 +188,15 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     /**
      * Creates a new {@link VaadinClient} instance.
+     * @param m_manager2 
      * 
      * @param aceHost the hostname where the management service can be reached;
      * @param obrUrl the URL of the OBR to use;
      * @param useAuth <code>true</code> to use authentication, <code>false</code> to disable authentication;
      * @param userName the hardcoded username to use when authentication is disabled.
      */
-    public VaadinClient(URL aceHost, URL obrUrl, boolean useAuth, String userName) {
+    public VaadinClient(DependencyManager manager, URL aceHost, URL obrUrl, boolean useAuth, String userName) {
+    	m_manager = manager;
         try {
             m_repository = new URL(aceHost, endpoint);
         }
@@ -205,9 +211,44 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             throw new IllegalArgumentException("Need a valid user name when no authentication is used!");
         }
     }
+    
+    @Override
+    public void start(URL applicationUrl, Properties applicationProperties, ApplicationContext context) {
+        m_component = m_manager.createComponent()
+            .setImplementation(this)
+            .setCallbacks("setupDependencies", "start", "stop", "destroyDependencies")
+            .add(m_manager.createServiceDependency()
+                .setService(SessionFactory.class)
+                .setRequired(true)
+            )
+            .add(m_manager.createServiceDependency()
+                .setService(UserAdmin.class)
+                .setRequired(true)
+            )
+            .add(m_manager.createServiceDependency()
+                .setService(AuthenticationService.class)
+                .setRequired(m_useAuth)
+            )
+            .add(m_manager.createServiceDependency()
+                .setService(LogService.class)
+                .setRequired(false)
+            );
+		m_manager.add(m_component);
+    	super.start(applicationUrl, applicationProperties, context);
+    }
+    
+    @Override
+    public void close() {
+    	if (isRunning()) {
+	        m_admin.deleteLocal();
+	        cleanupListeners();
+	        m_manager.remove(m_component);
+	        super.close();
+    	}
+    }
 
     public void setupDependencies(Component component) {
-        m_sessionID = "" + generateSessionID();
+        m_sessionID = "web-" + generateSessionID();
         File dir = m_context.getDataFile(m_sessionID);
         dir.mkdir();
         m_sessionDir = dir;
@@ -522,10 +563,24 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         Properties props = new Properties();
         props.put(EventConstants.EVENT_TOPIC, topics);
         props.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
-        m_manager.add(
-            m_manager.createComponent()
-                .setInterface(EventHandler.class.getName(), props)
-                .setImplementation(implementation));
+        Component component = m_manager.createComponent()
+		    .setInterface(EventHandler.class.getName(), props)
+		    .setImplementation(implementation);
+        synchronized (m_eventHandlers) {
+        	m_eventHandlers.add(component);
+        }
+		m_manager.add(component);
+    }
+    
+    private void cleanupListeners() {
+    	Component[] components;
+        synchronized (m_eventHandlers) {
+			components = m_eventHandlers.toArray(new Component[m_eventHandlers.size()]);
+			m_eventHandlers.clear();
+        }
+        for (Component component : components) {
+        	m_manager.remove(component);
+        }
     }
 
     /**
@@ -934,12 +989,6 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     private StatefulTargetObject getTarget(String name) {
         return m_statefulTargetRepository.get(name);
-    }
-
-    @Override
-    public void close() {
-        m_admin.deleteLocal();
-        super.close();
     }
 
     private void showAddArtifactDialog() {

@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.SessionFactory;
@@ -45,6 +47,7 @@ import org.apache.ace.server.log.store.LogStore;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
+import org.apache.felix.service.command.CommandProcessor;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.event.EventAdmin;
@@ -69,12 +72,32 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
     @Override
     public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
         m_dependencyManager = manager;
+        
+        Properties props = new Properties();
+        props.put(CommandProcessor.COMMAND_SCOPE, "clientrepo");
+        props.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "sessions" });
+        
         manager.add(createComponent()
-            .setInterface(SessionFactory.class.getName(), null)
+            .setInterface(SessionFactory.class.getName(), props)
             .setImplementation(this)
         );
     }
 
+    /** Shell command to show the active sessions. */
+    public void sessions() {
+        synchronized (m_sessions) {
+        	if (m_sessions.isEmpty()) {
+        		System.out.println("No sessions.");
+        	}
+        	else {
+        		System.out.println("Sessions:");
+        		for (Entry<String, SessionData> session : m_sessions.entrySet()) {
+        			System.out.println(" * " + session.getKey());
+        		}
+        	}
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */
