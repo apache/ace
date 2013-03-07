@@ -17,18 +17,17 @@
         limitations under the License.
     -->
 
-<!-- be sure to run 'mvn install' to create the library before trying this -->
 <project name="sample-build" default="build">
-	<!-- defines the deployment package task as 'dp' -->
-    <taskdef name="dp" classname="org.apache.ace.ant.deploymentpackage.DeploymentPackageTask" classpath="target/org.apache.ace.ant.tasks-0.8.1-SNAPSHOT.jar:../ace-builder/target/org.apache.ace.builder-0.8.1-SNAPSHOT.jar" />
-
+    <!-- defines the deployment package task as 'dp' -->
+    <taskdef name="dp" classname="org.apache.ace.ant.deploymentpackage.DeploymentPackageTask" classpath="generated/org.apache.ace.ant.tasks.jar:../org.apache.ace.builder/generated/org.apache.ace.builder.jar" />
+    
     <!-- builds a deployment package based on some existing jar files -->
-	<target name="build">
-		<dp name="org.apache.ace.dp.sample" version="1.0.0" dir=".." destination="sample-dp.jar">
-			<!-- uses two completely arbitrary bundles -->
-            <orderedinclude name="ace-log-listener/target/org.apache.ace.log.listener-0.8.1-SNAPSHOT.jar" />
-			<orderedinclude name="ace-log/target/org.apache.ace.log-0.8.1-SNAPSHOT.jar" />
-			<include name="ace-range-api/target/org.apache.ace.range.api-0.8.1-SNAPSHOT.jar" />
-		</dp>
-	</target>
+    <target name="build">
+	<dp name="org.apache.ace.dp.sample" version="1.0.0" dir=".." destination="sample-dp.jar">
+	    <!-- uses two completely arbitrary bundles -->
+            <orderedinclude name="org.apache.ace.log.listener/generated/org.apache.ace.log.listener.jar" />
+	    <orderedinclude name="org.apache.ace.log/generated/org.apache.ace.log.jar" />
+	    <include name="org.apache.ace.range.api/generated/org.apache.ace.range.api.jar" />
+	</dp>
+    </target>
 </project>
