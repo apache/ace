@@ -134,16 +134,19 @@ public class DeploymentPackageTask extends MatchingTask {
         for (String file : files) {
             log("Found file: " + file);
         }
-        
+        if (files.size() == 0) {
+        	log("No files found, creating empty deployment package!", Project.MSG_ERR);
+        }
+
         try {
-        	DeploymentPackageBuilder dp = DeploymentPackageBuilder.createDeploymentPackage(m_name, m_version);
-        	for (String file : files) {
-        		dp.addBundle(new URL("file://" + m_dir.getAbsolutePath() + "/" + file));
-        	}
-			dp.generate(new FileOutputStream(m_destination));
-		}
+            DeploymentPackageBuilder dp = DeploymentPackageBuilder.createDeploymentPackage(m_name, m_version);
+            for (String file : files) {
+                dp.addBundle(new File(m_dir, file).toURI().toURL());
+            }
+            dp.generate(new FileOutputStream(m_destination));
+        }
         catch (Exception e) {
-			throw new BuildException("Error building deployment package: " + e.getMessage(), e);
+        	throw new BuildException("Error building deployment package: " + e.getMessage(), e);
         }
     }
 }
