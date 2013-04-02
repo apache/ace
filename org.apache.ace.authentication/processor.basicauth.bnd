@@ -1,0 +1,5 @@
+Private-Package: org.apache.ace.authentication.processor.basicauth,\
+	org.apache.commons.codec,\
+	org.apache.commons.codec.binary
+Bundle-Activator: org.apache.ace.authentication.processor.basicauth.Activator
+Bundle-Version: 1.0.0

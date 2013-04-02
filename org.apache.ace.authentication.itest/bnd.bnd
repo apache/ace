@@ -34,7 +34,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.ace.configurator.serveruseradmin;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
-	org.apache.ace.authenticationprocessor.basicauth;version=latest,\
+	org.apache.ace.authentication.processor.basicauth;version=latest,\
 	org.apache.ace.client.repository.helper.base;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
@@ -55,7 +55,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.client.repository.impl;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
-	org.apache.ace.authentication;version=latest,\
+	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.ace.log.listener;version=latest,\
 	org.apache.ace.obr.servlet;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\

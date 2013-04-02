@@ -16,7 +16,7 @@
 	org.apache.ace.obr.metadata;version=latest,\
 	org.apache.ace.obr.storage;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
-	org.apache.ace.authentication;version=latest,\
+	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.ace.obr.servlet;version=latest
 -runrepos: Workspace,\
 	Release

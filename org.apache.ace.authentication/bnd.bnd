@@ -1,10 +1,9 @@
--buildpath: \
-	osgi.core,\
+-buildpath: osgi.core,\
 	osgi.cmpn,\
 	org.mockito.mockito-all,\
 	org.apache.felix.dependencymanager,\
-	org.apache.ace.authentication.api;version=latest,\
+	javax.servlet,\
+	bcprov;version=latest,\
+	commons-codec;version=1.4,\
 	org.apache.ace.test;version=latest
-Private-Package: org.apache.ace.authentication.impl
-Bundle-Activator: org.apache.ace.authentication.impl.Activator
-Bundle-Version: 1.0.0
+-sub: *.bnd

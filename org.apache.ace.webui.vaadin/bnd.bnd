@@ -4,7 +4,7 @@
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
-	org.apache.ace.authentication;version=latest,\
+	org.apache.ace.authentication.impl;version=latest,\
 	javax.servlet,\
 	osgi.core;version=4.1.0
 Private-Package: org.apache.ace.webui.domain,\
