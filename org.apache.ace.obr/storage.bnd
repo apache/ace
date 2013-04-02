@@ -1,8 +1,3 @@
--buildpath: osgi.core,\
-	osgi.cmpn,\
-	org.apache.felix.dependencymanager,\
-	org.apache.ace.test;version=latest,\
-	org.apache.ace.obr.metadata;version=latest
 Private-Package: org.apache.ace.obr.storage.file,\
 	org.apache.ace.obr.storage.file.constants
 Bundle-Activator: org.apache.ace.obr.storage.file.Activator
