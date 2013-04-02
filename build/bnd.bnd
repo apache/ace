@@ -2,11 +2,7 @@
 -dependson \
     org.apache.ace.ant.tasks,\
     org.apache.ace.authentication,\
-    org.apache.ace.authentication.api,\
     org.apache.ace.authentication.itest,\
-    org.apache.ace.authenticationprocessor.basicauth,\
-    org.apache.ace.authenticationprocessor.clientcert,\
-    org.apache.ace.authenticationprocessor.password,\
     org.apache.ace.builder,\
     org.apache.ace.client.automation,\
     org.apache.ace.client.repository.api,\
