@@ -36,7 +36,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.resourceprocessor.useradmin;version=latest,\
 	org.apache.ace.gateway.log.store;version=latest,\
-	org.apache.ace.authenticationprocessor.basicauth;version=latest,\
+	org.apache.ace.authentication.processor.basicauth;version=latest,\
 	org.apache.ace.client.repository.helper.base;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
