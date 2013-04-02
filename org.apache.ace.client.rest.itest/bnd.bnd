@@ -23,10 +23,10 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.obr.storage;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
-	org.apache.ace.client.repository.helper.configuration;version=latest,\
-	org.apache.ace.client.repository.helper.bundle;version=latest,\
+	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.client.repository.helper.base;version=latest,\
-	org.apache.ace.client.repository.api;version=latest
+	org.apache.ace.client.repository.helper.bundle;version=latest,\
+	org.apache.ace.client.repository.helper.configuration;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: osgi.cmpn,\
 	org.apache.felix.dependencymanager,\

@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.Enumeration;
 
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
-import org.apache.ace.client.repository.helper.configuration.ConfigurationHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
@@ -33,6 +32,11 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 
 public class RESTClientTest extends IntegrationTestBase {
+	// From: ConfigurationHelper (somehow directly using them here fails)
+    public static final String KEY_FILENAME = "filename";
+    public static final String MIMETYPE = "application/xml:osgi-autoconf";
+    public static final String PROCESSOR = "org.osgi.deployment.rp.autoconf";	
+	
     private static boolean m_hasBeenSetup = false;
     private volatile BundleContext m_context;
     private volatile UserAdmin m_user;
@@ -172,12 +176,12 @@ public class RESTClientTest extends IntegrationTestBase {
             bw.close();
             config.deleteOnExit();
             File rp = new File("rp.jar");
-            createBundleOnDisk(rp, "rp", "1.0.0", BundleHelper.KEY_RESOURCE_PROCESSOR_PID, ConfigurationHelper.PROCESSOR, "DeploymentPackage-Customizer", "true");
+            createBundleOnDisk(rp, "rp", "1.0.0", BundleHelper.KEY_RESOURCE_PROCESSOR_PID, PROCESSOR, "DeploymentPackage-Customizer", "true");
             rp.deleteOnExit();
 
             WebResource w1 = createWorkspace(c);
-            createResourceProcessor(c, w1, "rp", "resourceprocessor", "1.0.0", rp.toURI().toURL().toString(), BundleHelper.MIMETYPE, ConfigurationHelper.PROCESSOR);
-            createConfiguration(c, w1, "c1", config.toURI().toURL().toString(), ConfigurationHelper.MIMETYPE, "template.xml", ConfigurationHelper.PROCESSOR);
+            createResourceProcessor(c, w1, "rp", "resourceprocessor", "1.0.0", rp.toURI().toURL().toString(), BundleHelper.MIMETYPE, PROCESSOR);
+            createConfiguration(c, w1, "c1", config.toURI().toURL().toString(), MIMETYPE, "template.xml", PROCESSOR);
             createAssociationA2F(c, w1, "artifact2feature", "c1", "f4");
             createFeature(c, w1, "f4");
             createAssociationF2D(c, w1, "feature2distribution", "f4", "d2");

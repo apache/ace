@@ -1,0 +1,5 @@
+Private-Package: org.apache.ace.client.repository.helper.configuration.impl
+Bundle-Activator: org.apache.ace.client.repository.helper.configuration.impl.Activator
+Export-Package: org.apache.ace.client.repository.helper.configuration
+Deployment-ProvidesResourceProcessor: org.osgi.deployment.rp.autoconf
+Bundle-Version: 1.0.0

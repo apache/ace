@@ -1,0 +1,4 @@
+Private-Package: org.apache.ace.client.repository.helper.user.impl
+Bundle-Activator: org.apache.ace.client.repository.helper.user.impl.Activator
+Export-Package: org.apache.ace.client.repository.helper.user
+Bundle-Version: 1.0.0
