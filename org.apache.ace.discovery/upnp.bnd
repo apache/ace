@@ -1,0 +1,3 @@
+Private-Package: org.apache.ace.discovery.upnp
+Bundle-Activator: org.apache.ace.discovery.upnp.Activator
+Bundle-Version: 1.0.0

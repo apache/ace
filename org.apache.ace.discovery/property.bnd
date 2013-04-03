@@ -1,0 +1,4 @@
+Private-Package: org.apache.ace.discovery.property,\
+	org.apache.ace.discovery.property.constants
+Bundle-Activator: org.apache.ace.discovery.property.Activator
+Bundle-Version: 1.0.0

@@ -1,0 +1,6 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.test;version=latest,\
+	org.easymock
+-sub: *.bnd

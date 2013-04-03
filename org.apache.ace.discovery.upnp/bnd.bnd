@@ -1,9 +1,0 @@
--buildpath: osgi.core,\
-	osgi.cmpn,\
-	org.apache.felix.dependencymanager,\
-	org.apache.ace.test;version=latest,\
-	org.easymock,\
-	org.apache.ace.discovery.api;version=latest
-Private-Package: org.apache.ace.discovery.upnp
-Bundle-Activator: org.apache.ace.discovery.upnp.Activator
-Bundle-Version: 1.0.0
