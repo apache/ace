@@ -1,0 +1,9 @@
+-buildpath: \
+	osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.mockito.mockito-all,\
+	org.apache.ace.identification.api;version=latest,\
+	org.apache.ace.test;version=latest
+	
+-sub: *.bnd

@@ -1,0 +1,4 @@
+Private-Package: org.apache.ace.identification.property,\
+	org.apache.ace.identification.property.constants
+Bundle-Activator: org.apache.ace.identification.property.Activator
+Bundle-Version: 1.0.0

@@ -1,0 +1,3 @@
+Private-Package: org.apache.ace.identification.ifconfig
+Bundle-Activator: org.apache.ace.identification.ifconfig.Activator
+Bundle-Version: 1.0.0
