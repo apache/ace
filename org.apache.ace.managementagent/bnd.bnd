@@ -20,7 +20,7 @@
 	org.apache.ace.deployment.deploymentadmin;version=latest,\
 	org.apache.ace.deployment.task.base;version=latest,\
 	org.apache.ace.deployment.task;version=latest,\
-	org.apache.ace.scheduler;version=latest
+	org.apache.ace.scheduler.impl;version=latest
 Private-Package: EDU.oswego.cs.dl.util.concurrent;-split-package:=first,\
     org.apache.felix.*;-split-package:=first,\
     org.apache.ace.*;-split-package:=first,\
