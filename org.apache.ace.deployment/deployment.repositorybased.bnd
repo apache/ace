@@ -1,0 +1,6 @@
+Private-Package: org.apache.ace.deployment.provider.repositorybased,\
+	org.apache.ace.deployment.provider.impl,\
+	org.apache.ace.repository.ext,\
+	org.apache.ace.repository.ext.impl
+Bundle-Activator: org.apache.ace.deployment.provider.repositorybased.Activator
+Bundle-Version: 1.0.0

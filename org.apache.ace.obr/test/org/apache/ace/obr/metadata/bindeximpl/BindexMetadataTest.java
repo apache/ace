@@ -26,9 +26,9 @@ import java.io.FileReader;
 
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
+import org.apache.ace.deployment.util.test.BundleStreamGenerator;
 import org.apache.ace.obr.metadata.MetadataGenerator;
 import org.apache.ace.obr.metadata.bindex.BIndexMetadataGenerator;
-import org.apache.ace.test.utils.deployment.BundleStreamGenerator;
 import org.testng.annotations.Test;
 
 public class BindexMetadataTest {

@@ -2,10 +2,8 @@
 	osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\
-	org.apache.felix.dependencymanager,\
-	org.apache.ace.deployment.provider.api;version=latest
+	org.apache.felix.dependencymanager
 Export-Package: org.apache.ace.it,\
 	org.apache.ace.test.constants,\
-	org.apache.ace.test.utils,\
-	org.apache.ace.test.utils.deployment
+	org.apache.ace.test.utils
 Bundle-Version: 1.0.0

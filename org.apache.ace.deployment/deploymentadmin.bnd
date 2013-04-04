@@ -1,0 +1,3 @@
+Private-Package: org.apache.ace.deployment.deploymentadmin
+Bundle-Activator: org.apache.ace.deployment.deploymentadmin.Activator
+Bundle-Version: 1.0.0

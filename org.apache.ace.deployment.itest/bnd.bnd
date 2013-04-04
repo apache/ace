@@ -2,6 +2,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 -buildpath: junit.osgi,\
 	osgi.core,\
 	osgi.cmpn,\
+	javax.servlet,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.log;version=latest,\
@@ -11,11 +12,11 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
 	org.apache.ace.server.log.store.api;version=latest,\
-	javax.servlet,\
 	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.deployment.servlet;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
-	org.apache.ace.deployment.provider.filebased;version=latest
+	org.apache.ace.deployment.provider.filebased;version=latest,\
+	org.apache.ace.deployment.util.test;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: \
 	osgi.cmpn,\

@@ -32,13 +32,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
+import org.apache.ace.deployment.util.test.BundleStreamGenerator;
 import org.apache.ace.discovery.property.constants.DiscoveryConstants;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.property.constants.IdentificationConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.apache.ace.test.constants.TestConstants;
-import org.apache.ace.test.utils.deployment.BundleStreamGenerator;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
