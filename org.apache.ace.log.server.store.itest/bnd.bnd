@@ -16,7 +16,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.log.server.store.mongo;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.test;version=latest
-Private-Package: org.apache.ace.server.log.store.tests
+Private-Package: org.apache.ace.log.server.store.tests
 -runvm: -ea
 -runfw: org.apache.felix.framework;version='[4,5)'
 -buildpath: \

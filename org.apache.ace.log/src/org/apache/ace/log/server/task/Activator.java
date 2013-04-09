@@ -48,7 +48,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         m_manager = manager;
         Properties props = new Properties();
-        props.put(Constants.SERVICE_PID, "org.apache.ace.server.log.task.factory");
+        props.put(Constants.SERVICE_PID, "org.apache.ace.log.server.task.factory");
         manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), props)
             .setImplementation(this)

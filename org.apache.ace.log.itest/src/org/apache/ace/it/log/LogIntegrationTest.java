@@ -80,10 +80,10 @@ public class LogIntegrationTest extends IntegrationTestBase {
         configure("org.apache.ace.deployment.servlet",
                 HttpConstants.ENDPOINT, DEPLOYMENT, "authentication.enabled", "false");
 
-        configureFactory("org.apache.ace.server.log.servlet.factory",
+        configureFactory("org.apache.ace.log.server.servlet.factory",
                 "name", "auditlog",
                 HttpConstants.ENDPOINT, AUDITLOG, "authentication.enabled", "false");
-        configureFactory("org.apache.ace.server.log.store.factory",
+        configureFactory("org.apache.ace.log.server.store.factory",
                 "name", "auditlog");
     }
 

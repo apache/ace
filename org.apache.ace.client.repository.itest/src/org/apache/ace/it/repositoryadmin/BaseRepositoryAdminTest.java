@@ -195,7 +195,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
         m_endpoint = new URL(HOST + ENDPOINT_NAME);
 
         getService(SessionFactory.class).createSession("test-session-ID");
-        configureFactory("org.apache.ace.server.log.store.factory",
+        configureFactory("org.apache.ace.log.server.store.factory",
             "name", "auditlog", "authentication.enabled", "false");
     }
 

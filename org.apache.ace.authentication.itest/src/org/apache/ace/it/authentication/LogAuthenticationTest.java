@@ -184,11 +184,11 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
             "name", "auditlog");
         configureFactory("org.apache.ace.target.log.sync.factory",
             "name", "auditlog");
-        configureFactory("org.apache.ace.server.log.servlet.factory",
+        configureFactory("org.apache.ace.log.server.servlet.factory",
             "name", "auditlog",
             HttpConstants.ENDPOINT, AUDITLOG_ENDPOINT,
             "authentication.enabled", "true");
-        configureFactory("org.apache.ace.server.log.store.factory",
+        configureFactory("org.apache.ace.log.server.store.factory",
             "name", "auditlog");
     }
 

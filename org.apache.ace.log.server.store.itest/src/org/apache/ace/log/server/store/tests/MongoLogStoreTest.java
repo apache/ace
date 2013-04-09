@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.server.log.store.tests;
+package org.apache.ace.log.server.store.tests;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -43,7 +43,7 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 	@Override
 	protected void before() throws Exception {
 		configureFactory("org.amdatu.mongo", "dbName", "ace");
-		configureFactory("org.apache.ace.server.log.store.factory", "name", "serverlog");
+		configureFactory("org.apache.ace.log.server.store.factory", "name", "serverlog");
 		super.before();
 	}
 

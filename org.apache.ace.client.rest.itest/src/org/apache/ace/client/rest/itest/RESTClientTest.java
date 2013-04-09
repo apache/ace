@@ -470,12 +470,12 @@ public class RESTClientTest extends IntegrationTestBase {
         configure("org.apache.ace.identification.property",
             "targetID", "target-test");
         
-        configureFactory("org.apache.ace.server.log.servlet.factory",
+        configureFactory("org.apache.ace.log.server.servlet.factory",
             "name", "auditlog",
             HttpConstants.ENDPOINT, "/auditlog",
             "authentication.enabled", "false");
     
-        configureFactory("org.apache.ace.server.log.store.factory",
+        configureFactory("org.apache.ace.log.server.store.factory",
             "name", "auditlog");
         
         configureFactory("org.apache.ace.server.repository.factory",
