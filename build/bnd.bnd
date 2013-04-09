@@ -35,8 +35,6 @@
     org.apache.ace.repository.itest,\
     org.apache.ace.resourceprocessor.useradmin,\
     org.apache.ace.scheduler,\
-    org.apache.ace.server.action,\
-    org.apache.ace.server.action.popupmessage,\
     org.apache.ace.tageditor,\
     org.apache.ace.target.mgmt.ui,\
     org.apache.ace.test,\
