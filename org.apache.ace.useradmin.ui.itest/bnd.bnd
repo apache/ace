@@ -29,7 +29,7 @@ Private-Package: org.apache.ace.useradmin.ui.test
 	org.apache.ace.client.rest;version=latest,\
 	org.apache.ace.configurator.serveruseradmin;version=latest,\
 	org.apache.ace.configurator.useradmin.task;version=latest,\
-	org.apache.ace.configurator;version=latest,\
+	org.apache.ace.configurator.impl;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.consolelogger;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
