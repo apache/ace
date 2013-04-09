@@ -5,7 +5,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.log.api;version=latest,\
-	org.apache.ace.httplistener;version=latest,\
+	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
@@ -21,7 +21,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.httplistener;version=latest,\
+	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest
 Private-Package: org.apache.ace.it.http
 Bundle-Version: 1.0.0

@@ -11,7 +11,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.log.api;version=latest,\
-	org.apache.ace.httplistener;version=latest,\
+	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
@@ -46,7 +46,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	com.sun.jersey.client,\
 	com.sun.jersey.core,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.httplistener;version=latest,\
+	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.scheduler.impl;version=latest,\

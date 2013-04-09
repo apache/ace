@@ -4,7 +4,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	osgi.cmpn,\
 	org.mockito.mockito-all,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.httplistener;version=latest,\
+	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlet;version=latest,\
@@ -20,7 +20,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.http.jetty,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
-	org.apache.ace.httplistener;version=latest,\
+	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\

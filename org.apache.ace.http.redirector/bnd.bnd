@@ -1,9 +1,0 @@
--buildpath: \
-	osgi.core,\
-	osgi.cmpn,\
-	org.apache.felix.dependencymanager,\
-	javax.servlet,\
-	org.apache.ace.httplistener;version=latest
-Private-Package: org.apache.ace.http.redirector
-Bundle-Activator: org.apache.ace.http.redirector.Activator
-Bundle-Version: 1.0.0

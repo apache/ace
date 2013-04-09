@@ -11,7 +11,7 @@
 	org.apache.felix.http.jetty,\
 	org.apache.felix.useradmin,\
 	org.apache.felix.useradmin.filestore,\
-	org.apache.ace.httplistener;version=latest,\
+	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.configurator.impl;version=latest,\
 	org.apache.ace.obr.metadata;version=latest,\
 	org.apache.ace.obr.storage;version=latest,\
