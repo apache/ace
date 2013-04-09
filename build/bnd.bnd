@@ -16,9 +16,8 @@
     org.apache.ace.deployment,\
     org.apache.ace.deployment.itest,\
     org.apache.ace.discovery,\
+    org.apache.ace.http,\
     org.apache.ace.http.itest,\
-    org.apache.ace.http.redirector,\
-    org.apache.ace.httplistener,\
     org.apache.ace.identification,\
     org.apache.ace.launcher,\
     org.apache.ace.location.upnp,\
