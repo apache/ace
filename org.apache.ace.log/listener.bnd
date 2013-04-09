@@ -1,0 +1,3 @@
+Private-Package: org.apache.ace.log.listener
+Bundle-Activator: org.apache.ace.log.listener.Activator
+Bundle-Version: 1.0.0

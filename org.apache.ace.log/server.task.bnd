@@ -1,0 +1,3 @@
+Bundle-Version: 1.0.0
+Private-Package: org.apache.ace.log.server.task
+Bundle-Activator: org.apache.ace.log.server.task.Activator

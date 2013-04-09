@@ -1,0 +1,2 @@
+Private-Package: org.apache.ace.log.server.store.mongo
+Bundle-Activator: org.apache.ace.log.server.store.mongo.Activator

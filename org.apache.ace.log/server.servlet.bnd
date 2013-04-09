@@ -1,0 +1,3 @@
+Private-Package: org.apache.ace.log.server.servlet
+Bundle-Activator: org.apache.ace.log.server.servlet.Activator
+Bundle-Version: 1.0.0

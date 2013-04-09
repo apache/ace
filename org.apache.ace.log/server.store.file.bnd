@@ -1,0 +1,3 @@
+Bundle-Activator: org.apache.ace.log.server.store.impl.Activator
+Private-Package: org.apache.ace.log.server.store.impl
+Bundle-Version: 1.0.0

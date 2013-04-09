@@ -1,0 +1,4 @@
+Private-Package: org.apache.ace.log.target.store.impl
+Bundle-Activator: org.apache.ace.log.target.store.impl.Activator
+Export-Package: org.apache.ace.log.target.store
+Bundle-Version: 1.0.0
