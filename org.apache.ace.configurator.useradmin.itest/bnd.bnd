@@ -4,17 +4,18 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.log;version=latest,\
+	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
-	org.apache.ace.server.log.store.api;version=latest,\
+	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
+-runvm: -ea
 -runbundles: \
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
@@ -32,7 +33,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.resourceprocessor.useradmin;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
-	org.apache.ace.scheduler;version=latest,\
+	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlet;version=latest,\
 	org.apache.ace.configurator.useradmin.task;version=latest

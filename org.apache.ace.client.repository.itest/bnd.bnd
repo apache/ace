@@ -4,7 +4,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.log;version=latest,\
+	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
@@ -19,8 +19,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
-	org.apache.ace.server.log.store.api;version=latest
+	org.apache.ace.log.server.store.api;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
+-runvm: -ea
 -runbundles: \
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
@@ -37,7 +38,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
-	org.apache.ace.scheduler;version=latest,\
+	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.deployment.provider.filebased;version=latest,\
@@ -53,9 +54,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.streamgenerator;version=latest,\
 	org.apache.ace.deployment.provider.base;version=latest,\
 	org.apache.ace.range.api;version=latest,\
-	org.apache.ace.log;version=latest,\
-	org.apache.ace.server.log.store.api;version=latest,\
-	org.apache.ace.server.log.store.filelogstore;version=latest,\
+	org.apache.ace.log.api;version=latest,\
+	org.apache.ace.log.server.store.api;version=latest,\
+	org.apache.ace.log.server.store.file;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlet;version=latest,\

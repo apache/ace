@@ -50,7 +50,7 @@ import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
-import org.apache.ace.server.log.store.LogStore;
+import org.apache.ace.log.server.store.LogStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;

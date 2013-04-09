@@ -1,4 +1,0 @@
--buildpath: org.apache.ace.test;version=latest,\
-	org.apache.ace.range.api;version=latest
-Export-Package: org.apache.ace.repository
-Bundle-Version: 1.0.0

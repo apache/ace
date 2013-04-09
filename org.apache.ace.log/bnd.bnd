@@ -1,5 +1,0 @@
--buildpath: org.apache.ace.range.api;version=latest,\
-	org.apache.ace.test;version=latest
-Export-Package: org.apache.ace.log
-Private-Package: org.apache.ace.log.util
-Bundle-Version: 1.0.0

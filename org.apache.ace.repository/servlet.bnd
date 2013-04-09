@@ -1,0 +1,4 @@
+Private-Package: org.apache.ace.repository.servlet
+Bundle-Activator: org.apache.ace.repository.servlet.Activator
+Export-Package: org.apache.ace.repository.servlet
+Bundle-Version: 1.0.0

@@ -37,7 +37,7 @@ import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
-import org.apache.ace.server.log.store.LogStore;
+import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Constants;

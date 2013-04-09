@@ -6,8 +6,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
-	org.apache.ace.log;version=latest,\
-	org.apache.ace.server.log.store.api;version=latest,\
+	org.apache.ace.log.api;version=latest,\
+	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
@@ -18,6 +18,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.obr.storage;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
+-runvm: -ea
 -runbundles: osgi.cmpn,\
 	org.apache.felix.log,\
 	org.apache.felix.dependencymanager,\
@@ -26,46 +27,46 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.felix.eventadmin,\
 	org.apache.felix.prefs,\
 	org.apache.felix.http.jetty,\
-	org.apache.ace.log.task;version=latest,\
-	org.apache.ace.log;version=latest,\
-	org.apache.ace.client.repository.helper.bundle;version=latest,\
-	org.apache.ace.discovery.api;version=latest,\
-	org.apache.ace.discovery.property;version=latest,\
-	org.apache.ace.configurator.serveruseradmin;version=latest,\
-	org.apache.ace.range.api;version=latest,\
-	org.apache.ace.repository.impl;version=latest,\
-	org.apache.ace.authentication.processor.basicauth;version=latest,\
-	org.apache.ace.client.repository.helper.base;version=latest,\
-	org.apache.ace.repository.api;version=latest,\
-	org.apache.ace.client.repository.api;version=latest,\
-	org.apache.ace.server.log.store.api;version=latest,\
-	org.apache.ace.server.log.store.filelogstore;version=latest,\
-	org.apache.ace.repository.servlet;version=latest,\
-	org.apache.ace.identification.api;version=latest,\
-	org.apache.ace.resourceprocessor.useradmin;version=latest,\
-	org.apache.ace.gateway.log.store;version=latest,\
-	org.apache.ace.httplistener;version=latest,\
-	org.apache.ace.obr.storage;version=latest,\
-	org.apache.ace.test;version=latest,\
-	org.apache.ace.client.repository.helper.configuration;version=latest,\
-	org.apache.ace.configurator.useradmin.task;version=latest,\
-	org.apache.ace.identification.property;version=latest,\
-	org.apache.ace.gateway.log;version=latest,\
-	org.apache.ace.obr.metadata;version=latest,\
-	org.apache.ace.authentication.api;version=latest,\
-	org.apache.ace.client.repository.impl;version=latest,\
-	org.apache.ace.connectionfactory;version=latest,\
-	org.apache.ace.authentication.impl;version=latest,\
-	org.apache.ace.log.listener;version=latest,\
-	org.apache.ace.obr.servlet;version=latest,\
-	org.apache.ace.deployment.provider.api;version=latest,\
-	org.apache.ace.scheduler;version=latest,\
-	org.apache.ace.log.servlet;version=latest,\
 	org.apache.felix.useradmin,\
 	org.apache.felix.useradmin.filestore,\
 	org.apache.felix.gogo.command,\
 	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell
+	org.apache.felix.gogo.shell,\
+	org.apache.ace.authentication.api;version=latest,\
+	org.apache.ace.authentication.impl;version=latest,\
+	org.apache.ace.authentication.processor.basicauth;version=latest,\
+	org.apache.ace.client.repository.api;version=latest,\
+	org.apache.ace.client.repository.helper.base;version=latest,\
+	org.apache.ace.client.repository.helper.bundle;version=latest,\
+	org.apache.ace.client.repository.helper.configuration;version=latest,\
+	org.apache.ace.client.repository.impl;version=latest,\
+	org.apache.ace.configurator.serveruseradmin;version=latest,\
+	org.apache.ace.configurator.useradmin.task;version=latest,\
+	org.apache.ace.connectionfactory;version=latest,\
+	org.apache.ace.deployment.provider.api;version=latest,\
+	org.apache.ace.discovery.api;version=latest,\
+	org.apache.ace.discovery.property;version=latest,\
+	org.apache.ace.httplistener;version=latest,\
+	org.apache.ace.identification.api;version=latest,\
+	org.apache.ace.identification.property;version=latest,\
+	org.apache.ace.log.api;version=latest,\
+	org.apache.ace.log.listener;version=latest,\
+	org.apache.ace.log.server.store.api;version=latest,\
+	org.apache.ace.log.server.store.file;version=latest,\
+	org.apache.ace.log.server.servlet;version=latest,\
+	org.apache.ace.log.target;version=latest,\
+	org.apache.ace.log.target.store.impl;version=latest,\
+	org.apache.ace.log.server.task;version=latest,\
+	org.apache.ace.obr.metadata;version=latest,\
+	org.apache.ace.obr.servlet;version=latest,\
+	org.apache.ace.obr.storage;version=latest,\
+	org.apache.ace.range.api;version=latest,\
+	org.apache.ace.repository.api;version=latest,\
+	org.apache.ace.repository.impl;version=latest,\
+	org.apache.ace.repository.servlet;version=latest,\
+	org.apache.ace.resourceprocessor.useradmin;version=latest,\
+	org.apache.ace.scheduler.impl;version=latest,\
+	org.apache.ace.test;version=latest
 Private-Package: org.apache.ace.it.authentication
 Bundle-Version: 1.0.0
 -runrepos: Local,\

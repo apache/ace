@@ -1,0 +1,3 @@
+Bundle-Activator: org.apache.ace.repository.task.Activator
+Export-Package: org.apache.ace.repository.task
+Bundle-Version: 1.0.0

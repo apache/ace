@@ -9,12 +9,12 @@
 	commons-collections;version=3.2.1,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.gogo.runtime,\
-	org.apache.ace.log;version=latest,\
+	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.repository.ext;version=latest,\
-	org.apache.ace.server.log.store.api;version=latest
+	org.apache.ace.log.server.store.api;version=latest
 -sub: *.bnd

@@ -1,8 +1,0 @@
--buildpath: osgi.core,\
-	osgi.cmpn,\
-	org.apache.felix.dependencymanager,\
-	org.apache.ace.test;version=latest,\
-	org.apache.ace.log;version=latest
-Private-Package: org.apache.ace.log.listener
-Bundle-Activator: org.apache.ace.log.listener.Activator
-Bundle-Version: 1.0.0

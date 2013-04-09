@@ -25,18 +25,18 @@
 	org.apache.ace.deployment.provider.repositorybased;version=latest,\
 	org.apache.ace.deployment.servlet;version=latest,\
 	org.apache.ace.deployment.streamgenerator;version=latest,\
-	org.apache.ace.deployment.verifier;version=latest,\
+	org.apache.ace.verifier.impl;version=latest,\
 	org.apache.ace.httplistener;version=latest,\
-	org.apache.ace.log.servlet;version=latest,\
-	org.apache.ace.log;version=latest,\
+	org.apache.ace.log.server.servlet;version=latest,\
+	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlet;version=latest,\
 	org.apache.ace.resourceprocessor.useradmin;version=latest,\
-	org.apache.ace.scheduler;version=latest,\
-	org.apache.ace.server.log.store.api;version=latest,\
-	org.apache.ace.server.log.store.filelogstore;version=latest
+	org.apache.ace.scheduler.impl;version=latest,\
+	org.apache.ace.log.server.store.api;version=latest,\
+	org.apache.ace.log.server.store.file;version=latest
 -runrepos: Workspace,\
 	Release
 -runproperties: org.apache.felix.log.storeDebug=true,\

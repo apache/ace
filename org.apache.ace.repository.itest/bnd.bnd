@@ -10,6 +10,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.repository.servlet;version=latest,\
 	org.apache.felix.dependencymanager		
 -runfw: org.apache.felix.framework;version='[4,5)'
+-runvm: -ea
 -runbundles: \
 	osgi.cmpn,\
 	org.apache.felix.log,\

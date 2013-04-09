@@ -25,6 +25,7 @@ import static org.apache.ace.it.repository.Utils.query;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
@@ -53,7 +54,7 @@ public class RepositoryTest extends IntegrationTestBase {
 	private volatile ConfigurationAdmin m_configAdmin;
 	
     private URL m_host;
-
+    
     public void testBadRequests() throws Exception {
         addRepository("testInstance", "apache", "test", false);
 
@@ -180,6 +181,8 @@ public class RepositoryTest extends IntegrationTestBase {
                 HttpConstants.ENDPOINT, "/replication", "authentication.enabled", "false");
         configure("org.apache.ace.repository.servlet.RepositoryServlet",
                 HttpConstants.ENDPOINT, "/repository", "authentication.enabled", "false");
+
+        Utils.waitForWebserver(m_host);
     }
 
     protected Component[] getDependencies() {

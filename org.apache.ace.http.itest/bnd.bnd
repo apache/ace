@@ -4,15 +4,16 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.log;version=latest,\
+	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.httplistener;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
-	org.apache.ace.server.log.store.api;version=latest,\
+	org.apache.ace.log.server.store.api;version=latest,\
 	javax.servlet
 -runfw: org.apache.felix.framework;version='[4,5)'
+-runvm: -ea
 -runbundles: osgi.cmpn,\
 	org.apache.felix.eventadmin,\
 	org.apache.felix.http.jetty,\

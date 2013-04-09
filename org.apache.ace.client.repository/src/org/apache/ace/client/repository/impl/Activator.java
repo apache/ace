@@ -43,7 +43,7 @@ import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.client.repository.stateful.impl.StatefulTargetRepositoryImpl;
-import org.apache.ace.server.log.store.LogStore;
+import org.apache.ace.log.server.store.LogStore;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;

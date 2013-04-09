@@ -22,18 +22,34 @@ package org.apache.ace.it.repository;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * @author Jan Willem Janssen <janwillem.janssen@luminis.eu>
- *
- */
 final class Utils {
 	
     private static final int COPY_BUFFER_SIZE = 4096;
     private static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";           
-  
+
+    static void waitForWebserver(URL host) throws IOException {
+        int retries = 1;
+        IOException ioe = null;
+        while (retries++ < 10) {
+	        try {
+	        	((HttpURLConnection) host.openConnection()).getResponseCode();
+	        	return;
+	        }
+	        catch (ConnectException e) {
+	        	ioe = e;
+	        	try {
+	        		Thread.sleep(retries * 50);
+	        	}
+	        	catch (InterruptedException ie) {}
+	        }
+        }
+        throw ioe;
+    }
+    
     /* copy in to out */
     static void copy(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[COPY_BUFFER_SIZE];
