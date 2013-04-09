@@ -1,7 +1,0 @@
--buildpath: osgi.core,\
-	osgi.cmpn,\
-	org.apache.felix.dependencymanager,\
-	org.apache.ace.server.action;version=latest
-Private-Package: org.apache.ace.server.action.popupmessage
-Bundle-Activator: org.apache.ace.server.action.popupmessage.Activator
-Bundle-Version: 1.0.0

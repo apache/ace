@@ -1,5 +1,0 @@
--buildpath: \
-	osgi.core,\
-	osgi.cmpn
-Export-Package: org.apache.ace.server.action
-Bundle-Version: 1.0.0
