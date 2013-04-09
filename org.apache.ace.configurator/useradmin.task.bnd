@@ -1,0 +1,5 @@
+Private-Package: org.apache.ace.configurator.useradmin.task,\
+	org.apache.ace.repository.ext,\
+	org.apache.ace.repository.ext.impl
+Bundle-Activator: org.apache.ace.configurator.useradmin.task.Activator
+Bundle-Version: 1.0.0

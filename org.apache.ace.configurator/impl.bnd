@@ -1,0 +1,3 @@
+Bundle-Activator: org.apache.ace.configurator.Activator
+Private-Package: org.apache.ace.configurator
+Bundle-Version: 1.0.0

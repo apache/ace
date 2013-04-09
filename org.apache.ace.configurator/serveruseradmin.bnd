@@ -1,0 +1,3 @@
+Private-Package: org.apache.ace.configurator.serveruseradmin
+Bundle-Activator: org.apache.ace.configurator.serveruseradmin.Activator
+Bundle-Version: 1.0.0
