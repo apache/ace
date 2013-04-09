@@ -10,9 +10,7 @@
     org.apache.ace.client.rest,\
     org.apache.ace.client.rest.itest,\
     org.apache.ace.configurator,\
-    org.apache.ace.configurator.serveruseradmin,\
     org.apache.ace.configurator.useradmin.itest,\
-    org.apache.ace.configurator.useradmin.task,\
     org.apache.ace.connectionfactory,\
     org.apache.ace.consolelogger,\
     org.apache.ace.deployment,\
