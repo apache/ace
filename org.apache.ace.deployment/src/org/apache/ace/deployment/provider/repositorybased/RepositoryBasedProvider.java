@@ -32,6 +32,7 @@ import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.SAXParserFactory;
 
@@ -415,7 +416,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
             }
         }
 
-        return result;
+        return new GZIPInputStream(result);
     }
     
     private boolean isCacheUpToDate() {
