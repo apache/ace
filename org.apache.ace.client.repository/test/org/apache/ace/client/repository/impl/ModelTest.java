@@ -20,6 +20,7 @@ package org.apache.ace.client.repository.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -228,7 +229,7 @@ public class ModelTest {
     }
 
     @Test( groups = { TestUtils.UNIT } )
-    public void testRepositorySerialization() {
+    public void testRepositorySerialization() throws IOException {
         createBasicArtifactObject("myartifact", "1");
         createBasicArtifactObject("myartifact", "2");
 
@@ -244,7 +245,7 @@ public class ModelTest {
     }
 
     @Test( groups = { TestUtils.UNIT } )
-    public void testSerialization() {
+    public void testSerialization() throws IOException {
         ArtifactObject b1 = createBasicArtifactObject("artifact1");
         ArtifactObject b2 = createBasicArtifactObject("artifact2");
         ArtifactObject b3 = createBasicArtifactObject("artifact3");
@@ -483,7 +484,7 @@ public class ModelTest {
     }
 
     @Test( groups = { TestUtils.UNIT } )
-    public void testDeploymentVersion() {
+    public void testDeploymentVersion() throws IOException {
         DeploymentVersionObject version = createBasicDeploymentVersionObject("target1", "1", new String[] {"artifact1", "artifact2"});
 
         assert version.getDeploymentArtifacts().length == 2 : "We expect to find two artifacts, but we find " + version.getDeploymentArtifacts().length;

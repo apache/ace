@@ -206,8 +206,8 @@ class RepositorySet {
         final PipedOutputStream output = new PipedOutputStream(input);
         new Thread(new Runnable() {
             public void run() {
-                new RepositorySerializer(RepositorySet.this).toXML(output);
                 try {
+                	new RepositorySerializer(RepositorySet.this).toXML(output);
                     output.flush();
                     output.close();
                 }

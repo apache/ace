@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
@@ -82,12 +84,14 @@ class RepositorySerializer implements Converter {
     }
 
     @SuppressWarnings("unchecked")
-    public void toXML(OutputStream out) {
+    public void toXML(OutputStream out) throws IOException {
         for (ObjectRepositoryImpl repo : m_set.getRepos()) {
             repo.setBusy(true);
         }
         try {
-            m_stream.toXML(this, out);
+        	GZIPOutputStream zout = new GZIPOutputStream(out);
+            m_stream.toXML(this, zout);
+            zout.finish();
         }
         finally {
             // Ensure all busy flags are reset at all times...
@@ -114,6 +118,7 @@ class RepositorySerializer implements Converter {
         try {
             Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
             if (in.available() > 0) {
+            	in = new GZIPInputStream(in);
                 m_stream.fromXML(in, this);
             }
         }
