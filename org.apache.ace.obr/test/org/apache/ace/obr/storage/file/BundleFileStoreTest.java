@@ -34,10 +34,12 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import org.apache.ace.obr.metadata.MetadataGenerator;
+import org.apache.ace.obr.storage.file.BundleFileStore.ResourceMetaData;
 import org.apache.ace.obr.storage.file.constants.OBRFileStoreConstants;
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 import org.osgi.service.cm.ConfigurationException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -379,6 +381,19 @@ public class BundleFileStoreTest {
             assert false : "Nothing should happen, as the directory did not change";
         }
         assert !m_metadata.generated() : "After changing the directory, the metadata should not be regenerated.";
+    }
+    
+    @Test(groups = { UNIT })
+    public void checkArtifactMetadataGeneration() {
+    	ResourceMetaData data = m_bundleStore.getArtifactMetaData("resource-1.0.3.xml");
+		assert "resource".equals(data.getSymbolicName()) : "Generated symbolic name should be 'resource', was " + data.getSymbolicName();
+		assert "1.0.3".equals(data.getVersion()) : "Generated version should be '1.0.3', was " + data.getVersion();
+		assert "xml".equals(data.getExtension()) : "Extension should be 'xml', was " + data.getExtension();
+
+		data = m_bundleStore.getArtifactMetaData("maven-artifact-2.3.5-SNAPSHOT.jar");
+		assert "maven-artifact".equals(data.getSymbolicName()) : "Generated symbolic name should be 'maven-artifact', was " + data.getSymbolicName();
+		assert "2.3.5-SNAPSHOT".equals(data.getVersion()) : "Generated version should be '2.3.5-SNAPSHOT', was " + data.getVersion();
+		assert "jar".equals(data.getExtension()) : "Extension should be 'jar', was " + data.getExtension();
     }
 
     private File createTmpResource(String symbolicName, String version) throws IOException {

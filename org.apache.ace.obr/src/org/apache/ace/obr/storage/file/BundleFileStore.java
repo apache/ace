@@ -240,10 +240,9 @@ public class BundleFileStore implements BundleStore, ManagedService {
                 Attributes attributes = manifest.getMainAttributes();
                 if (attributes != null) {
                     String bundleSymbolicName = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
-                    String bundleVersion = attributes
-                        .getValue(Constants.BUNDLE_VERSION);
-                    if(bundleSymbolicName != null){
-                        if(bundleVersion == null){
+                    String bundleVersion = attributes.getValue(Constants.BUNDLE_VERSION);
+                    if (bundleSymbolicName != null) {
+                        if (bundleVersion == null) {
                             bundleVersion = "0.0.0";
                         }
                         return new ResourceMetaData(bundleSymbolicName, bundleVersion, "jar");
@@ -269,7 +268,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
      * @param file the fileName to analyze
      * @return the metadata, or <code>null</code> if the file is not a valid bundle.
      */
-    private ResourceMetaData getArtifactMetaData(String fileName) {
+    ResourceMetaData getArtifactMetaData(String fileName) {
         
         if (fileName == null || fileName.equals("")) {
             return null;
@@ -284,7 +283,8 @@ public class BundleFileStore implements BundleStore, ManagedService {
         if (fileNameParts.length > 1) {
             extension = fileNameParts[fileNameParts.length - 1];
             symbolicName = fileName.substring(0, fileName.lastIndexOf('.'));
-        } else {
+        }
+        else {
             symbolicName = fileName;
         }
 
@@ -293,15 +293,16 @@ public class BundleFileStore implements BundleStore, ManagedService {
         while (dashIndex != -1 && version == null) {
             String versionCandidate = symbolicName.substring(dashIndex + 1);
             Matcher versionMatcher = VERSION_PATTERN.matcher(versionCandidate);
-            if(versionMatcher.matches()){
+            if (versionMatcher.matches()) {
                 symbolicName = symbolicName.substring(0, dashIndex);
                 version = versionCandidate;
-            } else {
+            }
+            else {
                 dashIndex = symbolicName.indexOf('-', dashIndex + 1);                
             }
         }
         
-        if(version == null){
+        if (version == null) {
             version = "0.0.0";
         }
         return new ResourceMetaData(symbolicName, version, extension);
@@ -317,7 +318,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
     private File getResourceFile(ResourceMetaData metaData) throws IOException {
 
         File resourceFile = null;
-        String[] dirs = metaData.getSymmbolicName().split("\\.");
+        String[] dirs = metaData.getSymbolicName().split("\\.");
         for (String subDir : dirs) {
             if (resourceFile == null) {
                 resourceFile = new File(getWorkingDir(), subDir);
@@ -326,15 +327,15 @@ public class BundleFileStore implements BundleStore, ManagedService {
                 resourceFile = new File(resourceFile, subDir);
             }
         }
-        if(!resourceFile.exists() && !resourceFile.mkdirs()){
+        if (!resourceFile.exists() && !resourceFile.mkdirs()) {
             throw new IOException("Failed to create store directory");
         }
         
         if (metaData.getExtension() != null && !metaData.getExtension().equals("")) {
-            resourceFile = new File(resourceFile, metaData.getSymmbolicName() + "-" + metaData.getVersion() + "." + metaData.getExtension());
+            resourceFile = new File(resourceFile, metaData.getSymbolicName() + "-" + metaData.getVersion() + "." + metaData.getExtension());
         }
         else {
-            resourceFile = new File(resourceFile, metaData.getSymmbolicName() + "-" + metaData.getVersion());
+            resourceFile = new File(resourceFile, metaData.getSymbolicName() + "-" + metaData.getVersion());
         }
         return resourceFile;
     }
@@ -436,21 +437,21 @@ public class BundleFileStore implements BundleStore, ManagedService {
         private final String m_version;
         private final String m_extension;
         
-        public ResourceMetaData(String bundleSymbolicName, String version, String extension){
+        public ResourceMetaData(String bundleSymbolicName, String version, String extension) {
             m_bundleSymbolicName = bundleSymbolicName;
             m_version = version;
             m_extension = extension;
         }
         
-        public String getSymmbolicName(){
+        public String getSymbolicName() {
             return m_bundleSymbolicName;
         }
         
-        public String getVersion(){
+        public String getVersion() {
             return m_version;
         }
         
-        public String getExtension(){
+        public String getExtension() {
             return m_extension;
         }
     }
