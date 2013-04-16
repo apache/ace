@@ -192,7 +192,7 @@ public class BundleServlet extends HttpServlet implements ManagedService {
             sendResponse(response, SC_BAD_REQUEST);
         }
         else {
-            // Remove leasing slash...
+            // Remove leading slash...
             String id = path.substring(1);
 
             ServletOutputStream output = null;
