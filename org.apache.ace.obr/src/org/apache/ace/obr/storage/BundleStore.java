@@ -29,28 +29,31 @@ public interface BundleStore extends ManagedService {
     /**
      * Returns an <code>InputStream</code> to the data of the specified resource.
      *
-     * @param fileName Identifier of the requested resource.
+     * @param filePath Relative path of the the resource.
      * @return <code>InputStream</code> to the requested resource or <code>null</code> if no such resource is available.
      * @throws java.io.IOException If there was a problem returning the requested resource.
      */
-    public InputStream get(String fileName) throws IOException;
+    public InputStream get(String filePath) throws IOException;
 
     /**
-     * Stores the specified resource in the store.
+     * Stores the specified resource in the store. For non OSGi bundles a valid filename must be specified that may
+     * contain a valid OSGi version.
+     * <br/><br/>
+     * Filename pattern: <code>&lt;filename&gt;[-&lt;version&gt;].&lt;extension&gt;<code>
      *
-     * @param fileName Identifier of the resource.
+     * @param fileName name of the resource, ignored if the resource is an OSGi bundle
      * @param data The actual data of the resource.
-     * @return <code>true</code> if the resource was successfully stored, <code>false</code> if the resource already existed
+     * @return the filePath if the resource was successfully stored, <code>null</code> if the resource already existed
      * @throws java.io.IOException If there was a problem reading or writing the data of the resource.
      */
-    public boolean put(String fileName, InputStream data) throws IOException;
-
+    public String put(InputStream data, String fileName) throws IOException;
+    
     /**
      * Removes the specified resource from the store.
      *
-     * @param filename Identifier of the resource.
+     * @param filePath Relative path of the the resource.
      * @return <code>true</code> if the resource was successfully removed, <code>false</code> if the resource was not present to begin with
      * @throws java.io.IOException If there was a problem removing the data of the resource from the store.
      */
-    public boolean remove(String filename) throws IOException;
+    public boolean remove(String filePath) throws IOException;
 }

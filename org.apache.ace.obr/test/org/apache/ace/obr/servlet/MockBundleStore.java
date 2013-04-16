@@ -20,7 +20,6 @@ package org.apache.ace.obr.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Dictionary;
 
 import org.apache.ace.obr.storage.BundleStore;
@@ -41,18 +40,14 @@ public class MockBundleStore implements BundleStore {
         return m_outFile;
     }
 
-    public void put(String fileName, OutputStream data) throws IOException {
-        // TODO does nothing yet
-    }
-
-    public boolean put(String fileName, InputStream data) throws IOException {
+    public String put(InputStream data, String fileName) throws IOException {
         if (fileName.equals("NewFile")) {
-            return true;
+            return "NewFile";
         }
         if (fileName.equals("path/to/file")) {
-            return true;
+            return "path/to/file";
         }
-        return false;
+        return null;
     }
 
     public boolean remove(String fileName) throws IOException {

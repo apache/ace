@@ -33,8 +33,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.ace.client.repository.helper.PropertyResolver;
+import org.apache.ace.client.repository.helper.configuration.ConfigurationHelper;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -44,6 +47,9 @@ import org.apache.velocity.app.Velocity;
  * the artifact.
  */
 public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
+
+    // matches a valid OSGi version
+    private final Pattern VERSION_PATTERN = Pattern.compile("(\\d+)(\\.(\\d+)(\\.(\\d+)([\\.-]([\\w-]+))?)?)?");
 
     private static Object m_initLock = new Object();
     private static boolean m_velocityInitialized = false;
@@ -58,7 +64,6 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
      */
     public VelocityArtifactPreprocessor(ConnectionFactory connectionFactory) {
         super(connectionFactory);
-
         try {
             m_md5 = MessageDigest.getInstance("MD5");
         }
@@ -72,13 +77,11 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
 
     @Override
     public boolean needsNewVersion(String url, PropertyResolver props, String targetID, String fromVersion) {
-        // get the template
+
         byte[] input = null;
         byte[] result = null;
-        
         try {
             init();
-            
             input = getArtifactAsBytes(url);
             result = process(input, props);
         }
@@ -88,7 +91,6 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
             return true;
         }
 
-        // process the template
         // first check: did we need any processing at all?
         if (Arrays.equals(result, input)) {
             return false;
@@ -102,7 +104,8 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
 
         // Note: we do not cache any previously created processed templates, since the call that asks us to approve a new version
         // may cross a pending needsNewVersion call.
-        return !newHash.equals(oldHash);
+        boolean answer = !newHash.equals(oldHash);
+        return answer;
     }
 
     @Override
@@ -119,14 +122,18 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
             // template isn't modified; use direct URL instead...
             return url;
         }
-        
         setHashForVersion(url, targetID, version, hash(result));
-        
         String name = getFilename(url, targetID, version);
-        
-        uploadAsynchronously(name, obrBase, new ByteArrayInputStream(result));
 
-        return determineNewUrl(name, obrBase).toString();
+        String location = null;
+        if(obrBase.getProtocol().equals("http")){
+            // upload the new resource to the OBR
+            location = upload(new ByteArrayInputStream(result), name, ConfigurationHelper.MIMETYPE, obrBase);
+        } else {
+            // this is only to support the unit tests
+            location = obrBase + name;
+        }
+        return location;
     }
 
     /**
@@ -156,63 +163,70 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
     }
 
     /**
-     * @param url
-     * @param targetID
-     * @param version
-     * @return
+     * Creates a new filename for a processed template.
+     * 
+     * @param url the original url
+     * @param targetID the targetID
+     * @param version the version
+     * @return a new filename
      */
-    private String getFilename(String url, String targetID, String version) {
+    private String getFilename(String url, String targetID, String targetVersion) {
+
+        String fileName = "";
+        String fileExtension = "";
+        String fileVersion = "";
+        
         int indexOfLastSlash = url.lastIndexOf('/');
         if (indexOfLastSlash != -1) {
-            url = url.substring(indexOfLastSlash + 1);
+            fileName = url.substring(indexOfLastSlash + 1);
         }
-        return url + "-" + targetID + "-" + version;
+        int indexOfLastDot = fileName.lastIndexOf('.');
+        if (indexOfLastDot != -1) {
+            fileExtension = fileName.substring(indexOfLastDot);
+            fileName = fileName.substring(0, indexOfLastDot);
+        }
+
+        int dashIndex = fileName.indexOf('-');
+        while (dashIndex != -1 && fileVersion.equals("")) {
+            String versionCandidate = fileName.substring(dashIndex + 1);
+            Matcher versionMatcher = VERSION_PATTERN.matcher(versionCandidate);
+            if(versionMatcher.matches()){
+                fileName = fileName.substring(0, dashIndex);
+                fileVersion = versionCandidate;
+            } else {
+                dashIndex = fileName.indexOf(fileName, dashIndex);                
+            }
+        }
+
+        fileName = fileName + ".target-" + targetID + "-" + targetVersion + fileExtension;
+        return fileName;
     }
 
     /**
-     * @param url
-     * @param targetID
-     * @param version
-     * @return
-     */
-    private String getFullUrl(String url, String targetID, String version) {
-        return url + "-" + targetID + "-" + version;
-    }
-
-    /**
-     * @param url
-     * @param target
-     * @param version
-     * @return
+     * Creates a hash for caching.
+     * 
+     * @param url the url
+     * @param target the target
+     * @param version the version
+     * @return a hash
      */
     private String getHashForVersion(String url, String target, String version) {
         String key = createHashKey(url, target, version);
-
         Reference<String> ref = m_cachedHashes.get(key);
         String hash = (ref != null) ? ref.get() : null;
-        if (hash == null) {
-            try {
-                hash = hash(getBytesFromUrl(getFullUrl(url, target, version)));
-
-                m_cachedHashes.put(key, new WeakReference<String>(hash));
-            }
-            catch (IOException e) {
-                // we cannot retrieve the artifact, so we cannot say anything about it.
-            }
-        }
-
         return hash;
     }
 
     /**
-     * @param url
-     * @param target
-     * @param version
-     * @param hash
+     * Adds a hash to the cache.
+     * 
+     * @param url the url
+     * @param target the target
+     * @param version the version
+     * @param hash the hash
      */
     private void setHashForVersion(String url, String target, String version, String hash) {
         String key = createHashKey(url, target, version);
-
         m_cachedHashes.put(key, new WeakReference<String>(hash));
     }
 
@@ -227,7 +241,6 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
     private byte[] process(byte[] input, PropertyResolver props) throws IOException {
         VelocityContext context = new VelocityContext();
         context.put("context", props);
-
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             Writer writer = new OutputStreamWriter(baos);
@@ -249,7 +262,6 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
      */
     private byte[] getArtifactAsBytes(String url) throws IOException {
         byte[] result = null;
-
         Reference<byte[]> ref = m_cachedArtifacts.get(url);
         if (ref == null || ((result = ref.get()) == null)) {
             result = getBytesFromUrl(url);
@@ -271,20 +283,16 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         InputStream in = m_connectionFactory.createConnection(new URL(url)).getInputStream();
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
             byte[] buf = new byte[BUFFER_SIZE];
             for (int count = in.read(buf); count != -1; count = in.read(buf)) {
                 baos.write(buf, 0, count);
             }
-            
             result = baos.toByteArray();
-            
             m_cachedArtifacts.put(url, new WeakReference<byte[]>(result));
         }
         finally {
             silentlyClose(in);
         }
-
         return result;
     }
 

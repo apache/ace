@@ -233,7 +233,7 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
 
         String simpleTemplate = "<Attribute content=\"http://$context.name\"/>";
         String simpleTemplateProcessed = "<Attribute content=\"http://mydistribution\"/>";
-        File simpleTemplateFile = createFileWithContents("template", "xml", xmlHeader + simpleTemplate + xmlFooter);
+        File simpleTemplateFile = createFileWithContents("template", ".xml", xmlHeader + simpleTemplate + xmlFooter);
 
         // create some tree from artifacts to a target
         FeatureObject go = runAndWaitForEvent(new Callable<FeatureObject>() {

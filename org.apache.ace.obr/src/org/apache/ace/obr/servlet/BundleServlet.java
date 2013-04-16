@@ -18,6 +18,7 @@
  */
 package org.apache.ace.obr.servlet;
 
+import static javax.servlet.http.HttpServletResponse.SC_CREATED;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -64,6 +65,7 @@ public class BundleServlet extends HttpServlet implements ManagedService {
     private volatile BundleStore m_store; /* will be injected by dependencymanager */
     private volatile AuthenticationService m_authService;
 
+    private volatile String m_servletEndpoint = "/";
     private volatile boolean m_useAuth = false;
 
     @Override
@@ -79,8 +81,18 @@ public class BundleServlet extends HttpServlet implements ManagedService {
                 throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
             }
             boolean useAuth = Boolean.parseBoolean(useAuthString);
-
             m_useAuth = useAuth;
+            
+            m_servletEndpoint = (String) settings.get("org.apache.ace.server.servlet.endpoint");
+            if(m_servletEndpoint == null){
+                m_servletEndpoint = "/";
+            }
+            if(!m_servletEndpoint.startsWith("/")){
+                m_servletEndpoint = "/" + m_servletEndpoint;
+            }
+            if(!m_servletEndpoint.endsWith("/")){
+                m_servletEndpoint = m_servletEndpoint + "/";
+            }
         }
         else {
             m_useAuth = false;
@@ -101,35 +113,31 @@ public class BundleServlet extends HttpServlet implements ManagedService {
     }
 
     /**
-     * Responds to POST requests sent to http://host:port/obr/resource by writing the received data to the bundle store.
-     * Will send out a response that contains one of the following status codes:
+     * Responds to POST requests sent to http://host:port/obr by writing the received data to the bundle store and
+     * returning the persistent location. Will send out a response that contains one of the following status codes:
      * <ul>
      * <li><code>HttpServletResponse.SC_BAD_REQUEST</code> - if no resource was specified</li>
      * <li><code>HttpServletResponse.SC_CONFLICT</code> - if the resource already exists</li>
      * <li><code>HttpServletResponse.SC_INTERNAL_SERVER_ERROR</code> - if there was a problem storing the resource</li>
-     * <li><code>HttpServletResponse.SC_OK</code> - if all went fine</li>
+     * <li><code>HttpServletResponse.SC_CREATED</code> - if all went fine</li>
      * </ul>
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-        String path = request.getPathInfo();
-        if ((path == null) || (path.length() <= 1)) {
-            sendResponse(response, SC_BAD_REQUEST);
+
+        String fileName = request.getParameter("filename");
+        try {
+            String storePath = m_store.put(request.getInputStream(), fileName);
+            if (storePath != null) {
+                sendCreated(request, response, storePath);
+            }
+            else {
+                sendResponse(response, SC_CONFLICT);
+            }
         }
-        else {
-            String id = path.substring(1);
-            try {
-                if (m_store.put(id, request.getInputStream())) {
-                    sendResponse(response, SC_OK);
-                }
-                else {
-                    sendResponse(response, SC_CONFLICT);
-                }
-            }
-            catch (IOException e) {
-                m_log.log(LogService.LOG_WARNING, "Exception handling request: " + request.getRequestURL(), e);
-                sendResponse(response, SC_INTERNAL_SERVER_ERROR);
-            }
+        catch (IOException e) {
+            m_log.log(LogService.LOG_WARNING, "Exception handling request: " + request.getRequestURL(), e);
+            sendResponse(response, SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -313,6 +321,18 @@ public class BundleServlet extends HttpServlet implements ManagedService {
                 m_log.log(LogService.LOG_WARNING, "Exception trying to close stream: " + request.getRequestURL(), ex);
             }
         }
+    }
+
+    // send a created response with location header
+    private void sendCreated(HttpServletRequest request, HttpServletResponse response, String relativePath) {
+        StringBuilder locationBuiler = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
+        boolean ignorePort = (request.getScheme().equals("http") && request.getServerPort() == 80) | (request.getScheme().equals("https") && request.getServerPort() == 443);
+        if(!ignorePort){
+            locationBuiler.append(":" + request.getServerPort());
+        }
+        locationBuiler.append(m_servletEndpoint).append(relativePath);
+        response.setHeader("Location", locationBuiler.toString());
+        response.setStatus(SC_CREATED);
     }
 
     // send a response with the specified status code

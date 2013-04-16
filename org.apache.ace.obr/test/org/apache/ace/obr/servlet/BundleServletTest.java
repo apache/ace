@@ -65,6 +65,22 @@ public class BundleServletTest {
         TestUtils.configureObject(m_bundleServlet, BundleStore.class, m_store);
 
         m_request = TestUtils.createMockObjectAdapter(HttpServletRequest.class, new Object() {
+
+            @SuppressWarnings("unused")
+            public String getScheme() {
+                return "http";
+            }
+            
+            @SuppressWarnings("unused")
+            public String getServerName() {
+                return "localhost";
+            }
+            
+            @SuppressWarnings("unused")
+            public int getServerPort() {
+                return 9999;
+            }
+
             @SuppressWarnings("unused")
             public String getParameter(String param) {
                 return m_requestFile;
@@ -116,6 +132,11 @@ public class BundleServletTest {
                         }
                     }
                 };
+            }
+
+            @SuppressWarnings("unused")
+            public void setStatus(int status) {
+                m_status = status;
             }
 
             @SuppressWarnings("unused")
@@ -179,20 +200,10 @@ public class BundleServletTest {
     public void testPostResource() throws Exception {
         m_requestFile = "NewFile";
         m_bundleServlet.doPost(m_request, m_response);
-        assert m_status == HttpServletResponse.SC_OK;
+        assert m_status == HttpServletResponse.SC_CREATED;
         m_requestFile = "ExistingFile";
         m_bundleServlet.doPost(m_request, m_response);
         assert m_status == HttpServletResponse.SC_CONFLICT;
-        m_requestFile = "";
-        m_bundleServlet.doPost(m_request, m_response);
-        assert m_status == HttpServletResponse.SC_BAD_REQUEST;
-    }
-
-    @Test(groups = { UNIT })
-    public void testPostResourceInPath() throws Exception {
-        m_requestFile = "path/to/file";
-        m_bundleServlet.doPost(m_request, m_response);
-        assert m_status == HttpServletResponse.SC_OK;
     }
 
     @Test(groups = { UNIT })

@@ -19,20 +19,13 @@
 package org.apache.ace.client.repository.helper.base;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.connectionfactory.ConnectionFactory;
@@ -47,7 +40,6 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
     protected static final int BUFFER_SIZE = 64 * 1024;
 
     protected final ConnectionFactory m_connectionFactory;
-    private final ExecutorService m_executor;
 
     /**
      * Creates a new {@link ArtifactPreprocessorBase} instance.
@@ -57,7 +49,6 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
      */
     protected ArtifactPreprocessorBase(ConnectionFactory connectionFactory) {
         m_connectionFactory = connectionFactory;
-        m_executor = Executors.newCachedThreadPool();
     }
 
     /**
@@ -93,42 +84,6 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
     }
 
     /**
-     * Gets a stream to write an artifact to, which will be uploaded asynchronously to the OBR.
-     * 
-     * @param name
-     *            The name of the artifact.
-     * @param obrBase
-     *            The base URL of the obr to which this artifact should be written.
-     * @param inputStream
-     *            the input stream with data to upload.
-     */
-    protected final Future<URL> uploadAsynchronously(final String name, final URL obrBase, final InputStream inputStream) {
-        return m_executor.submit(new Callable<URL>() {
-            public URL call() throws IOException {
-                return upload(inputStream, name, obrBase);
-            }
-        });
-    }
-
-    /**
-     * Converts a given URL to a {@link File} object.
-     * 
-     * @param url
-     *            the URL to convert, cannot be <code>null</code>.
-     * @return a {@link File} object, never <code>null</code>.
-     */
-    protected final File urlToFile(URL url) {
-        File file;
-        try {
-            file = new File(url.toURI());
-        }
-        catch (URISyntaxException e) {
-            file = new File(url.getPath());
-        }
-        return file;
-    }
-
-    /**
      * Uploads an artifact synchronously to an OBR.
      * 
      * @param input
@@ -142,7 +97,7 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
      *             If there was an error reading from <code>input</code>, or if there was a problem communicating with
      *             the OBR.
      */
-    private URL upload(InputStream input, String name, URL obrBase) throws IOException {
+    String upload(InputStream input, String name, String mimeType, URL obrBase) throws IOException {
         if (obrBase == null) {
             throw new IOException("There is no storage available for this artifact.");
         }
@@ -150,79 +105,23 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
             throw new IllegalArgumentException("None of the parameters can be null.");
         }
 
-        URL url = null;
-        try {
-            url = determineNewUrl(name, obrBase);
-
-            if (!urlPointsToExistingFile(url)) {
-                if ("file".equals(url.getProtocol())) {
-                    uploadToFile(input, url);
-                }
-                else {
-                    uploadToRemote(input, url);
-                }
-            }
-        }
-        catch (IOException ioe) {
-            throw new IOException("Error uploading " + name + ": " + ioe.getMessage());
-        }
-        finally {
-            silentlyClose(input);
-        }
-
-        return url;
-    }
-
-    /**
-     * Uploads an artifact to a local file location.
-     * 
-     * @param input
-     *            the input stream of the (local) artifact to upload.
-     * @param url
-     *            the URL of the (file) artifact to upload to.
-     * @throws IOException
-     *             in case of I/O problems.
-     */
-    private void uploadToFile(InputStream input, URL url) throws IOException {
-        File file = urlToFile(url);
-
         OutputStream output = null;
-
+        String location = null;
         try {
-            output = new FileOutputStream(file);
 
-            byte[] buffer = new byte[BUFFER_SIZE];
-            for (int count = input.read(buffer); count != -1; count = input.read(buffer)) {
-                output.write(buffer, 0, count);
-            }
-        }
-        finally {
-            silentlyClose(output);
-        }
-    }
-
-    /**
-     * Uploads an artifact to a remote location.
-     * 
-     * @param input
-     *            the input stream of the (local) artifact to upload.
-     * @param url
-     *            the URL of the (remote) artifact to upload to.
-     * @throws IOException
-     *             in case of I/O problems, or when the upload was refused by the remote.
-     */
-    private void uploadToRemote(InputStream input, URL url) throws IOException {
-        OutputStream output = null;
-
-        try {
+            URL url = new URL(obrBase, "?filename=" + name);
             URLConnection connection = m_connectionFactory.createConnection(url);
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setUseCaches(false);
+
+            connection.setRequestProperty("Content-Type", mimeType);
             if (connection instanceof HttpURLConnection) {
                 // ACE-294: enable streaming mode causing only small amounts of memory to be
                 // used for this commit. Otherwise, the entire input stream is cached into
                 // memory prior to sending it to the server...
                 ((HttpURLConnection) connection).setChunkedStreamingMode(8192);
             }
-            connection.setDoOutput(true);
 
             output = connection.getOutputStream();
 
@@ -235,7 +134,8 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
             if (connection instanceof HttpURLConnection) {
                 int responseCode = ((HttpURLConnection) connection).getResponseCode();
                 switch (responseCode) {
-                    case HttpURLConnection.HTTP_OK:
+                    case HttpURLConnection.HTTP_CREATED:
+                        location = connection.getHeaderField("Location");
                         break;
                     case HttpURLConnection.HTTP_CONFLICT:
                         throw new IOException("Artifact already exists in storage.");
@@ -250,55 +150,6 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
         finally {
             silentlyClose(output);
         }
-    }
-
-    /**
-     * Determines whether the given URL points to an existing file.
-     * 
-     * @param url
-     *            the URL to test, cannot be <code>null</code>.
-     * @return <code>true</code> if the given URL points to an existing file, <code>false</code> otherwise.
-     */
-    private boolean urlPointsToExistingFile(URL url) {
-        boolean result = false;
-
-        if ("file".equals(url.getProtocol())) {
-            result = urlToFile(url).exists();
-        }
-        else {
-            try {
-                URLConnection connection = m_connectionFactory.createConnection(url);
-
-                if (connection instanceof HttpURLConnection) {
-                    HttpURLConnection hc = (HttpURLConnection) connection;
-
-                    // Perform a HEAD on the file, to see whether it exists...
-                    hc.setRequestMethod("HEAD");
-                    try {
-                        int responseCode = hc.getResponseCode();
-                        result = (responseCode == HttpURLConnection.HTTP_OK);
-                    }
-                    finally {
-                        hc.disconnect();
-                    }
-                }
-                else {
-                    // In all other scenario's: try to read a single byte from the input
-                    // stream, if this succeeds, we can assume the file exists...
-                    InputStream is = connection.getInputStream();
-                    try {
-                        is.read();
-                    }
-                    finally {
-                        silentlyClose(is);
-                    }
-                }
-            }
-            catch (IOException e) {
-                // Ignore; assume file does not exist...
-            }
-        }
-
-        return result;
+        return location;
     }
 }

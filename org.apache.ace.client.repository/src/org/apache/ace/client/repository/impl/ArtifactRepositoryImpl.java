@@ -121,14 +121,6 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
     ArtifactObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
         ArtifactHelper helper = getHelper(attributes.get(ArtifactObject.KEY_MIMETYPE));
         ArtifactObjectImpl ao = new ArtifactObjectImpl(helper.checkAttributes(attributes), helper.getMandatoryAttributes(), tags, this, this);
-        if ((ao.getAttribute("upload") != null) && (m_obrBase != null)) {
-            try {
-                ao.addAttribute(ArtifactObject.KEY_URL, new URL(m_obrBase, ao.getDefinition() + ao.getAttribute("upload")).toString());
-            }
-            catch (MalformedURLException e) {
-                throw new IllegalStateException(e);
-            }
-        }
         return ao;
     }
 
@@ -353,34 +345,19 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         }
 
         String artifactURL = artifact.toString();
-
         attributes.put(ArtifactObject.KEY_URL, artifactURL);
 
         if (upload) {
-            attributes.put("upload", recognizer.getExtension(resource));
-        }
-
-        ArtifactObject result = create(attributes, tags);
-
-        if (upload) {
             try {
-                upload(artifact, result.getDefinition() + attributes.get("upload"), mimetype);
+                String location = upload(artifact, attributes.get("filename"), mimetype);
+                attributes.put(ArtifactObject.KEY_URL, location);
             }
             catch (IOException ex) {
-                remove(result);
                 throw ex;
             }
-            finally {
-                try {
-                    attributes.remove("upload");
-                }
-                catch (Exception ex) {
-                    // Not much we can do
-                }
-            }
         }
+        ArtifactObject result = create(attributes, tags);
         return result;
-
     }
 
     /**
@@ -427,25 +404,29 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
      * 
      * @param artifact
      *            URL pointing to the local artifact.
+     * @param filename
+     *            The filenmame parameter, may be <code>null</code>.
      * @param mimetype
      *            The mimetype of this artifact.
-     * @return The persistent URL of this artifact.
+     * @return The persistent location of this artifact.
      * @throws IOException
      *             for any problem uploading the artifact.
      */
-    private URL upload(URL artifact, String definition, String mimetype) throws IOException {
+    private String upload(URL artifact, String filename, String mimetype) throws IOException {
         if (m_obrBase == null) {
             throw new IOException("There is no storage available for this artifact.");
         }
 
         InputStream input = null;
         OutputStream output = null;
-        URL url = null;
+        URL url = m_obrBase;
+        String location = null;
         try {
             input = openInputStream(artifact);
 
-            url = new URL(m_obrBase, definition);
-
+            if(filename != null){
+                url = new URL(m_obrBase,"?filename=" + filename);
+            } 
             URLConnection connection = m_connectionFactory.createConnection(url);
 
             connection.setDoOutput(true);
@@ -472,7 +453,8 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             if (connection instanceof HttpURLConnection) {
                 int responseCode = ((HttpURLConnection) connection).getResponseCode();
                 switch (responseCode) {
-                    case HttpURLConnection.HTTP_OK:
+                    case HttpURLConnection.HTTP_CREATED:
+                        location = connection.getHeaderField("Location");
                         break;
                     case HttpURLConnection.HTTP_CONFLICT:
                         throw new IOException("Artifact already exists in storage.");
@@ -505,7 +487,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             }
         }
 
-        return url;
+        return location;
     }
 
     public void setObrBase(URL obrBase) {
