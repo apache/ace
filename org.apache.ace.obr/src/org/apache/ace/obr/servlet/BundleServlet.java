@@ -325,13 +325,13 @@ public class BundleServlet extends HttpServlet implements ManagedService {
 
     // send a created response with location header
     private void sendCreated(HttpServletRequest request, HttpServletResponse response, String relativePath) {
-        StringBuilder locationBuiler = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
+        StringBuilder locationBuilder = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
         boolean ignorePort = (request.getScheme().equals("http") && request.getServerPort() == 80) | (request.getScheme().equals("https") && request.getServerPort() == 443);
         if(!ignorePort){
-            locationBuiler.append(":" + request.getServerPort());
+            locationBuilder.append(":" + request.getServerPort());
         }
-        locationBuiler.append(m_servletEndpoint).append(relativePath);
-        response.setHeader("Location", locationBuiler.toString());
+        locationBuilder.append(m_servletEndpoint).append(relativePath);
+        response.setHeader("Location", locationBuilder.toString());
         response.setStatus(SC_CREATED);
     }
 
