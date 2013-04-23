@@ -24,7 +24,7 @@
 			run-*/conf/**,
 			cnf/ext/**
 			" />
-		<zip destfile="${src.zip}" basedir="resources/deps" includes="NOTICE, LICENSE, README" />
+		<zip destfile="${deps.zip}" basedir="resources/deps" includes="NOTICE, LICENSE, README" />
 		<zip destfile="${deps.zip}" basedir=".." update="true" includes="
 			cnf/buildrepo/**,
 			cnf/localrepo/**,
