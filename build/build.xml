@@ -1,4 +1,144 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="project" default="build"> 
 	<import file="../cnf/build.xml"/>
+	
+	<property name="version" value="1.0.0" />
+	<property name="src.zip" value="generated/apache-ace-${version}-src.zip" />
+	<property name="deps.zip" value="generated/apache-ace-${version}-deps.zip" />
+	<property name="src.asc" value="${src.zip}.asc" />
+	<property name="src.md5" value="${src.zip}.md5" />
+	<property name="src.sha" value="${src.zip}.sha" />
+	<property name="svn.release.path" value="https://dist.apache.org/repos/dist/release/ace" />
+	<property name="svn.staging.path" value="https://dist.apache.org/repos/dist/dev/ace" />
+	
+	<property name="target.base.dir" value="generated/apache-ace-${version}-bin" />
+	<property name="target.server-allinone.dir" value="${target.base.dir}/server-allinone" />
+	<property name="target.server.dir" value="${target.base.dir}/server" />
+	<property name="target.client.dir" value="${target.base.dir}/client" />
+	<property name="target.obr.dir" value="${target.base.dir}/obr" />
+	<property name="target.target.dir" value="${target.base.dir}/target" />
+	<property name="bin.zip" value="generated/apache-ace-${version}-bin.zip" />
+
+	<macrodef name="sign-archive">
+		<attribute name="archive" />
+		<sequential>
+			<exec executable="gpg">
+				<arg value="--armor" />
+				<arg value="--output" />
+				<arg value="@{archive}.asc" />
+				<arg value="--detach-sig" />
+				<arg value="@{archive}" />
+			</exec>
+			<exec executable="gpg" output="@{archive}.md5">
+				<arg value="--print-md" />
+				<arg value="MD5" />
+				<arg value="@{archive}" />
+			</exec>
+			<exec executable="gpg" output="@{archive}.sha">
+				<arg value="--print-md" />
+				<arg value="SHA512" />
+				<arg value="@{archive}" />
+			</exec>
+		</sequential>
+	</macrodef>
+	
+	<target name="package" depends="package-src, package-bin" description="Packages the source and binary distributions." />
+	
+	<target name="package-src" description="Packages the source distributions.">
+		<zip destfile="${src.zip}" basedir="resources/src" includes="NOTICE, LICENSE, README" />
+		<zip destfile="${src.zip}" basedir=".." update="true" includes="
+			*/.project,
+			*/.classpath,
+			*/.settings/**,
+			*/src/**,
+			*/test/**,
+			*/resources/**,
+			*/*.bnd,
+			*/*.bndrun,
+			*/*build*.xml,
+			run-*/conf/**,
+			cnf/ext/**
+			" />
+		<zip destfile="${deps.zip}" basedir="resources/deps" includes="NOTICE, LICENSE, README" />
+		<zip destfile="${deps.zip}" basedir=".." update="true" includes="
+			cnf/buildrepo/**,
+			cnf/localrepo/**,
+			cnf/lib/**,
+			cnf/plugins/**,
+			">
+		</zip>
+	</target>
+	
+	<target name="sign" description="Signs the source and binary distributions (provided you have gpg setup).">
+		<sign-archive archive="${src.zip}" />
+		<sign-archive archive="${deps.zip}" />
+		<sign-archive archive="${bin.zip}" />
+	</target>
+	
+	<target name="commit-to-staging" description="Moves the source and binary distributions to staging.">
+		<exec executable="svn"><arg line="import generated ${svn.staging.path}/apache-ace-${version}/ -m 'Staging Apache ACE version ${version}.'" /></exec>
+	</target>
+
+	<target name="promote-to-release" description="Promotes the staged distributions to release.">
+		<exec executable="svn"><arg line="move ${svn.staging.path}/apache-ace-${version} ${svn.release.path} -m 'Releasing Apache ACE version ${version}.'" /></exec>
+	</target>
+
+	<target name="delete-from-staging" description="Removes the staged distributions from staging.">
+		<exec executable="svn"><arg line="delete ${svn.staging.path}/apache-ace-${version}/ -m 'Removing Apache ACE version ${version} from staging.'" /></exec>
+	</target>
+
+
+	<target name="package-bin" description="Packages the binary distribution." depends="init">
+		<mkdir dir="${target.server.dir}" />
+		<mkdir dir="${target.server-allinone.dir}" />
+		<mkdir dir="${target.client.dir}" />
+		<mkdir dir="${target.obr.dir}" />
+		<mkdir dir="${target.target.dir}" />
+
+		<resources id="devserver-store">
+			<file file="../cnf/localrepo/org.apache.felix.deployment.rp.autoconf/org.apache.felix.deployment.rp.autoconf-0.1.1.jar" />
+			<file file="../org.apache.ace.launcher/generated/org.apache.ace.launcher.jar" />
+		</resources>
+
+		<!-- copy the configuration files -->
+		<copy todir="${target.server-allinone.dir}/conf">
+			<fileset dir="../run-server-allinone/conf" />
+		</copy>
+		<copy todir="${target.server.dir}/conf">
+			<fileset dir="../run-server/conf" />
+		</copy>
+		<copy todir="${target.client.dir}/conf">
+			<fileset dir="../run-client/conf" />
+		</copy>
+		<copy todir="${target.obr.dir}/conf">
+			<fileset dir="../run-obr/conf" />
+		</copy>
+
+		<!-- add jar files to store directory -->
+		<copy todir="${target.server.dir}/store" flatten="true">
+			<resources refid="devserver-store" />
+		</copy>
+		<move file="${target.server.dir}/store/org.apache.ace.launcher.jar" toFile="${target.server.dir}/store/ace-launcher.jar"/>
+
+		<copy todir="${target.server-allinone.dir}/store" flatten="true">
+			<resources refid="devserver-store" />
+		</copy>
+		<move file="${target.server-allinone.dir}/store/org.apache.ace.launcher.jar" toFile="${target.server-allinone.dir}/store/ace-launcher.jar"/>
+
+		<!-- create the executable jars -->
+		<bndpackage runfile="../run-server-allinone/server-allinone.bndrun" output="${target.server-allinone.dir}/server-allinone.jar" />
+		<bndpackage runfile="../run-server/server.bndrun" output="${target.server.dir}/server.jar" />
+		<bndpackage runfile="../run-client/client.bndrun" output="${target.client.dir}/client.jar" />
+		<bndpackage runfile="../run-obr/obr.bndrun" output="${target.obr.dir}/obr.jar" />
+		<bndpackage runfile="../run-target/target.bndrun" output="${target.target.dir}/target.jar" />
+
+		<!-- create one giant ZIP-file with everything in it -->
+		<zip destfile="${bin.zip}" basedir="resources/bin" includes="NOTICE, LICENSE, README" />
+		<zip destfile="${bin.zip}" update="true">
+			<tarfileset dir="${target.base.dir}" includes="**" />
+		</zip>
+		
+		<!-- and cleanup -->
+		<delete dir="${target.base.dir}" />
+	</target>
 </project>
