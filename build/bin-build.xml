@@ -4,16 +4,15 @@
 
 	<property name="version" value="1.0.0" />
 
-	<property name="target.base.dir" value="generated/apache-ace-${version}" />
+	<property name="target.base.dir" value="generated/apache-ace-${version}-bin" />
 	<property name="target.server-allinone.dir" value="${target.base.dir}/server-allinone" />
 	<property name="target.server.dir" value="${target.base.dir}/server" />
 	<property name="target.client.dir" value="${target.base.dir}/client" />
 	<property name="target.obr.dir" value="${target.base.dir}/obr" />
 	<property name="target.target.dir" value="${target.base.dir}/target" />
-	<property name="server.zipball" value="generated/apache-ace-${version}.zip" />
-	<property name="server.tarball" value="generated/apache-ace-${version}.tar.gz" />
+	<property name="server.zipball" value="generated/apache-ace-${version}-bin.zip" />
 
-	<target name="package" description="Packages ACE into a binary distribution." depends="init">
+	<target name="package" description="Packages Apache ACE into a binary distribution." depends="init">
 		<mkdir dir="${target.server.dir}" />
 		<mkdir dir="${target.server-allinone.dir}" />
 		<mkdir dir="${target.client.dir}" />
@@ -57,39 +56,13 @@
 		<bndpackage runfile="../run-obr/obr.bndrun" output="${target.obr.dir}/obr.jar" />
 		<bndpackage runfile="../run-target/target.bndrun" output="${target.target.dir}/target.jar" />
 
-		<!-- create one giant TAR.GZ-file with everything in it -->
-		<tar destfile="${server.tarball}" compression="gzip">
-			<tarfileset dir="${target.server.dir}" prefix="ace-devserver">
-				<include name="**"/>
-				<exclude name="*.sh"/>
-			</tarfileset>
-			<tarfileset dir="${target.server.dir}" mode="755" prefix="ace-devserver">
-				<include name="*.sh"/>
-			</tarfileset>
-		</tar>
-
 		<!-- create one giant ZIP-file with everything in it -->
-		<zip destfile="${server.zipball}">
-			<tarfileset dir="${target.server.dir}" prefix="ace-devserver">
-				<include name="**"/>
-				<exclude name="*.sh"/>
-			</tarfileset>
-			<tarfileset dir="${target.server.dir}" prefix="ace-devserver">
-				<include name="*.sh"/>
-			</tarfileset>
+		<zip destfile="${server.zipball}" basedir="resources/bin" includes="NOTICE, LICENSE, README" />
+		<zip destfile="${server.zipball}" update="true">
+			<tarfileset dir="${target.base.dir}" includes="**" />
 		</zip>
-	</target>
-
-	<target name="package-target">
-		<resources id="target-bundles">
-			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.command/org.apache.felix.gogo.command-0.12.0.jar" />
-			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.runtime/org.apache.felix.gogo.runtime-0.10.0.jar" />
-			<url url="http://bundles.bndtools.org.s3.amazonaws.com/org.apache.felix.gogo.shell/org.apache.felix.gogo.shell-0.10.0.jar" />
-			<file file="../org.apache.ace.managementagent/generated/org.apache.ace.managementagent.jar" />
-		</resources>
-
-		<copy todir="${target.target.dir}" flatten="true">
-			<resources refid="target-bundles" />
-		</copy>
+		
+		<!-- and cleanup -->
+		<delete dir="${target.base.dir}" />
 	</target>
 </project>

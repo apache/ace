@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="src-build" default="package-src">
-	<property name="version" value="0.0.0.CHANGEME" />
-	<property name="target.base.dir" value="generated/ace-sources-${version}" />
-	<property name="src.zip" value="${target.base.dir}/ace-sources-${version}.zip" />
+	<property name="version" value="1.0.0" />
+	<property name="src.zip" value="generated/apache-ace-${version}-src.zip" />
+	<property name="deps.zip" value="generated/apache-ace-${version}-deps.zip" />
 	<property name="src.asc" value="${src.zip}.asc" />
 	<property name="src.md5" value="${src.zip}.md5" />
 	<property name="src.sha" value="${src.zip}.sha" />
 	<property name="svn.staging.path" value="https://dist.apache.org/repos/dist/dev/ace" />
 	<property name="svn.release.path" value="https://dist.apache.org/repos/dist/release/ace" />
 
-	<target name="clean">
-		<delete dir="${target.base.dir}" />
-	</target>
-
 	<target name="package-src">
-		<mkdir dir="${target.base.dir}" />
-		<zip destfile="${src.zip}" basedir=".." includes="
+		<zip destfile="${src.zip}" basedir="resources/src" includes="NOTICE, LICENSE, README" />
+		<zip destfile="${src.zip}" basedir=".." update="true" includes="
 			*/.project,
 			*/.classpath,
 			*/.settings/**,
@@ -24,11 +20,16 @@
 			*/resources/**,
 			*/*.bnd,
 			*/*.bndrun,
-			*/build.xml,
-			run-server/conf/**,
-			cnf/ext/**,
-			cnf/repo/repository.xml,
-			NOTICE, LICENSE, README
+			*/*build*.xml,
+			run-*/conf/**,
+			cnf/ext/**
+			" />
+		<zip destfile="${src.zip}" basedir="resources/deps" includes="NOTICE, LICENSE, README" />
+		<zip destfile="${deps.zip}" basedir=".." update="true" includes="
+			cnf/buildrepo/**,
+			cnf/localrepo/**,
+			cnf/lib/**,
+			cnf/plugins/**,
 			">
 		</zip>
 	</target>
