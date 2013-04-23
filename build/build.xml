@@ -45,27 +45,34 @@
 	<target name="package" depends="package-src, package-bin" description="Packages the source and binary distributions." />
 	
 	<target name="package-src" description="Packages the source distributions.">
-		<zip destfile="${src.zip}" basedir="resources/src" includes="NOTICE, LICENSE, README" />
-		<zip destfile="${src.zip}" basedir=".." update="true" includes="
-			*/.project,
-			*/.classpath,
-			*/.settings/**,
-			*/src/**,
-			*/test/**,
-			*/resources/**,
-			*/*.bnd,
-			*/*.bndrun,
-			*/*build*.xml,
-			run-*/conf/**,
-			cnf/ext/**
-			" />
-		<zip destfile="${deps.zip}" basedir="resources/deps" includes="NOTICE, LICENSE, README" />
-		<zip destfile="${deps.zip}" basedir=".." update="true" includes="
-			cnf/buildrepo/**,
-			cnf/localrepo/**,
-			cnf/lib/**,
-			cnf/plugins/**,
-			">
+		<zip destfile="${src.zip}">
+			<zipfileset prefix="apache-ace-${version}-src" dir="resources/src" includes="
+				NOTICE, LICENSE, README
+				" />
+			<zipfileset prefix="apache-ace-${version}-src" dir=".." includes="
+				*/.project,
+				*/.classpath,
+				*/.settings/**,
+				*/src/**,
+				*/test/**,
+				*/resources/**,
+				*/*.bnd,
+				*/*.bndrun,
+				*/*build*.xml,
+				run-*/conf/**,
+				cnf/ext/**
+				" />
+		</zip>
+		<zip destfile="${deps.zip}">
+			<zipfileset prefix="apache-ace-${version}-src" dir="resources/deps" includes="
+				NOTICE, LICENSE, README
+				" />
+			<zipfileset prefix="apache-ace-${version}-src" dir=".." includes="
+				cnf/buildrepo/**,
+				cnf/localrepo/**,
+				cnf/lib/**,
+				cnf/plugins/**,
+				" />
 		</zip>
 	</target>
 	
@@ -133,9 +140,11 @@
 		<bndpackage runfile="../run-target/target.bndrun" output="${target.target.dir}/target.jar" />
 
 		<!-- create one giant ZIP-file with everything in it -->
-		<zip destfile="${bin.zip}" basedir="resources/bin" includes="NOTICE, LICENSE, README" />
-		<zip destfile="${bin.zip}" update="true">
-			<tarfileset dir="${target.base.dir}" includes="**" />
+		<zip destfile="${bin.zip}">
+			<zipfileset prefix="apache-ace-${version}-bin" dir="resources/bin" includes="
+				NOTICE, LICENSE, README
+				" />
+			<zipfileset prefix="apache-ace-${version}-bin" dir="${target.base.dir}" includes="**" />
 		</zip>
 		
 		<!-- and cleanup -->
