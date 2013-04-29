@@ -579,11 +579,15 @@ abstract class AddArtifactWindow extends Window {
      * Converts a given artifact object to an OBR entry.
      * 
      * @param artifactObject the artifact object to convert;
-     * @param artifactURL the artifact url.
+     * @param obrBase the obr base url.
      * @return an OBR entry instance, never <code>null</code>.
      */
-    private OBREntry convertToOBREntry(ArtifactObject artifactObject, String artifactURL) {
-        return new OBREntry(artifactObject.getName(), artifactObject.getAttribute(BundleHelper.KEY_VERSION), new File(artifactURL).getName());
+    private OBREntry convertToOBREntry(ArtifactObject artifactObject, String obrBase) {
+        String name = artifactObject.getName();
+        String symbolicName = artifactObject.getAttribute(BundleHelper.KEY_SYMBOLICNAME);
+        String version = artifactObject.getAttribute(BundleHelper.KEY_VERSION);
+        String relativeURL = artifactObject.getURL().substring(obrBase.length());
+        return new OBREntry(name, symbolicName, version, relativeURL);
     }
 
     /**
@@ -621,14 +625,11 @@ abstract class AddArtifactWindow extends Window {
         // Create a list of all bundle names
         for (OBREntry s : obrList) {
             String uri = s.getUri();
-            String symbolicName = s.getSymbolicName();
-            if (symbolicName == null || symbolicName.length() == 0) {
-                symbolicName = uri;
-            }
+            String name = s.getName();
             String version = s.getVersion();
 
             Item item = dataSource.addItem(uri);
-            item.getItemProperty(ArtifactTable.PROPERTY_SYMBOLIC_NAME).setValue(symbolicName);
+            item.getItemProperty(ArtifactTable.PROPERTY_SYMBOLIC_NAME).setValue(name);
             item.getItemProperty(ArtifactTable.PROPERTY_VERSION).setValue(version);
         }
     }
@@ -658,7 +659,7 @@ abstract class AddArtifactWindow extends Window {
             if (artifactURL != null && artifactURL.startsWith(baseURL)) {
                 // we now know this artifact comes from the OBR we are querying,
                 // so we are interested.
-                fromRepository.add(convertToOBREntry(ao, artifactURL));
+                fromRepository.add(convertToOBREntry(ao, baseURL));
             }
         }
         return fromRepository;
@@ -753,10 +754,25 @@ abstract class AddArtifactWindow extends Window {
             NamedNodeMap attr = resource.getAttributes();
 
             String uri = getNamedItemText(attr, "uri");
+            if (uri == null || uri.equals("")) {
+                logError("Skipping resource without uri from repository " + obrBaseUrl);
+                continue;
+            }
+
+            String name = getNamedItemText(attr, "presentationname");
             String symbolicname = getNamedItemText(attr, "symbolicname");
             String version = getNamedItemText(attr, "version");
 
-            obrList.add(new OBREntry(symbolicname, version, uri));
+            if (name == null || name.equals("")) {
+                if (symbolicname != null && !symbolicname.equals("")) {
+                    name = symbolicname;
+                }
+                else {
+                    name = new File(uri).getName();
+                }
+            }
+
+            obrList.add(new OBREntry(name, symbolicname, version, uri));
         }
 
         return obrList;
