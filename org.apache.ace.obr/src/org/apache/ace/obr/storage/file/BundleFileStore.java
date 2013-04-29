@@ -26,8 +26,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
@@ -55,28 +59,24 @@ public class BundleFileStore implements BundleStore, ManagedService {
     private static int BUFFER_SIZE = 8 * 1024;
     private static final String REPOSITORY_XML = "repository.xml";
 
-    private final Map<String, Long> m_foundFiles = new ConcurrentHashMap<String, Long>();
     private final Object m_dirLock = new Object();
 
     private volatile MetadataGenerator m_metadata; /* will be injected by dependencymanager */
     private volatile LogService m_log; /* will be injected by dependencymanager */
+
+    private volatile Map<String, Long> m_foundFiles;;
 
     /** protected by m_dirLock. */
     private File m_dir;
 
     public void generateMetadata() throws IOException {
         File dir = getWorkingDir();
-        File[] files = dir.listFiles();
-
         m_metadata.generateMetadata(dir);
-
-        for (File current : files) {
-            m_foundFiles.put(current.getAbsolutePath(), current.lastModified() ^ current.length());
-        }
+        m_foundFiles = mapDirectory(dir);
     }
 
     public InputStream get(String fileName) throws IOException {
-        if (REPOSITORY_XML.equals(fileName) && directoryChanged(getWorkingDir())) {
+        if (REPOSITORY_XML.equals(fileName) && directoryChanged(getWorkingDir(), m_foundFiles)) {
             generateMetadata(); // might be called too often
         }
         FileInputStream result = null;
@@ -153,13 +153,12 @@ public class BundleFileStore implements BundleStore, ManagedService {
                 synchronized (m_dirLock) {
                     m_dir = newDir;
                 }
-
-                m_foundFiles.clear();
+                m_foundFiles = null;
             }
         }
         else {
             // clean up after getting a null as dictionary, as the service is going to be pulled afterwards
-            m_foundFiles.clear();
+            m_foundFiles = null;
         }
     }
 
@@ -175,28 +174,47 @@ public class BundleFileStore implements BundleStore, ManagedService {
         }
     }
 
-    @SuppressWarnings("boxing")
-    private boolean directoryChanged(File dir) {
-        File[] files = dir.listFiles();
+    private Map<String, Long> mapDirectory(File dir) {
+        Map<String, Long> foundFiles = new HashMap<String, Long>();
+        Stack<File> dirs = new Stack<File>();
+        dirs.push(dir);
+        while(!dirs.isEmpty()){
+            File pwd = dirs.pop();
+            for(File file : pwd.listFiles()){
+                if(file.isDirectory()){
+                    dirs.push(file);
+                } else {
+                    foundFiles.put(file.getAbsolutePath(), file.lastModified() ^ file.length());
+                }
+            }
+        }
+        return foundFiles;
+    }
 
-        // if number of files changed, create new metadata
-        if (files.length != m_foundFiles.size()) {
+    private boolean directoryChanged(File dir, Map<String, Long> foundFiles) {
+        if(foundFiles == null){
             return true;
         }
-
-        // iterate over the current files
-        for (File current : files) {
-            Long modifiedDateAndLengthXOR = m_foundFiles.get(current.getAbsolutePath());
-            // if one of the current files is not in the old set of files, create new metadata
-            if (modifiedDateAndLengthXOR == null) {
-                return true;
-            }
-            // else if of one of the files the size or the date has been changed, create new metadata
-            if ((current.lastModified() ^ current.length()) != modifiedDateAndLengthXOR) {
-                return true;
+        Stack<File> dirs = new Stack<File>();
+        dirs.push(dir);
+        int fileCount = 0;
+        while(!dirs.isEmpty()){
+            File pwd = dirs.pop();
+            for(File file : pwd.listFiles()){
+                if(file.isDirectory()){
+                    dirs.push(file);
+                } else {
+                    fileCount++;
+                    Long modifiedDateAndLengthXOR = foundFiles.get(file.getAbsolutePath());
+                    if(modifiedDateAndLengthXOR == null || (file.lastModified() ^ file.length()) != modifiedDateAndLengthXOR){
+                        return true;
+                    }
+                }
             }
         }
-
+        if(fileCount != foundFiles.size()){
+            return true;
+        }
         return false;
     }
 
