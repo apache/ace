@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -304,7 +306,7 @@ abstract class AddArtifactWindow extends Window {
         setModal(true);
         setWidth("50em");
 
-        m_artifactsTable = new ArtifactTable();
+        m_artifactsTable = new ResourceTable();
         m_artifactsTable.setCaption("Artifacts in repository");
 
         final IndexedContainer dataSource = (IndexedContainer) m_artifactsTable.getContainerDataSource();
@@ -623,17 +625,19 @@ abstract class AddArtifactWindow extends Window {
         }
 
         // Create a list of all bundle names
-        for (OBREntry s : obrList) {
-            String uri = s.getUri();
-            String name = s.getName();
-            String version = s.getVersion();
+        for (final OBREntry entry : obrList) {
+            
+            String uri = entry.getUri();
+            String name = entry.getName();
+            String version = entry.getVersion();
 
             Item item = dataSource.addItem(uri);
-            item.getItemProperty(ArtifactTable.PROPERTY_SYMBOLIC_NAME).setValue(name);
-            item.getItemProperty(ArtifactTable.PROPERTY_VERSION).setValue(version);
+            item.getItemProperty(ResourceTable.PROPERTY_SYMBOLIC_NAME).setValue(name);
+            item.getItemProperty(ResourceTable.PROPERTY_VERSION).setValue(version);
+            item.getItemProperty(ResourceTable.PROPERTY_PURGE).setValue(createDeleteOBREntryButton(entry));
         }
     }
-
+    
     /**
      * Builds a list of all OBR artifacts currently in use.
      * 
@@ -776,5 +780,72 @@ abstract class AddArtifactWindow extends Window {
         }
 
         return obrList;
+    }
+    
+    /**
+     * Delete an entry from the OBR.
+     * 
+     * @param entry
+     *            The OBREntry
+     * @param obrBaseUrl
+     *            The OBR base url
+     * @return The HTTP response code
+     * @throws IOException
+     *             If the HTTP operation fails
+     */
+    private int deleteOBREntry(OBREntry entry, URL obrBaseUrl) throws IOException {
+
+        HttpURLConnection connection = null;
+        try {
+            URL endpointUrl = new URL(obrBaseUrl, entry.getUri());
+            connection = (HttpURLConnection) openConnection(endpointUrl);
+            connection.setDoInput(true);
+            connection.setDoOutput(false);
+            connection.setInstanceFollowRedirects(false);
+            connection.setRequestMethod("DELETE");
+            connection.connect();
+            return connection.getResponseCode();
+        }
+        finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+    
+    /**
+     * Create a new button that delete an OBREntry on-click.
+     * 
+     * @param entry
+     *            The entry
+     * @return The button
+     */
+    private Button createDeleteOBREntryButton(final OBREntry entry) {
+
+        return new Button("X", new ClickListener() {
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+
+                try {
+                    int code = deleteOBREntry(entry, m_obrUrl);
+                    if (code == HttpServletResponse.SC_OK) {
+                        m_artifactsTable.removeItem(entry.getUri());
+                        m_artifactsTable.refreshRowCache();
+                    }
+                    else {
+                        getWindow().showNotification("The OBR returned an unexpected response code: " + code,
+                            Notification.TYPE_ERROR_MESSAGE);
+
+                    }
+                }
+                catch (IOException e) {
+                    getWindow().showNotification("Failed to delete resource!", "<br/>Reason: " + e.getMessage(),
+                        Notification.TYPE_ERROR_MESSAGE);
+                    e.printStackTrace();
+                }
+
+            }
+        });
     }
 }
