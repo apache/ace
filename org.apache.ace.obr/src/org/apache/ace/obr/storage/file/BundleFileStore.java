@@ -120,16 +120,18 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
     public boolean remove(String fileName) throws IOException {
         File file = createFile(fileName);
-
         if (file.exists()) {
             if (file.delete()) {
+                // deleting empty parent dirs
+                while ((file = file.getParentFile()) != null && !file.equals(m_dir) && file.list().length == 0) {
+                    file.delete();
+                }
                 return true;
             }
             else {
                 throw new IOException("Unable to delete file (" + file.getAbsolutePath() + ")");
             }
         }
-
         return false;
     }
 
