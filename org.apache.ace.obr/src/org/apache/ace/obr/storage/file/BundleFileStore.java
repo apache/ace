@@ -26,13 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
@@ -59,25 +54,32 @@ public class BundleFileStore implements BundleStore, ManagedService {
     private static int BUFFER_SIZE = 8 * 1024;
     private static final String REPOSITORY_XML = "repository.xml";
 
-    private final Object m_dirLock = new Object();
+    // injected by dependencymanager
+    private volatile MetadataGenerator m_metadata;
+    private volatile LogService m_log;
 
-    private volatile MetadataGenerator m_metadata; /* will be injected by dependencymanager */
-    private volatile LogService m_log; /* will be injected by dependencymanager */
+    private volatile long m_dirLastModified;
+    private volatile File m_dir;
 
-    private volatile Map<String, Long> m_foundFiles;;
-
-    /** protected by m_dirLock. */
-    private File m_dir;
-
-    public void generateMetadata() throws IOException {
-        File dir = getWorkingDir();
-        m_metadata.generateMetadata(dir);
-        m_foundFiles = mapDirectory(dir);
+    /**
+     * Checks if the the directory was modified since we last checked. If so, the meta-data generator is called.
+     * 
+     * @throws IOException If there is a problem synchronizing the meta-data.
+     */
+    public void synchronizeMetadata() throws IOException {
+        File dir = m_dir;
+        synchronized (REPOSITORY_XML) {
+            long dirLastmodified = getDirLastModified(dir);
+            if (dirLastmodified > m_dirLastModified) {
+                m_metadata.generateMetadata(dir);
+                m_dirLastModified = getDirLastModified(dir);
+            }
+        }
     }
 
     public InputStream get(String fileName) throws IOException {
-        if (REPOSITORY_XML.equals(fileName) && directoryChanged(getWorkingDir(), m_foundFiles)) {
-            generateMetadata(); // might be called too often
+        if (REPOSITORY_XML.equals(fileName)) {
+            synchronizeMetadata();
         }
         FileInputStream result = null;
         try {
@@ -150,15 +152,13 @@ public class BundleFileStore implements BundleStore, ManagedService {
                     throw new ConfigurationException(OBRFileStoreConstants.FILE_LOCATION_KEY, "Is not a directory: " + newDir);
                 }
 
-                synchronized (m_dirLock) {
-                    m_dir = newDir;
-                }
-                m_foundFiles = null;
+                m_dir = newDir;
+                m_dirLastModified = 0l;
             }
         }
         else {
             // clean up after getting a null as dictionary, as the service is going to be pulled afterwards
-            m_foundFiles = null;
+            m_dirLastModified = 0l;
         }
     }
 
@@ -167,55 +167,42 @@ public class BundleFileStore implements BundleStore, ManagedService {
      */
     protected void start() {
         try {
-            generateMetadata();
+            synchronizeMetadata();
         }
         catch (IOException e) {
             m_log.log(LogService.LOG_ERROR, "Could not generate initial meta data for bundle repository");
         }
     }
 
-    private Map<String, Long> mapDirectory(File dir) {
-        Map<String, Long> foundFiles = new HashMap<String, Long>();
+    /**
+     * Returns the highest last-modified for the directory by recursively looking at all directories and files.
+     * 
+     * @param dir
+     *            The directory
+     * @return the Last-modified
+     */
+    private long getDirLastModified(File dir) {
+        long highest = 0l;
         Stack<File> dirs = new Stack<File>();
         dirs.push(dir);
-        while(!dirs.isEmpty()){
+        while (!dirs.isEmpty()) {
             File pwd = dirs.pop();
-            for(File file : pwd.listFiles()){
-                if(file.isDirectory()){
+            long modified = pwd.lastModified();
+            if (modified > highest) {
+                highest = modified;
+            }
+            for (File file : pwd.listFiles()) {
+                if (file.isDirectory()) {
                     dirs.push(file);
-                } else {
-                    foundFiles.put(file.getAbsolutePath(), file.lastModified() ^ file.length());
+                    continue;
+                }
+                modified = file.lastModified();
+                if (modified > highest) {
+                    highest = modified;
                 }
             }
         }
-        return foundFiles;
-    }
-
-    private boolean directoryChanged(File dir, Map<String, Long> foundFiles) {
-        if(foundFiles == null){
-            return true;
-        }
-        Stack<File> dirs = new Stack<File>();
-        dirs.push(dir);
-        int fileCount = 0;
-        while(!dirs.isEmpty()){
-            File pwd = dirs.pop();
-            for(File file : pwd.listFiles()){
-                if(file.isDirectory()){
-                    dirs.push(file);
-                } else {
-                    fileCount++;
-                    Long modifiedDateAndLengthXOR = foundFiles.get(file.getAbsolutePath());
-                    if(modifiedDateAndLengthXOR == null || (file.lastModified() ^ file.length()) != modifiedDateAndLengthXOR){
-                        return true;
-                    }
-                }
-            }
-        }
-        if(fileCount != foundFiles.size()){
-            return true;
-        }
-        return false;
+        return highest;
     }
 
     /**
@@ -362,11 +349,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
      * @return the working directory of this file store.
      */
     private File getWorkingDir() {
-        final File dir;
-        synchronized (m_dirLock) {
-            dir = m_dir;
-        }
-        return dir;
+        return m_dir;
     }
 
     /**
