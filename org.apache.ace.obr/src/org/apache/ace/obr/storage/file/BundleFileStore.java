@@ -25,7 +25,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Dictionary;
 import java.util.Stack;
 import java.util.jar.Attributes;
@@ -58,7 +61,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
     private volatile MetadataGenerator m_metadata;
     private volatile LogService m_log;
 
-    private volatile long m_dirLastModified;
+    private volatile String m_dirChecksum;
     private volatile File m_dir;
 
     /**
@@ -69,10 +72,9 @@ public class BundleFileStore implements BundleStore, ManagedService {
     public void synchronizeMetadata() throws IOException {
         File dir = m_dir;
         synchronized (REPOSITORY_XML) {
-            long dirLastmodified = getDirLastModified(dir);
-            if (dirLastmodified > m_dirLastModified) {
+            if (m_dirChecksum == null || !m_dirChecksum.equals(getDirChecksum(dir))) {
                 m_metadata.generateMetadata(dir);
-                m_dirLastModified = getDirLastModified(dir);
+                m_dirChecksum = getDirChecksum(dir);
             }
         }
     }
@@ -155,12 +157,8 @@ public class BundleFileStore implements BundleStore, ManagedService {
                 }
 
                 m_dir = newDir;
-                m_dirLastModified = 0l;
+                m_dirChecksum = "";
             }
-        }
-        else {
-            // clean up after getting a null as dictionary, as the service is going to be pulled afterwards
-            m_dirLastModified = 0l;
         }
     }
 
@@ -176,35 +174,46 @@ public class BundleFileStore implements BundleStore, ManagedService {
         }
     }
 
+
     /**
-     * Returns the highest last-modified for the directory by recursively looking at all directories and files.
+     * Computes a magic checksum used to determine whether there where changes in the directory without actually looking
+     * into the files or using observation.
      * 
      * @param dir
      *            The directory
-     * @return the Last-modified
+     * @return The checksum
      */
-    private long getDirLastModified(File dir) {
-        long highest = 0l;
+    private String getDirChecksum(File dir) {
+        long start = System.nanoTime();
+
+        MessageDigest digest = null;
+        try {
+            digest = MessageDigest.getInstance("MD5");
+        }
+        catch (NoSuchAlgorithmException e) {
+            // really should not happen
+            m_log.log(LogService.LOG_WARNING, "Unable to get an MD5 digest. Metadata will refresh every ten minutes.", e);
+            return "" + (System.currentTimeMillis() / 600000);
+        }
+
         Stack<File> dirs = new Stack<File>();
         dirs.push(dir);
         while (!dirs.isEmpty()) {
             File pwd = dirs.pop();
-            long modified = pwd.lastModified();
-            if (modified > highest) {
-                highest = modified;
-            }
             for (File file : pwd.listFiles()) {
                 if (file.isDirectory()) {
                     dirs.push(file);
                     continue;
                 }
-                modified = file.lastModified();
-                if (modified > highest) {
-                    highest = modified;
-                }
+                // basically we hash the filenames, but...
+                // include last-modified to detect touched files
+                // include length to work around last-modified rounding issues
+                String magic = file.getName() + file.length() + file.lastModified();
+                digest.update(magic.getBytes());
             }
         }
-        return highest;
+        String checksum = new BigInteger(digest.digest()).toString();
+        return checksum;
     }
 
     /**
