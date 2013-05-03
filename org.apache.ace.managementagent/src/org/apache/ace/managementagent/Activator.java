@@ -1,10 +1,27 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.ace.managementagent;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Properties;
 
@@ -35,7 +52,7 @@ public class Activator extends DependencyActivatorBase {
         new org.apache.felix.deploymentadmin.Activator(),
         new org.apache.felix.eventadmin.impl.Activator()
     };
-    
+
     private volatile ConfigurationAdmin m_config;
 
     /**
@@ -85,7 +102,7 @@ public class Activator extends DependencyActivatorBase {
                 .setService(ConfigurationAdmin.class)
                 .setRequired(true)));
     }
-    
+
     /**
      * Called by the dependency manager when the configuration admin service becomes available.
      */
@@ -111,7 +128,7 @@ public class Activator extends DependencyActivatorBase {
                 // a=name, b=id, c=url
                 String[] definitions = agents.split(";");
                 StringBuffer instances = new StringBuffer();
-                
+
                 for (String definition : definitions) {
                     String[] args = definition.split(",");
                     if (args.length != 3) {
@@ -121,9 +138,9 @@ public class Activator extends DependencyActivatorBase {
                     String ma = args[0];
                     String id = args[1];
                     String url = args[2];
-                    
+
                     boolean isFileUrl = "file".equals((new URL(url)).getProtocol());
-                    
+
                     configureFactory("org.apache.ace.identification.property.factory", "ma", ma, "targetID", id);
                     configureFactory("org.apache.ace.discovery.property.factory", "ma", ma, "serverURL", url);
                     // if discovery points to the local filesystem, it's no use trying to sync the audit log
@@ -136,8 +153,8 @@ public class Activator extends DependencyActivatorBase {
                     configure("org.apache.ace.scheduler", "ma=" + ma + ";name=auditlog", syncInterval);
                     instances.append(
                         "  Instance     : " + ma + "\n" +
-                        "    Target ID  : " + id + "\n" +
-                        "    Server     : " + url + "\n");
+                            "    Target ID  : " + id + "\n" +
+                            "    Server     : " + url + "\n");
                 }
 
                 if (!m_quiet) {
@@ -151,7 +168,7 @@ public class Activator extends DependencyActivatorBase {
                 String server = System.getProperty("discovery", "http://localhost:8080");
                 String targetId = System.getProperty("identification", "defaultTargetID");
                 boolean isFileUrl = "file".equals((new URL(server)).getProtocol());
-                
+
                 configure("org.apache.ace.discovery.property", "serverURL", server);
                 configure("org.apache.ace.identification.property", "targetID", targetId);
                 if (!isFileUrl) {
@@ -209,7 +226,7 @@ public class Activator extends DependencyActivatorBase {
             conf.update(properties);
         }
     }
-    
+
     private void configureAuth(String factoryPid, String value) throws IOException {
         try {
             File file = new File(value);
@@ -231,14 +248,14 @@ public class Activator extends DependencyActivatorBase {
             System.err.println("Invalid authentication properties for " + value + " (" + e.getMessage() + ")");
         }
     }
-    
+
     private Properties loadProperties(String factoryPID, File f) throws IOException {
         return loadProperties(factoryPID, f.toURI().toURL());
     }
-    
+
     private Properties loadProperties(String factoryPID, URL url) throws IOException {
         Configuration conf = m_config.createFactoryConfiguration(factoryPID, null);
-        
+
         Properties props = new Properties();
         props.load(url.openStream());
         conf.update((Dictionary<String, ?>) ((Hashtable) props));

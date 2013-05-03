@@ -4,7 +4,7 @@
 	org.apache.felix.gogo.runtime,\
 	org.apache.felix.gogo.shell,\
 	org.apache.ace.managementagent;version=latest
--runvm: -Dlog=true -Didentification=target-1 -Ddiscovery=http://localhost:8080
+-runvm: -Dlog=true -Didentification=target-1 -Ddiscovery=http://localhost:8080 -Dquiet=true -Dsyncinterval=10000
 -runproperties: \
 	org.apache.felix.log.storeDebug=true,\
 	org.apache.felix.eventadmin.Timeout=0,\
