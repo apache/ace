@@ -1,0 +1,19 @@
+Management Agent redesign (ACE-347)
+
+
+Notes:
+
+* Switched to factory SPI approach for pluggability/extensions.
+* Removed export package atributes / cleaned up bundle contents.
+* Assembled most target specific business logic code in project.
+* Supports configuration through single config file (as well as CM api).
+* Supports clean multiple agent configuration (if we want to keep it).
+ 
+ TODOs:
+ 
+ * Cleanup assembled code and parent projects
+ * More config options
+ * More (i)testing
+ * Create launcher project
+ * Create run-agent project
+ * Replace ace executor with a executorservice
