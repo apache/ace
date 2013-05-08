@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent.spi;
 
-import java.util.Map;
+import java.util.Dictionary;
 import java.util.Set;
 
 import org.apache.felix.dm.Component;
@@ -50,5 +50,5 @@ public interface ComponentFactory {
      * @throws ConfigurationException
      *             If there is a fatal problem.
      */
-    Set<Component> createComponents(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws ConfigurationException;
+    Set<Component> createComponents(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException;
 }

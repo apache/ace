@@ -19,24 +19,14 @@
 package org.apache.ace.agent.impl;
 
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.ace.agent.Constants;
 import org.apache.ace.agent.ManagementAgent;
-import org.apache.ace.agent.connection.ConnectionFactoryFactory;
-import org.apache.ace.agent.deployment.DeploymentAdminDeployerFactory;
-import org.apache.ace.agent.deployment.DeploymentCheckTaskFactory;
-import org.apache.ace.agent.deployment.DeploymentServiceFactory;
-import org.apache.ace.agent.deployment.DeploymentUpdateTaskFactory;
-import org.apache.ace.agent.discovery.PropertyBasedDiscoveryFactory;
-import org.apache.ace.agent.identification.IdentifierBasedIdentificationFactory;
-import org.apache.ace.agent.logging.LogFactory;
-import org.apache.ace.agent.logging.LogStoreFactory;
-import org.apache.ace.agent.logging.LogSyncTaskFactory;
 import org.apache.ace.agent.spi.ComponentFactory;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
@@ -50,22 +40,7 @@ import org.osgi.service.log.LogService;
  * used to instantiate the actual components. Factories can be specified through configuration using a
  * <code>&lt;subsystem&gt;.factory</code> property.
  */
-public class ManagementAgentFactory implements ManagedServiceFactory {
-
-    private static final Set<String> DEFAULT_FACTORIES = new HashSet<String>();
-
-    static {
-        DEFAULT_FACTORIES.add(IdentifierBasedIdentificationFactory.class.getName());
-        DEFAULT_FACTORIES.add(PropertyBasedDiscoveryFactory.class.getName());
-        DEFAULT_FACTORIES.add(LogFactory.class.getName());
-        DEFAULT_FACTORIES.add(LogStoreFactory.class.getName());
-        DEFAULT_FACTORIES.add(LogSyncTaskFactory.class.getName());
-        DEFAULT_FACTORIES.add(DeploymentServiceFactory.class.getName());
-        DEFAULT_FACTORIES.add(DeploymentAdminDeployerFactory.class.getName());
-        DEFAULT_FACTORIES.add(DeploymentCheckTaskFactory.class.getName());
-        DEFAULT_FACTORIES.add(DeploymentUpdateTaskFactory.class.getName());
-        DEFAULT_FACTORIES.add(ConnectionFactoryFactory.class.getName());
-    }
+public class AgentFactory implements ManagedServiceFactory {
 
     private final Map<String, Set<Component>> m_components = new HashMap<String, Set<Component>>();
 
@@ -75,25 +50,24 @@ public class ManagementAgentFactory implements ManagedServiceFactory {
 
     @Override
     public String getName() {
-        return ManagementAgentFactory.class.getSimpleName();
+        return AgentFactory.class.getSimpleName();
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public void updated(String pid, Dictionary /* <string, String> */properties) throws ConfigurationException {
+    public void updated(String pid, Dictionary /* <string, String> */configuration) throws ConfigurationException {
 
-        Map<String, String> configuration = getConfigurationMap(properties);
-        String agent = getAgentIdentifier(configuration);
+        String agent = getAgentIdentifier((Dictionary<String, String>) configuration);
         m_logService.log(LogService.LOG_DEBUG, "Receiving updated for pid/agent : " + pid + "/" + agent);
 
-        Set<ComponentFactory> componentFactories = getComponentFactories(configuration);
+        Set<ComponentFactory> componentFactories = getComponentFactories((Dictionary<String, String>) configuration);
         Set<Component> components = new HashSet<Component>();
 
         for (ComponentFactory componentFactory : componentFactories) {
-            components.addAll(componentFactory.createComponents(m_context, m_manager, m_logService, configuration));
+            components.addAll(componentFactory.createComponents(m_context, m_manager, m_logService, (Dictionary<String, String>) configuration));
         }
 
-        // This is kind of void but at present the only way for user-space consumers (like itest) to see that we
+        // This is kind of void but at present the only reasonable way for user-space consumers to see that we
         // successfully configured the agent. Could be replaced by events. but this API may prove usefull in future to
         // expose limited functionality into user-space.
         Properties agentProperties = new Properties();
@@ -127,18 +101,12 @@ public class ManagementAgentFactory implements ManagedServiceFactory {
         }
     }
 
-    private Set<ComponentFactory> getComponentFactories(Map<String, String> configuration) throws ConfigurationException {
+    private Set<ComponentFactory> getComponentFactories(Dictionary<String, String> configuration) throws ConfigurationException {
 
         Set<ComponentFactory> componentFactories = new HashSet<ComponentFactory>();
 
-        String factoriesProperty = ((String) configuration.get("factories"));
-        if (factoriesProperty == null || factoriesProperty.equals("")) {
-            for (String componentFactoryName : DEFAULT_FACTORIES) {
-                ComponentFactory componentFactory = getComponentFactory(componentFactoryName);
-                componentFactories.add(componentFactory);
-            }
-        }
-        else {
+        String factoriesProperty = ((String) configuration.get(Constants.CONFIG_FACTORIES_KEY));
+        if (factoriesProperty != null && !factoriesProperty.equals("")) {
             String[] componentFactoryNames = factoriesProperty.split(",");
             for (String componentFactoryName : componentFactoryNames) {
                 ComponentFactory componentFactory = getComponentFactory(componentFactoryName.trim());
@@ -148,24 +116,7 @@ public class ManagementAgentFactory implements ManagedServiceFactory {
         return componentFactories;
     }
 
-    /**
-     * Converts the configuration dictionary to a Map<String, String>.
-     */
-    @SuppressWarnings("rawtypes")
-    private Map<String, String> getConfigurationMap(Dictionary /* <String, String> */properties) {
-        Map<String, String> configuration = new HashMap<String, String>();
-        Enumeration/* <String> */enumeration = properties.keys();
-        while (enumeration.hasMoreElements()) {
-            Object key = enumeration.nextElement();
-            configuration.put(key.toString(), properties.get(key).toString());
-        }
-        return configuration;
-    }
-
-    /**
-     * Extracts the agent identifier form the configuration.
-     */
-    private String getAgentIdentifier(Map<String, String> configuration) throws ConfigurationException {
+    private String getAgentIdentifier(Dictionary<String, String> configuration) throws ConfigurationException {
         String agentIdentifier = ((String) configuration.get("agent"));
         if (agentIdentifier != null) {
             agentIdentifier = agentIdentifier.trim();
@@ -176,13 +127,10 @@ public class ManagementAgentFactory implements ManagedServiceFactory {
         return agentIdentifier;
     }
 
-    /**
-     * Returns a factory based on the specified FQN.
-     */
     private ComponentFactory getComponentFactory(String componentFactoryName) throws ConfigurationException {
 
         try {
-            Class<?> clazz = ManagementAgentFactory.class.getClassLoader().loadClass(componentFactoryName);
+            Class<?> clazz = AgentFactory.class.getClassLoader().loadClass(componentFactoryName);
             if (!ComponentFactory.class.isAssignableFrom(clazz)) {
                 throw new ConfigurationException("factories", "Factory class does not implement ComponentFactory interface: " + componentFactoryName);
             }

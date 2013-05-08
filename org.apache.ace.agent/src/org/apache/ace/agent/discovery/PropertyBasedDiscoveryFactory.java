@@ -20,7 +20,7 @@ package org.apache.ace.agent.discovery;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
+import java.util.Dictionary;
 
 import org.apache.ace.agent.spi.OneComponentFactoryBase;
 import org.apache.ace.discovery.Discovery;
@@ -40,7 +40,7 @@ public class PropertyBasedDiscoveryFactory extends OneComponentFactoryBase {
     public static final String DISCOVERY_PROPERTY_VALUE = "serverurl";
 
     @Override
-    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws ConfigurationException {
+    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException {
 
         final String urlStr = (String) configuration.get(DISCOVERY_PROPERTY_VALUE);
         if (urlStr == null || urlStr.equals("")) {

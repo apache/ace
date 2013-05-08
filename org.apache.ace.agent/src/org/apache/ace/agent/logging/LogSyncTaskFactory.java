@@ -18,8 +18,8 @@
  */
 package org.apache.ace.agent.logging;
 
+import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -42,7 +42,7 @@ import org.osgi.service.log.LogService;
 public class LogSyncTaskFactory extends ComponentFactoryBase {
 
     @Override
-    public Set<Component> createComponents(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) {
+    public Set<Component> createComponents(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) {
 
         Set<Component> components = new HashSet<Component>();
         String value = configuration.get(LogFactory.LOG_STORES);
@@ -61,16 +61,13 @@ public class LogSyncTaskFactory extends ComponentFactoryBase {
         return components;
     }
 
-    private Component createLogSyncComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration, String store) {
-
-        String schedulerName = getAgentIdentifier(configuration) + "-" + store;
-        String description = "Task that synchronizes log store " + store + " for agent=" + getAgentIdentifier(configuration) + " on the target and server";
+    private Component createLogSyncComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration, String store) {
 
         Properties props = getAgentproperties(configuration);
         props.put(LogFactory.LOG_NAME, store);
 
         props.put(SchedulerConstants.SCHEDULER_NAME_KEY, LogSyncTask.class.getSimpleName());
-        props.put(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY, description);
+        props.put(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY, "Task that synchronizes log store " + store + " for agent=" + getAgentIdentifier(configuration) + " on the target and server");
         props.put(SchedulerConstants.SCHEDULER_RECIPE, "2000");
 
         Component component = manager.createComponent()

@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent.deployment;
 
-import java.util.Map;
+import java.util.Dictionary;
 import java.util.Properties;
 
 import org.apache.ace.agent.spi.OneComponentFactoryBase;
@@ -37,7 +37,7 @@ import org.osgi.service.log.LogService;
 public class DeploymentUpdateTaskFactory extends OneComponentFactoryBase {
 
     @Override
-    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws ConfigurationException {
+    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException {
 
         Properties properties = getAgentproperties(configuration);
         properties.put(SchedulerConstants.SCHEDULER_NAME_KEY, DeploymentUpdateTask.class.getSimpleName());

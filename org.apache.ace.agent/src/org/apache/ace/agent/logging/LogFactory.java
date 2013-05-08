@@ -18,8 +18,8 @@
  */
 package org.apache.ace.agent.logging;
 
+import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -41,7 +41,7 @@ public class LogFactory extends ComponentFactoryBase {
     public static final String LOG_NAME = "name";
 
     @Override
-    public Set<Component> createComponents(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) {
+    public Set<Component> createComponents(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) {
 
         Set<Component> components = new HashSet<Component>();
         String value = configuration.get(LOG_STORES);
@@ -52,7 +52,7 @@ public class LogFactory extends ComponentFactoryBase {
         return components;
     }
 
-    private Component createLogComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration, String store) {
+    private Component createLogComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration, String store) {
 
         Properties properties = getAgentproperties(configuration);
         properties.put("name", store);

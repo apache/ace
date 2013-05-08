@@ -19,8 +19,8 @@
 package org.apache.ace.agent.spi;
 
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.dm.Component;
@@ -36,7 +36,7 @@ import org.osgi.service.log.LogService;
 public abstract class OneComponentFactoryBase extends ComponentFactoryBase {
 
     @Override
-    public final Set<Component> createComponents(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws ConfigurationException {
+    public final Set<Component> createComponents(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException {
         Component component = createComponent(context, manager, logService, configuration);
         if (component != null) {
             Set<Component> components = new HashSet<Component>();
@@ -61,5 +61,5 @@ public abstract class OneComponentFactoryBase extends ComponentFactoryBase {
      * @throws ConfigurationException
      *             If there is a fatal problem
      */
-    public abstract Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws ConfigurationException;
+    public abstract Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException;
 }

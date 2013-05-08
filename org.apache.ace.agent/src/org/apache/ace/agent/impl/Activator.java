@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.Constants.CONFIG_PID;
 import static org.apache.ace.agent.Constants.FACTORY_PID;
 
 import java.util.Properties;
@@ -27,35 +28,32 @@ import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.log.LogService;
 
 /**
- * OSGi {@link BundleActivator} for the Apache ACE ManagementAGent.
+ * OSGi {@link BundleActivator} for the Apache ACE ManagementAgent.
  * 
  */
 public class Activator extends DependencyActivatorBase {
-
-    private final BundleActivator[] m_activators = new BundleActivator[] {
-        new org.apache.ace.connectionfactory.impl.Activator(),
-        new org.apache.ace.scheduler.Activator(),
-        new org.apache.ace.consolelogger.Activator(),
-        new org.apache.felix.deploymentadmin.Activator()
-    };
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
 
         Properties properties = new Properties();
         properties.put(Constants.SERVICE_PID, FACTORY_PID);
-        ManagementAgentFactory factory = new ManagementAgentFactory();
+        AgentFactory factory = new AgentFactory();
         manager.add(createComponent()
             .setInterface(ManagedServiceFactory.class.getName(), properties)
             .setImplementation(factory)
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
 
-        StaticConfigurationHandler handler = new StaticConfigurationHandler();
+        properties = new Properties();
+        properties.put(Constants.SERVICE_PID, CONFIG_PID);
+        ConfigurationHandler handler = new ConfigurationHandler();
         manager.add(createComponent()
+            .setInterface(ManagedService.class.getName(), properties)
             .setImplementation(handler)
             .add(createServiceDependency().setService(ManagedServiceFactory.class, "(" + Constants.SERVICE_PID + "=" + FACTORY_PID + ")").setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));

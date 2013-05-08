@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent.identification;
 
-import java.util.Map;
+import java.util.Dictionary;
 
 import org.apache.ace.agent.spi.OneComponentFactoryBase;
 import org.apache.ace.discovery.Discovery;
@@ -39,7 +39,7 @@ public class PropertyBasedIdentificationFactory extends OneComponentFactoryBase 
     public static final String IDENTIFICATION_PROPERTY_VALUE = "identification";
 
     @Override
-    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws ConfigurationException {
+    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException {
 
         final String value = configuration.get(IDENTIFICATION_PROPERTY_VALUE);
         if (value == null || value.equals("")) {

@@ -1,0 +1,22 @@
+ACE Management Agent launcher
+
+@see ACE-347
+
+Usage:
+
+usage: java -jar org.apache.ace.agent.launcher [options] [configurationfile]
+ -h,--help      print this message
+ -v,--verbose   verbose logging
+
+
+Notes:
+
+* Simplified config code (using commons-cli).
+* Includes good default configuration
+ 
+ TODOs:
+
+* Support simple single agent through CLI options
+* Remove 'default' agent from default configuration?
+* Extend configuration documentation
+* Clean felix-cache dir on restart?

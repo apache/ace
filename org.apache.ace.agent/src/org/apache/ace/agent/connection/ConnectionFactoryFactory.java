@@ -20,7 +20,6 @@ package org.apache.ace.agent.connection;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.ace.agent.connection.UrlCredentialsFactory.MissingValueException;
@@ -51,7 +50,7 @@ public class ConnectionFactoryFactory extends OneComponentFactoryBase {
         UrlCredentialsFactory.KEY_AUTH_USER_PASSWORD };
 
     @Override
-    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws ConfigurationException {
+    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException {
 
         Properties properties = getAgentproperties(configuration);
         properties.put("impl.type", "jdk");

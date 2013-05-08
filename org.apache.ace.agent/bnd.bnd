@@ -32,7 +32,6 @@ Private-Package: org.apache.ace.agent.connection,\
 	org.apache.felix.dm,\
 	org.apache.felix.dm.tracker,\
 	org.apache.felix.dm.tracker,\
-	org.apache.ace.agent.spi,\
 	org.osgi.service.log,\
 	org.osgi.service.useradmin,\
 	org.apache.ace.agent,\
@@ -81,5 +80,6 @@ Export-Package: org.osgi.service.deploymentadmin;version=1.0;-split-package:=fir
 	org.apache.ace.agent
     
 # 
+# Make sure the apropriate imports are generated for the exported packages.
 #
 Import-Package:	*

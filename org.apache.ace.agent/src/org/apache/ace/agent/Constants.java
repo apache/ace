@@ -18,11 +18,31 @@
  */
 package org.apache.ace.agent;
 
+import org.apache.ace.agent.impl.AgentFactory;
+
 /**
  * Compile time constants for the bundle. Only located in the API package for development time visbility.
  * 
  */
 public interface Constants {
 
-    String FACTORY_PID = "org.apache.ace.managementagent.factory";
+    /**
+     * Configuration PID for the {@link AgentFactory}
+     */
+    String FACTORY_PID = "org.apache.ace.agent.factory";
+
+    /**
+     * Configuration PID for the {@link ConfigurationHandler}
+     */
+    String CONFIG_PID = "org.apache.ace.agent.config";
+
+    /**
+     * Configuration key for the list of component factories.
+     */
+    String CONFIG_FACTORIES_KEY = "system.factories";
+
+    /**
+     * Configuration key for the list of extensions activators.
+     */
+    String CONFIG_ACTIVATORS_KEY = "system.activators";
 }

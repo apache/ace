@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent.deployment;
 
-import java.util.Map;
+import java.util.Dictionary;
 
 import org.apache.ace.agent.spi.OneComponentFactoryBase;
 import org.apache.ace.deployment.Deployment;
@@ -36,7 +36,7 @@ import org.osgi.service.log.LogService;
 public class DeploymentAdminDeployerFactory extends OneComponentFactoryBase {
 
     @Override
-    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws ConfigurationException {
+    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException {
 
         return manager.createComponent()
             .setInterface(Deployment.class.getName(), getAgentproperties(configuration))
