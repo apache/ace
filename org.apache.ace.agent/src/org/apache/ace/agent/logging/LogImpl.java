@@ -20,16 +20,28 @@ package org.apache.ace.agent.logging;
 
 import java.io.IOException;
 import java.util.Dictionary;
+import java.util.Hashtable;
+
+import org.apache.ace.log.AuditEvent;
 import org.apache.ace.log.Log;
 import org.apache.ace.log.LogEvent;
 import org.apache.ace.log.target.store.LogStore;
 import org.osgi.service.log.LogService;
 
-//FIXME This is a of the org.apache.ace.log it is private and may be better located here.
+//FIXME This is a modified copy of the org.apache.ace.log it is private and may be better located here.
 
 public class LogImpl implements Log {
+
     private volatile LogStore m_store;
     private volatile LogService m_log;
+
+    public void start() {
+
+        // FIXME This is mostly useful to trigger a logsync so the agent registers with the server.
+        Dictionary<String, String> props = new Hashtable<String, String>();
+        props.put(AuditEvent.KEY_MSG, "Log started");
+        log(AuditEvent.FRAMEWORK_INFO, props);
+    }
 
     public void log(int type, Dictionary properties) {
         try {

@@ -28,6 +28,7 @@ import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 /**
@@ -48,6 +49,7 @@ public class DeploymentCheckTaskFactory extends OneComponentFactoryBase {
             .setInterface(Runnable.class.getName(), properties)
             .setImplementation(new DeploymentCheckTask())
             .add(manager.createServiceDependency().setService(DeploymentService.class, getAgentFilter(configuration, null)).setRequired(true))
+            .add(manager.createServiceDependency().setService(EventAdmin.class).setRequired(false))
             .add(manager.createServiceDependency().setService(LogService.class).setRequired(false));
     }
 }

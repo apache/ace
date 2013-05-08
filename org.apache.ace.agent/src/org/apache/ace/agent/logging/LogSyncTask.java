@@ -70,7 +70,6 @@ public class LogSyncTask implements Runnable {
      */
     public void run() {
         URL host = m_discovery.discover();
-
         if (host == null) {
             // expected if there's no discovered
             // ps or relay server
