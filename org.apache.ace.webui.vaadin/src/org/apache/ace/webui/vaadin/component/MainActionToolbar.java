@@ -283,6 +283,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
 
     private final User m_user;
 
+	private HorizontalLayout m_extraComponentBar;
+
     /**
      * Creates a new {@link MainActionToolbar} instance.
      * @param user 
@@ -302,7 +304,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         
         initComponent();
     }
-    
+
     public void init(org.apache.felix.dm.Component component) {
     	DependencyManager dm = component.getDependencyManager();
     	component.add(dm.createServiceDependency()
@@ -315,10 +317,19 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
     
     public void add(ServiceReference ref, UIExtensionFactory factory) {
         m_extensions.put(ref, factory);
+        setExtraComponents();
     }
+
+	private void setExtraComponents() {
+		m_extraComponentBar.removeAllComponents();
+		for (Component c : getExtraComponents()) {
+			m_extraComponentBar.addComponent(c);
+		}
+	}
     
     public void remove(ServiceReference ref,  UIExtensionFactory factory) {
         m_extensions.remove(ref);
+        setExtraComponents();
     }
 
     /**
@@ -393,14 +404,11 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         m_revertButton.addListener(new RevertButtonListener());
         addComponent(m_revertButton, 2, 0);
 
-        HorizontalLayout bar = new HorizontalLayout();
+        m_extraComponentBar = new HorizontalLayout();
         Label spacer = new Label("");
         spacer.setWidth("2em");
-        bar.addComponent(spacer);
-        for (Component c : getExtraComponents()) {
-            bar.addComponent(c);
-        }
-        addComponent(bar, 3, 0);
+        m_extraComponentBar.addComponent(spacer);
+        addComponent(m_extraComponentBar, 3, 0);
 
         m_logoutButton = new Button("Logout");
         m_logoutButton.addListener(new LogoutButtonListener());

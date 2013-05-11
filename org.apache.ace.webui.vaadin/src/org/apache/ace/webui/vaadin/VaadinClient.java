@@ -161,6 +161,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 	private Component m_component;
 	private final List<Component> m_eventHandlers = new ArrayList<Component>();
 
+	private GridLayout m_mainToolbar;
+
     // basic session ID generator
     private static long generateSessionID() {
         return SESSION_ID++;
@@ -333,7 +335,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         m_grid.setSpacing(true);
         m_grid.setSizeFull();
 
-        m_grid.addComponent(createToolbar(user), 0, 0, count - 1, 0);
+        m_mainToolbar = createToolbar(user);
+		m_grid.addComponent(m_mainToolbar, 0, 0, count - 1, 0);
 
         m_artifactsPanel = createArtifactsPanel(user);
 
@@ -497,6 +500,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             }
         });
 
+        addListener(m_mainToolbar, RepositoryObject.PUBLIC_TOPIC_ROOT.concat(RepositoryObject.TOPIC_ALL_SUFFIX));
         addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
         addListener(m_featuresPanel, FeatureObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
         addListener(m_distributionsPanel, DistributionObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
@@ -633,7 +637,6 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
                 m_targetsPanel.populate();
             }
         };
-        addListener(mainActionToolbar, RepositoryObject.PUBLIC_TOPIC_ROOT.concat(RepositoryObject.TOPIC_ALL_SUFFIX));
         return mainActionToolbar;
     }
 
