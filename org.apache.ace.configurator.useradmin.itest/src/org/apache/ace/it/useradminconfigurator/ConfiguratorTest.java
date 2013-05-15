@@ -78,7 +78,7 @@ public class ConfiguratorTest extends IntegrationTestBase {
     }
 
     @Override
-	protected void before() throws Exception {
+	protected void configureProvisionedServices() throws Exception {
         configureFactory("org.apache.ace.server.repository.factory",
                 RepositoryConstants.REPOSITORY_NAME, "users",
                 RepositoryConstants.REPOSITORY_CUSTOMER, "apache",

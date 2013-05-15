@@ -44,7 +44,7 @@ public class ExampleTest extends IntegrationTestBase {
 //        );
 //    }
 
-    protected void before() throws IOException {
+    protected void configureProvisionedServices() throws IOException {
         // configure the services you need; you cannot use the injected members yet
     }
 

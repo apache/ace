@@ -64,7 +64,7 @@ public class LogIntegrationTest extends IntegrationTestBase {
     }
 
     @Override
-	protected void before() throws Exception {
+	protected void configureProvisionedServices() throws Exception {
         configure(DiscoveryConstants.DISCOVERY_PID,
                 DiscoveryConstants.DISCOVERY_URL_KEY, "http://" + HOST + ":" + TestConstants.PORT);
         configure(IdentificationConstants.IDENTIFICATION_PID,

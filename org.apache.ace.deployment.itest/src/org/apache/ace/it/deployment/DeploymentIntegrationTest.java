@@ -90,7 +90,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
 //        );
 //    }
 
-    protected void before() throws IOException {
+    protected void configureProvisionedServices() throws IOException {
         m_tempDir = File.createTempFile("test", "");
         m_tempDir.delete();
         m_tempDir.mkdir();
@@ -117,7 +117,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
     private ServiceRegistration m_deploymentAdminProxyRegistration;
 
     @Override
-	protected void after() throws Exception {
+	protected void configureAdditionalServices() throws Exception {
         deleteDirOrFile(m_tempDir);
     }
 

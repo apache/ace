@@ -72,7 +72,7 @@ public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
     }
 
     @Override
-	protected void before() throws Exception {
+	protected void configureProvisionedServices() throws Exception {
         m_echoServlet = new EchoServlet();
 
         Dictionary<String, String> dictionary = new Hashtable<String, String>();

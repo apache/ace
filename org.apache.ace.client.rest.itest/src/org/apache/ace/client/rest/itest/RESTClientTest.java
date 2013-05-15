@@ -53,7 +53,7 @@ public class RESTClientTest extends IntegrationTestBase {
     }
     
     @Override
-    protected void after() throws Exception {
+    protected void configureAdditionalServices() throws Exception {
         // there is some setup we only want to do once, before the first test we run, and since we cannot
         // predict which one that is, we use a static flag
         if (!m_hasBeenSetup) {

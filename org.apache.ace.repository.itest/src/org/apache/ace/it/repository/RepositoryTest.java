@@ -174,7 +174,7 @@ public class RepositoryTest extends IntegrationTestBase {
         removeRepository("testInstance");
     }
 
-    protected void before() throws IOException {
+    protected void configureProvisionedServices() throws IOException {
 		m_host = new URL("http://localhost:" + TestConstants.PORT);
 
         configure("org.apache.ace.repository.servlet.RepositoryReplicationServlet",

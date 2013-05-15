@@ -41,10 +41,10 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 	private volatile MongoDBService m_mongodbService;
 
 	@Override
-	protected void before() throws Exception {
+	protected void configureProvisionedServices() throws Exception {
 		configureFactory("org.amdatu.mongo", "dbName", "ace");
 		configureFactory("org.apache.ace.log.server.store.factory", "name", "serverlog");
-		super.before();
+		super.configureProvisionedServices();
 	}
 
 	protected org.apache.felix.dm.Component[] getDependencies() {

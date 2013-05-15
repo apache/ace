@@ -113,7 +113,7 @@ public class IntegrationTestBase extends TestCase {
      * The {@link #after} callback is most useful for configuring additional services after all mandatory 
      * services are resolved.
      */
-    protected void after() throws Exception {}
+    protected void configureAdditionalServices() throws Exception {}
 
     /**
      * The 'before' callback will be called after the components from {@link #getDependencies} have been
@@ -123,7 +123,7 @@ public class IntegrationTestBase extends TestCase {
      * The {@link #before} callback is most useful for configuring services that have been provisioned
      * in the 'configuration' method.
      */
-    protected void before() throws Exception {}
+    protected void configureProvisionedServices() throws Exception {}
 
     /**
      * Write configuration for a single service. For example,
@@ -328,7 +328,7 @@ public class IntegrationTestBase extends TestCase {
         }
 
 		// Call back the implementation...
-		before();
+		configureProvisionedServices();
 
         // And wait for all components to come online.
         try {
@@ -336,7 +336,7 @@ public class IntegrationTestBase extends TestCase {
                 fail("Not all components were started. Still missing the following:\n" + listener.componentsString());
             }
             
-        	after();
+        	configureAdditionalServices();
         }
         catch (InterruptedException e) {
             fail("Interrupted while waiting for services to get started.");

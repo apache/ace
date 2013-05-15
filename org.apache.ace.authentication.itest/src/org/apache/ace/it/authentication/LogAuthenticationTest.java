@@ -132,7 +132,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
     }
 
     @Override
-    protected void after() throws Exception {
+    protected void configureAdditionalServices() throws Exception {
         String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
 
         URL testURL = new URL(baseURL.concat(AUDITLOG_ENDPOINT));
@@ -156,7 +156,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
     /**
      * {@inheritDoc}
      */
-    protected void before() throws Exception {
+    protected void configureProvisionedServices() throws Exception {
         String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
 
         getService(SessionFactory.class).createSession("test-session-ID");

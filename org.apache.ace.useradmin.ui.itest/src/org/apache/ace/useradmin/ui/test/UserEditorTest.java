@@ -39,8 +39,8 @@ public class UserEditorTest extends IntegrationTestBase {
     }
 
     @Override
-    protected void before() throws Exception {
-        super.before();
+    protected void configureProvisionedServices() throws Exception {
+        super.configureProvisionedServices();
         if (firststart) {
             Thread.sleep(1000);
             firststart = false;

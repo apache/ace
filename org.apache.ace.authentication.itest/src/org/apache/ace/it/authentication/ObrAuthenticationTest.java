@@ -207,7 +207,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
     }
 
     @Override
-    protected void after() throws Exception {
+    protected void configureAdditionalServices() throws Exception {
         String userName = "d";
         String password = "f";
 
@@ -234,7 +234,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
      * {@inheritDoc}
      */
     @Override
-    protected void before() throws Exception {
+    protected void configureProvisionedServices() throws Exception {
         m_endpoint = "/obr";
         
         String tmpDir = System.getProperty("java.io.tmpdir");

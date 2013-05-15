@@ -185,13 +185,13 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
     }
 
     @Override
-	protected void after() throws Exception {
+	protected void configureAdditionalServices() throws Exception {
         // remove all repositories, in case a test case does not reach it's cleanup section due to an exception
         removeAllRepositories();
     }
 
     @Override
-	protected void before() throws Exception {
+	protected void configureProvisionedServices() throws Exception {
         m_endpoint = new URL(HOST + ENDPOINT_NAME);
 
         getService(SessionFactory.class).createSession("test-session-ID");
