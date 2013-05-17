@@ -259,6 +259,10 @@ public class BundleFileStore implements BundleStore, ManagedService {
                     String bundleSymbolicName = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
                     String bundleVersion = attributes.getValue(Constants.BUNDLE_VERSION);
                     if (bundleSymbolicName != null) {
+                    	// ACE-350 strip BSN parameters 
+                    	if(bundleSymbolicName.indexOf(";") > 0){
+                    		bundleSymbolicName = bundleSymbolicName.substring(0, bundleSymbolicName.indexOf(";"));
+                    	}
                         if (bundleVersion == null) {
                             bundleVersion = "0.0.0";
                         }
