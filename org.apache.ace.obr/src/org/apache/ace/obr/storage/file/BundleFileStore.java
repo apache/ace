@@ -113,8 +113,9 @@ public class BundleFileStore implements BundleStore, ManagedService {
         }
 
         moveFile(tempFile, storeLocation);
-        String filePath = storeLocation.getAbsolutePath().substring(getWorkingDir().getAbsolutePath().length());
-        if(filePath.startsWith(File.separator)){
+        
+        String filePath = storeLocation.toURI().toString().substring(getWorkingDir().toURI().toString().length());
+        if (filePath.startsWith("/")) {
             filePath = filePath.substring(1);
         }
         return filePath;
