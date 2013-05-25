@@ -32,3 +32,4 @@ Private-Package: org.apache.ace.log.server.store.tests
 	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest
 -runsystempackages: sun.reflect
+Bundle-Version: 1.0.0

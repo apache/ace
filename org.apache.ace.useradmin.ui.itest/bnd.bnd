@@ -76,3 +76,4 @@ Private-Package: org.apache.ace.useradmin.ui.test
 	org.osgi.service.http.port=8080,\
 	org.apache.felix.log.maxSize=1000
 -runee: JavaSE-1.6
+Bundle-Version: 1.0.0

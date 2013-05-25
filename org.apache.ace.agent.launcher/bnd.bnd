@@ -24,3 +24,4 @@ Include-Resource: default.properties=resources/felix-defaults.properties
   
 # The Jar Main-Class header
 Main-Class: org.apache.ace.agent.launcher.Main
+Bundle-Version: 1.0.0

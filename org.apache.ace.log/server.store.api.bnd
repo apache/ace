@@ -1,1 +1,2 @@
 Export-Package: org.apache.ace.log.server.store
+Bundle-Version: 1.0.0
