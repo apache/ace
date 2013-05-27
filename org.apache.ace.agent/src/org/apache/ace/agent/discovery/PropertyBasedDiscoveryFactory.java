@@ -20,14 +20,13 @@ package org.apache.ace.agent.discovery;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Dictionary;
+import java.util.Map;
 
 import org.apache.ace.agent.spi.OneComponentFactoryBase;
 import org.apache.ace.discovery.Discovery;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 
 /**
@@ -40,11 +39,11 @@ public class PropertyBasedDiscoveryFactory extends OneComponentFactoryBase {
     public static final String DISCOVERY_PROPERTY_VALUE = "serverurl";
 
     @Override
-    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException {
+    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws Exception {
 
         final String urlStr = (String) configuration.get(DISCOVERY_PROPERTY_VALUE);
         if (urlStr == null || urlStr.equals("")) {
-            throw new ConfigurationException(DISCOVERY_PROPERTY_VALUE, "Missing a valid discovery value");
+            throw new IllegalArgumentException("Missing a valid discovery value");
         }
 
         try {
@@ -61,7 +60,7 @@ public class PropertyBasedDiscoveryFactory extends OneComponentFactoryBase {
                 .setInterface(Discovery.class.getName(), getAgentproperties(configuration)).setImplementation(impl);
         }
         catch (MalformedURLException e) {
-            throw new ConfigurationException(DISCOVERY_PROPERTY_VALUE, "Discovery URL is bad: " + urlStr);
+            throw new IllegalArgumentException("Discovery URL is bad: " + urlStr);
         }
     }
 }

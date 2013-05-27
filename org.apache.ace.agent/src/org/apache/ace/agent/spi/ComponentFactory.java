@@ -18,13 +18,12 @@
  */
 package org.apache.ace.agent.spi;
 
-import java.util.Dictionary;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 
 /**
@@ -36,7 +35,7 @@ import org.osgi.service.log.LogService;
 public interface ComponentFactory {
 
     /**
-     * Return zero or more service components for the specified agent configuartion.
+     * Return zero or more service components for the specified agent configuration.
      * 
      * @param context
      *            The Bundle Context
@@ -47,8 +46,8 @@ public interface ComponentFactory {
      * @param configuration
      *            The agent configuration
      * @return A set of components, not <code>null</code>
-     * @throws ConfigurationException
+     * @throws Exception
      *             If there is a fatal problem.
      */
-    Set<Component> createComponents(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException;
+    Set<Component> createComponents(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws Exception;
 }

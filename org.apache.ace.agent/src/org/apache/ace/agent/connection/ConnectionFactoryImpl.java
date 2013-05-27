@@ -35,8 +35,6 @@ import org.apache.ace.agent.connection.UrlCredentials.AuthType;
 import org.apache.ace.agent.connection.UrlCredentialsFactory.MissingValueException;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.commons.codec.binary.Base64;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.useradmin.User;
 
 // FIXME This is a temporary modified copy of the org.apache.ace.connectionfactory.impl because it is private and does not
@@ -48,7 +46,7 @@ import org.osgi.service.useradmin.User;
  * Provides a default implementation for {@link ConnectionFactory} based on the standard <code>java.net</code>
  * implementation of {@link URLConnection}.
  */
-public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceFactory {
+public class ConnectionFactoryImpl implements ConnectionFactory {
 
     public static final String FACTORY_PID = "org.apache.ace.connectionfactory";
 
@@ -129,7 +127,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
     /**
      * {@inheritDoc}
      */
-    public void updated(String pid, Dictionary properties) throws ConfigurationException {
+    public void updated(String pid, Dictionary properties) throws IllegalArgumentException {
         UrlCredentials creds;
         synchronized (m_credentialMapping) {
             creds = m_credentialMapping.get(pid);
@@ -143,7 +141,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
             }
         }
         catch (MissingValueException e) {
-            throw new ConfigurationException(e.getProperty(), e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 

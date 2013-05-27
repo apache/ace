@@ -18,14 +18,13 @@
  */
 package org.apache.ace.agent.deployment;
 
-import java.util.Dictionary;
+import java.util.Map;
 
 import org.apache.ace.agent.spi.OneComponentFactoryBase;
 import org.apache.ace.deployment.Deployment;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.deploymentadmin.DeploymentAdmin;
 import org.osgi.service.log.LogService;
 
@@ -36,7 +35,7 @@ import org.osgi.service.log.LogService;
 public class DeploymentAdminDeployerFactory extends OneComponentFactoryBase {
 
     @Override
-    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException {
+    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws Exception {
 
         return manager.createComponent()
             .setInterface(Deployment.class.getName(), getAgentproperties(configuration))

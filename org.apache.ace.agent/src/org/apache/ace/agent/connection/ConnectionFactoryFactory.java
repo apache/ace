@@ -20,6 +20,7 @@ package org.apache.ace.agent.connection;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.ace.agent.connection.UrlCredentialsFactory.MissingValueException;
@@ -28,7 +29,6 @@ import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 
 /**
@@ -50,7 +50,7 @@ public class ConnectionFactoryFactory extends OneComponentFactoryBase {
         UrlCredentialsFactory.KEY_AUTH_USER_PASSWORD };
 
     @Override
-    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) throws ConfigurationException {
+    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) throws Exception {
 
         Properties properties = getAgentproperties(configuration);
         properties.put("impl.type", "jdk");
@@ -69,7 +69,7 @@ public class ConnectionFactoryFactory extends OneComponentFactoryBase {
                 credentials = UrlCredentialsFactory.getCredentials(urlCredentials);
             }
             catch (MissingValueException e) {
-                throw new ConfigurationException("authorization", e.getMessage(), e);
+                throw new Exception(e.getMessage(), e);
             }
         }
 

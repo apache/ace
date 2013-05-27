@@ -1,5 +1,4 @@
 -buildpath: osgi.core,\
-	osgi.cmpn,\
 	org.apache.felix.framework,\
 	org.apache.ace.agent;version=latest,\
 	commons-codec,\
@@ -11,10 +10,9 @@ Private-Package: org.apache.ace.*;-split-package:=merge-last,\
 	org.apache.commons.codec;-split-package:=merge-last,\
 	org.apache.commons.codec.binary;-split-package:=merge-last,\
 	org.osgi.framework.*;-split-package:=merge-last,\
-	org.osgi.service.*;-split-package:=merge-last,\
 	org.osgi.util.tracker;-split-package:=merge-last,\
+	org.osgi.service.*;-split-package:=merge-last,\
 	org.apache.commons.cli
-#	META-INF.org\.apache\.ace\.agent.*
 
 # This is not a real bundle
 Import-Package: 

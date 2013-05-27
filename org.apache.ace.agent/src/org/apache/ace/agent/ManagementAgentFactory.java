@@ -18,30 +18,13 @@
  */
 package org.apache.ace.agent;
 
+import java.util.Map;
 
 /**
- * Compile time constants for the bundle. Only located in the API package for development time visibility.
- * 
+ * Service interface for configuring the management agent.
+ *
  */
-public interface Constants {
+public interface ManagementAgentFactory {
 
-    /**
-     * Configuration key for the list of agents.
-     */
-    String CONFIG_AGENTS_KEY = "agents";
-    
-    /**
-     * Configuration key for the agent.
-     */
-    String CONFIG_AGENT_KEY = "agent";
-    
-    /**
-     * Configuration key for the list of component factories.
-     */
-    String CONFIG_FACTORIES_KEY = "system.factories";
-
-    /**
-     * Configuration key for the list of extensions activators.
-     */
-    String CONFIG_ACTIVATORS_KEY = "system.activators";
+    void updated(Map<String, String> configuration) throws Exception;
 }

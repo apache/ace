@@ -24,15 +24,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.ace.agent.Constants;
+import org.apache.ace.agent.ManagementAgentFactory;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -43,7 +42,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
-import org.osgi.service.cm.ManagedService;
 
 /**
  * A simple launcher, that launches the embedded Felix together with a management agent.
@@ -79,7 +77,7 @@ public class Main {
             }
         }
 
-        Dictionary<String, String> configuration = new Hashtable<String, String>();
+        Map<String, String> configuration = new Hashtable<String, String>();
 
         // first map all default properties
         for (Object key : defaultProperties.keySet()) {
@@ -137,10 +135,10 @@ public class Main {
         return properties;
     }
 
-    private final Dictionary<String, String> m_configuration;
+    private final Map<String, String> m_configuration;
     private final boolean m_verbose;
 
-    public Main(Dictionary<String, String> configuration) {
+    public Main(Map<String, String> configuration) {
         m_configuration = configuration;
         m_verbose = (m_configuration.get("verbose") != null) && Boolean.parseBoolean(m_configuration.get("verbose"));
     }
@@ -158,9 +156,9 @@ public class Main {
             if (m_verbose)
                 System.out.println("Configuring Management Agent.. " + m_configuration);
             BundleContext context = framework.getBundleContext();
-            ServiceReference[] references = context.getServiceReferences(ManagedService.class.getName(), "(" + org.osgi.framework.Constants.SERVICE_PID + "=" + Constants.CONFIG_PID + ")");
+            ServiceReference[] references = context.getServiceReferences(ManagementAgentFactory.class.getName(), null);
             if (references != null) {
-                ManagedService service = (ManagedService) context.getService(references[0]);
+                ManagementAgentFactory service = (ManagementAgentFactory) context.getService(references[0]);
                 service.updated(m_configuration);
                 context.ungetService(references[0]);
             }
@@ -195,12 +193,10 @@ public class Main {
     private Map<String, Object> createFrameworkProperties() throws Exception {
 
         Map<String, Object> frameworkProperties = new HashMap<String, Object>();
-        Enumeration<String> keyEnumeration = m_configuration.keys();
-        while (keyEnumeration.hasMoreElements()) {
-            String key = keyEnumeration.nextElement();
-            if (key.startsWith("framework.")) {
-                String frameworkKey = key.replaceFirst("framework.", "");
-                String frameworkValue = m_configuration.get(key);
+        for (Entry<String, String> entry : m_configuration.entrySet()) {
+            if (entry.getKey().startsWith("framework.")) {
+                String frameworkKey = entry.getKey().replaceFirst("framework.", "");
+                String frameworkValue = m_configuration.get(entry.getValue());
                 frameworkProperties.put(frameworkKey, frameworkValue);
             }
         }

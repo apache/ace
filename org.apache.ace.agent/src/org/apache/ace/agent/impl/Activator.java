@@ -18,18 +18,16 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.apache.ace.agent.Constants.CONFIG_PID;
-import static org.apache.ace.agent.Constants.FACTORY_PID;
-
 import java.util.Properties;
 
+import org.apache.ace.agent.ManagementAgentFactory;
+import org.apache.ace.agent.scheduler.impl.Scheduler;
+import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.service.cm.ManagedService;
-import org.osgi.service.cm.ManagedServiceFactory;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
 /**
@@ -38,28 +36,57 @@ import org.osgi.service.log.LogService;
  */
 public class Activator extends DependencyActivatorBase {
 
+    private Scheduler m_scheduler;
+
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
 
         Properties properties = new Properties();
-        properties.put(Constants.SERVICE_PID, FACTORY_PID);
-        AgentFactory factory = new AgentFactory();
+        m_scheduler = new Scheduler();
         manager.add(createComponent()
-            .setInterface(ManagedServiceFactory.class.getName(), properties)
+            .setImplementation(m_scheduler)
+            .add(createServiceDependency()
+                .setService(LogService.class).setRequired(false))
+            .add(createServiceDependency()
+                .setService(Runnable.class).setRequired(false)
+                .setAutoConfig(false)
+                .setCallbacks(this, "addRunnable", "addRunnable", "removeRunnable")));
+
+        properties = new Properties();
+        ManagementAgentFactoryImpl factory = new ManagementAgentFactoryImpl();
+        manager.add(createComponent()
+            .setInterface(ManagementAgentFactory.class.getName(), properties)
             .setImplementation(factory)
             .add(createServiceDependency().setService(LogService.class).setRequired(false)));
 
-        properties = new Properties();
-        properties.put(Constants.SERVICE_PID, CONFIG_PID);
-        ConfigurationHandler handler = new ConfigurationHandler();
-        manager.add(createComponent()
-            .setInterface(ManagedService.class.getName(), properties)
-            .setImplementation(handler)
-            .add(createServiceDependency().setService(ManagedServiceFactory.class, "(" + Constants.SERVICE_PID + "=" + FACTORY_PID + ")").setRequired(true))
-            .add(createServiceDependency().setService(LogService.class).setRequired(false)));
     }
 
     @Override
     public void destroy(BundleContext context, DependencyManager manager) throws Exception {
     }
+
+    /**
+     * Handler for both adding and updating runnable service registrations.
+     * 
+     * @throws Exception
+     *             Is thrown when the <code>SCHEDULER_RECIPE</code> contained in <code>ref</code>'s service dictionary
+     *             cannot be parsed by the scheduler.
+     */
+    public void addRunnable(ServiceReference ref, Runnable task) throws Exception {
+        String name = (String) ref.getProperty(SchedulerConstants.SCHEDULER_NAME_KEY);
+        if (name != null) {
+            String description = (String) ref.getProperty(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY);
+            Object recipe = ref.getProperty(SchedulerConstants.SCHEDULER_RECIPE);
+            boolean recipeOverride = Boolean.valueOf((String) ref.getProperty(SchedulerConstants.SCHEDULER_RECIPE_OVERRIDE)).booleanValue();
+            m_scheduler.addRunnable(name, task, description, recipe, recipeOverride);
+        }
+    }
+
+    public synchronized void removeRunnable(ServiceReference ref, Runnable task) {
+        String name = (String) ref.getProperty(SchedulerConstants.SCHEDULER_NAME_KEY);
+        if (name != null) {
+            m_scheduler.removeRunnable(name);
+        }
+    }
+
 }

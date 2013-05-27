@@ -18,19 +18,18 @@
  */
 package org.apache.ace.agent.itest;
 
-import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map;
 
 import junit.framework.Assert;
 
 import org.apache.ace.agent.ManagementAgent;
+import org.apache.ace.agent.ManagementAgentFactory;
 import org.apache.ace.it.IntegrationTestBase;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.ManagedService;
 
 /**
  * Integration test for Management Agent Configuration
@@ -45,24 +44,24 @@ public class ManagementAgentTest extends IntegrationTestBase {
     public void testOneAgentConfiguration() throws Exception {
 
         // agent factory should be up
-        ManagedService agentConfiguration = getService(ManagedService.class, "(" + Constants.SERVICE_PID + "=" + org.apache.ace.agent.Constants.CONFIG_PID + ")");
-        Assert.assertNotNull(agentConfiguration);
+        ManagementAgentFactory agentFactory = getService(ManagementAgentFactory.class);
+        Assert.assertNotNull(agentFactory);
 
         assertAgentDown("007");
 
         // configure an agent
-        Dictionary<String, String> config = new Hashtable<String, String>();
+        Map<String, String> config = new Hashtable<String, String>();
         config.put("verbose", "true");
         config.put("agents", "007");
         config.put("serverurl", "http://localhost:8080");
         config.put("logstores", "auditlog");
-        agentConfiguration.updated(config);
+        agentFactory.updated(config);
 
         assertAgentUp("007");
 
         config = new Hashtable<String, String>();
         config.put("verbose", "true");
-        agentConfiguration.updated(config);
+        agentFactory.updated(config);
 
         assertAgentDown("007");
     }
@@ -74,26 +73,26 @@ public class ManagementAgentTest extends IntegrationTestBase {
     public void testTwoAgentsConfiguration() throws Exception {
 
         // agent factory should be up
-        ManagedService agentConfiguration = getService(ManagedService.class, "(" + Constants.SERVICE_PID + "=" + org.apache.ace.agent.Constants.CONFIG_PID + ")");
-        Assert.assertNotNull(agentConfiguration);
+        ManagementAgentFactory agentFactory = getService(ManagementAgentFactory.class);
+        Assert.assertNotNull(agentFactory);
 
         assertAgentDown("007");
         assertAgentDown("009");
 
         // configure an agent
-        Dictionary<String, String> config = new Hashtable<String, String>();
+        Map<String, String> config = new Hashtable<String, String>();
         config.put("verbose", "true");
         config.put("agents", "007,009");
         config.put("serverurl", "http://localhost:8080");
         config.put("logstores", "auditlog");
-        agentConfiguration.updated(config);
+        agentFactory.updated(config);
 
         assertAgentUp("007");
         assertAgentUp("009");
 
         config = new Hashtable<String, String>();
         config.put("verbose", "true");
-        agentConfiguration.updated(config);
+        agentFactory.updated(config);
 
         assertAgentDown("007");
         assertAgentDown("009");

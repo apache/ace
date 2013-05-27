@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent.spi;
 
-import java.util.Dictionary;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -33,7 +33,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      *            The configuration
      * @return The identifier
      */
-    protected String getAgentIdentifier(Dictionary<String, String> configuration) {
+    protected String getAgentIdentifier(Map<String, String> configuration) {
         return configuration.get("agent");
     }
 
@@ -44,7 +44,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      *            The configuration
      * @return The properties
      */
-    protected Properties getAgentproperties(Dictionary<String, String> configuration) {
+    protected Properties getAgentproperties(Map<String, String> configuration) {
         Properties properties = new Properties();
         properties.put("agent", getAgentIdentifier(configuration));
         return properties;
@@ -59,7 +59,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      *            The optional base filter
      * @return The filter
      */
-    protected String getAgentFilter(Dictionary<String, String> configuration, String base) {
+    protected String getAgentFilter(Map<String, String> configuration, String base) {
         if (base == null) {
             return "(agent=" + getAgentIdentifier(configuration) + ")";
         }

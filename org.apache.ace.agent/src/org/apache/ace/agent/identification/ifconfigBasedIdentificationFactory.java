@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent.identification;
 
-import java.util.Dictionary;
+import java.util.Map;
 
 import org.apache.ace.agent.spi.OneComponentFactoryBase;
 import org.apache.ace.identification.Identification;
@@ -34,7 +34,7 @@ import org.osgi.service.log.LogService;
 public class ifconfigBasedIdentificationFactory extends OneComponentFactoryBase {
 
     @Override
-    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Dictionary<String, String> configuration) {
+    public Component createComponent(BundleContext context, DependencyManager manager, LogService logService, Map<String, String> configuration) {
 
         Identification impl = new IfconfigIdentification();
         return manager.createComponent()
