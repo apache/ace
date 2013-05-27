@@ -1,0 +1,8 @@
+# List subdirectories we commonly ignore.
+# usage: svn propset svn:ignore -F .svnignore <directory>
+bin
+bin_test
+generated
+store
+bundle-cache
+felix-cache
