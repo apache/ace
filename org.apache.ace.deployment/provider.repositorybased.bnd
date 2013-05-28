@@ -4,3 +4,5 @@ Private-Package: org.apache.ace.deployment.provider.repositorybased,\
 	org.apache.ace.repository.ext.impl
 Bundle-Activator: org.apache.ace.deployment.provider.repositorybased.Activator
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Deployment Provider Repository
+Bundle-Description: Registers a repository based Deployemnt Provider service

@@ -87,3 +87,5 @@ Import-Package:	\
 	!org.osgi.service.cm,\
 	*
 		
+Bundle-Name: Apache ACE Agent
+Bundle-Description: Implementation of the Apache ACE Agent

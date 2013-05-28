@@ -2,3 +2,5 @@ Private-Package: org.apache.ace.deployment.servlet
 Bundle-Activator: org.apache.ace.deployment.servlet.Activator
 Export-Package: org.apache.ace.deployment.processor
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Deployment Servlet
+Bundle-Description: Registers the Deployment Servlet

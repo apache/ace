@@ -74,3 +74,6 @@ Bundle-Version: 1.0.0
 	Library Repository,\
 	Release,\
 	Workspace
+Bundle-Name: Apache ACE Authentication itest
+Bundle-Category: itest
+Bundle-Description: Integration tests for Apache ACE Authentication

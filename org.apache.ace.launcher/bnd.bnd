@@ -30,3 +30,5 @@ Private-Package: org.apache.ace.*;-split-package:=first,\
 Include-Resource: default.properties=resources/default.properties
 Main-Class: org.apache.ace.launcher.Main
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Launcher
+Bundle-Description: Standalone launcher for the Apache ACE ManagementAgent

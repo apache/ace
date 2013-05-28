@@ -1,3 +1,5 @@
 Bundle-Version: 1.0.0
 Private-Package: org.apache.ace.log.server.task
 Bundle-Activator: org.apache.ace.log.server.task.Activator
+Bundle-Name: Apache ACE Log Server Task
+Bundle-Description: Registers a service factory for runnable Server Log Tasks

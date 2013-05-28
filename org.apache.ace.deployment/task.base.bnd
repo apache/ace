@@ -2,3 +2,5 @@ Private-Package: org.apache.ace.deployment.service.impl
 Bundle-Activator: org.apache.ace.deployment.service.impl.Activator
 Export-Package: org.apache.ace.deployment.service
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Deployment Task base
+Bundle-Description: Provides the Deployment task base packages

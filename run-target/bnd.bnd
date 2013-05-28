@@ -1,1 +1,3 @@
 -nobundles
+Bundle-Name: Apache ACE Run Target
+Bundle-Description: Bnd run project for a standard ACE Target. This projects does not generate any artifacts.

@@ -7,3 +7,5 @@ Bundle-Activator: org.apache.ace.resourceprocessor.useradmin.impl.Activator
 Export-Package: org.apache.ace.resourceprocessor.useradmin
 Deployment-ProvidesResourceProcessor: org.apache.ace.resourceprocessor.useradmin
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE ResourceProcessor UserAdmin
+Bundle-Description: Registers a ResourceProcessor service that handle useradmin resources

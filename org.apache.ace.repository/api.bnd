@@ -1,2 +1,4 @@
 Export-Package: org.apache.ace.repository
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Repository API
+Bundle-Description: Provides the Apache ACE Repository API packages

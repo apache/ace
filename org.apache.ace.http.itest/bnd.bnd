@@ -25,3 +25,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.provider.api;version=latest
 Private-Package: org.apache.ace.it.http
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE HTTP itest
+Bundle-Description: Integration test bundle for Apache ACE HTTP
+Bundle-Category: itest

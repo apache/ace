@@ -1,3 +1,5 @@
 Export-Package: org.apache.ace.repository.ext,\
 	org.apache.ace.repository.ext.impl
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Repository EXT
+Bundle-Description: Provides the Apache ACE Repository EXT packages

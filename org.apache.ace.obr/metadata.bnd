@@ -13,3 +13,5 @@ Export-Package: org.apache.ace.obr.metadata,\
 	org.osgi.impl.bundle.obr.resource,\
 	org.osgi.service.obr
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE OBR MetaData
+Bundle-Description: Provides the ACE OBR MetaData packages

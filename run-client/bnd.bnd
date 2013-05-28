@@ -1,1 +1,3 @@
 -nobundles
+Bundle-Name: Apache ACE Run Client
+Bundle-Description: Bnd run project for a standard ACE Client. This projects does not generate any artifacts.

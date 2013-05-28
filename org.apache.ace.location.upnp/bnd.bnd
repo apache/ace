@@ -8,3 +8,5 @@ Export-Package: org.apache.ace.location,\
 	org.apache.ace.location.upnp.actions,\
 	org.apache.ace.location.upnp.util
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Location UPnP
+Bundle-Description: Registers a UPnP based Location service

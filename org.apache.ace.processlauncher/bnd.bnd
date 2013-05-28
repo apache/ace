@@ -21,3 +21,5 @@ Bundle-Activator: org.apache.ace.processlauncher.osgi.Activator
 Export-Package: org.apache.ace.processlauncher,\
 	org.apache.ace.processlauncher.util
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE ProcessLauncher
+Bundle-Description: Registers a service factory and ProcessLauncher service

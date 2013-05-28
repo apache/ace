@@ -1,2 +1,4 @@
 Export-Package: org.apache.ace.nodelauncher
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE NodeLauncher API
+Bundle-Description: Provides the Apache ACE NodeLauncher API

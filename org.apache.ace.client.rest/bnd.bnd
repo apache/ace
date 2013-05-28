@@ -19,3 +19,5 @@ Private-Package: org.apache.ace.client.rest,\
 	com.google.gson.stream
 Bundle-Activator: org.apache.ace.client.rest.Activator
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Client REST
+Bundle-Description: Provides a REST binding for the Apache ACE Client

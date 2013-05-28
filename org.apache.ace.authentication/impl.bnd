@@ -1,3 +1,5 @@
 Private-Package: org.apache.ace.authentication.impl
 Bundle-Activator: org.apache.ace.authentication.impl.Activator
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Authentication Service
+Bundle-Description: Registers a pluggable authentication service for Apache ACE

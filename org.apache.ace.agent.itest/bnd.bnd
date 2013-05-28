@@ -18,3 +18,5 @@ Private-Package: org.apache.ace.agent.itest
 Import-Package: org.apache.ace.agent,\
 	*
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Agent itest
+Bundle-Description: Integration test bundle for the Apache ACE Agent

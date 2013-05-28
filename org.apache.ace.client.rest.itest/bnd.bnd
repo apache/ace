@@ -93,3 +93,6 @@ Import-Package: \
 	!org.eclipse.*,\
 	*
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Client REST itest
+Bundle-Description: Integration test bundle for Apache ACE Client REST
+Bundle-Category: itest

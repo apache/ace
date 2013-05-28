@@ -2,3 +2,5 @@ Private-Package: org.apache.ace.http.listener
 Bundle-Activator: org.apache.ace.http.listener.Activator
 Export-Package: org.apache.ace.http.listener.constants
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE HTTP Listener
+Bundle-Description: Registers a component that provides a servlet service whiteboard

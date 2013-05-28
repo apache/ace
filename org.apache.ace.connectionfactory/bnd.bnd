@@ -8,3 +8,5 @@ Private-Package: org.apache.ace.connectionfactory.impl,\
 Bundle-Activator: org.apache.ace.connectionfactory.impl.Activator
 Export-Package: org.apache.ace.connectionfactory
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE ConnectionFactory
+Bundle-Description: Registers a configurable ConnectionFactory service

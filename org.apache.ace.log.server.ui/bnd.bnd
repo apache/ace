@@ -9,3 +9,5 @@
 Private-Package: org.apache.ace.log.server.ui
 Bundle-Activator: org.apache.ace.log.server.ui.Activator
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Log Server UI
+Bundle-Description: Registers an ACE webui extensions that shows logs for targets

@@ -23,3 +23,5 @@ Include-Resource: default.properties=resources/felix-defaults.properties
 # The Jar Main-Class header
 Main-Class: org.apache.ace.agent.launcher.Main
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Agent launcher
+Bundle-Description: Standalone laucher that start an Apache Felix framework with an embedded ACE Agent

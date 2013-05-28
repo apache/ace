@@ -1,3 +1,5 @@
 Private-Package: org.apache.ace.client.repository.helper.bundle.impl
 Bundle-Activator: org.apache.ace.client.repository.helper.bundle.impl.Activator
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Client Repository Bundle Helper
+Bundle-Description: Registers the Apache ACE Client helper services for bundles

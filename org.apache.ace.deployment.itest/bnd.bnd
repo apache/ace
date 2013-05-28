@@ -51,3 +51,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.test;version=latest
 Private-Package: org.apache.ace.it.deployment, org.apache.ace.deployment.util.test
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Deployment itest
+Bundle-Description: Integration test bundle for Apache ACE Deployment
+Bundle-Category: itest

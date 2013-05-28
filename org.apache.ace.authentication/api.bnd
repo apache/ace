@@ -1,2 +1,4 @@
 Export-Package: org.apache.ace.authentication.api
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Authentication API
+Bundle-Description: Provides a pluggable authentication API for Apache ACE

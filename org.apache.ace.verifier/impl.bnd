@@ -12,3 +12,5 @@ Import-Package: org.osgi.framework;version='[1.5,2)',\
 	*
 Bundle-Version: 1.0.0
 Bundle-Activator: org.apache.ace.deployment.verifier.impl.Activator
+Bundle-Name: Apache ACE Verifier Service
+Bundle-Description: Registers the Apache ACE verifier service

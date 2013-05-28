@@ -51,3 +51,5 @@ Export-Package: org.osgi.service.cm;version="1.3";managementagent=true;mandatory
     org.apache.felix.dm.tracker;version="3.0";managementagent=true;mandatory:=managementagent;-split-package:=first
 Bundle-Activator: org.apache.ace.managementagent.Activator
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE ManagementAgent
+Bundle-Description: Apache ACE ManagementAgent implementation

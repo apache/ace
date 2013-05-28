@@ -39,3 +39,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.configurator.useradmin.task;version=latest
 Private-Package: org.apache.ace.it.useradminconfigurator
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Configurator Useradmintask itest
+Bundle-Description: Integration test bundle for Apache ACE Configurator Useradmintask
+Bundle-Category: itest

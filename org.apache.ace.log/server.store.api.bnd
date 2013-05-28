@@ -1,2 +1,4 @@
 Export-Package: org.apache.ace.log.server.store
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Log Server Store API
+Bundle-Description: Provides the Apache ACE Log Server Store API packages

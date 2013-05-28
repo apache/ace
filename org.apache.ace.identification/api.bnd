@@ -1,2 +1,4 @@
 Export-Package: org.apache.ace.identification
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Identification API
+Bundle-Description: Provides the Identification API packages

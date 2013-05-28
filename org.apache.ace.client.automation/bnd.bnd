@@ -6,3 +6,5 @@
 Private-Package: org.apache.ace.client.automation
 Bundle-Activator: org.apache.ace.client.automation.Activator
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Client Automation
+Bundle-Description: Provides automation tasks for the Apache ACE client

@@ -28,3 +28,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.repository.servlet;version=latest
 Private-Package: org.apache.ace.it.repository
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Repository itest
+Bundle-Description: Integration test bundle for Apache ACE Repository
+Bundle-Category: itest

@@ -14,3 +14,5 @@ Export-Package: org.apache.ace.webui
 Include-Resource: resources/
 Bundle-Activator: org.apache.ace.webui.vaadin.Activator
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE WebUI Vaadin
+Bundle-Description: Provides the base ACE WebUI based on Vaadin

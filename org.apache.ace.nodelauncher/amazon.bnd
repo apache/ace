@@ -48,3 +48,5 @@ Export-Package: \
 Include-Resource:\
 	META-INF/services/org.jclouds.apis.ApiMetadata=resources/org.jclouds.apis.ApiMetadata
 Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE NodeLauncher Amazon
+Bundle-Description: Registers a NodeLaucnher service for Amazon
