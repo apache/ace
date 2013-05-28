@@ -27,3 +27,8 @@ javac.debug:  on
 # Bnd Options
 -sources:       true
 -sourcepath:    ${project}/src
+
+# Default Bundle headers
+Bundle-DocURL: http://ace.apache.org/
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-Vendor: The Apache Software Foundation
