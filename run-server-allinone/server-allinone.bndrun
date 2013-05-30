@@ -35,6 +35,7 @@
 	org.apache.ace.deployment.streamgenerator;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.http.listener;version=latest,\
+	org.apache.ace.http.redirector;version=latest,\
 	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.log.server.servlet;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
