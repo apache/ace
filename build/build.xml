@@ -103,7 +103,7 @@
 		<mkdir dir="${target.target.dir}" />
 
 		<resources id="devserver-store">
-			<file file="../cnf/localrepo/org.apache.felix.deployment.rp.autoconf/org.apache.felix.deployment.rp.autoconf-0.1.1.jar" />
+			<file file="../org.apache.ace.deployment.rp.autoconf/generated/org.apache.ace.deployment.rp.autoconf.jar" />
 			<file file="../org.apache.ace.launcher/generated/org.apache.ace.launcher.jar" />
 		</resources>
 
