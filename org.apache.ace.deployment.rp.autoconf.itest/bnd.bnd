@@ -1,0 +1,25 @@
+Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
+-runbundles: org.mockito.mockito-all,\
+	org.apache.ace.deployment.rp.autoconf;version=latest,\
+	org.apache.ace.managementagent;version=latest,\
+	org.apache.ace.test;version=latest,\
+	org.apache.felix.metatype,\
+	org.apache.felix.dependencymanager,\
+	org.apache.felix.gogo.command,\
+	org.apache.felix.gogo.runtime,\
+	org.apache.felix.gogo.shell,\
+	org.apache.felix.configadmin
+-runee: JavaSE-1.6
+-runvm: -ea
+-runfw: org.apache.felix.framework
+-buildpath: osgi.core;version='[4.2,5)',\
+	osgi.cmpn,\
+	junit.osgi,\
+	org.mockito.mockito-all,\
+	org.apache.ace.test;version=latest
+-runsystempackages: sun.reflect
+
+# Wire against the management agent's packages
+Private-Package: org.apache.ace.deployment.rp.autoconf
+Import-Package: org.osgi.service.deploymentadmin.spi;managementagent=true,\
+	*
