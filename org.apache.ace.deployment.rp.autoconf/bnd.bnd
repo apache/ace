@@ -1,0 +1,31 @@
+-buildpath: org.apache.felix.deployment.rp.autoconf;version=0.1.4
+
+Bundle-Activator: org.apache.felix.deployment.rp.autoconf.Activator
+Bundle-Description: Apache ACE AutoConf Resource Processor that warps the Apache Felix AutoConf Resource Processor implementation to add import package qualifiers
+Bundle-DocURL: http://ace.apache.org/ 
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-Name: Apache ACE AutoConf Resource Processor
+Bundle-Vendor Apache Software Foundation 
+Bundle-Version: 1.0.0
+Deployment-ProvidesResourceProcessor: org.osgi.deployment.rp.autoconf
+DeploymentPackage-Customizer: true 
+
+Private-Package: org.apache.felix.deployment.rp.autoconf,\
+	org.apache.felix.metatype,\
+	org.apache.felix.metatype.internal,\
+	org.apache.felix.metatype.internal.l10n,\
+	org.kxml2.io,\
+	org.osgi.service.deploymentadmin.spi,\
+	org.osgi.service.metatype,\
+	org.xmlpull.v1
+	
+Import-Package: org.apache.felix.dm;managementagent=true;version="[3.0,4)",\
+	org.osgi.framework;version="[1.5,2)",\
+	org.osgi.service.cm;version="[1.3,2)",\
+	org.osgi.service.deploymentadmin;managementagent=true;version="[1,2)",\
+	org.osgi.service.deploymentadmin.spi;managementagent=true;version="[1,2)",\
+	org.osgi.service.event;managementagent=true;version="[1.2,2)",\
+	org.osgi.service.log;managementagent=true;version="[1.3,2)",\
+	org.osgi.service.metatype;version="[1.1,2)",
+	org.osgi.util.tracker;version="[1.4,2)",\
+	*
