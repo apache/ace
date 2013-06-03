@@ -457,7 +457,7 @@ public class RESTClientTest extends IntegrationTestBase {
             "authentication.enabled", "false");
 
         configure("org.apache.ace.obr.storage.file",
-            "fileLocation", "store");
+            "fileLocation", "generated/store");
 
         configure("org.apache.ace.deployment.provider.repositorybased",
             "url", "http://localhost:8080/repository",
