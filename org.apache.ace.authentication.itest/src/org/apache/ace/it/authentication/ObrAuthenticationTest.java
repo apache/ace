@@ -45,33 +45,107 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
- * Provides a test case in which the OBR has authentication enabled, and the 
- * rest of ACE has to remain function correctly.
+ * Provides a test case in which the OBR has authentication enabled, and the rest of ACE has to remain function
+ * correctly.
  */
 public class ObrAuthenticationTest extends AuthenticationTestBase {
-    
+
     private volatile String m_endpoint;
     private volatile File m_storeLocation;
     private volatile String m_authConfigPID;
-    
+    private boolean m_hasBeenSetup = false;
+
     /* Injected by dependency manager */
-    private volatile ArtifactRepository m_artifactRepository; 
+    private volatile ArtifactRepository m_artifactRepository;
     private volatile Repository m_userRepository;
     private volatile UserAdmin m_userAdmin;
     private volatile ConfigurationAdmin m_configAdmin;
     private volatile ConnectionFactory m_connectionFactory;
 
-    /**
-     * Tears down the set up of the test case.
-     * 
-     * @throws java.lang.Exception not part of this test case.
-     */
+    @Override
+    protected Component[] getDependencies() {
+        return new Component[] {
+            createComponent()
+                .setImplementation(this)
+                .add(createServiceDependency().setService(ArtifactRepository.class).setRequired(true))
+                .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
+                .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true))
+                .add(createServiceDependency().setService(UserAdmin.class).setRequired(true))
+                .add(createServiceDependency()
+                    .setService(Repository.class, "(&(" + RepositoryConstants.REPOSITORY_NAME + "=users)(" + RepositoryConstants.REPOSITORY_CUSTOMER + "=apache))")
+                    .setRequired(true))
+        };
+    }
+
+    @Override
+    protected void configureProvisionedServices() throws Exception {
+        if (m_hasBeenSetup)
+            return;
+
+        m_endpoint = "/obr";
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        m_storeLocation = new File(tmpDir, "store");
+        m_storeLocation.delete();
+        m_storeLocation.mkdirs();
+
+        final String fileLocation = m_storeLocation.getAbsolutePath();
+        getService(SessionFactory.class).createSession("test-session-ID");
+
+        configureFactory("org.apache.ace.server.repository.factory",
+            RepositoryConstants.REPOSITORY_NAME, "users",
+            RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
+            RepositoryConstants.REPOSITORY_MASTER, "true");
+        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
+            "repositoryName", "users",
+            "repositoryCustomer", "apache");
+        configure("org.apache.ace.scheduler",
+            "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
+
+        configure("org.apache.ace.obr.servlet",
+            "OBRInstance", "singleOBRServlet",
+            "org.apache.ace.server.servlet.endpoint", m_endpoint,
+            "authentication.enabled", "true");
+        configure("org.apache.ace.obr.storage.file",
+            "OBRInstance", "singleOBRStore",
+            OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
+    }
+
+    @Override
+    protected void configureAdditionalServices() throws Exception {
+
+        if (m_hasBeenSetup)
+            return;
+        m_hasBeenSetup = true;
+
+        String userName = "d";
+        String password = "f";
+        importSingleUser(m_userRepository, userName, password);
+        waitForUser(m_userAdmin, userName);
+
+        URL obrURL = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/");
+        m_artifactRepository.setObrBase(obrURL);
+
+        URL testURL = new URL(obrURL, "repository.xml");
+
+        assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
+
+        m_authConfigPID = configureFactory("org.apache.ace.connectionfactory",
+            "authentication.baseURL", obrURL.toExternalForm(),
+            "authentication.type", "basic",
+            "authentication.user.name", userName,
+            "authentication.user.password", password);
+
+        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
+
+        // Wait for CM to settle or we may get "socket closed" due to HTTP service restarts
+        Thread.sleep(1000);
+    }
+
     public void tearDown() throws Exception {
         FileUtils.removeDirectoryWithContent(m_storeLocation);
-        
         Configuration configuration = getConfiguration(m_authConfigPID);
         if (configuration != null) {
-        	configuration.delete();
+            configuration.delete();
         }
     }
 
@@ -80,7 +154,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
      */
     public void testAccessObrRepositoryWithCredentialsOk() throws IOException {
         URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
-        
+
         URLConnection conn = m_connectionFactory.createConnection(url);
         assertNotNull(conn);
 
@@ -93,7 +167,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
      */
     public void testAccessObrRepositoryWithoutCredentialsFail() throws IOException {
         URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
-        
+
         // do NOT use connection factory as it will supply the credentials for us...
         URLConnection conn = url.openConnection();
         assertNotNull(conn);
@@ -102,11 +176,12 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
         NetUtils.waitForURL(url, 401, 15000);
 
         try {
-	        // ...causing all other methods on URLConnection to fail...
-	        conn.getContent(); // should fail!
-	        fail("IOException expected!");
-        } catch (IOException exception) {
-        	// Ok; ignored...
+            // ...causing all other methods on URLConnection to fail...
+            conn.getContent(); // should fail!
+            fail("IOException expected!");
+        }
+        catch (IOException exception) {
+            // Ok; ignored...
         }
     }
 
@@ -119,11 +194,11 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
 
         // Simulate incorrect credentials by updating the config of the connection factory...
         configuration.getProperties().put("authentication.user.name", "foo");
-        
+
         configuration.update();
 
         URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
-        
+
         // do NOT use connection factory as it will supply the credentials for us...
         URLConnection conn = url.openConnection();
         assertNotNull(conn);
@@ -132,16 +207,18 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
         NetUtils.waitForURL(url, 401, 15000);
 
         try {
-	        // ...causing all other methods on URLConnection to fail...
-	        conn.getContent(); // should fail!
-	        fail("IOException expected!");
-        } catch (IOException exception) {
-        	// Ok; ignored...
+            // ...causing all other methods on URLConnection to fail...
+            conn.getContent(); // should fail!
+            fail("IOException expected!");
+        }
+        catch (IOException exception) {
+            // Ok; ignored...
         }
     }
 
     /**
-     * Test that an import of an artifact through the API of ACE works, making sure they can access an authenticated OBR as well.
+     * Test that an import of an artifact through the API of ACE works, making sure they can access an authenticated OBR
+     * as well.
      */
     public void testImportArtifactWithCredentialsOk() throws Exception {
         // Use a valid JAR file, without a Bundle-SymbolicName header.
@@ -177,7 +254,8 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
     }
 
     /**
-     * Test that an import of an artifact through the API of ACE works, making sure they can access an authenticated OBR as well.
+     * Test that an import of an artifact through the API of ACE works, making sure they can access an authenticated OBR
+     * as well.
      */
     public void testImportArtifactWithoutCredentialsFail() throws Exception {
         org.osgi.service.cm.Configuration configuration = m_configAdmin.getConfiguration(m_authConfigPID);
@@ -199,87 +277,11 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
         jos.close();
 
         try {
-        	m_artifactRepository.importArtifact(temp.toURI().toURL(), true /* upload */); // should fail!
-        	fail("IOException expected!");
-        } catch (IOException exception) {
-        	// Ok; expected...
+            m_artifactRepository.importArtifact(temp.toURI().toURL(), true /* upload */); // should fail!
+            fail("IOException expected!");
         }
-    }
-
-    @Override
-    protected void configureAdditionalServices() throws Exception {
-        String userName = "d";
-        String password = "f";
-
-        importSingleUser(m_userRepository, userName, password);
-        waitForUser(m_userAdmin, userName);
-
-        URL obrURL = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/");
-        m_artifactRepository.setObrBase(obrURL);
-
-        URL testURL = new URL(obrURL, "repository.xml");
-
-        assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
-
-        m_authConfigPID = configureFactory("org.apache.ace.connectionfactory", 
-                "authentication.baseURL", obrURL.toExternalForm(), 
-                "authentication.type", "basic",
-                "authentication.user.name", userName,
-                "authentication.user.password", password);
-
-        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void configureProvisionedServices() throws Exception {
-        m_endpoint = "/obr";
-        
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        m_storeLocation = new File(tmpDir, "store");
-        m_storeLocation.delete();
-        m_storeLocation.mkdirs();
-
-        final String fileLocation = m_storeLocation.getAbsolutePath();
-
-        getService(SessionFactory.class).createSession("test-session-ID");
-
-        configureFactory("org.apache.ace.server.repository.factory",
-            RepositoryConstants.REPOSITORY_NAME, "users",
-            RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
-            RepositoryConstants.REPOSITORY_MASTER, "true");
-        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
-            "repositoryName", "users",
-            "repositoryCustomer", "apache");
-        configure("org.apache.ace.scheduler",
-            "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
-
-        configure("org.apache.ace.obr.servlet", 
-            "OBRInstance", "singleOBRServlet", 
-            "org.apache.ace.server.servlet.endpoint", m_endpoint, 
-            "authentication.enabled", "true");
-        configure("org.apache.ace.obr.storage.file", 
-            "OBRInstance", "singleOBRStore",
-            OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Component[] getDependencies() {
-        return new Component[] {
-            createComponent()
-                .setImplementation(this)
-                .add(createServiceDependency().setService(ArtifactRepository.class).setRequired(true))
-                .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
-                .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true))
-                .add(createServiceDependency().setService(UserAdmin.class).setRequired(true))
-                .add(createServiceDependency()
-                    .setService(Repository.class, "(&(" + RepositoryConstants.REPOSITORY_NAME + "=users)(" + RepositoryConstants.REPOSITORY_CUSTOMER + "=apache))")
-                    .setRequired(true))
-        };
+        catch (IOException exception) {
+            // Ok; expected...
+        }
     }
 }
