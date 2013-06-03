@@ -154,10 +154,12 @@ public class UserEditorImpl implements UserEditor {
         List<UserDTO> tempData = new ArrayList<UserDTO>();
         try {
             Role[] roles = m_useradmin.getRoles(null);
-            for (Role role : roles) {
-                if (role.getType() == Role.USER) {
-                    User user = (User) role;
-                    tempData.add(new UserDTO((User) role, getGroup(user)));
+            if (roles != null) {
+                for (Role role : roles) {
+                    if (role.getType() == Role.USER) {
+                        User user = (User) role;
+                        tempData.add(new UserDTO((User) role, getGroup(user)));
+                    }
                 }
             }
         }
@@ -172,9 +174,11 @@ public class UserEditorImpl implements UserEditor {
         List<Group> tempGroups = new ArrayList<Group>();
         try {
             Role[] roles = m_useradmin.getRoles("(type=userGroup)");
-            for (Role role : roles) {
-                if (role.getType() == Role.GROUP) {
-                    tempGroups.add((Group) role);
+            if (roles != null) {
+                for (Role role : roles) {
+                    if (role.getType() == Role.GROUP) {
+                        tempGroups.add((Group) role);
+                    }
                 }
             }
         }
@@ -189,9 +193,11 @@ public class UserEditorImpl implements UserEditor {
         List<User> tempUsers = new ArrayList<User>();
         try {
             Role[] roles = m_useradmin.getRoles(null);
-            for (Role role : roles) {
-                if (role.getType() == Role.USER) {
-                    tempUsers.add((User) role);
+            if (roles != null) {
+                for (Role role : roles) {
+                    if (role.getType() == Role.USER) {
+                        tempUsers.add((User) role);
+                    }
                 }
             }
         }
@@ -210,9 +216,12 @@ public class UserEditorImpl implements UserEditor {
                 Role result = m_useradmin.getRole(role);
                 if (result.getType() == Role.GROUP) {
                     Group group = (Group) result;
-                    for (Role r : group.getMembers()) {
-                        if (r.getType() == Role.USER && r.getName().equals(user.getName())) {
-                            return group;
+                    Role[] members = group.getMembers();
+                    if (members != null) {
+                        for (Role r : members) {
+                            if (r.getType() == Role.USER && r.getName().equals(user.getName())) {
+                                return group;
+                            }
                         }
                     }
                 }
