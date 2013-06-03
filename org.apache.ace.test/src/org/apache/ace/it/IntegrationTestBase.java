@@ -337,6 +337,10 @@ public class IntegrationTestBase extends TestCase {
             }
             
         	configureAdditionalServices();
+        	
+            // Wait for CM to settle or we may get "socket closed" due to HTTP service restarts
+            System.out.println("Sleeping...");
+            Thread.sleep(2000);
         }
         catch (InterruptedException e) {
             fail("Interrupted while waiting for services to get started.");

@@ -56,7 +56,7 @@ public class ConfiguratorTest extends IntegrationTestBase {
         User user = (User) m_userAdmin.getRole("TestUser");
         int count = 0;
         while ((user == null) && (count < 60)) {
-            Thread.sleep(250);
+            Thread.sleep(50);
             user = (User) m_userAdmin.getRole("TestUser");
             count++;
         }

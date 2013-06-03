@@ -53,7 +53,6 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
     private volatile String m_endpoint;
     private volatile File m_storeLocation;
     private volatile String m_authConfigPID;
-    private boolean m_hasBeenSetup = false;
 
     /* Injected by dependency manager */
     private volatile ArtifactRepository m_artifactRepository;
@@ -79,8 +78,6 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
 
     @Override
     protected void configureProvisionedServices() throws Exception {
-        if (m_hasBeenSetup)
-            return;
 
         m_endpoint = "/obr";
         String tmpDir = System.getProperty("java.io.tmpdir");
@@ -113,10 +110,6 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
     @Override
     protected void configureAdditionalServices() throws Exception {
 
-        if (m_hasBeenSetup)
-            return;
-        m_hasBeenSetup = true;
-
         String userName = "d";
         String password = "f";
         importSingleUser(m_userRepository, userName, password);
@@ -136,9 +129,6 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             "authentication.user.password", password);
 
         assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
-
-        // Wait for CM to settle or we may get "socket closed" due to HTTP service restarts
-        Thread.sleep(1000);
     }
 
     public void tearDown() throws Exception {
