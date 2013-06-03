@@ -60,9 +60,6 @@ public class RESTClientTest extends IntegrationTestBase {
             configureServer();
             createServerUser();
             m_hasBeenSetup = true;
-            
-            System.err.println("Sleeping...");
-            Thread.sleep(1000);
         }
     }
     
