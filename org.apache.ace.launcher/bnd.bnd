@@ -1,9 +1,7 @@
 -sources: false
--buildpath: \
-	osgi.core,\
-	org.apache.felix.dependencymanager,\
-	org.apache.felix.framework,\
+-buildpath: org.apache.felix.framework,\
 	org.apache.ace.managementagent;version=latest
+Import-Package:
 Private-Package: org.apache.ace.*;-split-package:=first,\
     org.apache.felix.*;-split-package:=first,\
 	EDU.oswego.cs.dl.util.concurrent;-split-package:=first,\
@@ -29,6 +27,6 @@ Private-Package: org.apache.ace.*;-split-package:=first,\
 	org.osgi.util.tracker
 Include-Resource: default.properties=resources/default.properties
 Main-Class: org.apache.ace.launcher.Main
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Launcher
 Bundle-Description: Standalone launcher for the Apache ACE ManagementAgent
