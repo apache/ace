@@ -28,14 +28,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.ace.authentication.api.AuthenticationService;
+import org.apache.ace.client.repository.Association;
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
+import org.apache.ace.client.repository.helper.bundle.BundleHelper;
+import org.apache.ace.client.repository.object.ArtifactObject;
+import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
@@ -47,9 +49,9 @@ import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
-import org.osgi.service.useradmin.UserAdmin;
 
 public class Workspace {
     static final String ARTIFACT = "artifact";
@@ -63,14 +65,15 @@ public class Workspace {
     private final String m_sessionID;
     private final URL m_repositoryURL;
     private final URL m_obrURL;
-    private final String m_customerName;
+    private final String m_storeCustomerName;
+    private final String m_distributionCustomerName;
+    private final String m_deploymentCustomerName;
     private final String m_storeRepositoryName;
     private final String m_distributionRepositoryName;
     private final String m_deploymentRepositoryName;
     private final String m_serverUser;
-    private final boolean m_useAuthentication;
-    
-    private volatile AuthenticationService m_authenticationService;
+
+    private volatile BundleContext m_context;
     private volatile DependencyManager m_manager;
     private volatile RepositoryAdmin m_repositoryAdmin;
     private volatile ArtifactRepository m_artifactRepository;
@@ -80,18 +83,22 @@ public class Workspace {
     private volatile Artifact2FeatureAssociationRepository m_artifact2FeatureAssociationRepository;
     private volatile Feature2DistributionAssociationRepository m_feature2DistributionAssociationRepository;
     private volatile Distribution2TargetAssociationRepository m_distribution2TargetAssociationRepository;
-    private volatile UserAdmin m_userAdmin;
     private volatile LogService m_log;
 
-    public Workspace(String sessionID, String repositoryURL, String obrURL, String customerName, String storeRepositoryName, String distributionRepositoryName, String deploymentRepositoryName, boolean useAuthentication, String serverUser) throws MalformedURLException {
+    public Workspace(String sessionID, String repositoryURL, String obrURL, String customerName, String storeRepositoryName, String distributionRepositoryName, String deploymentRepositoryName, String serverUser) throws MalformedURLException {
+    	this(sessionID, repositoryURL, obrURL, customerName, storeRepositoryName, customerName, distributionRepositoryName, customerName, deploymentRepositoryName, serverUser);
+    }
+
+    public Workspace(String sessionID, String repositoryURL, String obrURL, String storeCustomerName, String storeRepositoryName, String distributionCustomerName, String distributionRepositoryName, String deploymentCustomerName, String deploymentRepositoryName, String serverUser) throws MalformedURLException {
         m_sessionID = sessionID;
         m_repositoryURL = new URL(repositoryURL);
         m_obrURL = new URL(obrURL);
-        m_customerName = customerName;
+        m_storeCustomerName = storeCustomerName;
+        m_distributionCustomerName = deploymentCustomerName;
+        m_deploymentCustomerName = deploymentCustomerName;
         m_storeRepositoryName = storeRepositoryName;
         m_distributionRepositoryName = distributionRepositoryName;
         m_deploymentRepositoryName = deploymentRepositoryName;
-        m_useAuthentication = useAuthentication;
         m_serverUser = serverUser;
     }
     
@@ -110,7 +117,7 @@ public class Workspace {
         );
     }
     
-    private void addDependency(Component component, Class service, boolean isRequired) {
+    private void addDependency(Component component, Class<LogService> service, boolean isRequired) {
         component.add(m_manager.createServiceDependency()
             .setService(service)
             .setRequired(isRequired)
@@ -128,8 +135,6 @@ public class Workspace {
         addSessionDependency(component, Artifact2FeatureAssociationRepository.class, true);
         addSessionDependency(component, Feature2DistributionAssociationRepository.class, true);
         addSessionDependency(component, Distribution2TargetAssociationRepository.class, true);
-        addDependency(component, AuthenticationService.class, m_useAuthentication);
-        addDependency(component, UserAdmin.class, true);
         addDependency(component, LogService.class, false);
     }
     
@@ -139,38 +144,24 @@ public class Workspace {
     public void destroy() {
     }
     
-    public boolean login(HttpServletRequest request) {
+    public boolean login(User user) {
         try {
-            final User user;
-            if (m_useAuthentication) {
-                // Use the authentication service to authenticate the given request...
-                user = m_authenticationService.authenticate(request);
-            } else {
-                // Use the "hardcoded" user to login with...
-                user = m_userAdmin.getUser("username", m_serverUser);
-            }
-            
-            if (user == null) {
-                // No user obtained through request/fallback scenario; login failed...
-                return false;
-            }
-
             RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(user);
             
             context.setObrBase(m_obrURL)
                 .add(context.createShopRepositoryContext()
                     .setLocation(m_repositoryURL)
-                    .setCustomer(m_customerName)
+                    .setCustomer(m_storeCustomerName)
                     .setName(m_storeRepositoryName)
                     .setWriteable())
                 .add(context.createTargetRepositoryContext()
                     .setLocation(m_repositoryURL)
-                    .setCustomer(m_customerName)
+                    .setCustomer(m_distributionCustomerName)
                     .setName(m_distributionRepositoryName)
                     .setWriteable())
                 .add(context.createDeploymentRepositoryContext()
                     .setLocation(m_repositoryURL)
-                    .setCustomer(m_customerName)
+                    .setCustomer(m_deploymentCustomerName)
                     .setName(m_deploymentRepositoryName)
                     .setWriteable());
 
@@ -180,6 +171,7 @@ public class Workspace {
         catch (IOException e) {
             e.printStackTrace();
             m_log.log(LogService.LOG_ERROR, "Could not login and checkout. Workspace will probably not work correctly.", e);
+            return false;
         }
         
         return true;
@@ -438,5 +430,187 @@ public class Workspace {
             return m_statefulTargetRepository;
         }
         throw new IllegalArgumentException("Unknown entity type: " + entityType);
+    }
+    
+    /*** SHELL COMMANDS ***/
+    
+    /* Command syntax, first character is the "operation", then the "entity type" or "association".
+     * Operations: [c]reate, [l]ist, [d]elete, [u]pdate
+     * Entities: [a]rtifact, [f]eature, [d]istribution, [t]arget
+     * Associations: [a2f], [f2d], [d2t]
+     */
+    
+    /*** artifact ***/
+    
+    public List<RepositoryObject> la() {
+    	return getRepositoryObjects(ARTIFACT);
+    }
+    
+    public List<RepositoryObject> la(String filter) throws Exception {
+    	return getObjectRepository(ARTIFACT).get(m_context.createFilter(filter));
+    }
+    
+    public void ca(String name, String url, String bsn, String version) {
+    	Map<String, String> attrs = new HashMap<String, String>();
+    	attrs.put(ArtifactObject.KEY_ARTIFACT_NAME, name);
+    	attrs.put(ArtifactObject.KEY_URL, url);
+    	attrs.put(ArtifactObject.KEY_MIMETYPE, BundleHelper.MIMETYPE);
+    	attrs.put("Bundle-SymbolicName", bsn);
+    	attrs.put("Bundle-Version", version);
+    	ca(attrs);
+    }
+
+    public void ca(Map<String, String> attrs) {
+    	ca(attrs, new HashMap<String, String>());
+    }
+    
+    public void ca(Map<String, String> attrs, Map<String, String> tags) {
+    	addRepositoryObject(ARTIFACT, attrs, tags);
+    }
+
+    
+    /*** artifact to feature association ***/
+    
+    public List<RepositoryObject> la2f() {
+    	return getRepositoryObjects(ARTIFACT2FEATURE);
+    }
+    
+    public void ca2f(String left, String right) {
+    	ca2f(left, right, "1", "1");
+    }
+    
+    public void ca2f(String left, String right, String leftCardinality, String rightCardinalty) {
+    	cas(ARTIFACT2FEATURE, left, right, leftCardinality, rightCardinalty);
+    }
+    
+    
+    /*** feature ***/
+    
+    public List<RepositoryObject> lf() {
+    	return getRepositoryObjects(FEATURE);
+    }
+    
+    public List<RepositoryObject> lf(String filter) throws Exception {
+    	return getObjectRepository(FEATURE).get(m_context.createFilter(filter));
+    }
+    
+    public void cf(String name) {
+    	Map<String, String> attrs = new HashMap<String, String>();
+    	attrs.put(FeatureObject.KEY_NAME, name);
+    	cf(attrs);
+    }
+
+    public void cf(Map<String, String> attrs) {
+    	cf(attrs, new HashMap<String, String>());
+    }
+    
+    public void cf(Map<String, String> attrs, Map<String, String> tags) {
+    	addRepositoryObject(FEATURE, attrs, tags);
+    }
+    
+    public void df(RepositoryObject repositoryObject) {
+    	deleteRepositoryObject(FEATURE, repositoryObject.getDefinition());
+    }
+
+    
+    /*** feature to distribution association ***/
+    
+    public List<RepositoryObject> lf2d() {
+    	return getRepositoryObjects(FEATURE2DISTRIBUTION);
+    }
+    
+    public void cf2d(String left, String right) {
+    	cf2d(left, right, "1", "1");
+    }
+    
+    public void cf2d(String left, String right, String leftCardinality, String rightCardinalty) {
+    	cas(FEATURE2DISTRIBUTION, left, right, leftCardinality, rightCardinalty);
+    }
+    
+    
+    /*** distribution ***/
+    
+    public List<RepositoryObject> ld() {
+    	return getRepositoryObjects(DISTRIBUTION);
+    }
+    
+    public List<RepositoryObject> ld(String filter) throws Exception {
+    	return getObjectRepository(DISTRIBUTION).get(m_context.createFilter(filter));
+    }
+    
+    public void cd(String name) {
+    	Map<String, String> attrs = new HashMap<String, String>();
+    	attrs.put(DistributionObject.KEY_NAME, name);
+    	cd(attrs);
+    }
+
+    public void cd(Map<String, String> attrs) {
+    	cd(attrs, new HashMap<String, String>());
+    }
+    
+    public void cd(Map<String, String> attrs, Map<String, String> tags) {
+    	addRepositoryObject(DISTRIBUTION, attrs, tags);
+    }
+    
+    
+    /*** distribution to target association ***/
+    
+    public List<RepositoryObject> ld2t() {
+    	return getRepositoryObjects(DISTRIBUTION2TARGET);
+    }
+    
+    public void cd2t(String left, String right) {
+    	cd2t(left, right, "1", "1");
+    }
+    
+    public void cd2t(String left, String right, String leftCardinality, String rightCardinalty) {
+    	cas(DISTRIBUTION2TARGET, left, right, leftCardinality, rightCardinalty);
+    }
+    
+    
+    /*** target ***/
+    
+    public List<RepositoryObject> lt() {
+    	return getRepositoryObjects(TARGET);
+    }
+    
+    public List<RepositoryObject> lt(String filter) throws Exception {
+    	return getObjectRepository(TARGET).get(m_context.createFilter(filter));
+    }
+    
+    public void ct(String name) {
+    	Map<String, String> attrs = new HashMap<String, String>();
+    	attrs.put(StatefulTargetObject.KEY_ID, name);
+    	ct(attrs);
+    }
+
+    public void ct(Map<String, String> attrs) {
+    	ct(attrs, new HashMap<String, String>());
+    }
+    
+    public void ct(Map<String, String> attrs, Map<String, String> tags) {
+    	addRepositoryObject(TARGET, attrs, tags);
+    }
+    
+
+    /*** other/generic ***/
+
+    public void cas(String entityType, String left, String right, String leftCardinality, String rightCardinalty) {
+    	Map<String, String> attrs = new HashMap<String, String>();
+    	Map<String, String> tags = new HashMap<String, String>();
+    	attrs.put(Association.LEFT_ENDPOINT, left);
+    	attrs.put(Association.LEFT_CARDINALITY, interpretCardinality(leftCardinality));
+    	attrs.put(Association.RIGHT_ENDPOINT, right);
+    	attrs.put(Association.RIGHT_CARDINALITY, interpretCardinality(rightCardinalty));
+    	addRepositoryObject(entityType, attrs, tags);
+    }
+    
+    private static String interpretCardinality(String cardinality) {
+    	if (cardinality != null && "N".equals(cardinality.toUpperCase())) {
+    		return "" + Integer.MAX_VALUE;
+    	}
+    	else {
+    		return cardinality;
+    	}
     }
 }

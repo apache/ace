@@ -18,11 +18,14 @@
  */
 package org.apache.ace.client.rest;
 
+import java.util.Properties;
+
 import javax.servlet.Servlet;
 
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
+import org.apache.felix.service.command.CommandProcessor;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
@@ -31,8 +34,11 @@ public class Activator extends DependencyActivatorBase {
     
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
+		Properties props = new Properties();
+		props.put(CommandProcessor.COMMAND_SCOPE, "ace");
+		props.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "cw", "rw" });
         manager.add(createComponent()
-            .setInterface(Servlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), props)
             .setImplementation(RESTClientServlet.class)
             .add(createServiceDependency()
                 .setService(SessionFactory.class)

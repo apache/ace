@@ -10,7 +10,10 @@
 	org.apache.ace.test;version=latest,\
 	javax.servlet,\
 	gson;version=1.7.1,\
-	org.mockito.mockito-all
+	org.mockito.mockito-all,\
+	org.apache.felix.gogo.command,\
+	org.apache.felix.gogo.shell,\
+	org.apache.felix.gogo.runtime
 Private-Package: org.apache.ace.client.rest,\
 	com.google.gson,\
 	com.google.gson.annotations,\

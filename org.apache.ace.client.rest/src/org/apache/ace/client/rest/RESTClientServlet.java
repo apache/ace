@@ -33,15 +33,27 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ace.authentication.api.AuthenticationService;
+import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
+import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
+import org.apache.ace.client.repository.repository.ArtifactRepository;
+import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
+import org.apache.ace.client.repository.repository.DistributionRepository;
+import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
+import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.log.LogEvent;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
+import org.osgi.service.useradmin.User;
+import org.osgi.service.useradmin.UserAdmin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -86,6 +98,10 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     private volatile LogService m_logger;
     private volatile DependencyManager m_dm;
     private volatile SessionFactory m_sessionFactory;
+    
+	private volatile AuthenticationService m_authenticationService;
+	private volatile UserAdmin m_userAdmin;
+    
 
     private final Map<String, Workspace> m_workspaces;
     private final Map<String, Component> m_workspaceComponents;
@@ -111,6 +127,19 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         
         m_workspaces = new HashMap<String, Workspace>();
         m_workspaceComponents = new HashMap<String, Component>();
+    }
+    
+    public void init(Component component) {
+        addDependency(component, AuthenticationService.class, m_useAuthentication);
+        addDependency(component, UserAdmin.class, true);
+    }
+    
+    private void addDependency(Component component, Class service, boolean isRequired) {
+        component.add(component.getDependencyManager().createServiceDependency()
+            .setService(service)
+            .setRequired(isRequired)
+            .setInstanceBound(true)
+        );
     }
     
     public void destroy() {
@@ -419,7 +448,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not add entity of type " + entityType);
         }
     }
-
+    
     /**
      * Creates a new workspace.
      * 
@@ -434,7 +463,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
         synchronized (m_workspaces) {
             sessionID = "rest-" + m_sessionID++;
-            workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, m_customerName, m_storeRepositoryName, m_targetRepositoryName, m_deploymentRepositoryName, m_useAuthentication, m_serverUser);
+            workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, m_customerName, m_storeRepositoryName, m_targetRepositoryName, m_deploymentRepositoryName, m_serverUser);
             m_workspaces.put(sessionID, workspace);
 
             component = m_dm.createComponent().setImplementation(workspace);
@@ -442,8 +471,18 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
         m_sessionFactory.createSession(sessionID);
         m_dm.add(component);
-
-        if (!workspace.login(req)) {
+        
+        
+        User user;
+        if (m_useAuthentication) {
+            // Use the authentication service to authenticate the given request...
+            user = m_authenticationService.authenticate(req);
+        } else {
+            // Use the "hardcoded" user to login with...
+            user = m_userAdmin.getUser("username", m_serverUser);
+        }
+        
+        if (user == null || !workspace.login(user)) {
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         }
         else {
@@ -710,4 +749,41 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             return null; // should never occur
         }
     }
+    
+    /*** SHELL COMMANDS ***/
+
+    public Workspace cw() throws Exception {
+    	return cw(m_customerName, m_customerName, m_customerName);
+    }
+    
+	public Workspace cw(String storeCustomerName, String targetCustomerName, String deploymentCustomerName) throws Exception {
+        final String sessionID;
+        final Workspace workspace;
+        final Component component;
+
+        synchronized (m_workspaces) {
+            sessionID = "shell-" + m_sessionID++;
+            workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, storeCustomerName, m_storeRepositoryName, targetCustomerName, m_targetRepositoryName, deploymentCustomerName, m_deploymentRepositoryName, m_serverUser);
+            m_workspaces.put(sessionID, workspace);
+
+            component = m_dm.createComponent().setImplementation(workspace);
+            m_workspaceComponents.put(sessionID, component);
+        }
+        m_sessionFactory.createSession(sessionID);
+        m_dm.add(component);
+        
+        
+        // Use the "hardcoded" user to login with...
+        User user = m_userAdmin.getUser("username", m_serverUser);
+        if (user == null || !workspace.login(user)) {
+            return null;
+        }
+        else {
+            return workspace;
+        }
+    }
+	
+	public void rw(Workspace w) throws Exception {
+		removeWorkspace(w.getSessionID());
+	}
 }
