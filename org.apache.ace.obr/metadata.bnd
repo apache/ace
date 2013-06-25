@@ -7,7 +7,8 @@ Private-Package: org.apache.ace.obr.metadata.bindex,\
 	org.kxml2.wap.wv,\
 	org.xmlpull.v1,\
 	org.osgi.impl.bundle.bindex,\
-	org.osgi.impl.bundle.obr.resource
+	org.osgi.impl.bundle.obr.resource,\
+	org.apache.ace.obr.metadata.util
 Bundle-Activator: org.apache.ace.obr.metadata.bindex.Activator
 Export-Package: org.apache.ace.obr.metadata,\
 	org.osgi.impl.bundle.obr.resource,\
