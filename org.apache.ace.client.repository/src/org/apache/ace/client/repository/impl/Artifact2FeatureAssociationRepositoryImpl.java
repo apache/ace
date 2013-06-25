@@ -50,7 +50,7 @@ public class Artifact2FeatureAssociationRepositoryImpl extends AssociationReposi
             return new Artifact2FeatureAssociationImpl(attributes, this, m_artifactRepository, m_featureRepository);
         }
         catch (InvalidSyntaxException e) {
-            throw new IllegalArgumentException("Unable to create association: ", e);
+            throw new IllegalArgumentException("Unable to create association: " + e.getMessage(), e);
         }
     }
 
@@ -60,7 +60,7 @@ public class Artifact2FeatureAssociationRepositoryImpl extends AssociationReposi
             return new Artifact2FeatureAssociationImpl(attributes, tags, this, m_artifactRepository, m_featureRepository);
         }
         catch (InvalidSyntaxException e) {
-            throw new IllegalArgumentException("Unable to create association: ", e);
+            throw new IllegalArgumentException("Unable to create association: " + e.getMessage(), e);
         }
     }
 
@@ -70,7 +70,7 @@ public class Artifact2FeatureAssociationRepositoryImpl extends AssociationReposi
             return new Artifact2FeatureAssociationImpl(reader, this, m_artifactRepository, m_featureRepository);
         }
         catch (InvalidSyntaxException e) {
-            throw new IllegalArgumentException("Unable to create association: ", e);
+            throw new IllegalArgumentException("Unable to create association: " + e.getMessage(), e);
         }
     }
 }

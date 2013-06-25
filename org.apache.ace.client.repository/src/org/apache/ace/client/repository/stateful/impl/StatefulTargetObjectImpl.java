@@ -714,4 +714,9 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     public Comparator getComparator() {
         throw new UnsupportedOperationException("A StatefulTargetObject cannot return a comparator; use the underlying TargetObject instead.");
     }
+    
+    @Override
+    public String toString() {
+    	return "StatefulTargetObjectImpl[" + getStatusAttribute(KEY_ID) + " " + getRegistrationState() + " " + getStoreState() + " " + getProvisioningState() + "]";
+    }
 }
