@@ -96,14 +96,15 @@ public class BundleFileStore implements BundleStore, ManagedService {
             metaData = ResourceMetaData.getArtifactMetaData(fileName);
         }
         if (metaData == null) {
-            throw new IOException("Not a valid bundle and no filename found");
+            throw new IOException("Not a valid bundle and no filename found (filename = " + fileName + ")");
         }
 
         File storeLocation = getResourceFile(metaData);
         if (storeLocation == null) {
-            throw new IOException("Failed to store resource");
+            throw new IOException("Failed to store resource (filename = " + fileName + ")");
         }
         if (storeLocation.exists()) {
+            m_log.log(LogService.LOG_ERROR, "Resource already existed in OBR (filename = " + fileName + ")");
             return null;
         }
 
