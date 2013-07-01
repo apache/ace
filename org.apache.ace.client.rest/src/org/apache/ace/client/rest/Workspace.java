@@ -295,8 +295,7 @@ public class Workspace {
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
             if (!valueObject.attributes.containsKey(key)) {
-                // TODO since we cannot remove keys right now, we null them
-                repositoryObject.addAttribute(key, null);
+                repositoryObject.removeAttribute(key);
             }
         }
         if (ARTIFACT2FEATURE.equals(entityType) || FEATURE2DISTRIBUTION.equals(entityType) || DISTRIBUTION2TARGET.equals(entityType)) {
@@ -347,8 +346,7 @@ public class Workspace {
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
             if (!valueObject.tags.containsKey(key)) {
-                // TODO since we cannot remove keys right now, we null them
-                repositoryObject.addTag(key, null);
+                repositoryObject.removeTag(key);
             }
         }
     }

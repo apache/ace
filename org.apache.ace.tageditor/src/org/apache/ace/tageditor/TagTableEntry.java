@@ -91,7 +91,7 @@ public class TagTableEntry {
         if (id != null) {
             table.removeItem(id);
             if ((m_lastKey != null) && (m_lastKey.trim().length() > 0)) {
-                m_repoObject.addTag(m_lastKey, null);
+                m_repoObject.removeTag(m_lastKey);
             }
             ChangeListener listener = m_listener;
             if (listener != null) {
@@ -122,7 +122,7 @@ public class TagTableEntry {
     private void set(String key, String value) {
         if ((key != null) && (key.trim().length() > 0)) {
             if ((value != null) && (value.trim().length() > 0)) {
-                m_repoObject.addTag(key, value);
+                m_repoObject.addTag(key, value); // TODO changing the tag that often is probably not a good idea (especially if nothing changed)
                 ChangeListener listener = m_listener;
                 if (listener != null) {
                     listener.changed(this);
