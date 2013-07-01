@@ -339,7 +339,7 @@ public class IntegrationTestBase extends TestCase {
         	configureAdditionalServices();
         	
             // Wait for CM to settle or we may get "socket closed" due to HTTP service restarts
-            System.out.println("Sleeping...");
+            // TODO fix this, it slows down all tests
             Thread.sleep(2000);
         }
         catch (InterruptedException e) {
