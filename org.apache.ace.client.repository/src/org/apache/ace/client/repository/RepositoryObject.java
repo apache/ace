@@ -48,6 +48,10 @@ public interface RepositoryObject extends Associatable {
      */
     public String addAttribute(String key, String value);
     /**
+     * Removes a names attribute from this object's attributes.
+     */
+    public String removeAttribute(String key);
+    /**
      * Gets a named attribute. Returns <code>null<code> when the attribute named by
      * <code>key</code> does not exist.
      */
@@ -62,6 +66,10 @@ public interface RepositoryObject extends Associatable {
      * when the value is new.
      */
     public String addTag(String key, String value);
+    /**
+     * Removes a named tag from this object's attributes.
+     */
+    public String removeTag(String key);
     /**
      * Gets a named tag. Returns <code>null<code> when the attribute named by
      * <code>key</code> does not exist.

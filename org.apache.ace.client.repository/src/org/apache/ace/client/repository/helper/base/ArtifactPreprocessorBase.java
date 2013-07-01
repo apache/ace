@@ -138,12 +138,11 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
                         location = connection.getHeaderField("Location");
                         break;
                     case HttpURLConnection.HTTP_CONFLICT:
-                        throw new IOException("Artifact already exists in storage.");
+                        throw new IOException("Artifact already exists in storage: " + name);
                     case HttpURLConnection.HTTP_INTERNAL_ERROR:
-                        throw new IOException("The storage server returned an internal server error.");
+                        throw new IOException("The storage server returned an internal server error while trying to upload " + name);
                     default:
-                        throw new IOException("The storage server returned code " + responseCode + " writing to "
-                            + url.toString());
+                        throw new IOException("The storage server returned code " + responseCode + " writing to " + url.toString());
                 }
             }
         }

@@ -463,11 +463,25 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
             return m_targetObject.addAttribute(key, value);
         }
     }
+    
+    public String removeAttribute(String key) {
+        synchronized(m_lock) {
+            ensureTargetPresent();
+            return m_targetObject.removeAttribute(key);
+        }
+    }
 
     public String addTag(String key, String value) {
         synchronized(m_lock) {
             ensureTargetPresent();
             return m_targetObject.addTag(key, value);
+        }
+    }
+    
+    public String removeTag(String key) {
+        synchronized(m_lock) {
+            ensureTargetPresent();
+            return m_targetObject.removeTag(key);
         }
     }
 

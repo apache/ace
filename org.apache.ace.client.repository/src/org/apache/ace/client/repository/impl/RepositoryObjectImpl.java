@@ -163,24 +163,73 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
     }
 
     public String addAttribute(String key, String value) {
+        if (value == null || key == null) {
+            throw new IllegalArgumentException("Invalid key/value pair: " + key + "/" + value);
+        }
         for (String s : getDefiningKeys()) {
             if (s.equals(key)) {
                 throw new UnsupportedOperationException("The defining attribute " + key + " is not allowed to be changed.");
             }
         }
+        String result = null;
         synchronized (m_attributes) {
             ensureCurrent();
-            notifyChanged(null);
-            return m_attributes.put(key, value);
+            result = m_attributes.get(key);
+            if (!value.equals(result)) {
+                result = m_attributes.put(key, value);
+                notifyChanged(null);
+            }
         }
+        return result;
+    }
+    
+    @Override
+    public String removeAttribute(String key) {
+        for (String s : getDefiningKeys()) {
+            if (s.equals(key)) {
+                throw new UnsupportedOperationException("The defining attribute " + key + " is not allowed to be changed.");
+            }
+        }
+        String result = null;
+        synchronized (m_attributes) {
+            ensureCurrent();
+            result = m_attributes.get(key);
+            if (result != null) {
+                result = m_attributes.remove(key);
+                notifyChanged(null);
+            }
+        }
+        return result;
     }
 
     public String addTag(String key, String value) {
+        if (value == null || key == null) {
+            throw new IllegalArgumentException("Invalid key/value pair: " + key + "/" + value);
+        }
+        String result = null;
         synchronized (m_attributes) {
             ensureCurrent();
-            notifyChanged(null);
-            return m_tags.put(key, value);
+            result = m_tags.get(key);
+            if (!value.equals(result)) {
+                result = m_tags.put(key, value);
+                notifyChanged(null);
+            }
         }
+        return result;
+    }
+    
+    @Override
+    public String removeTag(String key) {
+        String result = null;
+        synchronized (m_attributes) {
+            ensureCurrent();
+            result = m_tags.get(key);
+            if (result != null) {
+                result = m_tags.remove(key);
+                notifyChanged(null);
+            }
+        }
+        return result;
     }
 
     public String getAttribute(String key) {

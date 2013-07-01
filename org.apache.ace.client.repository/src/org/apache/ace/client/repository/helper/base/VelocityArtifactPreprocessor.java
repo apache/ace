@@ -126,10 +126,12 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         String name = getFilename(url, targetID, version);
 
         String location = null;
-        if(obrBase.getProtocol().equals("http")){
+        String protocol = obrBase.getProtocol();
+        if ("http".equals(protocol) || "https".equals(protocol)) {
             // upload the new resource to the OBR
             location = upload(new ByteArrayInputStream(result), name, ConfigurationHelper.MIMETYPE, obrBase);
-        } else {
+        }
+        else {
             // this is only to support the unit tests
             location = obrBase + name;
         }
