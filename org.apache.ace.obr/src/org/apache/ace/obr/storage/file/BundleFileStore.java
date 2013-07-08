@@ -89,6 +89,8 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
     public String put(InputStream data, String fileName) throws IOException {
 
+        if(fileName == null)
+            fileName = "";
         File tempFile = downloadToTempFile(data);
 
         ResourceMetaData metaData = ResourceMetaData.getBundleMetaData(tempFile);
@@ -101,10 +103,10 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
         File storeLocation = getResourceFile(metaData);
         if (storeLocation == null) {
-            throw new IOException("Failed to store resource (filename = " + fileName + ")");
+            throw new IOException("Failed to store resource (filename = " +  fileName  + ")");
         }
         if (storeLocation.exists()) {
-            m_log.log(LogService.LOG_ERROR, "Resource already existed in OBR (filename = " + fileName + ")");
+            m_log.log(LogService.LOG_ERROR, "Resource already existed in OBR (filename = " +  fileName  + ")");
             return null;
         }
 

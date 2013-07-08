@@ -39,6 +39,7 @@ import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.log.LogService;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -66,6 +67,9 @@ public class BundleFileStoreTest {
         Properties props = new Properties();
         props.put(OBRFileStoreConstants.FILE_LOCATION_KEY, m_directory.getAbsolutePath());
         m_bundleStore.updated(props);
+
+        // set a null object on for log
+        TestUtils.configureObject(m_bundleStore, LogService.class);
 
         // create a mock MetadataGenerator
         m_metadata = new MockMetadataGenerator();
@@ -258,7 +262,7 @@ public class BundleFileStoreTest {
         assert filePath2 == null;
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IOException.class }, expectedExceptionsMessageRegExp = "Not a valid bundle and no filename found")
+    @Test(groups = { UNIT }, expectedExceptions = { IOException.class }, expectedExceptionsMessageRegExp = "Not a valid bundle and no filename found.*")
     public void putBundleFail() throws Exception {
         File bundle = createTmpResource(null, "1.0.0");
         String filePath = m_bundleStore.put(new FileInputStream(bundle), null);
@@ -294,13 +298,13 @@ public class BundleFileStoreTest {
         assert file.exists();
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IOException.class }, expectedExceptionsMessageRegExp = "Not a valid bundle and no filename found")
+    @Test(groups = { UNIT }, expectedExceptions = { IOException.class }, expectedExceptionsMessageRegExp = "Not a valid bundle and no filename found.*")
     public void putArtifactFail1() throws Exception {
         File bundle = createTmpResource(null, null);
         m_bundleStore.put(new FileInputStream(bundle), null);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IOException.class }, expectedExceptionsMessageRegExp = "Not a valid bundle and no filename found")
+    @Test(groups = { UNIT }, expectedExceptions = { IOException.class }, expectedExceptionsMessageRegExp = "Not a valid bundle and no filename found.*")
     public void putArtifactFail2() throws Exception {
         File bundle = createTmpResource(null, null);
         m_bundleStore.put(new FileInputStream(bundle), "");
