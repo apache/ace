@@ -29,7 +29,9 @@ import java.math.BigInteger;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.List;
 import java.util.Stack;
 
 import org.apache.ace.obr.metadata.MetadataGenerator;
@@ -89,8 +91,9 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
     public String put(InputStream data, String fileName) throws IOException {
 
-        if(fileName == null)
+        if (fileName == null) {
             fileName = "";
+        }
         File tempFile = downloadToTempFile(data);
 
         ResourceMetaData metaData = ResourceMetaData.getBundleMetaData(tempFile);
@@ -250,27 +253,52 @@ public class BundleFileStore implements BundleStore, ManagedService {
      */
     private File getResourceFile(ResourceMetaData metaData) throws IOException {
 
-        File resourceFile = null;
-        String[] dirs = metaData.getSymbolicName().split("\\.");
-        for (String subDir : dirs) {
-            if (resourceFile == null) {
-                resourceFile = new File(getWorkingDir(), subDir);
-            }
-            else {
-                resourceFile = new File(resourceFile, subDir);
-            }
+        File resourceDirectory = getWorkingDir();
+        String[] dirs = split(metaData.getSymbolicName());
+        for (int i = 0; i < (dirs.length - 1); i++) {
+            String subDir = dirs[i];
+            resourceDirectory = new File(resourceDirectory, subDir);
         }
-        if (!resourceFile.exists() && !resourceFile.mkdirs()) {
+        if (!resourceDirectory.exists() && !resourceDirectory.mkdirs()) {
             throw new IOException("Failed to create store directory");
         }
 
-        if (metaData.getExtension() != null && !metaData.getExtension().equals("")) {
-            resourceFile = new File(resourceFile, metaData.getSymbolicName() + "-" + metaData.getVersion() + "." + metaData.getExtension());
+        String name = metaData.getSymbolicName();
+        String version = metaData.getVersion();
+        if (version != null && !version.equals("") && !version.equals("0.0.0")) {
+            name += "-" + version;
         }
-        else {
-            resourceFile = new File(resourceFile, metaData.getSymbolicName() + "-" + metaData.getVersion());
+        String extension = metaData.getExtension();
+        if (extension != null && !extension.equals("")) {
+            name += "." + extension;
         }
-        return resourceFile;
+        return new File(resourceDirectory, name);
+    }
+    
+    /**
+     * Splits a name into parts, breaking at all dots as long as what's behind the dot resembles a
+     * Java package name (ie. it starts with a lowercase character).
+     * 
+     * @param name the name to split
+     * @return an array of parts
+     */
+    public static String[] split(String name) {
+        List<String> result = new ArrayList<String>();
+        int startPos = 0;
+        for (int i = 0; i < (name.length() - 1); i++) {
+            if (name.charAt(i) == '.') {
+                if (Character.isLowerCase(name.charAt(i + 1))) {
+                    result.add(name.substring(startPos, i));
+                    i++;
+                    startPos = i;
+                }
+                else {
+                    break;
+                }
+            }
+        }
+        result.add(name.substring(startPos));
+        return result.toArray(new String[result.size()]);
     }
 
     /**

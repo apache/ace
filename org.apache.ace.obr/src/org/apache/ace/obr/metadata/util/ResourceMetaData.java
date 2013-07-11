@@ -93,8 +93,7 @@ public class ResourceMetaData {
      * @return the metadata
      */
     public static ResourceMetaData getArtifactMetaData(String fileName) {
-
-        if(fileName == null || fileName.equals("")){
+        if (fileName == null || fileName.equals("")) {
             return null;
         }
         String symbolicName = null;

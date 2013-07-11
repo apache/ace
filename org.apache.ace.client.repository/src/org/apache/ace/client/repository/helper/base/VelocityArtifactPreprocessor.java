@@ -101,7 +101,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
 
         // find the hash for the previous version
         String oldHash = getHashForVersion(url, targetID, fromVersion);
-
+        
         // Note: we do not cache any previously created processed templates, since the call that asks us to approve a new version
         // may cross a pending needsNewVersion call.
         boolean answer = !newHash.equals(oldHash);
@@ -192,15 +192,16 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         while (dashIndex != -1 && fileVersion.equals("")) {
             String versionCandidate = fileName.substring(dashIndex + 1);
             Matcher versionMatcher = VERSION_PATTERN.matcher(versionCandidate);
-            if(versionMatcher.matches()){
+            if (versionMatcher.matches()) {
                 fileName = fileName.substring(0, dashIndex);
                 fileVersion = versionCandidate;
-            } else {
+            }
+            else {
                 dashIndex = fileName.indexOf(fileName, dashIndex);                
             }
         }
 
-        fileName = fileName + ".target-" + targetID + "-" + targetVersion + fileExtension;
+        fileName = fileName + "_" + targetID + "_" + targetVersion + fileExtension;
         return fileName;
     }
 
@@ -213,10 +214,31 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
      * @return a hash
      */
     private String getHashForVersion(String url, String target, String version) {
+        String hash = null;
         String key = createHashKey(url, target, version);
         Reference<String> ref = m_cachedHashes.get(key);
-        String hash = (ref != null) ? ref.get() : null;
+        if (ref != null) {
+            hash = ref.get();
+        }
+        if (hash == null) {
+            try {
+                hash = hash(getBytesFromUrl(getFullUrl(url, target, version)));
+                m_cachedHashes.put(key, new WeakReference<String>(hash));
+            }
+            catch (IOException e) {
+                return null;
+            }
+        }
+        else {
+            hash = ref.get();
+        }
         return hash;
+    }
+
+    private String getFullUrl(String url, String targetID, String version) {
+        String filename = getFilename(url, targetID, version);
+        String result = url.substring(0, url.lastIndexOf('/') + 1) + filename;
+        return result;
     }
 
     /**

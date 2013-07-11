@@ -39,6 +39,14 @@ public class ResourceMetaDataTest {
         assert "1.0.3".equals(data.getVersion()) : "Generated version should be '1.0.3', was " + data.getVersion();
         assert "xml".equals(data.getExtension()) : "Extension should be 'xml', was " + data.getExtension();
     }
+    
+    @Test(groups = { UNIT })
+    public void checkConfigurationTemplateMetadataGeneration() throws Exception {
+        ResourceMetaData data = ResourceMetaData.getArtifactMetaData("org.foo.configuration-1.0.0.xml-target-1-2.0.0.xml");
+        assert "org.foo.configuration-1.0.0.xml-target-1".equals(data.getSymbolicName()) : "Generated symbolic name should be 'org.foo.configuration-1.0.0.xml-target-1', was " + data.getSymbolicName();
+        assert "2.0.0".equals(data.getVersion()) : "Generated version should be '2.0.0', was " + data.getVersion();
+        assert "xml".equals(data.getExtension()) : "Extension should be 'xml', was " + data.getExtension();
+    }    
 
     @Test(groups = { UNIT })
     public void checkBundleMetadataGeneration() throws Exception {
