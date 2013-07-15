@@ -575,19 +575,19 @@ public class Workspace {
     public List<RepositoryObject> lt(String filter) throws Exception {
     	return getObjectRepository(TARGET).get(m_context.createFilter(filter));
     }
-    
-    public void ct(String name) {
+        
+    public RepositoryObject ct(String name) {
     	Map<String, String> attrs = new HashMap<String, String>();
     	attrs.put(StatefulTargetObject.KEY_ID, name);
-    	ct(attrs);
+    	return ct(attrs);
     }
 
-    public void ct(Map<String, String> attrs) {
-    	ct(attrs, new HashMap<String, String>());
+    public RepositoryObject ct(Map<String, String> attrs) {
+    	return ct(attrs, new HashMap<String, String>());
     }
     
-    public void ct(Map<String, String> attrs, Map<String, String> tags) {
-    	addRepositoryObject(TARGET, attrs, tags);
+    public RepositoryObject ct(Map<String, String> attrs, Map<String, String> tags) {
+    	return addRepositoryObject(TARGET, attrs, tags);
     }
     
 

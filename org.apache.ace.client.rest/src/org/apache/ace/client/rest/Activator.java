@@ -53,6 +53,13 @@ public class Activator extends DependencyActivatorBase {
                 .setRequired(false)
             )
         );
+        Properties listProps = new Properties();
+        listProps.put(CommandProcessor.COMMAND_SCOPE, "coll");
+        listProps.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "first", "rest" });
+        manager.add(createComponent()
+            .setInterface(Object.class.getName(), listProps)
+            .setImplementation(CollectionCommands.class)
+        );
     }
 
     @Override
