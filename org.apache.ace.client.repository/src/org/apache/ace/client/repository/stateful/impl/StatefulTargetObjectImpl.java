@@ -721,12 +721,12 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     }
 
     public int getCardinality(Map<String, String> properties) {
-        throw new UnsupportedOperationException("A StatefulTargetObject cannot return a cardinality; use the underlying TargetObject instead.");
+        return Integer.MAX_VALUE;
     }
 
     @SuppressWarnings("unchecked")
     public Comparator getComparator() {
-        throw new UnsupportedOperationException("A StatefulTargetObject cannot return a comparator; use the underlying TargetObject instead.");
+        return null;
     }
     
     @Override
