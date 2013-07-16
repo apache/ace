@@ -113,5 +113,9 @@ public class DeploymentVersionObjectImpl extends RepositoryObjectImpl<Deployment
         }
         return m_deploymentArtifacts.clone();
     }
+    @Override
+    public String toString() {
+    	return "DeploymentVersionObject[target=" + getTargetID() + ",version=" + getVersion() + "]";
+    }
 }
 
