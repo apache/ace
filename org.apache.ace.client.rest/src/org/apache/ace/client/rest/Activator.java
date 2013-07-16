@@ -54,6 +54,7 @@ public class Activator extends DependencyActivatorBase {
             )
         );
         Properties listProps = new Properties();
+        
         listProps.put(CommandProcessor.COMMAND_SCOPE, "coll");
         listProps.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "first", "rest" });
         manager.add(createComponent()

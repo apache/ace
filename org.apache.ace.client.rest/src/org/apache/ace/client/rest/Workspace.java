@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,6 +51,7 @@ import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 
@@ -438,6 +440,24 @@ public class Workspace {
      * Associations: [a2f], [f2d], [d2t]
      */
     
+    /*** resource processors ***/
+    
+    public List<ArtifactObject> lrp() {
+        return m_artifactRepository.getResourceProcessors();
+    }
+    
+    public List<ArtifactObject> lrp(String filter) throws Exception {
+        Filter f = m_context.createFilter(filter);
+        List<ArtifactObject> rps = m_artifactRepository.getResourceProcessors();
+        List<ArtifactObject> res = new LinkedList<ArtifactObject>();
+        for(ArtifactObject rp : rps) {
+            if (f.match(rp.getDictionary())) {
+                res.add(rp);
+            }
+        }
+        return res;
+    }
+    
     /*** artifact ***/
     
     public List<RepositoryObject> la() {
@@ -466,11 +486,18 @@ public class Workspace {
     	addRepositoryObject(ARTIFACT, attrs, tags);
     }
 
+    public void da(RepositoryObject repositoryObject) {
+        deleteRepositoryObject(ARTIFACT, repositoryObject.getDefinition());
+    }
     
     /*** artifact to feature association ***/
     
     public List<RepositoryObject> la2f() {
     	return getRepositoryObjects(ARTIFACT2FEATURE);
+    }
+    
+    public List<RepositoryObject> la2f(String filter) throws Exception {
+        return getObjectRepository(ARTIFACT2FEATURE).get(m_context.createFilter(filter));
     }
     
     public void ca2f(String left, String right) {
@@ -517,6 +544,10 @@ public class Workspace {
     	return getRepositoryObjects(FEATURE2DISTRIBUTION);
     }
     
+    public List<RepositoryObject> lf2d(String filter) throws Exception {
+        return getObjectRepository(FEATURE2DISTRIBUTION).get(m_context.createFilter(filter));
+    }
+    
     public void cf2d(String left, String right) {
     	cf2d(left, right, "1", "1");
     }
@@ -555,6 +586,10 @@ public class Workspace {
     
     public List<RepositoryObject> ld2t() {
     	return getRepositoryObjects(DISTRIBUTION2TARGET);
+    }
+    
+    public List<RepositoryObject> ld2t(String filter) throws Exception {
+        return getObjectRepository(DISTRIBUTION2TARGET).get(m_context.createFilter(filter));
     }
     
     public void cd2t(String left, String right) {
