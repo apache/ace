@@ -249,7 +249,7 @@ public class BundleFileStoreTest {
     public void putBundle() throws Exception {
         File bundle = createTmpResource("foo.bar", "1.0.0");
         String filePath = m_bundleStore.put(new FileInputStream(bundle), null);
-        assert filePath.equals("foo/bar/foo.bar-1.0.0.jar") : "Path should be 'foo/bar/foo.bar-1.0.0.jar', was " + filePath;
+        assert filePath.equals("foo/foo.bar-1.0.0.jar") : "Path should be 'foo/foo.bar-1.0.0.jar', was " + filePath;
         File file = new File(m_directory, filePath);
         assert file.exists();
     }
@@ -275,7 +275,7 @@ public class BundleFileStoreTest {
     public void putRemoveArtifact() throws Exception {
         File bundle = createTmpResource(null, null);
         String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar-2.3.7.test1.xxx");
-        assert filePath.equals("foo/bar/foo.bar-2.3.7.test1.xxx");
+        assert filePath.equals("foo/foo.bar-2.3.7.test1.xxx");
         File file = new File(m_directory, filePath);
         assert file.exists();
     }
@@ -284,7 +284,7 @@ public class BundleFileStoreTest {
     public void putArtifactDefaultVersion() throws Exception {
         File bundle = createTmpResource(null, null);
         String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar.xxx");
-        assert filePath.equals("foo/bar/foo.bar-0.0.0.xxx");
+        assert filePath.equals("foo/foo.bar.xxx");
         File file = new File(m_directory, filePath);
         assert file.exists();
     }
@@ -293,7 +293,7 @@ public class BundleFileStoreTest {
     public void putArtifactMavenVersion() throws Exception {
         File bundle = createTmpResource(null, null);
         String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar-2.3.7-test1.xxx");
-        assert filePath.equals("foo/bar/foo.bar-2.3.7-test1.xxx");
+        assert filePath.equals("foo/foo.bar-2.3.7-test1.xxx");
         File file = new File(m_directory, filePath);
         assert file.exists();
     }
@@ -331,10 +331,10 @@ public class BundleFileStoreTest {
     public void removeArtifact() throws Exception {
         File bundle = createTmpResource(null, null);
         String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar-2.3.7.test1.xxx");
-        assert filePath.equals("foo/bar/foo.bar-2.3.7.test1.xxx");
+        assert filePath.equals("foo/foo.bar-2.3.7.test1.xxx");
         File file = new File(m_directory, filePath);
         assert file.exists();
-        assert m_bundleStore.remove("foo/bar/foo.bar-2.3.7.test1.xxx");
+        assert m_bundleStore.remove("foo/foo.bar-2.3.7.test1.xxx");
         assert !file.exists();
     }
 
