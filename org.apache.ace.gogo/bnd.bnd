@@ -9,12 +9,10 @@ Bundle-Name: Apache ACE OBR Gogo commands
 Bundle-Description: Provides Gogo commands for working with repositories	
 Bundle-Version: 1.0.0
 Bundle-Activator: org.apache.ace.gogo.Activator
-Private-Package: org.apache.ace.gogo.misc,\
-	org.apache.ace.gogo,\
+Private-Package: org.apache.ace.gogo,\
 	org.apache.ace.gogo.math,\
 	org.apache.ace.gogo.misc,\
 	org.apache.ace.gogo.repo,\
-	org.apache.ace.obr.gogo.deployment,\
 	aQute.lib.json;-split-package:=merge-last,\
 	aQute.libg.filelock;-split-package:=merge-last,\
 	aQute.bnd.annotation.component;-split-package:=merge-last,\
