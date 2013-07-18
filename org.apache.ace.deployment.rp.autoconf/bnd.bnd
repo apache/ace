@@ -5,7 +5,7 @@ Bundle-Description: Apache ACE AutoConf Resource Processor that warps the Apache
 Bundle-DocURL: http://ace.apache.org/ 
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
 Bundle-Name: Apache ACE AutoConf Resource Processor
-Bundle-Vendor Apache Software Foundation 
+	Bundle-Vendor Apache Software Foundation 
 Bundle-Version: 1.0.0
 Deployment-ProvidesResourceProcessor: org.osgi.deployment.rp.autoconf
 DeploymentPackage-Customizer: true 

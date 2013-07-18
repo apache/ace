@@ -30,6 +30,7 @@
     org.apache.ace.managementagent,\
     org.apache.ace.nodelauncher,\
     org.apache.ace.obr,\
+    org.apache.ace.gogo,\
     org.apache.ace.processlauncher,\
     org.apache.ace.range.api,\
     org.apache.ace.repository,\

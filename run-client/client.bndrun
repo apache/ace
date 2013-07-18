@@ -50,7 +50,8 @@
 	org.apache.ace.tageditor;version=latest,\
 	org.apache.ace.target.mgmt.ui;version=latest,\
 	org.apache.ace.useradmin.ui;version=latest,\
-	org.apache.ace.webui.vaadin;version=latest
+	org.apache.ace.webui.vaadin;version=latest,\
+	org.apache.ace.gogo;version=latest
 -runrepos: Workspace,\
 	Release
 -runproperties: org.apache.felix.log.storeDebug=true,\
