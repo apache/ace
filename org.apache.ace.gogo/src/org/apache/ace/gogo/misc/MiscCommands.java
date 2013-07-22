@@ -28,9 +28,19 @@ import org.osgi.framework.BundleException;
 public class MiscCommands {
 
     public final static String SCOPE = "misc";
-    public final static String[] FUNCTIONS = new String[] { "shutdown" };
+    public final static String[] FUNCTIONS = new String[] { "shutdown", "sleep" };
 
     private volatile BundleContext m_context;
+
+    @Descriptor("let the thread sleep")
+    public void sleep(long delay) {
+        try {
+            Thread.sleep(delay);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Descriptor("schedules a framework shutdown")
     public void shutdown(long delay) {

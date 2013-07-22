@@ -185,57 +185,66 @@ public class RepositoryUtil {
         return requirement;
     }
 
-    public static List<Resource> copyResources(AbstractIndexedRepo fromRepo, AbstractIndexedRepo toRepo, String bsn) throws Exception {
-        return copyResources(fromRepo, toRepo, bsn, "*");
+    public static List<Resource> copyResources(AbstractIndexedRepo sourceRepo, AbstractIndexedRepo targetRepo, String bsn) throws Exception {
+        return copyResources(sourceRepo, targetRepo, bsn, "*");
     }
 
-    public static List<Resource> copyResources(AbstractIndexedRepo fromRepo, AbstractIndexedRepo toRepo, String bsn, String version) throws Exception {
-        return copyResources(fromRepo, toRepo, bsn, version, "*");
+    public static List<Resource> copyResources(AbstractIndexedRepo sourceRepo, AbstractIndexedRepo targetRepo, String bsn, String version) throws Exception {
+        return copyResources(sourceRepo, targetRepo, bsn, version, "*");
     }
 
-    public static List<Resource> copyResources(AbstractIndexedRepo fromRepo, AbstractIndexedRepo toRepo, String bsn, String version, String type) throws Exception {
+    public static List<Resource> copyResources(AbstractIndexedRepo sourceRepo, AbstractIndexedRepo targetRepo, String bsn, String version, String type) throws Exception {
         Requirement requirement = new CapReqBuilder("osgi.identity")
             .addDirective("filter", String.format("(&(osgi.identity=%s)(version=%s)(type=%s))", bsn, version, type))
             .buildSyntheticRequirement();
-        return copyResources(fromRepo, toRepo, requirement);
+        return copyResources(sourceRepo, targetRepo, requirement);
     }
 
-    public static List<Resource> copyResources(AbstractIndexedRepo fromRepo, AbstractIndexedRepo toRepo, Requirement requirement) throws Exception {
-        List<Resource> resources = findResources(fromRepo, requirement);
-        for (Resource resource : resources) {
-            File file = fromRepo.get(getIdentity(resource), getVersion(resource).toString(), Strategy.EXACT, null);
+    public static List<Resource> copyResources(AbstractIndexedRepo sourceRepo, AbstractIndexedRepo targetRepo, Requirement requirement) throws Exception {
 
+        List<Resource> sourceResources = findResources(sourceRepo, requirement);
+        List<Resource> targetResources = new ArrayList<Resource>();
+
+        for (Resource resource : sourceResources) {
+            File file = sourceRepo.get(getIdentity(resource), getVersion(resource).toString(), Strategy.EXACT, null);
             InputStream input = null;
             try {
                 input = new FileInputStream(file);
-                if (toRepo instanceof AceObrRepository) {
+                if (targetRepo instanceof AceObrRepository) {
                     // ACE OBR can handle non bundle resource if we pass a filename
-                    AceObrRepository aceToRepo = (AceObrRepository) toRepo;
+                    AceObrRepository aceToRepo = (AceObrRepository) targetRepo;
                     aceToRepo.upload(input, getFileName(resource), getMimetype(resource));
                 }
                 else {
-                    toRepo.put(input, null);
+                    targetRepo.put(input, null);
                 }
+                targetRepo.reset();
+
+                List<Resource> copied = findResources(targetRepo, getIdentityVersionRequirement(resource));
+                if (copied.size() != 1) {
+                    throw new IllegalStateException("expected one match");
+                }
+                targetResources.addAll(copied);
             }
             finally {
                 if (input != null)
                     input.close();
             }
         }
-        return resources;
+        return targetResources;
     }
 
-    public static void uploadResource(AbstractIndexedRepo toRepo, URL location, String filename) throws Exception {
+    public static void uploadResource(AbstractIndexedRepo targetRepo, URL location, String filename) throws Exception {
         InputStream input = null;
         try {
             input = location.openStream();
-            if (toRepo instanceof AceObrRepository) {
+            if (targetRepo instanceof AceObrRepository) {
                 // ACE OBR can handle non bundle resource if we pass a filename
-                AceObrRepository aceToRepo = (AceObrRepository) toRepo;
+                AceObrRepository aceToRepo = (AceObrRepository) targetRepo;
                 aceToRepo.upload(input, filename, null);
             }
             else {
-                toRepo.put(input, null);
+                targetRepo.put(input, null);
             }
         }
         finally {
@@ -244,33 +253,33 @@ public class RepositoryUtil {
         }
     }
 
-    public static List<Resource> copyResources(AbstractIndexedRepo fromRepo, AbstractIndexedRepo toRepo, List<Resource> resources) throws Exception {
+    public static List<Resource> copyResources(AbstractIndexedRepo sourceRepo, AbstractIndexedRepo targetRepo, List<Resource> resources) throws Exception {
         List<Resource> targetResources = new LinkedList<Resource>();
         for (Resource resource : resources) {
-            Resource targetResource = copyResource(fromRepo, toRepo, resource);
+            Resource targetResource = copyResource(sourceRepo, targetRepo, resource);
             targetResources.add(targetResource);
         }
         return targetResources;
     }
 
-    public static Resource copyResource(AbstractIndexedRepo fromRepo, AbstractIndexedRepo toRepo, Resource resource) throws Exception {
+    public static Resource copyResource(AbstractIndexedRepo sourceRepo, AbstractIndexedRepo targetRepo, Resource resource) throws Exception {
 
-        File file = fromRepo.get(getIdentity(resource), getVersion(resource).toString(), Strategy.EXACT, null);
+        File file = sourceRepo.get(getIdentity(resource), getVersion(resource).toString(), Strategy.EXACT, null);
         InputStream input = null;
         try {
             input = new FileInputStream(file);
-            if (toRepo instanceof AceObrRepository) {
+            if (targetRepo instanceof AceObrRepository) {
                 // ACE OBR can handle non bundle resource if we pass a filename
-                AceObrRepository aceToRepo = (AceObrRepository) toRepo;
+                AceObrRepository aceToRepo = (AceObrRepository) targetRepo;
                 aceToRepo.upload(input, getFileName(resource), getMimetype(resource));
             }
             else {
-                toRepo.put(input, null);
+                targetRepo.put(input, null);
             }
 
-            List<Resource> resultResources = findResources(toRepo, getIdentity(resource), getVersion(resource).toString());
+            List<Resource> resultResources = findResources(targetRepo, getIdentity(resource), getVersion(resource).toString());
             if (resultResources == null || resultResources.size() == 0) {
-                throw new IllegalStateException("Can not find target resource after put: " + resource);
+                throw new IllegalStateException("Unable to locate target resource after copy: " + resource);
             }
             return resultResources.get(0);
         }
@@ -355,7 +364,19 @@ public class RepositoryUtil {
         Map<String, Object> attrs = getNamespaceAttributes(resource, "osgi.content");
         if (attrs == null)
             return null;
-        return (String) attrs.get("mime");
+
+        String mime = (String) attrs.get("mime");
+        if (mime == null) {
+            // FIXME this is a work around for OBR not supporting mimetype
+            String url = getUrl(resource);
+            if (url.endsWith(".jar")) {
+                mime = "application/vnd.osgi.bundle";
+            }
+            else if (url.endsWith(".xml")) {
+                mime = "application/xml:osgi-autoconf";
+            }
+        }
+        return mime;
     }
 
     public static String getSHA(Resource resource) {

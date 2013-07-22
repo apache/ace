@@ -19,6 +19,7 @@ import static org.apache.ace.gogo.repo.RepositoryUtil.getVersion;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.osgi.framework.Version;
@@ -46,30 +47,29 @@ public class ContinuousDeployer {
      * @throws Exception
      */
     public List<Resource> deployResources() throws Exception {
-        List<Resource> resources = findResources(m_developmentRepo, "*", "*");
-        for (Resource resource : resources) {
-            // FIXME this is the source resource
-            deployResource(resource);
+        List<Resource> developmentResources = findResources(m_developmentRepo, "*", "*");
+        List<Resource> deployedResources = new ArrayList<Resource>();
+        for (Resource developmentResource : developmentResources) {
+            deployedResources.add(deployResource(developmentResource));
         }
-        return resources;
+        return deployedResources;
     }
 
     /**
      * Deploys a resource to the deployment repository.
      * 
-     * @param resource
+     * @param developmentResource
      *            The resource
      * @throws Exception
      *             On failure
      */
-    private void deployResource(Resource resource) throws Exception {
-        List<Resource> releaseResources = findResources(m_releaseRepo, getIdentity(resource), getVersion(resource).toString());
-        boolean isReleased = releaseResources.size() > 0;
-        if (isReleased) {
-            deployReleasedResource(resource);
+    private Resource deployResource(Resource developmentResource) throws Exception {
+        List<Resource> releaseResources = findResources(m_releaseRepo, getIdentityVersionRequirement(developmentResource));
+        if (releaseResources.size() > 0) {
+            return deployReleasedResource(releaseResources.get(0));
         }
         else {
-            deploySnapshotResource(resource);
+            return deploySnapshotResource(developmentResource);
         }
     }
 
@@ -77,20 +77,24 @@ public class ContinuousDeployer {
      * Deploys a released resource from the release repository to the deployment repository if it has not been deployed
      * yet.
      * 
-     * @param resource
-     *            The resource
+     * @param releasedResource
+     *            The released resource
+     * @return The deployed resource
      * @throws Exception
-     *             On failure
      */
-    private void deployReleasedResource(Resource resource) throws Exception {
-        List<Resource> deployedResources = findResources(m_deploymentRepo, getIdentity(resource), getVersion(resource).toString());
-        boolean isDeployed = deployedResources.size() > 0;
-        if (!isDeployed) {
-            System.out.println("Uploading released resource:  " + getString(resource));
-            copyResources(m_releaseRepo, m_deploymentRepo, getIdentityVersionRequirement(resource));
+    private Resource deployReleasedResource(Resource releasedResource) throws Exception {
+        List<Resource> deployedResources = findResources(m_deploymentRepo, getIdentityVersionRequirement(releasedResource));
+        if (deployedResources.size() == 0) {
+            System.out.println("Uploading released resource:  " + getString(releasedResource));
+            List<Resource> copied = copyResources(m_releaseRepo, m_deploymentRepo, getIdentityVersionRequirement(releasedResource));
+            if (copied.size() != 1) {
+                throw new IllegalStateException("Exepected 1 result ofter copy");
+            }
+            return copied.get(0);
         }
         else {
-            System.out.println("Released resource allready deployed:  " + getString(resource));
+            System.out.println("Released resource allready deployed:  " + getString(releasedResource));
+            return deployedResources.get(0);
         }
     }
 
@@ -98,58 +102,61 @@ public class ContinuousDeployer {
      * Deploys a snapshot resource to the deployment repository if it differs from the highest existing snapshot
      * resource of the same base version in the deployment repository.
      * 
-     * @param resource
-     *            The resource
+     * @param developmentResource
+     *            The development resource
+     * @return The deployed resource
      * @throws Exception
-     *             On failure
      */
-    private void deploySnapshotResource(Resource resource) throws Exception {
+    private Resource deploySnapshotResource(Resource developmentResource) throws Exception {
 
-        Version releasedBaseVersion = getReleasedBaseVersion(resource);
-        Resource snapshotResource = getHighestSnapshotResource(resource, releasedBaseVersion);
+        Version releasedBaseVersion = getReleasedBaseVersion(developmentResource);
+        Resource snapshotResource = getHighestSnapshotResource(developmentResource, releasedBaseVersion);
+
         if (snapshotResource == null) {
-            System.out.println("Uploading initial snapshot:  " + getString(resource) + " -> " + getNextSnapshotVersion(releasedBaseVersion));
-            deploySnapshotResource(resource, getNextSnapshotVersion(releasedBaseVersion));
+            System.out.println("Uploading initial snapshot:  " + getString(developmentResource) + " -> " + getNextSnapshotVersion(releasedBaseVersion));
+            return deploySnapshotResource(developmentResource, getNextSnapshotVersion(releasedBaseVersion));
+        }
+
+        System.out.println("Found existing snapshot:  " + getString(snapshotResource));
+        if (getIdentity(developmentResource).equals("com.google.guava")) {
+            // FIXME workaround for BND#374
+            System.out.println("Skipping snapshot diff on Google Guava to work around https://github.com/bndtools/bnd/issues/374");
+            return snapshotResource;
+        }
+
+        File developmentFile = m_developmentRepo.get(getIdentity(developmentResource), getVersion(developmentResource).toString(), Strategy.EXACT, null);
+        File deployedFile = m_deploymentRepo.get(getIdentity(snapshotResource), getVersion(snapshotResource).toString(), Strategy.EXACT, null);
+
+        boolean snapshotModified = false;
+        if (getType(developmentResource).equals("osgi.bundle")) {
+
+            // Get a copy of the dep resource with the same version as the dev resource so we can diff diff.
+            File comparableDeployedResource = getBundleWithNewVersion(deployedFile, getVersion(developmentResource).toString());
+
+            // This may seem strange but the value in the dev resource manifest may be "0" which will not match
+            // "0.0.0" during diff.
+            File comparableDevelopmentResource = getBundleWithNewVersion(developmentFile, getVersion(developmentResource).toString());
+            snapshotModified = jarsDiffer(comparableDeployedResource, comparableDevelopmentResource);
         }
         else {
-            System.out.println("Found existing snapshot:  " + getString(snapshotResource));
+            snapshotModified = filesDiffer(developmentFile, deployedFile);
+        }
 
-            // FIXME workaround for BND#374
-            if (getIdentity(resource).equals("com.google.guava")) {
-                System.out.println("Skipping snapshot diff on Google Guava to work around https://github.com/bndtools/bnd/issues/374");
-                return;
+        if (snapshotModified) {
+            System.out.println("Uploading new snapshot:  " + getString(developmentResource) + " -> " + getNextSnapshotVersion(getVersion(snapshotResource)));
+            return deploySnapshotResource(developmentResource, getNextSnapshotVersion(getVersion(snapshotResource)));
+        }
+        else {
+            System.out.println("Ignoring new snapshot:  " + getString(developmentResource));
+            List<Resource> resultResources = findResources(m_deploymentRepo, getIdentityVersionRequirement(snapshotResource));
+            if (resultResources == null || resultResources.size() == 0) {
+                throw new IllegalStateException("Can not find target resource after put: " + developmentResource);
             }
-
-            File developmentResource = m_developmentRepo.get(getIdentity(resource), getVersion(resource).toString(), Strategy.EXACT, null);
-            File deployedResource = m_deploymentRepo.get(getIdentity(snapshotResource), getVersion(snapshotResource).toString(), Strategy.EXACT, null);
-
-            boolean snapshotModified = false;
-
-            if (getType(resource).equals("osgi.bundle")) {
-
-                // Get a copy of the dep resource with the same version as the dev resource so we can diff diff.
-                File comparableDeployedResource = getBundleWithNewVersion(deployedResource, getVersion(resource).toString());
-
-                // This may seem strange but the value in the dev resource manifest may be "0" which will not match
-                // "0.0.0" during diff.
-                File comparableDevelopmentResource = getBundleWithNewVersion(developmentResource, getVersion(resource).toString());
-                snapshotModified = jarsDiffer(comparableDeployedResource, comparableDevelopmentResource);
-            }
-            else {
-                snapshotModified = filesDiffer(developmentResource, deployedResource);
-            }
-
-            if (snapshotModified) {
-                System.out.println("Uploading new snapshot:  " + getString(resource) + " -> " + getNextSnapshotVersion(getVersion(snapshotResource)));
-                deploySnapshotResource(resource, getNextSnapshotVersion(getVersion(snapshotResource)));
-            }
-            else {
-                System.out.println("Ignoring new snapshot:  " + getString(resource));
-            }
+            return resultResources.get(0);
         }
     }
 
-    private void deploySnapshotResource(Resource resource, Version snapshotVersion) throws Exception {
+    private Resource deploySnapshotResource(Resource resource, Version snapshotVersion) throws Exception {
 
         File file = m_developmentRepo.get(getIdentity(resource), getVersion(resource).toString(), Strategy.EXACT, null);
         if (getType(resource).equals("osgi.bundle")) {
@@ -167,6 +174,13 @@ public class ContinuousDeployer {
             else {
                 m_deploymentRepo.put(input, null);
             }
+            m_deploymentRepo.reset();
+
+            List<Resource> resultResources = findResources(m_deploymentRepo, getIdentity(resource), snapshotVersion.toString());
+            if (resultResources == null || resultResources.size() == 0) {
+                throw new IllegalStateException("Can not find target resource after put: " + resource);
+            }
+            return resultResources.get(0);
 
         }
         finally {
