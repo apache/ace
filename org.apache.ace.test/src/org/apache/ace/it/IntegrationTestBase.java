@@ -42,8 +42,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
@@ -346,4 +351,87 @@ public class IntegrationTestBase extends TestCase {
             fail("Interrupted while waiting for services to get started.");
         }
     }
+    
+    protected Component m_eventLoggingComponent;
+    protected Component m_loggingComponent;
+
+    /**
+     * Enables logging events to the console. Mainly useful when debugging tests.
+     */
+    protected synchronized void enableEventLogging() {
+        DependencyManager dm = m_dependencyManager;
+        m_eventLoggingComponent = dm.createComponent()
+            .setInterface(EventHandler.class.getName(), new Properties() {{ put(EventConstants.EVENT_TOPIC, "*"); }})
+            .setImplementation(new EventHandler() {
+                @Override
+                public void handleEvent(Event event) {
+                    System.out.print("[EVENT] " + event.getTopic());
+                    for (String key : event.getPropertyNames()) {
+                        System.out.print(" " + key + "=" + event.getProperty(key));
+                    }
+                    System.out.println();
+                }
+            });
+        dm.add(m_eventLoggingComponent);
+    }
+
+    /**
+     * Disables logging to the console.
+     */
+    protected synchronized void disableEventLogging() {
+        if (m_eventLoggingComponent != null) {
+            DependencyManager dm = m_dependencyManager;
+            dm.remove(m_eventLoggingComponent);
+            m_eventLoggingComponent = null;
+        }
+    }
+    
+    /**
+     * Enables logging to the console. Mainly useful when debugging tests.
+     */
+    protected synchronized void enableLogging() {
+        if (m_loggingComponent == null) {
+            DependencyManager dm = m_dependencyManager;
+            m_loggingComponent = dm.createComponent()
+                .setInterface(LogService.class.getName(), new Properties() {{ put(Constants.SERVICE_RANKING, Integer.valueOf(1000)); }})
+                .setImplementation(new LogService() {
+                    @Override
+                    public void log(ServiceReference sr, int level, String message, Throwable exception) {
+                        System.out.println("[LOG] " +
+                            (sr == null ? "" : sr + " ") + 
+                            level + " " + 
+                            message + " " + 
+                            (exception == null ? "" : exception));
+                    }
+                    
+                    @Override
+                    public void log(ServiceReference sr, int level, String message) {
+                        log(sr, level, message, null);
+                    }
+                    
+                    @Override
+                    public void log(int level, String message, Throwable exception) {
+                        log(null, level, message, exception);
+                    }
+                    
+                    @Override
+                    public void log(int level, String message) {
+                        log(null, level, message, null);
+                    }
+                });
+            dm.add(m_loggingComponent);
+        }
+    }
+    
+    /**
+     * Disables logging to the console.
+     */
+    protected synchronized void disableLogging() {
+        if (m_loggingComponent != null) {
+            DependencyManager dm = m_dependencyManager;
+            dm.remove(m_loggingComponent);
+            m_loggingComponent = null;
+        }
+    }
+
 }
