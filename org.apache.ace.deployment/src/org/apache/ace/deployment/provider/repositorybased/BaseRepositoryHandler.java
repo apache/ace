@@ -45,6 +45,8 @@ class BaseRepositoryHandler extends DefaultHandler {
     private XmlDeploymentArtifact m_currentArtifact;
     /** Denotes the directive key of the current deployment artifact. */
     private String m_currentDirectiveKey;
+    /** To collect characters() */
+    private StringBuffer m_buffer = new StringBuffer();
 
     /**
      * Creates a new {@link BaseRepositoryHandler} instance.
@@ -84,40 +86,6 @@ class BaseRepositoryHandler extends DefaultHandler {
     }
 
     @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
-        if (XmlTag.targetID.equals(m_currentTag)) {
-            // verify whether we're in the DP for the requested target...
-            m_targetFound = m_targetID.equals(new String(ch, start, length));
-        }
-        else if (XmlTag.version.equals(m_currentTag)) {
-            // Don't assume we've got the desired version (yet)...
-            m_currentVersion = null;
-
-            if (m_targetFound) {
-                m_currentVersion = parseAsVersion(new String(ch, start, length));
-            }
-        }
-        else if (XmlTag.url.equals(m_currentTag)) {
-            try {
-                URL artifactUrl = new URL(new String(ch, start, length));
-                m_currentArtifact = new XmlDeploymentArtifact(artifactUrl);
-            }
-            catch (MalformedURLException e) {
-                throw new SAXException("Unexpected URL!", e);
-            }
-        }
-        else if (XmlTag.directives.equals(m_currentTag)) {
-            if (m_currentArtifact == null) {
-                throw new SAXException("Unexpected directive tag!");
-            }
-            String value = new String(ch, start, length).trim();
-            if (m_currentDirectiveKey != null && !value.equals("")) {
-                m_currentArtifact.m_directives.put(m_currentDirectiveKey, value);
-            }
-        }
-    }
-
-    @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         XmlTag tag = XmlTag.asXmlTag(qName);
         // If the given element is an expected child of the current tag, we
@@ -133,10 +101,50 @@ class BaseRepositoryHandler extends DefaultHandler {
         if (XmlTag.directives.equals(m_currentTag)) {
             m_currentDirectiveKey = qName;
         }
+        m_buffer = new StringBuffer();
+    }
+
+    @Override
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        // just collect whatever comes along into our buffer (ACE-399)
+        // see: http://stackoverflow.com/questions/4567636/java-sax-parser-split-calls-to-characters
+        m_buffer.append(new String(ch, start, length));
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
+        String text = m_buffer.toString();
+        if (XmlTag.targetID.equals(m_currentTag)) {
+            // verify whether we're in the DP for the requested target...
+            m_targetFound = m_targetID.equals(text);
+        }
+        else if (XmlTag.version.equals(m_currentTag)) {
+            // Don't assume we've got the desired version (yet)...
+            m_currentVersion = null;
+
+            if (m_targetFound) {
+                m_currentVersion = parseAsVersion(text);
+            }
+        }
+        else if (XmlTag.url.equals(m_currentTag)) {
+            try {
+                URL artifactUrl = new URL(text);
+                m_currentArtifact = new XmlDeploymentArtifact(artifactUrl);
+            }
+            catch (MalformedURLException e) {
+                throw new SAXException("Unexpected URL!", e);
+            }
+        }
+        else if (XmlTag.directives.equals(m_currentTag)) {
+            if (m_currentArtifact == null) {
+                throw new SAXException("Unexpected directive tag!");
+            }
+            String value = text.trim();
+            if (m_currentDirectiveKey != null && !value.equals("")) {
+                m_currentArtifact.m_directives.put(m_currentDirectiveKey, value);
+            }
+        }
+        
         XmlTag tag = XmlTag.asXmlTag(qName);
         // When we're ending the current tag, traverse up to its parent...
         if (!XmlTag.unknown.equals(tag) && (m_currentTag == tag)) {
