@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.ace.client.repository.ObjectRepository;
+import org.apache.ace.client.repository.PreCommitMember;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.RepositoryObject;
@@ -53,6 +54,7 @@ import org.apache.ace.client.repository.repository.DistributionRepository;
 import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
 import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
+import org.apache.ace.client.repository.stateful.impl.StatefulTargetRepositoryImpl;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.ext.BackupRepository;
@@ -103,6 +105,8 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
 
     private User m_user;
     private RepositorySet[] m_repositorySets;
+    
+    private List<PreCommitMember> m_preCommitMembers;
 
     private List<Component[]> m_services;
     private ArtifactRepositoryImpl m_artifactRepositoryImpl;
@@ -118,6 +122,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
 
     public RepositoryAdminImpl(String sessionID) {
         m_sessionID = sessionID;
+        m_preCommitMembers = new ArrayList<PreCommitMember>();
         m_sessionProps = new Properties();
         m_sessionProps.put(SessionFactory.SERVICE_SID, sessionID);
         m_changeNotifierManager = new ChangeNotifierManager();
@@ -263,6 +268,9 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     public void checkout() throws IOException {
         synchronized (m_lock) {
             ensureLogin();
+            for (PreCommitMember member : m_preCommitMembers) {
+                member.reset();
+            }
             for (RepositorySet set : m_repositorySets) {
                 set.checkout();
             }
@@ -273,6 +281,9 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     public void commit() throws IOException {
         synchronized (m_lock) {
             ensureLogin();
+            for (PreCommitMember member : m_preCommitMembers) {
+                member.preCommit();
+            }
             for (RepositorySet set : m_repositorySets) {
                 set.commit();
             }
@@ -294,6 +305,9 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     public void revert() throws IOException {
         synchronized (m_lock) {
             ensureLogin();
+            for (PreCommitMember member : m_preCommitMembers) {
+                member.reset();
+            }
             for (RepositorySet set : m_repositorySets) {
                 set.revert();
             }
@@ -315,6 +329,11 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     public boolean isModified() {
         synchronized (m_lock) {
             ensureLogin();
+            for (PreCommitMember member : m_preCommitMembers) {
+                if (member.hasChanges()) {
+                    return true;
+                }
+            }
             for (RepositorySet set : m_repositorySets) {
                 if (set.isModified()) {
                     return true;
@@ -585,5 +604,11 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     public synchronized void removeArtifactHelper(ServiceReference ref, ArtifactHelper helper) {
         String mimetype = (String) ref.getProperty(ArtifactHelper.KEY_MIMETYPE);
         m_artifactRepositoryImpl.removeHelper(mimetype, helper);
+    }
+
+    void addPreCommitMember(PreCommitMember member) {
+        synchronized (m_lock) {
+            m_preCommitMembers.add(member);
+        }
     }
 }

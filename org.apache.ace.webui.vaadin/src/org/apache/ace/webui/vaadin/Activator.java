@@ -72,6 +72,7 @@ public class Activator extends DependencyActivatorBase {
                         "Target ID          : " + namedObject.getName() + "\n" +
                         "Installed version  : " + (target.getLastInstallVersion() == null ? "(none)" : target.getLastInstallVersion()) + "\n" +
                         "Available version  : " + target.getCurrentVersion() + "\n" +
+                        "Approval state     : " + target.getApprovalState() + "\n" +
                         "Store state        : " + target.getStoreState() + "\n" +
                         "Provisioning state : " + target.getProvisioningState() + "\n" +
                         "Registration state : " + target.getRegistrationState());

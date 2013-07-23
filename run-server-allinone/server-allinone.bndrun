@@ -68,8 +68,8 @@
 	Library Repository
 -runproperties: org.apache.felix.log.storeDebug=true,\
 	org.apache.felix.eventadmin.Timeout=0,\
-	org.apache.ace.server.port=8080,\
-	org.osgi.service.http.port=8080,\
+	org.apache.ace.server.port=18080,\
+	org.osgi.service.http.port=18080,\
 	org.apache.felix.log.maxSize=1000,\
 	launch.keep=true,\
 	launch.storage.dir=bundle-cache

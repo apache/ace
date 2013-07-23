@@ -148,7 +148,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
     @SuppressWarnings("unchecked")
     private void createSessionServices(SessionData sd, String sessionID) {
         RepositoryAdminImpl rai = new RepositoryAdminImpl(sessionID);
-        Component comp1 = createComponent()
+        Component repositoryAdminComponent = createComponent()
             .setInterface(RepositoryAdmin.class.getName(), rai.getSessionProps())
             .setImplementation(rai)
             .setComposition("getInstances")
@@ -176,7 +176,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         });
         
         StatefulTargetRepositoryImpl statefulTargetRepositoryImpl = new StatefulTargetRepositoryImpl(sessionID);
-        Component comp2 = createComponent()
+        Component statefulTargetRepositoryComponent = createComponent()
             .setInterface(new String[] { StatefulTargetRepository.class.getName(), EventHandler.class.getName() }, topic)
             .setImplementation(statefulTargetRepositoryImpl)
             .add(createServiceDependency().setService(ArtifactRepository.class, sessionFilter).setRequired(true))
@@ -186,9 +186,11 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
             .add(createServiceDependency().setService(BundleHelper.class).setRequired(true))
             .add(createServiceDependency().setService(EventAdmin.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false));
+        
+        rai.addPreCommitMember(statefulTargetRepositoryImpl);
 
         // Publish our components to our session data for later use...
-        sd.addComponents(m_dependencyManager, comp1, comp2);
+        sd.addComponents(m_dependencyManager, repositoryAdminComponent, statefulTargetRepositoryComponent);
     }
 
     /**

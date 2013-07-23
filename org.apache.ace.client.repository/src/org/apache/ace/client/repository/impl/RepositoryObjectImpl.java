@@ -65,6 +65,11 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         }
         m_notifier = notifier;
     }
+    
+    @Override
+    public void notifyChanged() {
+        notifyChanged(null);
+    }
 
     protected void notifyChanged(Properties props) {
         if (props == null) {

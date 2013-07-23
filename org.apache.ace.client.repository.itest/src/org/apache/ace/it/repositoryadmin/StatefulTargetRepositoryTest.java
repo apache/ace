@@ -122,7 +122,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 		    }
 		}, false, ArtifactObject.TOPIC_ADDED, Artifact2FeatureAssociation.TOPIC_CHANGED, TOPIC_STATUS_CHANGED);
 		
-		assertTrue("We added a new version of a bundle that is used by the target, so approval should be necessary.", sgo.needsApprove());
+        assertTrue("We added a new version of a bundle that is used by the target, so approval should be necessary.", sgo.needsApprove());
 		assertEquals("We expect the registration state to be Registered;", RegistrationState.Registered, sgo.getRegistrationState());
 		assertEquals("We expect the registration state to be Unapproved;", StoreState.Unapproved, sgo.getStoreState());
 		assertEquals("According to the shop, this target needs 1 bundle", 1, sgo.getArtifactsFromShop().length);
@@ -131,11 +131,14 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 		assertEquals("The deployment should tell use we need bundle URL 'bundle1-1';", "http://bundle1-1", sgo.getArtifactsFromDeployment()[0].getUrl());
 		assertEquals("1", sgo.getCurrentVersion());
 		
-		final String newVersion = runAndWaitForEvent(new Callable<String>() {
-		    public String call() throws Exception {
-		        return sgo.approve();
-		    }
-		}, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
+		String newVersion = sgo.approve();
+		
+        runAndWaitForEvent(new Callable<Void>() {
+            public Void call() throws Exception {
+                m_repositoryAdmin.commit();
+                return null;
+            }
+        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
 		
 		assertFalse("Immediately after approval, no approval is necessary.", sgo.needsApprove());
 		assertEquals("We expect the registration state to be Registered;", RegistrationState.Registered, sgo.getRegistrationState());
@@ -708,5 +711,6 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
                 .setLocation(m_endpoint).setCustomer(customer).setName("deployment").setWriteable());
 
         m_repositoryAdmin.login(loginContext);
+        m_repositoryAdmin.checkout();
 	}
 }

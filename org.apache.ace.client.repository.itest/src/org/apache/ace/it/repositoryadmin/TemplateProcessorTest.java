@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
+import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.PropertyResolver;
@@ -50,6 +51,8 @@ import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.useradmin.User;
 
 /**
  * Test cases for the template processing functionality.
@@ -121,6 +124,8 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
 	}
 
     public void testStatefulApprovalWithArtifacts() throws Exception {
+        setupRepository();
+        
         // some setup: we need a helper.
         ArtifactHelper myHelper = new MockArtifactHelper("mymime");
 
@@ -168,9 +173,16 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         m_feature2distributionRepository.create(g, l);
 
         m_distribution2targetRepository.create(l, sgo.getTargetObject());
-
         try {
             sgo.approve();
+            
+            runAndWaitForEvent(new Callable<Void>() {
+                public Void call() throws Exception {
+                    m_repositoryAdmin.commit();
+                    return null;
+                }
+            }, true, TOPIC_STATUS_CHANGED);        
+            
             assertTrue("Without a resource processor for our artifact, approve should go wrong.", false);
         }
         catch (IllegalStateException ise) {
@@ -187,6 +199,13 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         ArtifactObject b2 = m_artifactRepository.create(attr, tags);
 
         sgo.approve();
+        
+        runAndWaitForEvent(new Callable<Void>() {
+            public Void call() throws Exception {
+                m_repositoryAdmin.commit();
+                return null;
+            }
+        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);        
 
         DeploymentVersionObject dep = m_deploymentVersionRepository.getMostRecentDeploymentVersion(sgo.getID());
 
@@ -214,11 +233,35 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         m_dependencyManager.remove(myHelperService);
     }
 
+    private void setupRepository() throws IOException, InterruptedException, InvalidSyntaxException {
+        User user = new MockUser();
+
+        startRepositoryService();
+
+        addRepository("storeInstance", "apache", "store", true);
+        addRepository("targetInstance", "apache", "target", true);
+        addRepository("deploymentInstance", "apache", "deployment", true);
+
+        RepositoryAdminLoginContext loginContext = m_repositoryAdmin.createLoginContext(user);
+        loginContext
+            .add(loginContext.createShopRepositoryContext()
+                .setLocation(m_endpoint).setCustomer("apache").setName("store").setWriteable())
+            .add(loginContext.createTargetRepositoryContext()
+                .setLocation(m_endpoint).setCustomer("apache").setName("target").setWriteable())
+            .add(loginContext.createDeploymentRepositoryContext()
+                .setLocation(m_endpoint).setCustomer("apache").setName("deployment").setWriteable());
+
+        m_repositoryAdmin.login(loginContext);
+        m_repositoryAdmin.checkout();
+    }
+
     /**
      * Tests the full template mechanism, from importing templatable artifacts, to creating deployment
      * versions with it. It uses the configuration (autoconf) helper, which uses a VelocityBased preprocessor.
      */
     public void testTemplateProcessing() throws Exception {
+        setupRepository();
+        
         addObr("/obr", "store");
         m_artifactRepository.setObrBase(new URL("http://localhost:" + TestConstants.PORT + "/obr/"));
 
@@ -260,13 +303,15 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         // create a deploymentversion
         assertTrue("With the new assignments, the SGO should need approval.", sgo.needsApprove());
         
-        runAndWaitForEvent(new Callable<Object>() {
-            public Object call() throws Exception {
-                sgo.approve();
+        sgo.approve();
+
+        runAndWaitForEvent(new Callable<Void>() {
+            public Void call() throws Exception {
+                m_repositoryAdmin.commit();
                 return null;
             }
-        }, false, TOPIC_STATUS_CHANGED);
-
+        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);  
+        
         // find the deployment version
         DeploymentVersionObject dvo = m_deploymentVersionRepository.getMostRecentDeploymentVersion("templatetarget2");
         String inFile = tryGetStringFromURL(findXmlUrlInDeploymentObject(dvo), 10, 100);
@@ -279,6 +324,14 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         a2g = m_artifact2featureRepository.create(a1, go);
 
         sgo.approve();
+        
+        runAndWaitForEvent(new Callable<Void>() {
+            public Void call() throws Exception {
+                m_repositoryAdmin.commit();
+                return null;
+            }
+        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);  
+
 
         // find the deployment version
         dvo = m_deploymentVersionRepository.getMostRecentDeploymentVersion("templatetarget2");
@@ -296,6 +349,8 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
      * Tests the template processing mechanism: given a custom processor, do the correct calls go out?
      */
     public void testTemplateProcessingInfrastructure() throws Exception {
+        setupRepository();
+        
         // create a preprocessor
         MockArtifactPreprocessor preprocessor = new MockArtifactPreprocessor();
 
@@ -346,6 +401,14 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         assertTrue("With the new assignments, the SGO should need approval.", sgo.needsApprove());
         // create a deploymentversion
         sgo.approve();
+        
+        
+        runAndWaitForEvent(new Callable<Void>() {
+            public Void call() throws Exception {
+                m_repositoryAdmin.commit();
+                return null;
+            }
+        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);  
 
         // the preprocessor now has gotten its properties; inspect these
         PropertyResolver target = preprocessor.getProps();

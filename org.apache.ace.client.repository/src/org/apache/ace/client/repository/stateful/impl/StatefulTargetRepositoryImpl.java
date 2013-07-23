@@ -32,6 +32,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.ace.client.repository.PreCommitMember;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.RepositoryUtil;
@@ -47,6 +48,7 @@ import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject.ApprovalState;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
@@ -64,7 +66,7 @@ import org.osgi.service.log.LogService;
  * Implements the StatefulTargetRepository. If an <code>AuditLogStore</code> is present,
  * it will be used; it is assumed that the auditlog store is up to date.
  */
-public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, EventHandler {
+public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, EventHandler, PreCommitMember {
     private BundleContext m_context; /* Injected by dependency manager */
     private ArtifactRepository m_artifactRepository; /* Injected by dependency manager */
     private TargetRepository m_targetRepository; /* Injected by dependency manager */
@@ -214,6 +216,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     void removeStateful(StatefulTargetObjectImpl entity) {
         synchronized (m_repository) {
             m_repository.remove(entity.getID());
+            m_index.remove(entity.getDefinition());
             notifyChanged(entity, StatefulTargetObject.TOPIC_REMOVED);
         }
     }
@@ -466,7 +469,17 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      * @throws java.io.IOException When there is a problem generating the deployment version.
      */
     String approve(String targetID) throws IOException {
-        return generateDeploymentVersion(targetID).getVersion();
+        System.out.println("Approving " + targetID);
+        DeploymentVersionObject mostRecentDeploymentVersion = getMostRecentDeploymentVersion(targetID);
+        String nextVersion;
+        if (mostRecentDeploymentVersion == null) {
+            nextVersion = nextVersion(null);
+        }
+        else {
+            nextVersion = nextVersion(mostRecentDeploymentVersion.getVersion());
+        }
+        return nextVersion;
+//        return generateDeploymentVersion(targetID).getVersion();
     }
 
     /**
@@ -598,6 +611,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     /**
      * Quick method to find all artifacts that need to be deployed to a target.
      */
+    // TODO this method strongly resembles part of getNecessaryDeploymentArtifacts(), merge code?!
     ArtifactObject[] getNecessaryArtifacts(String targetID) {
         List<ArtifactObject> result = new ArrayList<ArtifactObject>();
         TargetObject to = getTargetObject(targetID);
@@ -750,5 +764,42 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
 
     boolean needsNewVersion(ArtifactObject artifact, String targetID, String version) {
         return m_artifactRepository.needsNewVersion(artifact, getTargetObject(targetID), targetID, version);
+    }
+
+    @Override
+    public void preCommit() throws IOException {
+        synchronized (m_repository) {
+            for (StatefulTargetObjectImpl stoi : m_repository.values()) {
+                if (preCommitHasChanges(stoi)) {
+                    generateDeploymentVersion(stoi.getID());
+                }
+                stoi.resetApprovalState();
+            }
+        }
+    }
+    
+    @Override
+    public void reset() {
+        synchronized (m_repository) {
+            for (StatefulTargetObjectImpl stoi : m_repository.values()) {
+                stoi.resetApprovalState();
+            }
+        }
+    }
+
+    @Override
+    public boolean hasChanges() {
+        synchronized (m_repository) {
+            for (StatefulTargetObjectImpl stoi : m_repository.values()) {
+                if (preCommitHasChanges(stoi)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private boolean preCommitHasChanges(StatefulTargetObjectImpl stoi) {
+        return stoi.getApprovalState().equals(ApprovalState.Approved) && stoi.needsApprove();
     }
 }

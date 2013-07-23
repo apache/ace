@@ -39,6 +39,7 @@ import org.apache.ace.client.repository.RepositoryObject.WorkingState;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
+import org.apache.ace.client.repository.object.DeploymentVersionObject;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
@@ -151,6 +152,8 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
                 .setLocation(m_endpoint).setCustomer("apache").setName("deployment").setWriteable());
 
         m_repositoryAdmin.login(loginContext);
+        
+        m_repositoryAdmin.checkout();
 
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
@@ -184,13 +187,15 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
 
         assertTrue("Turning on the autoapprove should not automatically approve whatever was waiting.", sgo.needsApprove());
 
-        runAndWaitForEvent(new Callable<Object>() {
-            public Object call() throws Exception {
-                sgo.approve();
+        sgo.approve();
+        
+        runAndWaitForEvent(new Callable<Void>() {
+            public Void call() throws Exception {
+                m_repositoryAdmin.commit();
                 return null;
             }
-        }, false, TOPIC_STATUS_CHANGED);
-
+        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);        
+        
         assertFalse("We approved the new version by hand, so we should not need approval.", sgo.needsApprove());
 
         runAndWaitForEvent(new Callable<Object>() {
@@ -202,6 +207,13 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
         }, false, ArtifactObject.TOPIC_ADDED, Artifact2FeatureAssociation.TOPIC_ADDED, TOPIC_STATUS_CHANGED,
             TOPIC_STATUS_CHANGED);
 
+        runAndWaitForEvent(new Callable<Void>() {
+            public Void call() throws Exception {
+                m_repositoryAdmin.commit();
+                return null;
+            }
+        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);           
+        
         assertFalse("With autoapprove on, adding new deployment information should still not need approval (at least, after the two CHANGED events).", sgo.needsApprove());
 
         runAndWaitForEvent(new Callable<Object>() {

@@ -51,6 +51,7 @@ public interface StatefulTargetObject extends RepositoryObject {
     public final static String KEY_REGISTRATION_STATE = "KEY_REGISTRATION_STATE";
     public final static String KEY_STORE_STATE = "KEY_STORE_STATE";
     public final static String KEY_PROVISIONING_STATE = "KEY_PROVISIONING_STATE";
+    public final static String KEY_APPROVAL_STATE = "KEY_APPROVAL_STATE";
     public final static String KEY_LAST_INSTALL_VERSION = "KEY_LAST_INSTALL_VERSION";
     public final static String KEY_LAST_INSTALL_SUCCESS = "KEY_LAST_INSTALL_SUCCESS";
     public final static String KEY_ACKNOWLEDGED_INSTALL_VERSION = "KEY_ACKNOWLEDGED_INSTALL_VERSION";
@@ -204,4 +205,11 @@ public interface StatefulTargetObject extends RepositoryObject {
     public enum ProvisioningState {
         Idle, InProgress, OK, Failed;
     }
+    
+    /** Indicates if the user has approved changes for this target or not. */
+    public enum ApprovalState {
+        Unapproved, Approved;
+    }
+
+    public ApprovalState getApprovalState();
 }

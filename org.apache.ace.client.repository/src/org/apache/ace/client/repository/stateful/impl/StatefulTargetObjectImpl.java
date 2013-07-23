@@ -77,7 +77,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     public String approve() throws IllegalStateException {
         try {
             String version = m_repository.approve(getID());
-            setStoreState(StoreState.Approved);
+            setApprovalState(ApprovalState.Approved);
             return version;
         }
         catch (IOException e) {
@@ -152,7 +152,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     }
 
     public boolean needsApprove() {
-        return getStoreState() == StoreState.Unapproved;
+        return !(getStoreState() == StoreState.Approved);
     }
 
     public ProvisioningState getProvisioningState() {
@@ -161,6 +161,11 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
 
     public RegistrationState getRegistrationState() {
         return RegistrationState.valueOf(getStatusAttribute(KEY_REGISTRATION_STATE));
+    }
+    
+    public ApprovalState getApprovalState() {
+        String state = getStatusAttribute(KEY_APPROVAL_STATE);
+        return state == null ? ApprovalState.Unapproved : ApprovalState.valueOf(state);
     }
 
     public StoreState getStoreState() {
@@ -236,7 +241,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     }
 
     private void determineStoreState(DeploymentVersionObject deploymentVersionObject) {
-        synchronized(m_lock) {
+        synchronized (m_lock) {
             List<String> fromShop = new ArrayList<String>();
             ArtifactObject[] artifactsFromShop = m_repository.getNecessaryArtifacts(getID());
             DeploymentVersionObject mostRecentVersion;
@@ -270,6 +275,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
             }
             else if (fromShop.containsAll(fromDeployment) && fromDeployment.containsAll(fromShop)) {
                 // great, we have the same artifacts. But... do they need to be reprocessed?
+                // this might be the case when the target has new tags that affect templates
                 for (ArtifactObject ao : artifactsFromShop) {
                     if (m_repository.needsNewVersion(ao, getID(), mostRecentVersion.getVersion())) {
                         setStoreState(StoreState.Unapproved);
@@ -370,6 +376,15 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     private void setProvisioningState(ProvisioningState state) {
         setStatus(KEY_PROVISIONING_STATE, state.toString());
     }
+    
+    private void setApprovalState(ApprovalState state) {
+        setStatus(KEY_APPROVAL_STATE, state.toString());
+        if (isRegistered() && state == ApprovalState.Approved && needsApprove()) {
+            // trigger a change here, because we know the target will change as part of the
+            // pre-commit phase
+            getTargetObject().notifyChanged();
+        }
+    }
 
     private void setStatus(String key, String status) {
         if (!status.equals(getStatusAttribute(key))) {
@@ -383,7 +398,9 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
 
     private void handleStatechangeAutomation() {
         if (getStoreState().equals(StoreState.Unapproved) && isRegistered() && getAutoApprove()) {
-            approve();
+            if (getApprovalState().equals(ApprovalState.Unapproved)) {
+                approve();
+            }
         }
     }
 
@@ -732,5 +749,13 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     @Override
     public String toString() {
     	return "StatefulTargetObjectImpl[" + getStatusAttribute(KEY_ID) + " " + getRegistrationState() + " " + getStoreState() + " " + getProvisioningState() + "]";
+    }
+
+    public void resetApprovalState() {
+        setApprovalState(ApprovalState.Unapproved);
+    }
+
+    @Override
+    public void notifyChanged() {
     }
 }

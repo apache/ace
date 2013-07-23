@@ -211,7 +211,8 @@ public class AssociationImpl<L extends RepositoryObject, R extends RepositoryObj
                     props.put(EVENT_OLD, oldEndpoints);
                     props.put(EVENT_NEW, newEndpoints);
                     notifyChanged(props);
-                } else {
+                }
+                else {
                     m_left = newEndpoints;
                 }
             }
@@ -234,7 +235,8 @@ public class AssociationImpl<L extends RepositoryObject, R extends RepositoryObj
                     props.put(EVENT_OLD, oldEndpoints);
                     props.put(EVENT_NEW, newEndpoints);
                     notifyChanged(props);
-                } else {
+                }
+                else {
                     m_right = newEndpoints;
                 }
             }

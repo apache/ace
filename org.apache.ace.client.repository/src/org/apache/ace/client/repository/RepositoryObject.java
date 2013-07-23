@@ -47,39 +47,47 @@ public interface RepositoryObject extends Associatable {
      * when the value is new.
      */
     public String addAttribute(String key, String value);
+    
     /**
      * Removes a names attribute from this object's attributes.
      */
     public String removeAttribute(String key);
+    
     /**
      * Gets a named attribute. Returns <code>null<code> when the attribute named by
      * <code>key</code> does not exist.
      */
     public String getAttribute(String key);
+    
     /**
      * Returns an enumeration of all attribute keys.
      */
     public Enumeration<String> getAttributeKeys();
+    
     /**
      * Adds a named tag to this object's attributes. If the name already exists,
      * it will be overwritten, and the old value is returned; will return <code>null</code>
      * when the value is new.
      */
     public String addTag(String key, String value);
+    
     /**
      * Removes a named tag from this object's attributes.
      */
     public String removeTag(String key);
+    
     /**
      * Gets a named tag. Returns <code>null<code> when the attribute named by
      * <code>key</code> does not exist.
      */
     public String getTag(String key);
+    
     /**
      * Returns an enumeration of all tags in this object, coming from both the
      * tags and the attributes.
      */
     public Enumeration<String> getTagKeys();
+    
     /**
      * Returns a <code>Dictionary</code> representing this object. It will contain all keys,
      * from <code>getTagKeys</code>, and all values that correspond to them. If a key is present
@@ -87,10 +95,12 @@ public interface RepositoryObject extends Associatable {
      * <code>String</code> objects; otherwise a single <code>String</code> is returned.
      */
     public Dictionary<String, Object> getDictionary();
+    
     /**
      * Indicates that this object should no longer be used.
      */
     public boolean isDeleted();
+    
     /**
      * Creates a filter string for use in associations, optionally with some
      * additional properties. The basic implementation will use all <code>getDefiningKeys</code>.
@@ -113,7 +123,7 @@ public interface RepositoryObject extends Associatable {
      * and otherwise (if no order is natural), return <code>null</code>.
      * @return A <code>Comparator</code> for this type of object
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public Comparator getComparator();
 
     /**
@@ -123,7 +133,15 @@ public interface RepositoryObject extends Associatable {
      */
     public String getDefinition();
 
+    /**
+     * Different working states of this object.
+     */
     public enum WorkingState {
         New, Changed, Unchanged, Removed;
     }
+
+    /**
+     * Notifies interested parties that "something" has changed in this object.
+     */
+    void notifyChanged();
 }
