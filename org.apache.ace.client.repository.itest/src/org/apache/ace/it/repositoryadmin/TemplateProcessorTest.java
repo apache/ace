@@ -49,10 +49,20 @@ import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject.StoreState;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
+
+import com.sun.medialib.mlib.Constants;
 
 /**
  * Test cases for the template processing functionality.
@@ -169,26 +179,20 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         m_artifact2featureRepository.create(b1, g);
         m_artifact2featureRepository.create(a1, g);
         m_artifact2featureRepository.create(a2, g);
-
         m_feature2distributionRepository.create(g, l);
-
         m_distribution2targetRepository.create(l, sgo.getTargetObject());
-        try {
-            sgo.approve();
-            
-            runAndWaitForEvent(new Callable<Void>() {
-                public Void call() throws Exception {
-                    m_repositoryAdmin.commit();
-                    return null;
-                }
-            }, true, TOPIC_STATUS_CHANGED);        
-            
-            assertTrue("Without a resource processor for our artifact, approve should go wrong.", false);
-        }
-        catch (IllegalStateException ise) {
-            // expected
-        }
 
+        sgo.approve();
+        
+        runAndWaitForEvent(new Callable<Void>() {
+            public Void call() throws Exception {
+                m_repositoryAdmin.commit();
+                return null;
+            }
+        }, true, TOPIC_STATUS_CHANGED);
+        
+        assertEquals("Store state for target should still be new, because the resource processor is missing.", StoreState.New, sgo.getStoreState());
+        
         // Now, add a processor for the artifact.
         attr = new HashMap<String, String>();
         attr.put(ArtifactObject.KEY_URL, "http://myprocessor");
