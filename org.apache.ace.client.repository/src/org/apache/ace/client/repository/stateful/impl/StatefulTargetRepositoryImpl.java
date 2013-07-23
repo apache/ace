@@ -469,7 +469,6 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      * @throws java.io.IOException When there is a problem generating the deployment version.
      */
     String approve(String targetID) throws IOException {
-        System.out.println("Approving " + targetID);
         DeploymentVersionObject mostRecentDeploymentVersion = getMostRecentDeploymentVersion(targetID);
         String nextVersion;
         if (mostRecentDeploymentVersion == null) {
