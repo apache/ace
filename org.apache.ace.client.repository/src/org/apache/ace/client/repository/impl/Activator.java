@@ -138,7 +138,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
             destroySessionServices(sessionData, sessionID);
         }
     }
-
+    
     /**
      * Creates all necessary session-related service for the given session.
      * 
@@ -163,16 +163,16 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         topic.put(SessionFactory.SERVICE_SID, sessionID);
         topic.put(EventConstants.EVENT_FILTER, sessionFilter);
         topic.put(EventConstants.EVENT_TOPIC, new String[] {
-            ArtifactObject.TOPIC_ALL,
-            Artifact2FeatureAssociation.TOPIC_ALL,
-            FeatureObject.TOPIC_ALL,
-            Feature2DistributionAssociation.TOPIC_ALL,
-            DistributionObject.TOPIC_ALL,
-            Distribution2TargetAssociation.TOPIC_ALL,
-            TargetObject.TOPIC_ALL,
-            DeploymentVersionObject.TOPIC_ALL,
-            RepositoryAdmin.TOPIC_REFRESH, 
-            RepositoryAdmin.TOPIC_LOGIN 
+            ArtifactObject.PRIVATE_TOPIC_ALL,
+            Artifact2FeatureAssociation.PRIVATE_TOPIC_ALL,
+            FeatureObject.PRIVATE_TOPIC_ALL,
+            Feature2DistributionAssociation.PRIVATE_TOPIC_ALL,
+            DistributionObject.PRIVATE_TOPIC_ALL,
+            Distribution2TargetAssociation.PRIVATE_TOPIC_ALL,
+            TargetObject.PRIVATE_TOPIC_ALL,
+            DeploymentVersionObject.PRIVATE_TOPIC_ALL,
+            RepositoryAdmin.PRIVATE_TOPIC_REFRESH, 
+            RepositoryAdmin.PRIVATE_TOPIC_LOGIN 
         });
         
         StatefulTargetRepositoryImpl statefulTargetRepositoryImpl = new StatefulTargetRepositoryImpl(sessionID);

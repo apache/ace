@@ -711,7 +711,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
 
     public void handleEvent(Event event) {
         String topic = event.getTopic();
-        if (TargetObject.TOPIC_ADDED.equals(topic)) {
+        if (TargetObject.PRIVATE_TOPIC_ADDED.equals(topic)) {
             synchronized (m_repository) {
                 String id = ((TargetObject) event.getProperty(RepositoryObject.EVENT_ENTITY)).getID();
                 StatefulTargetObjectImpl stoi = getStatefulTargetObject(id);
@@ -723,7 +723,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                 }
             }
         }
-        else if (TargetObject.TOPIC_REMOVED.equals(topic)) {
+        else if (TargetObject.PRIVATE_TOPIC_REMOVED.equals(topic)) {
             synchronized (m_repository) {
                 String id = ((TargetObject) event.getProperty(RepositoryObject.EVENT_ENTITY)).getID();
                 StatefulTargetObjectImpl stoi = getStatefulTargetObject(id);
@@ -733,7 +733,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                 }
             }
         }
-        else if (DeploymentVersionObject.TOPIC_ADDED.equals(topic) || DeploymentVersionObject.TOPIC_REMOVED.equals(topic)) {
+        else if (DeploymentVersionObject.PRIVATE_TOPIC_ADDED.equals(topic) || DeploymentVersionObject.PRIVATE_TOPIC_REMOVED.equals(topic)) {
             synchronized (m_repository) {
                 DeploymentVersionObject deploymentVersionObject = ((DeploymentVersionObject) event.getProperty(RepositoryObject.EVENT_ENTITY));
                 String id = deploymentVersionObject.getTargetID();
@@ -746,7 +746,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                 }
             }
         }
-        else if (RepositoryAdmin.TOPIC_LOGIN.equals(topic) || RepositoryAdmin.TOPIC_REFRESH.equals(topic)) {
+        else if (RepositoryAdmin.PRIVATE_TOPIC_LOGIN.equals(topic) || RepositoryAdmin.PRIVATE_TOPIC_REFRESH.equals(topic)) {
             synchronized (m_repository) {
                 populate();
             }

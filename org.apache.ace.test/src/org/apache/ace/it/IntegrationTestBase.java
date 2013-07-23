@@ -345,7 +345,7 @@ public class IntegrationTestBase extends TestCase {
         	
             // Wait for CM to settle or we may get "socket closed" due to HTTP service restarts
             // TODO fix this, it slows down all tests
-            Thread.sleep(2000);
+            Thread.sleep(500);
         }
         catch (InterruptedException e) {
             fail("Interrupted while waiting for services to get started.");

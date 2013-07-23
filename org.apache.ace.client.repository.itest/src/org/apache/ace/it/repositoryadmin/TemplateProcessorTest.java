@@ -382,7 +382,7 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
                 m_distribution2targetRepository.create(lo, gwo);
                 return null;
             }
-        }, false, TOPIC_ADDED);
+        }, false, TOPIC_STATUS_CHANGED);
 
         StatefulTargetObject sgo = findStatefulTarget(targetId);
         assertNotNull("Failed to find our target in the repository?!", sgo);

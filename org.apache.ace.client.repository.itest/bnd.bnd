@@ -22,8 +22,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.log.server.store.api;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runvm: -ea
--runbundles: \
-	osgi.cmpn,\
+-runbundles: osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.eventadmin,\
@@ -69,7 +68,11 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.client.repository.helper.base;version=latest,\
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
 	org.apache.ace.client.repository.helper.configuration;version=latest,\
-	org.apache.ace.client.repository.impl;version=latest
+	org.apache.ace.client.repository.impl;version=latest,\
+	org.apache.felix.gogo.command,\
+	org.apache.felix.gogo.runtime,\
+	org.apache.felix.gogo.shell
+-runproperties: org.apache.felix.eventadmin.Timeout=0
 Private-Package: org.apache.ace.it.repositoryadmin
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Client Repository itest

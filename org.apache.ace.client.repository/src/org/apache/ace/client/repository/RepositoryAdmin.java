@@ -42,24 +42,36 @@ public interface RepositoryAdmin
      * the Object's own Changed topic.
      */
     public static final String TOPIC_REFRESH = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_REFRESH_SUFFIX;
+    
+    public static final String PRIVATE_TOPIC_REFRESH = PRIVATE_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_REFRESH_SUFFIX;
     /**
      * Indicates a successful login; the model will now be filled, as signaled by the earlier TOPIC_REFRESH.
      */
     public static final String TOPIC_LOGIN = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_LOGIN_SUFFIX;
+    
+    public static final String PRIVATE_TOPIC_LOGIN = PRIVATE_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_LOGIN_SUFFIX;
     /**
      * Indicates a successful logout; the model will now be empty, as signaled by the earlier TOPIC_REFRESH.
      */
     public static final String TOPIC_LOGOUT = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_LOGOUT_SUFFIX;
+    
+    public static final String PRIVATE_TOPIC_LOGOUT = PRIVATE_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_LOGOUT_SUFFIX;
     /**
      * Signals that isCurrent or isModified have (potentially) changed.
      */
     public static final String TOPIC_STATUSCHANGED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_STATUSCHANGED_SUFFIX;
+    
+    public static final String PRIVATE_TOPIC_STATUSCHANGED = PRIVATE_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_STATUSCHANGED_SUFFIX;
     /**
      * Signals that a flush() has been done.
      */
     public static final String TOPIC_FLUSHED = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_FLUSHED_SUFFIX;
+    
+    public static final String PRIVATE_TOPIC_FLUSHED = PRIVATE_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_FLUSHED_SUFFIX;
 
     public static final String TOPIC_ALL = PUBLIC_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ALL_SUFFIX;
+    
+    public static final String PRIVATE_TOPIC_ALL = PRIVATE_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_ALL_SUFFIX;
 
     /**
      * Checks out the most recent version of the repositories from <code>login</code>.
