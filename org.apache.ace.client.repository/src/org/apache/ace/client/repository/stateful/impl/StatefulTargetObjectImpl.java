@@ -152,7 +152,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     }
 
     public boolean needsApprove() {
-        return !(getStoreState() == StoreState.Approved);
+        return getStoreState() == StoreState.Unapproved;
     }
 
     public ProvisioningState getProvisioningState() {
