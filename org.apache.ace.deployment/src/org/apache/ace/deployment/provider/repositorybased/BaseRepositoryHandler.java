@@ -46,7 +46,7 @@ class BaseRepositoryHandler extends DefaultHandler {
     /** Denotes the directive key of the current deployment artifact. */
     private String m_currentDirectiveKey;
     /** To collect characters() */
-    private StringBuffer m_buffer = new StringBuffer();
+    private final StringBuilder m_buffer;
 
     /**
      * Creates a new {@link BaseRepositoryHandler} instance.
@@ -56,6 +56,7 @@ class BaseRepositoryHandler extends DefaultHandler {
     public BaseRepositoryHandler(String targetID) {
         m_targetID = targetID;
         m_currentTag = XmlTag.unknown;
+        m_buffer = new StringBuilder();
     }
 
     /**
@@ -101,19 +102,20 @@ class BaseRepositoryHandler extends DefaultHandler {
         if (XmlTag.directives.equals(m_currentTag)) {
             m_currentDirectiveKey = qName;
         }
-        m_buffer = new StringBuffer();
+        m_buffer.setLength(0);
     }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         // just collect whatever comes along into our buffer (ACE-399)
         // see: http://stackoverflow.com/questions/4567636/java-sax-parser-split-calls-to-characters
-        m_buffer.append(new String(ch, start, length));
+        m_buffer.append(ch, start, length);
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         String text = m_buffer.toString();
+
         if (XmlTag.targetID.equals(m_currentTag)) {
             // verify whether we're in the DP for the requested target...
             m_targetFound = m_targetID.equals(text);
