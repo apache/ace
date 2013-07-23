@@ -52,17 +52,8 @@ import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject.StoreState;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
-import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
-
-import com.sun.medialib.mlib.Constants;
 
 /**
  * Test cases for the template processing functionality.
