@@ -8,7 +8,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 	org.apache.felix.gogo.command,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.felix.gogo.shell,\
-	org.apache.felix.configadmin
+	org.apache.felix.configadmin,\
+	org.apache.felix.eventadmin
 -runee: JavaSE-1.6
 -runvm: -ea
 -runfw: org.apache.felix.framework
