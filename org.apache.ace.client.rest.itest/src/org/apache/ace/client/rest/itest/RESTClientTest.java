@@ -493,20 +493,7 @@ public class RESTClientTest extends IntegrationTestBase {
         file.deleteOnExit();
         BufferedWriter bw = new BufferedWriter(new FileWriter(file));
         try {
-            bw.write(
-                "<MetaData xmlns='http://www.osgi.org/xmlns/metatype/v1.0.0'>\n" +
-                    "  <OCD name='ocd' id='ocd'>\n" +
-                    "    <AD id='name' type='STRING' cardinality='0' />\n" +
-                    "  </OCD>\n" +
-                    "  <Designate pid='simple' bundle='osgi-dp:location'>\n" +
-                    "    <Object ocdref='ocd'>\n" +
-                    "      <Attribute adref='name'>\n" +
-                    "        <Value><![CDATA[${context.test}]]></Value>\n" +
-                    "      </Attribute>\n" +
-                    "    </Object>\n" +
-                    "  </Designate>\n" +
-                    "</MetaData>\n"
-                );
+            bw.write(config);
             return file;
         }
         finally {
