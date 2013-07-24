@@ -35,13 +35,14 @@ import org.apache.ace.identification.property.constants.IdentificationConstants;
 import org.apache.ace.log.Log;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
+import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
-import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Constants;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.log.LogReaderService;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
@@ -64,11 +65,130 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
     private volatile Repository m_userRepository;
     private volatile UserAdmin m_userAdmin;
     private volatile ConnectionFactory m_connectionFactory;
+    private volatile LogReaderService m_logReader;
+
+    @Override
+    protected Component[] getDependencies() {
+        return new Component[] {
+                createComponent()
+                    .setImplementation(this)
+                    .add(createServiceDependency().setService(UserAdmin.class).setRequired(true))
+                    .add(createServiceDependency().setService(LogReaderService.class).setRequired(true))
+                    .add(createServiceDependency()
+                        .setService(Repository.class, "(&(" + RepositoryConstants.REPOSITORY_NAME + "=users)(" + RepositoryConstants.REPOSITORY_CUSTOMER + "=apache))")
+                        .setRequired(true))
+                    .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
+                    .add(createServiceDependency().setService(HttpService.class).setRequired(true))
+                    .add(createServiceDependency().setService(Log.class, "(&(" + Constants.OBJECTCLASS + "=" + Log.class.getName() + ")(name=auditlog))").setRequired(true))
+                    .add(createServiceDependency().setService(LogStore.class, "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))").setRequired(true))
+                    .add(createServiceDependency().setService(Runnable.class, "(&(" + Constants.OBJECTCLASS + "=" + Runnable.class.getName() + ")(taskName=auditlog))").setRequired(true))
+            };
+    }
+
+    @Override
+    protected void configureAdditionalServices() throws Exception {
+        String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
+
+        URL testURL = new URL(baseURL.concat(AUDITLOG_ENDPOINT));
+        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
+
+        String userName = "d";
+        String password = "f";
+
+        importSingleUser(m_userRepository, userName, password);
+        waitForUser(m_userAdmin, userName);
+
+        m_configurationPID = configureFactory("org.apache.ace.connectionfactory", 
+            "authentication.baseURL", baseURL.concat(AUDITLOG_ENDPOINT), 
+            "authentication.type", "basic",
+            "authentication.user.name", userName,
+            "authentication.user.password", password);
+
+        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
+    }
+
+    @Override
+    protected void configureProvisionedServices() throws Exception {
+        String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
+
+        getService(SessionFactory.class).createSession("test-session-ID");
+
+        configureFactory("org.apache.ace.server.repository.factory",
+            RepositoryConstants.REPOSITORY_NAME, "users",
+            RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
+            RepositoryConstants.REPOSITORY_MASTER, "true");
+
+        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
+            "repositoryName", "users",
+            "repositoryCustomer", "apache");
+        
+        configure("org.apache.ace.scheduler",
+            "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
+
+        configure(DiscoveryConstants.DISCOVERY_PID,
+            DiscoveryConstants.DISCOVERY_URL_KEY, baseURL);
+        configure(IdentificationConstants.IDENTIFICATION_PID,
+            IdentificationConstants.IDENTIFICATION_TARGETID_KEY, TARGET_ID);
+
+        configureFactory("org.apache.ace.target.log.store.factory",
+            "name", "auditlog");
+        configureFactory("org.apache.ace.target.log.factory",
+            "name", "auditlog");
+        configureFactory("org.apache.ace.target.log.sync.factory",
+            "name", "auditlog");
+        configureFactory("org.apache.ace.log.server.servlet.factory",
+            "name", "auditlog",
+            HttpConstants.ENDPOINT, AUDITLOG_ENDPOINT,
+            "authentication.enabled", "true");
+        configureFactory("org.apache.ace.log.server.store.factory",
+            "name", "auditlog");
+    }
+
+    @Override
+    protected List<String> getResponse(String request) throws IOException {
+        List<String> result = new ArrayList<String>();
+        InputStream in = null;
+        try {
+            in = m_connectionFactory.createConnection(new URL(request)).getInputStream();
+            byte[] response = new byte[in.available()];
+            in.read(response);
+
+            StringBuilder element = new StringBuilder();
+            for (byte b : response) {
+                switch(b) {
+                    case '\n' :
+                        result.add(element.toString());
+                        element = new StringBuilder();
+                        break;
+                    default :
+                        element.append(b);
+                }
+            }
+        }
+        finally {
+            try {
+                in.close();
+            }
+            catch (Exception e) {
+                // no problem.
+            }
+        }
+        return result;
+    }
+    
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        
+        // Remove the configuration to start without any configured authentication...
+        getConfiguration(m_configurationPID).delete();
+    }
 
     /**
      * Tests that accessing the log servlet with authentication works when given the right credentials.
      */
     public void testAccessLogServletWithCorrectCredentialsOk() throws Exception {
+        try {
         String tid1 = "42";
         String tid2 = "47";
 
@@ -80,12 +200,18 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
 
         List<String> result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/query");
         assertTrue("We expect at least two logs on the server.", result.size() > 1);
+        }
+        catch (Exception e) {
+            printLog(m_logReader);
+            throw e;
+        }
     }
     
     /**
      * Tests that the log synchronization works when the log servlet has authentication enabled.
      */
     public void testLogSynchronizationOk() throws Exception {
+        try{
         final int type = 12345;
         
         // now log another event
@@ -129,128 +255,10 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
         }
 
         assertTrue("We could not retrieve our audit log event (after 5 seconds).", found);
-    }
-
-    @Override
-    protected void configureAdditionalServices() throws Exception {
-        String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
-
-        URL testURL = new URL(baseURL.concat(AUDITLOG_ENDPOINT));
-        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
-
-        String userName = "d";
-        String password = "f";
-
-        importSingleUser(m_userRepository, userName, password);
-        waitForUser(m_userAdmin, userName);
-
-        m_configurationPID = configureFactory("org.apache.ace.connectionfactory", 
-            "authentication.baseURL", baseURL.concat(AUDITLOG_ENDPOINT), 
-            "authentication.type", "basic",
-            "authentication.user.name", userName,
-            "authentication.user.password", password);
-
-        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected void configureProvisionedServices() throws Exception {
-        String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
-
-        getService(SessionFactory.class).createSession("test-session-ID");
-
-        configureFactory("org.apache.ace.server.repository.factory",
-            RepositoryConstants.REPOSITORY_NAME, "users",
-            RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
-            RepositoryConstants.REPOSITORY_MASTER, "true");
-
-        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
-            "repositoryName", "users",
-            "repositoryCustomer", "apache");
-        
-        configure("org.apache.ace.scheduler",
-            "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
-
-        configure(DiscoveryConstants.DISCOVERY_PID,
-            DiscoveryConstants.DISCOVERY_URL_KEY, baseURL);
-        configure(IdentificationConstants.IDENTIFICATION_PID,
-            IdentificationConstants.IDENTIFICATION_TARGETID_KEY, TARGET_ID);
-
-        configureFactory("org.apache.ace.target.log.store.factory",
-            "name", "auditlog");
-        configureFactory("org.apache.ace.target.log.factory",
-            "name", "auditlog");
-        configureFactory("org.apache.ace.target.log.sync.factory",
-            "name", "auditlog");
-        configureFactory("org.apache.ace.log.server.servlet.factory",
-            "name", "auditlog",
-            HttpConstants.ENDPOINT, AUDITLOG_ENDPOINT,
-            "authentication.enabled", "true");
-        configureFactory("org.apache.ace.log.server.store.factory",
-            "name", "auditlog");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected Component[] getDependencies() {
-        return new Component[] {
-                createComponent()
-                    .setImplementation(this)
-                    .add(createServiceDependency().setService(UserAdmin.class).setRequired(true))
-                    .add(createServiceDependency()
-                        .setService(Repository.class, "(&(" + RepositoryConstants.REPOSITORY_NAME + "=users)(" + RepositoryConstants.REPOSITORY_CUSTOMER + "=apache))")
-                        .setRequired(true))
-                    .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
-                    .add(createServiceDependency().setService(HttpService.class).setRequired(true))
-                    .add(createServiceDependency().setService(Log.class, "(&(" + Constants.OBJECTCLASS + "=" + Log.class.getName() + ")(name=auditlog))").setRequired(true))
-                    .add(createServiceDependency().setService(LogStore.class, "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))").setRequired(true))
-                    .add(createServiceDependency().setService(Runnable.class, "(&(" + Constants.OBJECTCLASS + "=" + Runnable.class.getName() + ")(taskName=auditlog))").setRequired(true))
-            };
-    }
-
-    /**
-     * Overridden in order to use the connection factory for accessing URLs.
-     */
-    @Override
-    protected List<String> getResponse(String request) throws IOException {
-        List<String> result = new ArrayList<String>();
-        InputStream in = null;
-        try {
-            in = m_connectionFactory.createConnection(new URL(request)).getInputStream();
-            byte[] response = new byte[in.available()];
-            in.read(response);
-
-            StringBuilder element = new StringBuilder();
-            for (byte b : response) {
-                switch(b) {
-                    case '\n' :
-                        result.add(element.toString());
-                        element = new StringBuilder();
-                        break;
-                    default :
-                        element.append(b);
-                }
-            }
         }
-        finally {
-            try {
-                in.close();
-            }
-            catch (Exception e) {
-                // no problem.
-            }
+        catch (Exception e) {
+            printLog(m_logReader);
+            throw e;
         }
-        return result;
-    }
-    
-    @Override
-    protected void tearDown() throws Exception {
-    	super.tearDown();
-    	
-    	// Remove the configuration to start without any configured authentication...
-    	getConfiguration(m_configurationPID).delete();
     }
 }
