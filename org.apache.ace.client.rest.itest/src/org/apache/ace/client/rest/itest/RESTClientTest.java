@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Stack;
 
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
