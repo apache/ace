@@ -25,11 +25,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Stack;
 
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
+import org.apache.ace.test.utils.FileUtils;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -56,6 +58,8 @@ public class RESTClientTest extends IntegrationTestBase {
     public static final String MIMETYPE = "application/xml:osgi-autoconf";
     public static final String PROCESSOR = "org.osgi.deployment.rp.autoconf";
 
+    private static final String STOREPATH = "generated/store";
+
     private static boolean m_hasBeenSetup = false;
     private volatile BundleContext m_context;
     private volatile UserAdmin m_user;
@@ -76,6 +80,7 @@ public class RESTClientTest extends IntegrationTestBase {
         // there is some setup we only want to do once, before the first test we run, and since we cannot
         // predict which one that is, we use a static flag
         if (!m_hasBeenSetup) {
+            ensureCleanStore();
             configureServer();
             createServerUser();
             m_hasBeenSetup = true;
@@ -161,7 +166,7 @@ public class RESTClientTest extends IntegrationTestBase {
 
             WebResource w1 = createWorkspace(client);
             deleteResources(gson, w1);
-            
+
             WebResource a1 = createBundle(client, w1, "foo.a1", "foo.b1", "1.0.0", b1.toURI().toURL().toString(), BundleHelper.MIMETYPE);
             WebResource a2 = createBundle(client, w1, "foo.a2", "foo.b2", "1.0.0", b2.toURI().toURL().toString(), BundleHelper.MIMETYPE);
             WebResource a3 = createBundle(client, w1, "foo.a3", "foo.b3", "1.0.0", b3.toURI().toURL().toString(), BundleHelper.MIMETYPE);
@@ -231,7 +236,7 @@ public class RESTClientTest extends IntegrationTestBase {
 
             WebResource w1 = createWorkspace(client);
             deleteResources(gson, w1);
-            
+
             createResourceProcessor(client, w1, "rp", "resourceprocessor", "1.0.0", bundle.toURI().toURL().toString(), BundleHelper.MIMETYPE, PROCESSOR);
             createConfiguration(client, w1, "c1", config.toURI().toURL().toString(), MIMETYPE, "template.xml", PROCESSOR);
             createAssociationA2F(client, w1, "artifact2feature", "c1", "f4");
@@ -282,14 +287,14 @@ public class RESTClientTest extends IntegrationTestBase {
             File b1 = createTmpBundleOnDisk("bar.b1", "1.0.0");
             File b2 = createTmpBundleOnDisk("bar.b2", "1.0.0");
 
-            WebResource w1 = createWorkspace(client);            
+            WebResource w1 = createWorkspace(client);
             deleteResources(gson, w1);
             createBundle(client, w1, "bar.a1", "bar.b1", "1.0.0", b1.toURI().toURL().toString(), BundleHelper.MIMETYPE);
             createBundle(client, w1, "bar.a2", "bar.b2", "1.0.0", b2.toURI().toURL().toString(), BundleHelper.MIMETYPE);
             createTarget(client, w1, "bar.t1");
             w1.post();
             w1.delete();
-            
+
             for (int i = 0; i < nr; i++) {
                 WebResource w2 = createWorkspace(client);
                 createAssociationA2F(client, w2, "artifact2feature", "bar.a1", "feat-1-" + i);
@@ -501,7 +506,20 @@ public class RESTClientTest extends IntegrationTestBase {
         }
     }
 
-    /** Configure the server for this test. */
+    private void ensureCleanStore() throws IOException {
+        File store = new File(STOREPATH);
+        System.out.println("store: " + store.getAbsolutePath());
+        if (store.exists()) {
+            if (!store.isDirectory()) {
+                throw new IllegalStateException("Configured store is not a directory: " + store.getAbsolutePath());
+            }
+            FileUtils.removeDirectoryWithContent(store);
+        }
+        if (!store.mkdirs()) {
+            throw new IllegalStateException("Failed to create store directory: " + store.getAbsolutePath());
+        }
+    }
+
     private void configureServer() throws IOException {
         configure("org.apache.ace.client.rest",
             "org.apache.ace.server.servlet.endpoint", "/client",
@@ -520,7 +538,7 @@ public class RESTClientTest extends IntegrationTestBase {
             "authentication.enabled", "false");
 
         configure("org.apache.ace.obr.storage.file",
-            "fileLocation", "generated/store");
+            "fileLocation", STOREPATH);
 
         configure("org.apache.ace.deployment.provider.repositorybased",
             "url", "http://localhost:8080/repository",
