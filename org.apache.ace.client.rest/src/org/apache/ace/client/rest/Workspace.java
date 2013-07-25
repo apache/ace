@@ -627,6 +627,14 @@ public class Workspace {
     
 
     /*** other/generic ***/
+    
+    public boolean isModified() throws IOException {
+        return m_repositoryAdmin.isModified();
+    }
+    
+    public boolean isCurrent() throws IOException {
+        return m_repositoryAdmin.isCurrent();
+    }
 
     public void cas(String entityType, String left, String right, String leftCardinality, String rightCardinalty) {
     	Map<String, String> attrs = new HashMap<String, String>();
