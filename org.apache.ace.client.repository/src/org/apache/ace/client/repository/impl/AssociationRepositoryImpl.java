@@ -107,8 +107,8 @@ public abstract class AssociationRepositoryImpl<L extends RepositoryObject, R ex
     @Override
     public void remove(T entity) {
         synchronized (m_lock) {
-            super.remove(entity);
             entity.remove();
+            super.remove(entity);
         }
     }
 }

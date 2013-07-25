@@ -473,7 +473,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             String[] topics = new String[rsd.m_objectRepositories.length];
             for (int j = 0; j < impls.length; j++) {
                 impls[j] = m_repositories.get(rsd.m_objectRepositories[j]);
-                topics[j] = impls[j].getTopicAll(true);
+                topics[j] = impls[j].getTopicAll(false);
             }
 
             result[i] = loadRepositorySet(context.getUser(), rsd, impls);

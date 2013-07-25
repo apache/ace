@@ -128,7 +128,7 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
      */
     @SuppressWarnings("unchecked")
     void removeAll() {
-        synchronized(m_repo) {
+        synchronized (m_repo) {
             for (T object : m_repo) {
                 ((I) object).setDeleted();
             }
