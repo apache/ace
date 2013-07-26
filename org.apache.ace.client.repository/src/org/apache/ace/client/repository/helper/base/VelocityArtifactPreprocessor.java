@@ -26,11 +26,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -77,7 +79,6 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
 
     @Override
     public boolean needsNewVersion(String url, PropertyResolver props, String targetID, String fromVersion) {
-
         byte[] input = null;
         byte[] result = null;
         try {
@@ -312,7 +313,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
                 baos.write(buf, 0, count);
             }
             result = baos.toByteArray();
-            m_cachedArtifacts.put(url, new WeakReference<byte[]>(result));
+            m_cachedArtifacts.put(url, new SoftReference<byte[]>(result));
         }
         finally {
             silentlyClose(in);
