@@ -79,6 +79,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     private Map<String, StatefulTargetObjectImpl> m_repository = new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
     private Map<String, StatefulTargetObjectImpl> m_index = new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
     private final String m_sessionID;
+    private boolean m_holdEvents = false;
 
     public StatefulTargetRepositoryImpl(String sessionID) {
         m_sessionID = sessionID;
@@ -710,53 +711,60 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
 
     public void handleEvent(Event event) {
         String topic = event.getTopic();
-        if (TargetObject.PRIVATE_TOPIC_ADDED.equals(topic)) {
-            synchronized (m_repository) {
-                String id = ((TargetObject) event.getProperty(RepositoryObject.EVENT_ENTITY)).getID();
-                StatefulTargetObjectImpl stoi = getStatefulTargetObject(id);
-                if (stoi == null) {
-                    createStateful(id);
+        if (RepositoryAdmin.PRIVATE_TOPIC_HOLDUNTILREFRESH.equals(topic)) {
+            m_holdEvents = true;
+        }
+        if (!m_holdEvents) {
+            if (TargetObject.PRIVATE_TOPIC_ADDED.equals(topic)) {
+                synchronized (m_repository) {
+                    String id = ((TargetObject) event.getProperty(RepositoryObject.EVENT_ENTITY)).getID();
+                    StatefulTargetObjectImpl stoi = getStatefulTargetObject(id);
+                    if (stoi == null) {
+                        createStateful(id);
+                    }
+                    else {
+                        stoi.updateTargetObject(true);
+                    }
                 }
-                else {
-                    stoi.updateTargetObject(true);
+            }
+            else if (TargetObject.PRIVATE_TOPIC_REMOVED.equals(topic)) {
+                synchronized (m_repository) {
+                    String id = ((TargetObject) event.getProperty(RepositoryObject.EVENT_ENTITY)).getID();
+                    StatefulTargetObjectImpl stoi = getStatefulTargetObject(id);
+                    // if the stateful target is already gone; we don't have to do anything...
+                    if (stoi != null) {
+                        stoi.updateTargetObject(true);
+                    }
+                }
+            }
+            else if (DeploymentVersionObject.PRIVATE_TOPIC_ADDED.equals(topic) || DeploymentVersionObject.PRIVATE_TOPIC_REMOVED.equals(topic)) {
+                synchronized (m_repository) {
+                    DeploymentVersionObject deploymentVersionObject = ((DeploymentVersionObject) event.getProperty(RepositoryObject.EVENT_ENTITY));
+                    String id = deploymentVersionObject.getTargetID();
+                    StatefulTargetObjectImpl stoi = getStatefulTargetObject(id);
+                    if (stoi == null) {
+                        createStateful(id);
+                    }
+                    else {
+                        stoi.updateDeploymentVersions(deploymentVersionObject);
+                    }
+                }
+            }
+            else {
+                // Something else has changed; however, the entire shop may have an influence on
+                // any target, so recheck everything.
+                synchronized (m_repository) {
+                    for (StatefulTargetObjectImpl stoi : m_repository.values()) {
+                        stoi.determineStatus();
+                    }
                 }
             }
         }
-        else if (TargetObject.PRIVATE_TOPIC_REMOVED.equals(topic)) {
-            synchronized (m_repository) {
-                String id = ((TargetObject) event.getProperty(RepositoryObject.EVENT_ENTITY)).getID();
-                StatefulTargetObjectImpl stoi = getStatefulTargetObject(id);
-                // if the stateful target is already gone; we don't have to do anything...
-                if (stoi != null) {
-                    stoi.updateTargetObject(true);
-                }
-            }
-        }
-        else if (DeploymentVersionObject.PRIVATE_TOPIC_ADDED.equals(topic) || DeploymentVersionObject.PRIVATE_TOPIC_REMOVED.equals(topic)) {
-            synchronized (m_repository) {
-                DeploymentVersionObject deploymentVersionObject = ((DeploymentVersionObject) event.getProperty(RepositoryObject.EVENT_ENTITY));
-                String id = deploymentVersionObject.getTargetID();
-                StatefulTargetObjectImpl stoi = getStatefulTargetObject(id);
-                if (stoi == null) {
-                    createStateful(id);
-                }
-                else {
-                    stoi.updateDeploymentVersions(deploymentVersionObject);
-                }
-            }
-        }
-        else if (RepositoryAdmin.PRIVATE_TOPIC_LOGIN.equals(topic) || RepositoryAdmin.PRIVATE_TOPIC_REFRESH.equals(topic)) {
+        
+        if (RepositoryAdmin.PRIVATE_TOPIC_LOGIN.equals(topic) || RepositoryAdmin.PRIVATE_TOPIC_REFRESH.equals(topic)) {
+            m_holdEvents = false;
             synchronized (m_repository) {
                 populate();
-            }
-        }
-        else {
-            // Something else has changed; however, the entire shop may have an influence on
-            // any target, so recheck everything.
-            synchronized (m_repository) {
-                for (StatefulTargetObjectImpl stoi : m_repository.values()) {
-                    stoi.determineStatus();
-                }
             }
         }
     }

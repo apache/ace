@@ -639,4 +639,18 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
             return get(m_iter.nextElement());
         }
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder attrs = new StringBuilder();
+        Enumeration<String> enumeration = getAttributeKeys();
+        while (enumeration.hasMoreElements()) {
+            String key = enumeration.nextElement();
+            if (attrs.length() > 0) {
+                attrs.append(',');
+            }
+            attrs.append(key + "=" + getAttribute(key));
+        }
+        return getClass().getSimpleName() + "[" + attrs.toString() + "]";
+    }
 }

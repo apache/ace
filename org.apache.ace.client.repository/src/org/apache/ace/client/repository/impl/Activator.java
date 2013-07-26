@@ -171,6 +171,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
             Distribution2TargetAssociation.PRIVATE_TOPIC_ALL,
             TargetObject.PRIVATE_TOPIC_ALL,
             DeploymentVersionObject.PRIVATE_TOPIC_ALL,
+            RepositoryAdmin.PRIVATE_TOPIC_HOLDUNTILREFRESH, 
             RepositoryAdmin.PRIVATE_TOPIC_REFRESH, 
             RepositoryAdmin.PRIVATE_TOPIC_LOGIN 
         });

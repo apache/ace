@@ -268,6 +268,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     public void checkout() throws IOException {
         synchronized (m_lock) {
             ensureLogin();
+            m_changeNotifier.notifyChanged(TOPIC_HOLDUNTILREFRESH_SUFFIX, null);
             for (PreCommitMember member : m_preCommitMembers) {
                 member.reset();
             }
@@ -375,15 +376,14 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             if (m_user != null) {
                 throw new IllegalStateException("Another user is logged in.");
             }
-
             m_user = user;
             m_repositorySets = sets;
+            m_changeNotifier.notifyChanged(TOPIC_HOLDUNTILREFRESH_SUFFIX, null);
             for (RepositorySet set : m_repositorySets) {
                 set.readLocal();
                 set.loadPreferences();
             }
         }
-
         m_changeNotifier.notifyChanged(TOPIC_LOGIN_SUFFIX, null);
     }
 
@@ -410,10 +410,16 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
 //                set.deleteLocal();
             }
 
+            
+            unloadRepositorySet(m_user);
+            
+            
+            
             m_user = null;
 //            m_repositorySets = new RepositorySet[0];
         }
         m_changeNotifier.notifyChanged(TOPIC_LOGOUT_SUFFIX, null);
+        
         if (exception != null) {
             throw exception;
         }
@@ -568,9 +574,15 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
                 .setRequired(true)));
 
         Preferences prefs = m_preferences.getUserPreferences(user.getName());
+        prefs = prefs.node(m_sessionID);
         Preferences repoPrefs = getRepositoryPrefs(prefs, rsd.m_location, rsd.m_customer, rsd.m_name);
 
         return new RepositorySet(m_changeNotifier, m_log, user, repoPrefs, repos, getCachedRepositoryFromPreferences(repo, repoPrefs), rsd.m_name, rsd.m_writeAccess);
+    }
+    
+    private void unloadRepositorySet(User user) {
+        Preferences prefs = m_preferences.getUserPreferences(user.getName());
+        prefs.remove(m_sessionID);
     }
 
     public int getNumberWithWorkingState(Class<? extends RepositoryObject> clazz, WorkingState state) {

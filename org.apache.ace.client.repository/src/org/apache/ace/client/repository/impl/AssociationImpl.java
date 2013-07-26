@@ -176,7 +176,7 @@ public class AssociationImpl<L extends RepositoryObject, R extends RepositoryObj
                 Collections.sort(candidates, comparator);
             }
             else {
-                throw new NullPointerException("Filter '" + filter.toString() + "' has resulted in multiple candidates, so the RepositoryObject descendents should have provide a comparator, which they do not.");
+                throw new NullPointerException("Filter '" + filter.toString() + "' in '" + this + "' has resulted in multiple candidates, so the RepositoryObject descendents should have provide a comparator, which they do not.");
             }
         }
         

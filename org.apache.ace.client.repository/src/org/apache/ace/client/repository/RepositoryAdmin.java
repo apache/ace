@@ -30,6 +30,8 @@ public interface RepositoryAdmin
 
     public static final String TOPIC_ENTITY_ROOT = RepositoryAdmin.class.getSimpleName() + "/";
 
+    public static final String TOPIC_HOLDUNTILREFRESH_SUFFIX = "HOLD";
+    
     public static final String TOPIC_REFRESH_SUFFIX = "REFRESH";
     public static final String TOPIC_LOGIN_SUFFIX = "LOGIN";
     public static final String TOPIC_LOGOUT_SUFFIX = "LOGOUT";
@@ -37,6 +39,8 @@ public interface RepositoryAdmin
     public static final String TOPIC_FLUSHED_SUFFIX = "FLUSHED";
     public static final String TOPIC_ALL_SUFFIX = "*";
 
+    public static final String PRIVATE_TOPIC_HOLDUNTILREFRESH = PRIVATE_TOPIC_ROOT + TOPIC_ENTITY_ROOT + TOPIC_HOLDUNTILREFRESH_SUFFIX;
+    
     /**
      * Indicates a serious change to the structure of the repository, which is too complicated to use
      * the Object's own Changed topic.
