@@ -50,9 +50,6 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
             true /* hasEdit */);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean doRemoveLeftSideAssociation(DistributionObject object, RepositoryObject other) {
         List<Feature2DistributionAssociation> associations = object.getAssociationsWith((FeatureObject) other);
@@ -62,9 +59,6 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean doRemoveRightSideAssociation(DistributionObject object, RepositoryObject other) {
         List<Distribution2TargetAssociation> associations = object.getAssociationsWith((TargetObject) other);
@@ -74,9 +68,6 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
         DistributionObject distribution = (DistributionObject) entity;
         if (DistributionObject.TOPIC_ADDED.equals(topic)) {
@@ -90,17 +81,11 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean isSupportedEntity(RepositoryObject entity) {
         return entity instanceof DistributionObject;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void populateItem(DistributionObject distribution, Item item) {
         item.getItemProperty(WORKING_STATE_ICON).setValue(getWorkingStateIcon(distribution));

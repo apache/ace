@@ -254,6 +254,9 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
                     refreshRenderedCells();
                 }
             }
+            else if (RepositoryAdmin.TOPIC_REFRESH.equals(topic) || RepositoryAdmin.TOPIC_LOGIN.equals(topic)) {
+                populate();
+            }
         }
     }
 

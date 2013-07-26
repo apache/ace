@@ -71,6 +71,7 @@ import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
+import com.sun.imageio.spi.RAFImageInputStreamSpi;
 import com.vaadin.event.Transferable;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
@@ -501,11 +502,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         });
 
         addListener(m_mainToolbar, RepositoryObject.PUBLIC_TOPIC_ROOT.concat(RepositoryObject.TOPIC_ALL_SUFFIX));
-        addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
-        addListener(m_featuresPanel, FeatureObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
-        addListener(m_distributionsPanel, DistributionObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED);
-        addListener(m_targetsPanel, StatefulTargetObject.TOPIC_ALL, TargetObject.TOPIC_ALL,
-            RepositoryAdmin.TOPIC_STATUSCHANGED);
+        addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_LOGIN, RepositoryAdmin.TOPIC_REFRESH);
+        addListener(m_featuresPanel, FeatureObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_LOGIN, RepositoryAdmin.TOPIC_REFRESH);
+        addListener(m_distributionsPanel, DistributionObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_LOGIN, RepositoryAdmin.TOPIC_REFRESH);
+        addListener(m_targetsPanel, StatefulTargetObject.TOPIC_ALL, TargetObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_LOGIN, RepositoryAdmin.TOPIC_REFRESH);
 
         m_mainWindow.addComponent(m_grid);
     }

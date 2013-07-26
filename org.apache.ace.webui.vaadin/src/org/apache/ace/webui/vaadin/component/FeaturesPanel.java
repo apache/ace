@@ -49,9 +49,6 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
         super(associations, associationRemover, "Feature", UIExtensionFactory.EXTENSION_POINT_VALUE_FEATURE, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean doRemoveLeftSideAssociation(FeatureObject object, RepositoryObject other) {
         List<Artifact2FeatureAssociation> associations = object.getAssociationsWith((ArtifactObject) other);
@@ -61,9 +58,6 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
         return true;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean doRemoveRightSideAssociation(FeatureObject object, RepositoryObject other) {
         List<Feature2DistributionAssociation> associations = object.getAssociationsWith((DistributionObject) other);
@@ -73,9 +67,6 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
         return true;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
         FeatureObject feature = (FeatureObject) entity;
         if (FeatureObject.TOPIC_ADDED.equals(topic)) {
@@ -89,17 +80,11 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
         }
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean isSupportedEntity(RepositoryObject entity) {
         return entity instanceof FeatureObject;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void populateItem(FeatureObject feature, Item item) {
         item.getItemProperty(WORKING_STATE_ICON).setValue(getWorkingStateIcon(feature));

@@ -48,9 +48,6 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
         super(associations, associationRemover, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean doRemoveRightSideAssociation(ArtifactObject object, RepositoryObject other) {
         List<Artifact2FeatureAssociation> associations = object.getAssociationsWith((FeatureObject) other);
@@ -60,9 +57,6 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
         ArtifactObject artifact = (ArtifactObject) entity;
         if (ArtifactObject.TOPIC_ADDED.equals(topic)) {
@@ -76,17 +70,11 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean isSupportedEntity(RepositoryObject entity) {
         return (entity instanceof ArtifactObject) && !isResourceProcessor((ArtifactObject) entity);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void populateItem(ArtifactObject artifact, Item item) {
         item.getItemProperty(WORKING_STATE_ICON).setValue(getWorkingStateIcon(artifact));

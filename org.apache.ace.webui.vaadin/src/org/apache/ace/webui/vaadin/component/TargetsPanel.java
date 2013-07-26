@@ -20,6 +20,7 @@ package org.apache.ace.webui.vaadin.component;
 
 import java.util.List;
 
+import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.RepositoryObject.WorkingState;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
@@ -56,9 +57,6 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         super(associations, associationRemover, "Target", UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET, true /* hasEdit */);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected Button createRemoveItemButton(StatefulTargetObject object) {
         Button b = super.createRemoveItemButton(object);
@@ -66,9 +64,6 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         return b;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected void defineTableColumns() {
         addContainerProperty(WORKING_STATE_ICON, Embedded.class, null, "", null, ALIGN_CENTER);
 
@@ -86,9 +81,6 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         setColumnWidth(PROVISIONING_STATE_ICON, ICON_WIDTH);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean doRemoveLeftSideAssociation(StatefulTargetObject object, RepositoryObject other) {
         List<Distribution2TargetAssociation> associations = object.getAssociationsWith((DistributionObject) other);
@@ -98,9 +90,6 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected WorkingState getWorkingState(RepositoryObject object) {
         final StatefulTargetObject statefulTarget = (StatefulTargetObject) object;
@@ -110,9 +99,6 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         return WorkingState.Unchanged;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
         StatefulTargetObject statefulTarget = asStatefulTargetObject(entity);
         if (StatefulTargetObject.TOPIC_ADDED.equals(topic)) {
@@ -126,17 +112,11 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean isSupportedEntity(RepositoryObject entity) {
         return (entity instanceof StatefulTargetObject) || (entity instanceof TargetObject);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected void populateItem(StatefulTargetObject object, Item item) {
         item.getItemProperty(WORKING_STATE_ICON).setValue(getWorkingStateIcon(object));
 
@@ -149,10 +129,6 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         item.getItemProperty(ACTIONS).setValue(createActionButtons(object));
     }
 
-    /**
-     * @param object
-     * @return
-     */
     private Embedded getProvisioningStateIcon(StatefulTargetObject object) {
         String name = object.getProvisioningState().name();
         Resource res = createIconResource("target_provisioning_" + name);
