@@ -306,6 +306,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     public void revert() throws IOException {
         synchronized (m_lock) {
             ensureLogin();
+            m_changeNotifier.notifyChanged(TOPIC_HOLDUNTILREFRESH_SUFFIX, null);
             for (PreCommitMember member : m_preCommitMembers) {
                 member.reset();
             }
