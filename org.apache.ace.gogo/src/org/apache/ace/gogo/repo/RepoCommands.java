@@ -19,9 +19,11 @@
 package org.apache.ace.gogo.repo;
 
 import static org.apache.ace.gogo.repo.RepositoryUtil.copyResources;
+import static org.apache.ace.gogo.repo.RepositoryUtil.copyResource;
 import static org.apache.ace.gogo.repo.RepositoryUtil.createRepository;
 import static org.apache.ace.gogo.repo.RepositoryUtil.deleteResource;
 import static org.apache.ace.gogo.repo.RepositoryUtil.findResources;
+import static org.apache.ace.gogo.repo.RepositoryUtil.getIdentityVersionRequirement;
 import static org.apache.ace.gogo.repo.RepositoryUtil.getRequirement;
 import static org.apache.ace.gogo.repo.RepositoryUtil.getUrl;
 import static org.apache.ace.gogo.repo.RepositoryUtil.indexDirectory;
@@ -86,7 +88,17 @@ public class RepoCommands {
 
         Requirement requirement = getRequirement(filter);
         List<Resource> resources = findResources(sourceRepo, requirement);
-        copyResources(sourceRepo, targetRepo, resources);
+
+        for (Resource resource : resources) {
+            List<Resource> existingResources = findResources(targetRepo, getIdentityVersionRequirement(resource));
+            if (existingResources.size() == 0) {
+                Resource copied = copyResource(sourceRepo, targetRepo, resource);
+                System.out.println("copied: " + copied);
+            }
+            else {
+                System.out.println("skipped: " + existingResources.get(0));
+            }
+        }
     }
 
     @Descriptor("remove resources from a repository")

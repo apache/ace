@@ -201,56 +201,12 @@ public class RepositoryUtil {
     }
 
     public static List<Resource> copyResources(AbstractIndexedRepo sourceRepo, AbstractIndexedRepo targetRepo, Requirement requirement) throws Exception {
-
         List<Resource> sourceResources = findResources(sourceRepo, requirement);
         List<Resource> targetResources = new ArrayList<Resource>();
-
         for (Resource resource : sourceResources) {
-            File file = sourceRepo.get(getIdentity(resource), getVersion(resource).toString(), Strategy.EXACT, null);
-            InputStream input = null;
-            try {
-                input = new FileInputStream(file);
-                if (targetRepo instanceof AceObrRepository) {
-                    // ACE OBR can handle non bundle resource if we pass a filename
-                    AceObrRepository aceToRepo = (AceObrRepository) targetRepo;
-                    aceToRepo.upload(input, getFileName(resource), getMimetype(resource));
-                }
-                else {
-                    targetRepo.put(input, null);
-                }
-                targetRepo.reset();
-
-                List<Resource> copied = findResources(targetRepo, getIdentityVersionRequirement(resource));
-                if (copied.size() != 1) {
-                    throw new IllegalStateException("expected one match");
-                }
-                targetResources.addAll(copied);
-            }
-            finally {
-                if (input != null)
-                    input.close();
-            }
+            targetResources.add(copyResource(sourceRepo, targetRepo, resource));
         }
         return targetResources;
-    }
-
-    public static void uploadResource(AbstractIndexedRepo targetRepo, URL location, String filename) throws Exception {
-        InputStream input = null;
-        try {
-            input = location.openStream();
-            if (targetRepo instanceof AceObrRepository) {
-                // ACE OBR can handle non bundle resource if we pass a filename
-                AceObrRepository aceToRepo = (AceObrRepository) targetRepo;
-                aceToRepo.upload(input, filename, null);
-            }
-            else {
-                targetRepo.put(input, null);
-            }
-        }
-        finally {
-            if (input != null)
-                input.close();
-        }
     }
 
     public static List<Resource> copyResources(AbstractIndexedRepo sourceRepo, AbstractIndexedRepo targetRepo, List<Resource> resources) throws Exception {
@@ -276,12 +232,32 @@ public class RepositoryUtil {
             else {
                 targetRepo.put(input, null);
             }
+            targetRepo.reset();
 
             List<Resource> resultResources = findResources(targetRepo, getIdentity(resource), getVersion(resource).toString());
             if (resultResources == null || resultResources.size() == 0) {
                 throw new IllegalStateException("Unable to locate target resource after copy: " + resource);
             }
             return resultResources.get(0);
+        }
+        finally {
+            if (input != null)
+                input.close();
+        }
+    }
+
+    public static void uploadResource(AbstractIndexedRepo targetRepo, URL location, String filename) throws Exception {
+        InputStream input = null;
+        try {
+            input = location.openStream();
+            if (targetRepo instanceof AceObrRepository) {
+                // ACE OBR can handle non bundle resource if we pass a filename
+                AceObrRepository aceToRepo = (AceObrRepository) targetRepo;
+                aceToRepo.upload(input, filename, null);
+            }
+            else {
+                targetRepo.put(input, null);
+            }
         }
         finally {
             if (input != null)
