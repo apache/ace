@@ -35,13 +35,15 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 
 /**
- * Implementation of an object repository. The object repository holds (big) chunks of data identified by
- * a version. To interact with the repository two interfaces are implemented:
+ * Implementation of an object repository. The object repository holds (big) chunks of data identified by a version. To
+ * interact with the repository two interfaces are implemented:
  * <ul>
- *   <li><code>Repository</code> - a read-write interface to the repository, you can commit and checkout versions</li>
- *   <li><code>RepositoryReplication</code> - interface used only for replication of the repository, you can get and put versions</li>
+ * <li><code>Repository</code> - a read-write interface to the repository, you can commit and checkout versions</li>
+ * <li><code>RepositoryReplication</code> - interface used only for replication of the repository, you can get and put
+ * versions</li>
  * </ul>
- * A repository can be either a master or a slave repository. Committing a new version is only possible on a master repository.
+ * A repository can be either a master or a slave repository. Committing a new version is only possible on a master
+ * repository.
  */
 public class RepositoryImpl implements RepositoryReplication, Repository {
 
@@ -50,16 +52,32 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
 
     private final File m_tempDir;
     private final File m_dir;
+    private final String m_fileExtension;
 
     /**
      * Creates a new repository.
-     *
+     * 
      * @param dir Directory to be used for storage of the repository data, will be created if needed.
      * @param temp Directory to be used as temp directory, will be created if needed.
      * @param isMaster True if this repository is a master repository, false otherwise.
-     * @throws IllegalArgumentException If <code>dir</code> and/or <code>temp</code> could not be created or is not a directory.
+     * @throws IllegalArgumentException If <code>dir</code> and/or <code>temp</code> could not be created or is not a
+     *             directory.
      */
     public RepositoryImpl(File dir, File temp, boolean isMaster) {
+        this(dir, temp, "", isMaster);
+    }
+
+    /**
+     * Creates a new repository.
+     * 
+     * @param dir Directory to be used for storage of the repository data, will be created if needed.
+     * @param temp Directory to be used as temp directory, will be created if needed.
+     * @param fileExtension Extension to be used for repository files.
+     * @param isMaster True if this repository is a master repository, false otherwise.
+     * @throws IllegalArgumentException If <code>dir</code> and/or <code>temp</code> could not be created or is not a
+     *             directory.
+     */
+    public RepositoryImpl(File dir, File temp, String fileExtension, boolean isMaster) {
         m_isMaster = isMaster;
         if (!dir.isDirectory() && !dir.mkdirs()) {
             throw new IllegalArgumentException("Repository location is not a valid directory (" + dir.getAbsolutePath() + ")");
@@ -67,8 +85,12 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         if (!temp.isDirectory() && !temp.mkdirs()) {
             throw new IllegalArgumentException("Temp location is not a valid directory (" + temp.getAbsolutePath() + ")");
         }
+        if (fileExtension == null) {
+            throw new IllegalArgumentException("File extension must not be null");
+        }
         m_tempDir = temp;
         m_dir = dir;
+        m_fileExtension = fileExtension;
     }
 
     public InputStream get(long version) throws IOException, IllegalArgumentException {
@@ -79,7 +101,7 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         if (version <= 0) {
             throw new IllegalArgumentException("Version must be greater than 0.");
         }
-        File file = new File(m_dir, Long.toString(version));
+        File file = new File(m_dir, Long.toString(version) + m_fileExtension);
         if (file.exists()) {
             return false;
         }
@@ -87,11 +109,13 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         // store stream in temp file
         File tempFile = File.createTempFile("repository", null, m_tempDir);
         OutputStream fileStream = null;
+
         try {
             fileStream = new FileOutputStream(tempFile);
-            
+
             byte[] buffer = new byte[1024];
             int bytes;
+
             while ((bytes = data.read(buffer)) >= 0) {
                 fileStream.write(buffer, 0, bytes);
             }
@@ -125,7 +149,7 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         if (version <= 0) {
             throw new IllegalArgumentException("Version must be greater than 0.");
         }
-        File file = new File(m_dir, String.valueOf(version));
+        File file = new File(m_dir, String.valueOf(version) + m_fileExtension);
         return (file.isFile()) ? new FileInputStream(file) : null;
     }
 
@@ -138,12 +162,13 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         }
 
         long[] versions = getVersions();
-
         if (versions.length == 0) {
             if (fromVersion == 0) {
                 put(data, 1);
+
                 return true;
-            } else {
+            }
+            else {
                 return false;
             }
         }
@@ -171,7 +196,8 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         long[] results = new long[versions.length];
         for (int i = 0; i < versions.length; i++) {
             String name = versions[i].getName();
-			try {
+            name = name.substring(0, name.length() - m_fileExtension.length());
+            try {
                 results[i] = Long.parseLong(name);
             }
             catch (NumberFormatException nfe) {
@@ -184,9 +210,8 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
 
     /**
      * Updates the repository configuration.
-     *
+     * 
      * @param isMaster True if the repository is a master repository, false otherwise.
-     *
      * @throws ConfigurationException If it was impossible to use the new configuration.
      */
     public void updated(boolean isMaster) throws ConfigurationException {
@@ -197,9 +222,8 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
      * Renames a given source file to a new destination file.
      * <p>
      * This avoids the problem mentioned in ACE-155.<br/>
-     * The moveFile method from Commons-IO is not used, as it would mean that
-     * we need to include this JAR in several placed for only a few lines of
-     * code.
+     * The moveFile method from Commons-IO is not used, as it would mean that we need to include this JAR in several
+     * placed for only a few lines of code.
      * </p>
      * 
      * @param source the file to rename;
@@ -243,7 +267,7 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         FileOutputStream fos = null;
         FileChannel input = null;
         FileChannel output = null;
-        
+
         try {
             fis = new FileInputStream(source);
             input = fis.getChannel();
@@ -269,7 +293,6 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         }
 
         dest.setLastModified(source.lastModified());
-
         if (!source.delete()) {
             dest.delete();
             throw new IOException("Failed to move file! Source file (" + source + ") locked?");

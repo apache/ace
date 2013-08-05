@@ -43,28 +43,21 @@ import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 
 /**
- * Base class for the repository servlets. Both the repository and the repository replication
- * servlets work in a similar way, so the specifics were factored out of this base class and
- * put in two subclasses.
+ * Base class for the repository servlets. Both the repository and the repository replication servlets work in a similar
+ * way, so the specifics were factored out of this base class and put in two subclasses.
  */
 public abstract class RepositoryServletBase extends HttpServlet implements ManagedService {
-
     /** A boolean denoting whether or not authentication is enabled. */
     private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
-
     private static final int COPY_BUFFER_SIZE = 1024;
-    
     private static final String QUERY = "/query";
-    
     protected static final String TEXT_MIMETYPE = "text/plain";
     protected static final String BINARY_MIMETYPE = "application/octet-stream";
 
     // injected by Dependency Manager
-    private volatile DependencyManager m_dm; 
+    private volatile DependencyManager m_dm;
     private volatile AuthenticationService m_authService;
-
     private volatile boolean m_useAuth = false;
-    
     protected volatile BundleContext m_context;
     protected volatile LogService m_log;
 
@@ -83,7 +76,8 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
                     handleQuery(filter, response);
                 }
                 else {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Specify either a filter or customer and/or name, but not both.");
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                        "Specify either a filter or customer and/or name, but not both.");
                 }
             }
             else {
@@ -130,7 +124,8 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
                 handleCommit(customer, name, Long.parseLong(version), request.getInputStream(), response);
             }
             else {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Name, customer and version should all be specified.");
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                    "Name, customer and version should all be specified.");
             }
         }
         else {
@@ -150,6 +145,7 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
         try {
             ServiceReference[] refs = getRepositories(filter);
             StringBuffer result = new StringBuffer();
+
             if (refs != null) {
                 for (ServiceReference ref : refs) {
                     result.append((String) ref.getProperty("customer"));
@@ -160,32 +156,35 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
                     result.append('\n');
                 }
             }
+
             response.setContentType(TEXT_MIMETYPE);
             response.getWriter().print(result.toString());
         }
         catch (IOException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not retrieve version range for repository: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                "Could not retrieve version range for repository: " + e.getMessage());
         }
         catch (InvalidSyntaxException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid filter syntax: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                "Invalid filter syntax: " + e.getMessage());
         }
     }
 
     /**
      * Implement this by asking the right repository for a range of available versions.
-     *
-     * @param ref reference to the repository service you need to dereference
+     * 
+     * @param ref Reference to the repository service you need to dereference
      * @return a sorted range set
-     * @throws java.io.IOException if the range cannot be obtained
+     * @throws IOException If the range cannot be obtained
      */
     protected abstract SortedRangeSet getRange(ServiceReference ref) throws IOException;
 
     /**
      * Returns a list of repositories that match the specified filter condition.
-     *
-     * @param filter the filter condition
-     * @return an array of service references
-     * @throws InvalidSyntaxException if the filter condition is invalid
+     * 
+     * @param filter The filter condition
+     * @return An array of service references
+     * @throws InvalidSyntaxException If the filter condition is invalid
      */
     protected abstract ServiceReference[] getRepositories(String filter) throws InvalidSyntaxException;
 
@@ -197,20 +196,16 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
     protected void init(Component comp) {
         comp.add(m_dm.createServiceDependency()
             .setService(AuthenticationService.class)
-            .setRequired(m_useAuth)
-            .setInstanceBound(true)
-            );
+            .setRequired(m_useAuth).setInstanceBound(true));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (!authenticate(req)) {
             // Authentication failed; don't proceed with the original request...
             resp.sendError(SC_UNAUTHORIZED);
-        } else {
+        }
+        else {
             // Authentication successful, proceed with original request...
             super.service(req, resp);
         }
@@ -219,17 +214,20 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
     /**
      * Authenticates, if needed the user with the information from the given request.
      * 
-     * @param request the request to obtain the credentials from, cannot be <code>null</code>.
+     * @param request The request to obtain the credentials from, cannot be <code>null</code>.
      * @return <code>true</code> if the authentication was successful, <code>false</code> otherwise.
      */
     private boolean authenticate(HttpServletRequest request) {
         if (m_useAuth) {
             User user = m_authService.authenticate(request);
+
             if (user == null) {
                 m_log.log(LogService.LOG_INFO, "Authentication failure!");
             }
+
             return (user != null);
         }
+
         return true;
     }
 
@@ -239,12 +237,14 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
     private void handleCommit(String customer, String name, long version, InputStream data, HttpServletResponse response) throws IOException {
         try {
             ServiceReference[] refs = getRepositories("(&(customer=" + customer + ")(name=" + name + "))");
+
             if ((refs != null) && (refs.length == 1)) {
                 ServiceReference ref = refs[0];
                 try {
                     if (!doCommit(ref, version, data)) {
                         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not commit");
-                    } else {
+                    }
+                    else {
                         response.sendError(HttpServletResponse.SC_OK);
                     }
                 }
@@ -252,7 +252,8 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
                     response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid version");
                 }
                 catch (IllegalStateException e) {
-                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Cannot commit, not the master repository");
+                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                        "Cannot commit, not the master repository");
                 }
             }
         }
@@ -260,19 +261,20 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "I/O exception: " + e.getMessage());
         }
         catch (InvalidSyntaxException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid filter syntax: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid filter syntax: "
+                + e.getMessage());
         }
     }
 
     /**
      * Commit or put the data into the repository.
-     *
-     * @param ref reference to the repository service
-     * @param version the version
-     * @param data the data
+     * 
+     * @param ref Reference to the repository service
+     * @param version The version
+     * @param data The data
      * @return <code>true</code> if successful
      * @throws IllegalArgumentException
-     * @throws java.io.IOException
+     * @throws IOException
      */
     protected abstract boolean doCommit(ServiceReference ref, long version, InputStream data) throws IllegalArgumentException, IOException;
 
@@ -287,13 +289,17 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
                 response.setContentType(BINARY_MIMETYPE);
                 InputStream data = doCheckout(ref, version);
                 if (data == null) {
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Requested version does not exist: " + version);
-                } else {
-                    copy(data, response.getOutputStream());
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Requested version does not exist: "
+                        + version);
+                }
+                else {
+                    copy(data, response.getOutputStream(), name, version);
                 }
             }
             else {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, ((refs == null) ? "Could not find repository " : "Multiple repositories found ") + " for customer " + customer + ", name " + name);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND,
+                    ((refs == null) ? "Could not find repository " : "Multiple repositories found ") + " for customer "
+                        + customer + ", name " + name);
             }
         }
         catch (IOException e) {
@@ -306,7 +312,7 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
 
     /**
      * Checkout or get data from the repository.
-     *
+     * 
      * @param ref reference to the repository service
      * @param version the version
      * @return the data
@@ -317,28 +323,32 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
 
     /**
      * Copies data from an input stream to an output stream.
-     * @param in the input
-     * @param out the output
-     * @throws java.io.IOException if copying fails
+     * 
+     * @param in The input
+     * @param outThe output
+     * @param version
+     * @param name
+     * @throws IOException If copying fails
      */
-    private void copy(InputStream in, OutputStream out) throws IOException {
+    private void copy(InputStream in, OutputStream out, String name, long version)
+        throws IOException {
         byte[] buffer = new byte[COPY_BUFFER_SIZE];
         int bytes = in.read(buffer);
         while (bytes != -1) {
             out.write(buffer, 0, bytes);
             bytes = in.read(buffer);
         }
+
     }
 
     public void updated(Dictionary settings) throws ConfigurationException {
         if (settings != null) {
             String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
-            if (useAuthString == null
-                || !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
+            if ((useAuthString == null) ||
+                !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
                 throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
             }
             boolean useAuth = Boolean.parseBoolean(useAuthString);
-
             m_useAuth = useAuth;
         }
         else {

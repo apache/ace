@@ -24,11 +24,10 @@ import static org.apache.ace.it.repository.Utils.query;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -51,10 +50,10 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public class RepositoryTest extends IntegrationTestBase {
 
-	private volatile ConfigurationAdmin m_configAdmin;
-	
+    private volatile ConfigurationAdmin m_configAdmin;
+
     private URL m_host;
-    
+
     public void testBadRequests() throws Exception {
         addRepository("testInstance", "apache", "test", false);
 
@@ -99,7 +98,7 @@ public class RepositoryTest extends IntegrationTestBase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int responseCode = query(m_host, "replication/query", null, null, out);
         assertResponseCode(HttpURLConnection.HTTP_OK, responseCode);
-        
+
         assertEquals("Expected one repository without any versions as query result instead of : " + out.toString(), "apache,test,\n", out.toString());
 
         addRepository("testInstance2", "apache", "test2", true);
@@ -107,8 +106,8 @@ public class RepositoryTest extends IntegrationTestBase {
         out.reset();
         responseCode = query(m_host, "replication/query", null, null, out);
         assertResponseCode(HttpURLConnection.HTTP_OK, responseCode);
-        assertTrue("Expected two repositories without any versions as query result instead of : " + out.toString(), 
-        	"apache,test,\napache,test2,\n".equals(out.toString()) || "apache,test2,\napache,test,\n".equals(out.toString()));
+        assertTrue("Expected two repositories without any versions as query result instead of : " + out.toString(),
+            "apache,test,\napache,test2,\n".equals(out.toString()) || "apache,test2,\napache,test,\n".equals(out.toString()));
 
         removeRepository("testInstance2");
 
@@ -139,14 +138,38 @@ public class RepositoryTest extends IntegrationTestBase {
         out.reset();
         responseCode = get(m_host, "replication/get", "apache", "test", "1", out);
         assertResponseCode(HttpURLConnection.HTTP_OK, responseCode);
+
+        assertEquals("test", out.toString());
+
+        removeRepository("testInstance");
+    }
+
+    public void testGetAndPutWithCustomBasedirAndFileExtenions() throws Exception {
         
+        File tmpFile = File.createTempFile("repo", "");
+        tmpFile.delete();
+        tmpFile.mkdir();
+        addRepository("testInstance", "apache", "test", tmpFile.getAbsolutePath(), ".gz", null, true);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int responseCode = get(m_host, "replication/get", "apache", "test", "1", out);
+        assertResponseCode(HttpURLConnection.HTTP_NOT_FOUND, responseCode);
+
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
+        responseCode = put(m_host, "replication/put", "apache", "test", "1", byteArrayInputStream);
+        assertResponseCode(HttpURLConnection.HTTP_OK, responseCode);
+
+        out.reset();
+        responseCode = get(m_host, "replication/get", "apache", "test", "1", out);
+        assertResponseCode(HttpURLConnection.HTTP_OK, responseCode);
+
         assertEquals("test", out.toString());
 
         removeRepository("testInstance");
     }
 
     public void testInitialContent() throws Exception {
-        addRepository("testInstance", "apache", "test", "somecontent", true);
+        addRepository("testInstance", "apache", "test", null, null, "somecontent", true);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -167,7 +190,7 @@ public class RepositoryTest extends IntegrationTestBase {
         assertResponseCode(HttpURLConnection.HTTP_OK, responseCode);
 
         byteArrayInputStream.reset();
-        
+
         responseCode = put(m_host, "repository/commit", "apache", "test", "0", byteArrayInputStream);
         assertResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR, responseCode);
 
@@ -175,12 +198,12 @@ public class RepositoryTest extends IntegrationTestBase {
     }
 
     protected void configureProvisionedServices() throws IOException {
-		m_host = new URL("http://localhost:" + TestConstants.PORT);
+        m_host = new URL("http://localhost:" + TestConstants.PORT);
 
         configure("org.apache.ace.repository.servlet.RepositoryReplicationServlet",
-                HttpConstants.ENDPOINT, "/replication", "authentication.enabled", "false");
+            HttpConstants.ENDPOINT, "/replication", "authentication.enabled", "false");
         configure("org.apache.ace.repository.servlet.RepositoryServlet",
-                HttpConstants.ENDPOINT, "/repository", "authentication.enabled", "false");
+            HttpConstants.ENDPOINT, "/repository", "authentication.enabled", "false");
 
         Utils.waitForWebserver(m_host);
     }
@@ -199,15 +222,17 @@ public class RepositoryTest extends IntegrationTestBase {
     }
 
     private void addRepository(String instanceName, String customer, String name, boolean isMaster) throws IOException, InterruptedException, InvalidSyntaxException {
-        addRepository(instanceName, customer, name, null, isMaster);
+        addRepository(instanceName, customer, name, null, null, null, isMaster);
     }
 
     /* Configure a new repository instance */
-    private void addRepository(String instanceName, String customer, String name, String initial, boolean isMaster) throws IOException, InterruptedException, InvalidSyntaxException {
+    private void addRepository(String instanceName, String customer, String name, String basedir, String fileextension, String initial, boolean isMaster) throws IOException, InterruptedException, InvalidSyntaxException {
         // Publish configuration for a repository instance
         Properties props = new Properties();
         props.put(RepositoryConstants.REPOSITORY_CUSTOMER, customer);
         props.put(RepositoryConstants.REPOSITORY_NAME, name);
+        props.put(RepositoryConstants.REPOSITORY_BASE_DIR, basedir == null ? "" : basedir);
+        props.put(RepositoryConstants.REPOSITORY_FILE_EXTENSION, fileextension == null ? "" : fileextension);
         props.put(RepositoryConstants.REPOSITORY_MASTER, String.valueOf(isMaster));
         if (initial != null) {
             props.put(RepositoryConstants.REPOSITORY_INITIAL_CONTENT, initial);
@@ -282,6 +307,6 @@ public class RepositoryTest extends IntegrationTestBase {
     }
 
     private void assertResponseCode(int expectedCode, int responseCode) {
-    	assertEquals("Unexpected response code;", expectedCode, responseCode);
+        assertEquals("Unexpected response code;", expectedCode, responseCode);
     }
 }

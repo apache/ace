@@ -24,4 +24,6 @@ public interface RepositoryConstants
     public static final String REPOSITORY_CUSTOMER = "customer";
     public static final String REPOSITORY_MASTER = "master";
     public static final String REPOSITORY_INITIAL_CONTENT = "initial";
+    public static final String REPOSITORY_BASE_DIR = "basedir";
+    public static final String REPOSITORY_FILE_EXTENSION = "fileextension";
 }

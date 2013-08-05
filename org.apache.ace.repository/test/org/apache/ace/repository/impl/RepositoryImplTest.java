@@ -33,7 +33,6 @@ import org.testng.annotations.Test;
 
 public class RepositoryImplTest {
 
-    private RepositoryImpl m_repo;
     private File m_baseDir;
 
     @BeforeMethod(alwaysRun = true)
@@ -41,92 +40,111 @@ public class RepositoryImplTest {
         m_baseDir = File.createTempFile("repo", null);
         m_baseDir.delete();
         m_baseDir.mkdirs();
-        m_repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
     }
 
     @Test(groups = { UNIT })
     public void testGetAndPut() throws Exception {
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
         InputStream data = new ByteArrayInputStream("abc".getBytes());
-        boolean result = m_repo.put(data, 1);
+        boolean result = repo.put(data, 1);
         assert result : "Put should have succeeded.";
 
         File file = new File(m_baseDir, "data" + File.separator + "1");
         BufferedReader reader = new BufferedReader(new FileReader(file));
         assert "abc".equals(reader.readLine()) : "File " + file.getAbsolutePath() + " should have contained 'abc'.";
 
-        assert !m_repo.put(data, 1) : "Putting an existing version should return false.";
+        assert !repo.put(data, 1) : "Putting an existing version should return false.";
 
-        InputStream in = m_repo.get(1);
+        InputStream in = repo.get(1);
         reader = new BufferedReader(new InputStreamReader(in));
         assert "abc".equals(reader.readLine()) : "'get'ting version 1 should have returned an inputstream containing 'abc'";
-        assert null == m_repo.get(2) : "'get'ting a non-existing version should return null";
+        assert null == repo.get(2) : "'get'ting a non-existing version should return null";
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = {IllegalArgumentException.class})
+    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
     public void testPutNegative() throws Exception {
-        m_repo.put(new ByteArrayInputStream("abc".getBytes()), -1);
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
+        repo.put(new ByteArrayInputStream("abc".getBytes()), -1);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = {IllegalArgumentException.class})
+    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
     public void testPutZero() throws Exception {
-        m_repo.put(new ByteArrayInputStream("abc".getBytes()), 0);
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
+        repo.put(new ByteArrayInputStream("abc".getBytes()), 0);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = {IllegalArgumentException.class})
+    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
     public void testGetNegative() throws Exception {
-        m_repo.get(-1);
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
+        repo.get(-1);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = {IllegalArgumentException.class})
+    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
     public void testGetZero() throws Exception {
-        m_repo.get(0);
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
+        repo.get(0);
     }
 
     @Test(groups = { UNIT })
     public void testCommitAndCheckout() throws Exception {
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
         InputStream data = new ByteArrayInputStream("abc".getBytes());
-        boolean result = m_repo.commit(data, 1);
+        boolean result = repo.commit(data, 1);
         assert !result : "Commit with incorrect 'base' number should have failed.";
 
-        result = m_repo.commit(data, 0);
+        result = repo.commit(data, 0);
         assert result : "Commit should have succeeded";
 
         File file = new File(m_baseDir, "data" + File.separator + "1");
         BufferedReader reader = new BufferedReader(new FileReader(file));
         assert "abc".equals(reader.readLine()) : "File " + file.getAbsolutePath() + " should have contained 'abc'.";
 
-        assert !m_repo.commit(data, 0) : "Committing an existing version should return false.";
-        assert !m_repo.commit(data, 999) : "Committing should only succeed if the base number equals the highest version inside the repository";
+        assert !repo.commit(data, 0) : "Committing an existing version should return false.";
+        assert !repo.commit(data, 999) : "Committing should only succeed if the base number equals the highest version inside the repository";
 
-        InputStream in = m_repo.checkout(1);
+        InputStream in = repo.checkout(1);
         reader = new BufferedReader(new InputStreamReader(in));
         assert "abc".equals(reader.readLine()) : "Checking out version 1 should have returned an inputstream containing 'abc'";
-        assert null == m_repo.get(2) : "Checking out a non-existing version should return null";
+        assert null == repo.get(2) : "Checking out a non-existing version should return null";
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = {IllegalArgumentException.class})
+    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
     public void testCommitNegative() throws Exception {
-        m_repo.commit(new ByteArrayInputStream("abc".getBytes()), -1);
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
+        repo.commit(new ByteArrayInputStream("abc".getBytes()), -1);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = {IllegalArgumentException.class})
+    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
     public void testCheckoutNegative() throws Exception {
-        m_repo.checkout(-1);
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
+        repo.checkout(-1);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = {IllegalArgumentException.class})
+    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
     public void testCheckoutZero() throws Exception {
-        m_repo.checkout(0);
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
+        repo.checkout(0);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = {IllegalStateException.class})
+    @Test(groups = { UNIT }, expectedExceptions = { IllegalStateException.class })
     public void testUpdated() throws Exception {
-        m_repo.updated(false);
-        assert !m_repo.commit(new ByteArrayInputStream("abc".getBytes()), 0) : "Committing should not be allowed on slave repositories.";
-        assert m_repo.put(new ByteArrayInputStream("abc".getBytes()), 1) : "'put'ting a replica should be allowed on slave repositories.";
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
+        repo.updated(false);
+        assert !repo.commit(new ByteArrayInputStream("abc".getBytes()), 0) : "Committing should not be allowed on slave repositories.";
+        assert repo.put(new ByteArrayInputStream("abc".getBytes()), 1) : "'put'ting a replica should be allowed on slave repositories.";
         File file = new File(m_baseDir, "newLocation" + File.separator + "1");
         BufferedReader reader = new BufferedReader(new FileReader(file));
         assert "abc".equals(reader.readLine()) : "File " + file.getAbsolutePath() + " should have contained 'abc'.";
     }
 
+    @Test(groups = { UNIT })
+    public void testFileExtension() throws Exception {
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), ".gz", true);
+        InputStream data = new ByteArrayInputStream("abc".getBytes());
+        boolean result = repo.put(data, 1);
+        assert result : "Put should have succeeded.";
+        File file = new File(m_baseDir, "data" + File.separator + "1.gz");
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        assert "abc".equals(reader.readLine()) : "File " + file.getAbsolutePath() + " should have contained 'abc'.";
+    }
 }
