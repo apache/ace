@@ -280,11 +280,11 @@ abstract class AddArtifactWindow extends Window {
         }
     }
 
-    private static final String REPOSITORY_XML = "repository.xml";
     private static final String XPATH_QUERY = "/repository/resource[@uri]";
 
     private final File m_sessionDir;
     private final URL m_obrUrl;
+    private final String m_repositoryXML;
 
     private final List<File> m_uploadedArtifacts = new ArrayList<File>();
     private final Button m_searchButton;
@@ -297,11 +297,12 @@ abstract class AddArtifactWindow extends Window {
      * @param sessionDir the session directory to temporary place artifacts in;
      * @param obrUrl the URL of the OBR to use.
      */
-    public AddArtifactWindow(File sessionDir, URL obrUrl) {
+    public AddArtifactWindow(File sessionDir, URL obrUrl, String repositoryXML) {
         super("Add artifact");
 
         m_sessionDir = sessionDir;
         m_obrUrl = obrUrl;
+        m_repositoryXML = repositoryXML;
 
         setModal(true);
         setWidth("50em");
@@ -710,7 +711,7 @@ abstract class AddArtifactWindow extends Window {
     private List<OBREntry> parseOBRRepository(URL obrBaseUrl) throws XPathExpressionException, IOException {
         URL url = null;
         try {
-            url = new URL(obrBaseUrl, REPOSITORY_XML);
+            url = new URL(obrBaseUrl, m_repositoryXML);
         }
         catch (MalformedURLException e) {
             logError("Error retrieving repository.xml from " + obrBaseUrl);

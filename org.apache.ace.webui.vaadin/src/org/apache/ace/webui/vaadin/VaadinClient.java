@@ -150,6 +150,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     private Window m_mainWindow;
 
     private final URL m_obrUrl;
+    private final String m_repositoryXML;
     private final URL m_repository;
     private final boolean m_useAuth;
     private final String m_userName;
@@ -198,7 +199,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
      * @param useAuth <code>true</code> to use authentication, <code>false</code> to disable authentication;
      * @param userName the hardcoded username to use when authentication is disabled.
      */
-    public VaadinClient(DependencyManager manager, URL aceHost, URL obrUrl, boolean useAuth, String userName) {
+    public VaadinClient(DependencyManager manager, URL aceHost, URL obrUrl, String repositoryXML, boolean useAuth, String userName) {
     	m_manager = manager;
         try {
             m_repository = new URL(aceHost, endpoint);
@@ -207,6 +208,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             throw new IllegalArgumentException("Need a valid repository URL!", e);
         }
         m_obrUrl = obrUrl;
+        m_repositoryXML = repositoryXML;
         m_useAuth = useAuth;
         m_userName = userName;
 
@@ -995,7 +997,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     }
 
     private void showAddArtifactDialog() {
-        final AddArtifactWindow window = new AddArtifactWindow(m_sessionDir, m_obrUrl) {
+        final AddArtifactWindow window = new AddArtifactWindow(m_sessionDir, m_obrUrl, m_repositoryXML) {
             @Override
             protected ArtifactRepository getArtifactRepository() {
                 return m_artifactRepository;
