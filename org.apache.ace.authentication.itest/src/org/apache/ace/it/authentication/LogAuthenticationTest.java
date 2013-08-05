@@ -46,9 +46,8 @@ import org.osgi.service.log.LogReaderService;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
- * Integration tests for the audit log. Both a server and a target are setup
- * on the same machine. The audit log is run and we check if it is indeed
- * replicated to the server.
+ * Integration tests for the audit log. Both a server and a target are setup on the same machine. The audit log is run
+ * and we check if it is indeed replicated to the server.
  */
 public class LogAuthenticationTest extends AuthenticationTestBase {
 
@@ -56,7 +55,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
 
     private static final String HOST = "localhost";
     private static final String TARGET_ID = "target-id";
-    
+
     private String m_configurationPID;
 
     private volatile Log m_auditLog;
@@ -70,47 +69,52 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
     @Override
     protected Component[] getDependencies() {
         return new Component[] {
-                createComponent()
-                    .setImplementation(this)
-                    .add(createServiceDependency().setService(UserAdmin.class).setRequired(true))
-                    .add(createServiceDependency().setService(LogReaderService.class).setRequired(true))
-                    .add(createServiceDependency()
-                        .setService(Repository.class, "(&(" + RepositoryConstants.REPOSITORY_NAME + "=users)(" + RepositoryConstants.REPOSITORY_CUSTOMER + "=apache))")
-                        .setRequired(true))
-                    .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
-                    .add(createServiceDependency().setService(HttpService.class).setRequired(true))
-                    .add(createServiceDependency().setService(Log.class, "(&(" + Constants.OBJECTCLASS + "=" + Log.class.getName() + ")(name=auditlog))").setRequired(true))
-                    .add(createServiceDependency().setService(LogStore.class, "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))").setRequired(true))
-                    .add(createServiceDependency().setService(Runnable.class, "(&(" + Constants.OBJECTCLASS + "=" + Runnable.class.getName() + ")(taskName=auditlog))").setRequired(true))
-            };
+            createComponent()
+                .setImplementation(this)
+                .add(createServiceDependency().setService(UserAdmin.class).setRequired(true))
+                .add(createServiceDependency().setService(LogReaderService.class).setRequired(true))
+                .add(createServiceDependency()
+                    .setService(Repository.class, "(&(" + RepositoryConstants.REPOSITORY_NAME + "=users)(" + RepositoryConstants.REPOSITORY_CUSTOMER + "=apache))")
+                    .setRequired(true))
+                .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
+                .add(createServiceDependency().setService(HttpService.class).setRequired(true))
+                .add(createServiceDependency().setService(Log.class, "(&(" + Constants.OBJECTCLASS + "=" + Log.class.getName() + ")(name=auditlog))").setRequired(true))
+                .add(createServiceDependency().setService(LogStore.class, "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))").setRequired(true))
+                .add(createServiceDependency().setService(Runnable.class, "(&(" + Constants.OBJECTCLASS + "=" + Runnable.class.getName() + ")(taskName=auditlog))").setRequired(true))
+        };
     }
 
     @Override
     protected void configureAdditionalServices() throws Exception {
-        String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
+        try {
+            String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
+            URL testURL = new URL(baseURL.concat(AUDITLOG_ENDPOINT));
+            assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
 
-        URL testURL = new URL(baseURL.concat(AUDITLOG_ENDPOINT));
-        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
+            String userName = "d";
+            String password = "f";
 
-        String userName = "d";
-        String password = "f";
+            importSingleUser(m_userRepository, userName, password);
+            waitForUser(m_userAdmin, userName);
 
-        importSingleUser(m_userRepository, userName, password);
-        waitForUser(m_userAdmin, userName);
+            m_configurationPID = configureFactory("org.apache.ace.connectionfactory",
+                "authentication.baseURL", baseURL.concat(AUDITLOG_ENDPOINT),
+                "authentication.type", "basic",
+                "authentication.user.name", userName,
+                "authentication.user.password", password);
 
-        m_configurationPID = configureFactory("org.apache.ace.connectionfactory", 
-            "authentication.baseURL", baseURL.concat(AUDITLOG_ENDPOINT), 
-            "authentication.type", "basic",
-            "authentication.user.name", userName,
-            "authentication.user.password", password);
-
-        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
+            assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
+        }
+        catch (Exception e) {
+            printLog(m_logReader);
+            throw e;
+        }
     }
 
     @Override
     protected void configureProvisionedServices() throws Exception {
-        String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
 
+        String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
         getService(SessionFactory.class).createSession("test-session-ID");
 
         configureFactory("org.apache.ace.server.repository.factory",
@@ -121,7 +125,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
         configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
             "repositoryName", "users",
             "repositoryCustomer", "apache");
-        
+
         configure("org.apache.ace.scheduler",
             "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
 
@@ -155,12 +159,12 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
 
             StringBuilder element = new StringBuilder();
             for (byte b : response) {
-                switch(b) {
-                    case '\n' :
+                switch (b) {
+                    case '\n':
                         result.add(element.toString());
                         element = new StringBuilder();
                         break;
-                    default :
+                    default:
                         element.append(b);
                 }
             }
@@ -175,11 +179,11 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
         }
         return result;
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        
+
         // Remove the configuration to start without any configured authentication...
         getConfiguration(m_configurationPID).delete();
     }
@@ -189,72 +193,72 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
      */
     public void testAccessLogServletWithCorrectCredentialsOk() throws Exception {
         try {
-        String tid1 = "42";
-        String tid2 = "47";
+            String tid1 = "42";
+            String tid2 = "47";
 
-        // prepare the store
-        List<LogEvent> events = new ArrayList<LogEvent>();
-        events.add(new LogEvent(tid1, 1, 1, 1, 1, new Properties()));
-        events.add(new LogEvent(tid2, 1, 1, 1, 1, new Properties()));
-        m_serverStore.put(events);
+            // prepare the store
+            List<LogEvent> events = new ArrayList<LogEvent>();
+            events.add(new LogEvent(tid1, 1, 1, 1, 1, new Properties()));
+            events.add(new LogEvent(tid2, 1, 1, 1, 1, new Properties()));
+            m_serverStore.put(events);
 
-        List<String> result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/query");
-        assertTrue("We expect at least two logs on the server.", result.size() > 1);
+            List<String> result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/query");
+            assertTrue("We expect at least two logs on the server.", result.size() > 1);
         }
         catch (Exception e) {
             printLog(m_logReader);
             throw e;
         }
     }
-    
+
     /**
      * Tests that the log synchronization works when the log servlet has authentication enabled.
      */
     public void testLogSynchronizationOk() throws Exception {
-        try{
-        final int type = 12345;
-        
-        // now log another event
-        Properties props = new Properties();
-        props.put("one", "value1");
-        props.put("two", "value2");
-        m_auditLog.log(type, props);
+        try {
+            final int type = 12345;
 
-        boolean found = false;
-        
-        long startTime = System.currentTimeMillis();
-        long waitTime = 15000; // milliseconds
-        
-        while (!found && ((System.currentTimeMillis() - startTime) < waitTime)) {
-            // synchronize again
-            m_auditLogSyncTask.run();
+            // now log another event
+            Properties props = new Properties();
+            props.put("one", "value1");
+            props.put("two", "value2");
+            m_auditLog.log(type, props);
 
-            // get and evaluate results (note that there is some concurrency that might interfere with this test)
-            List<LogDescriptor> ranges2 = m_serverStore.getDescriptors();
-            if (ranges2.isEmpty()) {
-                continue;
+            boolean found = false;
+
+            long startTime = System.currentTimeMillis();
+            long waitTime = 15000; // milliseconds
+
+            while (!found && ((System.currentTimeMillis() - startTime) < waitTime)) {
+                // synchronize again
+                m_auditLogSyncTask.run();
+
+                // get and evaluate results (note that there is some concurrency that might interfere with this test)
+                List<LogDescriptor> ranges2 = m_serverStore.getDescriptors();
+                if (ranges2.isEmpty()) {
+                    continue;
+                }
+
+                for (LogDescriptor descriptor : ranges2) {
+                    List<LogEvent> events = m_serverStore.get(descriptor);
+                    for (LogEvent event : events) {
+                        if (event.getType() == type) {
+                            Dictionary properties = event.getProperties();
+                            assertEquals("value1", properties.get("one"));
+                            assertEquals("value2", properties.get("two"));
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                // wait if we have not found anything yet
+                if (!found) {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                }
             }
 
-            for (LogDescriptor descriptor : ranges2) {
-	            List<LogEvent> events = m_serverStore.get(descriptor);
-	            for (LogEvent event : events) {
-	                if (event.getType() == type) {
-	                    Dictionary properties = event.getProperties();
-	                    assertEquals("value1", properties.get("one"));
-	                    assertEquals("value2", properties.get("two"));
-	                    found = true;
-	                    break;
-	                }
-	            }
-            }
-
-            // wait if we have not found anything yet
-            if (!found) {
-                TimeUnit.MILLISECONDS.sleep(100);
-            }
-        }
-
-        assertTrue("We could not retrieve our audit log event (after 5 seconds).", found);
+            assertTrue("We could not retrieve our audit log event (after 5 seconds).", found);
         }
         catch (Exception e) {
             printLog(m_logReader);

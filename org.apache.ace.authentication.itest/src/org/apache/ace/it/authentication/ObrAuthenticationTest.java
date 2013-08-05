@@ -81,7 +81,6 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
 
     @Override
     protected void configureProvisionedServices() throws Exception {
-
         m_endpoint = "/obr";
         String tmpDir = System.getProperty("java.io.tmpdir");
         m_storeLocation = new File(tmpDir, "store");
@@ -95,9 +94,11 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             RepositoryConstants.REPOSITORY_NAME, "users",
             RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
             RepositoryConstants.REPOSITORY_MASTER, "true");
+
         configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
             "repositoryName", "users",
             "repositoryCustomer", "apache");
+
         configure("org.apache.ace.scheduler",
             "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
 
@@ -105,6 +106,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             "OBRInstance", "singleOBRServlet",
             "org.apache.ace.server.servlet.endpoint", m_endpoint,
             "authentication.enabled", "true");
+
         configure("org.apache.ace.obr.storage.file",
             "OBRInstance", "singleOBRStore",
             OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
@@ -112,26 +114,31 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
 
     @Override
     protected void configureAdditionalServices() throws Exception {
+        try {
+            String userName = "d";
+            String password = "f";
+            importSingleUser(m_userRepository, userName, password);
+            waitForUser(m_userAdmin, userName);
 
-        String userName = "d";
-        String password = "f";
-        importSingleUser(m_userRepository, userName, password);
-        waitForUser(m_userAdmin, userName);
+            URL obrURL = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/");
+            m_artifactRepository.setObrBase(obrURL);
 
-        URL obrURL = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/");
-        m_artifactRepository.setObrBase(obrURL);
+            URL testURL = new URL(obrURL, "repository.xml");
 
-        URL testURL = new URL(obrURL, "repository.xml");
+            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
 
-        assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
+            m_authConfigPID = configureFactory("org.apache.ace.connectionfactory",
+                "authentication.baseURL", obrURL.toExternalForm(),
+                "authentication.type", "basic",
+                "authentication.user.name", userName,
+                "authentication.user.password", password);
 
-        m_authConfigPID = configureFactory("org.apache.ace.connectionfactory",
-            "authentication.baseURL", obrURL.toExternalForm(),
-            "authentication.type", "basic",
-            "authentication.user.name", userName,
-            "authentication.user.password", password);
-
-        assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
+            assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
+        }
+        catch (Exception e) {
+            printLog(m_logReader);
+            throw e;
+        }
     }
 
     @Override
