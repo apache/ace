@@ -23,6 +23,7 @@ import static org.apache.ace.gogo.repo.RepositoryUtil.getRequirement;
 
 import java.util.List;
 
+import org.apache.ace.bnd.repository.AceObrRepository;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 

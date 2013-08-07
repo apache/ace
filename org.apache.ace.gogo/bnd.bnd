@@ -3,13 +3,15 @@
 	biz.aQute.bnd;version=2.1.0,\
 	org.osgi.impl.bundle.repoindex.lib,\
 	org.apache.felix.dependencymanager,\
-	org.apache.felix.gogo.runtime
+	org.apache.felix.gogo.runtime,\
+	org.apache.ace.bnd.repository;version=latest
 
 Bundle-Name: Apache ACE OBR Gogo commands
 Bundle-Description: Provides Gogo commands for working with repositories	
 Bundle-Version: 1.0.0
 Bundle-Activator: org.apache.ace.gogo.Activator
-Private-Package: org.apache.ace.gogo,\
+Private-Package: org.apache.ace.bnd.repository,\
+	org.apache.ace.gogo,\
 	org.apache.ace.gogo.math,\
 	org.apache.ace.gogo.misc,\
 	org.apache.ace.gogo.repo,\

@@ -18,7 +18,6 @@
  */
 package org.apache.ace.gogo.repo;
 
-import static org.apache.ace.gogo.repo.RepositoryUtil.copyResources;
 import static org.apache.ace.gogo.repo.RepositoryUtil.copyResource;
 import static org.apache.ace.gogo.repo.RepositoryUtil.createRepository;
 import static org.apache.ace.gogo.repo.RepositoryUtil.deleteResource;

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.gogo.repo;
+package org.apache.ace.bnd.repository;
 
 import java.io.IOException;
 import java.io.InputStream;

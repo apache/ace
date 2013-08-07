@@ -3,6 +3,7 @@
     org.apache.ace.ant.tasks,\
     org.apache.ace.authentication,\
     org.apache.ace.authentication.itest,\
+    org.apache.ace.bnd,\
     org.apache.ace.builder,\
     org.apache.ace.client.automation,\
     org.apache.ace.client.repository,\

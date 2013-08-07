@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ace.bnd.repository.AceObrRepository;
 import org.osgi.framework.Version;
 import org.osgi.resource.Resource;
 
