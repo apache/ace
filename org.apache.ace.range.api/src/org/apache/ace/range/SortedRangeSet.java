@@ -19,6 +19,7 @@
 package org.apache.ace.range;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -28,8 +29,7 @@ import java.util.StringTokenizer;
  * Collection that stores a sorted set of ranges and is able to represent them
  * as a string.
  */
-public class SortedRangeSet
-{
+public class SortedRangeSet {
     /**
      * A static set which contains all possible values.
      */
@@ -55,19 +55,23 @@ public class SortedRangeSet
     }
 
     /**
-     * Creates a new instance from an array of longs.
+     * Creates a new instance from an array of longs. The array can contain the longs in random order,
+     * and duplicates will be filtered out.
      *
      * @param items Array of longs
      */
     public SortedRangeSet(long[] items) {
-        // TODO: deal with items not being in ascending order
+        Arrays.sort(items);
         Range r = null;
         for (int i = 0; i < items.length; i++) {
             if (r == null) {
                 r = new Range(items[i]);
             }
             else {
-                if (items[i] == r.getHigh() + 1) {
+                if (items[i] == r.getHigh()) {
+                    // ignore this duplicate
+                }
+                else if (items[i] == r.getHigh() + 1) {
                     r.setHigh(items[i]);
                 }
                 else {
@@ -107,6 +111,7 @@ public class SortedRangeSet
      * <code>result = dest \ this</code>,<br>
      * that is, if <code>dest = {1, 2}</code> and <code>this = {2, 3}</code>, then
      * <code>result = {1, 2} \ {2, 3} = {1}</code>
+     * 
      * @param dest The set from which this set should be 'set-minussed'.
      * @return The resulting set after the diff.
      */
@@ -155,7 +160,7 @@ public class SortedRangeSet
             long low = r.getLow();
             long high = r.getHigh();
             if (number < low) {
-                if (number == low - 1) {
+                if (number == (low - 1)) {
                     r.setLow(number);
                     return;
                 }
@@ -165,11 +170,11 @@ public class SortedRangeSet
                     return;
                 }
             }
-            if (number == high + 1) {
+            if (number == (high + 1)) {
                 r.setHigh(number);
                 if (i.hasNext()) {
                     Range nr = (Range) i.next();
-                    if (number == low - 1) {
+                    if (number == nr.getLow() - 1) {
                         r.setHigh(nr.getHigh());
                         i.remove();
                     }
@@ -187,7 +192,16 @@ public class SortedRangeSet
      * @return a range iterator
      */
     public RangeIterator iterator() {
-        return new RangeIterator(m_ranges.iterator());
+        return new RangeIterator(m_ranges.listIterator(), false);
+    }
+    
+    /**
+     * Returns an iterator that iterates over all the ranges in this set in reverse order.
+     * 
+     * @return a range iterator
+     */
+    public RangeIterator reverseIterator() {
+        return new RangeIterator(m_ranges.listIterator(m_ranges.size()), true);
     }
     
     /**
@@ -214,5 +228,31 @@ public class SortedRangeSet
         else {
             return 0;
         }
+    }
+
+    /**
+     * Returns the union of this set and the provided set.
+     * 
+     * @param dest a set to union with ourselves
+     * @return the resulting set
+     */
+    public SortedRangeSet union(SortedRangeSet dest) {
+        SortedRangeSet result = new SortedRangeSet();
+        RangeIterator i = dest.iterator();
+        while (i.hasNext()) {
+            long number = i.next();
+            result.add(number);
+        }
+        i = iterator();
+        while (i.hasNext()) {
+            long number = i.next();
+            result.add(number);
+        }
+        return result;
+    }
+    
+    @Override
+    public String toString() {
+        return "SortedRangeSet[" + toRepresentation() + "]";
     }
 }

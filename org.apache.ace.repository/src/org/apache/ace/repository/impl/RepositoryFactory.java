@@ -145,6 +145,20 @@ public class RepositoryFactory implements ManagedServiceFactory {
         if ((m_baseDir != null) && !m_baseDir.isDirectory() && !m_baseDir.mkdirs()) {
             throw new IllegalArgumentException("Unable to create base directory (" + m_baseDir.getAbsolutePath() + ")");
         }
+        
+        String limit = (String) dict.get(RepositoryConstants.REPOSITORY_LIMIT);
+        long limitValue = Long.MAX_VALUE;
+        if (limit != null) {
+            try {
+                limitValue = Long.parseLong(limit);
+            }
+            catch (NumberFormatException nfe) {
+                throw new ConfigurationException(RepositoryConstants.REPOSITORY_LIMIT, "Limit has to be a number, was: " + limit);
+            }
+            if (limitValue < 1) {
+                throw new ConfigurationException(RepositoryConstants.REPOSITORY_LIMIT, "Limit has to be at least 1, was " + limit);
+            }
+        }
 
         String initialContents = (String) dict.get(RepositoryConstants.REPOSITORY_INITIAL_CONTENT);
         if (m_prefs == null) {
@@ -173,7 +187,7 @@ public class RepositoryFactory implements ManagedServiceFactory {
         if (service == null) {
             // new instance
             File dir = new File(m_baseDir, pid);
-            RepositoryImpl store = new RepositoryImpl(dir, m_tempDir, fileExtension, isMaster);
+            RepositoryImpl store = new RepositoryImpl(dir, m_tempDir, fileExtension, isMaster, limitValue);
             if ((initialContents != null) && isMaster) {
                 try {
                     store.commit(new ByteArrayInputStream(initialContents.getBytes()), 0);
@@ -192,7 +206,7 @@ public class RepositoryFactory implements ManagedServiceFactory {
         else {
             // update existing instance
             RepositoryImpl store = (RepositoryImpl) service.getService();
-            store.updated(isMaster);
+            store.updated(isMaster, limitValue);
         }
     }
 }

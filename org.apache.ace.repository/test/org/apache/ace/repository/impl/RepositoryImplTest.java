@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.ace.range.SortedRangeSet;
+import static org.testng.Assert.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -129,7 +131,7 @@ public class RepositoryImplTest {
     @Test(groups = { UNIT }, expectedExceptions = { IllegalStateException.class })
     public void testUpdated() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
-        repo.updated(false);
+        repo.updated(false, Long.MAX_VALUE);
         assert !repo.commit(new ByteArrayInputStream("abc".getBytes()), 0) : "Committing should not be allowed on slave repositories.";
         assert repo.put(new ByteArrayInputStream("abc".getBytes()), 1) : "'put'ting a replica should be allowed on slave repositories.";
         File file = new File(m_baseDir, "newLocation" + File.separator + "1");
@@ -146,5 +148,33 @@ public class RepositoryImplTest {
         File file = new File(m_baseDir, "data" + File.separator + "1.gz");
         BufferedReader reader = new BufferedReader(new FileReader(file));
         assert "abc".equals(reader.readLine()) : "File " + file.getAbsolutePath() + " should have contained 'abc'.";
+    }
+
+    @Test(groups = { UNIT })
+    public void testCommitMultiple() throws Exception {
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
+        assertTrue(repo.commit(new ByteArrayInputStream("abc-1".getBytes()), 0), "Commit should have worked.");
+        assertTrue(repo.commit(new ByteArrayInputStream("abc-2".getBytes()), 1), "Commit should have worked.");
+        assertTrue(repo.commit(new ByteArrayInputStream("abc-3".getBytes()), 2), "Commit should have worked.");
+        SortedRangeSet range = repo.getRange();
+        assertTrue(range.getHigh() == 3, "We should have 3 versions in the repository.");
+    }
+
+    @Test(groups = { UNIT })
+    public void testCommitToLimitedRepository() throws Exception {
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true, 2);
+        assertTrue(repo.commit(new ByteArrayInputStream("abc-1".getBytes()), 0), "Commit should have worked.");
+        assertTrue(repo.commit(new ByteArrayInputStream("abc-2".getBytes()), 1), "Commit should have worked.");
+        assertTrue(repo.commit(new ByteArrayInputStream("abc-3".getBytes()), 2), "Commit should have worked.");
+        assertNotNull(repo.checkout(3));
+        assertNotNull(repo.checkout(2));
+        assertNull(repo.checkout(1));
+        repo.updated(true, 3);
+        assertTrue(repo.commit(new ByteArrayInputStream("abc-4".getBytes()), 3), "Commit should have worked.");
+        assertNotNull(repo.checkout(2));
+        repo.updated(true, 1);
+        assertNull(repo.checkout(2));
+        assertNull(repo.checkout(3));
+        assertNotNull(repo.checkout(4));
     }
 }

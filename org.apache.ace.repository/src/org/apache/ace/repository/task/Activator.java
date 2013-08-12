@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
+import org.apache.ace.repository.RepositoryReplication;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
@@ -41,6 +42,7 @@ public class Activator extends DependencyActivatorBase {
             .setImplementation(RepositoryReplicationTask.class)
             .add(createServiceDependency().setService(Discovery.class).setRequired(true))
             .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
+            .add(createServiceDependency().setService(RepositoryReplication.class).setRequired(false).setCallbacks("add", "remove"))
             .add(createServiceDependency().setService(LogService.class).setRequired(false))
             );
     }

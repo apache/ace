@@ -53,4 +53,9 @@ public interface RepositoryReplication
      * @throws IllegalArgumentException If the version number is not greater than 0.
      */
     public boolean put(InputStream data, long version) throws IOException, IllegalArgumentException;
+    
+    /**
+     * Returns the maximum number of versions this repository will store.
+     */
+    public long getLimit();
 }

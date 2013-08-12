@@ -18,7 +18,7 @@
  */
 package org.apache.ace.range;
 
-import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 /**
@@ -28,17 +28,26 @@ import java.util.NoSuchElementException;
  * is not thread-safe and results are unpredictable if the underlying set is
  * modified.
  */
-public class RangeIterator
-{
-    private final Iterator m_iterator;
+public class RangeIterator {
+    private final ListIterator m_iterator;
     private Range m_current;
     private long m_number;
+    private boolean m_reverseOrder;
 
-    RangeIterator(Iterator iterator) {
+    RangeIterator(ListIterator iterator, boolean reverseOrder) {
         m_iterator = iterator;
+        m_reverseOrder = reverseOrder;
     }
 
     public boolean hasNext() {
+        return m_reverseOrder ? hasPreviousElement() : hasNextElement();
+    }
+    
+    public long next() {
+        return m_reverseOrder ? previousElement() : nextElement();
+    }
+    
+    private boolean hasNextElement() {
         if (m_current == null) {
             return m_iterator.hasNext();
         }
@@ -49,8 +58,20 @@ public class RangeIterator
             return true;
         }
     }
+    
+    private boolean hasPreviousElement() {
+        if (m_current == null) {
+            return m_iterator.hasPrevious();
+        }
+        if (m_number == m_current.getLow()) {
+            return m_iterator.hasPrevious();
+        }
+        else {
+            return true;
+        }
+    }
 
-    public long next() {
+    private long nextElement() {
         if (m_current == null) {
             if (m_iterator.hasNext()) {
                 m_current = (Range) m_iterator.next();
@@ -68,6 +89,30 @@ public class RangeIterator
             }
             else {
                 m_number++;
+                return m_number;
+            }
+        }
+        throw new NoSuchElementException();
+    }
+
+    private long previousElement() {
+        if (m_current == null) {
+            if (m_iterator.hasPrevious()) {
+                m_current = (Range) m_iterator.previous();
+                m_number = m_current.getHigh();
+                return m_number;
+            }
+        }
+        else {
+            if (m_number == m_current.getLow()) {
+                if (m_iterator.hasPrevious()) {
+                    m_current = (Range) m_iterator.previous();
+                    m_number = m_current.getHigh();
+                    return m_number;
+                }
+            }
+            else {
+                m_number--;
                 return m_number;
             }
         }

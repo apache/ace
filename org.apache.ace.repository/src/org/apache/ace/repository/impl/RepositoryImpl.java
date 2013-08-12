@@ -31,6 +31,7 @@ import java.util.Arrays;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.RepositoryReplication;
+import org.apache.ace.repository.impl.constants.RepositoryConstants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 
@@ -49,6 +50,7 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
 
     private volatile LogService m_log; /* will be injected by dependency manager */
     private volatile boolean m_isMaster;
+    private volatile long m_limit;
 
     private final File m_tempDir;
     private final File m_dir;
@@ -78,6 +80,35 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
      *             directory.
      */
     public RepositoryImpl(File dir, File temp, String fileExtension, boolean isMaster) {
+        this(dir, temp, fileExtension, isMaster, Long.MAX_VALUE);
+    }
+
+    /**
+     * Creates a new repository.
+     * 
+     * @param dir Directory to be used for storage of the repository data, will be created if needed.
+     * @param temp Directory to be used as temp directory, will be created if needed.
+     * @param isMaster True if this repository is a master repository, false otherwise.
+     * @param limit The maximum number of versions to store in this repository.
+     * @throws IllegalArgumentException If <code>dir</code> and/or <code>temp</code> could not be created or is not a
+     *             directory.
+     */
+    public RepositoryImpl(File dir, File temp, boolean isMaster, long limit) {
+        this(dir, temp, "", isMaster, limit);
+    }
+    
+    /**
+     * Creates a new repository.
+     * 
+     * @param dir Directory to be used for storage of the repository data, will be created if needed.
+     * @param temp Directory to be used as temp directory, will be created if needed.
+     * @param fileExtension Extension to be used for repository files.
+     * @param isMaster True if this repository is a master repository, false otherwise.
+     * @param limit The maximum number of versions to store in this repository.
+     * @throws IllegalArgumentException If <code>dir</code> and/or <code>temp</code> could not be created or is not a
+     *             directory.
+     */
+    public RepositoryImpl(File dir, File temp, String fileExtension, boolean isMaster, long limit) {
         m_isMaster = isMaster;
         if (!dir.isDirectory() && !dir.mkdirs()) {
             throw new IllegalArgumentException("Repository location is not a valid directory (" + dir.getAbsolutePath() + ")");
@@ -88,10 +119,15 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         if (fileExtension == null) {
             throw new IllegalArgumentException("File extension must not be null");
         }
+        if (limit < 1) {
+            throw new IllegalArgumentException("Limit must be at least 1, was " + limit);
+        }
         m_tempDir = temp;
         m_dir = dir;
         m_fileExtension = fileExtension;
+        m_limit = limit;
     }
+    
 
     public InputStream get(long version) throws IOException, IllegalArgumentException {
         return checkout(version);
@@ -176,6 +212,13 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         long lastVersion = versions[versions.length - 1];
         if (lastVersion == fromVersion) {
             put(data, fromVersion + 1);
+            long length = versions.length + 1;
+            int index = 0;
+            while (length > m_limit) {
+                delete(versions[index]);
+                index++;
+                length--;
+            }
             return true;
         }
         else {
@@ -214,8 +257,33 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
      * @param isMaster True if the repository is a master repository, false otherwise.
      * @throws ConfigurationException If it was impossible to use the new configuration.
      */
-    public void updated(boolean isMaster) throws ConfigurationException {
+    public void updated(boolean isMaster, long limit) throws ConfigurationException {
+        if (limit < 1) {
+            throw new ConfigurationException(RepositoryConstants.REPOSITORY_LIMIT, "Limit must be at least 1, was " + limit);
+        }
         m_isMaster = isMaster;
+        if (limit < m_limit) {
+            // limit was decreased, we might need to delete some old versions
+            try {
+                long[] versions = getVersions();
+                int length = versions.length;
+                int index = 0;
+                while (length > limit) {
+                    delete(versions[index]);
+                    length--;
+                    index++;
+                }
+            }
+            catch (IOException e) {
+                throw new ConfigurationException(RepositoryConstants.REPOSITORY_LIMIT, "Could not set new limit to " + limit, e);
+            }
+        }
+        m_limit = limit;
+    }
+    
+    @Override
+    public long getLimit() {
+        return m_limit;
     }
 
     /**
@@ -315,5 +383,13 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         catch (IOException e) {
             // Ignored...
         }
+    }
+
+    private boolean delete(long version) throws IOException, IllegalArgumentException {
+        if (version <= 0) {
+            throw new IllegalArgumentException("Version must be greater than 0.");
+        }
+        File file = new File(m_dir, String.valueOf(version) + m_fileExtension);
+        return file.delete();
     }
 }

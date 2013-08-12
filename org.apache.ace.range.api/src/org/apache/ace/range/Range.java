@@ -21,8 +21,7 @@ package org.apache.ace.range;
 /**
  * Class that captures a simple, modifiable range.
  */
-public class Range
-{
+public class Range {
     private long m_low;
     private long m_high;
 
@@ -133,7 +132,8 @@ public class Range
     /**
      * Converts the range to a string representation that can be parsed
      * back to a new <code>Range</code> object.
-     * @return
+     * 
+     * @return string representation
      */
     public String toRepresentation() {
         if (m_low == m_high) {
@@ -142,5 +142,10 @@ public class Range
         else {
             return Long.toString(m_low) + '-' + Long.toString(m_high);
         }
+    }
+    
+    @Override
+    public String toString() {
+        return "Range[" + toRepresentation() + "]";
     }
 }
