@@ -16,24 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
-
-import junit.framework.Assert;
-
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
+package org.apache.ace.agent;
 
 /**
- * Integration test for Management Agent Configuration
+ * Compile time constants for this package.
  * 
  */
-public class ManagementAgentTest extends IntegrationTestBase {
+public interface AgentConstants {
 
-    public void testOneAgentConfiguration() throws Exception {
-
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
-
-    }
+    /**
+     * HTTP headers name for Deployment Package size estimate.
+     */
+    String HEADER_DPSIZE = "X-ACE-DPSize";
 }

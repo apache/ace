@@ -18,75 +18,135 @@
  */
 package org.apache.ace.agent.impl;
 
-import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.ace.agent.ManagementAgentFactory;
-import org.apache.ace.agent.scheduler.impl.Scheduler;
-import org.apache.ace.scheduler.constants.SchedulerConstants;
+import org.apache.ace.agent.AgentControl;
+import org.apache.ace.agent.ConfigurationHandler;
+import org.apache.ace.agent.ConnectionHandler;
+import org.apache.ace.agent.DeploymentHandler;
+import org.apache.ace.agent.DiscoveryHandler;
+import org.apache.ace.agent.DownloadHandler;
+import org.apache.ace.agent.IdentificationHandler;
+import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.log.LogService;
 
-/**
- * OSGi {@link BundleActivator} for the Apache ACE ManagementAgent.
- * 
- */
-public class Activator extends DependencyActivatorBase {
+// TODO Decouple from DM to save 170k in agent size.
+public class Activator extends DependencyActivatorBase implements AgentContext {
 
-    private Scheduler m_scheduler;
+    private volatile ConfigurationHandler m_configurationHandler;
+    private volatile IdentificationHandler m_identificationHandler;
+    private volatile DiscoveryHandler m_discoveryHandler;
+    private volatile DeploymentHandler m_deploymentHandler;
+    private volatile DownloadHandler m_downloadHandler;
+    private volatile ConnectionHandler m_connectionHandler;
+    private volatile ScheduledExecutorService m_executorService;
+    private volatile AgentControlImpl m_agentControl;
+
+    private volatile DefaultController m_controller;
+
+    private DependencyManager m_manager;
+    private Component m_component;
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
 
-        Properties properties = new Properties();
-        m_scheduler = new Scheduler();
-        manager.add(createComponent()
-            .setImplementation(m_scheduler)
-            .add(createServiceDependency()
-                .setService(LogService.class).setRequired(false))
-            .add(createServiceDependency()
-                .setService(Runnable.class).setRequired(false)
-                .setAutoConfig(false)
-                .setCallbacks(this, "addRunnable", "addRunnable", "removeRunnable")));
+        m_manager = manager;
 
-        properties = new Properties();
-        ManagementAgentFactoryImpl factory = new ManagementAgentFactoryImpl();
-        manager.add(createComponent()
-            .setInterface(ManagementAgentFactory.class.getName(), properties)
-            .setImplementation(factory)
-            .add(createServiceDependency().setService(LogService.class).setRequired(false)));
+        m_executorService = Executors.newScheduledThreadPool(1);
+        m_configurationHandler = new ConfigurationHandlerImpl(this);
+        m_deploymentHandler = new DeploymentHandlerImpl(this);
+        m_downloadHandler = new DownloadHandlerImpl(this);
+        m_agentControl = new AgentControlImpl(this);
 
+        Component service = createComponent().setImplementation(this)
+            .setCallbacks("initAgent", "startAgent", "stopAgent", "destroyAgent")
+            .setAutoConfig(DependencyManager.class, false)
+            .setAutoConfig(Component.class, false);
+
+        if (Boolean.parseBoolean(System.getProperty("agent.identificationhandler.disabled"))) {
+            service.add(createServiceDependency().setService(IdentificationHandler.class).setRequired(true));
+        }
+        else {
+            m_identificationHandler = new IdentificationHandlerImpl(this);
+        }
+
+        if (Boolean.parseBoolean(System.getProperty("agent.discoveryhandler.disabled"))) {
+            service.add(createServiceDependency().setService(DiscoveryHandler.class).setRequired(true));
+        }
+        else {
+            m_discoveryHandler = new DiscoveryHandlerImpl(this);
+        }
+
+        if (Boolean.parseBoolean(System.getProperty("agent.connectionhandler.disabled"))) {
+            service.add(createServiceDependency().setService(DiscoveryHandler.class).setRequired(true));
+        }
+        else {
+            m_connectionHandler = new ConnectionHandlerImpl(this);
+        }
+
+        if (!Boolean.parseBoolean(System.getProperty("agent.defaultcontroller.disabled"))) {
+            m_controller = new DefaultController(m_agentControl, m_executorService);
+        }
+        
+        manager.add(service);
     }
 
     @Override
     public void destroy(BundleContext context, DependencyManager manager) throws Exception {
     }
 
-    /**
-     * Handler for both adding and updating runnable service registrations.
-     * 
-     * @throws Exception
-     *             Is thrown when the <code>SCHEDULER_RECIPE</code> contained in <code>ref</code>'s service dictionary
-     *             cannot be parsed by the scheduler.
-     */
-    public void addRunnable(ServiceReference ref, Runnable task) throws Exception {
-        String name = (String) ref.getProperty(SchedulerConstants.SCHEDULER_NAME_KEY);
-        if (name != null) {
-            String description = (String) ref.getProperty(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY);
-            Object recipe = ref.getProperty(SchedulerConstants.SCHEDULER_RECIPE);
-            boolean recipeOverride = Boolean.valueOf((String) ref.getProperty(SchedulerConstants.SCHEDULER_RECIPE_OVERRIDE)).booleanValue();
-            m_scheduler.addRunnable(name, task, description, recipe, recipeOverride);
-        }
+    void startAgent() throws Exception {
+        System.out.println("Starting agent!");
+        m_component = createComponent()
+            .setInterface(AgentControl.class.getName(), null)
+            .setImplementation(m_agentControl);
+        m_manager.add(m_component);
+        if (m_controller != null)
+            m_controller.start();
     }
 
-    public synchronized void removeRunnable(ServiceReference ref, Runnable task) {
-        String name = (String) ref.getProperty(SchedulerConstants.SCHEDULER_NAME_KEY);
-        if (name != null) {
-            m_scheduler.removeRunnable(name);
-        }
+    void stopAgent() throws Exception {
+        System.out.println("Stopping agent");
+        if (m_controller != null)
+            m_controller.stop();
+        m_manager.remove(m_component);
     }
 
+    @Override
+    public IdentificationHandler getIdentificationHandler() {
+        return m_identificationHandler;
+    }
+
+    @Override
+    public DiscoveryHandler getDiscoveryHandler() {
+        return m_discoveryHandler;
+    }
+
+    @Override
+    public DeploymentHandler getDeploymentHandler() {
+        return m_deploymentHandler;
+    }
+
+    @Override
+    public ScheduledExecutorService getExecutorService() {
+        return m_executorService;
+    }
+
+    @Override
+    public ConfigurationHandler getConfigurationHandler() {
+        return m_configurationHandler;
+    }
+
+    @Override
+    public ConnectionHandler getConnectionHandler() {
+        return m_connectionHandler;
+    }
+
+    @Override
+    public DownloadHandler getDownloadHandler() {
+        return m_downloadHandler;
+    }
 }

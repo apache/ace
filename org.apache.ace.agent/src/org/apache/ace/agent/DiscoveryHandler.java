@@ -16,24 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
+package org.apache.ace.agent;
 
-import junit.framework.Assert;
-
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
+import java.net.URL;
 
 /**
- * Integration test for Management Agent Configuration
+ * Agent control delegate interface that is responsible for discovering servers. If the handler supports dynamic
+ * discovery or multiple URLs it should select the most appropriate candidate.
  * 
  */
-public class ManagementAgentTest extends IntegrationTestBase {
+public interface DiscoveryHandler {
 
-    public void testOneAgentConfiguration() throws Exception {
-
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
-
-    }
+    /**
+     * Return a server base URL.
+     * 
+     * @return The URL, <code>null</code> if none is available
+     */
+    URL getServerUrl();
 }

@@ -16,24 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
+package org.apache.ace.agent.testutil;
 
-import junit.framework.Assert;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * Integration test for Management Agent Configuration
- * 
- */
-public class ManagementAgentTest extends IntegrationTestBase {
+public class BaseAgentTest {
 
-    public void testOneAgentConfiguration() throws Exception {
+    Set<Object> m_mocks = new HashSet<Object>();
 
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
+    protected <T extends Object> T addTestMock(Class<T> clazz) {
+        T mock = createMock(clazz);
+        m_mocks.add(mock);
+        return mock;
+    }
 
+    protected void replayTestMocks() {
+        for (Object mock : m_mocks)
+            replay(mock);
+    }
+
+    protected void verifyTestMocks() {
+        for (Object mock : m_mocks)
+            verify(mock);
+    }
+
+    protected void clearTestMocks() {
+        m_mocks.clear();
     }
 }

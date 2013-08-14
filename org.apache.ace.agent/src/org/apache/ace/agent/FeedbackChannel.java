@@ -16,24 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
+package org.apache.ace.agent;
 
-import junit.framework.Assert;
+import java.io.IOException;
+import java.util.Map;
 
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
 
 /**
- * Integration test for Management Agent Configuration
  * 
+ *
  */
-public class ManagementAgentTest extends IntegrationTestBase {
+public interface FeedbackChannel {
 
-    public void testOneAgentConfiguration() throws Exception {
+    /**
+     * Synchronizes the feedback with the current server. Ensures the server has at least as much feedback data as we
+     * do.
+     */
+    void sendFeedback() throws RetryAfterException, IOException;
 
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
-
-    }
+    /**
+     * Logs a new message to the channel.
+     * 
+     * @param type
+     * @param properties
+     */
+    void write(int type, Map<String, String> properties);
 }

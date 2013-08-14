@@ -16,24 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
+package org.apache.ace.agent;
 
-import junit.framework.Assert;
-
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
- * Integration test for Management Agent Configuration
+ * Agent control delegate interface that is responsible for opening connection.
  * 
  */
-public class ManagementAgentTest extends IntegrationTestBase {
+public interface ConnectionHandler {
 
-    public void testOneAgentConfiguration() throws Exception {
-
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
-
-    }
+    /**
+     * Return a connection for the specified url.
+     * 
+     * @param url The URL
+     * @return The connection
+     * @throws IOException If opening the connection fails
+     */
+    URLConnection getConnection(URL url) throws IOException;
 }

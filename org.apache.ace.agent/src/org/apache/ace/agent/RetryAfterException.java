@@ -16,24 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
+package org.apache.ace.agent;
 
-import junit.framework.Assert;
+public class RetryAfterException extends Exception {
 
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
+    private static final long serialVersionUID = 1L;
+    private final int m_seconds;
 
-/**
- * Integration test for Management Agent Configuration
- * 
- */
-public class ManagementAgentTest extends IntegrationTestBase {
-
-    public void testOneAgentConfiguration() throws Exception {
-
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
-
+    public RetryAfterException(int seconds) {
+        super("Server too busy. Retry after " + seconds + " seconds");
+        m_seconds = seconds;
+    }
+    
+    public int getSeconds(){
+        return m_seconds;
     }
 }

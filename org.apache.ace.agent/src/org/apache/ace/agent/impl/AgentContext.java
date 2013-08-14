@@ -16,24 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
+package org.apache.ace.agent.impl;
 
-import junit.framework.Assert;
+import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
+import org.apache.ace.agent.ConfigurationHandler;
+import org.apache.ace.agent.ConnectionHandler;
+import org.apache.ace.agent.DeploymentHandler;
+import org.apache.ace.agent.DiscoveryHandler;
+import org.apache.ace.agent.DownloadHandler;
+import org.apache.ace.agent.IdentificationHandler;
 
-/**
- * Integration test for Management Agent Configuration
- * 
- */
-public class ManagementAgentTest extends IntegrationTestBase {
+public interface AgentContext {
 
-    public void testOneAgentConfiguration() throws Exception {
+    IdentificationHandler getIdentificationHandler();
+    
+    DiscoveryHandler getDiscoveryHandler();
 
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
-
-    }
+    ConnectionHandler getConnectionHandler();
+    
+    DeploymentHandler getDeploymentHandler();
+    
+    DownloadHandler getDownloadHandler();
+    
+    ScheduledExecutorService getExecutorService();
+    
+    ConfigurationHandler getConfigurationHandler();
 }

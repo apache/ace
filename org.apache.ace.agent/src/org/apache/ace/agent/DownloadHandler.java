@@ -16,24 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
+package org.apache.ace.agent;
 
-import junit.framework.Assert;
-
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
+import java.net.URL;
 
 /**
- * Integration test for Management Agent Configuration
- * 
+ * Service interface for a DownloadHandler component.
  */
-public class ManagementAgentTest extends IntegrationTestBase {
+public interface DownloadHandler {
 
-    public void testOneAgentConfiguration() throws Exception {
-
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
-
-    }
+    /**
+     * Returns a {@link DownloadHandle} for a URL.
+     * 
+     * @param url The url
+     * @return The {@link DownloadHandle}
+     */
+    DownloadHandle getHandle(URL url);
+    
+    //TODO named handlers (resume over urls)
+    DownloadHandle getHandle(URL url, int readBufferSize);
 }

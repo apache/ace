@@ -16,24 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
+package org.apache.ace.agent.launcher;
 
-import junit.framework.Assert;
-
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
+import java.io.InputStream;
+import java.util.ServiceLoader;
 
 /**
- * Integration test for Management Agent Configuration
+ * {@link ServiceLoader} interface for launcher extension bundles providers.
  * 
  */
-public class ManagementAgentTest extends IntegrationTestBase {
+public interface BundleProvider {
 
-    public void testOneAgentConfiguration() throws Exception {
+    /**
+     * The bundle location.
+     * 
+     * @return The location
+     */
+    String getLocation();
 
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
-
-    }
+    /**
+     * The bundle input stream
+     * 
+     * @return The input
+     */
+    InputStream getInputStream();
 }

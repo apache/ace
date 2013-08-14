@@ -16,24 +16,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
+package org.apache.ace.agent;
 
-import junit.framework.Assert;
-
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
+import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Integration test for Management Agent Configuration
+ * Represents the result of a download task.
  * 
  */
-public class ManagementAgentTest extends IntegrationTestBase {
+public interface DownloadResult {
 
-    public void testOneAgentConfiguration() throws Exception {
+    /**
+     * Returns the state of the result.
+     * 
+     * @return The state
+     */
+    DownloadState getState();
 
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
+    /**
+     * Returns the download file.
+     * 
+     * @return The file, <code>null</code> if the download was unsuccessful
+     */
+    //TODO inputstream
+    File getFile();
 
-    }
+    int getCode();
+    
+    Map<String, List<String>> getHeaders();
+    /**
+     * Return the cause of an unsuccessful download.
+     * 
+     * @return The cause, <code>null</code> if the download was successful
+     */
+    Throwable getCause();
 }

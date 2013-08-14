@@ -1,27 +1,22 @@
--buildpath: osgi.core,\
-	org.apache.felix.framework,\
-	org.apache.ace.agent;version=latest,\
-	commons-codec,\
-	org.apache.commons.cli
-
-# Embed everything we need
-Private-Package: org.apache.ace.*;-split-package:=merge-last,\
-	org.apache.felix.*;-split-package:=merge-last,\
-	org.apache.commons.codec;-split-package:=merge-last,\
-	org.apache.commons.codec.binary;-split-package:=merge-last,\
-	org.osgi.framework.*;-split-package:=merge-last,\
-	org.osgi.util.tracker;-split-package:=merge-last,\
-	org.osgi.service.*;-split-package:=merge-last,\
-	org.apache.commons.cli
-
-# This is not a real bundle
-Import-Package: 
-
-# Include the felix defaults
-Include-Resource: default.properties=resources/felix-defaults.properties
-  
 # The Jar Main-Class header
-Main-Class: org.apache.ace.agent.launcher.Main
+Main-Class: org.apache.ace.agent.launcher.Launcher
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Agent launcher
 Bundle-Description: Standalone laucher that start an Apache Felix framework with an embedded ACE Agent
+
+# Include the felix defaults
+Include-Resource: @${repo;org.apache.felix.framework;4.0.3}!/default.properties,\
+    @${repo;org.apache.felix.framework;4.0.3}!/META-INF/services/*,\
+    @${repo;org.apache.felix.framework;4.0.3}!/org/*,\
+	${repo;org.apache.ace.agent;latest},\
+	resources/META-INF/services/org.apache.ace.agent.launcher.BundleProvider==META-INF/services/org.apache.ace.agent.launcher.BundleProvider
+  
+Private-Package: org.apache.ace.agent.launcher,\
+	org.apache.commons.cli,\
+	org.apache.ace.agent;-split-package:=merge-first
+
+-buildpath: osgi.core;version='[4.3,5)',\
+	org.apache.commons.cli,\
+	org.apache.ace.agent;version=latest,\
+	org.apache.ace.test;version=latest
+-sources: false

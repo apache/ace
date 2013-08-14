@@ -16,24 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
-
-import junit.framework.Assert;
-
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
+package org.apache.ace.agent;
 
 /**
- * Integration test for Management Agent Configuration
- * 
+ * The state of a download handle that completed.
  */
-public class ManagementAgentTest extends IntegrationTestBase {
-
-    public void testOneAgentConfiguration() throws Exception {
-
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
-
-    }
+public enum DownloadState {
+    /**
+     * The handle completed successfully.
+     */
+    SUCCESSFUL,
+    /**
+     * The handle completed because it was stopped.
+     */
+    STOPPED,
+    /**
+     * The handle completed due to an unrecoverable error. It can not be resumed.
+     */
+    FAILED,
 }

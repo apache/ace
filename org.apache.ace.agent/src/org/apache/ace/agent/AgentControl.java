@@ -16,24 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.itest;
+package org.apache.ace.agent;
 
-import junit.framework.Assert;
+import java.util.List;
 
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.it.IntegrationTestBase;
 
 /**
- * Integration test for Management Agent Configuration
- * 
+ * The agent's control (service) interface. Provides control functions and access to configuration for consumers that
+ * wish to control the agent's behavior.
  */
-public class ManagementAgentTest extends IntegrationTestBase {
+public interface AgentControl {
 
-    public void testOneAgentConfiguration() throws Exception {
+    /** access to the configuration */
+    ConfigurationHandler getConfiguration();
 
-        // agent factory should be up
-        AgentControl agentControl = getService(AgentControl.class);
-        Assert.assertNotNull(agentControl);
+    /** access to the feedback channels */
+    List<String> getFeedbackChannelNames();
 
-    }
+    FeedbackChannel getFeedbackChannel(String name);
+
+    DownloadHandler getDownloadHandler();
+
+    DeploymentHandler getDeploymentHandler();
+
+    // TODO
+    // AgentUpdateHandler getAgentUpdateHandler();
 }
