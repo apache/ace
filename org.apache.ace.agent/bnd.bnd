@@ -40,18 +40,11 @@ Export-Package: \
 -buildpath: osgi.core;version=4.2,\
 	osgi.cmpn;version=4.2,\
 	javax.servlet;version=2.5,\
-	org.eclipse.jetty.http;version=7.6.9,\
-	org.eclipse.jetty.io;version=7.6.9,\
-	org.eclipse.jetty.jmx;version=7.6.9,\
-	org.eclipse.jetty.security;version=7.6.9,\
-	org.eclipse.jetty.server;version=7.6.9,\
-	org.eclipse.jetty.servlet;version=7.6.9,\
-	org.eclipse.jetty.util;version=7.6.9,\
-	org.eclipse.jetty.continuation;version=7.6.9.v20130131,\
 	org.apache.felix.deploymentadmin;version=0.9.4,\
 	org.easymock,\
 	org.apache.felix.dependencymanager,\
-	commons-codec;version=1.4.0
+	commons-codec;version=1.4.0,\
+	org.apache.felix.http.jetty;version=2.2.1
 
 -sources false
 -runfw: org.apache.felix.framework;version='[4.0.3,4.0.3]'
