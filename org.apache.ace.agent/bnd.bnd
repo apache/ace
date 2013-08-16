@@ -32,10 +32,11 @@ DynamicImport-Package: \
 	org.osgi.service.event,\
 	org.osgi.service.log
 
-Export-Package: \
-    org.apache.ace.agent,\
+Export-Package: org.apache.ace.agent,\
 	org.osgi.service.deploymentadmin;-split-package:=merge-last,\
-	org.osgi.service.deploymentadmin.spi;-split-package:=merge-last
+	org.osgi.service.deploymentadmin.spi;-split-package:=merge-last,\
+	org.osgi.service.event,\
+	org.osgi.service.log
 
 -buildpath: osgi.core;version=4.2,\
 	osgi.cmpn;version=4.2,\
