@@ -20,6 +20,7 @@ package org.apache.ace.deployment.servlet;
 
 import javax.servlet.Servlet;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.processor.DeploymentProcessor;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.streamgenerator.StreamGenerator;
@@ -29,17 +30,25 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
-    public static final String PID = "org.apache.ace.deployment.servlet";
+    public static final String DEPLOYMENT_PID = "org.apache.ace.deployment.servlet";
+    public static final String AGENT_PID = "org.apache.ace.deployment.servlet.agent";
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         manager.add(createComponent()
             .setInterface(Servlet.class.getName(), null)
             .setImplementation(DeploymentServlet.class)
-            .add(createConfigurationDependency().setPropagate(true).setPid(PID))
+            .add(createConfigurationDependency().setPropagate(true).setPid(DEPLOYMENT_PID))
             .add(createServiceDependency().setService(StreamGenerator.class).setRequired(true))
             .add(createServiceDependency().setService(DeploymentProvider.class).setRequired(true))
             .add(createServiceDependency().setService(DeploymentProcessor.class).setRequired(false).setCallbacks("addProcessor", "removeProcessor"))
+            .add(createServiceDependency().setService(LogService.class).setRequired(false))
+        );
+        manager.add(createComponent()
+            .setInterface(Servlet.class.getName(), null)
+            .setImplementation(AgentDeploymentServlet.class)
+            .add(createConfigurationDependency().setPropagate(true).setPid(AGENT_PID))
+            .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false))
         );
     }

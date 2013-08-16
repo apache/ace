@@ -360,7 +360,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
 
     private void configureServer() throws IOException {
         // configure data bundle
-        configure(org.apache.ace.deployment.servlet.Activator.PID, HttpConstants.ENDPOINT, "/deployment", "authentication.enabled", "false");
+        configure(org.apache.ace.deployment.servlet.Activator.DEPLOYMENT_PID, HttpConstants.ENDPOINT, "/deployment", "authentication.enabled", "false");
         // configure file based backend
         configure(org.apache.ace.deployment.provider.filebased.Activator.PID, "BaseDirectoryName", m_tempDir.getAbsolutePath());
     }

@@ -11,8 +11,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.dependencymanager		
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runvm: -ea
--runbundles: \
-	osgi.cmpn,\
+-runbundles: osgi.cmpn,\
 	org.apache.felix.log,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
@@ -25,7 +24,11 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
-	org.apache.ace.repository.servlet;version=latest
+	org.apache.ace.repository.servlet;version=latest,\
+	org.apache.felix.gogo.command,\
+	org.apache.felix.gogo.runtime,\
+	org.apache.felix.gogo.shell,\
+	org.apache.felix.dependencymanager.shell
 Private-Package: org.apache.ace.it.repository
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Repository itest
