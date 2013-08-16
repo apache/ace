@@ -29,12 +29,13 @@ import java.io.InputStream;
 public class AgentBundleProvider implements BundleProvider {
 
     @Override
-    public String getLocation() {
-        return "org.apache.ace.agent.jar";
+    public String[] getBundleNames() {
+        return new String[] { "org.apache.ace.agent" };
     }
 
     @Override
-    public InputStream getInputStream() {
-        return getClass().getClassLoader().getResourceAsStream("org.apache.ace.agent.jar");
+    public InputStream getInputStream(String name) {
+        return getClass().getClassLoader().getResourceAsStream(
+            "org.apache.ace.agent.jar");
     }
 }

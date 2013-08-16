@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.launcher;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ServiceLoader;
 
@@ -28,16 +29,16 @@ import java.util.ServiceLoader;
 public interface BundleProvider {
 
     /**
-     * The bundle location.
+     * Return the bundle names.
      * 
-     * @return The location
+     * @return The names
      */
-    String getLocation();
+    String[] getBundleNames();
 
     /**
-     * The bundle input stream
+     * Return a bundle input stream
      * 
      * @return The input
      */
-    InputStream getInputStream();
+    InputStream getInputStream(String bundleName) throws IOException;
 }

@@ -43,6 +43,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.launch.Framework;
@@ -99,7 +100,8 @@ public class Launcher {
 
         // // overwrite with user args
         // if (command.hasOption("a")) {
-        // configuration.put(CONFIG_IDENTIFICATION_KEY, command.getOptionValue("a"));
+        // configuration.put(CONFIG_IDENTIFICATION_KEY,
+        // command.getOptionValue("a"));
         // }
         // if (command.hasOption("s")) {
         // configuration.put(CONFIG_SERVERURL_KEY, command.getOptionValue("s"));
@@ -124,9 +126,12 @@ public class Launcher {
 
     private static void printHelp(Options options) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp(120, "java -jar org.apache.ace.agent.launcher [options] [configurationfile]",
-            "\nApache ACE AgentLauncher\n\n", options,
-            "\n\nConfiguration file options\n\nTODO", false);
+        formatter
+            .printHelp(
+                120,
+                "java -jar org.apache.ace.agent.launcher [options] [configurationfile]",
+                "\nApache ACE AgentLauncher\n\n", options,
+                "\n\nConfiguration file options\n\nTODO", false);
     }
 
     private static Properties loadDefaultProperties() throws IOException {
@@ -143,9 +148,11 @@ public class Launcher {
         }
     }
 
-    private static Properties loadUserProperties(String configFileArgument) throws IOException {
+    private static Properties loadUserProperties(String configFileArgument)
+        throws IOException {
         File configFile = new File(configFileArgument);
-        if (!configFile.exists() || !configFile.isFile() || !configFile.canRead()) {
+        if (!configFile.exists() || !configFile.isFile()
+            || !configFile.canRead()) {
             System.err.println("Can not acces configuration file : " + configFileArgument);
             return null;
         }
@@ -172,7 +179,8 @@ public class Launcher {
      * Main execution logic of the launcher; Start a framework, install bundles and pass configuration to the
      * {@link AgentFactory}.
      * 
-     * @throws Exception on failure
+     * @throws Exception
+     *             on failure
      */
     public void run() throws Exception {
 
@@ -180,43 +188,18 @@ public class Launcher {
             FrameworkFactory frameworkFactory = loadFrameworkFactory();
             Map<String, String> frameworkProperties = createFrameworkProperties();
             if (m_verbose)
-                System.out.println("Launching OSGI framework\n factory\t: " + frameworkFactory.getClass().getName() + "\n properties\t: " + frameworkProperties);
+                System.out.println("Launching OSGI framework\n factory\t: "
+                    + frameworkFactory.getClass().getName()
+                    + "\n properties\t: " + frameworkProperties);
 
             Framework framework = frameworkFactory.newFramework(frameworkProperties);
             BundleContext context = null;
             framework.init();
             context = framework.getBundleContext();
 
-            BundleProvider[] bundleFactories = loadBundleProviders();
-            if (bundleFactories != null) {
-                for (BundleProvider bundleFactory : bundleFactories) {
-                    if (m_verbose)
-                        System.out.println(" bundle\t: " + bundleFactory.getLocation());
-                    InputStream inputStream = bundleFactory.getInputStream();
-                    try {
-                        Bundle bundle = context.installBundle(bundleFactory.getLocation(), inputStream);
-                        bundle.start();
-                    }
-                    finally {
-                        inputStream.close();
-                    }
-                }
-            }
-
-            File[] bundleFiles = loadBundleFiles();
-            if (bundleFiles != null) {
-                for (File bundleFile : bundleFiles) {
-                    if (m_verbose)
-                        System.out.println(" bundle\t: " + bundleFile.getAbsolutePath());
-                    InputStream inputStream = new FileInputStream(bundleFile);
-                    try {
-                        Bundle bundle = context.installBundle(bundleFile.getAbsolutePath(), inputStream);
-                        bundle.start();
-                    }
-                    finally {
-                        inputStream.close();
-                    }
-                }
+            BundleProvider[] bundleProviders = loadBundleProviders();
+            for (BundleProvider bundleProvider : bundleProviders) {
+                installBundles(context, bundleProvider);
             }
 
             framework.start();
@@ -233,11 +216,33 @@ public class Launcher {
         System.exit(0);
     }
 
+    private Bundle[] installBundles(BundleContext context, BundleProvider extensionProvider) throws BundleException, IOException {
+        List<Bundle> bundles = new ArrayList<Bundle>();
+        for (String bundleName : extensionProvider.getBundleNames()) {
+            if (m_verbose)
+                System.out.println("Installing bundle\t: " + bundleName);
+            InputStream inputStream = null;
+            try {
+                inputStream = extensionProvider.getInputStream(bundleName);
+                bundles.add(context.installBundle(bundleName, inputStream));
+            }
+            finally {
+                if (inputStream != null)
+                    inputStream.close();
+            }
+        }
+        for (Bundle bundle : bundles) {
+            bundle.start();
+        }
+        return bundles.toArray(new Bundle[bundles.size()]);
+    }
+
     /**
      * Load {@link FrameworkFactory} through the {@link ServiceLoader}.
      * 
      * @return the first factory
-     * @throws Exception on failure
+     * @throws Exception
+     *             on failure
      */
     private FrameworkFactory loadFrameworkFactory() throws Exception {
         ServiceLoader<FrameworkFactory> frameworkFactoryLoader = ServiceLoader.load(FrameworkFactory.class);
@@ -249,33 +254,11 @@ public class Launcher {
     }
 
     /**
-     * Load bundle file specified through configuration.
-     * 
-     * @return list of files
-     * @throws Exception on failure
-     */
-    private File[] loadBundleFiles() throws Exception {
-        List<File> bundleFiles = new ArrayList<File>();
-        String bundleFileConfig = m_configuration.get("system.bundles");
-        if (bundleFileConfig != null && !bundleFileConfig.trim().equals("")) {
-            String[] bundleFileNames = bundleFileConfig.trim().split(",");
-            int i = 0;
-            for (String bundleFileName : bundleFileNames) {
-                File bundleFile = new File(bundleFileName);
-                if (!bundleFile.exists() || !bundleFile.isFile() || !bundleFile.canRead()) {
-                    throw new IllegalArgumentException("Can not access configured file: " + bundleFile.getAbsolutePath());
-                }
-                bundleFiles.add(bundleFile);
-            }
-        }
-        return bundleFiles.toArray(new File[bundleFiles.size()]);
-    }
-
-    /**
      * Load {@link BundleProvider}s through the {@link ServiceLoader}.
      * 
      * @return list of providers
-     * @throws Exception on failure
+     * @throws Exception
+     *             on failure
      */
     private BundleProvider[] loadBundleProviders() throws Exception {
         ServiceLoader<BundleProvider> bundleFactoryLoader = ServiceLoader.load(BundleProvider.class);
@@ -291,7 +274,8 @@ public class Launcher {
      * Build the framework launch properties.
      * 
      * @return the launch properties
-     * @throws Exception on failure
+     * @throws Exception
+     *             on failure
      */
     private Map<String, String> createFrameworkProperties() throws Exception {
         Map<String, String> frameworkProperties = new HashMap<String, String>();
@@ -309,7 +293,6 @@ public class Launcher {
         }
         else {
             frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, extraPackage + "," + getAgentApiPackageSpec());
-
         }
         return frameworkProperties;
     }
@@ -318,10 +301,10 @@ public class Launcher {
      * Determines the export clause for the agent API package.
      * 
      * @return the export clause
-     * @throws Exception on failure
+     * @throws Exception
+     *             on failure
      */
     private String getAgentApiPackageSpec() throws IOException {
-
         String apiPackage = AgentControl.class.getPackage().getName();
         String apiVersion = Version.emptyVersion.toString();
         InputStream packageInfoStream = null;

@@ -1,22 +1,9 @@
-# The Jar Main-Class header
-Main-Class: org.apache.ace.agent.launcher.Launcher
-Bundle-Version: 1.0.0
-Bundle-Name: Apache ACE Agent launcher
-Bundle-Description: Standalone laucher that start an Apache Felix framework with an embedded ACE Agent
-
-# Include the felix defaults
-Include-Resource: @${repo;org.apache.felix.framework;4.0.3}!/default.properties,\
-    @${repo;org.apache.felix.framework;4.0.3}!/META-INF/services/*,\
-    @${repo;org.apache.felix.framework;4.0.3}!/org/*,\
-	${repo;org.apache.ace.agent;latest},\
-	resources/META-INF/services/org.apache.ace.agent.launcher.BundleProvider==META-INF/services/org.apache.ace.agent.launcher.BundleProvider
-  
-Private-Package: org.apache.ace.agent.launcher,\
-	org.apache.commons.cli,\
-	org.apache.ace.agent;-split-package:=merge-first
-
 -buildpath: osgi.core;version='[4.3,5)',\
 	org.apache.commons.cli,\
 	org.apache.ace.agent;version=latest,\
-	org.apache.ace.test;version=latest
+	org.apache.ace.test;version=latest,\
+	org.apache.felix.gogo.command,\
+	org.apache.felix.gogo.runtime,\
+	org.apache.felix.gogo.shell
 -sources: false
+-sub: *.bnd

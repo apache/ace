@@ -1,0 +1,14 @@
+
+# The Jar Main-Class header
+Main-Class: org.apache.ace.agent.launcher.Launcher
+Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE Agent launcher
+Bundle-Description: Standalone launcher that start an OSGi framework with an embedded ACE Agent
+
+# Include the felix defaults
+Include-Resource: ${repo;org.apache.ace.agent;latest},\
+	META-INF/services/org.apache.ace.agent.launcher.BundleProvider=resources/org.apache.ace.agent.launcher.BundleProvider
+  
+Private-Package: org.apache.ace.agent.launcher,\
+	org.apache.commons.cli,\
+	org.apache.ace.agent;-split-package:=merge-first
