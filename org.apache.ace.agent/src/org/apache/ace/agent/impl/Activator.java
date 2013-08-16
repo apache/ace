@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.ace.agent.AgentControl;
+import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DeploymentHandler;
@@ -33,7 +34,7 @@ import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 
-// TODO Decouple from DM to save 170k in agent size.
+// TODO Decouple from DM to save 170k in agent size. Or: just include what we use
 public class Activator extends DependencyActivatorBase implements AgentContext {
 
     private volatile ConfigurationHandler m_configurationHandler;
@@ -44,6 +45,7 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
     private volatile ConnectionHandler m_connectionHandler;
     private volatile ScheduledExecutorService m_executorService;
     private volatile AgentControlImpl m_agentControl;
+    private volatile AgentUpdateHandler m_agentUpdateHandler;
 
     private volatile DefaultController m_controller;
 
@@ -60,6 +62,7 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
         m_deploymentHandler = new DeploymentHandlerImpl(this);
         m_downloadHandler = new DownloadHandlerImpl(this);
         m_agentControl = new AgentControlImpl(this);
+        m_agentUpdateHandler = new AgentUpdateHandlerImpl(this, context);
 
         Component service = createComponent().setImplementation(this)
             .setCallbacks("initAgent", "startAgent", "stopAgent", "destroyAgent")
@@ -148,5 +151,10 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
     @Override
     public DownloadHandler getDownloadHandler() {
         return m_downloadHandler;
+    }
+    
+    @Override
+    public AgentUpdateHandler getAgentUpdateHandler() {
+        return m_agentUpdateHandler;
     }
 }

@@ -18,18 +18,12 @@
  */
 package org.apache.ace.agent.impl;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
-import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.RetryAfterException;
@@ -39,16 +33,16 @@ import org.osgi.service.deploymentadmin.DeploymentAdmin;
 import org.osgi.service.deploymentadmin.DeploymentException;
 import org.osgi.service.deploymentadmin.DeploymentPackage;
 
-public class DeploymentHandlerImpl implements DeploymentHandler {
-
-    private final AgentContext m_agentContext;
+public class DeploymentHandlerImpl extends UpdateHandlerBase implements DeploymentHandler {
     private DeploymentAdmin m_deploymentAdmin;
 
     public DeploymentHandlerImpl(AgentContext agentContext) {
+        // TODO that DeploymentAdminImpl needs to be injected with several services for it to work
         this(agentContext, new DeploymentAdminImpl());
     }
 
     public DeploymentHandlerImpl(AgentContext agentContext, DeploymentAdmin deploymentAdmin) {
+        super(agentContext);
         m_agentContext = agentContext;
         m_deploymentAdmin = deploymentAdmin;
     }
@@ -67,106 +61,6 @@ public class DeploymentHandlerImpl implements DeploymentHandler {
     }
 
     @Override
-    public SortedSet<Version> getAvailableVersions() throws RetryAfterException, IOException {
-
-        SortedSet<Version> versions = new TreeSet<Version>();
-
-        URL endpoint = getEndpoint(getServerURL(), getIdentification());
-        URLConnection connection = null;
-        BufferedReader reader = null;
-        try {
-            connection = getConnection(endpoint);
-
-            // TODO handle problems and retries
-            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String versionString;
-            while ((versionString = reader.readLine()) != null) {
-                try {
-                    Version version = Version.parseVersion(versionString);
-                    versions.add(version);
-                }
-                catch (IllegalArgumentException e) {
-                    throw new IOException(e);
-                }
-            }
-            return versions;
-        }
-        finally {
-            if (connection != null && connection instanceof HttpURLConnection)
-                ((HttpURLConnection) connection).disconnect();
-            if (reader != null)
-                reader.close();
-        }
-    }
-
-    @Override
-    public long getPackageSize(Version version, boolean fixPackage) throws RetryAfterException, IOException {
-
-        URL url = getPackageURL(version, fixPackage);
-        long packageSize = -1l;
-
-        URLConnection urlConnection = null;
-        InputStream inputStream = null;
-        try {
-            urlConnection = url.openConnection();
-            if (urlConnection instanceof HttpURLConnection)
-                ((HttpURLConnection) urlConnection).setRequestMethod("HEAD");
-
-            String dpSizeHeader = urlConnection.getHeaderField(AgentConstants.HEADER_DPSIZE);
-            if (dpSizeHeader != null)
-                try {
-                    packageSize = Long.parseLong(dpSizeHeader);
-                }
-                catch (NumberFormatException e) {
-                    // ignore
-                }
-            return packageSize;
-        }
-        finally {
-            if (urlConnection != null && urlConnection instanceof HttpURLConnection)
-                ((HttpURLConnection) urlConnection).disconnect();
-            if (inputStream != null)
-                try {
-                    inputStream.close();
-                }
-                catch (IOException e) {
-                    // ignore
-                }
-        }
-    }
-
-    @Override
-    public InputStream getInputStream(Version version, boolean fixPackage) throws RetryAfterException, IOException {
-        URL packageURL = getPackageURL(version, fixPackage);
-        URLConnection urlConnection = null;
-        InputStream inputStream = null;
-        try {
-            // TODO handle problems and retries
-            urlConnection = packageURL.openConnection();
-            inputStream = urlConnection.getInputStream();
-            return inputStream;
-        }
-        finally {
-            if (urlConnection != null && urlConnection instanceof HttpURLConnection)
-                ((HttpURLConnection) urlConnection).disconnect();
-            if (inputStream != null)
-                try {
-                    inputStream.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-        }
-    }
-
-    @Override
-    public DownloadHandle getDownloadHandle(Version version, boolean fixPackage) {
-        URL packageURL = getPackageURL(version, fixPackage);
-        DownloadHandle downloadHandle = m_agentContext.getDownloadHandler().getHandle(packageURL);
-        return downloadHandle;
-    }
-
-    @Override
     public void deployPackage(InputStream inputStream) {
         // FIXME exceptions
         try {
@@ -176,7 +70,27 @@ public class DeploymentHandlerImpl implements DeploymentHandler {
             e.printStackTrace();
         }
     }
+    
+    @Override
+    public long getPackageSize(Version version, boolean fixPackage) throws RetryAfterException, IOException {
+        return getPackageSize(getPackageURL(version, fixPackage));
+    };
 
+    @Override
+    public InputStream getInputStream(Version version, boolean fixPackage) throws RetryAfterException, IOException {
+        return getInputStream(getPackageURL(version, fixPackage));
+    };
+    
+    @Override
+    public DownloadHandle getDownloadHandle(Version version, boolean fixPackage) {
+        return getDownloadHandle(getPackageURL(version, fixPackage));
+    };
+    
+    @Override
+    public SortedSet<Version> getAvailableVersions() throws RetryAfterException ,IOException {
+        return getAvailableVersions(getEndpoint(getServerURL(), getIdentification()));
+    };
+    
     private URL getPackageURL(Version version, boolean fixPackage) {
         URL url = null;
         if (fixPackage) {
@@ -188,19 +102,7 @@ public class DeploymentHandlerImpl implements DeploymentHandler {
         return url;
     }
 
-    private String getIdentification() {
-        return m_agentContext.getIdentificationHandler().getIdentification();
-    }
-
-    private URL getServerURL() {
-        return m_agentContext.getDiscoveryHandler().getServerUrl();
-    }
-
-    private URLConnection getConnection(URL url) throws IOException {
-        return m_agentContext.getConnectionHandler().getConnection(url);
-    }
-
-    private static URL getEndpoint(URL serverURL, String identification) {
+    private URL getEndpoint(URL serverURL, String identification) {
         try {
             return new URL(serverURL, "deployment/" + identification + "/versions/");
         }

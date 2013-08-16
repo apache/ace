@@ -5,6 +5,7 @@ Bundle-Activator: org.apache.ace.agent.impl.Activator
 
 Private-Package: \
 	org.apache.ace.agent.impl,\
+	org.apache.ace.agent.updater,\
     org.apache.commons.codec,\
 	org.apache.commons.codec.binary,\
 	org.apache.commons.codec.digest,\
@@ -18,15 +19,19 @@ Private-Package: \
 	org.apache.felix.dm.impl.index,\
 	org.apache.felix.dm.impl.metatype,\
 	org.apache.felix.dm.tracker,\
+	org.osgi.service.metatype,\
+	org.osgi.service.cm,\
 	org.osgi.util.tracker
 
 Import-Package: \
     !org.osgi.service.cm,\
 	!org.osgi.service.metatype,\
-	org.osgi.service.event;resolution:=optional,\
-	org.osgi.service.log;resolution:=optional,\
 	*
-	
+
+DynamicImport-Package: \
+	org.osgi.service.event,\
+	org.osgi.service.log
+
 Export-Package: \
     org.apache.ace.agent,\
 	org.osgi.service.deploymentadmin;-split-package:=merge-last,\

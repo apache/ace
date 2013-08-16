@@ -21,6 +21,7 @@ package org.apache.ace.agent.impl;
 import java.util.List;
 
 import org.apache.ace.agent.AgentControl;
+import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandler;
@@ -59,5 +60,10 @@ public class AgentControlImpl implements AgentControl {
     public FeedbackChannel getFeedbackChannel(String name) {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    @Override
+    public AgentUpdateHandler getAgentUpdateHandler() {
+        return m_agentContext.getAgentUpdateHandler();
     }
 }

@@ -39,6 +39,5 @@ public interface AgentControl {
 
     DeploymentHandler getDeploymentHandler();
 
-    // TODO
-    // AgentUpdateHandler getAgentUpdateHandler();
+    AgentUpdateHandler getAgentUpdateHandler();
 }

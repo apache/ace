@@ -20,6 +20,7 @@ package org.apache.ace.agent.impl;
 
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DeploymentHandler;
@@ -42,4 +43,6 @@ public interface AgentContext {
     ScheduledExecutorService getExecutorService();
     
     ConfigurationHandler getConfigurationHandler();
+
+    AgentUpdateHandler getAgentUpdateHandler();
 }
