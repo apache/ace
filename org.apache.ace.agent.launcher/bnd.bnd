@@ -1,9 +1,5 @@
 -buildpath: osgi.core;version='[4.3,5)',\
 	org.apache.commons.cli,\
-	org.apache.ace.agent;version=latest,\
-	org.apache.ace.test;version=latest,\
-	org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell
+	org.apache.ace.agent;version=latest
 -sources: false
 -sub: *.bnd
