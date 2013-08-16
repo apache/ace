@@ -45,7 +45,7 @@ public class IdentificationHandlerImpl implements IdentificationHandler {
     public String getIdentification() {
         String configValue = m_agentContext.getConfigurationHandler().getMap().get(IDENTIFICATION_CONFIG_KEY);
         if (configValue == null)
-            return null;
+            return "defaultTargetID";
         configValue = configValue.trim();
         if (configValue.equals(""))
             return null;

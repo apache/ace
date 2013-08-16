@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -37,7 +38,7 @@ public class ConfigurationHandlerImpl implements ConfigurationHandler {
 
     @Override
     public long getSyncInterval() {
-        return 10;
+        return 3;
     }
 
     @Override
@@ -91,7 +92,7 @@ public class ConfigurationHandlerImpl implements ConfigurationHandler {
 
     @Override
     public Map<String, String> getMap() {
-        return null;
+        return Collections.EMPTY_MAP;
     }
 
 }

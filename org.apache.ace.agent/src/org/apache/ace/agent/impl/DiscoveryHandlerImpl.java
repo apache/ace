@@ -20,6 +20,7 @@ package org.apache.ace.agent.impl;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
@@ -52,7 +53,12 @@ public class DiscoveryHandlerImpl implements DiscoveryHandler {
     public URL getServerUrl() {
         String configValue = m_agentContext.getConfigurationHandler().getMap().get(DISCOVERY_CONFIG_KEY);
         if (configValue == null || configValue.equals(""))
-            return null;
+            try {
+                return new URL("http://localhost:8080");
+            }
+            catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
         if (configValue.indexOf(",") == -1) {
             return checkURL(configValue.trim());
         }

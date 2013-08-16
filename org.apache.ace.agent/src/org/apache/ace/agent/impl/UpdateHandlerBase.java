@@ -31,6 +31,8 @@ import java.util.TreeSet;
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.RetryAfterException;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 
 public class UpdateHandlerBase {
@@ -106,23 +108,10 @@ public class UpdateHandlerBase {
     protected InputStream getInputStream(URL packageURL) throws RetryAfterException, IOException {
         URLConnection urlConnection = null;
         InputStream inputStream = null;
-        try {
-            // TODO handle problems and retries
-            urlConnection = packageURL.openConnection();
-            inputStream = urlConnection.getInputStream();
-            return inputStream;
-        }
-        finally {
-            if (urlConnection != null && urlConnection instanceof HttpURLConnection)
-                ((HttpURLConnection) urlConnection).disconnect();
-            if (inputStream != null)
-                try {
-                    inputStream.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-        }
+        // TODO handle problems and retries
+        urlConnection = getConnection(packageURL);
+        inputStream = urlConnection.getInputStream();
+        return inputStream;
     }
 
     protected DownloadHandle getDownloadHandle(URL packageURL) {

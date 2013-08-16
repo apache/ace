@@ -26,6 +26,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.agent.AgentControl;
+import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.RetryAfterException;
@@ -58,7 +59,8 @@ public class DefaultController implements Runnable {
 
         long syncInterval = getSyncInterval();
         try {
-            runSafe();
+            runSafeAgent();
+            //runSafe();
         }
         catch (RetryAfterException e) {
             syncInterval = e.getSeconds();
@@ -81,8 +83,9 @@ public class DefaultController implements Runnable {
         Version current = deploymentHandler.getInstalledVersion();
         SortedSet<Version> available = deploymentHandler.getAvailableVersions();
         Version highest = Version.emptyVersion;
-        if (available != null && !available.isEmpty())
+        if (available != null && !available.isEmpty()) {
             highest = available.last();
+        }
 
         if (highest.compareTo(current) > 1) {
             InputStream inputStream = deploymentHandler.getInputStream(highest, true);
@@ -92,6 +95,24 @@ public class DefaultController implements Runnable {
             finally {
                 inputStream.close();
             }
+        }
+    }
+    public void runSafeAgent() throws RetryAfterException, IOException {
+
+        AgentUpdateHandler deploymentHandler = getAgentUpdateHandler();
+
+        Version current = deploymentHandler.getInstalledVersion();
+        SortedSet<Version> available = deploymentHandler.getAvailableVersions();
+        Version highest = Version.emptyVersion;
+        if (available != null && !available.isEmpty()) {
+            highest = available.last();
+        }
+
+        System.out.println("runSafeAgent: " + current + ", latest: " + highest);
+        int val = highest.compareTo(current);
+        if (val > 0) {
+            InputStream inputStream = deploymentHandler.getInputStream(highest);
+            deploymentHandler.install(inputStream);
         }
     }
 
@@ -110,6 +131,10 @@ public class DefaultController implements Runnable {
 
     private DeploymentHandler getDeploymentHandler() {
         return m_agentControl.getDeploymentHandler();
+    }
+
+    private AgentUpdateHandler getAgentUpdateHandler() {
+        return m_agentControl.getAgentUpdateHandler();
     }
 
     private ConfigurationHandler getConfiguration() {

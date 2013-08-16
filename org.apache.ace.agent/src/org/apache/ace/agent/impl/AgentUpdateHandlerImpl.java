@@ -93,16 +93,23 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
     @Override
     public void install(InputStream stream) throws IOException {
         try {
-            InputStream currentBundleVersion = null;
+            InputStream currentBundleVersion = new ByteArrayInputStream(new byte[0]);
             Bundle bundle = m_bundleContext.installBundle("agent-updater", generateBundle());
             bundle.start();
             ServiceTracker st = new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(" + Constants.OBJECTCLASS + "=org.apache.ace.agent.updater.Activator)"), null);
-            st.open();
-            Object service = st.waitForService(60000);
-            Method method = service.getClass().getMethod("update", InputStream.class, InputStream.class);
-            method.invoke(m_bundleContext.getBundle(), currentBundleVersion, stream);
+            st.open(true);
+            Object service = st.waitForService(3000);
+            if (service != null) {
+                Method method = service.getClass().getMethod("update", Bundle.class, InputStream.class, InputStream.class);
+                System.out.println("Method: " + method);
+                method.invoke(service, m_bundleContext.getBundle(), currentBundleVersion, stream);
+            }
+            else {
+                System.out.println("Error: no service!");
+            }
         }
         catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -116,13 +123,14 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
             Manifest manifest = new Manifest();
             Attributes main = manifest.getMainAttributes();
             main.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+            main.put(new Attributes.Name("Bundle-ManifestVersion"), "2");
             main.put(new Attributes.Name("Bundle-SymbolicName"), UPDATER_SYMBOLICNAME);
             main.put(new Attributes.Name("Bundle-Version"), UPDATER_VERSION);
+            main.put(new Attributes.Name("Import-Package"), "org.osgi.framework");
             main.put(new Attributes.Name("Bundle-Activator"), "org.apache.ace.agent.updater.Activator");
-            main.put(new Attributes.Name("Bundle-ManifestVersion"), "2");
             jos = new JarOutputStream(baos, manifest);
-            jos.putNextEntry(new JarEntry("org.apache.ace.agent.updater.Activator.class"));
-            is = getClass().getResourceAsStream("org/apache/ace/agent/updater/Activator.class");
+            jos.putNextEntry(new JarEntry("org/apache/ace/agent/updater/Activator.class"));
+            is = getClass().getResourceAsStream("/org/apache/ace/agent/updater/Activator.class");
             byte[] buffer = new byte[1024];
             int bytes;
             while ((bytes = is.read(buffer)) != -1) {

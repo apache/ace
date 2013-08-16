@@ -48,13 +48,13 @@ public class Activator implements BundleActivator, Runnable {
 
     @Override
     public void stop(BundleContext context) throws Exception {
-        Thread thread;
-        synchronized (LOCK) {
-            thread = m_updaterThread;
-        }    
-        if (thread != null) {
-            thread.join(60000);
-        }
+//        Thread thread;
+//        synchronized (LOCK) {
+//            thread = m_updaterThread;
+//        }    
+//        if (thread != null) {
+//            thread.join(10000);
+//        }
     }
     
     public void update(Bundle agent, InputStream oldStream, InputStream newStream) {
@@ -71,10 +71,12 @@ public class Activator implements BundleActivator, Runnable {
     public void run() {
         // TODO First fetch both streams and store them in a file inside the bundle cache.
         try {
+            System.out.println("Updating to " + m_newStream);
             m_agent.update(m_newStream);
         }
         catch (BundleException e) {
             try {
+                System.out.println("Reverting to " + m_oldStream);
                 m_agent.update(m_oldStream);
             }
             catch (BundleException e1) {
