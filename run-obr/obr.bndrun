@@ -1,7 +1,6 @@
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runee: JavaSE-1.6
--runbundles: osgi.cmpn,\
-	org.apache.felix.dependencymanager,\
+-runbundles: org.apache.felix.dependencymanager,\
 	org.apache.felix.dependencymanager.shell,\
 	org.apache.felix.log,\
 	org.apache.felix.gogo.runtime,\
@@ -17,7 +16,9 @@
 	org.apache.ace.obr.storage;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
-	org.apache.ace.obr.servlet;version=latest
+	org.apache.ace.obr.servlet;version=latest,\
+	osgi.cmpn
+	
 -runrepos: Workspace,\
 	Release
 -runproperties: org.apache.felix.log.storeDebug=true,\
