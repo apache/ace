@@ -265,11 +265,6 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
             catch (XPathExpressionException e) {
                 throw (AceRestException) new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Agent not found: error parsing OBR").initCause(e);
             }
-            finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            }
             response.setContentType(BUNDLE_MIMETYPE);
             output = response.getOutputStream();
             byte[] buffer = new byte[BUFFER_SIZE];
@@ -277,15 +272,14 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
             while ((bytes = inputStream.read(buffer)) != -1) {
                 output.write(buffer, 0, bytes);
             }
+            output.flush();
+            inputStream.close();
         }
         catch (IllegalArgumentException e) {
             throw (AceRestException) new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid").initCause(e);
         }
         catch (IOException e) {
             throw (AceRestException) new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not deliver package").initCause(e);
-        }
-        finally {
-            tryClose(output);
         }
     }
 
