@@ -45,7 +45,7 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
     private volatile ConnectionHandler m_connectionHandler;
     private volatile ScheduledExecutorService m_executorService;
     private volatile AgentControlImpl m_agentControl;
-    private volatile AgentUpdateHandler m_agentUpdateHandler;
+    private volatile AgentUpdateHandlerImpl m_agentUpdateHandler; // we use the implementation type here on purpose
 
     private volatile DefaultController m_controller;
 
@@ -107,14 +107,19 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
             .setInterface(AgentControl.class.getName(), null)
             .setImplementation(m_agentControl);
         m_manager.add(m_component);
-        if (m_controller != null)
+        if (m_controller != null) {
             m_controller.start();
+        }
+        // at this point we know the agent has started, so any updater bundle that
+        // might still be running can be uninstalled
+        m_agentUpdateHandler.uninstallUpdaterBundle();
     }
 
     void stopAgent() throws Exception {
         System.out.println("Stopping agent");
-        if (m_controller != null)
+        if (m_controller != null) {
             m_controller.stop();
+        }
         m_manager.remove(m_component);
     }
 

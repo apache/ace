@@ -69,6 +69,7 @@ public class Activator implements BundleActivator, Runnable {
     
     @Override
     public void run() {
+        // TODO First fetch both streams and store them in a file inside the bundle cache.
         try {
             m_agent.update(m_newStream);
         }

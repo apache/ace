@@ -36,6 +36,7 @@ import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.RetryAfterException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.util.tracker.ServiceTracker;
@@ -48,6 +49,20 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
     public AgentUpdateHandlerImpl(AgentContext agentContext, BundleContext bundleContext) {
         super(agentContext);
         m_bundleContext = bundleContext;
+    }
+    
+    public void uninstallUpdaterBundle() throws BundleException {
+        for (Bundle b : m_bundleContext.getBundles()) {
+            if (UPDATER_SYMBOLICNAME.equals(b.getSymbolicName())) {
+                try {
+                    b.uninstall();
+                }
+                catch (BundleException e) {
+                    b.stop();
+                    throw e;
+                }
+            }
+        }
     }
 
     @Override
