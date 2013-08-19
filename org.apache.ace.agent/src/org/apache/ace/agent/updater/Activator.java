@@ -18,7 +18,12 @@
  */
 package org.apache.ace.agent.updater;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
@@ -33,43 +38,62 @@ import org.osgi.framework.BundleException;
  * framework. Also, no inner classes are used, to keep all the code in a single class file.
  */
 public class Activator implements BundleActivator, Runnable {
+    private static final int BUFFER_SIZE = 4096;
     private Object LOCK = new Object();
     private BundleContext m_context;
     private Thread m_updaterThread;
     private InputStream m_oldStream;
     private InputStream m_newStream;
     private Bundle m_agent;
+    private File m_oldFile;
+    private File m_newFile;
 
     @Override
     public void start(BundleContext context) throws Exception {
         m_context = context;
         m_context.registerService(Activator.class.getName(), this, null);
+        m_oldFile = m_context.getDataFile("old.jar");
+        m_newFile = m_context.getDataFile("new.jar");
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
-//        Thread thread;
-//        synchronized (LOCK) {
-//            thread = m_updaterThread;
-//        }    
-//        if (thread != null) {
-//            thread.join(10000);
-//        }
     }
     
-    public void update(Bundle agent, InputStream oldStream, InputStream newStream) {
+    public void update(Bundle agent, InputStream oldStream, InputStream newStream) throws IOException {
         synchronized (LOCK) {
             m_updaterThread = new Thread(this, "Apache ACE Management Agent Updater");
             m_agent = agent;
-            m_oldStream = oldStream;
-            m_newStream = newStream;
+            copy(oldStream, new FileOutputStream(m_oldFile));
+            copy(newStream, new FileOutputStream(m_newFile));
+            m_oldStream = new FileInputStream(m_oldFile);
+            m_newStream = new FileInputStream(m_newFile);
         }
         m_updaterThread.start();
     }
     
+    public void copy(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int length;
+        try {
+            while ((length = in.read(buffer)) != -1) {
+                out.write(buffer, 0, length);
+            }
+        }
+        finally {
+            try {
+                in.close();
+            }
+            catch (IOException e) {}
+            try {
+                out.close();
+            }
+            catch (IOException e) {}
+        }
+    }
+    
     @Override
     public void run() {
-        // TODO First fetch both streams and store them in a file inside the bundle cache.
         try {
             System.out.println("Updating to " + m_newStream);
             m_agent.update(m_newStream);
@@ -78,6 +102,7 @@ public class Activator implements BundleActivator, Runnable {
             try {
                 System.out.println("Reverting to " + m_oldStream);
                 m_agent.update(m_oldStream);
+                m_agent.start();
             }
             catch (BundleException e1) {
                 // at this point we simply give up

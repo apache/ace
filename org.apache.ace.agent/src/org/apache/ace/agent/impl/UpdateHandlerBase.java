@@ -31,25 +31,21 @@ import java.util.TreeSet;
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.RetryAfterException;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 
 public class UpdateHandlerBase {
     protected AgentContext m_agentContext;
+    
     public UpdateHandlerBase(AgentContext agentContext) {
         m_agentContext = agentContext;
     }
     
     protected SortedSet<Version> getAvailableVersions(URL endpoint) throws RetryAfterException, IOException {
-    
         SortedSet<Version> versions = new TreeSet<Version>();
-    
         URLConnection connection = null;
         BufferedReader reader = null;
         try {
             connection = getConnection(endpoint);
-    
             // TODO handle problems and retries
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String versionString;
@@ -65,43 +61,48 @@ public class UpdateHandlerBase {
             return versions;
         }
         finally {
-            if (connection != null && connection instanceof HttpURLConnection)
+            if (connection != null && connection instanceof HttpURLConnection) {
                 ((HttpURLConnection) connection).disconnect();
-            if (reader != null)
+            }
+            if (reader != null) {
                 reader.close();
+            }
         }
     }
 
     protected long getPackageSize(URL url) throws RetryAfterException, IOException {
         long packageSize = -1l;
-    
         URLConnection urlConnection = null;
         InputStream inputStream = null;
         try {
             urlConnection = url.openConnection();
-            if (urlConnection instanceof HttpURLConnection)
+            if (urlConnection instanceof HttpURLConnection) {
                 ((HttpURLConnection) urlConnection).setRequestMethod("HEAD");
+            }
     
             String dpSizeHeader = urlConnection.getHeaderField(AgentConstants.HEADER_DPSIZE);
-            if (dpSizeHeader != null)
+            if (dpSizeHeader != null) {
                 try {
                     packageSize = Long.parseLong(dpSizeHeader);
                 }
                 catch (NumberFormatException e) {
                     // ignore
                 }
+            }
             return packageSize;
         }
         finally {
-            if (urlConnection != null && urlConnection instanceof HttpURLConnection)
+            if (urlConnection != null && urlConnection instanceof HttpURLConnection) {
                 ((HttpURLConnection) urlConnection).disconnect();
-            if (inputStream != null)
+            }
+            if (inputStream != null) {
                 try {
                     inputStream.close();
                 }
                 catch (IOException e) {
                     // ignore
                 }
+            }
         }
     }
 
@@ -129,5 +130,4 @@ public class UpdateHandlerBase {
     private URLConnection getConnection(URL url) throws IOException {
         return m_agentContext.getConnectionHandler().getConnection(url);
     }
-
 }

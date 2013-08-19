@@ -93,7 +93,7 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
         }
 
         if (Boolean.parseBoolean(System.getProperty("agent.connectionhandler.disabled"))) {
-            service.add(createServiceDependency().setService(DiscoveryHandler.class).setRequired(true));
+            service.add(createServiceDependency().setService(ConnectionHandler.class).setRequired(true));
         }
         else {
             m_connectionHandler = new ConnectionHandlerImpl(this);

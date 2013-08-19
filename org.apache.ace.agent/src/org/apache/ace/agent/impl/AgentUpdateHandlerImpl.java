@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -42,6 +43,7 @@ import org.osgi.framework.Version;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUpdateHandler {
+    private static final int TIMEOUT = 15000;
     private static final String UPDATER_VERSION = "1.0.0";
     private static final String UPDATER_SYMBOLICNAME = "org.apache.ace.agent.updater";
     private BundleContext m_bundleContext;
@@ -93,23 +95,31 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
     @Override
     public void install(InputStream stream) throws IOException {
         try {
-            InputStream currentBundleVersion = new ByteArrayInputStream(new byte[0]);
+            InputStream currentBundleVersion = getInputStream(m_bundleContext.getBundle().getVersion());
             Bundle bundle = m_bundleContext.installBundle("agent-updater", generateBundle());
             bundle.start();
             ServiceTracker st = new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(" + Constants.OBJECTCLASS + "=org.apache.ace.agent.updater.Activator)"), null);
             st.open(true);
-            Object service = st.waitForService(3000);
+            Object service = st.waitForService(TIMEOUT);
             if (service != null) {
                 Method method = service.getClass().getMethod("update", Bundle.class, InputStream.class, InputStream.class);
                 System.out.println("Method: " + method);
-                method.invoke(service, m_bundleContext.getBundle(), currentBundleVersion, stream);
+                try {
+                    method.invoke(service, m_bundleContext.getBundle(), currentBundleVersion, stream);
+                }
+                catch (InvocationTargetException e) {
+                    bundle.uninstall();
+                }
+                finally {
+                    st.close();
+                }
             }
             else {
-                System.out.println("Error: no service!");
+                throw new IOException("No update service found after launching temporary bundle.");
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            throw new IOException("Could not update management agent.", e);
         }
     }
 
@@ -140,10 +150,16 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
         }
         finally {
             if (is != null) {
-                is.close();
+                try {
+                    is.close();
+                }
+                catch (IOException e) {}
             }
             if (jos != null) {
-                jos.close();
+                try {
+                    jos.close();
+                }
+                catch (IOException e) {}
             }
         }
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
