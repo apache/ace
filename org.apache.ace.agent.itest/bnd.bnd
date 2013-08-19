@@ -3,7 +3,21 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 	org.apache.ace.agent;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
-	osgi.cmpn
+	osgi.cmpn,\
+	org.apache.felix.http.jetty,\
+	org.apache.ace.deployment.servlet;version=latest,\
+	org.apache.ace.deployment.api;version=latest,\
+	org.apache.ace.deployment.streamgenerator;version=latest,\
+	org.apache.ace.authentication.api;version=latest,\
+	org.apache.ace.connectionfactory;version=latest,\
+	org.apache.ace.deployment.provider.api;version=latest,\
+	org.apache.felix.gogo.command,\
+	org.apache.felix.gogo.runtime,\
+	org.apache.felix.gogo.shell,\
+	org.apache.felix.dependencymanager.shell,\
+	org.apache.ace.configurator.impl;version=latest,\
+	org.apache.felix.configadmin,\
+	org.apache.ace.http.listener;version=latest
 Private-Package: org.apache.ace.agent.itest
 -runee: JavaSE-1.6
 -runvm: -ea
@@ -12,8 +26,15 @@ Private-Package: org.apache.ace.agent.itest
 	junit.osgi,\
 	org.mockito.mockito-all,\
 	org.apache.ace.agent;version=latest,\
-	org.apache.ace.test;version=latest
+	org.apache.ace.test;version=latest,\
+	org.apache.felix.dependencymanager,\
+	org.apache.felix.http.jetty
 -runsystempackages: sun.reflect
+-runproperties: org.apache.felix.log.storeDebug=true,\
+	org.apache.felix.eventadmin.Timeout=0,\
+	org.apache.ace.server.port=8080,\
+	org.osgi.service.http.port=8080,\
+	org.apache.felix.log.maxSize=1000
 Import-Package: org.apache.ace.agent,\
 	*
 Bundle-Version: 1.0.0
