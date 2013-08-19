@@ -20,6 +20,7 @@ package org.apache.ace.agent.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -29,6 +30,7 @@ import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DeploymentHandler;
+import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.agent.RetryAfterException;
 import org.osgi.framework.Version;
 
@@ -60,7 +62,8 @@ public class DefaultController implements Runnable {
         long syncInterval = getSyncInterval();
         try {
             runSafeAgent();
-            //runSafe();
+            // runSafeUpdate();
+            runSafeFeedback();
         }
         catch (RetryAfterException e) {
             syncInterval = e.getSeconds();
@@ -76,7 +79,7 @@ public class DefaultController implements Runnable {
         reSchedule(syncInterval);
     }
 
-    public void runSafe() throws RetryAfterException, IOException {
+    private void runSafeUpdate() throws RetryAfterException, IOException {
 
         DeploymentHandler deploymentHandler = getDeploymentHandler();
 
@@ -97,7 +100,17 @@ public class DefaultController implements Runnable {
             }
         }
     }
-    public void runSafeAgent() throws RetryAfterException, IOException {
+
+    private void runSafeFeedback() throws RetryAfterException, IOException {
+        List<String> channelNames = m_agentControl.getFeedbackChannelNames();
+        for (String channelName : channelNames) {
+            FeedbackChannel channel = m_agentControl.getFeedbackChannel(channelName);
+            if (channel != null)
+                channel.sendFeedback();
+        }
+    }
+
+    private void runSafeAgent() throws RetryAfterException, IOException {
 
         AgentUpdateHandler deploymentHandler = getAgentUpdateHandler();
 

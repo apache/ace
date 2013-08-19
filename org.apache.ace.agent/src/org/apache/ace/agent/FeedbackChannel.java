@@ -40,5 +40,5 @@ public interface FeedbackChannel {
      * @param type
      * @param properties
      */
-    void write(int type, Map<String, String> properties);
+    void write(int type, Map<String, String> properties) throws IOException;
 }

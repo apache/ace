@@ -3,10 +3,12 @@ Bundle-Description: Implementation of the Apache ACE Agent
 Bundle-Version: 1.0.0
 Bundle-Activator: org.apache.ace.agent.impl.Activator
 
-Private-Package: \
+Private-Package: org.apache.ace.range,\
+	org.apache.ace.log.util,\
+	org.apache.ace.log,\
 	org.apache.ace.agent.impl,\
 	org.apache.ace.agent.updater,\
-    org.apache.commons.codec,\
+	org.apache.commons.codec,\
 	org.apache.commons.codec.binary,\
 	org.apache.commons.codec.digest,\
 	org.apache.commons.codec.language,\
@@ -45,7 +47,9 @@ Export-Package: org.apache.ace.agent,\
 	org.easymock,\
 	org.apache.felix.dependencymanager,\
 	commons-codec;version=1.4.0,\
-	org.apache.felix.http.jetty;version=2.2.1
+	org.apache.felix.http.jetty;version=2.2.1,\
+	org.apache.ace.range.api;version=latest,\
+	org.apache.ace.log.api;version=latest
 
 -sources false
 -runfw: org.apache.felix.framework;version='[4.0.3,4.0.3]'

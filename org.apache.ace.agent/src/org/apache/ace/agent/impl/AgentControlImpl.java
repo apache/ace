@@ -18,7 +18,11 @@
  */
 package org.apache.ace.agent.impl;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.AgentUpdateHandler;
@@ -31,8 +35,12 @@ public class AgentControlImpl implements AgentControl {
 
     private final AgentContext m_agentContext;
 
-    public AgentControlImpl(AgentContext agentContext) {
+    private final Map<String, FeedbackChannelImpl> m_feedbackChannels = new HashMap<String, FeedbackChannelImpl>();
+
+    public AgentControlImpl(AgentContext agentContext) throws IOException {
         m_agentContext = agentContext;
+        // TODO get from configuration
+        m_feedbackChannels.put("auditlog", new FeedbackChannelImpl(m_agentContext, "auditlog"));
     }
 
     @Override
@@ -52,16 +60,17 @@ public class AgentControlImpl implements AgentControl {
 
     @Override
     public List<String> getFeedbackChannelNames() {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO get from configuration
+        List<String> channels = new ArrayList<String>();
+        channels.addAll(m_feedbackChannels.keySet());
+        return channels;
     }
 
     @Override
     public FeedbackChannel getFeedbackChannel(String name) {
-        // TODO Auto-generated method stub
-        return null;
+        return m_feedbackChannels.get(name);
     }
-    
+
     @Override
     public AgentUpdateHandler getAgentUpdateHandler() {
         return m_agentContext.getAgentUpdateHandler();

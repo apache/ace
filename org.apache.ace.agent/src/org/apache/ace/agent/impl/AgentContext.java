@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
+import java.io.File;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.ace.agent.AgentUpdateHandler;
@@ -31,18 +32,20 @@ import org.apache.ace.agent.IdentificationHandler;
 public interface AgentContext {
 
     IdentificationHandler getIdentificationHandler();
-    
+
     DiscoveryHandler getDiscoveryHandler();
 
     ConnectionHandler getConnectionHandler();
-    
+
     DeploymentHandler getDeploymentHandler();
-    
+
     DownloadHandler getDownloadHandler();
-    
+
     ScheduledExecutorService getExecutorService();
-    
+
     ConfigurationHandler getConfigurationHandler();
 
     AgentUpdateHandler getAgentUpdateHandler();
+
+    File getWorkDir();
 }

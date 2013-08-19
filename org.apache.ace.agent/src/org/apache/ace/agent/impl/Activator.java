@@ -18,6 +18,8 @@
  */
 package org.apache.ace.agent.impl;
 
+import java.io.File;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -33,6 +35,8 @@ import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
 // TODO Decouple from DM to save 170k in agent size. Or: just include what we use
 public class Activator extends DependencyActivatorBase implements AgentContext {
@@ -47,15 +51,19 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
     private volatile AgentControlImpl m_agentControl;
     private volatile AgentUpdateHandlerImpl m_agentUpdateHandler; // we use the implementation type here on purpose
 
-    private volatile DefaultController m_controller;
+    private volatile EventLoggerImpl m_eventLogger;
+    private volatile DefaultController m_defaultController;
 
-    private DependencyManager m_manager;
-    private Component m_component;
+    private BundleContext m_bundleContext;
+    private DependencyManager m_dependencyManager;
+    private Component m_agentControlComponent;
+    private Component m_eventLoggerComponent;
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
 
-        m_manager = manager;
+        m_bundleContext = context;
+        m_dependencyManager = manager;
 
         m_executorService = Executors.newScheduledThreadPool(1);
         m_configurationHandler = new ConfigurationHandlerImpl(this);
@@ -66,6 +74,7 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
 
         Component service = createComponent().setImplementation(this)
             .setCallbacks("initAgent", "startAgent", "stopAgent", "destroyAgent")
+            .setAutoConfig(BundleContext.class, false)
             .setAutoConfig(DependencyManager.class, false)
             .setAutoConfig(Component.class, false);
 
@@ -91,9 +100,11 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
         }
 
         if (!Boolean.parseBoolean(System.getProperty("agent.defaultcontroller.disabled"))) {
-            m_controller = new DefaultController(m_agentControl, m_executorService);
+            m_defaultController = new DefaultController(m_agentControl, m_executorService);
         }
-        
+
+        m_eventLogger = new EventLoggerImpl(m_agentControl, m_bundleContext);
+
         manager.add(service);
     }
 
@@ -103,12 +114,25 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
 
     void startAgent() throws Exception {
         System.out.println("Starting agent!");
-        m_component = createComponent()
+
+        m_agentControlComponent = createComponent()
             .setInterface(AgentControl.class.getName(), null)
             .setImplementation(m_agentControl);
-        m_manager.add(m_component);
-        if (m_controller != null) {
-            m_controller.start();
+        m_dependencyManager.add(m_agentControlComponent);
+
+        m_eventLoggerComponent = createComponent()
+            .setInterface(EventHandler.class.getName(), new Properties() {
+                {
+                    put(EventConstants.EVENT_TOPIC, EventLoggerImpl.TOPICS_INTEREST);
+                }
+            })
+            .setImplementation(m_eventLogger);
+        m_dependencyManager.add(m_eventLoggerComponent);
+        m_bundleContext.addBundleListener(m_eventLogger);
+        m_bundleContext.addFrameworkListener(m_eventLogger);
+
+        if (m_defaultController != null) {
+            m_defaultController.start();
         }
         // at this point we know the agent has started, so any updater bundle that
         // might still be running can be uninstalled
@@ -117,10 +141,15 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
 
     void stopAgent() throws Exception {
         System.out.println("Stopping agent");
-        if (m_controller != null) {
-            m_controller.stop();
+        if (m_defaultController != null) {
+            m_defaultController.stop();
         }
-        m_manager.remove(m_component);
+
+        m_bundleContext.removeFrameworkListener(m_eventLogger);
+        m_bundleContext.removeBundleListener(m_eventLogger);
+        m_dependencyManager.remove(m_eventLoggerComponent);
+
+        m_dependencyManager.remove(m_agentControlComponent);
     }
 
     @Override
@@ -157,9 +186,14 @@ public class Activator extends DependencyActivatorBase implements AgentContext {
     public DownloadHandler getDownloadHandler() {
         return m_downloadHandler;
     }
-    
+
     @Override
     public AgentUpdateHandler getAgentUpdateHandler() {
         return m_agentUpdateHandler;
+    }
+
+    @Override
+    public File getWorkDir() {
+        return m_bundleContext.getDataFile("");
     }
 }
