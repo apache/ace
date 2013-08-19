@@ -49,6 +49,8 @@ public class CustomControllerTest extends BaseAgentTest {
     Version m_version2 = Version.parseVersion("2.0.0");
     Version m_version3 = Version.parseVersion("3.0.0");
     SortedSet<Version> m_availableVersions = new TreeSet<Version>();
+
+    File m_workDir;
     File m_dummyFile;
     URL m_dummyFileUrl;
     InputStream m_dummyInputStream;
@@ -63,6 +65,9 @@ public class CustomControllerTest extends BaseAgentTest {
         m_dummyFile = File.createTempFile("mock", ".txt");
         m_dummyFile.deleteOnExit();
         m_dummyFileUrl = m_dummyFile.toURI().toURL();
+        
+        m_workDir = new File(m_dummyFile.getParentFile(), "test-" + System.currentTimeMillis());
+        m_workDir.mkdir();
     }
 
     @BeforeMethod
@@ -87,6 +92,7 @@ public class CustomControllerTest extends BaseAgentTest {
 
         AgentContext agentContext = addTestMock(AgentContext.class);
         expect(agentContext.getDeploymentHandler()).andReturn(deploymentHandler).anyTimes();
+        expect(agentContext.getWorkDir()).andReturn(m_workDir).anyTimes();
 
         replayTestMocks();
         m_agentControl = new AgentControlImpl(agentContext);

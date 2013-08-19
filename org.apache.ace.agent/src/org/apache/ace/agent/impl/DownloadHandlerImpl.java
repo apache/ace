@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandler;
+import org.osgi.service.log.LogService;
 
 public class DownloadHandlerImpl implements DownloadHandler {
 
@@ -50,14 +51,14 @@ public class DownloadHandlerImpl implements DownloadHandler {
     }
 
     void logDebug(String message, Object... args) {
-        System.err.println(String.format(message, args));
+        m_agentContext.getLogService().log(LogService.LOG_DEBUG, message);
     }
 
     void logInfo(String message, Object... args) {
-        System.err.println(String.format(message, args));
+        m_agentContext.getLogService().log(LogService.LOG_INFO, message);
     }
 
     void logWarning(String message, Object... args) {
-        System.err.println(String.format(message, args));
+        m_agentContext.getLogService().log(LogService.LOG_WARNING, message);
     }
 }

@@ -47,7 +47,7 @@ public class DiscoveryHandlerImpl implements DiscoveryHandler {
         m_agentContext = agentContext;
     }
 
-    // TODO Pretty naive implementation below. It always takes the first configurred URL it can connect to and is not
+    // TODO Pretty naive implementation below. It always takes the first configured URL it can connect to and is not
     // thread-safe.
     @Override
     public URL getServerUrl() {

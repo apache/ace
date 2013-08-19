@@ -31,6 +31,10 @@ import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandler;
 import org.apache.ace.agent.FeedbackChannel;
 
+/**
+ * Implementation of the public agent control service.
+ * 
+ */
 public class AgentControlImpl implements AgentControl {
 
     private final AgentContext m_agentContext;

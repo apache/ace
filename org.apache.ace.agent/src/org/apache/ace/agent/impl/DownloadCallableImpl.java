@@ -88,7 +88,7 @@ class DownloadCallableImpl implements Callable<Void> {
             long targetSize = m_target.length();
             if (targetSize > 0) {
                 String rangeHeader = "bytes=" + targetSize + "-";
-                m_handle.logDebug("Requesting Range %s", targetSize, rangeHeader);
+                m_handle.logDebug("Requesting Range %s", rangeHeader);
                 httpUrlConnection.setRequestProperty("Range", rangeHeader);
             }
 

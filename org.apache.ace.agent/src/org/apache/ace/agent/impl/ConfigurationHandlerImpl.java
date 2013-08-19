@@ -38,7 +38,7 @@ public class ConfigurationHandlerImpl implements ConfigurationHandler {
 
     @Override
     public long getSyncInterval() {
-        return 3;
+        return 10;
     }
 
     @Override

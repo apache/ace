@@ -27,19 +27,15 @@ import java.util.SortedSet;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.RetryAfterException;
-import org.apache.felix.deploymentadmin.DeploymentAdminImpl;
 import org.osgi.framework.Version;
 import org.osgi.service.deploymentadmin.DeploymentAdmin;
 import org.osgi.service.deploymentadmin.DeploymentException;
 import org.osgi.service.deploymentadmin.DeploymentPackage;
 
 public class DeploymentHandlerImpl extends UpdateHandlerBase implements DeploymentHandler {
-    private DeploymentAdmin m_deploymentAdmin;
 
-    public DeploymentHandlerImpl(AgentContext agentContext) {
-        // TODO that DeploymentAdminImpl needs to be injected with several services for it to work
-        this(agentContext, new DeploymentAdminImpl());
-    }
+    private final AgentContext m_agentContext;
+    private final DeploymentAdmin m_deploymentAdmin;
 
     public DeploymentHandlerImpl(AgentContext agentContext, DeploymentAdmin deploymentAdmin) {
         super(agentContext);
@@ -70,7 +66,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
             e.printStackTrace();
         }
     }
-    
+
     @Override
     public long getPackageSize(Version version, boolean fixPackage) throws RetryAfterException, IOException {
         return getPackageSize(getPackageURL(version, fixPackage));
@@ -80,25 +76,19 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
     public InputStream getInputStream(Version version, boolean fixPackage) throws RetryAfterException, IOException {
         return getInputStream(getPackageURL(version, fixPackage));
     };
-    
+
     @Override
     public DownloadHandle getDownloadHandle(Version version, boolean fixPackage) {
         return getDownloadHandle(getPackageURL(version, fixPackage));
     };
-    
+
     @Override
-    public SortedSet<Version> getAvailableVersions() throws RetryAfterException ,IOException {
+    public SortedSet<Version> getAvailableVersions() throws RetryAfterException, IOException {
         return getAvailableVersions(getEndpoint(getServerURL(), getIdentification()));
     };
-    
+
     private URL getPackageURL(Version version, boolean fixPackage) {
-        URL url = null;
-        if (fixPackage) {
-            url = getEndpoint(getServerURL(), getIdentification(), getInstalledVersion(), version);
-        }
-        else {
-            url = getEndpoint(getServerURL(), getIdentification(), version);
-        }
+        URL url = getEndpoint(getServerURL(), getIdentification(), fixPackage ? getInstalledVersion() : Version.emptyVersion, version);
         return url;
     }
 
@@ -111,18 +101,14 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
         }
     }
 
-    private URL getEndpoint(URL serverURL, String identification, Version version) {
-        try {
-            return new URL(serverURL, "deployment/" + identification + "/versions/" + version.toString());
-        }
-        catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     private URL getEndpoint(URL serverURL, String identification, Version from, Version to) {
         try {
-            return new URL(serverURL, "deployment/" + identification + "/versions/" + to.toString() + "?current=" + from);
+            if (from == null || from.equals(Version.emptyVersion)) {
+                return new URL(serverURL, "deployment/" + identification + "/versions/" + to.toString());
+            }
+            else {
+                return new URL(serverURL, "deployment/" + identification + "/versions/" + to.toString() + "?current=" + from);
+            }
         }
         catch (MalformedURLException e) {
             throw new IllegalStateException(e);
