@@ -150,24 +150,24 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
 
     public UrlCredentials getCredentials() {
 
-        String configValue = getConfigurationValue(PROP_AUTHTYPE);
+        String configValue = getConfigStringValue(PROP_AUTHTYPE);
         AuthType authType = AuthType.getAuthType(configValue == null ? "" : configValue.trim().toUpperCase());
         if (authType == null || authType == AuthType.NONE) {
             return UrlCredentials.EMPTY_CREDENTIALS;
         }
 
         if (authType == AuthType.BASIC) {
-            String username = getConfigurationValue(PROP_AUTHUSER);
-            String password = getConfigurationValue(PROP_AUTHPASS);
+            String username = getConfigStringValue(PROP_AUTHUSER);
+            String password = getConfigStringValue(PROP_AUTHPASS);
             return new UrlCredentials(AuthType.BASIC,
                 new Object[] { username == null ? "" : username, password == null ? "" : password });
         }
 
         if (authType == AuthType.CLIENT_CERT) {
-            String keystoreFile = getConfigurationValue(PROP_AUTHKEYFILE);
-            String keystorePass = getConfigurationValue(PROP_AUTHKEYPASS);
-            String truststoreFile = getConfigurationValue(PROP_AUTHTRUSTFILE);
-            String truststorePass = getConfigurationValue(PROP_AUTHTRUSTPASS);
+            String keystoreFile = getConfigStringValue(PROP_AUTHKEYFILE);
+            String keystorePass = getConfigStringValue(PROP_AUTHKEYPASS);
+            String truststoreFile = getConfigStringValue(PROP_AUTHTRUSTFILE);
+            String truststorePass = getConfigStringValue(PROP_AUTHTRUSTPASS);
 
             // TODO This is expensive. Can we cache?
             try {
@@ -185,8 +185,8 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return null;
     }
 
-    private String getConfigurationValue(String key) {
-        return m_agentContext.getConfigurationHandler().getMap().get(key);
+    private String getConfigStringValue(String key) {
+        return m_agentContext.getConfigurationHandler().get(key, null);
     }
 
     private static KeyManager[] getKeyManagerFactory(String keystoreFile, String storePass) throws IOException, GeneralSecurityException {

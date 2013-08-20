@@ -18,81 +18,195 @@
  */
 package org.apache.ace.agent.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
-import java.util.Map;
-import java.util.logging.Level;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
 
 import org.apache.ace.agent.ConfigurationHandler;
+import org.osgi.service.log.LogService;
 
 public class ConfigurationHandlerImpl implements ConfigurationHandler {
 
     private final AgentContext m_agentContext;
+    private Properties m_configProps = null;
 
     public ConfigurationHandlerImpl(AgentContext agentContext) {
         m_agentContext = agentContext;
     }
 
-    @Override
-    public void setSyncInterval(long seconds) {
+    public void start() throws Exception {
+        synchronized (this) {
+            loadSystemProps();
+        }
     }
 
     @Override
-    public long getSyncInterval() {
-        return 10;
+    public Set<String> keySet() {
+        Set<String> keySet = new HashSet<String>();
+        synchronized (this) {
+            ensureLoadConfig();
+            for (Object key : m_configProps.keySet()) {
+                keySet.add((String) key);
+            }
+        }
+        return Collections.unmodifiableSet(keySet);
     }
 
     @Override
-    public void setSyncRetries(int value) {
+    public void put(String key, String value) {
+        ensureNotEmpty(key);
+        ensureNotEmpty(value);
+        synchronized (this) {
+            ensureLoadConfig();
+            String previous = (String) m_configProps.put(key, value);
+            if (previous == null || !previous.equals(value)) {
+                ensureStoreConfig();
+            }
+        }
     }
 
     @Override
-    public int getSyncRetries() {
-        return 3;
+    public void remove(String key) {
+        ensureNotEmpty(key);
+        synchronized (this) {
+            ensureLoadConfig();
+            Object value = m_configProps.remove(key);
+            if (value != null) {
+                ensureStoreConfig();
+            }
+        }
     }
 
     @Override
-    public void setUpdateStreaming(boolean flag) {
+    public String get(String key, String defaultValue) {
+        ensureNotEmpty(key);
+        synchronized (this) {
+            ensureLoadConfig();
+            String value = (String) m_configProps.get(key);
+            if (value == null) {
+                value = defaultValue;
+            }
+            return value;
+        }
     }
 
     @Override
-    public boolean getUpdateStreaming() {
-        return false;
+    public long getLong(String key, long defaultValue) {
+        String value = get(key, "");
+        if (value.equals("")) {
+            return defaultValue;
+        }
+        return Long.parseLong(value);
     }
 
     @Override
-    public void setStopUnaffected(boolean flag) {
+    public void putLong(String key, long value) {
+        put(key, String.valueOf(value));
     }
 
     @Override
-    public boolean getStopUnaffected() {
-        return false;
+    public boolean getBoolean(String key, boolean defaultValue) {
+        String value = get(key, "");
+        if (value.equals("")) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(value);
     }
 
     @Override
-    public void setFixPackage(boolean flag) {
+    public void putBoolean(String key, boolean value) {
+        put(key, String.valueOf(value));
     }
 
-    @Override
-    public boolean getFixPackages() {
-        return false;
+    private void loadSystemProps() {
+        ensureLoadConfig();
+        for (Entry<Object, Object> entry : System.getProperties().entrySet()) {
+            String key = (String) entry.getKey();
+            if (key.startsWith(CONFIG_KEY_NAMESPACE) && !key.endsWith(CONFIG_KEY_OVERRIDEPOSTFIX)) {
+                if (!m_configProps.containsKey(key)
+                    || Boolean.parseBoolean(System.getProperties().getProperty(key + CONFIG_KEY_OVERRIDEPOSTFIX))) {
+                    m_configProps.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+        ensureStoreConfig();
     }
 
-    @Override
-    public void setLogLevel(Level level) {
+    private void ensureLoadConfig() {
+        if (m_configProps != null) {
+            return;
+        }
+        try {
+            m_configProps = new Properties();
+            loadConfig();
+        }
+        catch (IOException e) {
+            m_agentContext.getLogService().log(LogService.LOG_ERROR, "Load config failed", e);
+            throw new IllegalStateException("Load config failed", e);
+        }
     }
 
-    @Override
-    public Level getLogLevel() {
-        return null;
+    private void ensureStoreConfig() {
+        if (m_configProps == null) {
+            return;
+        }
+        try {
+            storeConfig();
+        }
+        catch (IOException e) {
+            m_agentContext.getLogService().log(LogService.LOG_ERROR, "Storing config failed", e);
+            throw new IllegalStateException("Store config failed", e);
+        }
     }
 
-    @Override
-    public void setMap(Map<String, String> configuration) {
+    private void loadConfig() throws IOException {
+        File configFile = getConfigFile();
+        InputStream input = new FileInputStream(configFile);
+        try {
+            m_configProps.clear();
+            m_configProps.load(input);
+        }
+        finally {
+            input.close();
+        }
     }
 
-    @Override
-    public Map<String, String> getMap() {
-        return Collections.EMPTY_MAP;
+    private void storeConfig() throws IOException {
+        OutputStream output = null;
+        try {
+            output = new FileOutputStream(getConfigFile());
+            m_configProps.store(output, "ACE Agent configuration");
+        }
+        finally {
+            output.close();
+        }
+    }
+
+    private File getConfigFile() throws IOException {
+        File file = new File(getConfigDir(), "config.properties");
+        if (!file.exists() && !file.createNewFile())
+            throw new IOException("Unable to acces configuration file: " + file.getAbsolutePath());
+        return file;
+    }
+
+    private File getConfigDir() throws IOException {
+        File dir = new File(m_agentContext.getWorkDir(), "config");
+        if (!dir.exists() && !dir.mkdir())
+            throw new IOException("Unable to acces configuration directory: " + dir.getAbsolutePath());
+        return dir;
+    }
+
+    private static void ensureNotEmpty(String value) {
+        if (value == null || value.equals(""))
+            throw new IllegalArgumentException("Can not pass null as an argument");
     }
 
 }

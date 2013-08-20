@@ -18,7 +18,11 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.notNull;
+import static org.easymock.EasyMock.reset;
 import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
@@ -68,12 +72,13 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
 
     }
 
-    Map<String, String> m_configuration = new HashMap<String, String>();
-    ConnectionHandler m_connectionHandler;
-    TestWebServer m_webServer;
-    String m_user = "Mickey";
-    String m_pass = "Mantle";
-    URL m_basicAuthURL;
+    private Map<String, String> m_configuration = new HashMap<String, String>();
+    private ConnectionHandler m_connectionHandler;
+    private TestWebServer m_webServer;
+    private String m_user = "Mickey";
+    private String m_pass = "Mantle";
+    private URL m_basicAuthURL;
+    private ConfigurationHandler m_configurationHandler;
 
     @BeforeTest
     public void setUpAgain() throws Exception {
@@ -84,14 +89,12 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
         m_webServer.addServlet(new BasicAuthServlet(m_user, m_pass), "/basicauth/*");
         m_webServer.start();
 
-        ConfigurationHandler configurationHandler = addTestMock(ConfigurationHandler.class);
-        expect(configurationHandler.getMap()).andReturn(m_configuration).anyTimes();
-
+        m_configurationHandler = addTestMock(ConfigurationHandler.class);
         AgentContext agentContext = addTestMock(AgentContext.class);
-        expect(agentContext.getConfigurationHandler()).andReturn(configurationHandler).anyTimes();
-
-        replayTestMocks();
         m_connectionHandler = new ConnectionHandlerImpl(agentContext);
+
+        expect(agentContext.getConfigurationHandler()).andReturn(m_configurationHandler).anyTimes();
+        replayTestMocks();
     }
 
     @AfterTest
@@ -102,16 +105,21 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
 
     @Test
     public void testBasicAuthFORBIDDEN() throws Exception {
-        m_configuration.clear();
+        reset(m_configurationHandler);
+        expect(m_configurationHandler.get(notNull(String.class), anyObject(String.class))).andReturn(null).anyTimes();
+        replay(m_configurationHandler);
         HttpURLConnection connection = (HttpURLConnection) m_connectionHandler.getConnection(m_basicAuthURL);
         assertEquals(connection.getResponseCode(), HttpServletResponse.SC_FORBIDDEN);
+        
     }
 
     @Test
     public void testBasicAuthOK() throws Exception {
-        m_configuration.put(ConnectionHandlerImpl.PROP_AUTHTYPE, "BASIC");
-        m_configuration.put(ConnectionHandlerImpl.PROP_AUTHUSER, m_user);
-        m_configuration.put(ConnectionHandlerImpl.PROP_AUTHPASS, m_pass);
+        reset(m_configurationHandler);
+        expect(m_configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class))).andReturn("BASIC").anyTimes();
+        expect(m_configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHUSER), anyObject(String.class))).andReturn(m_user).anyTimes();
+        expect(m_configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHPASS), anyObject(String.class))).andReturn(m_pass).anyTimes();
+        replay(m_configurationHandler);
         HttpURLConnection connection = (HttpURLConnection) m_connectionHandler.getConnection(m_basicAuthURL);
         assertEquals(connection.getResponseCode(), HttpServletResponse.SC_OK);
     }

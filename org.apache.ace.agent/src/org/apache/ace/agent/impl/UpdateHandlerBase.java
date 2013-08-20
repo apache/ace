@@ -35,11 +35,11 @@ import org.osgi.framework.Version;
 
 public class UpdateHandlerBase {
     protected AgentContext m_agentContext;
-    
+
     public UpdateHandlerBase(AgentContext agentContext) {
         m_agentContext = agentContext;
     }
-    
+
     protected SortedSet<Version> getAvailableVersions(URL endpoint) throws RetryAfterException, IOException {
         SortedSet<Version> versions = new TreeSet<Version>();
         URLConnection connection = null;
@@ -79,7 +79,7 @@ public class UpdateHandlerBase {
             if (urlConnection instanceof HttpURLConnection) {
                 ((HttpURLConnection) urlConnection).setRequestMethod("HEAD");
             }
-    
+
             String dpSizeHeader = urlConnection.getHeaderField(AgentConstants.HEADER_DPSIZE);
             if (dpSizeHeader != null) {
                 try {
@@ -120,11 +120,16 @@ public class UpdateHandlerBase {
     }
 
     protected String getIdentification() {
-        return m_agentContext.getIdentificationHandler().getIdentification();
+        return m_agentContext.getIdentificationHandler().getAgentId();
     }
 
-    protected URL getServerURL() {
-        return m_agentContext.getDiscoveryHandler().getServerUrl();
+    protected URL getServerURL() throws RetryAfterException {
+        // FIXME not sure if this is the proper place
+        URL serverURL = m_agentContext.getDiscoveryHandler().getServerUrl();
+        if (serverURL == null) {
+            throw new RetryAfterException(10);
+        }
+        return serverURL;
     }
 
     private URLConnection getConnection(URL url) throws IOException {

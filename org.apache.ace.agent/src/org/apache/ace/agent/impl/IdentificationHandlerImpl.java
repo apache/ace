@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
+import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.IdentificationHandler;
 
 /**
@@ -27,12 +28,14 @@ import org.apache.ace.agent.IdentificationHandler;
  */
 public class IdentificationHandlerImpl implements IdentificationHandler {
 
+    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + ".identification";
+
     /**
      * Configuration key for the default identification handler. The value must be a single file-system and URL safe
      * string.
      */
-    // TODO move to and validate in configuration handler?
-    public static final String IDENTIFICATION_CONFIG_KEY = "agent.discovery";
+    public static final String CONFIG_KEY_IDENTIFICATION = CONFIG_KEY_BASE + ".agentId";
+    public static final String CONFIG_DEFAULT_AGENTID = "defaultTargetID";
 
     private final AgentContext m_agentContext;
 
@@ -40,15 +43,10 @@ public class IdentificationHandlerImpl implements IdentificationHandler {
         m_agentContext = agentContext;
     }
 
-    // TODO add a default fallback?
     @Override
-    public String getIdentification() {
-        String configValue = m_agentContext.getConfigurationHandler().getMap().get(IDENTIFICATION_CONFIG_KEY);
-        if (configValue == null)
-            return "defaultTargetID";
-        configValue = configValue.trim();
-        if (configValue.equals(""))
-            return null;
+    public String getAgentId() {
+        ConfigurationHandler configurationHandler = m_agentContext.getConfigurationHandler();
+        String configValue = configurationHandler.get(CONFIG_KEY_IDENTIFICATION, CONFIG_DEFAULT_AGENTID);
         return configValue;
     }
 }

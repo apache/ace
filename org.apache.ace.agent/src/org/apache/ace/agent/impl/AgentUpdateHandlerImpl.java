@@ -52,7 +52,7 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
         super(agentContext);
         m_bundleContext = bundleContext;
     }
-    
+
     public void uninstallUpdaterBundle() throws BundleException {
         for (Bundle b : m_bundleContext.getBundles()) {
             if (UPDATER_SYMBOLICNAME.equals(b.getSymbolicName())) {
@@ -153,13 +153,15 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
                 try {
                     is.close();
                 }
-                catch (IOException e) {}
+                catch (IOException e) {
+                }
             }
             if (jos != null) {
                 try {
                     jos.close();
                 }
-                catch (IOException e) {}
+                catch (IOException e) {
+                }
             }
         }
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());

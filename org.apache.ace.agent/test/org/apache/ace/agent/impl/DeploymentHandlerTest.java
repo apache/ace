@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.notNull;
 import static org.testng.Assert.assertEquals;
@@ -146,13 +147,13 @@ public class DeploymentHandlerTest extends BaseAgentTest {
         expect(deploymentPackage3.getVersion()).andReturn(Version.parseVersion("3.0.0")).anyTimes();
 
         IdentificationHandler identificationHandler = addTestMock(IdentificationHandler.class);
-        expect(identificationHandler.getIdentification()).andReturn(identification).anyTimes();
+        expect(identificationHandler.getAgentId()).andReturn(identification).anyTimes();
 
         DiscoveryHandler discoveryHandler = addTestMock(DiscoveryHandler.class);
         expect(discoveryHandler.getServerUrl()).andReturn(serverURL).anyTimes();
 
         ConfigurationHandler configurationHandler = addTestMock(ConfigurationHandler.class);
-        expect(configurationHandler.getMap()).andReturn(new HashMap<String, String>()).anyTimes();
+        expect(configurationHandler.get(notNull(String.class), anyObject(String.class))).andReturn(null).anyTimes();
 
         DeploymentAdmin deploymentAdmin = addTestMock(DeploymentAdmin.class);
         expect(deploymentAdmin.listDeploymentPackages()).andReturn(

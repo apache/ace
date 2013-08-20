@@ -61,7 +61,7 @@ public class Activator extends DependencyActivatorBase {
     private AgentControl m_agentControl;
     private ScheduledExecutorService m_executorService;
     private AgentUpdateHandlerImpl m_agentUpdateHandler; // we use the implementation type here on purpose
-    private DeploymentAdmin m_deploymentAdmin;
+    private DeploymentAdmin m_internalDeploymentAdmin;
     private Component m_agentControlComponent = null;
     private Component m_defaultControllerComponent = null;
     private EventLoggerImpl m_eventLoggerImpl;
@@ -75,11 +75,11 @@ public class Activator extends DependencyActivatorBase {
 
         m_executorService = Executors.newScheduledThreadPool(1, new InternalThreadFactory());
 
-        m_deploymentAdmin = new DeploymentAdminImpl();
-        configureField(m_deploymentAdmin, BundleContext.class, context);
-        configureField(m_deploymentAdmin, PackageAdmin.class, null);
-        configureField(m_deploymentAdmin, EventAdmin.class, m_internalEventAdmin);
-        configureField(m_deploymentAdmin, LogService.class, m_internalLogService);
+        m_internalDeploymentAdmin = new DeploymentAdminImpl();
+        configureField(m_internalDeploymentAdmin, BundleContext.class, context);
+        configureField(m_internalDeploymentAdmin, PackageAdmin.class, null);
+        configureField(m_internalDeploymentAdmin, EventAdmin.class, m_internalEventAdmin);
+        configureField(m_internalDeploymentAdmin, LogService.class, m_internalLogService);
 
         m_agentContext = new AgentContextImpl(context.getDataFile(""));
         m_agentControl = new AgentControlImpl(m_agentContext);
@@ -90,7 +90,7 @@ public class Activator extends DependencyActivatorBase {
         configureField(m_agentContext, LogService.class, m_internalLogService);
         configureField(m_agentContext, ConfigurationHandler.class, new ConfigurationHandlerImpl(m_agentContext));
         configureField(m_agentContext, ConnectionHandler.class, new ConnectionHandlerImpl(m_agentContext));
-        configureField(m_agentContext, DeploymentHandler.class, new DeploymentHandlerImpl(m_agentContext, m_deploymentAdmin));
+        configureField(m_agentContext, DeploymentHandler.class, new DeploymentHandlerImpl(m_agentContext, m_internalDeploymentAdmin));
         configureField(m_agentContext, DiscoveryHandler.class, new DiscoveryHandlerImpl(m_agentContext));
         configureField(m_agentContext, DownloadHandler.class, new DownloadHandlerImpl(m_agentContext));
         configureField(m_agentContext, IdentificationHandler.class, new IdentificationHandlerImpl(m_agentContext));
@@ -136,14 +136,14 @@ public class Activator extends DependencyActivatorBase {
     synchronized void packageAdminAdded(PackageAdmin packageAdmin) {
         if (m_packageAdmin == null) {
             m_packageAdmin = packageAdmin;
-            configureField(m_deploymentAdmin, PackageAdmin.class, packageAdmin);
+            configureField(m_internalDeploymentAdmin, PackageAdmin.class, packageAdmin);
         }
     }
 
     synchronized void packageAdminRemoved(PackageAdmin packageAdmin) {
         if (m_packageAdmin == packageAdmin) {
             m_packageAdmin = null;
-            configureField(m_deploymentAdmin, PackageAdmin.class, null);
+            configureField(m_internalDeploymentAdmin, PackageAdmin.class, null);
         }
     }
 
@@ -164,7 +164,8 @@ public class Activator extends DependencyActivatorBase {
     void startAgent() throws Exception {
 
         m_internalLogService.log(LogService.LOG_INFO, "Starting agent...");
-        invokeMethod(m_deploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
+        invokeMethod(m_internalDeploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
+        invokeMethod(m_agentContext, "start", new Class<?>[] {}, new Object[] {});
 
         m_internalLogService.log(LogService.LOG_DEBUG, "* agent control service registered");
         m_agentControlComponent = createComponent()
@@ -220,7 +221,7 @@ public class Activator extends DependencyActivatorBase {
             m_internalEventAdmin.unregisterHandler(m_eventLoggerImpl);
         }
 
-        invokeMethod(m_deploymentAdmin, "stop", new Class<?>[] {}, new Object[] {});
+        invokeMethod(m_internalDeploymentAdmin, "stop", new Class<?>[] {}, new Object[] {});
         m_internalLogService.log(LogService.LOG_INFO, "Agent stopped!");
     }
 
@@ -278,13 +279,13 @@ public class Activator extends DependencyActivatorBase {
         private static String getName(int level) {
             switch (level) {
                 case 1:
-                    return "ERROR";
+                    return "[ERROR  ] ";
                 case 2:
-                    return "WARNING";
+                    return "[WARNING] ";
                 case 3:
-                    return "INFO";
+                    return "[INFO   ] ";
                 case 4:
-                    return "DEBUG";
+                    return "[DEBUG  ] ";
                 default:
                     throw new IllegalStateException("Unknown level: " + level);
             }
@@ -292,22 +293,24 @@ public class Activator extends DependencyActivatorBase {
 
         @Override
         public void log(int level, String message) {
-            System.out.println("[" + getName(level) + "] " + message);
+            System.out.println(getName(level) + message);
         }
 
         @Override
         public void log(int level, String message, Throwable exception) {
-            System.out.println("[" + getName(level) + "] " + message);
+            System.out.println(getName(level) + message);
+            exception.printStackTrace(System.out);
         }
 
         @Override
         public void log(ServiceReference sr, int level, String message) {
-            System.out.println("[" + getName(level) + "] " + message);
+            System.out.println(getName(level) + message);
         }
 
         @Override
         public void log(ServiceReference sr, int level, String message, Throwable exception) {
-            System.out.println("[" + getName(level) + "] " + message);
+            System.out.println(getName(level) + message);
+            exception.printStackTrace(System.out);
         }
     }
 

@@ -18,58 +18,52 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DiscoveryHandler;
-import org.apache.ace.agent.impl.AgentContext;
-import org.apache.ace.agent.impl.ConnectionHandlerImpl;
-import org.apache.ace.agent.impl.DiscoveryHandlerImpl;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
+import org.osgi.service.log.LogService;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 public class DiscoveryHandlerImplTest extends BaseAgentTest {
 
-    Map<String, String> configuration = new HashMap<String, String>();
-
-    DiscoveryHandler m_discoveryHandler;
-
-    TestWebServer m_webServer;
-    TestWebServer m_secondWebServer;
-
-    URL m_availableURL;
-    URL m_unavailableURL;
+    private final int PORT = 8882;
+    private TestWebServer m_webServer;
+    private URL m_availableURL;
+    private URL m_unavailableURL;
+    private DiscoveryHandler m_discoveryHandler;
+    private ConfigurationHandler configurationHandler;
 
     @BeforeTest
     public void setUpAgain() throws Exception {
 
-        int port = 8882;
-        m_webServer = new TestWebServer(port, "/", "generated");
+        m_webServer = new TestWebServer(PORT, "/", "generated");
         m_webServer.start();
-
-        m_availableURL = new URL("http://localhost:" + port);
+        m_availableURL = new URL("http://localhost:" + PORT);
         m_unavailableURL = new URL("http://localhost:9999");
 
         AgentContext agentContext = addTestMock(AgentContext.class);
+        LogService logService = addTestMock(LogService.class);
+        resetToNice(logService);
         m_discoveryHandler = new DiscoveryHandlerImpl(agentContext);
-
-        ConfigurationHandler configurationHandler = addTestMock(ConfigurationHandler.class);
-        expect(configurationHandler.getMap()).andReturn(configuration).anyTimes();
-
+        configurationHandler = addTestMock(ConfigurationHandler.class);
         ConnectionHandler connectionHandler = new ConnectionHandlerImpl(agentContext);
-
         expect(agentContext.getConfigurationHandler()).andReturn(configurationHandler).anyTimes();
         expect(agentContext.getConnectionHandler()).andReturn(connectionHandler).anyTimes();
+        expect(agentContext.getLogService()).andReturn(logService).anyTimes();
 
         replayTestMocks();
     }
@@ -82,55 +76,84 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
 
     @Test
     public void testAvailableURL() throws Exception {
-        configuration.put(DiscoveryHandlerImpl.DISCOVERY_CONFIG_KEY, m_availableURL.toExternalForm());
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+            .andReturn(null).anyTimes();
+        expect(configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+            .andReturn(m_availableURL.toExternalForm()).anyTimes();
+        replay(configurationHandler);
         assertEquals(m_discoveryHandler.getServerUrl(), m_availableURL);
     }
 
     @Test
     public void testUnavailableURL_unavailable() throws Exception {
-        configuration.put(DiscoveryHandlerImpl.DISCOVERY_CONFIG_KEY, m_unavailableURL.toExternalForm());
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+            .andReturn(null).anyTimes();
+        expect(configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+            .andReturn(m_unavailableURL.toExternalForm()).anyTimes();
+        replay(configurationHandler);
         assertNull(m_discoveryHandler.getServerUrl());
     }
 
     @Test
     public void testUnavailableAfterConfigUpdate() throws Exception {
-        configuration.put(DiscoveryHandlerImpl.DISCOVERY_CONFIG_KEY, m_availableURL.toExternalForm());
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+            .andReturn(null).anyTimes();
+        expect(configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+            .andReturn(m_availableURL.toExternalForm()).once();
+        expect(configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+            .andReturn(m_unavailableURL.toExternalForm()).once();
+        replay(configurationHandler);
         assertEquals(m_discoveryHandler.getServerUrl(), m_availableURL);
-        configuration.put(DiscoveryHandlerImpl.DISCOVERY_CONFIG_KEY, m_unavailableURL.toExternalForm());
         assertNull(m_discoveryHandler.getServerUrl());
     }
 
     @Test
     public void testAvailableAfterConfigUpdate() throws Exception {
-        configuration.put(DiscoveryHandlerImpl.DISCOVERY_CONFIG_KEY, m_unavailableURL.toExternalForm());
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+            .andReturn(null).anyTimes();
+        expect(configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+            .andReturn(m_unavailableURL.toExternalForm()).once();
+        expect(configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+            .andReturn(m_availableURL.toExternalForm()).once();
+        replay(configurationHandler);
         assertNull(m_discoveryHandler.getServerUrl());
-        configuration.put(DiscoveryHandlerImpl.DISCOVERY_CONFIG_KEY, m_availableURL.toExternalForm());
         assertEquals(m_discoveryHandler.getServerUrl(), m_availableURL);
     }
 
     @Test
     public void testAvailableAfterUnavailableURL() throws Exception {
-        configuration.put(DiscoveryHandlerImpl.DISCOVERY_CONFIG_KEY, m_unavailableURL.toExternalForm() + "," + m_availableURL.toExternalForm());
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+            .andReturn(null).anyTimes();
+        expect(configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+            .andReturn(m_unavailableURL.toExternalForm() + "," + m_availableURL.toExternalForm()).once();
+        replay(configurationHandler);
         assertEquals(m_discoveryHandler.getServerUrl(), m_availableURL);
     }
 
-    // tmp default in implementation
-    @Test(enabled=false)
-    public void testNoURLConfig() throws Exception {
-        configuration.clear();
-        assertNull(m_discoveryHandler.getServerUrl());
-    }
-
-    // tmp default in implementation
-    @Test(enabled=false)
+    @Test
     public void testEmptyURLConfig() throws Exception {
-        configuration.put(DiscoveryHandlerImpl.DISCOVERY_CONFIG_KEY, "");
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+            .andReturn(null).anyTimes();
+        expect(configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+            .andReturn("").once();
+        replay(configurationHandler);
         assertNull(m_discoveryHandler.getServerUrl());
     }
 
     @Test
     public void testBadURLConfig() throws Exception {
-        configuration.put(DiscoveryHandlerImpl.DISCOVERY_CONFIG_KEY, "fooBar");
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+            .andReturn(null).anyTimes();
+        expect(configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+            .andReturn("foobar").once();
+        replay(configurationHandler);
         assertNull(m_discoveryHandler.getServerUrl());
     }
 }

@@ -18,6 +18,8 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.impl.ReflectionUtil.invokeMethod;
+
 import java.io.File;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -55,6 +57,10 @@ public class AgentContextImpl implements AgentContext {
 
     public AgentContextImpl(File workDir) {
         m_workDir = workDir;
+    }
+
+    public void start() throws Exception {
+        invokeMethod(m_configurationHandler, "start", new Class<?>[] {}, new Object[] {});
     }
 
     @Override

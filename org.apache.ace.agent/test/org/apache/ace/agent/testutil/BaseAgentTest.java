@@ -22,8 +22,10 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Stack;
 
 public class BaseAgentTest {
 
@@ -47,5 +49,28 @@ public class BaseAgentTest {
 
     protected void clearTestMocks() {
         m_mocks.clear();
+    }
+
+    protected File getWorkDir() {
+        return new File("generated");
+    }
+
+    protected void cleanDir(File dir) {
+        if (!dir.isDirectory())
+            throw new IllegalStateException();
+        Stack<File> dirs = new Stack<File>();
+        dirs.push(dir);
+        while (!dirs.isEmpty()) {
+            File currentDir = dirs.pop();
+            File[] files = currentDir.listFiles();
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    dirs.push(file);
+                }
+                else {
+                    file.delete();
+                }
+            }
+        }
     }
 }

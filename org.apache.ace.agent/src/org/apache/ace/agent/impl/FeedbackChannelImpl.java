@@ -350,7 +350,7 @@ public class FeedbackChannelImpl implements FeedbackChannel {
     }
 
     private String getIdentification() {
-        return m_agentContext.getIdentificationHandler().getIdentification();
+        return m_agentContext.getIdentificationHandler().getAgentId();
     }
 
     private URL getServerURL() {

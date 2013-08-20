@@ -20,13 +20,14 @@ package org.apache.ace.agent.impl;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DiscoveryHandler;
+import org.osgi.service.log.LogService;
 
 /**
  * Default discovery handler that reads the serverURL(s) from the configuration using key {@link DISCOVERY_CONFIG_KEY}.
@@ -34,12 +35,14 @@ import org.apache.ace.agent.DiscoveryHandler;
  */
 public class DiscoveryHandlerImpl implements DiscoveryHandler {
 
+    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + ".discovery";
+
     /**
      * Configuration key for the default discovery handler. The value must be a comma-separated list of valid base
      * server URLs.
      */
-    // TODO move to and validate in config handler?
-    public static final String DISCOVERY_CONFIG_KEY = "agent.discovery";
+    public static final String CONFIG_KEY_SERVERURLS = CONFIG_KEY_BASE + ".serverUrls";
+    public static final String CONFIG_DEFAULT_SERVERURLS = "http://localhost:8080";
 
     private final AgentContext m_agentContext;
 
@@ -51,23 +54,25 @@ public class DiscoveryHandlerImpl implements DiscoveryHandler {
     // thread-safe.
     @Override
     public URL getServerUrl() {
-        String configValue = m_agentContext.getConfigurationHandler().getMap().get(DISCOVERY_CONFIG_KEY);
-        if (configValue == null || configValue.equals(""))
-            try {
-                return new URL("http://localhost:8080");
-            }
-            catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
+        ConfigurationHandler configurationHandler = m_agentContext.getConfigurationHandler();
+        LogService logService = m_agentContext.getLogService();
+
+        String configValue = configurationHandler.get(CONFIG_KEY_SERVERURLS, CONFIG_DEFAULT_SERVERURLS);
+        URL url = null;
         if (configValue.indexOf(",") == -1) {
-            return checkURL(configValue.trim());
+            url = checkURL(configValue.trim());
         }
-        for (String configValuePart : configValue.split(",")) {
-            URL url = checkURL(configValuePart.trim());
-            if (url != null)
-                return url;
+        else {
+            for (String configValuePart : configValue.split(",")) {
+                if (url == null) {
+                    url = checkURL(configValuePart.trim());
+                }
+            }
         }
-        return null;
+        if (url == null) {
+            logService.log(LogService.LOG_WARNING, "No serverUrl available");
+        }
+        return url;
     }
 
     private static final long CACHE_TIME = 1000;
@@ -85,18 +90,22 @@ public class DiscoveryHandlerImpl implements DiscoveryHandler {
     private final Map<String, CheckedURL> m_checkedURLs = new HashMap<String, DiscoveryHandlerImpl.CheckedURL>();
 
     private URL checkURL(String serverURL) {
+        LogService logService = m_agentContext.getLogService();
+
         CheckedURL checked = m_checkedURLs.get(serverURL);
         if (checked != null && checked.timestamp > (System.currentTimeMillis() - CACHE_TIME)) {
+            logService.log(LogService.LOG_DEBUG, "Returning cached serverURL: " + checked.url.toExternalForm());
             return checked.url;
         }
         try {
             URL url = new URL(serverURL);
             tryConnect(url);
+            logService.log(LogService.LOG_DEBUG, "Succesfully connected to  serverURL: " + serverURL);
             m_checkedURLs.put(serverURL, new CheckedURL(url, System.currentTimeMillis()));
             return url;
         }
         catch (IOException e) {
-            // TODO log
+            logService.log(LogService.LOG_DEBUG, "Failed to connect to serverURL: " + serverURL);
             return null;
         }
     }

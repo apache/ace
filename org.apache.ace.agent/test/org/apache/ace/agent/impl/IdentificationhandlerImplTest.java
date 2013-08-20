@@ -18,12 +18,13 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.IdentificationHandler;
@@ -34,16 +35,15 @@ import org.testng.annotations.Test;
 
 public class IdentificationhandlerImplTest extends BaseAgentTest {
 
-    Map<String, String> m_configuration = new HashMap<String, String>();
-    IdentificationHandler m_identificationHandler;
+    private IdentificationHandler m_identificationHandler;
+    private ConfigurationHandler m_configurationHandler;
 
     @BeforeTest
     public void setUpAgain() throws Exception {
         AgentContext agentContext = addTestMock(AgentContext.class);
         m_identificationHandler = new IdentificationHandlerImpl(agentContext);
-        ConfigurationHandler configurationHandler = addTestMock(ConfigurationHandler.class);
-        expect(configurationHandler.getMap()).andReturn(m_configuration).anyTimes();
-        expect(agentContext.getConfigurationHandler()).andReturn(configurationHandler).anyTimes();
+        m_configurationHandler = addTestMock(ConfigurationHandler.class);
+        expect(agentContext.getConfigurationHandler()).andReturn(m_configurationHandler).anyTimes();
         replayTestMocks();
     }
 
@@ -54,28 +54,40 @@ public class IdentificationhandlerImplTest extends BaseAgentTest {
 
     @Test
     public void testAvailableIdentification() throws Exception {
-        m_configuration.put(IdentificationHandlerImpl.IDENTIFICATION_CONFIG_KEY, "qqq");
-        assertEquals(m_identificationHandler.getIdentification(), "qqq");
+        reset(m_configurationHandler);
+        expect(m_configurationHandler.get(eq(IdentificationHandlerImpl.CONFIG_KEY_IDENTIFICATION), anyObject(String.class)))
+            .andReturn("qqq").once();
+        replay(m_configurationHandler);
+        assertEquals(m_identificationHandler.getAgentId(), "qqq");
     }
 
     @Test
     public void testUpdatedIdentification() throws Exception {
-        m_configuration.put(IdentificationHandlerImpl.IDENTIFICATION_CONFIG_KEY, "qqq");
-        assertEquals(m_identificationHandler.getIdentification(), "qqq");
-        m_configuration.put(IdentificationHandlerImpl.IDENTIFICATION_CONFIG_KEY, "yyy");
-        assertEquals(m_identificationHandler.getIdentification(), "yyy");
+        reset(m_configurationHandler);
+        expect(m_configurationHandler.get(eq(IdentificationHandlerImpl.CONFIG_KEY_IDENTIFICATION), anyObject(String.class)))
+            .andReturn("qqq").once();
+        expect(m_configurationHandler.get(eq(IdentificationHandlerImpl.CONFIG_KEY_IDENTIFICATION), anyObject(String.class)))
+            .andReturn("yyy").once();
+        replay(m_configurationHandler);
+        assertEquals(m_identificationHandler.getAgentId(), "qqq");
+        assertEquals(m_identificationHandler.getAgentId(), "yyy");
     }
 
-    // temp default in implementation
-    @Test(enabled=false)
+    @Test
     public void testNoIdentification() throws Exception {
-        m_configuration.clear();
-        assertNull(m_identificationHandler.getIdentification());
+        reset(m_configurationHandler);
+        expect(m_configurationHandler.get(eq(IdentificationHandlerImpl.CONFIG_KEY_IDENTIFICATION), anyObject(String.class)))
+            .andReturn(null).once();
+        replay(m_configurationHandler);
+        assertNull(m_identificationHandler.getAgentId());
     }
 
     @Test
     public void testEmptyIdentification() throws Exception {
-        m_configuration.put(IdentificationHandlerImpl.IDENTIFICATION_CONFIG_KEY, " ");
-        assertNull(m_identificationHandler.getIdentification());
+        reset(m_configurationHandler);
+        expect(m_configurationHandler.get(eq(IdentificationHandlerImpl.CONFIG_KEY_IDENTIFICATION), anyObject(String.class)))
+            .andReturn(null).once();
+        replay(m_configurationHandler);
+        assertNull(m_identificationHandler.getAgentId());
     }
 }

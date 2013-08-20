@@ -78,7 +78,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
     };
 
     @Override
-    public DownloadHandle getDownloadHandle(Version version, boolean fixPackage) {
+    public DownloadHandle getDownloadHandle(Version version, boolean fixPackage) throws RetryAfterException, IOException {
         return getDownloadHandle(getPackageURL(version, fixPackage));
     };
 
@@ -87,7 +87,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
         return getAvailableVersions(getEndpoint(getServerURL(), getIdentification()));
     };
 
-    private URL getPackageURL(Version version, boolean fixPackage) {
+    private URL getPackageURL(Version version, boolean fixPackage) throws RetryAfterException, IOException {
         URL url = getEndpoint(getServerURL(), getIdentification(), fixPackage ? getInstalledVersion() : Version.emptyVersion, version);
         return url;
     }

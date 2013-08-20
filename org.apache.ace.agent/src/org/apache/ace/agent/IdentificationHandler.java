@@ -29,5 +29,5 @@ public interface IdentificationHandler {
      * 
      * @return The identification, <code>null</code> if none is available.
      */
-    String getIdentification();
+    String getAgentId();
 }

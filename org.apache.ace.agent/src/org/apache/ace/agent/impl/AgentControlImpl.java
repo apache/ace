@@ -48,7 +48,7 @@ public class AgentControlImpl implements AgentControl {
     }
 
     @Override
-    public ConfigurationHandler getConfiguration() {
+    public ConfigurationHandler getConfigurationHandler() {
         return m_agentContext.getConfigurationHandler();
     }
 

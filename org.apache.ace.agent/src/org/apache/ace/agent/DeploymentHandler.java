@@ -41,47 +41,61 @@ public interface DeploymentHandler {
      * Return the sorted set of available deployment package versions as reported by the server.
      * 
      * @return The sorted set of versions, may be empty
-     * @throws RetryAfterException If the server indicates it is too busy with a Retry-After header
-     * @throws IOException If the connection to the server fails
+     * @throws RetryAfterException
+     *             If the server indicates it is too busy with a Retry-After header
+     * @throws IOException
+     *             If the connection to the server fails
      */
     SortedSet<Version> getAvailableVersions() throws RetryAfterException, IOException;
 
     /**
      * Return the estimated size for a deployment package as reported by the server.
      * 
-     * @param version The version of the package
-     * @param fixPackage Request the server for a fix-package
+     * @param version
+     *            The version of the package
+     * @param fixPackage
+     *            Request the server for a fix-package
      * @return The estimated size in bytes, <code>-1</code> indicates the size is unknown
-     * @throws RetryAfterException If the server indicates it is too busy with a Retry-After header
-     * @throws IOException If the connection to the server fails
+     * @throws RetryAfterException
+     *             If the server indicates it is too busy with a Retry-After header
+     * @throws IOException
+     *             If the connection to the server fails
      */
     long getPackageSize(Version version, boolean fixPackage) throws RetryAfterException, IOException;
 
     /**
      * Returns the {@link InputStream} for a deployment package.
      * 
-     * @param version The version of the deployment package
-     * @param fixPackage Request the server for a fix-package
+     * @param version
+     *            The version of the deployment package
+     * @param fixPackage
+     *            Request the server for a fix-package
      * @return The input-stream for the deployment package
-     * @throws RetryAfterException If the server indicates it is too busy with a Retry-After header
-     * @throws IOException If the connection to the server fails
+     * @throws RetryAfterException
+     *             If the server indicates it is too busy with a Retry-After header
+     * @throws IOException
+     *             If the connection to the server fails
      */
     InputStream getInputStream(Version version, boolean fixPackage) throws RetryAfterException, IOException;
 
     /**
      * Return the {@link DownloadHandle} for a deployment package.
      * 
-     * @param version The version of the deployment package
-     * @param fixPackage Request the server for a fix-package
+     * @param version
+     *            The version of the deployment package
+     * @param fixPackage
+     *            Request the server for a fix-package
      * @return The download handle
      */
-    DownloadHandle getDownloadHandle(Version version, boolean fixPackage);
+    DownloadHandle getDownloadHandle(Version version, boolean fixPackage) throws RetryAfterException, IOException;
 
     /**
      * Install a deployment package from an input stream.
      * 
-     * @param inputStream The inputStream, not <code>null</code>
-     * @throws IOException If reading the input stream fails.
+     * @param inputStream
+     *            The inputStream, not <code>null</code>
+     * @throws IOException
+     *             If reading the input stream fails.
      */
     // TODO deployment exceptions
     void deployPackage(InputStream inputStream) throws IOException;
