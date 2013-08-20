@@ -504,24 +504,30 @@ abstract class AddArtifactWindow extends Window {
      */
     final List<ArtifactObject> importRemoteBundles(List<File> uploadedArtifacts) {
         List<ArtifactObject> added = new ArrayList<ArtifactObject>();
-
+        
+        StringBuffer errors = new StringBuffer();
+        int failedImports = 0;
         for (File artifact : uploadedArtifacts) {
             try {
                 added.add(importRemoteBundle(artifact.toURI().toURL()));
             }
             catch (Exception exception) {
-                showErrorNotification("Import artifact failed", "<br/>Artifact '"
-                    + artifact.getName()
-                    + "' could not be imported into the repository.<br />"
-                    + "Reason: " + exception.getMessage());
-
+            	failedImports++;
+            	errors.append("<br />" + exception.getMessage());
                 logError("Import of " + artifact.getAbsolutePath() + " failed.", exception);
             }
             finally {
                 artifact.delete();
             }
         }
-
+        if (failedImports > 0) {
+        	if (failedImports == uploadedArtifacts.size()) {
+        		showErrorNotification("All " + failedImports + " artifacts failed", (failedImports > 30 ? "See the server log for a full list of failures." : errors.toString()));
+        	}
+        	else {
+        		showWarningNotification("" + failedImports + "/" + uploadedArtifacts.size() + " artifacts failed", (failedImports > 30 ? "See the server log for a full list of failures." : errors.toString()));
+        	}
+        }
         return added;
     }
 
@@ -533,6 +539,11 @@ abstract class AddArtifactWindow extends Window {
      */
     final void showErrorNotification(final String aTitle, final String aMessage) {
         getParent().showNotification(aTitle, aMessage, Notification.TYPE_ERROR_MESSAGE);
+    }
+    
+    /** Shows a warning messsage on screen. */
+    final void showWarningNotification(final String aTitle, final String aMessage) {
+        getParent().showNotification(aTitle, aMessage, Notification.TYPE_WARNING_MESSAGE);
     }
 
     /**

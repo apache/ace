@@ -35,8 +35,7 @@ import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 
 public class VaadinServlet extends AbstractApplicationServlet implements ManagedService {
-
-    private static final int SESSION_TIMEOUT = 30; // in seconds (so 120 = 2 minutes)
+    private static final int SESSION_TIMEOUT = 300; // in seconds (so 120 = 2 minutes)
     private static final long serialVersionUID = 1L;
     public static final String PID = "org.apache.ace.webui.vaadin";
 
