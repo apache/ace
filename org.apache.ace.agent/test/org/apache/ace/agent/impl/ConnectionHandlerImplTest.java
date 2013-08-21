@@ -29,14 +29,13 @@ import static org.testng.Assert.assertEquals;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
@@ -72,13 +71,14 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
 
     }
 
-    private Map<String, String> m_configuration = new HashMap<String, String>();
-    private ConnectionHandler m_connectionHandler;
     private TestWebServer m_webServer;
     private String m_user = "Mickey";
     private String m_pass = "Mantle";
     private URL m_basicAuthURL;
+
+    private AgentContext m_agentContext;
     private ConfigurationHandler m_configurationHandler;
+    private ConnectionHandler m_connectionHandler;
 
     @BeforeTest
     public void setUpAgain() throws Exception {
@@ -90,15 +90,17 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
         m_webServer.start();
 
         m_configurationHandler = addTestMock(ConfigurationHandler.class);
-        AgentContext agentContext = addTestMock(AgentContext.class);
-        m_connectionHandler = new ConnectionHandlerImpl(agentContext);
-
-        expect(agentContext.getConfigurationHandler()).andReturn(m_configurationHandler).anyTimes();
+        m_agentContext = addTestMock(AgentContext.class);
+        expect(m_agentContext.getConfigurationHandler()).andReturn(m_configurationHandler).anyTimes();
         replayTestMocks();
+
+        m_connectionHandler = new ConnectionHandlerImpl();
+        startHandler(m_connectionHandler, m_agentContext);
     }
 
     @AfterTest
     public void tearDownAgain() throws Exception {
+        stopHandler(m_connectionHandler);
         m_webServer.stop();
         verifyTestMocks();
     }
@@ -110,7 +112,7 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
         replay(m_configurationHandler);
         HttpURLConnection connection = (HttpURLConnection) m_connectionHandler.getConnection(m_basicAuthURL);
         assertEquals(connection.getResponseCode(), HttpServletResponse.SC_FORBIDDEN);
-        
+
     }
 
     @Test

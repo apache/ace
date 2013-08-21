@@ -16,19 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.impl;
+package org.apache.ace.agent;
 
 import java.io.File;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.agent.AgentUpdateHandler;
-import org.apache.ace.agent.ConfigurationHandler;
-import org.apache.ace.agent.ConnectionHandler;
-import org.apache.ace.agent.DeploymentHandler;
-import org.apache.ace.agent.DiscoveryHandler;
-import org.apache.ace.agent.DownloadHandler;
-import org.apache.ace.agent.IdentificationHandler;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 

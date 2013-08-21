@@ -18,11 +18,14 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.anyInt;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.notNull;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertSame;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,9 +48,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandle.CompletedListener;
 import org.apache.ace.agent.DownloadHandle.ProgressListener;
+import org.apache.ace.agent.DownloadHandler;
 import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.DownloadState;
 import org.apache.ace.agent.testutil.BaseAgentTest;
@@ -78,7 +83,7 @@ public class DownloadHandlerTest extends BaseAgentTest {
         }
     }
 
-    private DownloadHandlerImpl m_handler;
+    private DownloadHandler m_downloadHandler;
     private TestWebServer m_webServer;
     private URL m_200url;
     private File m_200file;
@@ -113,25 +118,27 @@ public class DownloadHandlerTest extends BaseAgentTest {
 
         AgentContext agentContext = addTestMock(AgentContext.class);
         expect(agentContext.getExecutorService()).andReturn(executorService).anyTimes();
-        
+
         LogService logService = addTestMock(LogService.class);
         expect(agentContext.getLogService()).andReturn(logService).anyTimes();
         logService.log(anyInt(), notNull(String.class));
         expectLastCall().anyTimes();
 
         replayTestMocks();
-        m_handler = new DownloadHandlerImpl(agentContext);
+        m_downloadHandler = new DownloadHandlerImpl();
+        startHandler(m_downloadHandler, agentContext);
     }
 
     @AfterTest
     public void tearDownOnceAgain() throws Exception {
+        stopHandler(m_downloadHandler);
         verifyTestMocks();
         m_webServer.stop();
     }
 
     @Test
     public void testSuccessful_noresume_result() throws Exception {
-        final DownloadHandle handle = m_handler.getHandle(m_200url).start();
+        final DownloadHandle handle = m_downloadHandler.getHandle(m_200url).start();
         final DownloadResult result = handle.result();
         assertSuccessFul(result, 200, m_200digest);
     }
@@ -140,7 +147,7 @@ public class DownloadHandlerTest extends BaseAgentTest {
     public void testSuccessful_noresume_listener() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         final List<DownloadResult> holder = new ArrayList<DownloadResult>();
-        final DownloadHandle handle = m_handler.getHandle(m_200url)
+        final DownloadHandle handle = m_downloadHandler.getHandle(m_200url)
             .setCompletionListener(new CompletedListener() {
                 @Override
                 public void completed(DownloadResult result) {
@@ -155,7 +162,7 @@ public class DownloadHandlerTest extends BaseAgentTest {
 
     @Test
     public void testSuccessful_resume_result() throws Exception {
-        final DownloadHandle handle = m_handler.getHandle(m_200url);
+        final DownloadHandle handle = m_downloadHandler.getHandle(m_200url);
         handle.setProgressListener(new ProgressListener() {
             @Override
             public void progress(long contentLength, long progress) {
@@ -169,7 +176,7 @@ public class DownloadHandlerTest extends BaseAgentTest {
 
     @Test
     public void testFailedIO_nostatus_result() throws Exception {
-        DownloadHandle handle = m_handler.getHandle(m_200url, 2048);
+        DownloadHandle handle = m_downloadHandler.getHandle(m_200url, 2048);
 
         DownloadResult result = ((DownloadHandleImpl) handle).start(DownloadCallableImpl.FAIL_OPENCONNECTION).result();
         assertFailed(result, 0);
@@ -197,13 +204,13 @@ public class DownloadHandlerTest extends BaseAgentTest {
 
     @Test
     public void testFailed404_noresume_result() throws Exception {
-        final DownloadResult result = m_handler.getHandle(m_404url).start().result();
+        final DownloadResult result = m_downloadHandler.getHandle(m_404url).start().result();
         assertFailed(result, 404);
     }
 
     @Test
     public void testFailed503_noresume_result() throws Exception {
-        DownloadResult result = m_handler.getHandle(m_503url).start().result();
+        DownloadResult result = m_downloadHandler.getHandle(m_503url).start().result();
         assertFailed(result, 503);
         assertNotNull(result.getHeaders().get("Retry-After"), "Expected a Retry-After header from error servlet");
         assertNotNull(result.getHeaders().get("Retry-After").get(0), "Expected a Retry-After header from error servlet");

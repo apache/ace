@@ -18,11 +18,11 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.apache.ace.agent.impl.ReflectionUtil.invokeMethod;
-
 import java.io.File;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.ace.agent.AgentContext;
+import org.apache.ace.agent.AgentContextAware;
 import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.ConfigurationHandler;
@@ -48,8 +48,9 @@ public class AgentContextImpl implements AgentContext {
     private volatile DeploymentHandler m_deploymentHandler;
     private volatile DownloadHandler m_downloadHandler;
     private volatile ConnectionHandler m_connectionHandler;
-    private volatile ScheduledExecutorService m_executorService;
     private volatile AgentUpdateHandler m_agentUpdateHandler;
+
+    private volatile ScheduledExecutorService m_executorService;
     private volatile LogService m_logService;
     private volatile EventAdmin m_eventAdmin;
 
@@ -60,7 +61,37 @@ public class AgentContextImpl implements AgentContext {
     }
 
     public void start() throws Exception {
-        invokeMethod(m_configurationHandler, "start", new Class<?>[] {}, new Object[] {});
+        startHandler(m_agentControl);
+        startHandler(m_configurationHandler);
+        startHandler(m_identificationHandler);
+        startHandler(m_discoveryHandler);
+        startHandler(m_deploymentHandler);
+        startHandler(m_downloadHandler);
+        startHandler(m_connectionHandler);
+        startHandler(m_agentUpdateHandler);
+        startHandler(m_agentControl);
+    }
+
+    public void stop() throws Exception {
+        stopHandler(m_agentControl);
+        stopHandler(m_configurationHandler);
+        stopHandler(m_identificationHandler);
+        stopHandler(m_discoveryHandler);
+        stopHandler(m_deploymentHandler);
+        stopHandler(m_downloadHandler);
+        stopHandler(m_connectionHandler);
+        stopHandler(m_agentUpdateHandler);
+        stopHandler(m_agentControl);
+    }
+
+    private void startHandler(Object handler) throws Exception {
+        if (handler instanceof AgentContextAware)
+            ((AgentContextAware) handler).start(this);
+    }
+
+    private void stopHandler(Object handler) throws Exception {
+        if (handler instanceof AgentContextAware)
+            ((AgentContextAware) handler).stop();
     }
 
     @Override

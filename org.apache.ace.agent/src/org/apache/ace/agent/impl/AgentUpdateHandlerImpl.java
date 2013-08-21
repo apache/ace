@@ -43,17 +43,25 @@ import org.osgi.framework.Version;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUpdateHandler {
+
     private static final int TIMEOUT = 15000;
     private static final String UPDATER_VERSION = "1.0.0";
     private static final String UPDATER_SYMBOLICNAME = "org.apache.ace.agent.updater";
+
     private BundleContext m_bundleContext;
 
-    public AgentUpdateHandlerImpl(AgentContext agentContext, BundleContext bundleContext) {
-        super(agentContext);
+    public AgentUpdateHandlerImpl(BundleContext bundleContext) {
         m_bundleContext = bundleContext;
     }
 
-    public void uninstallUpdaterBundle() throws BundleException {
+    @Override
+    public void onStart() throws Exception {
+        // at this point we know the agent has started, so any updater bundle that
+        // might still be running can be uninstalled
+        uninstallUpdaterBundle();
+    }
+
+    private void uninstallUpdaterBundle() throws BundleException {
         for (Bundle b : m_bundleContext.getBundles()) {
             if (UPDATER_SYMBOLICNAME.equals(b.getSymbolicName())) {
                 try {

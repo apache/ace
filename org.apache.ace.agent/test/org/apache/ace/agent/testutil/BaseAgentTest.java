@@ -27,12 +27,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.ace.agent.AgentContext;
+import org.apache.ace.agent.AgentContextAware;
+
 /**
  * Simple base class.
  */
 public abstract class BaseAgentTest {
 
-    Set<Object> m_mocks = new HashSet<Object>();
+    private Set<Object> m_mocks = new HashSet<Object>();
 
     protected <T extends Object> T addTestMock(Class<T> clazz) {
         T mock = createMock(clazz);
@@ -56,6 +59,16 @@ public abstract class BaseAgentTest {
 
     protected File getWorkDir() {
         return new File("generated");
+    }
+
+    protected void startHandler(Object handler, AgentContext agentContext) throws Exception {
+        if (handler instanceof AgentContextAware)
+            ((AgentContextAware) handler).start(agentContext);
+    }
+
+    protected void stopHandler(Object handler) throws Exception {
+        if (handler instanceof AgentContextAware)
+            ((AgentContextAware) handler).stop();
     }
 
     protected void cleanDir(File dir) {

@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandle;

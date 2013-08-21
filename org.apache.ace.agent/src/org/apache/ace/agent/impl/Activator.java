@@ -57,7 +57,7 @@ public class Activator extends DependencyActivatorBase {
     private final InternalLogService m_internalLogService = new InternalLogService();
 
     // managed state
-    private AgentContext m_agentContext;
+    private AgentContextImpl m_agentContext;
     private AgentControl m_agentControl;
     private ScheduledExecutorService m_executorService;
     private AgentUpdateHandlerImpl m_agentUpdateHandler; // we use the implementation type here on purpose
@@ -83,17 +83,17 @@ public class Activator extends DependencyActivatorBase {
 
         m_agentContext = new AgentContextImpl(context.getDataFile(""));
         m_agentControl = new AgentControlImpl(m_agentContext);
-        m_agentUpdateHandler = new AgentUpdateHandlerImpl(m_agentContext, context);
+        m_agentUpdateHandler = new AgentUpdateHandlerImpl(context);
 
         configureField(m_agentContext, AgentControl.class, m_agentControl);
         configureField(m_agentContext, EventAdmin.class, m_internalEventAdmin);
         configureField(m_agentContext, LogService.class, m_internalLogService);
-        configureField(m_agentContext, ConfigurationHandler.class, new ConfigurationHandlerImpl(m_agentContext));
-        configureField(m_agentContext, ConnectionHandler.class, new ConnectionHandlerImpl(m_agentContext));
-        configureField(m_agentContext, DeploymentHandler.class, new DeploymentHandlerImpl(m_agentContext, m_internalDeploymentAdmin));
-        configureField(m_agentContext, DiscoveryHandler.class, new DiscoveryHandlerImpl(m_agentContext));
-        configureField(m_agentContext, DownloadHandler.class, new DownloadHandlerImpl(m_agentContext));
-        configureField(m_agentContext, IdentificationHandler.class, new IdentificationHandlerImpl(m_agentContext));
+        configureField(m_agentContext, ConfigurationHandler.class, new ConfigurationHandlerImpl());
+        configureField(m_agentContext, ConnectionHandler.class, new ConnectionHandlerImpl());
+        configureField(m_agentContext, DeploymentHandler.class, new DeploymentHandlerImpl(m_internalDeploymentAdmin));
+        configureField(m_agentContext, DiscoveryHandler.class, new DiscoveryHandlerImpl());
+        configureField(m_agentContext, DownloadHandler.class, new DownloadHandlerImpl());
+        configureField(m_agentContext, IdentificationHandler.class, new IdentificationHandlerImpl());
         configureField(m_agentContext, ScheduledExecutorService.class, m_executorService);
         configureField(m_agentContext, AgentUpdateHandler.class, m_agentUpdateHandler);
 
@@ -165,7 +165,8 @@ public class Activator extends DependencyActivatorBase {
 
         m_internalLogService.log(LogService.LOG_INFO, "Starting agent...");
         invokeMethod(m_internalDeploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
-        invokeMethod(m_agentContext, "start", new Class<?>[] {}, new Object[] {});
+
+        m_agentContext.start();
 
         m_internalLogService.log(LogService.LOG_DEBUG, "* agent control service registered");
         m_agentControlComponent = createComponent()
@@ -196,10 +197,6 @@ public class Activator extends DependencyActivatorBase {
         else {
             m_internalLogService.log(LogService.LOG_DEBUG, "* auditlog listener disabled");
         }
-        // at this point we know the agent has started, so any updater bundle that
-        // might still be running can be uninstalled
-        // FIXME move to handlers own life cycle
-        m_agentUpdateHandler.uninstallUpdaterBundle();
         m_internalLogService.log(LogService.LOG_INFO, "Agent started!");
     }
 
@@ -221,6 +218,7 @@ public class Activator extends DependencyActivatorBase {
             m_internalEventAdmin.unregisterHandler(m_eventLoggerImpl);
         }
 
+        m_agentContext.stop();
         invokeMethod(m_internalDeploymentAdmin, "stop", new Class<?>[] {}, new Object[] {});
         m_internalLogService.log(LogService.LOG_INFO, "Agent stopped!");
     }

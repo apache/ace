@@ -33,12 +33,7 @@ import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.RetryAfterException;
 import org.osgi.framework.Version;
 
-public class UpdateHandlerBase {
-    protected AgentContext m_agentContext;
-
-    public UpdateHandlerBase(AgentContext agentContext) {
-        m_agentContext = agentContext;
-    }
+public class UpdateHandlerBase extends HandlerBase {
 
     protected SortedSet<Version> getAvailableVersions(URL endpoint) throws RetryAfterException, IOException {
         SortedSet<Version> versions = new TreeSet<Version>();
@@ -116,16 +111,16 @@ public class UpdateHandlerBase {
     }
 
     protected DownloadHandle getDownloadHandle(URL packageURL) {
-        return m_agentContext.getDownloadHandler().getHandle(packageURL);
+        return getAgentContext().getDownloadHandler().getHandle(packageURL);
     }
 
     protected String getIdentification() {
-        return m_agentContext.getIdentificationHandler().getAgentId();
+        return getAgentContext().getIdentificationHandler().getAgentId();
     }
 
     protected URL getServerURL() throws RetryAfterException {
         // FIXME not sure if this is the proper place
-        URL serverURL = m_agentContext.getDiscoveryHandler().getServerUrl();
+        URL serverURL = getAgentContext().getDiscoveryHandler().getServerUrl();
         if (serverURL == null) {
             throw new RetryAfterException(10);
         }
@@ -133,6 +128,6 @@ public class UpdateHandlerBase {
     }
 
     private URLConnection getConnection(URL url) throws IOException {
-        return m_agentContext.getConnectionHandler().getConnection(url);
+        return getAgentContext().getConnectionHandler().getConnection(url);
     }
 }

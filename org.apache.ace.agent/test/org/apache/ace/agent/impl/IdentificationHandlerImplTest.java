@@ -26,6 +26,7 @@ import static org.easymock.EasyMock.reset;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
+import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.IdentificationHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
@@ -44,14 +45,17 @@ public class IdentificationHandlerImplTest extends BaseAgentTest {
     @BeforeTest
     public void setUpAgain() throws Exception {
         AgentContext agentContext = addTestMock(AgentContext.class);
-        m_identificationHandler = new IdentificationHandlerImpl(agentContext);
+        m_identificationHandler = new IdentificationHandlerImpl();
         m_configurationHandler = addTestMock(ConfigurationHandler.class);
         expect(agentContext.getConfigurationHandler()).andReturn(m_configurationHandler).anyTimes();
         replayTestMocks();
+
+        startHandler(m_identificationHandler, agentContext);
     }
 
     @AfterTest
     public void tearDownAgain() throws Exception {
+        stopHandler(m_identificationHandler);
         verifyTestMocks();
     }
 

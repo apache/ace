@@ -25,13 +25,7 @@ import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandler;
 import org.osgi.service.log.LogService;
 
-public class DownloadHandlerImpl implements DownloadHandler {
-
-    private final AgentContext m_agentContext;
-
-    public DownloadHandlerImpl(AgentContext agentContext) {
-        m_agentContext = agentContext;
-    }
+public class DownloadHandlerImpl extends HandlerBase implements DownloadHandler {
 
     @Override
     public DownloadHandle getHandle(URL url) {
@@ -47,18 +41,18 @@ public class DownloadHandlerImpl implements DownloadHandler {
      * handle support methods
      */
     ExecutorService getExecutor() {
-        return m_agentContext.getExecutorService();
+        return getAgentContext().getExecutorService();
     }
 
     void logDebug(String message, Object... args) {
-        m_agentContext.getLogService().log(LogService.LOG_DEBUG, message);
+        getAgentContext().getLogService().log(LogService.LOG_DEBUG, message);
     }
 
     void logInfo(String message, Object... args) {
-        m_agentContext.getLogService().log(LogService.LOG_INFO, message);
+        getAgentContext().getLogService().log(LogService.LOG_INFO, message);
     }
 
     void logWarning(String message, Object... args) {
-        m_agentContext.getLogService().log(LogService.LOG_WARNING, message);
+        getAgentContext().getLogService().log(LogService.LOG_WARNING, message);
     }
 }

@@ -23,9 +23,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 
+import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.testng.annotations.AfterMethod;
@@ -56,10 +56,10 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
     }
 
     @Test
-    public void testConfigClean() throws IOException {
+    public void testConfigClean() throws Exception {
 
-        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl(m_agentContext);
-        ReflectionUtil.invokeMethod(configurationHandler, "start", new Class<?>[] {}, new Object[] {});
+        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
+        startHandler(configurationHandler, m_agentContext);
 
         assertNotNull(configurationHandler.keySet());
         assertEquals(0, configurationHandler.keySet().size());
@@ -67,8 +67,8 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
 
         // should be persisted
 
-        configurationHandler = new ConfigurationHandlerImpl(m_agentContext);
-        ReflectionUtil.invokeMethod(configurationHandler, "start", new Class<?>[] {}, new Object[] {});
+        configurationHandler = new ConfigurationHandlerImpl();
+        startHandler(configurationHandler, m_agentContext);
 
         assertNotNull(configurationHandler.keySet());
         assertEquals(0, configurationHandler.keySet().size());
@@ -76,7 +76,7 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
     }
 
     @Test
-    public void testConfigSystemProps() throws IOException {
+    public void testConfigSystemProps() throws Exception {
 
         String systemKey1 = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "key1";
         String systemKey2 = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "key2";
@@ -84,8 +84,8 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         System.setProperty(systemKey1, "value1");
         System.setProperty(systemKey2, "value2");
 
-        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl(m_agentContext);
-        ReflectionUtil.invokeMethod(configurationHandler, "start", new Class<?>[] {}, new Object[] {});
+        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
+        startHandler(configurationHandler, m_agentContext);
 
         assertNotNull(configurationHandler.keySet());
         assertEquals(2, configurationHandler.keySet().size());
@@ -97,8 +97,8 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         System.clearProperty(systemKey1);
         System.clearProperty(systemKey2);
 
-        configurationHandler = new ConfigurationHandlerImpl(m_agentContext);
-        ReflectionUtil.invokeMethod(configurationHandler, "start", new Class<?>[] {}, new Object[] {});
+        configurationHandler = new ConfigurationHandlerImpl();
+        startHandler(configurationHandler, m_agentContext);
 
         assertNotNull(configurationHandler.keySet());
         assertEquals(2, configurationHandler.keySet().size());
@@ -113,8 +113,8 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         configurationHandler.put(systemKey1, "newvalue1");
         configurationHandler.put(systemKey2, "newvalue2");
 
-        configurationHandler = new ConfigurationHandlerImpl(m_agentContext);
-        ReflectionUtil.invokeMethod(configurationHandler, "start", new Class<?>[] {}, new Object[] {});
+        configurationHandler = new ConfigurationHandlerImpl();
+        startHandler(configurationHandler, m_agentContext);
 
         assertNotNull(configurationHandler.keySet());
         assertEquals(2, configurationHandler.keySet().size());
@@ -128,8 +128,8 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         System.setProperty(systemKey1 + ConfigurationHandlerImpl.CONFIG_KEY_OVERRIDEPOSTFIX, "true");
         System.setProperty(systemKey2 + ConfigurationHandlerImpl.CONFIG_KEY_OVERRIDEPOSTFIX, "true");
 
-        configurationHandler = new ConfigurationHandlerImpl(m_agentContext);
-        ReflectionUtil.invokeMethod(configurationHandler, "start", new Class<?>[] {}, new Object[] {});
+        configurationHandler = new ConfigurationHandlerImpl();
+        startHandler(configurationHandler, m_agentContext);
 
         assertNotNull(configurationHandler.keySet());
         assertEquals(2, configurationHandler.keySet().size());
@@ -138,10 +138,10 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
     }
 
     @Test
-    public void testConfigBooleanProps() throws IOException {
+    public void testConfigBooleanProps() throws Exception {
 
-        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl(m_agentContext);
-        ReflectionUtil.invokeMethod(configurationHandler, "start", new Class<?>[] {}, new Object[] {});
+        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
+        startHandler(configurationHandler, m_agentContext);
 
         configurationHandler.putBoolean("boolean1", true);
         configurationHandler.putBoolean("boolean2", false);
@@ -154,10 +154,10 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
     }
 
     @Test
-    public void testConfigLongProps() throws IOException {
+    public void testConfigLongProps() throws Exception {
 
-        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl(m_agentContext);
-        ReflectionUtil.invokeMethod(configurationHandler, "start", new Class<?>[] {}, new Object[] {});
+        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
+        startHandler(configurationHandler, m_agentContext);
 
         configurationHandler.putLong("long1", 42);
         configurationHandler.putLong("long2", 4l);

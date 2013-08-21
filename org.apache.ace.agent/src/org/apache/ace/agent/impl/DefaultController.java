@@ -25,6 +25,7 @@ import java.util.SortedSet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.ConfigurationHandler;

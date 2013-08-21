@@ -33,7 +33,7 @@ import org.osgi.service.log.LogService;
  * Default discovery handler that reads the serverURL(s) from the configuration using key {@link DISCOVERY_CONFIG_KEY}.
  * 
  */
-public class DiscoveryHandlerImpl implements DiscoveryHandler {
+public class DiscoveryHandlerImpl extends HandlerBase implements DiscoveryHandler {
 
     public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + ".discovery";
 
@@ -44,18 +44,12 @@ public class DiscoveryHandlerImpl implements DiscoveryHandler {
     public static final String CONFIG_KEY_SERVERURLS = CONFIG_KEY_BASE + ".serverUrls";
     public static final String CONFIG_DEFAULT_SERVERURLS = "http://localhost:8080";
 
-    private final AgentContext m_agentContext;
-
-    public DiscoveryHandlerImpl(AgentContext agentContext) throws Exception {
-        m_agentContext = agentContext;
-    }
-
     // TODO Pretty naive implementation below. It always takes the first configured URL it can connect to and is not
     // thread-safe.
     @Override
     public URL getServerUrl() {
-        ConfigurationHandler configurationHandler = m_agentContext.getConfigurationHandler();
-        LogService logService = m_agentContext.getLogService();
+        ConfigurationHandler configurationHandler = getAgentContext().getConfigurationHandler();
+        LogService logService = getAgentContext().getLogService();
 
         String configValue = configurationHandler.get(CONFIG_KEY_SERVERURLS, CONFIG_DEFAULT_SERVERURLS);
         URL url = null;
@@ -90,7 +84,7 @@ public class DiscoveryHandlerImpl implements DiscoveryHandler {
     private final Map<String, CheckedURL> m_checkedURLs = new HashMap<String, DiscoveryHandlerImpl.CheckedURL>();
 
     private URL checkURL(String serverURL) {
-        LogService logService = m_agentContext.getLogService();
+        LogService logService = getAgentContext().getLogService();
 
         CheckedURL checked = m_checkedURLs.get(serverURL);
         if (checked != null && checked.timestamp > (System.currentTimeMillis() - CACHE_TIME)) {
@@ -113,7 +107,7 @@ public class DiscoveryHandlerImpl implements DiscoveryHandler {
     private void tryConnect(URL serverURL) throws IOException {
         URLConnection connection = null;
         try {
-            connection = m_agentContext.getConnectionHandler().getConnection(serverURL);
+            connection = getAgentContext().getConnectionHandler().getConnection(serverURL);
             connection.connect();
         }
         finally {

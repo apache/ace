@@ -42,7 +42,7 @@ import org.apache.commons.codec.binary.Base64;
  * Default connection handler with support for BASIC authentication and HTTPS client certificates.
  * 
  */
-public class ConnectionHandlerImpl implements ConnectionHandler {
+public class ConnectionHandlerImpl extends HandlerBase implements ConnectionHandler {
 
     public static final String PROP_AUTHTYPE = "agent.authType";
     public static final String PROP_AUTHUSER = "agent.authUser";
@@ -90,12 +90,6 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         public AuthType getType() {
             return m_type;
         }
-    }
-
-    private final AgentContext m_agentContext;
-
-    public ConnectionHandlerImpl(AgentContext agentContext) {
-        m_agentContext = agentContext;
     }
 
     @Override
@@ -186,7 +180,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     }
 
     private String getConfigStringValue(String key) {
-        return m_agentContext.getConfigurationHandler().get(key, null);
+        return getAgentContext().getConfigurationHandler().get(key, null);
     }
 
     private static KeyManager[] getKeyManagerFactory(String keystoreFile, String storePass) throws IOException, GeneralSecurityException {

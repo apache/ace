@@ -46,7 +46,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.agent.AgentConstants;
+import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.ConfigurationHandler;
+import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.IdentificationHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
@@ -103,13 +105,14 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
         }
     }
 
-    private DeploymentHandlerImpl m_deploymentHandler;
     private TestWebServer m_webserver;
     private File m_200file;
     private Version m_version1 = Version.parseVersion("1.0.0");
     private Version m_version2 = Version.parseVersion("2.0.0");
     private Version m_version3 = Version.parseVersion("3.0.0");
     long m_remotePackageSize = 0l;
+
+    private DeploymentHandler m_deploymentHandler;
 
     @BeforeTest
     public void setUpOnceAgain() throws Exception {
@@ -168,14 +171,20 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
         expect(agentContext.getIdentificationHandler()).andReturn(identificationHandler).anyTimes();
         expect(agentContext.getDiscoveryHandler()).andReturn(discoveryHandler).anyTimes();
         expect(agentContext.getConfigurationHandler()).andReturn(configurationHandler).anyTimes();
-        expect(agentContext.getConnectionHandler()).andReturn(new ConnectionHandlerImpl(agentContext)).anyTimes();
+
+        ConnectionHandlerImpl connectionHandler = new ConnectionHandlerImpl();
+        connectionHandler.start(agentContext);
+        expect(agentContext.getConnectionHandler()).andReturn(connectionHandler).anyTimes();
 
         replayTestMocks();
-        m_deploymentHandler = new DeploymentHandlerImpl(agentContext, deploymentAdmin);
+
+        m_deploymentHandler = new DeploymentHandlerImpl(deploymentAdmin);
+        startHandler(m_deploymentHandler, agentContext);
     }
 
     @AfterTest
     public void tearDownOnceAgain() throws Exception {
+        stopHandler(m_deploymentHandler);
         verifyTestMocks();
         m_webserver.stop();
     }

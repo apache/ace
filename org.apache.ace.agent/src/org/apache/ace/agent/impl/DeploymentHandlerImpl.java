@@ -34,12 +34,9 @@ import org.osgi.service.deploymentadmin.DeploymentPackage;
 
 public class DeploymentHandlerImpl extends UpdateHandlerBase implements DeploymentHandler {
 
-    private final AgentContext m_agentContext;
     private final DeploymentAdmin m_deploymentAdmin;
 
-    public DeploymentHandlerImpl(AgentContext agentContext, DeploymentAdmin deploymentAdmin) {
-        super(agentContext);
-        m_agentContext = agentContext;
+    public DeploymentHandlerImpl(DeploymentAdmin deploymentAdmin) {
         m_deploymentAdmin = deploymentAdmin;
     }
 

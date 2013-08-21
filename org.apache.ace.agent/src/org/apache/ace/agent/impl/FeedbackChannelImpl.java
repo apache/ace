@@ -43,6 +43,7 @@ import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.agent.RetryAfterException;

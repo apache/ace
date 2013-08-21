@@ -37,7 +37,7 @@ import org.osgi.service.log.LogService;
  * Default configuration handler that reads the serverURL(s) from the configuration using key
  * {@link DISCOVERY_CONFIG_KEY}.
  */
-public class ConfigurationHandlerImpl implements ConfigurationHandler {
+public class ConfigurationHandlerImpl extends HandlerBase implements ConfigurationHandler {
 
     /** Directory name use for storage. It is relative to the agent context work directory. */
     public static final String CONFIG_STORAGE_SUBDIR = "config";
@@ -45,14 +45,10 @@ public class ConfigurationHandlerImpl implements ConfigurationHandler {
     /** File name use for storage. */
     public static final String CONFIG_STORAGE_FILENAME = "config.properties";
 
-    private final AgentContext m_agentContext;
     private Properties m_configProps = null;
 
-    public ConfigurationHandlerImpl(AgentContext agentContext) {
-        m_agentContext = agentContext;
-    }
-
-    public void start() throws Exception {
+    @Override
+    public void onStart() {
         synchronized (this) {
             loadSystemProps();
         }
@@ -159,7 +155,7 @@ public class ConfigurationHandlerImpl implements ConfigurationHandler {
             loadConfig();
         }
         catch (IOException e) {
-            m_agentContext.getLogService().log(LogService.LOG_ERROR, "Load config failed", e);
+            getAgentContext().getLogService().log(LogService.LOG_ERROR, "Load config failed", e);
             throw new IllegalStateException("Load config failed", e);
         }
     }
@@ -172,7 +168,7 @@ public class ConfigurationHandlerImpl implements ConfigurationHandler {
             storeConfig();
         }
         catch (IOException e) {
-            m_agentContext.getLogService().log(LogService.LOG_ERROR, "Storing config failed", e);
+            getAgentContext().getLogService().log(LogService.LOG_ERROR, "Storing config failed", e);
             throw new IllegalStateException("Store config failed", e);
         }
     }
@@ -208,7 +204,7 @@ public class ConfigurationHandlerImpl implements ConfigurationHandler {
     }
 
     private File getConfigDir() throws IOException {
-        File dir = new File(m_agentContext.getWorkDir(), CONFIG_STORAGE_SUBDIR);
+        File dir = new File(getAgentContext().getWorkDir(), CONFIG_STORAGE_SUBDIR);
         if (!dir.exists() && !dir.mkdir())
             throw new IOException("Unable to acces configuration directory: " + dir.getAbsolutePath());
         return dir;
@@ -218,5 +214,4 @@ public class ConfigurationHandlerImpl implements ConfigurationHandler {
         if (value == null || value.equals(""))
             throw new IllegalArgumentException("Can not pass null as an argument");
     }
-
 }

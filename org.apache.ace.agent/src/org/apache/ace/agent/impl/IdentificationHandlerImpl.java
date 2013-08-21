@@ -26,7 +26,7 @@ import org.apache.ace.agent.IdentificationHandler;
  * {@link IDENTIFICATION_CONFIG_KEY}.
  * 
  */
-public class IdentificationHandlerImpl implements IdentificationHandler {
+public class IdentificationHandlerImpl extends HandlerBase implements IdentificationHandler {
 
     public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + ".identification";
 
@@ -37,15 +37,9 @@ public class IdentificationHandlerImpl implements IdentificationHandler {
     public static final String CONFIG_KEY_IDENTIFICATION = CONFIG_KEY_BASE + ".agentId";
     public static final String CONFIG_DEFAULT_AGENTID = "defaultTargetID";
 
-    private final AgentContext m_agentContext;
-
-    public IdentificationHandlerImpl(AgentContext agentContext) {
-        m_agentContext = agentContext;
-    }
-
     @Override
     public String getAgentId() {
-        ConfigurationHandler configurationHandler = m_agentContext.getConfigurationHandler();
+        ConfigurationHandler configurationHandler = getAgentContext().getConfigurationHandler();
         String configValue = configurationHandler.get(CONFIG_KEY_IDENTIFICATION, CONFIG_DEFAULT_AGENTID);
         return configValue;
     }
