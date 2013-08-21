@@ -44,6 +44,9 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class ConnectionHandlerImpl extends HandlerBase implements ConnectionHandler {
 
+    public static final String COMPONENT_IDENTIFIER = "connection";
+    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
+
     public static final String PROP_AUTHTYPE = "agent.authType";
     public static final String PROP_AUTHUSER = "agent.authUser";
     public static final String PROP_AUTHPASS = "agent.authPass";
@@ -90,6 +93,10 @@ public class ConnectionHandlerImpl extends HandlerBase implements ConnectionHand
         public AuthType getType() {
             return m_type;
         }
+    }
+
+    public ConnectionHandlerImpl() {
+        super(COMPONENT_IDENTIFIER);
     }
 
     @Override

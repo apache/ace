@@ -31,8 +31,8 @@ import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.DownloadHandler;
 import org.apache.ace.agent.IdentificationHandler;
+import org.apache.ace.agent.impl.Activator.InternalLogger;
 import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
 
 /**
  * Implementation of the internal agent context service.
@@ -51,12 +51,13 @@ public class AgentContextImpl implements AgentContext {
     private volatile AgentUpdateHandler m_agentUpdateHandler;
 
     private volatile ScheduledExecutorService m_executorService;
-    private volatile LogService m_logService;
     private volatile EventAdmin m_eventAdmin;
 
+    private final InternalLogger m_logger;
     private final File m_workDir;
 
-    public AgentContextImpl(File workDir) {
+    public AgentContextImpl(File workDir, InternalLogger logger) {
+        m_logger = logger;
         m_workDir = workDir;
     }
 
@@ -140,11 +141,6 @@ public class AgentContextImpl implements AgentContext {
     }
 
     @Override
-    public LogService getLogService() {
-        return m_logService;
-    }
-
-    @Override
     public EventAdmin getEventAdmin() {
         return m_eventAdmin;
     }
@@ -152,5 +148,45 @@ public class AgentContextImpl implements AgentContext {
     @Override
     public AgentControl getAgentControl() {
         return m_agentControl;
+    }
+
+    @Override
+    public void logDebug(String component, String message, Object... args) {
+        m_logger.logDebug(component, message, null,args);
+    }
+
+    @Override
+    public void logDebug(String component, String message, Throwable exception, Object... args) {
+        m_logger.logDebug(component, message, exception, args);
+    }
+
+    @Override
+    public void logInfo(String component, String message, Object... args) {
+        m_logger.logInfo(component, message, null, args);
+    }
+
+    @Override
+    public void logInfo(String component, String message, Throwable exception, Object... args) {
+        m_logger.logInfo(component, message, exception, args);
+    }
+
+    @Override
+    public void logWarning(String component, String message, Object... args) {
+        m_logger.logWarning(component, message, null, args);
+    }
+
+    @Override
+    public void logWarning(String component, String message, Throwable exception, Object... args) {
+        m_logger.logWarning(component, message, exception, args);
+    }
+
+    @Override
+    public void logError(String component, String message, Object... args) {
+        m_logger.logDebug(component, message, null, args);
+    }
+
+    @Override
+    public void logError(String component, String message, Throwable exception, Object... args) {
+        m_logger.logDebug(component, message, exception, args);
     }
 }

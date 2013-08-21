@@ -19,10 +19,10 @@
 package org.apache.ace.agent;
 
 import java.io.File;
+import java.util.Formatter;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
 
 /**
  * Internal interface that provides access to handlers, supporting services and static configuration.
@@ -94,13 +94,6 @@ public interface AgentContext {
     ScheduledExecutorService getExecutorService();
 
     /**
-     * Return the log service.
-     * 
-     * @return The service
-     */
-    LogService getLogService();
-
-    /**
      * Return the event admin.
      * 
      * @return The service
@@ -113,4 +106,88 @@ public interface AgentContext {
      * @return The directory
      */
     File getWorkDir();
+
+    /**
+     * Log a debug message. If <code>args</code> are provided the message will be processed as a format using the
+     * standard {@link Formatter}.
+     * 
+     * @param component The component identifier, not <code>null</code>
+     * @param message The log message or format, not <code>null</code>
+     * @param args The optional formatter arguments
+     */
+    void logDebug(String component, String message, Object... args);
+
+    /**
+     * Log a debug message. If <code>args</code> are provided the message will be processed as a format using the
+     * standard {@link Formatter}.
+     * 
+     * @param component The component identifier, not <code>null</code>
+     * @param message The log message or format, not <code>null</code>
+     * @param cause The cause, may be <code>null</code>
+     * @param args The optional formatter arguments
+     */
+    void logDebug(String component, String message, Throwable cause, Object... args);
+
+    /**
+     * Log an info message. If <code>args</code> are provided the message will be processed as a format using the
+     * standard {@link Formatter}.
+     * 
+     * @param component The component identifier, not <code>null</code>
+     * @param message The log message or format, not <code>null</code>
+     * @param args The optional formatter arguments
+     */
+    void logInfo(String component, String message, Object... args);
+
+    /**
+     * Log an info message. If <code>args</code> are provided the message will be processed as a format using the
+     * standard {@link Formatter}.
+     * 
+     * @param component The component identifier, not <code>null</code>
+     * @param message The log message or format, not <code>null</code>
+     * @param cause The cause, may be <code>null</code>
+     * @param args The optional formatter arguments
+     */
+    void logInfo(String component, String message, Throwable cause, Object... args);
+
+    /**
+     * Log a warning message. If <code>args</code> are provided the message will be processed as a format using the
+     * standard {@link Formatter}.
+     * 
+     * @param component The component identifier, not <code>null</code>
+     * @param message The log message or format, not <code>null</code>
+     * @param args The optional formatter arguments
+     */
+    void logWarning(String component, String message, Object... args);
+
+    /**
+     * Log a warning message. If <code>args</code> are provided the message will be processed as a format using the
+     * standard {@link Formatter}.
+     * 
+     * @param component The component identifier, not <code>null</code>
+     * @param message The log message or format, not <code>null</code>
+     * @param cause The cause, may be <code>null</code>
+     * @param args The optional formatter arguments
+     */
+    void logWarning(String component, String message, Throwable cause, Object... args);
+
+    /**
+     * Log an error message. If <code>args</code> are provided the message will be processed as a format using the
+     * standard {@link Formatter}.
+     * 
+     * @param component The component identifier, not <code>null</code>
+     * @param message The log message or format, not <code>null</code>
+     * @param args The optional formatter arguments
+     */
+    void logError(String component, String message, Object... args);
+
+    /**
+     * Log an error message.If <code>args</code> are provided the message will be processed as a format using the
+     * standard {@link Formatter}.
+     * 
+     * @param component The component identifier, not <code>null</code>
+     * @param message The log message or format, not <code>null</code>
+     * @param cause The cause, may be <code>null</code>
+     * @param args The optional formatter arguments
+     */
+    void logError(String component, String message, Throwable cause, Object... args);
 }

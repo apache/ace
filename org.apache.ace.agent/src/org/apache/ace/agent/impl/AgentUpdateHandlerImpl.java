@@ -44,6 +44,9 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUpdateHandler {
 
+    public static final String COMPONENT_IDENTIFIER = "agentupdate";
+    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
+
     private static final int TIMEOUT = 15000;
     private static final String UPDATER_VERSION = "1.0.0";
     private static final String UPDATER_SYMBOLICNAME = "org.apache.ace.agent.updater";
@@ -51,6 +54,7 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
     private BundleContext m_bundleContext;
 
     public AgentUpdateHandlerImpl(BundleContext bundleContext) {
+        super(COMPONENT_IDENTIFIER);
         m_bundleContext = bundleContext;
     }
 

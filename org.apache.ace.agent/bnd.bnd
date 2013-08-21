@@ -23,22 +23,22 @@ Private-Package: org.apache.ace.range,\
 	org.apache.felix.dm.tracker,\
 	org.osgi.service.metatype,\
 	org.osgi.service.cm,\
+	org.osgi.service.log,\
 	org.osgi.util.tracker
 
-Import-Package: \
-    !org.osgi.service.cm,\
-	!org.osgi.service.metatype,\
-	*
+# No wildcard import here on purpose. Are you sure the agent must 
+# require an extra external dependency? Probably not...
+Import-Package:javax.net.ssl,\
+	org.osgi.framework,\
+	org.osgi.service.packageadmin
 
-DynamicImport-Package: \
-	org.osgi.service.event,\
-	org.osgi.service.log
-
+# This is a minimal set on purpose. Are you really sure the agent must 
+# expose another package? Probably not...
+# FIXME Decouple api from event admin as well
 Export-Package: org.apache.ace.agent,\
 	org.osgi.service.deploymentadmin;-split-package:=merge-last,\
 	org.osgi.service.deploymentadmin.spi;-split-package:=merge-last,\
-	org.osgi.service.event,\
-	org.osgi.service.log
+	org.osgi.service.event
 
 -buildpath: osgi.core;version=4.2,\
 	osgi.cmpn;version=4.2,\

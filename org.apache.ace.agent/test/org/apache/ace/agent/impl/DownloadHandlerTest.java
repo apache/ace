@@ -18,10 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.easymock.EasyMock.anyInt;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.notNull;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -57,7 +54,6 @@ import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.DownloadState;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
-import org.osgi.service.log.LogService;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -118,11 +114,6 @@ public class DownloadHandlerTest extends BaseAgentTest {
 
         AgentContext agentContext = addTestMock(AgentContext.class);
         expect(agentContext.getExecutorService()).andReturn(executorService).anyTimes();
-
-        LogService logService = addTestMock(LogService.class);
-        expect(agentContext.getLogService()).andReturn(logService).anyTimes();
-        logService.log(anyInt(), notNull(String.class));
-        expectLastCall().anyTimes();
 
         replayTestMocks();
         m_downloadHandler = new DownloadHandlerImpl();

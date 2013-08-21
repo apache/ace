@@ -23,9 +23,15 @@ import java.util.concurrent.ExecutorService;
 
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandler;
-import org.osgi.service.log.LogService;
 
 public class DownloadHandlerImpl extends HandlerBase implements DownloadHandler {
+
+    public static final String COMPONENT_IDENTIFIER = "download";
+    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
+
+    public DownloadHandlerImpl() {
+        super(COMPONENT_IDENTIFIER);
+    }
 
     @Override
     public DownloadHandle getHandle(URL url) {
@@ -42,17 +48,5 @@ public class DownloadHandlerImpl extends HandlerBase implements DownloadHandler 
      */
     ExecutorService getExecutor() {
         return getAgentContext().getExecutorService();
-    }
-
-    void logDebug(String message, Object... args) {
-        getAgentContext().getLogService().log(LogService.LOG_DEBUG, message);
-    }
-
-    void logInfo(String message, Object... args) {
-        getAgentContext().getLogService().log(LogService.LOG_INFO, message);
-    }
-
-    void logWarning(String message, Object... args) {
-        getAgentContext().getLogService().log(LogService.LOG_WARNING, message);
     }
 }

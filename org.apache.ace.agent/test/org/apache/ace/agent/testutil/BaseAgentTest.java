@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent.testutil;
 
-import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
@@ -38,7 +38,7 @@ public abstract class BaseAgentTest {
     private Set<Object> m_mocks = new HashSet<Object>();
 
     protected <T extends Object> T addTestMock(Class<T> clazz) {
-        T mock = createMock(clazz);
+        T mock = createNiceMock(clazz);
         m_mocks.add(mock);
         return mock;
     }

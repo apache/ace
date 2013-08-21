@@ -34,9 +34,13 @@ import org.osgi.service.deploymentadmin.DeploymentPackage;
 
 public class DeploymentHandlerImpl extends UpdateHandlerBase implements DeploymentHandler {
 
+    public static final String COMPONENT_IDENTIFIER = "deployment";
+    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
+    
     private final DeploymentAdmin m_deploymentAdmin;
 
     public DeploymentHandlerImpl(DeploymentAdmin deploymentAdmin) {
+        super(COMPONENT_IDENTIFIER);
         m_deploymentAdmin = deploymentAdmin;
     }
 

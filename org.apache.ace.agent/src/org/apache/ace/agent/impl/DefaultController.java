@@ -26,6 +26,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.agent.AgentContext;
+import org.apache.ace.agent.AgentContextAware;
 import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.ConfigurationHandler;
@@ -33,14 +34,14 @@ import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.agent.RetryAfterException;
 import org.osgi.framework.Version;
-import org.osgi.service.log.LogService;
 
 /**
  * Default configurable controller
  * 
  */
-public class DefaultController implements Runnable {
+public class DefaultController implements Runnable, AgentContextAware {
 
+    public static final String COMPONENT_IDENTIFIER = "controller";
     public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + ".controller";
 
     /**
@@ -90,25 +91,23 @@ public class DefaultController implements Runnable {
     public static final String CONFIG_KEY_FIXPACKAGES = CONFIG_KEY_BASE + ".fixPackages";
     public static final boolean CONFIG_DEFAULT_FIXPACKAGES = true;
 
-    private final AgentContext m_agentContext;
+    private volatile AgentContext m_agentContext;
     private volatile ScheduledFuture<?> m_future;
 
-    public DefaultController(AgentContext agentContext) {
+    @Override
+    public void start(AgentContext agentContext) throws Exception {
         m_agentContext = agentContext;
-    }
 
-    public void start() {
         ConfigurationHandler configurationHandler = m_agentContext.getConfigurationHandler();
-        LogService logService = m_agentContext.getLogService();
 
         boolean disabled = configurationHandler.getBoolean(CONFIG_KEY_DISABLED, CONFIG_DEFAULT_DISABLED);
         if (disabled) {
-            logService.log(LogService.LOG_INFO, "Default controller disabled by configuration");
+            m_agentContext.logInfo(COMPONENT_IDENTIFIER, "Default controller disabled by configuration");
         }
         else {
             long delay = configurationHandler.getLong(CONFIG_KEY_SYNCDELAY, CONFIG_DEFAULT_SYNCDELAY);
             scheduleRun(delay);
-            logService.log(LogService.LOG_DEBUG, "Controller scheduled to sync in " + delay + " seconds");
+            m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Controller scheduled to sync in %d seconds", delay);
         }
     }
 
@@ -118,9 +117,8 @@ public class DefaultController implements Runnable {
 
     public void run() {
         ConfigurationHandler configurationHandler = m_agentContext.getConfigurationHandler();
-        LogService logService = m_agentContext.getLogService();
 
-        logService.log(LogService.LOG_DEBUG, "Controller syncing...");
+        m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Controller syncing...");
         long interval = configurationHandler.getLong(CONFIG_KEY_SYNCINTERVAL, CONFIG_DEFAULT_SYNCINTERVAL);
         try {
             runSafeAgent();
@@ -129,23 +127,22 @@ public class DefaultController implements Runnable {
         }
         catch (RetryAfterException e) {
             interval = e.getSeconds();
-            logService.log(LogService.LOG_INFO, "Sync received retry exception from server.");
+            m_agentContext.logInfo(COMPONENT_IDENTIFIER, "Sync received retry exception from server.");
         }
         catch (IOException e) {
-            logService.log(LogService.LOG_WARNING, "Sync aborted due to IOException.", e);
+            m_agentContext.logWarning(COMPONENT_IDENTIFIER, "Sync aborted due to IOException.", e);
         }
         catch (Exception e) {
-            logService.log(LogService.LOG_ERROR, "Sync aborted due to Exception.", e);
+            m_agentContext.logError(COMPONENT_IDENTIFIER, "Sync aborted due to Exception.", e);
         }
         scheduleRun(interval);
-        logService.log(LogService.LOG_DEBUG, "Sync completed. Rescheduled in " + interval + " seconds");
+        m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Sync completed. Rescheduled in %d seconds", interval);
     }
 
     private void runSafeAgent() throws RetryAfterException, IOException {
         AgentUpdateHandler deploymentHandler = m_agentContext.getAgentUpdateHandler();
-        LogService logService = m_agentContext.getLogService();
 
-        logService.log(LogService.LOG_DEBUG, "Checking for agent update");
+        m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Checking for agent update");
         Version current = deploymentHandler.getInstalledVersion();
         SortedSet<Version> available = deploymentHandler.getAvailableVersions();
         Version highest = Version.emptyVersion;
@@ -153,21 +150,20 @@ public class DefaultController implements Runnable {
             highest = available.last();
         }
         if (highest.compareTo(current) > 0) {
-            logService.log(LogService.LOG_INFO, "Installing agent update " + current + " => " + highest);
+            m_agentContext.logInfo(COMPONENT_IDENTIFIER, "Installing agent update %s => %s", current, highest);
             InputStream inputStream = deploymentHandler.getInputStream(highest);
             deploymentHandler.install(inputStream);
         }
         else {
-            logService.log(LogService.LOG_DEBUG, "No agent update available for version" + current);
+            m_agentContext.logDebug(COMPONENT_IDENTIFIER, "No agent update available for version %s", current);
         }
     }
 
     private void runSafeUpdate() throws RetryAfterException, IOException {
         ConfigurationHandler configurationHandler = m_agentContext.getConfigurationHandler();
         DeploymentHandler deploymentHandler = m_agentContext.getDeploymentHandler();
-        LogService logService = m_agentContext.getLogService();
 
-        logService.log(LogService.LOG_DEBUG, "Checking for deployment update");
+        m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Checking for deployment update");
         Version current = deploymentHandler.getInstalledVersion();
         SortedSet<Version> available = deploymentHandler.getAvailableVersions();
         Version highest = Version.emptyVersion;
@@ -175,7 +171,7 @@ public class DefaultController implements Runnable {
             highest = available.last();
         }
         if (highest.compareTo(current) > 0) {
-            logService.log(LogService.LOG_INFO, "Installing deployment update " + current + " => " + highest);
+            m_agentContext.logInfo(COMPONENT_IDENTIFIER, "Installing deployment update %s => %s", current, highest);
 
             // FIXME handle downloads
             // boolean streaming = configurationHandler.getBoolean(CONFIG_KEY_STREAMING_UPDATES,
@@ -190,21 +186,20 @@ public class DefaultController implements Runnable {
             }
         }
         else {
-            logService.log(LogService.LOG_DEBUG, "No deployment update available for version" + current);
+            m_agentContext.logDebug(COMPONENT_IDENTIFIER, "No deployment update available for version %s", current);
         }
     }
 
     private void runSafeFeedback() throws RetryAfterException, IOException {
         AgentControl agentControl = m_agentContext.getAgentControl();
-        LogService logService = m_agentContext.getLogService();
 
-        logService.log(LogService.LOG_DEBUG, "Synchronizing feedback channels");
+        m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Synchronizing feedback channels");
         List<String> channelNames = agentControl.getFeedbackChannelNames();
         for (String channelName : channelNames) {
-            logService.log(LogService.LOG_DEBUG, "Synchronizing channel: " + channelName);
             FeedbackChannel channel = agentControl.getFeedbackChannel(channelName);
-            if (channel != null)
+            if (channel != null) {
                 channel.sendFeedback();
+            }
         }
     }
 

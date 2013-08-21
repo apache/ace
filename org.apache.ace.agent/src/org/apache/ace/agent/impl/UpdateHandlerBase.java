@@ -35,6 +35,10 @@ import org.osgi.framework.Version;
 
 public class UpdateHandlerBase extends HandlerBase {
 
+    public UpdateHandlerBase(String componentIdentifier) {
+        super(componentIdentifier);
+    }
+
     protected SortedSet<Version> getAvailableVersions(URL endpoint) throws RetryAfterException, IOException {
         SortedSet<Version> versions = new TreeSet<Version>();
         URLConnection connection = null;

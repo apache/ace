@@ -48,6 +48,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.ConfigurationHandler;
+import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.IdentificationHandler;
@@ -172,13 +173,13 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
         expect(agentContext.getDiscoveryHandler()).andReturn(discoveryHandler).anyTimes();
         expect(agentContext.getConfigurationHandler()).andReturn(configurationHandler).anyTimes();
 
-        ConnectionHandlerImpl connectionHandler = new ConnectionHandlerImpl();
-        connectionHandler.start(agentContext);
+        ConnectionHandler connectionHandler = new ConnectionHandlerImpl();
         expect(agentContext.getConnectionHandler()).andReturn(connectionHandler).anyTimes();
 
         replayTestMocks();
 
         m_deploymentHandler = new DeploymentHandlerImpl(deploymentAdmin);
+        startHandler(connectionHandler, agentContext);
         startHandler(m_deploymentHandler, agentContext);
     }
 

@@ -72,7 +72,6 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
 
         expect(agentContext.getConfigurationHandler()).andReturn(m_configurationHandler).anyTimes();
         expect(agentContext.getConnectionHandler()).andReturn(m_connectionHandler).anyTimes();
-        expect(agentContext.getLogService()).andReturn(logService).anyTimes();
 
         replayTestMocks();
         startHandler(m_connectionHandler, agentContext);

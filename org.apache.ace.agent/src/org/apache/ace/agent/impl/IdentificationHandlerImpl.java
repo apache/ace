@@ -28,7 +28,12 @@ import org.apache.ace.agent.IdentificationHandler;
  */
 public class IdentificationHandlerImpl extends HandlerBase implements IdentificationHandler {
 
-    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + ".identification";
+    public static final String COMPONENT_IDENTIFIER = "identification";
+    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
+
+    public IdentificationHandlerImpl() {
+        super(COMPONENT_IDENTIFIER);
+    }
 
     /**
      * Configuration key for the default identification handler. The value must be a single file-system and URL safe

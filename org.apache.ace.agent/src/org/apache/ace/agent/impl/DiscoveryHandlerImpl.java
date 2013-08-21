@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DiscoveryHandler;
-import org.osgi.service.log.LogService;
 
 /**
  * Default discovery handler that reads the serverURL(s) from the configuration using key {@link DISCOVERY_CONFIG_KEY}.
@@ -35,7 +34,12 @@ import org.osgi.service.log.LogService;
  */
 public class DiscoveryHandlerImpl extends HandlerBase implements DiscoveryHandler {
 
-    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + ".discovery";
+    public static final String COMPONENT_IDENTIFIER = "discovery";
+    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
+
+    public DiscoveryHandlerImpl() {
+        super(COMPONENT_IDENTIFIER);
+    }
 
     /**
      * Configuration key for the default discovery handler. The value must be a comma-separated list of valid base
@@ -49,7 +53,6 @@ public class DiscoveryHandlerImpl extends HandlerBase implements DiscoveryHandle
     @Override
     public URL getServerUrl() {
         ConfigurationHandler configurationHandler = getAgentContext().getConfigurationHandler();
-        LogService logService = getAgentContext().getLogService();
 
         String configValue = configurationHandler.get(CONFIG_KEY_SERVERURLS, CONFIG_DEFAULT_SERVERURLS);
         URL url = null;
@@ -64,7 +67,7 @@ public class DiscoveryHandlerImpl extends HandlerBase implements DiscoveryHandle
             }
         }
         if (url == null) {
-            logService.log(LogService.LOG_WARNING, "No serverUrl available");
+            logWarning("No connectable serverUrl available");
         }
         return url;
     }
@@ -84,22 +87,21 @@ public class DiscoveryHandlerImpl extends HandlerBase implements DiscoveryHandle
     private final Map<String, CheckedURL> m_checkedURLs = new HashMap<String, DiscoveryHandlerImpl.CheckedURL>();
 
     private URL checkURL(String serverURL) {
-        LogService logService = getAgentContext().getLogService();
 
         CheckedURL checked = m_checkedURLs.get(serverURL);
         if (checked != null && checked.timestamp > (System.currentTimeMillis() - CACHE_TIME)) {
-            logService.log(LogService.LOG_DEBUG, "Returning cached serverURL: " + checked.url.toExternalForm());
+            logDebug("Returning cached serverURL: " + checked.url.toExternalForm());
             return checked.url;
         }
         try {
             URL url = new URL(serverURL);
             tryConnect(url);
-            logService.log(LogService.LOG_DEBUG, "Succesfully connected to  serverURL: " + serverURL);
+            logDebug("Succesfully connected to  serverURL: %s", serverURL);
             m_checkedURLs.put(serverURL, new CheckedURL(url, System.currentTimeMillis()));
             return url;
         }
         catch (IOException e) {
-            logService.log(LogService.LOG_DEBUG, "Failed to connect to serverURL: " + serverURL);
+            logDebug("Failed to connect to serverURL: " + serverURL);
             return null;
         }
     }

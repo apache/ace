@@ -31,13 +31,15 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.ace.agent.ConfigurationHandler;
-import org.osgi.service.log.LogService;
 
 /**
  * Default configuration handler that reads the serverURL(s) from the configuration using key
  * {@link DISCOVERY_CONFIG_KEY}.
  */
 public class ConfigurationHandlerImpl extends HandlerBase implements ConfigurationHandler {
+
+    public static final String COMPONENT_IDENTIFIER = "configuration";
+    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
 
     /** Directory name use for storage. It is relative to the agent context work directory. */
     public static final String CONFIG_STORAGE_SUBDIR = "config";
@@ -46,6 +48,10 @@ public class ConfigurationHandlerImpl extends HandlerBase implements Configurati
     public static final String CONFIG_STORAGE_FILENAME = "config.properties";
 
     private Properties m_configProps = null;
+
+    public ConfigurationHandlerImpl() {
+        super(COMPONENT_IDENTIFIER);
+    }
 
     @Override
     public void onStart() {
@@ -155,7 +161,7 @@ public class ConfigurationHandlerImpl extends HandlerBase implements Configurati
             loadConfig();
         }
         catch (IOException e) {
-            getAgentContext().getLogService().log(LogService.LOG_ERROR, "Load config failed", e);
+            logError("Load config failed", e);
             throw new IllegalStateException("Load config failed", e);
         }
     }
@@ -168,7 +174,7 @@ public class ConfigurationHandlerImpl extends HandlerBase implements Configurati
             storeConfig();
         }
         catch (IOException e) {
-            getAgentContext().getLogService().log(LogService.LOG_ERROR, "Storing config failed", e);
+            logError("Storing config failed", e);
             throw new IllegalStateException("Store config failed", e);
         }
     }
