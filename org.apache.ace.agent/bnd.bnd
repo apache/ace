@@ -23,6 +23,7 @@ Private-Package: org.apache.ace.range,\
 	org.apache.felix.dm.tracker,\
 	org.osgi.service.metatype,\
 	org.osgi.service.cm,\
+	org.osgi.service.event,\
 	org.osgi.service.log,\
 	org.osgi.util.tracker
 
@@ -34,11 +35,9 @@ Import-Package:javax.net.ssl,\
 
 # This is a minimal set on purpose. Are you really sure the agent must 
 # expose another package? Probably not...
-# FIXME Decouple api from event admin as well
 Export-Package: org.apache.ace.agent,\
 	org.osgi.service.deploymentadmin;-split-package:=merge-last,\
-	org.osgi.service.deploymentadmin.spi;-split-package:=merge-last,\
-	org.osgi.service.event
+	org.osgi.service.deploymentadmin.spi;-split-package:=merge-last
 
 -buildpath: osgi.core;version=4.2,\
 	osgi.cmpn;version=4.2,\

@@ -19,6 +19,7 @@
 package org.apache.ace.agent.impl;
 
 import java.io.File;
+import java.util.Dictionary;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.ace.agent.AgentContext;
@@ -31,8 +32,8 @@ import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.DownloadHandler;
 import org.apache.ace.agent.IdentificationHandler;
+import org.apache.ace.agent.impl.Activator.InternalEvents;
 import org.apache.ace.agent.impl.Activator.InternalLogger;
-import org.osgi.service.event.EventAdmin;
 
 /**
  * Implementation of the internal agent context service.
@@ -51,13 +52,15 @@ public class AgentContextImpl implements AgentContext {
     private volatile AgentUpdateHandler m_agentUpdateHandler;
 
     private volatile ScheduledExecutorService m_executorService;
-    private volatile EventAdmin m_eventAdmin;
 
     private final InternalLogger m_logger;
+    private final InternalEvents m_events;
+    
     private final File m_workDir;
 
-    public AgentContextImpl(File workDir, InternalLogger logger) {
+    public AgentContextImpl(File workDir, InternalLogger logger, InternalEvents events) {
         m_logger = logger;
+        m_events = events;
         m_workDir = workDir;
     }
 
@@ -141,18 +144,18 @@ public class AgentContextImpl implements AgentContext {
     }
 
     @Override
-    public EventAdmin getEventAdmin() {
-        return m_eventAdmin;
-    }
-
-    @Override
     public AgentControl getAgentControl() {
         return m_agentControl;
     }
 
     @Override
+    public void postEvent(String topic, Dictionary<String, String> payload) {
+        m_events.postEvent(topic, payload);
+    }
+
+    @Override
     public void logDebug(String component, String message, Object... args) {
-        m_logger.logDebug(component, message, null,args);
+        m_logger.logDebug(component, message, null, args);
     }
 
     @Override
@@ -189,4 +192,5 @@ public class AgentContextImpl implements AgentContext {
     public void logError(String component, String message, Throwable exception, Object... args) {
         m_logger.logDebug(component, message, exception, args);
     }
+
 }

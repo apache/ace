@@ -22,6 +22,7 @@ import static org.apache.ace.agent.impl.ReflectionUtil.configureField;
 import static org.apache.ace.agent.impl.ReflectionUtil.invokeMethod;
 
 import java.util.Date;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -54,7 +55,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 public class Activator extends DependencyActivatorBase {
 
     // internal delegates
-    private final InternalEventAdmin m_internalEventAdmin = new InternalEventAdmin();
+    private final InternalEvents m_internalEvents = new InternalEvents();
     private final InternalLogger m_internalLogger = new InternalLogger(1);
 
     // managed state
@@ -65,10 +66,10 @@ public class Activator extends DependencyActivatorBase {
     private DeploymentAdmin m_internalDeploymentAdmin;
     private Component m_agentControlComponent = null;
     private EventLoggerImpl m_eventLoggerImpl;
+    private DefaultController m_defaultController;
 
     // injected services
     private volatile PackageAdmin m_packageAdmin;
-    private volatile EventAdmin m_externalEventAdmin;
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
@@ -78,15 +79,14 @@ public class Activator extends DependencyActivatorBase {
         m_internalDeploymentAdmin = new DeploymentAdminImpl();
         configureField(m_internalDeploymentAdmin, BundleContext.class, context);
         configureField(m_internalDeploymentAdmin, PackageAdmin.class, null);
-        configureField(m_internalDeploymentAdmin, EventAdmin.class, m_internalEventAdmin);
+        configureField(m_internalDeploymentAdmin, EventAdmin.class, new InternalEventAdmin(m_internalEvents));
         configureField(m_internalDeploymentAdmin, LogService.class, new InternalLogService(m_internalLogger, "deployment"));
 
-        m_agentContext = new AgentContextImpl(context.getDataFile(""), m_internalLogger);
+        m_agentContext = new AgentContextImpl(context.getDataFile(""), m_internalLogger, m_internalEvents);
         m_agentControl = new AgentControlImpl(m_agentContext);
         m_agentUpdateHandler = new AgentUpdateHandlerImpl(context);
 
         configureField(m_agentContext, AgentControl.class, m_agentControl);
-        configureField(m_agentContext, EventAdmin.class, m_internalEventAdmin);
         configureField(m_agentContext, ConfigurationHandler.class, new ConfigurationHandlerImpl());
         configureField(m_agentContext, ConnectionHandler.class, new ConnectionHandlerImpl());
         configureField(m_agentContext, DeploymentHandler.class, new DeploymentHandlerImpl(m_internalDeploymentAdmin));
@@ -104,10 +104,7 @@ public class Activator extends DependencyActivatorBase {
             .setAutoConfig(Component.class, false)
             .add(createServiceDependency()
                 .setService(PackageAdmin.class).setRequired(true)
-                .setCallbacks(this, "packageAdminAdded", "packageAdminRemoved"))
-            .add(createServiceDependency()
-                .setService(EventAdmin.class).setRequired(false)
-                .setCallbacks(this, "eventAdminAdded", "eventAdminRemoved"));
+                .setCallbacks(this, "packageAdminAdded", "packageAdminRemoved"));
 
         // FIXME fake config
         if (Boolean.parseBoolean(System.getProperty("agent.identificationhandler.disabled"))) {
@@ -146,27 +143,10 @@ public class Activator extends DependencyActivatorBase {
         }
     }
 
-    synchronized void eventAdminAdded(EventAdmin eventAdmin) {
-        if (m_externalEventAdmin == null) {
-            m_externalEventAdmin = eventAdmin;
-            configureField(m_internalEventAdmin, EventAdmin.class, eventAdmin);
-        }
-    }
-
-    synchronized void eventAdminRemoved(EventAdmin eventAdmin) {
-        if (m_externalEventAdmin == eventAdmin) {
-            m_externalEventAdmin = null;
-            configureField(m_internalEventAdmin, EventAdmin.class, null);
-        }
-    }
-
-    private DefaultController m_defaultController;
-
     void startAgent() throws Exception {
 
         m_internalLogger.logInfo("activator", "Agent starting...", null);
 
-        m_internalLogger.logInfo("activator", "Agent starting...", null);
         invokeMethod(m_internalDeploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
         m_agentContext.start();
 
@@ -192,7 +172,7 @@ public class Activator extends DependencyActivatorBase {
             BundleContext bundleContext = getDependencyManager().getBundleContext();
             bundleContext.addBundleListener(m_eventLoggerImpl);
             bundleContext.addFrameworkListener(m_eventLoggerImpl);
-            m_internalEventAdmin.registerHandler(m_eventLoggerImpl, EventLoggerImpl.TOPICS_INTEREST);
+            m_internalEvents.registerHandler(m_eventLoggerImpl, EventLoggerImpl.TOPICS_INTEREST);
             m_internalLogger.logInfo("activator", "Audit logger started", null);
         }
         else {
@@ -220,7 +200,7 @@ public class Activator extends DependencyActivatorBase {
             BundleContext bundleContext = getDependencyManager().getBundleContext();
             bundleContext.removeFrameworkListener(m_eventLoggerImpl);
             bundleContext.removeBundleListener(m_eventLoggerImpl);
-            m_internalEventAdmin.unregisterHandler(m_eventLoggerImpl);
+            m_internalEvents.unregisterHandler(m_eventLoggerImpl);
         }
 
         m_agentContext.stop();
@@ -228,25 +208,33 @@ public class Activator extends DependencyActivatorBase {
         m_internalLogger.logInfo("activator", "Agent stopped", null);
     }
 
-    static class InternalEventAdmin implements EventAdmin {
+    /**
+     * InternalEvents that posts events to internal handlers and external admins.
+     */
+    static class InternalEvents {
 
         private final Map<EventHandler, String[]> m_eventHandlers = new HashMap<EventHandler, String[]>();
-        private volatile EventAdmin m_eventAdmin;
 
-        @Override
-        public void postEvent(Event event) {
-            sendInternal(event);
-            EventAdmin eventAdmin = m_eventAdmin;
-            if (eventAdmin != null)
-                eventAdmin.postEvent(event);
+        public void postEvent(String topic, Dictionary<String, String> payload) {
+            Event event = new Event(topic, payload);
+            postEvent(event);
         }
 
-        @Override
-        public void sendEvent(Event event) {
+        public void postEvent(Event event) {
             sendInternal(event);
-            EventAdmin eventAdmin = m_eventAdmin;
-            if (eventAdmin != null)
-                eventAdmin.sendEvent(event);
+            sendExternal(event);
+        }
+
+        void registerHandler(EventHandler eventHandler, String[] topics) {
+            synchronized (m_eventHandlers) {
+                m_eventHandlers.put(eventHandler, topics);
+            }
+        }
+
+        void unregisterHandler(EventHandler eventHandler) {
+            synchronized (m_eventHandlers) {
+                m_eventHandlers.remove(eventHandler);
+            }
         }
 
         private void sendInternal(Event event) {
@@ -264,19 +252,38 @@ public class Activator extends DependencyActivatorBase {
             }
         }
 
-        void registerHandler(EventHandler eventHandler, String[] topics) {
-            synchronized (m_eventHandlers) {
-                m_eventHandlers.put(eventHandler, topics);
-            }
+        private void sendExternal(Event event) {
+            // TODO this requires looking for all service references and invoking any found admins using reflection
         }
 
-        void unregisterHandler(EventHandler eventHandler) {
-            synchronized (m_eventHandlers) {
-                m_eventHandlers.remove(eventHandler);
-            }
+    }
+
+    /**
+     * Internal EventAdmin that delegates to actual InternalEvents. Used to inject into the DeploymentAdmin only.
+     */
+    static class InternalEventAdmin implements EventAdmin {
+
+        private final InternalEvents m_events;
+
+        public InternalEventAdmin(InternalEvents events) {
+            m_events = events;
+        }
+
+        @Override
+        public void postEvent(Event event) {
+            m_events.postEvent(event);
+        }
+
+        @Override
+        public void sendEvent(Event event) {
+            m_events.postEvent(event);
         }
     }
 
+    /**
+     * Internal logger that writes to system out for now. It minimizes work until it is determined the loglevel is
+     * loggable.
+     */
     static class InternalLogger {
 
         private final int m_level;
@@ -317,6 +324,9 @@ public class Activator extends DependencyActivatorBase {
         }
     }
 
+    /**
+     * Internal LogService that wraps delegates to actual InternalLogger. Used to inject into the DeploymentAdmin only.
+     */
     static class InternalLogService implements LogService {
 
         private final InternalLogger m_logger;
@@ -361,6 +371,9 @@ public class Activator extends DependencyActivatorBase {
         }
     }
 
+    /**
+     * Internal thread factory that assigns recognizable names to the threads it creates and sets them in daemon mode.
+     */
     static class InternalThreadFactory implements ThreadFactory {
 
         private static final String m_name = "ACE Agent worker (%s)";

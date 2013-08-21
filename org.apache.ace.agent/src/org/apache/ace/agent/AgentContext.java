@@ -19,10 +19,9 @@
 package org.apache.ace.agent;
 
 import java.io.File;
+import java.util.Dictionary;
 import java.util.Formatter;
 import java.util.concurrent.ScheduledExecutorService;
-
-import org.osgi.service.event.EventAdmin;
 
 /**
  * Internal interface that provides access to handlers, supporting services and static configuration.
@@ -94,18 +93,20 @@ public interface AgentContext {
     ScheduledExecutorService getExecutorService();
 
     /**
-     * Return the event admin.
-     * 
-     * @return The service
-     */
-    EventAdmin getEventAdmin();
-
-    /**
      * Return the work directory.
      * 
      * @return The directory
      */
     File getWorkDir();
+
+    /**
+     * Post an event to any eventAdmin services outside the agent available at this time. There is no guarantee on
+     * delivery. Only string values are supported to avoid any potential class-loading issues.
+     * 
+     * @param topic The topic
+     * @param properties The payload
+     */
+    void postEvent(String topic, Dictionary<String, String> payload);
 
     /**
      * Log a debug message. If <code>args</code> are provided the message will be processed as a format using the
