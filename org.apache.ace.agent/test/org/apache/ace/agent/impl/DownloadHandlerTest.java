@@ -57,6 +57,9 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+/**
+ * Testing {@link DownloadHandlerImpl}.
+ */
 public class DownloadHandlerTest extends BaseAgentTest {
 
     static class TestErrorServlet extends HttpServlet {

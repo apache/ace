@@ -58,7 +58,10 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-public class DeploymentHandlerTest extends BaseAgentTest {
+/**
+ * Testing {@link DeploymentHandlerImpl}.
+ */
+public class DeploymentHandlerImplTest extends BaseAgentTest {
 
     static class TestDeploymentServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;

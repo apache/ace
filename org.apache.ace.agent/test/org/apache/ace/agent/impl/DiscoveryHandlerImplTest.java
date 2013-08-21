@@ -18,11 +18,12 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
+import static org.easymock.EasyMock.resetToNice;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
@@ -38,6 +39,9 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+/**
+ * Testing {@link DiscoveryHandlerImpl}.
+ */
 public class DiscoveryHandlerImplTest extends BaseAgentTest {
 
     private final int PORT = 8882;

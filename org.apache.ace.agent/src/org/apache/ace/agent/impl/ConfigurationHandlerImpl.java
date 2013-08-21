@@ -33,7 +33,17 @@ import java.util.Set;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.osgi.service.log.LogService;
 
+/**
+ * Default configuration handler that reads the serverURL(s) from the configuration using key
+ * {@link DISCOVERY_CONFIG_KEY}.
+ */
 public class ConfigurationHandlerImpl implements ConfigurationHandler {
+
+    /** Directory name use for storage. It is relative to the agent context work directory. */
+    public static final String CONFIG_STORAGE_SUBDIR = "config";
+
+    /** File name use for storage. */
+    public static final String CONFIG_STORAGE_FILENAME = "config.properties";
 
     private final AgentContext m_agentContext;
     private Properties m_configProps = null;
@@ -191,14 +201,14 @@ public class ConfigurationHandlerImpl implements ConfigurationHandler {
     }
 
     private File getConfigFile() throws IOException {
-        File file = new File(getConfigDir(), "config.properties");
+        File file = new File(getConfigDir(), CONFIG_STORAGE_FILENAME);
         if (!file.exists() && !file.createNewFile())
             throw new IOException("Unable to acces configuration file: " + file.getAbsolutePath());
         return file;
     }
 
     private File getConfigDir() throws IOException {
-        File dir = new File(m_agentContext.getWorkDir(), "config");
+        File dir = new File(m_agentContext.getWorkDir(), CONFIG_STORAGE_SUBDIR);
         if (!dir.exists() && !dir.mkdir())
             throw new IOException("Unable to acces configuration directory: " + dir.getAbsolutePath());
         return dir;

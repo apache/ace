@@ -42,6 +42,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+/**
+ * Testing {@link CustomController}.
+ */
 public class CustomControllerTest extends BaseAgentTest {
 
     AgentControl m_agentControl;

@@ -33,7 +33,10 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-public class IdentificationhandlerImplTest extends BaseAgentTest {
+/**
+ * Testing {@link IdentificationHandlerImpl}.
+ */
+public class IdentificationHandlerImplTest extends BaseAgentTest {
 
     private IdentificationHandler m_identificationHandler;
     private ConfigurationHandler m_configurationHandler;

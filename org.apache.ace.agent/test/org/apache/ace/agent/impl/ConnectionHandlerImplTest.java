@@ -18,10 +18,11 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.notNull;
+import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
 import static org.testng.Assert.assertEquals;
 
@@ -46,8 +47,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 /**
- * Testing {@link ConnectionHandlerImpl}
- * 
+ * Testing {@link ConnectionHandlerImpl},
  */
 // TODO test CLIENT_CERT
 public class ConnectionHandlerImplTest extends BaseAgentTest {

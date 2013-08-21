@@ -32,12 +32,13 @@ import java.util.Set;
  * <code>agent.controller.syncinterval=3000</code><br/>
  * <code>agent.controller.syncinterval.override=true</code>
  */
+// TODO Configuration by launcher will probably be the primary use case. Should we flip the override default?
 public interface ConfigurationHandler {
 
     /**
      * Key namespace; All system property keys that start with this are considered.
      */
-    String CONFIG_KEY_NAMESPACE = "agent";
+    String CONFIG_KEY_NAMESPACE = "ace.agent";
 
     /**
      * Override postfix; The postfix for override property keys.

@@ -27,7 +27,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
-public class BaseAgentTest {
+/**
+ * Simple base class.
+ */
+public abstract class BaseAgentTest {
 
     Set<Object> m_mocks = new HashSet<Object>();
 
