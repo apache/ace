@@ -33,5 +33,5 @@ public enum DownloadState {
     /**
      * The handle completed due to an unrecoverable error. It can not be resumed.
      */
-    FAILED,
+    FAILED
 }
