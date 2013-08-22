@@ -39,8 +39,6 @@ import org.osgi.framework.BundleException;
  */
 public class Activator implements BundleActivator, Runnable {
     private static final int BUFFER_SIZE = 4096;
-    private Object LOCK = new Object();
-    private BundleContext m_context;
     private Thread m_updaterThread;
     private InputStream m_oldStream;
     private InputStream m_newStream;
@@ -50,10 +48,9 @@ public class Activator implements BundleActivator, Runnable {
 
     @Override
     public void start(BundleContext context) throws Exception {
-        m_context = context;
-        m_context.registerService(Activator.class.getName(), this, null);
-        m_oldFile = m_context.getDataFile("old.jar");
-        m_newFile = m_context.getDataFile("new.jar");
+        context.registerService(Activator.class.getName(), this, null);
+        m_oldFile = context.getDataFile("old.jar");
+        m_newFile = context.getDataFile("new.jar");
     }
 
     @Override
@@ -61,14 +58,12 @@ public class Activator implements BundleActivator, Runnable {
     }
     
     public void update(Bundle agent, InputStream oldStream, InputStream newStream) throws IOException {
-        synchronized (LOCK) {
-            m_updaterThread = new Thread(this, "Apache ACE Management Agent Updater");
-            m_agent = agent;
-            copy(oldStream, new FileOutputStream(m_oldFile));
-            copy(newStream, new FileOutputStream(m_newFile));
-            m_oldStream = new FileInputStream(m_oldFile);
-            m_newStream = new FileInputStream(m_newFile);
-        }
+        m_updaterThread = new Thread(this, "Apache ACE Management Agent Updater");
+        m_agent = agent;
+        copy(oldStream, new FileOutputStream(m_oldFile));
+        copy(newStream, new FileOutputStream(m_newFile));
+        m_oldStream = new FileInputStream(m_oldFile);
+        m_newStream = new FileInputStream(m_newFile);
         m_updaterThread.start();
     }
     
@@ -95,18 +90,27 @@ public class Activator implements BundleActivator, Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("Updating to " + m_newStream);
             m_agent.update(m_newStream);
         }
         catch (BundleException e) {
             try {
-                System.out.println("Reverting to " + m_oldStream);
                 m_agent.update(m_oldStream);
                 m_agent.start();
             }
             catch (BundleException e1) {
                 // at this point we simply give up
-                e1.printStackTrace();
+                // and log the exceptions we got
+                System.err.println("Error updating agent:");
+                e.printStackTrace(System.err);
+                e1.printStackTrace(System.err);
+                // the best we can do is try to start the agent (again)
+                try {
+                    m_agent.start();
+                    System.err.println("We did manage to start the agent again.");
+                }
+                catch (BundleException e2) {
+                    e2.printStackTrace(System.err);
+                }
             }
         }
     }

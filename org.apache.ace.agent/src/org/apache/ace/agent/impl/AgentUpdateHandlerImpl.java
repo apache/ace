@@ -72,6 +72,7 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
                     b.uninstall();
                 }
                 catch (BundleException e) {
+                    logError("Failed to uninstall updater bundle. Will try to stop it instead.", e);
                     b.stop();
                     throw e;
                 }
@@ -86,7 +87,7 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
 
     @Override
     public SortedSet<Version> getAvailableVersions() throws RetryAfterException, IOException {
-        return getAvailableVersions(getEndpoint(getServerURL(), getIdentification()));
+        return getAvailableVersions(getEndpoint(getServerURL(), getIdentification(), null));
     }
 
     @Override
@@ -115,7 +116,6 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
             Object service = st.waitForService(TIMEOUT);
             if (service != null) {
                 Method method = service.getClass().getMethod("update", Bundle.class, InputStream.class, InputStream.class);
-                System.out.println("Method: " + method);
                 try {
                     method.invoke(service, m_bundleContext.getBundle(), currentBundleVersion, stream);
                 }
@@ -178,10 +178,6 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
         }
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         return bais;
-    }
-
-    private URL getEndpoint(URL serverURL, String identification) {
-        return getEndpoint(serverURL, identification, null);
     }
 
     private URL getEndpoint(URL serverURL, String identification, Version version) {
