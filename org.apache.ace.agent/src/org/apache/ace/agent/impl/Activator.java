@@ -57,7 +57,7 @@ public class Activator extends DependencyActivatorBase {
 
     // internal delegates
     private final InternalEvents m_internalEvents = new InternalEvents();
-    private final InternalLogger m_internalLogger = new InternalLogger(1);
+    private final InternalLogger m_internalLogger = new InternalLogger(LogService.LOG_DEBUG);
 
     // managed state
     private AgentContextImpl m_agentContext;
@@ -305,19 +305,19 @@ public class Activator extends DependencyActivatorBase {
         }
 
         public void logDebug(String component, String message, Throwable exception, Object... args) {
-            if (m_level > 1)
+            if (m_level < LogService.LOG_DEBUG)
                 return;
             log("DEBUG", component, message, exception, args);
         }
 
         public void logInfo(String component, String message, Throwable exception, Object... args) {
-            if (m_level > 2)
+            if (m_level < LogService.LOG_INFO)
                 return;
             log("INFO", component, message, exception, args);
         }
 
         public void logWarning(String component, String message, Throwable exception, Object... args) {
-            if (m_level > 3)
+            if (m_level < LogService.LOG_WARNING)
                 return;
             log("WARNING", component, message, exception, args);
         }
@@ -348,14 +348,14 @@ public class Activator extends DependencyActivatorBase {
         @Override
         public void log(int level, String message, Throwable exception) {
             switch (level) {
-                case 1:
-                    m_logger.logDebug(m_identifier, message, exception);
+                case LogService.LOG_WARNING:
+                    m_logger.logWarning(m_identifier, message, exception);
                     return;
-                case 2:
+                case LogService.LOG_INFO:
                     m_logger.logInfo(m_identifier, message, exception);
                     return;
-                case 3:
-                    m_logger.logWarning(m_identifier, message, exception);
+                case LogService.LOG_DEBUG:
+                    m_logger.logDebug(m_identifier, message, exception);
                     return;
                 default:
                     m_logger.logError(m_identifier, message, exception);
