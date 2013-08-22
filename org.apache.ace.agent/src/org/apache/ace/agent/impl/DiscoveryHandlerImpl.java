@@ -37,16 +37,17 @@ public class DiscoveryHandlerImpl extends HandlerBase implements DiscoveryHandle
     public static final String COMPONENT_IDENTIFIER = "discovery";
     public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
 
-    public DiscoveryHandlerImpl() {
-        super(COMPONENT_IDENTIFIER);
-    }
-
     /**
      * Configuration key for the default discovery handler. The value must be a comma-separated list of valid base
      * server URLs.
      */
     public static final String CONFIG_KEY_SERVERURLS = CONFIG_KEY_BASE + ".serverUrls";
     public static final String CONFIG_DEFAULT_SERVERURLS = "http://localhost:8080";
+
+    public DiscoveryHandlerImpl() {
+        super(COMPONENT_IDENTIFIER);
+    }
+
 
     // TODO Pretty naive implementation below. It always takes the first configured URL it can connect to and is not
     // thread-safe.

@@ -18,7 +18,8 @@
  */
 package org.apache.ace.agent;
 
-import java.util.List;
+import java.io.IOException;
+import java.util.Set;
 
 /**
  * Agent control delegate interface that is responsible for handling feedback channels.
@@ -26,8 +27,8 @@ import java.util.List;
 public interface FeedbackHandler {
 
     /** Returns the feedback channels names */
-    List<String> getChannelNames();
+    Set<String> getChannelNames() throws IOException;
 
     /** Returns the feedback channel for a name */
-    FeedbackChannel getChannel(String name);
+    FeedbackChannel getChannel(String name) throws IOException;
 }

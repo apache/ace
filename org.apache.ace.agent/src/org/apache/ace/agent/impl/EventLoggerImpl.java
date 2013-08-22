@@ -236,16 +236,16 @@ public class EventLoggerImpl implements BundleListener, FrameworkListener, Event
     }
 
     private void writeEvent(int eventType, Map<String, String> payload) {
-        FeedbackChannel channel = m_agentControl.getFeedbackHandler()
-            .getChannel(EVENTLOGGER_FEEDBACKCHANNEL);
-        if (channel != null) {
-            try {
+        try {
+            FeedbackChannel channel = m_agentControl.getFeedbackHandler()
+                .getChannel(EVENTLOGGER_FEEDBACKCHANNEL);
+            if (channel != null) {
                 channel.write(eventType, payload);
             }
-            catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 }

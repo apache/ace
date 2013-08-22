@@ -20,7 +20,7 @@ package org.apache.ace.agent.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -194,7 +194,7 @@ public class DefaultController implements Runnable, AgentContextAware {
         AgentControl agentControl = m_agentContext.getAgentControl();
 
         m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Synchronizing feedback channels");
-        List<String> channelNames = agentControl.getFeedbackHandler().getChannelNames();
+        Set<String> channelNames = agentControl.getFeedbackHandler().getChannelNames();
         for (String channelName : channelNames) {
             FeedbackChannel channel = agentControl.getFeedbackHandler().getChannel(channelName);
             if (channel != null) {
