@@ -121,9 +121,9 @@ public class DefaultController implements Runnable, AgentContextAware {
         m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Controller syncing...");
         long interval = configurationHandler.getLong(CONFIG_KEY_SYNCINTERVAL, CONFIG_DEFAULT_SYNCINTERVAL);
         try {
+            runSafeFeedback();
             runSafeAgent();
             runSafeUpdate();
-            runSafeFeedback();
         }
         catch (RetryAfterException e) {
             interval = e.getSeconds();
@@ -194,9 +194,9 @@ public class DefaultController implements Runnable, AgentContextAware {
         AgentControl agentControl = m_agentContext.getAgentControl();
 
         m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Synchronizing feedback channels");
-        List<String> channelNames = agentControl.getFeedbackChannelNames();
+        List<String> channelNames = agentControl.getFeedbackHandler().getChannelNames();
         for (String channelName : channelNames) {
-            FeedbackChannel channel = agentControl.getFeedbackChannel(channelName);
+            FeedbackChannel channel = agentControl.getFeedbackHandler().getChannel(channelName);
             if (channel != null) {
                 channel.sendFeedback();
             }

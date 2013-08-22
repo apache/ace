@@ -79,6 +79,13 @@ public interface AgentContext {
     AgentUpdateHandler getAgentUpdateHandler();
 
     /**
+     * Return the feedback handler.
+     * 
+     * @return The handler
+     */
+    FeedbackHandler getFeedbackHandler();
+
+    /**
      * Return the agent control service.
      * 
      * @return The service

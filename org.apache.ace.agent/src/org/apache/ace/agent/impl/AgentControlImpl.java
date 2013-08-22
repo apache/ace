@@ -19,10 +19,6 @@
 package org.apache.ace.agent.impl;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentControl;
@@ -30,7 +26,7 @@ import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandler;
-import org.apache.ace.agent.FeedbackChannel;
+import org.apache.ace.agent.FeedbackHandler;
 
 /**
  * Implementation of the public agent control service.
@@ -40,12 +36,8 @@ public class AgentControlImpl implements AgentControl {
 
     private final AgentContext m_agentContext;
 
-    private final Map<String, FeedbackChannelImpl> m_feedbackChannels = new HashMap<String, FeedbackChannelImpl>();
-
     public AgentControlImpl(AgentContext agentContext) throws IOException {
         m_agentContext = agentContext;
-        // TODO get from configuration
-        m_feedbackChannels.put("auditlog", new FeedbackChannelImpl(m_agentContext, "auditlog"));
     }
 
     @Override
@@ -64,20 +56,12 @@ public class AgentControlImpl implements AgentControl {
     }
 
     @Override
-    public List<String> getFeedbackChannelNames() {
-        // TODO get from configuration
-        List<String> channels = new ArrayList<String>();
-        channels.addAll(m_feedbackChannels.keySet());
-        return channels;
-    }
-
-    @Override
-    public FeedbackChannel getFeedbackChannel(String name) {
-        return m_feedbackChannels.get(name);
-    }
-
-    @Override
     public AgentUpdateHandler getAgentUpdateHandler() {
         return m_agentContext.getAgentUpdateHandler();
+    }
+
+    @Override
+    public FeedbackHandler getFeedbackHandler() {
+        return m_agentContext.getFeedbackHandler();
     }
 }

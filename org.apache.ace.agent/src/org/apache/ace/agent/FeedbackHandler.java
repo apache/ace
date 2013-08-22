@@ -18,24 +18,16 @@
  */
 package org.apache.ace.agent;
 
+import java.util.List;
+
 /**
- * The agent's control (service) interface. Provides control functions and access to configuration for consumers that
- * wish to control the agent's behavior.
+ * Agent control delegate interface that is responsible for handling feedback channels.
  */
-public interface AgentControl {
+public interface FeedbackHandler {
 
-    /** Returns the configuration handler */
-    ConfigurationHandler getConfigurationHandler();
+    /** Returns the feedback channels names */
+    List<String> getChannelNames();
 
-    /** Returns the download handler */
-    DownloadHandler getDownloadHandler();
-
-    /** Returns the deployment handler */
-    DeploymentHandler getDeploymentHandler();
-
-    /** Returns the update handler */
-    AgentUpdateHandler getAgentUpdateHandler();
-
-    /** Returns the feedback handler */
-    FeedbackHandler getFeedbackHandler();
+    /** Returns the feedback channel for a name */
+    FeedbackChannel getChannel(String name);
 }

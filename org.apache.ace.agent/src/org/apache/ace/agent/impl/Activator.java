@@ -37,6 +37,7 @@ import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.DownloadHandler;
+import org.apache.ace.agent.FeedbackHandler;
 import org.apache.ace.agent.IdentificationHandler;
 import org.apache.felix.deploymentadmin.DeploymentAdminImpl;
 import org.apache.felix.dm.Component;
@@ -86,6 +87,7 @@ public class Activator extends DependencyActivatorBase {
         m_agentControl = new AgentControlImpl(m_agentContext);
         m_agentUpdateHandler = new AgentUpdateHandlerImpl(context);
 
+        // TODO replace with setters
         configureField(m_agentContext, AgentControl.class, m_agentControl);
         configureField(m_agentContext, ConfigurationHandler.class, new ConfigurationHandlerImpl());
         configureField(m_agentContext, ConnectionHandler.class, new ConnectionHandlerImpl());
@@ -95,6 +97,7 @@ public class Activator extends DependencyActivatorBase {
         configureField(m_agentContext, IdentificationHandler.class, new IdentificationHandlerImpl());
         configureField(m_agentContext, ScheduledExecutorService.class, m_executorService);
         configureField(m_agentContext, AgentUpdateHandler.class, m_agentUpdateHandler);
+        configureField(m_agentContext, FeedbackHandler.class, new FeedbackHandlerImpl());
 
         Component agentContextComponent = createComponent()
             .setImplementation(m_agentContext)

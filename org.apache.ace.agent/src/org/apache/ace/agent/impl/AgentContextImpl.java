@@ -31,6 +31,7 @@ import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.DownloadHandler;
+import org.apache.ace.agent.FeedbackHandler;
 import org.apache.ace.agent.IdentificationHandler;
 import org.apache.ace.agent.impl.Activator.InternalEvents;
 import org.apache.ace.agent.impl.Activator.InternalLogger;
@@ -50,12 +51,13 @@ public class AgentContextImpl implements AgentContext {
     private volatile DownloadHandler m_downloadHandler;
     private volatile ConnectionHandler m_connectionHandler;
     private volatile AgentUpdateHandler m_agentUpdateHandler;
+    private volatile FeedbackHandler m_feedbackHandler;
 
     private volatile ScheduledExecutorService m_executorService;
 
     private final InternalLogger m_logger;
     private final InternalEvents m_events;
-    
+
     private final File m_workDir;
 
     public AgentContextImpl(File workDir, InternalLogger logger, InternalEvents events) {
@@ -73,11 +75,13 @@ public class AgentContextImpl implements AgentContext {
         startHandler(m_downloadHandler);
         startHandler(m_connectionHandler);
         startHandler(m_agentUpdateHandler);
+        startHandler(m_feedbackHandler);
         startHandler(m_agentControl);
     }
 
     public void stop() throws Exception {
         stopHandler(m_agentControl);
+        stopHandler(m_feedbackHandler);
         stopHandler(m_configurationHandler);
         stopHandler(m_identificationHandler);
         stopHandler(m_discoveryHandler);
@@ -136,6 +140,11 @@ public class AgentContextImpl implements AgentContext {
     @Override
     public AgentUpdateHandler getAgentUpdateHandler() {
         return m_agentUpdateHandler;
+    }
+
+    @Override
+    public FeedbackHandler getFeedbackHandler() {
+        return m_feedbackHandler;
     }
 
     @Override
