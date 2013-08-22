@@ -142,9 +142,9 @@ public class ConfigurationHandlerImpl extends HandlerBase implements Configurati
         ensureLoadConfig();
         for (Entry<Object, Object> entry : System.getProperties().entrySet()) {
             String key = (String) entry.getKey();
-            if (key.startsWith(CONFIG_KEY_NAMESPACE) && !key.endsWith(CONFIG_KEY_OVERRIDEPOSTFIX)) {
-                if (!m_configProps.containsKey(key)
-                    || Boolean.parseBoolean(System.getProperties().getProperty(key + CONFIG_KEY_OVERRIDEPOSTFIX))) {
+            if (key.startsWith(CONFIG_KEY_NAMESPACE) && !key.endsWith(CONFIG_KEY_RETAIN)) {
+                boolean retain = Boolean.parseBoolean(System.getProperties().getProperty(key + CONFIG_KEY_RETAIN));
+                if (!retain || !m_configProps.containsKey(key)) {
                     m_configProps.put(entry.getKey(), entry.getValue());
                 }
             }

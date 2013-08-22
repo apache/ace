@@ -22,17 +22,15 @@ import java.util.Set;
 
 /**
  * Agent control delegate interface that is responsible for managing persisted configuration. External launchers may
- * override or set values within the {@link CONFIG_KEY_NAMESPACE} through system properties when the agent starts.
- * However, once a configuration value has been set the corresponding system property will be ignored unless the
- * override flag is set. This ensures a simple system restart will not override configuration set by runtime
- * controllers. <br/>
+ * override or set values within the {@link CONFIG_KEY_NAMESPACE} through system properties when the agent starts. If
+ * the launcher wants to retain existing persisted values, instead of overwriting them, it should specify an additional
+ * property with the same name post-fixed with {@link CONFIG_KEY_RETAIN} set to <code>true</code>. <br/>
  * <br/>
- * Example: A launcher that wants to ensure the syncinterval is set to 3000 should specify the following two system
- * properties:<br/>
+ * Example: A launcher that wants to ensure the syncinterval is set to 3000 only when not configuration is already set
+ * should specify the following two system properties:<br/>
  * <code>agent.controller.syncinterval=3000</code><br/>
- * <code>agent.controller.syncinterval.override=true</code>
+ * <code>agent.controller.syncinterval.retain=true</code>
  */
-// TODO Configuration by launcher will probably be the primary use case. Should we flip the override default?
 public interface ConfigurationHandler {
 
     /**
@@ -41,9 +39,9 @@ public interface ConfigurationHandler {
     String CONFIG_KEY_NAMESPACE = "ace.agent";
 
     /**
-     * Override postfix; The postfix for override property keys.
+     * Retain postfix; The postfix for override property keys.
      */
-    String CONFIG_KEY_OVERRIDEPOSTFIX = ".override";
+    String CONFIG_KEY_RETAIN = ".retain";
 
     /**
      * Return an unmodifiable copy of the configuration keys.

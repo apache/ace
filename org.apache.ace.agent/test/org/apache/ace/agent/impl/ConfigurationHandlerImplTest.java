@@ -92,7 +92,7 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         assertEquals(configurationHandler.get(systemKey1, "qqq"), "value1");
         assertEquals(configurationHandler.get(systemKey2, "qqq"), "value2");
 
-        // should be persisted
+        // System props should be persisted
 
         System.clearProperty(systemKey1);
         System.clearProperty(systemKey2);
@@ -105,7 +105,7 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         assertEquals(configurationHandler.get(systemKey1, "qqq"), "value1");
         assertEquals(configurationHandler.get(systemKey2, "qqq"), "value2");
 
-        // should not overwrite by default
+        // System props should override by default
 
         System.setProperty(systemKey1, "value1");
         System.setProperty(systemKey2, "value2");
@@ -118,15 +118,15 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
 
         assertNotNull(configurationHandler.keySet());
         assertEquals(2, configurationHandler.keySet().size());
-        assertEquals(configurationHandler.get(systemKey1, "qqq"), "newvalue1");
-        assertEquals(configurationHandler.get(systemKey2, "qqq"), "newvalue2");
+        assertEquals(configurationHandler.get(systemKey1, "qqq"), "value1");
+        assertEquals(configurationHandler.get(systemKey2, "qqq"), "value2");
 
-        // should overwrite if flag is set
+        // System props should not override if retain is set
 
-        System.setProperty(systemKey1, "value1");
-        System.setProperty(systemKey2, "value2");
-        System.setProperty(systemKey1 + ConfigurationHandlerImpl.CONFIG_KEY_OVERRIDEPOSTFIX, "true");
-        System.setProperty(systemKey2 + ConfigurationHandlerImpl.CONFIG_KEY_OVERRIDEPOSTFIX, "true");
+        System.setProperty(systemKey1, "valueX");
+        System.setProperty(systemKey2, "valueY");
+        System.setProperty(systemKey1 + ConfigurationHandlerImpl.CONFIG_KEY_RETAIN, "true");
+        System.setProperty(systemKey2 + ConfigurationHandlerImpl.CONFIG_KEY_RETAIN, "true");
 
         configurationHandler = new ConfigurationHandlerImpl();
         startHandler(configurationHandler, m_agentContext);
