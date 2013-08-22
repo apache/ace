@@ -298,7 +298,7 @@ public class Activator extends DependencyActivatorBase {
         private void log(String level, String component, String message, Throwable exception, Object... args) {
             if (args.length > 0)
                 message = String.format(message, args);
-            String line = String.format("[%s] %Tc (%s) %s", level, new Date(), component, message);
+            String line = String.format("[%s] %TT (%s) %s", level, new Date(), component, message);
             System.out.println(line);
             if (exception != null)
                 exception.printStackTrace(System.out);
