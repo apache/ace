@@ -74,8 +74,6 @@ public class ConfigurationHandlerImpl extends HandlerBase implements Configurati
 
     @Override
     public void put(String key, String value) {
-        ensureNotEmpty(key);
-        ensureNotEmpty(value);
         synchronized (this) {
             ensureLoadConfig();
             String previous = (String) m_configProps.put(key, value);
@@ -87,7 +85,6 @@ public class ConfigurationHandlerImpl extends HandlerBase implements Configurati
 
     @Override
     public void remove(String key) {
-        ensureNotEmpty(key);
         synchronized (this) {
             ensureLoadConfig();
             Object value = m_configProps.remove(key);
@@ -99,7 +96,6 @@ public class ConfigurationHandlerImpl extends HandlerBase implements Configurati
 
     @Override
     public String get(String key, String defaultValue) {
-        ensureNotEmpty(key);
         synchronized (this) {
             ensureLoadConfig();
             String value = (String) m_configProps.get(key);
@@ -214,10 +210,5 @@ public class ConfigurationHandlerImpl extends HandlerBase implements Configurati
         if (!dir.exists() && !dir.mkdir())
             throw new IOException("Unable to acces configuration directory: " + dir.getAbsolutePath());
         return dir;
-    }
-
-    private static void ensureNotEmpty(String value) {
-        if (value == null || value.equals(""))
-            throw new IllegalArgumentException("Can not pass null as an argument");
     }
 }
