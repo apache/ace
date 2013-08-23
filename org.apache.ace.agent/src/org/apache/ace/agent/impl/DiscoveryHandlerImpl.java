@@ -32,7 +32,7 @@ import org.apache.ace.agent.DiscoveryHandler;
  * Default discovery handler that reads the serverURL(s) from the configuration using key {@link DISCOVERY_CONFIG_KEY}.
  * 
  */
-public class DiscoveryHandlerImpl extends HandlerBase implements DiscoveryHandler {
+public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHandler {
 
     public static final String COMPONENT_IDENTIFIER = "discovery";
     public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;

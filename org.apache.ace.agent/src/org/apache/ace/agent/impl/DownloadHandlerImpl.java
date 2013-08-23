@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutorService;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandler;
 
-public class DownloadHandlerImpl extends HandlerBase implements DownloadHandler {
+public class DownloadHandlerImpl extends ComponentBase implements DownloadHandler {
 
     public static final String COMPONENT_IDENTIFIER = "download";
     public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;

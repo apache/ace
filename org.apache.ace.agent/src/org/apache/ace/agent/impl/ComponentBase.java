@@ -18,15 +18,30 @@
  */
 package org.apache.ace.agent.impl;
 
+import java.io.File;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentContextAware;
+import org.apache.ace.agent.AgentUpdateHandler;
+import org.apache.ace.agent.ConfigurationHandler;
+import org.apache.ace.agent.ConnectionHandler;
+import org.apache.ace.agent.DeploymentHandler;
+import org.apache.ace.agent.DiscoveryHandler;
+import org.apache.ace.agent.DownloadHandler;
+import org.apache.ace.agent.FeedbackHandler;
+import org.apache.ace.agent.IdentificationHandler;
 
-public abstract class HandlerBase implements AgentContextAware {
+/**
+ * Convenience implementation base class for all {@link AgentContextAware} components, such as handlers & controllers.
+ * 
+ */
+public abstract class ComponentBase implements AgentContextAware {
 
     private final String m_componentIdentifier;
     private AgentContext m_agentContext;
 
-    public HandlerBase(String handlerIdentifier) {
+    public ComponentBase(String handlerIdentifier) {
         m_componentIdentifier = handlerIdentifier;
     }
 
@@ -54,6 +69,46 @@ public abstract class HandlerBase implements AgentContextAware {
     }
 
     protected void onStop() throws Exception {
+    }
+
+    protected final IdentificationHandler getIdentificationHandler() {
+        return m_agentContext.getIdentificationHandler();
+    }
+
+    protected final DiscoveryHandler getDiscoveryHandler() {
+        return m_agentContext.getDiscoveryHandler();
+    }
+
+    protected final ConnectionHandler getConnectionHandler() {
+        return m_agentContext.getConnectionHandler();
+    }
+
+    protected final DeploymentHandler getDeploymentHandler() {
+        return m_agentContext.getDeploymentHandler();
+    }
+
+    protected final DownloadHandler getDownloadHandler() {
+        return m_agentContext.getDownloadHandler();
+    }
+
+    protected final ConfigurationHandler getConfigurationHandler() {
+        return m_agentContext.getConfigurationHandler();
+    }
+
+    protected final AgentUpdateHandler getAgentUpdateHandler() {
+        return m_agentContext.getAgentUpdateHandler();
+    }
+
+    protected final FeedbackHandler getFeedbackHandler() {
+        return m_agentContext.getFeedbackHandler();
+    }
+
+    protected final ScheduledExecutorService getExecutorService() {
+        return m_agentContext.getExecutorService();
+    }
+
+    protected final File getWorkDir() {
+        return m_agentContext.getWorkDir();
     }
 
     protected final void logDebug(String message, Object... args) {

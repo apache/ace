@@ -36,7 +36,7 @@ import org.apache.ace.agent.ConfigurationHandler;
  * Default configuration handler that reads the serverURL(s) from the configuration using key
  * {@link DISCOVERY_CONFIG_KEY}.
  */
-public class ConfigurationHandlerImpl extends HandlerBase implements ConfigurationHandler {
+public class ConfigurationHandlerImpl extends ComponentBase implements ConfigurationHandler {
 
     public static final String COMPONENT_IDENTIFIER = "configuration";
     public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;

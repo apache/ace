@@ -21,16 +21,13 @@ package org.apache.ace.agent.impl;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.ace.agent.AgentContext;
-import org.apache.ace.agent.AgentContextAware;
-import org.apache.ace.agent.AgentControl;
-import org.apache.ace.agent.AgentUpdateHandler;
-import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadResult;
@@ -43,7 +40,7 @@ import org.osgi.framework.Version;
  * Default configurable controller
  * 
  */
-public class DefaultController implements Runnable, AgentContextAware {
+public class DefaultController extends ComponentBase implements Runnable {
 
     public static final String COMPONENT_IDENTIFIER = "controller";
     public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + ".controller";
@@ -85,6 +82,7 @@ public class DefaultController implements Runnable, AgentContextAware {
      * deployment session. Otherwise the agent tries to minimize the impact by only restarting bundles that are actually
      * affected. Not stopping unaffected bundles reduces overhead, but may fail in complex wiring scenarios.
      */
+    // FIXME Not considered yet
     public static final String CONFIG_KEY_STOPUNAFFECTED = CONFIG_KEY_BASE + ".stopUnaffected";
     public static final boolean CONFIG_DEFAULT_STOPUNAFFECTED = true; // spec behavior
 
@@ -95,112 +93,174 @@ public class DefaultController implements Runnable, AgentContextAware {
     public static final String CONFIG_KEY_FIXPACKAGES = CONFIG_KEY_BASE + ".fixPackages";
     public static final boolean CONFIG_DEFAULT_FIXPACKAGES = true;
 
-    private volatile AgentContext m_agentContext;
     private volatile ScheduledFuture<?> m_scheduledFuture;
     private volatile UpdateInstaller m_updateInstaller;
 
-    @Override
-    public void start(AgentContext agentContext) throws Exception {
-        m_agentContext = agentContext;
-
-        ConfigurationHandler configurationHandler = m_agentContext.getConfigurationHandler();
-
-        boolean disabled = configurationHandler.getBoolean(CONFIG_KEY_DISABLED, CONFIG_DEFAULT_DISABLED);
-        if (disabled) {
-            m_agentContext.logInfo(COMPONENT_IDENTIFIER, "Default controller disabled by configuration");
-        }
-        else {
-            long delay = configurationHandler.getLong(CONFIG_KEY_SYNCDELAY, CONFIG_DEFAULT_SYNCDELAY);
-            scheduleRun(delay);
-            m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Controller scheduled to sync in %d seconds", delay);
-        }
+    public DefaultController() {
+        super(COMPONENT_IDENTIFIER);
     }
 
-    public void stop() {
-        unscheduleRun();
+    @Override
+    protected void onStart() throws Exception {
+        long delay = getConfigurationHandler().getLong(CONFIG_KEY_SYNCDELAY, CONFIG_DEFAULT_SYNCDELAY);
+        scheduleRun(delay);
+        logDebug("Controller scheduled to run in %d seconds", delay);
+    }
+
+    @Override
+    protected void onStop() throws Exception {
         if (m_updateInstaller != null) {
             m_updateInstaller.reset();
         }
+        unscheduleRun();
     }
 
+    @Override
     public void run() {
-        ConfigurationHandler configurationHandler = m_agentContext.getConfigurationHandler();
+        boolean disabled = getConfigurationHandler().getBoolean(CONFIG_KEY_DISABLED, CONFIG_DEFAULT_DISABLED);
+        long interval = getConfigurationHandler().getLong(CONFIG_KEY_SYNCINTERVAL, CONFIG_DEFAULT_SYNCINTERVAL);
+        if (disabled) {
+            logDebug("Controller disabled by configuration. Skipping..");
+            scheduleRun(interval);
+            return;
+        }
 
-        m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Controller syncing...");
-        long interval = configurationHandler.getLong(CONFIG_KEY_SYNCINTERVAL, CONFIG_DEFAULT_SYNCINTERVAL);
+        logDebug("Controller syncing...");
         try {
-            runSafeFeedback();
-            runSafeAgentUpdate();
-            runSafeDeploymentUpdate();
+            runFeedback();
+            runAgentUpdate();
+            runDeploymentUpdate();
         }
         catch (RetryAfterException e) {
+            // any method may throw this causing the sync to abort. The server is busy so no sense in trying
+            // anything else until the retry window has passed.
             interval = e.getSeconds();
-            m_agentContext.logInfo(COMPONENT_IDENTIFIER, "Sync received retry exception from server.");
-        }
-        catch (IOException e) {
-            m_agentContext.logWarning(COMPONENT_IDENTIFIER, "Sync aborted due to IOException.", e);
+            logWarning("Sync received retry exception from server. Rescheduled in %d seconds", e.getSeconds());
         }
         catch (Exception e) {
-            m_agentContext.logError(COMPONENT_IDENTIFIER, "Sync aborted due to Exception.", e);
+            // serious problem throw by a method that decides this is cause enough to abort the sync. Not much
+            // we can do but log it as an error and reschedule as usual.
+            logError("Sync aborted due to Exception.", e);
         }
         scheduleRun(interval);
-        m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Sync completed. Rescheduled in %d seconds", interval);
+        logDebug("Sync completed. Rescheduled in %d seconds", interval);
     }
 
-    private void runSafeFeedback() throws RetryAfterException, IOException {
-        AgentControl agentControl = m_agentContext.getAgentControl();
-
-        m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Synchronizing feedback channels");
-        Set<String> channelNames = agentControl.getFeedbackHandler().getChannelNames();
-        for (String channelName : channelNames) {
-            FeedbackChannel channel = agentControl.getFeedbackHandler().getChannel(channelName);
+    private void runFeedback() throws RetryAfterException {
+        logDebug("Synchronizing feedback channels");
+        Set<String> names = getFeedbackChannelNames();
+        for (String name : names) {
+            FeedbackChannel channel = getFeedbackChannel(name);
             if (channel != null) {
-                channel.sendFeedback();
+                try {
+                    channel.sendFeedback();
+                    logDebug("Feedback send succesfully for channel %s", names);
+                }
+                catch (IOException e) {
+                    // Hopefully temporary problem due to remote IO or configuration. No cause to abort the sync so we
+                    // just log it as a warning.
+                    logWarning("Exception while sending feedback on channel %s", e, names);
+                }
             }
         }
     }
 
-    private void runSafeAgentUpdate() throws RetryAfterException, IOException {
-        AgentUpdateHandler updateHandler = m_agentContext.getAgentUpdateHandler();
-
-        m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Checking for agent update");
-        Version current = updateHandler.getInstalledVersion();
-        SortedSet<Version> available = updateHandler.getAvailableVersions();
-        Version highest = Version.emptyVersion;
-        if (available != null && !available.isEmpty()) {
-            highest = available.last();
+    private Set<String> getFeedbackChannelNames() {
+        try {
+            return getFeedbackHandler().getChannelNames();
         }
-        if (highest.compareTo(current) > 0) {
-            m_agentContext.logInfo(COMPONENT_IDENTIFIER, "Installing agent update %s => %s", current, highest);
-            InputStream inputStream = updateHandler.getInputStream(highest);
-            updateHandler.install(inputStream);
+        catch (IOException e) {
+            // Probably a serious problem due to local IO related to feedback. No cause to abort the sync so we just log
+            // it as an error.
+            logError("Exception while Looking up feedback channelnames. This is ");
         }
-        else {
-            m_agentContext.logDebug(COMPONENT_IDENTIFIER, "No agent update available for version %s", current);
-        }
+        return Collections.emptySet();
     }
 
-    private void runSafeDeploymentUpdate() throws RetryAfterException, IOException {
+    private FeedbackChannel getFeedbackChannel(String name) {
+        try {
+            return getFeedbackHandler().getChannel(name);
+        }
+        catch (IOException e) {
+            // Probably a serious problem due to local IO related to feedback. No cause to abort the sync so we just log
+            // it as an error.
+            logError("Exception while looking up feedback channel %s", e, name);
+        }
+        return null;
+    }
 
-        m_agentContext.logDebug(COMPONENT_IDENTIFIER, "Checking for deployment update");
-        DeploymentHandler deploymentHandler = m_agentContext.getDeploymentHandler();
-        Version current = deploymentHandler.getInstalledVersion();
-        SortedSet<Version> available = deploymentHandler.getAvailableVersions();
+    private void runAgentUpdate() throws RetryAfterException {
+        logDebug("Checking for agent update");
+        Version current = getAgentUpdateHandler().getInstalledVersion();
+        SortedSet<Version> available = getAvailableAgentVersions();
         Version highest = Version.emptyVersion;
         if (available != null && !available.isEmpty()) {
             highest = available.last();
         }
+
         if (highest.compareTo(current) < 1) {
-            m_agentContext.logDebug(COMPONENT_IDENTIFIER, "No deployment update available for version %s", current);
+            logDebug("No agent update available for version %s", current);
             return;
         }
 
-        ConfigurationHandler configurationHandler = m_agentContext.getConfigurationHandler();
-        boolean fixPackage = configurationHandler.getBoolean(CONFIG_KEY_FIXPACKAGES, CONFIG_DEFAULT_FIXPACKAGES);
-        boolean updateStreaming = configurationHandler.getBoolean(CONFIG_KEY_UPDATESTREAMING, CONFIG_DEFAULT_UPDATESTREAMING);
-        long maxRetries = configurationHandler.getLong(CONFIG_KEY_UPDATERETRIES, CONFIG_DEFAULT_UPDATERETRIES);
+        logInfo("Installing agent update %s => %s", current, highest);
+        InputStream inputStream = null;
+        try {
+            inputStream = getAgentUpdateHandler().getInputStream(highest);
+            getAgentUpdateHandler().install(inputStream);
+        }
+        catch (IOException e) {
+            // Hopefully temporary problem due to remote IO or configuration. No cause to abort the sync so we
+            // just log it as a warning.
+            // FIXME Does not cover failed updates and should handle retries
+            logWarning("Exception while installing agent update %s", e, highest);
+        }
+    }
+
+    private SortedSet<Version> getAvailableAgentVersions() throws RetryAfterException {
+        try {
+            return getAgentUpdateHandler().getAvailableVersions();
+        }
+        catch (IOException e) {
+            // Hopefully temporary problem due to remote IO or configuration. No cause to abort the sync so we just
+            // log it as a warning.
+            logWarning("Exception while retrieving agent versions", e);
+        }
+        return new TreeSet<Version>();
+    }
+
+    private void runDeploymentUpdate() throws RetryAfterException {
+
+        logDebug("Checking for deployment update");
+        Version current = getDeploymentHandler().getInstalledVersion();
+        SortedSet<Version> available = getAvailableDeploymentVersions();
+        Version highest = Version.emptyVersion;
+        if (available != null && !available.isEmpty()) {
+            highest = available.last();
+        }
+
+        if (highest.compareTo(current) < 1) {
+            logDebug("No deployment update available for version %s", current);
+            return;
+        }
+
+        boolean updateStreaming = getConfigurationHandler().getBoolean(CONFIG_KEY_UPDATESTREAMING, CONFIG_DEFAULT_UPDATESTREAMING);
+        boolean fixPackage = getConfigurationHandler().getBoolean(CONFIG_KEY_FIXPACKAGES, CONFIG_DEFAULT_FIXPACKAGES);
+        long maxRetries = getConfigurationHandler().getLong(CONFIG_KEY_UPDATERETRIES, CONFIG_DEFAULT_UPDATERETRIES);
 
         getUpdateInstaller(updateStreaming).installUpdate(current, highest, fixPackage, maxRetries);
+    }
+
+    private SortedSet<Version> getAvailableDeploymentVersions() throws RetryAfterException {
+        try {
+            return getDeploymentHandler().getAvailableVersions();
+        }
+        catch (IOException e) {
+            // Hopefully temporary problem due to remote IO or configuration. No cause to abort the sync so we just
+            // log it as a warning.
+            logWarning("Exception while retrieving deployment versions", e);
+        }
+        return new TreeSet<Version>();
     }
 
     private UpdateInstaller getUpdateInstaller(boolean streaming) {
@@ -227,16 +287,12 @@ public class DefaultController implements Runnable, AgentContextAware {
 
     private void scheduleRun(long seconds) {
         unscheduleRun();
-        m_scheduledFuture = m_agentContext.getExecutorService().schedule(this, seconds, TimeUnit.SECONDS);
+        m_scheduledFuture = getExecutorService().schedule(this, seconds, TimeUnit.SECONDS);
     }
 
     private void unscheduleRun() {
         if (m_scheduledFuture != null)
             m_scheduledFuture.cancel(true);
-    }
-
-    private AgentContext getAgentContext() {
-        return m_agentContext;
     }
 
     /**
@@ -260,8 +316,7 @@ public class DefaultController implements Runnable, AgentContextAware {
         public final void installUpdate(Version fromVersion, Version toVersion, boolean fixPackage, long maxRetries) throws RetryAfterException {
             if (m_lastVersion != null && toVersion.equals(m_lastVersion)) {
                 if (m_failureCount >= maxRetries) {
-                    getController().getAgentContext().logInfo(COMPONENT_IDENTIFIER,
-                        "Ignoring deployment update %s => %s because max retries reached %d", fromVersion, toVersion, maxRetries);
+                    getController().logInfo("Ignoring deployment update %s => %s because max retries reached %d", fromVersion, toVersion, maxRetries);
                     return;
                 }
             }
@@ -306,10 +361,9 @@ public class DefaultController implements Runnable, AgentContextAware {
         @Override
         public void doInstallUpdate(Version from, Version to, boolean fix) throws RetryAfterException, IOException {
 
-            getController().getAgentContext().logInfo(COMPONENT_IDENTIFIER,
-                "Installing streaming deployment update %s => %s", from, to);
+            getController().logInfo("Installing streaming deployment update %s => %s", from, to);
 
-            DeploymentHandler deploymentHandler = getController().getAgentContext().getDeploymentHandler();
+            DeploymentHandler deploymentHandler = getController().getDeploymentHandler();
             InputStream inputStream = null;
             try {
                 inputStream = deploymentHandler.getInputStream(to, fix);
@@ -317,19 +371,18 @@ public class DefaultController implements Runnable, AgentContextAware {
                 return;
             }
             catch (IOException e) {
-                getController().getAgentContext().logWarning(COMPONENT_IDENTIFIER,
-                    "IOException opening/streaming package inputstream", e);
+                getController().logWarning("Exception opening/streaming package inputstream", e);
                 throw e;
             }
             finally {
-                if (inputStream != null)
+                if (inputStream != null) {
                     try {
                         inputStream.close();
                     }
                     catch (Exception e) {
-                        getController().getAgentContext().logWarning(COMPONENT_IDENTIFIER,
-                            "Exception while closing streaming package inputstream", e);
+                        getController().logWarning("Exception while closing streaming package inputstream", e);
                     }
+                }
             }
         }
 
@@ -358,48 +411,36 @@ public class DefaultController implements Runnable, AgentContextAware {
         @Override
         public void doInstallUpdate(Version fromVersion, Version toVersion, boolean fixPackage) throws RetryAfterException, IOException {
 
-            AgentContext agentContext = getController().getAgentContext();
-            DeploymentHandler deploymentHandler = agentContext.getDeploymentHandler();
-
+            DeploymentHandler deploymentHandler = getController().getDeploymentHandler();
             if (m_downloadHandle != null && !m_downloadVersion.equals(toVersion)) {
-
-                agentContext.logInfo(COMPONENT_IDENTIFIER,
-                    "Cancelling deployment package download for %s because a newer version is available", m_downloadVersion);
+                getController().logInfo("Cancelling deployment package download for %s because a newer version is available", m_downloadVersion);
                 m_downloadHandle.discard();
                 m_downloadHandle = null;
             }
 
             if (m_downloadHandle == null) {
-
-                agentContext.logInfo(COMPONENT_IDENTIFIER, "Starting deployment package download %s => %s", fromVersion, toVersion);
+                getController().logInfo("Starting deployment package download %s => %s", fromVersion, toVersion);
                 m_downloadVersion = toVersion;
-                m_downloadHandle = agentContext.getDeploymentHandler().getDownloadHandle(toVersion, fixPackage)
+                m_downloadHandle = deploymentHandler.getDownloadHandle(toVersion, fixPackage)
                     .setProgressListener(this).setCompletionListener(this).start();
             }
             else {
-
                 if (m_downloadResult == null) {
-                    agentContext.logInfo(COMPONENT_IDENTIFIER,
-                        "Deployment package download for %s is in progress %d / %d", toVersion, m_downloadProgress, m_downloadLength);
+                    getController().logInfo("Deployment package download for %s is in progress %d / %d", toVersion, m_downloadProgress, m_downloadLength);
                 }
                 else if (m_downloadResult.getState() == DownloadState.FAILED) {
-                    agentContext.logWarning(COMPONENT_IDENTIFIER,
-                        "Deployment package download for %s is FAILED. Clearing for retry");
+                    getController().logWarning("Deployment package download for %s is FAILED. Clearing for retry");
                     m_downloadHandle.discard();
                     m_downloadHandle = null;
                     throw new IOException("Download failed");
                 }
                 else if (m_downloadResult.getState() == DownloadState.STOPPED) {
-                    agentContext.logWarning(COMPONENT_IDENTIFIER,
-                        "Deployment package download for %s is STOPPED. Trying to resume");
+                    getController().logWarning("Deployment package download for %s is STOPPED. Trying to resume");
                     m_downloadResult = null;
                     m_downloadHandle.start();
                 }
                 else if (m_downloadResult.getState() == DownloadState.SUCCESSFUL) {
-
-                    agentContext.logInfo(COMPONENT_IDENTIFIER,
-                        "Installing downloaded deployment update %s => %s", fromVersion, toVersion);
-
+                    getController().logInfo("Installing downloaded deployment update %s => %s", fromVersion, toVersion);
                     InputStream inputStream = new FileInputStream(m_downloadResult.getFile());
                     try {
                         deploymentHandler.deployPackage(inputStream);
@@ -416,8 +457,7 @@ public class DefaultController implements Runnable, AgentContextAware {
         @Override
         public void doReset() {
             if (m_downloadHandle != null) {
-                getController().getAgentContext().logInfo(COMPONENT_IDENTIFIER,
-                    "Cancelling deployment package download for version %s because of reset", m_downloadVersion);
+                getController().logInfo("Cancelling deployment package download for version %s because of reset", m_downloadVersion);
                 m_downloadHandle.discard();
             }
             clearDownloadState();
@@ -432,8 +472,7 @@ public class DefaultController implements Runnable, AgentContextAware {
         @Override
         public void completed(DownloadResult result) {
             m_downloadResult = result;
-            getController().getAgentContext().logInfo(COMPONENT_IDENTIFIER,
-                "Deployment package completed for version %s. Rescheduling the controller to run in %d seconds", m_downloadVersion, 5);
+            getController().logInfo("Deployment package completed for version %s. Rescheduling the controller to run in %d seconds", m_downloadVersion, 5);
             getController().scheduleRun(5);
         }
 

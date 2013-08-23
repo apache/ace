@@ -31,7 +31,7 @@ import org.apache.ace.agent.FeedbackHandler;
 /**
  * Default implementation of the feedback handler.
  */
-public class FeedbackHandlerImpl extends HandlerBase implements FeedbackHandler {
+public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandler {
 
     public static final String COMPONENT_IDENTIFIER = "feedback";
     public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;

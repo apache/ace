@@ -33,7 +33,7 @@ import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.RetryAfterException;
 import org.osgi.framework.Version;
 
-public class UpdateHandlerBase extends HandlerBase {
+public class UpdateHandlerBase extends ComponentBase {
 
     public UpdateHandlerBase(String componentIdentifier) {
         super(componentIdentifier);

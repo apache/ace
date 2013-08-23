@@ -42,7 +42,7 @@ import org.apache.commons.codec.binary.Base64;
  * Default connection handler with support for BASIC authentication and HTTPS client certificates.
  * 
  */
-public class ConnectionHandlerImpl extends HandlerBase implements ConnectionHandler {
+public class ConnectionHandlerImpl extends ComponentBase implements ConnectionHandler {
 
     public static final String COMPONENT_IDENTIFIER = "connection";
     public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
