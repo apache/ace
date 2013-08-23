@@ -55,7 +55,7 @@ public interface DownloadHandle {
      * reason.
      * 
      */
-    interface CompletedListener {
+    interface ResultListener {
         /**
          * Called when a download terminates.
          * 
@@ -78,7 +78,7 @@ public interface DownloadHandle {
      * @param listener The completion listener.
      * @return this
      */
-    DownloadHandle setCompletionListener(CompletedListener listener);
+    DownloadHandle setCompletionListener(ResultListener listener);
 
     /**
      * Starts the download.

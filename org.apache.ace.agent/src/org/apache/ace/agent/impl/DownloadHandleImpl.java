@@ -48,7 +48,7 @@ class DownloadHandleImpl implements DownloadHandle {
     private volatile File m_file;
 
     private volatile ProgressListener m_progressListener;
-    private volatile CompletedListener m_completionListener;
+    private volatile ResultListener m_completionListener;
 
     private volatile DownloadResult m_downloadResult;
 
@@ -69,7 +69,7 @@ class DownloadHandleImpl implements DownloadHandle {
     }
 
     @Override
-    public DownloadHandle setCompletionListener(CompletedListener listener) {
+    public DownloadHandle setCompletionListener(ResultListener listener) {
         m_completionListener = listener;
         return this;
     }
@@ -183,7 +183,7 @@ class DownloadHandleImpl implements DownloadHandle {
             }
     }
 
-    private static void callCompletionListener(CompletedListener listener, DownloadResult result) {
+    private static void callCompletionListener(ResultListener listener, DownloadResult result) {
         if (listener != null && result != null)
             try {
                 listener.completed(result);

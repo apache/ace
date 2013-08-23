@@ -33,11 +33,13 @@ public abstract class HandlerBase implements AgentContextAware {
     @Override
     public final void start(AgentContext agentContext) throws Exception {
         m_agentContext = agentContext;
+        m_agentContext.logDebug(m_componentIdentifier, "Starting");
         onStart();
     }
 
     @Override
     public final void stop() throws Exception {
+        m_agentContext.logDebug(m_componentIdentifier, "Stopping");
         m_agentContext = null;
         onStop();
     }

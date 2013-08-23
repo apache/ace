@@ -47,7 +47,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.DownloadHandle;
-import org.apache.ace.agent.DownloadHandle.CompletedListener;
+import org.apache.ace.agent.DownloadHandle.ResultListener;
 import org.apache.ace.agent.DownloadHandle.ProgressListener;
 import org.apache.ace.agent.DownloadHandler;
 import org.apache.ace.agent.DownloadResult;
@@ -139,7 +139,7 @@ public class DownloadHandlerTest extends BaseAgentTest {
         final CountDownLatch latch = new CountDownLatch(1);
         final List<DownloadResult> holder = new ArrayList<DownloadResult>();
         final DownloadHandle handle = m_downloadHandler.getHandle(m_200url)
-            .setCompletionListener(new CompletedListener() {
+            .setCompletionListener(new ResultListener() {
                 @Override
                 public void completed(DownloadResult result) {
                     holder.add(result);
