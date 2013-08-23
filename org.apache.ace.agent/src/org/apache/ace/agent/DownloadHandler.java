@@ -32,7 +32,7 @@ public interface DownloadHandler {
      * @return The {@link DownloadHandle}
      */
     DownloadHandle getHandle(URL url);
-    
-    //TODO named handlers (resume over urls)
+
+    // TODO named handlers (resume over urls)
     DownloadHandle getHandle(URL url, int readBufferSize);
 }

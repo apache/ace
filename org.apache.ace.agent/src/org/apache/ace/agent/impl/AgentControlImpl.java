@@ -25,7 +25,6 @@ import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DeploymentHandler;
-import org.apache.ace.agent.DownloadHandler;
 import org.apache.ace.agent.FeedbackHandler;
 
 /**
@@ -43,11 +42,6 @@ public class AgentControlImpl implements AgentControl {
     @Override
     public ConfigurationHandler getConfigurationHandler() {
         return m_agentContext.getConfigurationHandler();
-    }
-
-    @Override
-    public DownloadHandler getDownloadHandler() {
-        return m_agentContext.getDownloadHandler();
     }
 
     @Override

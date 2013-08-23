@@ -47,9 +47,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.DownloadHandle;
+import org.apache.ace.agent.DownloadHandler;
 import org.apache.ace.agent.DownloadHandle.ResultListener;
 import org.apache.ace.agent.DownloadHandle.ProgressListener;
-import org.apache.ace.agent.DownloadHandler;
 import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.DownloadState;
 import org.apache.ace.agent.testutil.BaseAgentTest;

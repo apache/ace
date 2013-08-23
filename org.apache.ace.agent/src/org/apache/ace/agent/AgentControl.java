@@ -27,9 +27,6 @@ public interface AgentControl {
     /** Returns the configuration handler */
     ConfigurationHandler getConfigurationHandler();
 
-    /** Returns the download handler */
-    DownloadHandler getDownloadHandler();
-
     /** Returns the deployment handler */
     DeploymentHandler getDeploymentHandler();
 
