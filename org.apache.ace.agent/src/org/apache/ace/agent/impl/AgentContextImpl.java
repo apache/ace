@@ -153,11 +153,6 @@ public class AgentContextImpl implements AgentContext {
     }
 
     @Override
-    public AgentControl getAgentControl() {
-        return m_agentControl;
-    }
-
-    @Override
     public void postEvent(String topic, Dictionary<String, String> payload) {
         m_events.postEvent(topic, payload);
     }
