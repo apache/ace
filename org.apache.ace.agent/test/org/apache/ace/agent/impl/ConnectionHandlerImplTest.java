@@ -34,13 +34,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
-import org.apache.commons.codec.binary.Base64;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -58,7 +58,7 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
         private final String m_authHeader;
 
         public BasicAuthServlet(String username, String password) {
-            m_authHeader = "Basic " + new String(Base64.encodeBase64((username + ":" + password).getBytes()));
+            m_authHeader = "Basic " + DatatypeConverter.printBase64Binary((username + ":" + password).getBytes());
         }
 
         @Override

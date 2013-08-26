@@ -34,9 +34,9 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.ace.agent.ConnectionHandler;
-import org.apache.commons.codec.binary.Base64;
 
 /**
  * Default connection handler with support for BASIC authentication and HTTPS client certificates.
@@ -134,7 +134,7 @@ public class ConnectionHandlerImpl extends ComponentBase implements ConnectionHa
             sb.append(new String((byte[]) values[1]));
         }
 
-        return "Basic " + new String(Base64.encodeBase64(sb.toString().getBytes()));
+        return "Basic " + DatatypeConverter.printBase64Binary(sb.toString().getBytes());
     }
 
     private void applyBasicAuthentication(URLConnection conn, Object[] values) {

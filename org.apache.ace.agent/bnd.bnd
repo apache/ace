@@ -8,11 +8,6 @@ Private-Package: org.apache.ace.range,\
 	org.apache.ace.log,\
 	org.apache.ace.agent.impl,\
 	org.apache.ace.agent.updater,\
-	org.apache.commons.codec,\
-	org.apache.commons.codec.binary,\
-	org.apache.commons.codec.digest,\
-	org.apache.commons.codec.language,\
-	org.apache.commons.codec.net,\
 	org.apache.felix.deploymentadmin,\
 	org.apache.felix.deploymentadmin.spi,\
 	org.osgi.service.event,\
@@ -37,7 +32,6 @@ Export-Package: org.apache.ace.agent,\
 	javax.servlet;version=2.5,\
 	org.apache.felix.deploymentadmin;version=0.9.4,\
 	org.easymock,\
-	commons-codec;version=1.4.0,\
 	org.apache.felix.http.jetty;version=2.2.1,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.log.api;version=latest
