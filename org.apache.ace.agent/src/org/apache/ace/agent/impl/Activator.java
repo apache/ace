@@ -31,13 +31,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.ace.agent.AgentControl;
-import org.apache.ace.agent.AgentUpdateHandler;
-import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.ConnectionHandler;
-import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DiscoveryHandler;
-import org.apache.ace.agent.DownloadHandler;
-import org.apache.ace.agent.FeedbackHandler;
 import org.apache.ace.agent.IdentificationHandler;
 import org.apache.felix.deploymentadmin.DeploymentAdminImpl;
 import org.apache.felix.dm.Component;
@@ -63,8 +58,7 @@ public class Activator extends DependencyActivatorBase {
     private AgentContextImpl m_agentContext;
     private AgentControl m_agentControl;
     private ScheduledExecutorService m_executorService;
-    private AgentUpdateHandlerImpl m_agentUpdateHandler; // we use the implementation type here on purpose
-    private DeploymentAdmin m_internalDeploymentAdmin;
+    private DeploymentAdmin m_deploymentAdmin;
     private Component m_agentControlComponent = null;
     private EventLoggerImpl m_eventLoggerImpl;
     private DefaultController m_defaultController;
@@ -77,27 +71,26 @@ public class Activator extends DependencyActivatorBase {
 
         m_executorService = Executors.newScheduledThreadPool(1, new InternalThreadFactory());
 
-        m_internalDeploymentAdmin = new DeploymentAdminImpl();
-        configureField(m_internalDeploymentAdmin, BundleContext.class, context);
-        configureField(m_internalDeploymentAdmin, PackageAdmin.class, null);
-        configureField(m_internalDeploymentAdmin, EventAdmin.class, new InternalEventAdmin(m_internalEvents));
-        configureField(m_internalDeploymentAdmin, LogService.class, new InternalLogService(m_internalLogger, "deployment"));
+        m_deploymentAdmin = new DeploymentAdminImpl();
+        configureField(m_deploymentAdmin, BundleContext.class, context);
+        configureField(m_deploymentAdmin, PackageAdmin.class, null);
+        configureField(m_deploymentAdmin, EventAdmin.class, new InternalEventAdmin(m_internalEvents));
+        configureField(m_deploymentAdmin, LogService.class, new InternalLogService(m_internalLogger, "deployment"));
 
-        m_agentContext = new AgentContextImpl(context.getDataFile(""), m_internalLogger, m_internalEvents);
+        m_agentContext = new AgentContextImpl(context.getDataFile(""));
         m_agentControl = new AgentControlImpl(m_agentContext);
-        m_agentUpdateHandler = new AgentUpdateHandlerImpl(context);
 
-        // TODO replace with setters
-        configureField(m_agentContext, AgentControl.class, m_agentControl);
-        configureField(m_agentContext, ConfigurationHandler.class, new ConfigurationHandlerImpl());
-        configureField(m_agentContext, ConnectionHandler.class, new ConnectionHandlerImpl());
-        configureField(m_agentContext, DeploymentHandler.class, new DeploymentHandlerImpl(m_internalDeploymentAdmin));
-        configureField(m_agentContext, DiscoveryHandler.class, new DiscoveryHandlerImpl());
-        configureField(m_agentContext, DownloadHandler.class, new DownloadHandlerImpl());
-        configureField(m_agentContext, IdentificationHandler.class, new IdentificationHandlerImpl());
-        configureField(m_agentContext, ScheduledExecutorService.class, m_executorService);
-        configureField(m_agentContext, AgentUpdateHandler.class, m_agentUpdateHandler);
-        configureField(m_agentContext, FeedbackHandler.class, new FeedbackHandlerImpl());
+        m_agentContext.setLoggingHandler(m_internalLogger);
+        m_agentContext.setEventsHandler(m_internalEvents);
+        m_agentContext.setConfigurationHandler(new ConfigurationHandlerImpl());
+        m_agentContext.setExecutorService(m_executorService);
+        m_agentContext.setConnectionHandler(new ConnectionHandlerImpl());
+        m_agentContext.setIdentificationHandler(new IdentificationHandlerImpl());
+        m_agentContext.setDiscoveryHandler(new DiscoveryHandlerImpl());
+        m_agentContext.setDownloadHandler(new DownloadHandlerImpl());
+        m_agentContext.setDeploymentHandler(new DeploymentHandlerImpl(m_deploymentAdmin));
+        m_agentContext.setAgentUpdateHandler(new AgentUpdateHandlerImpl(context));
+        m_agentContext.setFeedbackHandler(new FeedbackHandlerImpl());
 
         Component agentContextComponent = createComponent()
             .setImplementation(m_agentContext)
@@ -135,14 +128,14 @@ public class Activator extends DependencyActivatorBase {
     synchronized void packageAdminAdded(PackageAdmin packageAdmin) {
         if (m_packageAdmin == null) {
             m_packageAdmin = packageAdmin;
-            configureField(m_internalDeploymentAdmin, PackageAdmin.class, packageAdmin);
+            configureField(m_deploymentAdmin, PackageAdmin.class, packageAdmin);
         }
     }
 
     synchronized void packageAdminRemoved(PackageAdmin packageAdmin) {
         if (m_packageAdmin == packageAdmin) {
             m_packageAdmin = null;
-            configureField(m_internalDeploymentAdmin, PackageAdmin.class, null);
+            configureField(m_deploymentAdmin, PackageAdmin.class, null);
         }
     }
 
@@ -150,7 +143,7 @@ public class Activator extends DependencyActivatorBase {
 
         m_internalLogger.logInfo("activator", "Agent starting...", null);
 
-        invokeMethod(m_internalDeploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
+        invokeMethod(m_deploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
         m_agentContext.start();
 
         m_internalLogger.logInfo("activator", "Agent control service started", null);
@@ -207,14 +200,14 @@ public class Activator extends DependencyActivatorBase {
         }
 
         m_agentContext.stop();
-        invokeMethod(m_internalDeploymentAdmin, "stop", new Class<?>[] {}, new Object[] {});
+        invokeMethod(m_deploymentAdmin, "stop", new Class<?>[] {}, new Object[] {});
         m_internalLogger.logInfo("activator", "Agent stopped", null);
     }
 
     /**
      * InternalEvents that posts events to internal handlers and external admins.
      */
-    static class InternalEvents {
+    static class InternalEvents implements EventsHandler {
 
         private final Map<EventHandler, String[]> m_eventHandlers = new HashMap<EventHandler, String[]>();
 
@@ -287,7 +280,7 @@ public class Activator extends DependencyActivatorBase {
      * Internal logger that writes to system out for now. It minimizes work until it is determined the loglevel is
      * loggable.
      */
-    static class InternalLogger {
+    static class InternalLogger implements LoggingHandler {
 
         private final int m_level;
 

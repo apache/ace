@@ -36,7 +36,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
 
     public static final String COMPONENT_IDENTIFIER = "deployment";
     public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
-    
+
     private final DeploymentAdmin m_deploymentAdmin;
 
     public DeploymentHandlerImpl(DeploymentAdmin deploymentAdmin) {
