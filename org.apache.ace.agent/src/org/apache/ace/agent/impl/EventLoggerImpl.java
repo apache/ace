@@ -118,8 +118,7 @@ public class EventLoggerImpl implements BundleListener, FrameworkListener, Event
             }
             eventType = AuditEvent.DEPLOYMENTADMIN_COMPLETE;
             props.put(AuditEvent.KEY_NAME, deplPackName);
-            Boolean success = (Boolean) event.getProperty("successful");
-            props.put(AuditEvent.KEY_SUCCESS, success.toString());
+            props.put(AuditEvent.KEY_SUCCESS, (String) event.getProperty("successful"));
         }
         writeEvent(eventType, props);
     }

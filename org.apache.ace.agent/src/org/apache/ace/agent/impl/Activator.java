@@ -21,11 +21,8 @@ package org.apache.ace.agent.impl;
 import static org.apache.ace.agent.impl.ReflectionUtil.configureField;
 import static org.apache.ace.agent.impl.ReflectionUtil.invokeMethod;
 
-import java.util.Date;
 import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Hashtable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -34,52 +31,133 @@ import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.IdentificationHandler;
+import org.apache.ace.agent.impl.DependencyTrackerImpl.DependencyCallback;
+import org.apache.ace.agent.impl.DependencyTrackerImpl.LifecycleCallbacks;
 import org.apache.felix.deploymentadmin.DeploymentAdminImpl;
-import org.apache.felix.dm.Component;
-import org.apache.felix.dm.DependencyActivatorBase;
-import org.apache.felix.dm.DependencyManager;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.deploymentadmin.DeploymentAdmin;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-// TODO Decouple from DM to save 170k in agent size. Or: just include what we use
-public class Activator extends DependencyActivatorBase {
+/**
+ * 
+ */
+public class Activator implements BundleActivator {
 
     // internal delegates
-    private final InternalEvents m_internalEvents = new InternalEvents();
-    private final InternalLogger m_internalLogger = new InternalLogger(LogService.LOG_DEBUG);
+    private final EventsHandlerImpl m_internalEvents = new EventsHandlerImpl();
+    private final LoggingHandlerImpl m_internalLogger = new LoggingHandlerImpl(LogService.LOG_DEBUG);
 
     // managed state
     private AgentContextImpl m_agentContext;
-    private AgentControl m_agentControl;
+    private AgentControlImpl m_agentControl;
     private ScheduledExecutorService m_executorService;
-    private DeploymentAdmin m_deploymentAdmin;
-    private Component m_agentControlComponent = null;
     private EventLoggerImpl m_eventLoggerImpl;
     private DefaultController m_defaultController;
+    private volatile DeploymentAdmin m_deploymentAdmin;
+    private ServiceRegistration m_agentControlRegistration;
 
     // injected services
     private volatile PackageAdmin m_packageAdmin;
+    private volatile IdentificationHandler m_identificationHandler;
+    private volatile DiscoveryHandler m_discoveryHandler;
+    private volatile ConnectionHandler m_connectionHandler;
+
+    private volatile BundleContext m_bundleContext;
+    private DependencyTrackerImpl m_dependencyTracker;
 
     @Override
-    public void init(BundleContext context, DependencyManager manager) throws Exception {
+    public void start(final BundleContext bundleContext) throws Exception {
 
+        m_bundleContext = bundleContext;
         m_executorService = Executors.newScheduledThreadPool(1, new InternalThreadFactory());
 
+        m_dependencyTracker = new DependencyTrackerImpl(bundleContext, new LifecycleCallbacks() {
+
+            @Override
+            public void started() {
+                try {
+                    startAgent();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void stopped() {
+                try {
+                    stopAgent();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        m_dependencyTracker.addDependency(PackageAdmin.class, null, new DependencyCallback() {
+
+            @Override
+            public void updated(Object service) {
+                m_packageAdmin = (PackageAdmin) service;
+            }
+        });
+
+        // FIXME fake config
+        if (Boolean.parseBoolean(System.getProperty("agent.identificationhandler.disabled"))) {
+            m_dependencyTracker.addDependency(IdentificationHandler.class, null, new DependencyCallback() {
+                @Override
+                public void updated(Object service) {
+                    m_identificationHandler = (IdentificationHandler) service;
+                }
+            });
+        }
+        // FIXME fake config
+        if (Boolean.parseBoolean(System.getProperty("agent.discoveryhandler.disabled"))) {
+            m_dependencyTracker.addDependency(DiscoveryHandler.class, null, new DependencyCallback() {
+                @Override
+                public void updated(Object service) {
+                    m_discoveryHandler = (DiscoveryHandler) service;
+                }
+            });
+        }
+        // FIXME fake config
+        if (Boolean.parseBoolean(System.getProperty("agent.connectionhandler.disabled"))) {
+            m_dependencyTracker.addDependency(ConnectionHandler.class, null, new DependencyCallback() {
+                @Override
+                public void updated(Object service) {
+                    m_connectionHandler = (ConnectionHandler) service;
+                }
+            });
+        }
+
+        m_dependencyTracker.startTracking();
+    }
+
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        m_dependencyTracker.stopTracking();
+        m_executorService.shutdownNow();
+        m_executorService = null;
+    }
+
+    void startAgent() throws Exception {
+
+        m_internalLogger.logInfo("activator", "Agent starting...", null);
+
         m_deploymentAdmin = new DeploymentAdminImpl();
-        configureField(m_deploymentAdmin, BundleContext.class, context);
-        configureField(m_deploymentAdmin, PackageAdmin.class, null);
+        configureField(m_deploymentAdmin, BundleContext.class, m_bundleContext);
+        configureField(m_deploymentAdmin, PackageAdmin.class, m_packageAdmin);
         configureField(m_deploymentAdmin, EventAdmin.class, new InternalEventAdmin(m_internalEvents));
         configureField(m_deploymentAdmin, LogService.class, new InternalLogService(m_internalLogger, "deployment"));
+        invokeMethod(m_deploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
 
-        m_agentContext = new AgentContextImpl(context.getDataFile(""));
-        m_agentControl = new AgentControlImpl(m_agentContext);
-
+        m_agentContext = new AgentContextImpl(m_bundleContext.getDataFile(""));
         m_agentContext.setLoggingHandler(m_internalLogger);
         m_agentContext.setEventsHandler(m_internalEvents);
         m_agentContext.setConfigurationHandler(new ConfigurationHandlerImpl());
@@ -89,169 +167,64 @@ public class Activator extends DependencyActivatorBase {
         m_agentContext.setDiscoveryHandler(new DiscoveryHandlerImpl());
         m_agentContext.setDownloadHandler(new DownloadHandlerImpl());
         m_agentContext.setDeploymentHandler(new DeploymentHandlerImpl(m_deploymentAdmin));
-        m_agentContext.setAgentUpdateHandler(new AgentUpdateHandlerImpl(context));
+        m_agentContext.setAgentUpdateHandler(new AgentUpdateHandlerImpl(m_bundleContext));
         m_agentContext.setFeedbackHandler(new FeedbackHandlerImpl());
-
-        Component agentContextComponent = createComponent()
-            .setImplementation(m_agentContext)
-            .setCallbacks(this, null, "startAgent", "stopAgent", null)
-            .setAutoConfig(BundleContext.class, false)
-            .setAutoConfig(DependencyManager.class, false)
-            .setAutoConfig(Component.class, false)
-            .add(createServiceDependency()
-                .setService(PackageAdmin.class).setRequired(true)
-                .setCallbacks(this, "packageAdminAdded", "packageAdminRemoved"));
-
-        // FIXME fake config
-        if (Boolean.parseBoolean(System.getProperty("agent.identificationhandler.disabled"))) {
-            m_internalLogger.logInfo("activator", "Initializing agent...", null);
-            agentContextComponent.add(createServiceDependency().setService(IdentificationHandler.class).setRequired(true));
-        }
-        // FIXME fake config
-        if (Boolean.parseBoolean(System.getProperty("agent.discoveryhandler.disabled"))) {
-            m_internalLogger.logInfo("activator", "Initializing agent...", null);
-            agentContextComponent.add(createServiceDependency().setService(DiscoveryHandler.class).setRequired(true));
-        }
-        // FIXME fake config
-        if (Boolean.parseBoolean(System.getProperty("agent.connectionhandler.disabled"))) {
-            agentContextComponent.add(createServiceDependency().setService(ConnectionHandler.class).setRequired(true));
-        }
-        manager.add(agentContextComponent);
-    }
-
-    @Override
-    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
-        m_executorService.shutdownNow();
-        m_executorService = null;
-    }
-
-    synchronized void packageAdminAdded(PackageAdmin packageAdmin) {
-        if (m_packageAdmin == null) {
-            m_packageAdmin = packageAdmin;
-            configureField(m_deploymentAdmin, PackageAdmin.class, packageAdmin);
-        }
-    }
-
-    synchronized void packageAdminRemoved(PackageAdmin packageAdmin) {
-        if (m_packageAdmin == packageAdmin) {
-            m_packageAdmin = null;
-            configureField(m_deploymentAdmin, PackageAdmin.class, null);
-        }
-    }
-
-    void startAgent() throws Exception {
-
-        m_internalLogger.logInfo("activator", "Agent starting...", null);
-
-        invokeMethod(m_deploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
         m_agentContext.start();
+        m_internalLogger.logInfo("activator", "AgentContext started", null);
 
-        m_internalLogger.logInfo("activator", "Agent control service started", null);
-        m_agentControlComponent = createComponent()
-            .setInterface(AgentControl.class.getName(), null)
-            .setImplementation(m_agentControl);
-        getDependencyManager().add(m_agentControlComponent);
+        m_agentControl = new AgentControlImpl(m_agentContext);
+        m_agentControlRegistration = m_bundleContext.registerService(AgentControl.class.getName(), m_agentControl, null);
+        m_internalLogger.logInfo("activator", "AgentControl registered", null);
 
-        // FIXME fake config
-        if (!Boolean.parseBoolean(System.getProperty("agent.defaultcontroller.disabled"))) {
-            m_defaultController = new DefaultController();
-            m_defaultController.start(m_agentContext);
-            m_internalLogger.logInfo("activator", "Default controller started", null);
-        }
-        else {
-            m_internalLogger.logInfo("activator", "Default controller disabled", null);
-        }
+        m_defaultController = new DefaultController();
+        m_defaultController.start(m_agentContext);
+        m_internalLogger.logInfo("activator", "DefaultController started", null);
 
         // FIXME fake config
         if (!Boolean.parseBoolean(System.getProperty("agent.auditlogging.disabled"))) {
-            m_eventLoggerImpl = new EventLoggerImpl(m_agentControl, getDependencyManager().getBundleContext());
-            BundleContext bundleContext = getDependencyManager().getBundleContext();
-            bundleContext.addBundleListener(m_eventLoggerImpl);
-            bundleContext.addFrameworkListener(m_eventLoggerImpl);
+            m_eventLoggerImpl = new EventLoggerImpl(m_agentControl, m_bundleContext);
+            m_bundleContext.addBundleListener(m_eventLoggerImpl);
+            m_bundleContext.addFrameworkListener(m_eventLoggerImpl);
             m_internalEvents.registerHandler(m_eventLoggerImpl, EventLoggerImpl.TOPICS_INTEREST);
             m_internalLogger.logInfo("activator", "Audit logger started", null);
         }
         else {
             m_internalLogger.logInfo("activator", "Audit logger disabled", null);
         }
-
-        m_internalLogger.logInfo("activator", "Agent started", null);
+        m_internalLogger.logInfo("activator", "Agent statup complete", null);
     }
 
     void stopAgent() throws Exception {
 
         m_internalLogger.logInfo("activator", "Agent stopping..", null);
 
-        if (m_agentControlComponent != null) {
-            getDependencyManager().remove(m_agentControlComponent);
-            m_agentControlComponent = null;
-        }
+        m_agentControlRegistration.unregister();
+        m_agentControlRegistration = null;
 
-        if (m_defaultController != null) {
-            m_defaultController.stop();
-            m_defaultController = null;
-        }
+        m_defaultController.stop();
+        m_defaultController = null;
+
+        invokeMethod(m_deploymentAdmin, "stop", new Class<?>[] {}, new Object[] {});
 
         if (m_eventLoggerImpl != null) {
-            BundleContext bundleContext = getDependencyManager().getBundleContext();
-            bundleContext.removeFrameworkListener(m_eventLoggerImpl);
-            bundleContext.removeBundleListener(m_eventLoggerImpl);
+            m_bundleContext.removeFrameworkListener(m_eventLoggerImpl);
+            m_bundleContext.removeBundleListener(m_eventLoggerImpl);
             m_internalEvents.unregisterHandler(m_eventLoggerImpl);
         }
 
         m_agentContext.stop();
-        invokeMethod(m_deploymentAdmin, "stop", new Class<?>[] {}, new Object[] {});
+        m_agentContext = null;
+
         m_internalLogger.logInfo("activator", "Agent stopped", null);
     }
 
-    /**
-     * InternalEvents that posts events to internal handlers and external admins.
-     */
-    static class InternalEvents implements EventsHandler {
-
-        private final Map<EventHandler, String[]> m_eventHandlers = new HashMap<EventHandler, String[]>();
-
-        public void postEvent(String topic, Dictionary<String, String> payload) {
-            Event event = new Event(topic, payload);
-            postEvent(event);
-        }
-
-        public void postEvent(Event event) {
-            sendInternal(event);
-            sendExternal(event);
-        }
-
-        void registerHandler(EventHandler eventHandler, String[] topics) {
-            synchronized (m_eventHandlers) {
-                m_eventHandlers.put(eventHandler, topics);
-            }
-        }
-
-        void unregisterHandler(EventHandler eventHandler) {
-            synchronized (m_eventHandlers) {
-                m_eventHandlers.remove(eventHandler);
-            }
-        }
-
-        private void sendInternal(Event event) {
-            String topic = event.getTopic();
-            synchronized (m_eventHandlers) {
-                for (Entry<EventHandler, String[]> entry : m_eventHandlers.entrySet()) {
-                    for (String interest : entry.getValue()) {
-                        if ((interest.endsWith("*") && topic.startsWith(interest.substring(0, interest.length() - 1))
-                        || topic.equals(interest))) {
-                            entry.getKey().handleEvent(event);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void sendExternal(Event event) {
-            // TODO this requires looking for all service references and invoking any found admins using reflection
-        }
-
+    private void configureDeploymentAdmin() {
+        m_deploymentAdmin = new DeploymentAdminImpl();
+        configureField(m_deploymentAdmin, BundleContext.class, m_bundleContext);
+        configureField(m_deploymentAdmin, PackageAdmin.class, m_packageAdmin);
+        configureField(m_deploymentAdmin, EventAdmin.class, new InternalEventAdmin(m_internalEvents));
+        configureField(m_deploymentAdmin, LogService.class, new InternalLogService(m_internalLogger, "deployment"));
+        invokeMethod(m_deploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
     }
 
     /**
@@ -259,64 +232,28 @@ public class Activator extends DependencyActivatorBase {
      */
     static class InternalEventAdmin implements EventAdmin {
 
-        private final InternalEvents m_events;
+        private final EventsHandler m_events;
 
-        public InternalEventAdmin(InternalEvents events) {
+        public InternalEventAdmin(EventsHandler events) {
             m_events = events;
         }
 
         @Override
         public void postEvent(Event event) {
-            m_events.postEvent(event);
+            m_events.postEvent(event.getTopic(), getPayload(event));
         }
 
         @Override
         public void sendEvent(Event event) {
-            m_events.postEvent(event);
-        }
-    }
-
-    /**
-     * Internal logger that writes to system out for now. It minimizes work until it is determined the loglevel is
-     * loggable.
-     */
-    static class InternalLogger implements LoggingHandler {
-
-        private final int m_level;
-
-        public InternalLogger(int level) {
-            m_level = level;
+            m_events.postEvent(event.getTopic(), getPayload(event));
         }
 
-        private void log(String level, String component, String message, Throwable exception, Object... args) {
-            if (args.length > 0)
-                message = String.format(message, args);
-            String line = String.format("[%s] %TT (%s) %s", level, new Date(), component, message);
-            System.out.println(line);
-            if (exception != null)
-                exception.printStackTrace(System.out);
-        }
-
-        public void logDebug(String component, String message, Throwable exception, Object... args) {
-            if (m_level < LogService.LOG_DEBUG)
-                return;
-            log("DEBUG", component, message, exception, args);
-        }
-
-        public void logInfo(String component, String message, Throwable exception, Object... args) {
-            if (m_level < LogService.LOG_INFO)
-                return;
-            log("INFO", component, message, exception, args);
-        }
-
-        public void logWarning(String component, String message, Throwable exception, Object... args) {
-            if (m_level < LogService.LOG_WARNING)
-                return;
-            log("WARNING", component, message, exception, args);
-        }
-
-        public void logError(String component, String message, Throwable exception, Object... args) {
-            log("ERROR", component, message, exception, args);
+        private static Dictionary<String, String> getPayload(Event event) {
+            Dictionary<String, String> payload = new Hashtable<String, String>();
+            for (String propertyName : event.getPropertyNames()) {
+                payload.put(propertyName, event.getProperty(propertyName).toString());
+            }
+            return payload;
         }
     }
 
@@ -325,10 +262,10 @@ public class Activator extends DependencyActivatorBase {
      */
     static class InternalLogService implements LogService {
 
-        private final InternalLogger m_logger;
+        private final LoggingHandler m_logger;
         private final String m_identifier;
 
-        public InternalLogService(InternalLogger logger, String identifier) {
+        public InternalLogService(LoggingHandler logger, String identifier) {
             m_logger = logger;
             m_identifier = identifier;
         }
@@ -381,4 +318,5 @@ public class Activator extends DependencyActivatorBase {
             return thread;
         }
     }
+
 }

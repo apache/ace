@@ -15,14 +15,6 @@ Private-Package: org.apache.ace.range,\
 	org.apache.commons.codec.net,\
 	org.apache.felix.deploymentadmin,\
 	org.apache.felix.deploymentadmin.spi,\
-	org.apache.felix.dm.impl.dependencies,\
-	org.apache.felix.dm,\
-	org.apache.felix.dm.impl,\
-	org.apache.felix.dm.impl.index,\
-	org.apache.felix.dm.impl.metatype,\
-	org.apache.felix.dm.tracker,\
-	org.osgi.service.metatype,\
-	org.osgi.service.cm,\
 	org.osgi.service.event,\
 	org.osgi.service.log,\
 	org.osgi.util.tracker
@@ -39,12 +31,12 @@ Export-Package: org.apache.ace.agent,\
 	org.osgi.service.deploymentadmin;-split-package:=merge-last,\
 	org.osgi.service.deploymentadmin.spi;-split-package:=merge-last
 
+
 -buildpath: osgi.core;version=4.2,\
 	osgi.cmpn;version=4.2,\
 	javax.servlet;version=2.5,\
 	org.apache.felix.deploymentadmin;version=0.9.4,\
 	org.easymock,\
-	org.apache.felix.dependencymanager,\
 	commons-codec;version=1.4.0,\
 	org.apache.felix.http.jetty;version=2.2.1,\
 	org.apache.ace.range.api;version=latest,\
