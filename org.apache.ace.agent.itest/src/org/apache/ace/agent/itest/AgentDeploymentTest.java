@@ -226,7 +226,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
         for (int i = 0; i < headers.length; i += 2) {
             b.setProperty(headers[i], headers[i + 1]);
         }
-        b.setProperty("Include-Resource", "bnd.bnd");
+        b.setProperty("Include-Resource", "bnd.bnd"); // prevent empty jar bug
         Jar jar = b.build();
         jar.getManifest(); // Not sure whether this is needed...
         File file = File.createTempFile("testbundle", ".jar");
