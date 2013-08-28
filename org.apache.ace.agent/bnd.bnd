@@ -44,3 +44,5 @@ javac.debug:  off
 -runbundles: org.apache.felix.gogo.command,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.felix.gogo.shell
+-runproperties: agent.controller.syncdelay=1,\
+	agent.logging.level=DEBUG

@@ -31,11 +31,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
 /**
- * This class is dynamically deployed as part of the updater bundle that executes the
- * update of the management agent. It is both the bundle activator and the interface and
- * implementation of a service that is published and invoked by the management agent.
- * Care was taken to not create import dependencies on anything other than the core
- * framework. Also, no inner classes are used, to keep all the code in a single class file.
+ * This class is dynamically deployed as part of the updater bundle that executes the update of the management agent. It
+ * is both the bundle activator and the interface and implementation of a service that is published and invoked by the
+ * management agent. Care was taken to not create import dependencies on anything other than the core framework. Also,
+ * no inner classes are used, to keep all the code in a single class file.
  */
 public class Activator implements BundleActivator, Runnable {
     private static final int BUFFER_SIZE = 4096;
@@ -56,7 +55,7 @@ public class Activator implements BundleActivator, Runnable {
     @Override
     public void stop(BundleContext context) throws Exception {
     }
-    
+
     public void update(Bundle agent, InputStream oldStream, InputStream newStream) throws IOException {
         m_updaterThread = new Thread(this, "Apache ACE Management Agent Updater");
         m_agent = agent;
@@ -66,7 +65,7 @@ public class Activator implements BundleActivator, Runnable {
         m_newStream = new FileInputStream(m_newFile);
         m_updaterThread.start();
     }
-    
+
     public void copy(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
         int length;
@@ -79,14 +78,16 @@ public class Activator implements BundleActivator, Runnable {
             try {
                 in.close();
             }
-            catch (IOException e) {}
+            catch (IOException e) {
+            }
             try {
                 out.close();
             }
-            catch (IOException e) {}
+            catch (IOException e) {
+            }
         }
     }
-    
+
     @Override
     public void run() {
         try {
@@ -96,6 +97,7 @@ public class Activator implements BundleActivator, Runnable {
             try {
                 m_agent.update(m_oldStream);
                 m_agent.start();
+                // FIXME we should probable refresh?
             }
             catch (BundleException e1) {
                 // at this point we simply give up

@@ -46,17 +46,14 @@ import org.osgi.service.deploymentadmin.DeploymentException;
 
 /**
  * Default configurable controller
- * 
  */
 public class DefaultController extends ComponentBase implements Runnable {
-
-    public static final String COMPONENT_IDENTIFIER = "controller";
 
     private volatile ScheduledFuture<?> m_scheduledFuture;
     private volatile UpdateInstaller m_updateInstaller;
 
     public DefaultController() {
-        super(COMPONENT_IDENTIFIER);
+        super("controller");
     }
 
     @Override

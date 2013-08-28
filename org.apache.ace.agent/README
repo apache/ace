@@ -1,14 +1,25 @@
 
-TODOs:
-
-1) Download handler now store files in a tmp file and are not able to resume interrupted 
-downloads from a new handle. This should be changed to storage in the data dir and using 
-names that can be discovered and resumed.
-
-2) Download result provide access to the download through a File. This should be an 
-inputstream.
+Work in progress
 
 
-3) EventsHandler/EVentListener do not yet support an interest list like eventadmin does.
-This should be added as it will help reduce event load if we start throwing more.
+On downloads:
 
+1) Download ared stored temp-files and as a result it is not possible to resume interrupted 
+downloads from a new handle. This should be changed to storage in the data dir using names 
+based in url so that they that can be discovered and resumed.
+
+2) Download result provides access to the download through a File. To be more clean this 
+should be an inputstream.
+
+
+On events:
+
+1) The EventsHandler/EventListener mechanism does not yet support a topic interest list like 
+eventadmin does. This should be added as it will help reduce event load if we start throwing 
+more.
+
+2) To reduce the overhead of configuration lookup we should consider adding config changed
+events that other components can register to.
+
+3) At this point the only events are those posted by the DeploymentAdmin. We should think
+about which agent events make sense and add them.
