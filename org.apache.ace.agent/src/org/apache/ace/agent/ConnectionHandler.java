@@ -23,10 +23,16 @@ import java.net.URL;
 import java.net.URLConnection;
 
 /**
- * Agent control delegate interface that is responsible for opening connection.
- * 
+ * Agent context delegate interface that is responsible for opening connection.
  */
 public interface ConnectionHandler {
+
+    /**
+     * Supported authentication types.
+     */
+    enum Types {
+        NONE, BASIC, CLIENTCERT;
+    }
 
     /**
      * Return a connection for the specified url.

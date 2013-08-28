@@ -18,52 +18,58 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.CONFIG_DISCOVERY_CHECKING;
+import static org.apache.ace.agent.AgentConstants.CONFIG_DISCOVERY_SERVERURLS;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DiscoveryHandler;
 
 /**
- * Default discovery handler that reads the serverURL(s) from the configuration using key {@link DISCOVERY_CONFIG_KEY}.
- * 
+ * Default thread-safe {@link DiscoveryHandler} implementation that reads the serverURL(s) from the configuration using
+ * key {@link CONFIG_DISCOVERY_SERVERURLS}. If the {@link CONFIG_DISCOVERY_CHECKING} flag is a connection is opened to
+ * test whether a serverURL is available before it is returned.
  */
 public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHandler {
 
-    public static final String COMPONENT_IDENTIFIER = "discovery";
-    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
+    private final Map<String, CheckedURL> m_availableURLs = new HashMap<String, DiscoveryHandlerImpl.CheckedURL>();
+    private final Map<String, CheckedURL> m_blacklistedURLs = new HashMap<String, DiscoveryHandlerImpl.CheckedURL>();
 
-    /**
-     * Configuration key for the default discovery handler. The value must be a comma-separated list of valid base
-     * server URLs.
-     */
-    public static final String CONFIG_KEY_SERVERURLS = CONFIG_KEY_BASE + ".serverUrls";
-    public static final String CONFIG_DEFAULT_SERVERURLS = "http://localhost:8080";
+    private static final long CACHE_TIME = 2000;
 
     public DiscoveryHandlerImpl() {
-        super(COMPONENT_IDENTIFIER);
+        super("discovery");
     }
 
+    @Override
+    protected void onStop() throws Exception {
+        m_availableURLs.clear();
+        m_blacklistedURLs.clear();
+    }
 
     // TODO Pretty naive implementation below. It always takes the first configured URL it can connect to and is not
     // thread-safe.
     @Override
     public URL getServerUrl() {
-        ConfigurationHandler configurationHandler = getAgentContext().getConfigurationHandler();
 
-        String configValue = configurationHandler.get(CONFIG_KEY_SERVERURLS, CONFIG_DEFAULT_SERVERURLS);
+        String configValue = getConfigurationHandler().get(CONFIG_DISCOVERY_SERVERURLS, "http://localhost:8080");
+        boolean checking = getConfigurationHandler().getBoolean(CONFIG_DISCOVERY_CHECKING, false);
+
         URL url = null;
         if (configValue.indexOf(",") == -1) {
-            url = checkURL(configValue.trim());
+            url = getURL(configValue.trim(), checking);
         }
         else {
             for (String configValuePart : configValue.split(",")) {
-                if (url == null) {
-                    url = checkURL(configValuePart.trim());
+                url = getURL(configValuePart.trim(), checking);
+                if (url != null) {
+                    break;
                 }
             }
         }
@@ -72,8 +78,6 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
         }
         return url;
     }
-
-    private static final long CACHE_TIME = 1000;
 
     private static class CheckedURL {
         URL url;
@@ -85,24 +89,40 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
         }
     }
 
-    private final Map<String, CheckedURL> m_checkedURLs = new HashMap<String, DiscoveryHandlerImpl.CheckedURL>();
+    private URL getURL(String serverURL, boolean checking) {
 
-    private URL checkURL(String serverURL) {
-
-        CheckedURL checked = m_checkedURLs.get(serverURL);
-        if (checked != null && checked.timestamp > (System.currentTimeMillis() - CACHE_TIME)) {
-            logDebug("Returning cached serverURL: " + checked.url.toExternalForm());
-            return checked.url;
-        }
+        URL url = null;
         try {
-            URL url = new URL(serverURL);
+            CheckedURL blackListed = m_blacklistedURLs.get(serverURL);
+            if (blackListed != null && blackListed.timestamp > (System.currentTimeMillis() - CACHE_TIME)) {
+                logDebug("Ignoring blacklisted serverURL: " + serverURL);
+                return null;
+            }
+
+            url = new URL(serverURL);
+            if (!checking) {
+                return url;
+            }
+
+            CheckedURL available = m_availableURLs.get(serverURL);
+            if (available != null && available.timestamp > (System.currentTimeMillis() - CACHE_TIME)) {
+                logDebug("Returning available serverURL: " + available.url.toExternalForm());
+                return available.url;
+            }
+
             tryConnect(url);
             logDebug("Succesfully connected to  serverURL: %s", serverURL);
-            m_checkedURLs.put(serverURL, new CheckedURL(url, System.currentTimeMillis()));
+            m_availableURLs.put(serverURL, new CheckedURL(url, System.currentTimeMillis()));
             return url;
         }
+        catch (MalformedURLException e) {
+            logError("Temporarily blacklisting malformed serverURL: " + serverURL);
+            m_blacklistedURLs.put(serverURL, new CheckedURL(url, System.currentTimeMillis()));
+            return null;
+        }
         catch (IOException e) {
-            logDebug("Failed to connect to serverURL: " + serverURL);
+            logWarning("Temporarily blacklisting unavailable serverURL: " + serverURL);
+            m_blacklistedURLs.put(serverURL, new CheckedURL(url, System.currentTimeMillis()));
             return null;
         }
     }
@@ -110,7 +130,7 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
     private void tryConnect(URL serverURL) throws IOException {
         URLConnection connection = null;
         try {
-            connection = getAgentContext().getConnectionHandler().getConnection(serverURL);
+            connection = getConnectionHandler().getConnection(serverURL);
             connection.connect();
         }
         finally {

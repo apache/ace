@@ -26,11 +26,8 @@ import org.apache.ace.agent.DownloadHandler;
 
 public class DownloadHandlerImpl extends ComponentBase implements DownloadHandler {
 
-    public static final String COMPONENT_IDENTIFIER = "download";
-    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
-
     public DownloadHandlerImpl() {
-        super(COMPONENT_IDENTIFIER);
+        super("downloads");
     }
 
     @Override
@@ -47,6 +44,6 @@ public class DownloadHandlerImpl extends ComponentBase implements DownloadHandle
      * handle support methods
      */
     ExecutorService getExecutor() {
-        return getAgentContext().getExecutorService();
+        return getExecutorService();
     }
 }

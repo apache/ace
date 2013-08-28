@@ -106,9 +106,6 @@ public class DependencyTrackerImpl {
         // As this is a simple internal implementation we assume we can safely invoke
         // callbacks while holding locks.
         synchronized (this) {
-            if (!m_tracking) {
-                return;
-            }
             if (dependenciesAvailable()) {
                 if (m_started) {
                     stopCallback();
@@ -117,8 +114,10 @@ public class DependencyTrackerImpl {
                 startCallback();
             }
             else {
-                stopCallback();
-                serviceCallbacks();
+                if (m_started) {
+                    stopCallback();
+                    serviceCallbacks();
+                }
             }
         }
     }

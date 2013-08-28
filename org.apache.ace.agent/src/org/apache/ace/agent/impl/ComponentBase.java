@@ -29,40 +29,42 @@ import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.DownloadHandler;
+import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.FeedbackHandler;
 import org.apache.ace.agent.IdentificationHandler;
+import org.apache.ace.agent.LoggingHandler;
 
 /**
  * Convenience implementation base class for all {@link AgentContextAware} components, such as handlers & controllers.
- * 
  */
 public abstract class ComponentBase implements AgentContextAware {
 
-    private final String m_componentIdentifier;
-    private AgentContext m_agentContext;
+    private final String m_identifier;
+    private volatile AgentContext m_context;
 
     public ComponentBase(String handlerIdentifier) {
-        m_componentIdentifier = handlerIdentifier;
+        m_identifier = handlerIdentifier;
     }
 
     @Override
     public final void start(AgentContext agentContext) throws Exception {
-        m_agentContext = agentContext;
-        m_agentContext.logDebug(m_componentIdentifier, "Starting");
+        if (agentContext == null) {
+            throw new IllegalArgumentException("Context must not be null");
+        }
+        m_context = agentContext;
         onStart();
     }
 
     @Override
     public final void stop() throws Exception {
-        m_agentContext.logDebug(m_componentIdentifier, "Stopping");
-        m_agentContext = null;
         onStop();
+        m_context = null;
     }
 
     protected final AgentContext getAgentContext() {
-        if (m_agentContext == null)
-            throw new IllegalStateException("Handler is not started");
-        return m_agentContext;
+        if (m_context == null)
+            throw new IllegalStateException("Handler is not started: " + m_identifier);
+        return m_context;
     }
 
     protected void onStart() throws Exception {
@@ -72,74 +74,82 @@ public abstract class ComponentBase implements AgentContextAware {
     }
 
     protected final IdentificationHandler getIdentificationHandler() {
-        return m_agentContext.getIdentificationHandler();
+        return m_context.getHandler(IdentificationHandler.class);
     }
 
     protected final DiscoveryHandler getDiscoveryHandler() {
-        return m_agentContext.getDiscoveryHandler();
+        return m_context.getHandler(DiscoveryHandler.class);
     }
 
     protected final ConnectionHandler getConnectionHandler() {
-        return m_agentContext.getConnectionHandler();
+        return m_context.getHandler(ConnectionHandler.class);
     }
 
     protected final DeploymentHandler getDeploymentHandler() {
-        return m_agentContext.getDeploymentHandler();
+        return m_context.getHandler(DeploymentHandler.class);
     }
 
     protected final DownloadHandler getDownloadHandler() {
-        return m_agentContext.getDownloadHandler();
+        return m_context.getHandler(DownloadHandler.class);
     }
 
     protected final ConfigurationHandler getConfigurationHandler() {
-        return m_agentContext.getConfigurationHandler();
+        return m_context.getHandler(ConfigurationHandler.class);
     }
 
     protected final AgentUpdateHandler getAgentUpdateHandler() {
-        return m_agentContext.getAgentUpdateHandler();
+        return m_context.getHandler(AgentUpdateHandler.class);
     }
 
     protected final FeedbackHandler getFeedbackHandler() {
-        return m_agentContext.getFeedbackHandler();
+        return m_context.getHandler(FeedbackHandler.class);
+    }
+
+    protected final LoggingHandler getLoggingHandler() {
+        return m_context.getHandler(LoggingHandler.class);
+    }
+
+    protected final EventsHandler getEventsHandler() {
+        return m_context.getHandler(EventsHandler.class);
     }
 
     protected final ScheduledExecutorService getExecutorService() {
-        return m_agentContext.getExecutorService();
+        return m_context.getHandler(ScheduledExecutorService.class);
     }
 
     protected final File getWorkDir() {
-        return m_agentContext.getWorkDir();
+        return m_context.getWorkDir();
     }
 
     protected final void logDebug(String message, Object... args) {
-        getAgentContext().logDebug(m_componentIdentifier, message, null, args);
+        getLoggingHandler().logDebug(m_identifier, message, null, args);
     }
 
     protected final void logDebug(String message, Throwable cause, Object... args) {
-        getAgentContext().logDebug(m_componentIdentifier, message, cause, args);
+        getLoggingHandler().logDebug(m_identifier, message, cause, args);
     }
 
     protected final void logInfo(String message, Object... args) {
-        getAgentContext().logInfo(m_componentIdentifier, message, null, args);
+        getLoggingHandler().logInfo(m_identifier, message, null, args);
     }
 
     protected final void logInfo(String message, Throwable cause, Object... args) {
-        getAgentContext().logInfo(m_componentIdentifier, message, cause, args);
+        getLoggingHandler().logInfo(m_identifier, message, cause, args);
     }
 
     protected final void logWarning(String message, Object... args) {
-        getAgentContext().logWarning(m_componentIdentifier, message, null, args);
+        getLoggingHandler().logWarning(m_identifier, message, null, args);
     }
 
     protected final void logWarning(String message, Throwable cause, Object... args) {
-        getAgentContext().logWarning(m_componentIdentifier, message, cause, args);
+        getLoggingHandler().logWarning(m_identifier, message, cause, args);
     }
 
     protected final void logError(String message, Object... args) {
-        getAgentContext().logError(m_componentIdentifier, message, null, args);
+        getLoggingHandler().logError(m_identifier, message, null, args);
     }
 
     protected final void logError(String message, Throwable cause, Object... args) {
-        getAgentContext().logError(m_componentIdentifier, message, cause, args);
+        getLoggingHandler().logError(m_identifier, message, cause, args);
     }
 }

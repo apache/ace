@@ -16,17 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.impl;
+package org.apache.ace.agent;
 
-import java.util.Dictionary;
-
-import org.apache.ace.agent.AgentContext;
+import java.util.Map;
 
 /**
- * Agent context delegate interface that is responsible for handling events. This is an internal interface as event
- * methods are exposed on the {@link AgentContext} directly.
+ * Agent context delegate interface that is responsible for handling events.
  */
 public interface EventsHandler {
 
-    void postEvent(String topic, Dictionary<String, String> payload);
+    /**
+     * Post an event asynchronously.
+     * 
+     * @param topic The topic string
+     * @param payload The payload map
+     */
+    void postEvent(String topic, Map<String, String> payload);
+
+    /**
+     * Post an event synchronously.
+     * 
+     * @param topic The topic string
+     * @param payload The payload map
+     */
+    void sendEvent(String topic, Map<String, String> payload);
+
+    /**
+     * Add a listener.
+     * 
+     * @param listener The listener
+     */
+    void addListener(EventListener listener);
+
+    /**
+     * Remove a listener.
+     * 
+     * @param listener The listener
+     */
+    void removeListener(EventListener listener);
 }

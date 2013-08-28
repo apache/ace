@@ -18,60 +18,102 @@
  */
 package org.apache.ace.agent.impl;
 
-import java.util.Dictionary;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
+import org.apache.ace.agent.EventListener;
+import org.apache.ace.agent.EventsHandler;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
- * InternalEvents that posts events to internal handlers and external admins.
+ * Default thread-safe {@link EventsHandler} implementation that tracks external {@link EventListener.class} services.
+ * Agent handles can manages their own listeners directly using {@link #addListener(EventListener)} and
+ * {@link #removeListener(EventListener)}.
  */
-public class EventsHandlerImpl implements EventsHandler {
+public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
 
-    private final Map<EventHandler, String[]> m_eventHandlers = new HashMap<EventHandler, String[]>();
+    private final List<EventListener> m_listeners = new CopyOnWriteArrayList<EventListener>();
+    private final BundleContext m_bundleContext;
 
-    public void postEvent(String topic, Dictionary<String, String> payload) {
-        Event event = new Event(topic, payload);
-        postEvent(event);
+    private ServiceTracker m_tracker;
+
+    public EventsHandlerImpl(BundleContext bundleContext) throws Exception {
+        super("events");
+        m_bundleContext = bundleContext;
+        Filter listenerFilter = m_bundleContext.createFilter("(" + Constants.OBJECTCLASS + "=" + EventListener.class.getName() + ")");
+        m_tracker = new ServiceTracker(m_bundleContext, listenerFilter, new ServiceTrackerCustomizer() {
+
+            @Override
+            public Object addingService(ServiceReference reference) {
+                Object service = m_bundleContext.getService(reference);
+                addListener((EventListener) service);
+                return service;
+            }
+
+            @Override
+            public void removedService(ServiceReference reference, Object service) {
+                removeListener((EventListener) service);
+            }
+
+            @Override
+            public void modifiedService(ServiceReference reference, Object service) {
+            }
+        });
     }
 
-    public void postEvent(Event event) {
-        sendInternal(event);
-        sendExternal(event);
+    @Override
+    protected void onStart() throws Exception {
+        m_tracker.open();
     }
 
-    void registerHandler(EventHandler eventHandler, String[] topics) {
-        synchronized (m_eventHandlers) {
-            m_eventHandlers.put(eventHandler, topics);
-        }
+    @Override
+    protected void onStop() throws Exception {
+        m_tracker.close();
+        m_listeners.clear();
     }
 
-    void unregisterHandler(EventHandler eventHandler) {
-        synchronized (m_eventHandlers) {
-            m_eventHandlers.remove(eventHandler);
-        }
-    }
-
-    private void sendInternal(Event event) {
-        String topic = event.getTopic();
-        synchronized (m_eventHandlers) {
-            for (Entry<EventHandler, String[]> entry : m_eventHandlers.entrySet()) {
-                for (String interest : entry.getValue()) {
-                    if ((interest.endsWith("*") && topic.startsWith(interest.substring(0, interest.length() - 1))
-                    || topic.equals(interest))) {
-                        entry.getKey().handleEvent(event);
-                        break;
+    @Override
+    public void postEvent(final String topic, final Map<String, String> payload) {
+        for (final EventListener listener : m_listeners) {
+            getExecutorService().submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        listener.handle(topic, payload);
+                    }
+                    catch (Exception e) {
+                        logWarning("Exception while posting event", e);
                     }
                 }
+            });
+        }
+    }
+
+    @Override
+    public void sendEvent(final String topic, final Map<String, String> payload) {
+        for (final EventListener listener : m_listeners) {
+            try {
+                listener.handle(topic, payload);
+            }
+            catch (Exception e) {
+                logWarning("Exception while sending event", e);
             }
         }
     }
 
-    private void sendExternal(Event event) {
-        // TODO this requires looking for all service references and invoking any found admins using reflection
+    @Override
+    public void addListener(EventListener listener) {
+        m_listeners.add(listener);
     }
 
+    @Override
+    public void removeListener(EventListener listener) {
+        m_listeners.remove(listener);
+    }
 }

@@ -42,8 +42,8 @@ import org.osgi.framework.Version;
 import org.osgi.service.http.HttpService;
 
 /**
- * Tests updating the management agent. In fact it tests different failure paths first, and finally
- * gets to update the agent. The tests it does are:
+ * Tests updating the management agent. In fact it tests different failure paths first, and finally gets to update the
+ * agent. The tests it does are:
  * <ul>
  * <li>Try to update to a corrupt bundle (with some random garbage injected in the JAR file).</li>
  * <li>Try to update to a bundle that does not resolve because of some impossible import package statement.</li>
@@ -51,10 +51,18 @@ import org.osgi.service.http.HttpService;
  * <li>Update to a new version of the agent (actually, it's the same bundle, but with a different version.</li>
  * </ul>
  */
-public class ManagementAgentUpdateTest extends IntegrationTestBase {
+public class AgentUpdateTest extends IntegrationTestBase {
+
     private volatile HttpService m_http;
-    private enum Phase { CORRUPT_STREAM, BUNDLE_DOES_NOT_RESOLVE, BUNDLE_DOES_NOT_START, BUNDLE_WORKS }
-    private enum PhaseStatus { ACTIVE, DONE }
+    private volatile AgentUpdateOBRServlet m_servlet;
+
+    private enum Phase {
+        CORRUPT_STREAM, BUNDLE_DOES_NOT_RESOLVE, BUNDLE_DOES_NOT_START, BUNDLE_WORKS
+    }
+
+    private enum PhaseStatus {
+        ACTIVE, DONE
+    }
 
     @Override
     protected Component[] getDependencies() {
@@ -65,35 +73,45 @@ public class ManagementAgentUpdateTest extends IntegrationTestBase {
         };
     }
 
+    @Override
+    public void configureAdditionalServices() throws Exception {
+        Thread.sleep(200);
+        m_servlet = new AgentUpdateOBRServlet();
+        m_http.registerServlet("/obr", m_servlet, null, null);
+    }
+
+    public void tearDown() throws Exception {
+        m_http.unregister("/obr");
+    }
+
     public void testAgentUpdate() throws Exception {
-        AgentUpdateOBRServlet servlet = new AgentUpdateOBRServlet();
-        m_http.registerServlet("/obr", servlet, null, null);
+
         int timeout = 50;
-        servlet.setPhase(Phase.CORRUPT_STREAM);
-        while (servlet.getPhaseStatus() == PhaseStatus.ACTIVE) {
+        m_servlet.setPhase(Phase.CORRUPT_STREAM);
+        while (m_servlet.getPhaseStatus() == PhaseStatus.ACTIVE) {
             Thread.sleep(200);
             if (timeout-- <= 0) {
                 fail("Timed out while recovering from update with broken stream.");
             }
         }
         timeout = 50;
-        servlet.setPhase(Phase.BUNDLE_DOES_NOT_RESOLVE);
-        while (servlet.getPhaseStatus() == PhaseStatus.ACTIVE) {
+        m_servlet.setPhase(Phase.BUNDLE_DOES_NOT_RESOLVE);
+        while (m_servlet.getPhaseStatus() == PhaseStatus.ACTIVE) {
             Thread.sleep(200);
             if (timeout-- <= 0) {
                 fail("Timed out while recovering from update with agent that does not resolve.");
             }
         }
         timeout = 50;
-        servlet.setPhase(Phase.BUNDLE_DOES_NOT_START);
-        while (servlet.getPhaseStatus() == PhaseStatus.ACTIVE) {
+        m_servlet.setPhase(Phase.BUNDLE_DOES_NOT_START);
+        while (m_servlet.getPhaseStatus() == PhaseStatus.ACTIVE) {
             Thread.sleep(200);
             if (timeout-- <= 0) {
                 fail("Timed out while recovering from update with agent that does not start.");
             }
         }
         timeout = 50;
-        servlet.setPhase(Phase.BUNDLE_WORKS);
+        m_servlet.setPhase(Phase.BUNDLE_WORKS);
         while (timeout-- > 0) {
             Thread.sleep(200);
             for (Bundle b : m_bundleContext.getBundles()) {
@@ -108,8 +126,11 @@ public class ManagementAgentUpdateTest extends IntegrationTestBase {
     }
 
     private static class AgentUpdateOBRServlet extends HttpServlet {
+
+        private static final long serialVersionUID = 1L;
         private Phase m_phase;
         private PhaseStatus m_phaseStatus;
+
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String path = req.getPathInfo();
@@ -132,12 +153,12 @@ public class ManagementAgentUpdateTest extends IntegrationTestBase {
                 }
             }
         }
-        
+
         public synchronized void setPhase(Phase phase) {
             m_phase = phase;
             m_phaseStatus = PhaseStatus.ACTIVE;
         }
-        
+
         public synchronized PhaseStatus getPhaseStatus() {
             return m_phaseStatus;
         }
@@ -181,7 +202,7 @@ public class ManagementAgentUpdateTest extends IntegrationTestBase {
             }
         }
     }
-    
+
     private static String createResource(String bsn, String version) {
         return "<resource id='" + bsn + "/" + version + "' symbolicname='" + bsn + "' version='" + version + "' uri='" + bsn + "-" + version + ".jar'></resource>";
     }

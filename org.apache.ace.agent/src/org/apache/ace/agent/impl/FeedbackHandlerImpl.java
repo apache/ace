@@ -18,6 +18,8 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.CONFIG_FEEDBACK_CHANNELS;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,22 +35,12 @@ import org.apache.ace.agent.FeedbackHandler;
  */
 public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandler {
 
-    public static final String COMPONENT_IDENTIFIER = "feedback";
-    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
-
-    /**
-     * Configuration key for the default discovery handler. The value must be a comma-separated list of valid base
-     * server URLs.
-     */
-    public static final String CONFIG_KEY_CHANNELS = CONFIG_KEY_BASE + ".channels";
-    public static final String CONFIG_DEFAULT_CHANNELS = "auditlog";
-
-    private Map<String, FeedbackChannelImpl> m_channels = new HashMap<String, FeedbackChannelImpl>();
+    private final Map<String, FeedbackChannelImpl> m_channels = new HashMap<String, FeedbackChannelImpl>();
     private Set<String> m_channelNames;
     private String m_channelNamesConfig;
 
     public FeedbackHandlerImpl() {
-        super(COMPONENT_IDENTIFIER);
+        super("feedback");
     }
 
     @Override
@@ -82,14 +74,14 @@ public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandle
     }
 
     private void ensureChannels() throws IOException {
-        String channelNamesConfig = getAgentContext().getConfigurationHandler().get(CONFIG_KEY_CHANNELS, CONFIG_DEFAULT_CHANNELS);
+        String channelNamesConfig = getConfigurationHandler().get(CONFIG_FEEDBACK_CHANNELS, "auditlog");
         if (m_channelNamesConfig != null && m_channelNamesConfig.equals(channelNamesConfig)) {
             return;
         }
 
         m_channelNamesConfig = channelNamesConfig;
         m_channelNames = Collections.unmodifiableSet(getConfigurationValues(channelNamesConfig));
-        m_channels = new HashMap<String, FeedbackChannelImpl>();
+        m_channels.clear();
         for (String channelName : m_channelNames) {
             m_channels.put(channelName, new FeedbackChannelImpl(getAgentContext(), channelName));
         }
@@ -98,17 +90,17 @@ public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandle
     private void clearChannels() {
         m_channelNamesConfig = null;
         m_channelNames = null;
-        m_channels = null;
+        m_channels.clear();
     }
 
     // TODO move to util or configurationhandler
     private static Set<String> getConfigurationValues(String value) {
         Set<String> trimmedValues = new HashSet<String>();
-        if(value != null){
+        if (value != null) {
             String[] rawValues = value.split(",");
             for (String rawValue : rawValues) {
                 trimmedValues.add(rawValue.trim());
-            }            
+            }
         }
         return trimmedValues;
     }

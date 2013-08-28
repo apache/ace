@@ -23,7 +23,6 @@ import java.util.Map;
 
 
 /**
- * 
  *
  */
 public interface FeedbackChannel {

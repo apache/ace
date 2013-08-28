@@ -16,9 +16,7 @@ Private-Package: org.apache.ace.range,\
 
 # No wildcard import here on purpose. Are you sure the agent must 
 # require an extra external dependency? Probably not...
-Import-Package:javax.net.ssl,\
-	org.osgi.framework,\
-	org.osgi.service.packageadmin
+Import-Package: !org.apache.felix.dm, *
 
 # This is a minimal set on purpose. Are you really sure the agent must 
 # expose another package? Probably not...
@@ -26,6 +24,10 @@ Export-Package: org.apache.ace.agent,\
 	org.osgi.service.deploymentadmin;-split-package:=merge-last,\
 	org.osgi.service.deploymentadmin.spi;-split-package:=merge-last
 
+
+# Keeping the agent as lean as possible. Remove debug when compiling
+# offline
+javac.debug:  off
 
 -buildpath: osgi.core;version=4.2,\
 	osgi.cmpn;version=4.2,\

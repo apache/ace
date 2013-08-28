@@ -18,6 +18,14 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_AUTHTYPE;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_KEYFILE;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_KEYPASS;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_PASSWORD;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_TRUSTFILE;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_TRUSTPASS;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_USERNAME;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,64 +47,13 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.ace.agent.ConnectionHandler;
 
 /**
- * Default connection handler with support for BASIC authentication and HTTPS client certificates.
- * 
+ * Default thread-safe {@link ConnectionHandler} implementation with support for BASIC authentication and HTTPS client
+ * certificates.
  */
 public class ConnectionHandlerImpl extends ComponentBase implements ConnectionHandler {
 
-    public static final String COMPONENT_IDENTIFIER = "connection";
-    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
-
-    public static final String PROP_AUTHTYPE = "agent.authType";
-    public static final String PROP_AUTHUSER = "agent.authUser";
-    public static final String PROP_AUTHPASS = "agent.authPass";
-    public static final String PROP_AUTHKEYFILE = "agent.authKeyFile";
-    public static final String PROP_AUTHKEYPASS = "agent.authKeyPass";
-    public static final String PROP_AUTHTRUSTFILE = "agent.authTrustFile";
-    public static final String PROP_AUTHTRUSTPASS = "agent.authTrustPass";
-
-    private static final String HTTP_HEADER_AUTHORIZATION = "Authorization";
-
-    private enum AuthType {
-
-        NONE,
-        BASIC,
-        CLIENT_CERT;
-
-        static AuthType getAuthType(String name) {
-            if (name.equals(NONE.name()))
-                return NONE;
-            if (name.equals(BASIC.name()))
-                return BASIC;
-            if (name.equals(CLIENT_CERT.name()))
-                return CLIENT_CERT;
-            return null;
-        }
-    }
-
-    private static class UrlCredentials {
-
-        final static UrlCredentials EMPTY_CREDENTIALS = new UrlCredentials(AuthType.NONE, new Object[0]);
-
-        private final AuthType m_type;
-        private final Object[] m_credentials;
-
-        public UrlCredentials(AuthType type, Object... credentials) {
-            m_type = type;
-            m_credentials = (credentials == null) ? new Object[0] : credentials.clone();
-        }
-
-        public Object[] getCredentials() {
-            return m_credentials.clone();
-        }
-
-        public AuthType getType() {
-            return m_type;
-        }
-    }
-
     public ConnectionHandlerImpl() {
-        super(COMPONENT_IDENTIFIER);
+        super("connection");
     }
 
     @Override
@@ -104,10 +61,10 @@ public class ConnectionHandlerImpl extends ComponentBase implements ConnectionHa
         URLConnection connection = (HttpURLConnection) url.openConnection();
         UrlCredentials credentials = getCredentials();
         if (credentials != null) {
-            if (credentials != null && credentials.getType() == AuthType.BASIC)
+            if (credentials != null && credentials.getType() == Types.BASIC)
                 applyBasicAuthentication(connection, credentials.getCredentials());
 
-            else if (credentials != null && credentials.getType() == AuthType.CLIENT_CERT) {
+            else if (credentials != null && credentials.getType() == Types.CLIENTCERT) {
                 applyClientCertificate(connection, credentials.getCredentials());
             }
         }
@@ -139,7 +96,7 @@ public class ConnectionHandlerImpl extends ComponentBase implements ConnectionHa
 
     private void applyBasicAuthentication(URLConnection conn, Object[] values) {
         if (conn instanceof HttpURLConnection) {
-            conn.setRequestProperty(HTTP_HEADER_AUTHORIZATION, getBasicAuthCredentials(values));
+            conn.setRequestProperty("Authorization", getBasicAuthCredentials(values));
         }
     }
 
@@ -151,24 +108,23 @@ public class ConnectionHandlerImpl extends ComponentBase implements ConnectionHa
 
     public UrlCredentials getCredentials() {
 
-        String configValue = getConfigStringValue(PROP_AUTHTYPE);
-        AuthType authType = AuthType.getAuthType(configValue == null ? "" : configValue.trim().toUpperCase());
-        if (authType == null || authType == AuthType.NONE) {
+        String configValue = getConfigStringValue(CONFIG_CONNECTION_AUTHTYPE);
+        Types authType = getType(configValue == null ? "" : configValue.trim().toUpperCase());
+        if (authType == null || authType == Types.NONE) {
             return UrlCredentials.EMPTY_CREDENTIALS;
         }
 
-        if (authType == AuthType.BASIC) {
-            String username = getConfigStringValue(PROP_AUTHUSER);
-            String password = getConfigStringValue(PROP_AUTHPASS);
-            return new UrlCredentials(AuthType.BASIC,
-                new Object[] { username == null ? "" : username, password == null ? "" : password });
+        if (authType == Types.BASIC) {
+            String username = getConfigStringValue(CONFIG_CONNECTION_USERNAME);
+            String password = getConfigStringValue(CONFIG_CONNECTION_PASSWORD);
+            return new UrlCredentials(Types.BASIC, new Object[] { username == null ? "" : username, password == null ? "" : password });
         }
 
-        if (authType == AuthType.CLIENT_CERT) {
-            String keystoreFile = getConfigStringValue(PROP_AUTHKEYFILE);
-            String keystorePass = getConfigStringValue(PROP_AUTHKEYPASS);
-            String truststoreFile = getConfigStringValue(PROP_AUTHTRUSTFILE);
-            String truststorePass = getConfigStringValue(PROP_AUTHTRUSTPASS);
+        if (authType == Types.CLIENTCERT) {
+            String keystoreFile = getConfigStringValue(CONFIG_CONNECTION_KEYFILE);
+            String keystorePass = getConfigStringValue(CONFIG_CONNECTION_KEYPASS);
+            String truststoreFile = getConfigStringValue(CONFIG_CONNECTION_TRUSTFILE);
+            String truststorePass = getConfigStringValue(CONFIG_CONNECTION_TRUSTPASS);
 
             // TODO This is expensive. Can we cache?
             try {
@@ -176,8 +132,7 @@ public class ConnectionHandlerImpl extends ComponentBase implements ConnectionHa
                 TrustManager[] trustManagers = getTrustManagerFactory(truststoreFile, truststorePass);
                 SSLContext context = SSLContext.getInstance("TLS");
                 context.init(keyManagers, trustManagers, new SecureRandom());
-                return new UrlCredentials(AuthType.CLIENT_CERT,
-                    new Object[] { context });
+                return new UrlCredentials(Types.CLIENTCERT, new Object[] { context });
             }
             catch (Exception e) {
                 // TODO log
@@ -187,7 +142,7 @@ public class ConnectionHandlerImpl extends ComponentBase implements ConnectionHa
     }
 
     private String getConfigStringValue(String key) {
-        return getAgentContext().getConfigurationHandler().get(key, null);
+        return getConfigurationHandler().get(key, null);
     }
 
     private static KeyManager[] getKeyManagerFactory(String keystoreFile, String storePass) throws IOException, GeneralSecurityException {
@@ -229,6 +184,35 @@ public class ConnectionHandlerImpl extends ComponentBase implements ConnectionHa
             catch (IOException e) {
                 // TODO log
             }
+        }
+    }
+
+    private static Types getType(String name) {
+        try {
+            return Types.valueOf(name.toUpperCase().trim());
+        }
+        catch (Exception e) {
+            return Types.NONE;
+        }
+    }
+
+    private static class UrlCredentials {
+
+        final static UrlCredentials EMPTY_CREDENTIALS = new UrlCredentials(Types.NONE, new Object[0]);
+        private final Types m_type;
+        private final Object[] m_credentials;
+
+        public UrlCredentials(Types type, Object... credentials) {
+            m_type = type;
+            m_credentials = (credentials == null) ? new Object[0] : credentials.clone();
+        }
+
+        public Object[] getCredentials() {
+            return m_credentials.clone();
+        }
+
+        public Types getType() {
+            return m_type;
         }
     }
 }

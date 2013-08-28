@@ -20,28 +20,63 @@ package org.apache.ace.agent.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedSet;
 
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.RetryAfterException;
+import org.apache.felix.deploymentadmin.DeploymentAdminImpl;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.service.deploymentadmin.DeploymentAdmin;
 import org.osgi.service.deploymentadmin.DeploymentException;
 import org.osgi.service.deploymentadmin.DeploymentPackage;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
+import org.osgi.service.packageadmin.PackageAdmin;
 
 public class DeploymentHandlerImpl extends UpdateHandlerBase implements DeploymentHandler {
 
-    public static final String COMPONENT_IDENTIFIER = "deployment";
-    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
-
     private final DeploymentAdmin m_deploymentAdmin;
+    private final boolean m_ownDeploymentAdmin;
 
-    public DeploymentHandlerImpl(DeploymentAdmin deploymentAdmin) {
-        super(COMPONENT_IDENTIFIER);
+    public DeploymentHandlerImpl(BundleContext bundleContext, PackageAdmin packageAdmin) {
+        super("deployment");
+        m_ownDeploymentAdmin = true;
+        m_deploymentAdmin = new DeploymentAdminImpl();
+        configureField(m_deploymentAdmin, BundleContext.class, bundleContext);
+        configureField(m_deploymentAdmin, PackageAdmin.class, packageAdmin);
+        configureField(m_deploymentAdmin, EventAdmin.class, new EventAdminBridge());
+        configureField(m_deploymentAdmin, LogService.class, new LogServiceBridge());
+    }
+
+    DeploymentHandlerImpl(DeploymentAdmin deploymentAdmin) {
+        super("deployment");
+        m_ownDeploymentAdmin = false;
         m_deploymentAdmin = deploymentAdmin;
+    }
+
+    @Override
+    protected void onStart() throws Exception {
+        if (m_ownDeploymentAdmin) {
+            invokeMethod(m_deploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
+        }
+    }
+
+    @Override
+    protected void onStop() throws Exception {
+        if (m_ownDeploymentAdmin) {
+            invokeMethod(m_deploymentAdmin, "stop", new Class<?>[] {}, new Object[] {});
+        }
     }
 
     @Override
@@ -58,14 +93,8 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
     }
 
     @Override
-    public void deployPackage(InputStream inputStream) {
-        // FIXME exceptions
-        try {
-            m_deploymentAdmin.installDeploymentPackage(inputStream);
-        }
-        catch (DeploymentException e) {
-            e.printStackTrace();
-        }
+    public void deployPackage(InputStream inputStream) throws DeploymentException {
+        m_deploymentAdmin.installDeploymentPackage(inputStream);
     }
 
     @Override
@@ -115,4 +144,98 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
             throw new IllegalStateException(e);
         }
     }
+
+    private static void configureField(Object object, Class<?> iface, Object instance) {
+        // Note: Does not check super classes!
+        Field[] fields = object.getClass().getDeclaredFields();
+        AccessibleObject.setAccessible(fields, true);
+        for (int j = 0; j < fields.length; j++) {
+            if (fields[j].getType().equals(iface)) {
+                try {
+                    fields[j].set(object, instance);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    throw new IllegalStateException("Coudld not set field " + fields[j].getName() + " on " + object);
+                }
+            }
+        }
+    }
+
+    private static Object invokeMethod(Object object, String methodName, Class<?>[] signature, Object[] parameters) {
+        // Note: Does not check super classes!
+        Class<?> clazz = object.getClass();
+        try {
+            Method method = clazz.getDeclaredMethod(methodName, signature);
+            return method.invoke(object, parameters);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Internal EventAdmin that delegates to actual InternalEvents. Used to inject into the DeploymentAdmin only.
+     */
+    class EventAdminBridge implements EventAdmin {
+
+        @Override
+        public void postEvent(Event event) {
+            getEventsHandler().postEvent(event.getTopic(), getPayload(event));
+        }
+
+        @Override
+        public void sendEvent(Event event) {
+            getEventsHandler().postEvent(event.getTopic(), getPayload(event));
+        }
+
+        private Map<String, String> getPayload(Event event) {
+            Map<String, String> payload = new HashMap<String, String>();
+            for (String propertyName : event.getPropertyNames()) {
+                payload.put(propertyName, event.getProperty(propertyName).toString());
+            }
+            return payload;
+        }
+    }
+
+    /**
+     * Internal LogService that wraps delegates to actual InternalLogger. Used to inject into the DeploymentAdmin only.
+     */
+    class LogServiceBridge implements LogService {
+
+        @Override
+        public void log(int level, String message) {
+            log(level, message, null);
+        }
+
+        @Override
+        public void log(int level, String message, Throwable exception) {
+            switch (level) {
+                case LogService.LOG_WARNING:
+                    logWarning(message, exception);
+                    break;
+                case LogService.LOG_INFO:
+                    logInfo(message, exception);
+                    break;
+                case LogService.LOG_DEBUG:
+                    logDebug(message, exception);
+                    break;
+                default:
+                    logError(message, exception);
+                    break;
+            }
+        }
+
+        @Override
+        public void log(ServiceReference sr, int level, String message) {
+            log(level, message, null);
+        }
+
+        @Override
+        public void log(ServiceReference sr, int level, String message, Throwable exception) {
+            log(level, message, exception);
+        }
+    }
+
 }

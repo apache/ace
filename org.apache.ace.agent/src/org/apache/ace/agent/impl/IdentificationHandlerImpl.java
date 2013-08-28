@@ -18,7 +18,8 @@
  */
 package org.apache.ace.agent.impl;
 
-import org.apache.ace.agent.ConfigurationHandler;
+import static org.apache.ace.agent.AgentConstants.CONFIG_IDENTIFICATION_AGENTID;
+
 import org.apache.ace.agent.IdentificationHandler;
 
 /**
@@ -28,24 +29,15 @@ import org.apache.ace.agent.IdentificationHandler;
  */
 public class IdentificationHandlerImpl extends ComponentBase implements IdentificationHandler {
 
-    public static final String COMPONENT_IDENTIFIER = "identification";
-    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
-
     public IdentificationHandlerImpl() {
-        super(COMPONENT_IDENTIFIER);
+        super("identification");
     }
 
-    /**
-     * Configuration key for the default identification handler. The value must be a single file-system and URL safe
-     * string.
-     */
-    public static final String CONFIG_KEY_IDENTIFICATION = CONFIG_KEY_BASE + ".agentId";
     public static final String CONFIG_DEFAULT_AGENTID = "defaultTargetID";
 
     @Override
     public String getAgentId() {
-        ConfigurationHandler configurationHandler = getAgentContext().getConfigurationHandler();
-        String configValue = configurationHandler.get(CONFIG_KEY_IDENTIFICATION, CONFIG_DEFAULT_AGENTID);
+        String configValue = getConfigurationHandler().get(CONFIG_IDENTIFICATION_AGENTID, "defaultTargetID");
         return configValue;
     }
 }

@@ -46,7 +46,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.agent.AgentConstants;
-import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DeploymentHandler;
@@ -106,6 +105,10 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
         }
     }
 
+    int port = 8881;
+    String identification = "agent";
+    URL serverURL = null;
+
     private TestWebServer m_webserver;
     private File m_200file;
     private Version m_version1 = Version.parseVersion("1.0.0");
@@ -113,15 +116,12 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
     private Version m_version3 = Version.parseVersion("3.0.0");
     long m_remotePackageSize = 0l;
 
-    private DeploymentHandler m_deploymentHandler;
+    private AgentContextImpl m_agentContext;
 
     @BeforeTest
     public void setUpOnceAgain() throws Exception {
 
-        int port = 8881;
-        String identification = "agent";
-        URL serverURL = new URL("http://localhost:" + port + "/");
-
+        serverURL = new URL("http://localhost:" + port + "/");
         m_webserver = new TestWebServer(port, "/", "generated");
         m_webserver.start();
 
@@ -168,42 +168,40 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
         expect(deploymentAdmin.installDeploymentPackage(notNull(InputStream.class)
             )).andReturn(deploymentPackage3).once();
 
-        AgentContext agentContext = addTestMock(AgentContext.class);
-        expect(agentContext.getIdentificationHandler()).andReturn(identificationHandler).anyTimes();
-        expect(agentContext.getDiscoveryHandler()).andReturn(discoveryHandler).anyTimes();
-        expect(agentContext.getConfigurationHandler()).andReturn(configurationHandler).anyTimes();
-
-        ConnectionHandler connectionHandler = new ConnectionHandlerImpl();
-        expect(agentContext.getConnectionHandler()).andReturn(connectionHandler).anyTimes();
-
+        m_agentContext = mockAgentContext();
+        m_agentContext.setHandler(IdentificationHandler.class, identificationHandler);
+        m_agentContext.setHandler(DiscoveryHandler.class, discoveryHandler);
+        m_agentContext.setHandler(ConfigurationHandler.class, configurationHandler);
+        m_agentContext.setHandler(ConnectionHandler.class, new ConnectionHandlerImpl());
+        m_agentContext.setHandler(DeploymentHandler.class, new DeploymentHandlerImpl(deploymentAdmin));
         replayTestMocks();
-
-        m_deploymentHandler = new DeploymentHandlerImpl(deploymentAdmin);
-        startHandler(connectionHandler, agentContext);
-        startHandler(m_deploymentHandler, agentContext);
+        m_agentContext.start();
     }
 
     @AfterTest
     public void tearDownOnceAgain() throws Exception {
-        stopHandler(m_deploymentHandler);
-        verifyTestMocks();
         m_webserver.stop();
+        m_agentContext.stop();
+        verifyTestMocks();
+        clearTestMocks();
     }
 
     @Test
     public void testCurrentVersion() throws Exception {
-        Version current = m_deploymentHandler.getInstalledVersion();
+        DeploymentHandler deploymentHandler = m_agentContext.getHandler(DeploymentHandler.class);
+        Version current = deploymentHandler.getInstalledVersion();
         assertNotNull(current);
         assertEquals(current, m_version2);
     }
 
     @Test
     public void testAvailableVersions() throws Exception {
+        DeploymentHandler deploymentHandler = m_agentContext.getHandler(DeploymentHandler.class);
         SortedSet<Version> expected = new TreeSet<Version>();
         expected.add(m_version1);
         expected.add(m_version2);
         expected.add(m_version3);
-        SortedSet<Version> available = m_deploymentHandler.getAvailableVersions();
+        SortedSet<Version> available = deploymentHandler.getAvailableVersions();
         assertNotNull(available);
         assertFalse(available.isEmpty());
         assertEquals(available, expected);
@@ -211,15 +209,17 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
 
     @Test
     public void testPackageSize() throws Exception {
-        long packageSize = m_deploymentHandler.getPackageSize(m_version1, true);
+        DeploymentHandler deploymentHandler = m_agentContext.getHandler(DeploymentHandler.class);
+        long packageSize = deploymentHandler.getPackageSize(m_version1, true);
         assertEquals(packageSize, m_remotePackageSize);
     }
 
     @Test
     public void testDeployPackage() throws Exception {
-        InputStream inputStream = m_deploymentHandler.getInputStream(m_version3, true);
+        DeploymentHandler deploymentHandler = m_agentContext.getHandler(DeploymentHandler.class);
+        InputStream inputStream = deploymentHandler.getInputStream(m_version3, true);
         try {
-            m_deploymentHandler.deployPackage(inputStream);
+            deploymentHandler.deployPackage(inputStream);
         }
         finally {
             inputStream.close();

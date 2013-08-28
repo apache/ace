@@ -40,12 +40,13 @@ public interface DownloadResult {
      * 
      * @return The file, <code>null</code> if the download was unsuccessful
      */
-    //TODO inputstream
+    // TODO inputstream
     File getFile();
 
     int getCode();
-    
+
     Map<String, List<String>> getHeaders();
+
     /**
      * Return the cause of an unsuccessful download.
      * 

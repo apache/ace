@@ -18,6 +18,13 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_DISABLED;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_FIXPACKAGES;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_RETRIES;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_STREAMING;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCDELAY;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +42,7 @@ import org.apache.ace.agent.DownloadState;
 import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.agent.RetryAfterException;
 import org.osgi.framework.Version;
+import org.osgi.service.deploymentadmin.DeploymentException;
 
 /**
  * Default configurable controller
@@ -43,55 +51,6 @@ import org.osgi.framework.Version;
 public class DefaultController extends ComponentBase implements Runnable {
 
     public static final String COMPONENT_IDENTIFIER = "controller";
-    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + ".controller";
-
-    /**
-     */
-    public static final String CONFIG_KEY_DISABLED = CONFIG_KEY_BASE + ".disabled";
-    public static final boolean CONFIG_DEFAULT_DISABLED = false;
-
-    /**
-     * Sync delay; Number of seconds after startup until the initial sync is done.
-     */
-    public static final String CONFIG_KEY_SYNCDELAY = CONFIG_KEY_BASE + ".syncDelay";
-    public static final long CONFIG_DEFAULT_SYNCDELAY = 5l;
-
-    /**
-     * Sync interval; Number of seconds between regular syncs.
-     */
-    public static final String CONFIG_KEY_SYNCINTERVAL = CONFIG_KEY_BASE + ".syncInterval";
-    public static final long CONFIG_DEFAULT_SYNCINTERVAL = 30l;
-
-    /**
-     * SyncRetries value; When an install fails during a sync the agent can try to recover by ignoring optimization
-     * flags and potentially restarting a Deployment Package download. A value of 1 or less disables the retry behavior.
-     */
-    public static final String CONFIG_KEY_UPDATERETRIES = CONFIG_KEY_BASE + ".updateRetries";
-    public static final long CONFIG_DEFAULT_UPDATERETRIES = 2;
-
-    /**
-     * UpdateStreaming flag; When set Deployment Packages are installed directly from the download stream reducing
-     * overhead and disk usage, but disabling resume capabilities. This strategy is of interest to highly resource
-     * constraint devices and/or system with highly reliable connectivity and no need for resume semantics.
-     */
-    public static final String CONFIG_KEY_UPDATESTREAMING = CONFIG_KEY_BASE + ".updateStreaming";
-    public static final boolean CONFIG_DEFAULT_UPDATESTREAMING = false;
-
-    /**
-     * StopUnaffected flag; When set all target bundles of a Deployment Package will be restarted as part of the
-     * deployment session. Otherwise the agent tries to minimize the impact by only restarting bundles that are actually
-     * affected. Not stopping unaffected bundles reduces overhead, but may fail in complex wiring scenarios.
-     */
-    // FIXME Not considered yet
-    public static final String CONFIG_KEY_STOPUNAFFECTED = CONFIG_KEY_BASE + ".stopUnaffected";
-    public static final boolean CONFIG_DEFAULT_STOPUNAFFECTED = true; // spec behavior
-
-    /**
-     * FixPackages flag; When set the Agent will request the server for fix packages instead of full deployment
-     * packages. This behavior significantly reduces bandwidth consumption.
-     */
-    public static final String CONFIG_KEY_FIXPACKAGES = CONFIG_KEY_BASE + ".fixPackages";
-    public static final boolean CONFIG_DEFAULT_FIXPACKAGES = true;
 
     private volatile ScheduledFuture<?> m_scheduledFuture;
     private volatile UpdateInstaller m_updateInstaller;
@@ -102,7 +61,7 @@ public class DefaultController extends ComponentBase implements Runnable {
 
     @Override
     protected void onStart() throws Exception {
-        long delay = getConfigurationHandler().getLong(CONFIG_KEY_SYNCDELAY, CONFIG_DEFAULT_SYNCDELAY);
+        long delay = getConfigurationHandler().getLong(CONFIG_CONTROLLER_SYNCDELAY, 5);
         scheduleRun(delay);
         logDebug("Controller scheduled to run in %d seconds", delay);
     }
@@ -117,8 +76,8 @@ public class DefaultController extends ComponentBase implements Runnable {
 
     @Override
     public void run() {
-        boolean disabled = getConfigurationHandler().getBoolean(CONFIG_KEY_DISABLED, CONFIG_DEFAULT_DISABLED);
-        long interval = getConfigurationHandler().getLong(CONFIG_KEY_SYNCINTERVAL, CONFIG_DEFAULT_SYNCINTERVAL);
+        boolean disabled = getConfigurationHandler().getBoolean(CONFIG_CONTROLLER_DISABLED, false);
+        long interval = getConfigurationHandler().getLong(CONFIG_CONTROLLER_SYNCINTERVAL, 60);
         if (disabled) {
             logDebug("Controller disabled by configuration. Skipping..");
             scheduleRun(interval);
@@ -154,12 +113,12 @@ public class DefaultController extends ComponentBase implements Runnable {
             if (channel != null) {
                 try {
                     channel.sendFeedback();
-                    logDebug("Feedback send succesfully for channel %s", names);
+                    logDebug("Feedback send succesfully for channel: %s", name);
                 }
                 catch (IOException e) {
                     // Hopefully temporary problem due to remote IO or configuration. No cause to abort the sync so we
                     // just log it as a warning.
-                    logWarning("Exception while sending feedback on channel %s", e, names);
+                    logWarning("Exception while sending feedback on channel: %s", e, name);
                 }
             }
         }
@@ -244,9 +203,9 @@ public class DefaultController extends ComponentBase implements Runnable {
             return;
         }
 
-        boolean updateStreaming = getConfigurationHandler().getBoolean(CONFIG_KEY_UPDATESTREAMING, CONFIG_DEFAULT_UPDATESTREAMING);
-        boolean fixPackage = getConfigurationHandler().getBoolean(CONFIG_KEY_FIXPACKAGES, CONFIG_DEFAULT_FIXPACKAGES);
-        long maxRetries = getConfigurationHandler().getLong(CONFIG_KEY_UPDATERETRIES, CONFIG_DEFAULT_UPDATERETRIES);
+        boolean updateStreaming = getConfigurationHandler().getBoolean(CONFIG_CONTROLLER_STREAMING, true);
+        boolean fixPackage = getConfigurationHandler().getBoolean(CONFIG_CONTROLLER_FIXPACKAGES, true);
+        long maxRetries = getConfigurationHandler().getLong(CONFIG_CONTROLLER_RETRIES, 1);
 
         getUpdateInstaller(updateStreaming).installUpdate(current, highest, fixPackage, maxRetries);
     }
@@ -332,8 +291,14 @@ public class DefaultController extends ComponentBase implements Runnable {
                 throw (e);
 
             }
+            catch (DeploymentException e) {
+                getController().logWarning("Exception while deploying the package", e);
+                e.printStackTrace();
+                m_failureCount++;
+            }
             catch (IOException e) {
-                // Just increment the failure count and asume the concrete implementation logged.
+                getController().logWarning("Exception opening/streaming package inputstream", e);
+                e.printStackTrace();
                 m_failureCount++;
             }
         }
@@ -344,7 +309,7 @@ public class DefaultController extends ComponentBase implements Runnable {
             doReset();
         }
 
-        protected abstract void doInstallUpdate(Version from, Version to, boolean fix) throws RetryAfterException, IOException;
+        protected abstract void doInstallUpdate(Version from, Version to, boolean fix) throws RetryAfterException, DeploymentException, IOException;
 
         protected abstract void doReset();
     }
@@ -359,7 +324,7 @@ public class DefaultController extends ComponentBase implements Runnable {
         }
 
         @Override
-        public void doInstallUpdate(Version from, Version to, boolean fix) throws RetryAfterException, IOException {
+        public void doInstallUpdate(Version from, Version to, boolean fix) throws RetryAfterException, DeploymentException, IOException {
 
             getController().logInfo("Installing streaming deployment update %s => %s", from, to);
 
@@ -369,10 +334,6 @@ public class DefaultController extends ComponentBase implements Runnable {
                 inputStream = deploymentHandler.getInputStream(to, fix);
                 deploymentHandler.deployPackage(inputStream);
                 return;
-            }
-            catch (IOException e) {
-                getController().logWarning("Exception opening/streaming package inputstream", e);
-                throw e;
             }
             finally {
                 if (inputStream != null) {
@@ -409,7 +370,7 @@ public class DefaultController extends ComponentBase implements Runnable {
         }
 
         @Override
-        public void doInstallUpdate(Version fromVersion, Version toVersion, boolean fixPackage) throws RetryAfterException, IOException {
+        public void doInstallUpdate(Version fromVersion, Version toVersion, boolean fixPackage) throws RetryAfterException, DeploymentException, IOException {
 
             DeploymentHandler deploymentHandler = getController().getDeploymentHandler();
             if (m_downloadHandle != null && !m_downloadVersion.equals(toVersion)) {
@@ -442,11 +403,12 @@ public class DefaultController extends ComponentBase implements Runnable {
                 else if (m_downloadResult.getState() == DownloadState.SUCCESSFUL) {
                     getController().logInfo("Installing downloaded deployment update %s => %s", fromVersion, toVersion);
                     InputStream inputStream = new FileInputStream(m_downloadResult.getFile());
+                    System.out.println(m_downloadResult.getFile().getAbsolutePath());
                     try {
                         deploymentHandler.deployPackage(inputStream);
                     }
                     finally {
-                        m_downloadHandle.discard();
+                        // m_downloadHandle.discard();
                         m_downloadHandle = null;
                         inputStream.close();
                     }
@@ -472,8 +434,8 @@ public class DefaultController extends ComponentBase implements Runnable {
         @Override
         public void completed(DownloadResult result) {
             m_downloadResult = result;
-            getController().logInfo("Deployment package completed for version %s. Rescheduling the controller to run in %d seconds", m_downloadVersion, 5);
-            getController().scheduleRun(5);
+            getController().logInfo("Deployment package donwload completed for version %s. Rescheduling the controller to run in %d seconds", m_downloadVersion, 1);
+            getController().scheduleRun(1);
         }
 
         private void clearDownloadState() {

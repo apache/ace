@@ -158,11 +158,11 @@ class DownloadCallableImpl implements Callable<Void> {
             }
 
             if (m_abort) {
-                m_handle.logDebug("Download stopped");
+                m_handle.logDebug("Download stopped: %s" + m_source.toExternalForm());
                 m_handle.stoppedCallback(statusCode, headerFields, null);
             }
             else {
-                m_handle.logDebug("Download completed");
+                m_handle.logDebug("Download completed: %s", m_source.toExternalForm());
                 m_handle.successfulCallback(statusCode, headerFields);
             }
         }

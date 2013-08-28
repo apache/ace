@@ -18,54 +18,74 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.CONFIG_LOGGING_LEVEL;
+
 import java.util.Date;
 
-import org.osgi.service.log.LogService;
+import org.apache.ace.agent.LoggingHandler;
 
 /**
- * Internal logger that writes to system out for now. It minimizes work until it is determined the loglevel is loggable.
+ * Default thread-safe {@link LoggingHandler} implementation that logs messages to {@link System.out} .
  */
-public class LoggingHandlerImpl implements LoggingHandler {
+public class LoggingHandlerImpl extends ComponentBase implements LoggingHandler {
 
-    private final int m_level;
-
-    public LoggingHandlerImpl(int level) {
-        m_level = level;
-    }
-
-    private void log(String level, String component, String message, Throwable exception, Object... args) {
-        if (args.length > 0)
-            message = String.format(message, args);
-        String line = String.format("[%s] %TT (%s) %s", level, new Date(), component, message);
-        System.out.println(line);
-        if (exception != null)
-            exception.printStackTrace(System.out);
+    public LoggingHandlerImpl() {
+        super("logging");
     }
 
     @Override
     public void logDebug(String component, String message, Throwable exception, Object... args) {
-        if (m_level < LogService.LOG_DEBUG)
-            return;
-        log("DEBUG", component, message, exception, args);
+        Levels level = getLogLevel();
+        if (level == Levels.DEBUG) {
+            log(Levels.DEBUG.name(), component, message, exception, args);
+        }
     }
 
     @Override
     public void logInfo(String component, String message, Throwable exception, Object... args) {
-        if (m_level < LogService.LOG_INFO)
-            return;
-        log("INFO", component, message, exception, args);
+        Levels level = getLogLevel();
+        if (level == Levels.DEBUG || level == Levels.INFO) {
+            log(Levels.INFO.name(), component, message, exception, args);
+        }
     }
 
     @Override
     public void logWarning(String component, String message, Throwable exception, Object... args) {
-        if (m_level < LogService.LOG_WARNING)
-            return;
-        log("WARNING", component, message, exception, args);
+        Levels level = getLogLevel();
+        if (level == Levels.DEBUG || level == Levels.INFO || level == Levels.WARNING) {
+            log(Levels.WARNING.name(), component, message, exception, args);
+        }
     }
 
     @Override
     public void logError(String component, String message, Throwable exception, Object... args) {
-        log("ERROR", component, message, exception, args);
+        log(Levels.ERROR.name(), component, message, exception, args);
     }
 
+    private void log(String level, String component, String message, Throwable exception, Object... args) {
+        if (args.length > 0) {
+            message = String.format(message, args);
+        }
+        String line = String.format("[%s] %TT (%s) %s", level, new Date(), component, message);
+        System.out.println(line);
+        if (exception != null) {
+            exception.printStackTrace(System.out);
+        }
+    }
+
+    // TODO performance; replace with configuration events
+    private Levels getLogLevel() {
+        String config = getConfigurationHandler().get(CONFIG_LOGGING_LEVEL, Levels.INFO.name());
+        return fromName(config);
+    }
+
+    private static Levels fromName(String name) {
+        name = name.toUpperCase().trim();
+        try {
+            return Levels.valueOf(name.toUpperCase().trim());
+        }
+        catch (Exception e) {
+            return Levels.ERROR;
+        }
+    }
 }

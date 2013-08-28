@@ -24,6 +24,9 @@ package org.apache.ace.agent;
  */
 public interface AgentControl {
 
+    /** Returns the agent's identifier */
+    String getAgentId();
+    
     /** Returns the configuration handler */
     ConfigurationHandler getConfigurationHandler();
 

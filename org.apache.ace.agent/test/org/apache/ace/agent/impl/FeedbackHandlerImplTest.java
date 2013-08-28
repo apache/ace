@@ -27,11 +27,10 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import org.apache.ace.agent.AgentContext;
+import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.FeedbackHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
@@ -44,38 +43,32 @@ import org.testng.annotations.Test;
  */
 public class FeedbackHandlerImplTest extends BaseAgentTest {
 
-    private AgentContext m_agentContext;
-    private ConfigurationHandler m_configurationHandler;
+    private AgentContextImpl m_agentContextImpl;
 
     @BeforeMethod
     public void setUpAgain(Method method) throws Exception {
-        File methodDir = new File(new File(getWorkDir(), FeedbackHandlerImplTest.class.getName()), method.getName());
-        methodDir.mkdirs();
-        cleanDir(methodDir);
-
-        m_agentContext = addTestMock(AgentContext.class);
-        m_configurationHandler = addTestMock(ConfigurationHandler.class);
-        expect(m_agentContext.getWorkDir()).andReturn(methodDir).anyTimes();
-        expect(m_agentContext.getConfigurationHandler()).andReturn(m_configurationHandler).anyTimes();
+        m_agentContextImpl = mockAgentContext(method.getName());
         replayTestMocks();
+        m_agentContextImpl.setHandler(FeedbackHandler.class, new FeedbackHandlerImpl());
+        m_agentContextImpl.start();
     }
 
     @AfterMethod
     public void tearDownAgain(Method method) throws Exception {
+        m_agentContextImpl.stop();
         verifyTestMocks();
         clearTestMocks();
     }
 
     @Test
     public void testFeedbackChannelConfig() throws Exception {
+        ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_FEEDBACK_CHANNELS),
+            anyObject(String.class))).andReturn("auditlog").anyTimes();
+        replay(configurationHandler);
 
-        reset(m_configurationHandler);
-        expect(m_configurationHandler.get(eq(FeedbackHandlerImpl.CONFIG_KEY_CHANNELS), anyObject(String.class))).andReturn("auditlog").anyTimes();
-        replay(m_configurationHandler);
-
-        FeedbackHandler feedbackHandler = new FeedbackHandlerImpl();
-        startHandler(feedbackHandler, m_agentContext);
-
+        FeedbackHandler feedbackHandler = m_agentContextImpl.getHandler(FeedbackHandler.class);
         Set<String> names = feedbackHandler.getChannelNames();
         assertNotNull(names);
         assertTrue(names.size() == 1);
@@ -83,9 +76,10 @@ public class FeedbackHandlerImplTest extends BaseAgentTest {
         assertNotNull(feedbackHandler.getChannel("auditlog"));
         assertNull(feedbackHandler.getChannel("QQQ"));
 
-        reset(m_configurationHandler);
-        expect(m_configurationHandler.get(eq(FeedbackHandlerImpl.CONFIG_KEY_CHANNELS), anyObject(String.class))).andReturn("auditlog, customchannel").anyTimes();
-        replay(m_configurationHandler);
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_FEEDBACK_CHANNELS),
+            anyObject(String.class))).andReturn("auditlog, customchannel").anyTimes();
+        replay(configurationHandler);
 
         names = feedbackHandler.getChannelNames();
         assertNotNull(names);

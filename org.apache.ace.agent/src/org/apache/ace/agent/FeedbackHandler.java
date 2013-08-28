@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * Agent control delegate interface that is responsible for handling feedback channels.
+ * Agent context delegate interface that is responsible for handling feedback channels.
  */
 public interface FeedbackHandler {
 

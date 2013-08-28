@@ -45,7 +45,7 @@ public class UpdateHandlerBase extends ComponentBase {
         BufferedReader reader = null;
         try {
             connection = getConnection(endpoint);
-            // TODO handle problems and retries
+            ConnectionUtil.checkConnectionResponse(connection);
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String versionString;
             while ((versionString = reader.readLine()) != null) {
@@ -115,16 +115,16 @@ public class UpdateHandlerBase extends ComponentBase {
     }
 
     protected DownloadHandle getDownloadHandle(URL packageURL) {
-        return getAgentContext().getDownloadHandler().getHandle(packageURL);
+        return getDownloadHandler().getHandle(packageURL);
     }
 
     protected String getIdentification() {
-        return getAgentContext().getIdentificationHandler().getAgentId();
+        return getIdentificationHandler().getAgentId();
     }
 
     protected URL getServerURL() throws RetryAfterException {
         // FIXME not sure if this is the proper place
-        URL serverURL = getAgentContext().getDiscoveryHandler().getServerUrl();
+        URL serverURL = getDiscoveryHandler().getServerUrl();
         if (serverURL == null) {
             throw new RetryAfterException(10);
         }
@@ -132,6 +132,6 @@ public class UpdateHandlerBase extends ComponentBase {
     }
 
     private URLConnection getConnection(URL url) throws IOException {
-        return getAgentContext().getConnectionHandler().getConnection(url);
+        return getConnectionHandler().getConnection(url);
     }
 }

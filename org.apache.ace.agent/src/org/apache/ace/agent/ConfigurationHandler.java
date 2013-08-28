@@ -21,10 +21,11 @@ package org.apache.ace.agent;
 import java.util.Set;
 
 /**
- * Agent control delegate interface that is responsible for managing persisted configuration. External launchers may
- * override or set values within the {@link CONFIG_KEY_NAMESPACE} through system properties when the agent starts. If
- * the launcher wants to retain existing persisted values, instead of overwriting them, it should specify an additional
- * property with the same name post-fixed with {@link CONFIG_KEY_RETAIN} set to <code>true</code>. <br/>
+ * Agent context delegate interface that is responsible for managing persisted configuration. External launchers may
+ * override or set values within the {@link AgentConstants.CONFIG_KEY_NAMESPACE} through system properties when the
+ * agent starts. If the launcher wants to retain existing persisted values, instead of overwriting them, it should
+ * specify an additional property with the same name post-fixed with {@link AgentConstants.CONFIG_KEY_RETAIN} set to
+ * <code>true</code>. <br/>
  * <br/>
  * Example: A launcher that wants to ensure the syncinterval is set to 3000 only when not configuration is already set
  * should specify the following two system properties:<br/>
@@ -32,16 +33,6 @@ import java.util.Set;
  * <code>agent.controller.syncinterval.retain=true</code>
  */
 public interface ConfigurationHandler {
-
-    /**
-     * Key namespace; All system property keys that start with this are considered.
-     */
-    String CONFIG_KEY_NAMESPACE = "ace.agent";
-
-    /**
-     * Retain postfix; The postfix for override property keys.
-     */
-    String CONFIG_KEY_RETAIN = ".retain";
 
     /**
      * Return an unmodifiable copy of the configuration keys.

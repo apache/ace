@@ -16,17 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.agent.impl;
+package org.apache.ace.agent;
 
 import java.util.Formatter;
 
-import org.apache.ace.agent.AgentContext;
-
 /**
- * Agent context delegate interface that is responsible for logging. This is an internal interface as log methods are
- * exposed on the {@link AgentContext} directly.
+ * Agent context delegate interface that is responsible for logging.
  */
 public interface LoggingHandler {
+
+    enum Levels {
+        DEBUG, INFO, WARNING, ERROR;
+    }
 
     /**
      * Log an debug message. If <code>args</code> are provided the message will be processed as a format using the

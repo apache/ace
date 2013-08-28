@@ -35,7 +35,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.ServiceLoader;
 
+import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.AgentControl;
+import org.apache.ace.agent.LoggingHandler;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -94,32 +96,11 @@ public class Launcher {
             }
         }
 
+        // convenience debug override
         if (command.hasOption("v")) {
             configuration.put("verbose", "true");
+            configuration.put(AgentConstants.CONFIG_LOGGING_LEVEL, LoggingHandler.Levels.DEBUG.name());
         }
-
-        // // overwrite with user args
-        // if (command.hasOption("a")) {
-        // configuration.put(CONFIG_IDENTIFICATION_KEY,
-        // command.getOptionValue("a"));
-        // }
-        // if (command.hasOption("s")) {
-        // configuration.put(CONFIG_SERVERURL_KEY, command.getOptionValue("s"));
-        // }
-        // if (command.hasOption("v")) {
-        // configuration.put(CONFIG_LOGLEVEL_KEY, "DEBUG");
-        // }
-        //
-        // // set defaults
-        // if (!configuration.containsKey(CONFIG_LOGLEVEL_KEY)) {
-        // configuration.put(CONFIG_LOGLEVEL_KEY, "INFO");
-        // }
-        //
-        // // basic checks
-        // if (!configuration.containsKey(CONFIG_IDENTIFICATION_KEY)) {
-        // System.err.println("No agent specified");
-        // System.exit(1);
-        // }
 
         new Launcher(configuration).run();
     }
@@ -179,18 +160,18 @@ public class Launcher {
      * Main execution logic of the launcher; Start a framework, install bundles and pass configuration to the
      * {@link AgentFactory}.
      * 
-     * @throws Exception
-     *             on failure
+     * @throws Exception on failure
      */
     public void run() throws Exception {
 
         try {
             FrameworkFactory frameworkFactory = loadFrameworkFactory();
             Map<String, String> frameworkProperties = createFrameworkProperties();
-            if (m_verbose)
+            if (m_verbose) {
                 System.out.println("Launching OSGI framework\n factory\t: "
                     + frameworkFactory.getClass().getName()
                     + "\n properties\t: " + frameworkProperties);
+            }
 
             Framework framework = frameworkFactory.newFramework(frameworkProperties);
             BundleContext context = null;
@@ -202,10 +183,17 @@ public class Launcher {
                 installBundles(context, bundleProvider);
             }
 
+            for (Entry<String, String> entry : m_configuration.entrySet()) {
+                if (entry.getKey().startsWith(AgentConstants.CONFIG_KEY_NAMESPACE)) {
+                    System.setProperty(entry.getKey(), entry.getValue());
+                }
+            }
+
             framework.start();
 
-            if (m_verbose)
+            if (m_verbose) {
                 System.out.println("Startup complete..");
+            }
             framework.waitForStop(0);
         }
         catch (Exception e) {
@@ -219,8 +207,9 @@ public class Launcher {
     private Bundle[] installBundles(BundleContext context, BundleProvider extensionProvider) throws BundleException, IOException {
         List<Bundle> bundles = new ArrayList<Bundle>();
         for (String bundleName : extensionProvider.getBundleNames()) {
-            if (m_verbose)
+            if (m_verbose) {
                 System.out.println("Installing bundle\t: " + bundleName);
+            }
             InputStream inputStream = null;
             try {
                 inputStream = extensionProvider.getInputStream(bundleName);
@@ -241,8 +230,7 @@ public class Launcher {
      * Load {@link FrameworkFactory} through the {@link ServiceLoader}.
      * 
      * @return the first factory
-     * @throws Exception
-     *             on failure
+     * @throws Exception on failure
      */
     private FrameworkFactory loadFrameworkFactory() throws Exception {
         ServiceLoader<FrameworkFactory> frameworkFactoryLoader = ServiceLoader.load(FrameworkFactory.class);
@@ -257,8 +245,7 @@ public class Launcher {
      * Load {@link BundleProvider}s through the {@link ServiceLoader}.
      * 
      * @return list of providers
-     * @throws Exception
-     *             on failure
+     * @throws Exception on failure
      */
     private BundleProvider[] loadBundleProviders() throws Exception {
         ServiceLoader<BundleProvider> bundleFactoryLoader = ServiceLoader.load(BundleProvider.class);
@@ -274,15 +261,14 @@ public class Launcher {
      * Build the framework launch properties.
      * 
      * @return the launch properties
-     * @throws Exception
-     *             on failure
+     * @throws Exception on failure
      */
     private Map<String, String> createFrameworkProperties() throws Exception {
         Map<String, String> frameworkProperties = new HashMap<String, String>();
         for (Entry<String, String> entry : m_configuration.entrySet()) {
             if (entry.getKey().startsWith("framework.")) {
                 String frameworkKey = entry.getKey().replaceFirst("framework.", "");
-                String frameworkValue = m_configuration.get(entry.getValue());
+                String frameworkValue = m_configuration.get(entry.getKey());
                 frameworkProperties.put(frameworkKey, frameworkValue);
             }
         }
@@ -301,8 +287,7 @@ public class Launcher {
      * Determines the export clause for the agent API package.
      * 
      * @return the export clause
-     * @throws Exception
-     *             on failure
+     * @throws Exception on failure
      */
     private String getAgentApiPackageSpec() throws IOException {
         String apiPackage = AgentControl.class.getPackage().getName();

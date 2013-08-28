@@ -1,0 +1,14 @@
+
+TODOs:
+
+1) Download handler now store files in a tmp file and are not able to resume interrupted 
+downloads from a new handle. This should be changed to storage in the data dir and using 
+names that can be discovered and resumed.
+
+2) Download result provide access to the download through a File. This should be an 
+inputstream.
+
+
+3) EventsHandler/EVentListener do not yet support an interest list like eventadmin does.
+This should be added as it will help reduce event load if we start throwing more.
+

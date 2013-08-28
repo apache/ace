@@ -21,9 +21,8 @@ package org.apache.ace.agent;
 import java.net.URL;
 
 /**
- * Agent control delegate interface that is responsible for discovering servers. If the handler supports dynamic
+ * Agent context delegate interface that is responsible for discovering servers. If the handler supports dynamic
  * discovery or multiple URLs it should select the most appropriate candidate.
- * 
  */
 public interface DiscoveryHandler {
 

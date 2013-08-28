@@ -18,6 +18,9 @@
  */
 package org.apache.ace.agent;
 
+/**
+ * Exception that indicates that the upstream server responded with a Retry-After.
+ */
 public class RetryAfterException extends Exception {
 
     private static final long serialVersionUID = 1L;
@@ -27,8 +30,8 @@ public class RetryAfterException extends Exception {
         super("Server too busy. Retry after " + seconds + " seconds");
         m_seconds = seconds;
     }
-    
-    public int getSeconds(){
+
+    public int getSeconds() {
         return m_seconds;
     }
 }

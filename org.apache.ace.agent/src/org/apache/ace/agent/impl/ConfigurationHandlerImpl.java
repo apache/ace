@@ -18,6 +18,9 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.CONFIG_KEY_NAMESPACE;
+import static org.apache.ace.agent.AgentConstants.CONFIG_KEY_RETAIN;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -33,13 +37,10 @@ import java.util.Set;
 import org.apache.ace.agent.ConfigurationHandler;
 
 /**
- * Default configuration handler that reads the serverURL(s) from the configuration using key
- * {@link DISCOVERY_CONFIG_KEY}.
+ * Default thread-safe {@link ConfigurationHandler} implementation.
  */
+// TODO performance; less locking using a map and read-write lock
 public class ConfigurationHandlerImpl extends ComponentBase implements ConfigurationHandler {
-
-    public static final String COMPONENT_IDENTIFIER = "configuration";
-    public static final String CONFIG_KEY_BASE = ConfigurationHandlerImpl.CONFIG_KEY_NAMESPACE + "." + COMPONENT_IDENTIFIER;
 
     /** Directory name use for storage. It is relative to the agent context work directory. */
     public static final String CONFIG_STORAGE_SUBDIR = "config";
@@ -50,7 +51,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     private Properties m_configProps = null;
 
     public ConfigurationHandlerImpl() {
-        super(COMPONENT_IDENTIFIER);
+        super("configuration");
     }
 
     @Override
@@ -89,6 +90,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
             ensureLoadConfig();
             Object value = m_configProps.remove(key);
             if (value != null) {
+                getEventsHandler().postEvent("agent/config/CHANGED", new HashMap<String, String>());
                 ensureStoreConfig();
             }
         }

@@ -19,8 +19,7 @@
 package org.apache.ace.agent;
 
 /**
- * Agent control delegate interface that is responsible for target identification.
- * 
+ * Agent context delegate interface that is responsible for target identification.
  */
 public interface IdentificationHandler {
 

@@ -29,6 +29,7 @@ import java.util.Stack;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentContextAware;
+import org.apache.ace.agent.impl.AgentContextImpl;
 
 /**
  * Simple base class.
@@ -36,6 +37,21 @@ import org.apache.ace.agent.AgentContextAware;
 public abstract class BaseAgentTest {
 
     private Set<Object> m_mocks = new HashSet<Object>();
+
+    protected AgentContextImpl mockAgentContext() throws Exception {
+        return mockAgentContext("" + System.currentTimeMillis());
+    }
+
+    protected AgentContextImpl mockAgentContext(String subDir) throws Exception {
+        File contextDir = new File(getWorkDir(), subDir);
+        contextDir.mkdirs();
+        cleanDir(contextDir);
+        AgentContextImpl context = new AgentContextImpl(contextDir);
+        for (Class<?> handlerClass : AgentContextImpl.KNOWN_HANDLERS) {
+            context.setHandler(handlerClass, addTestMock(handlerClass));
+        }
+        return context;
+    }
 
     protected <T extends Object> T addTestMock(Class<T> clazz) {
         T mock = createNiceMock(clazz);
@@ -62,13 +78,15 @@ public abstract class BaseAgentTest {
     }
 
     protected void startHandler(Object handler, AgentContext agentContext) throws Exception {
-        if (handler instanceof AgentContextAware)
+        if (handler instanceof AgentContextAware) {
             ((AgentContextAware) handler).start(agentContext);
+        }
     }
 
     protected void stopHandler(Object handler) throws Exception {
-        if (handler instanceof AgentContextAware)
+        if (handler instanceof AgentContextAware) {
             ((AgentContextAware) handler).stop();
+        }
     }
 
     protected void cleanDir(File dir) {

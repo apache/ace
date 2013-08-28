@@ -23,19 +23,18 @@ import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
-import static org.easymock.EasyMock.resetToNice;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
 import java.net.URL;
 
+import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
-import org.osgi.service.log.LogService;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -49,123 +48,142 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
     private TestWebServer m_webServer;
     private URL m_availableURL;
     private URL m_unavailableURL;
-    private DiscoveryHandler m_discoveryHandler;
-    private ConfigurationHandler m_configurationHandler;
-    private ConnectionHandler m_connectionHandler;
+
+    private AgentContext m_agentContext;
+    private AgentContextImpl m_agentContextImpl;
 
     @BeforeTest
-    public void setUpAgain() throws Exception {
-
+    public void setUpOnceAgain() throws Exception {
         m_webServer = new TestWebServer(PORT, "/", "generated");
         m_webServer.start();
         m_availableURL = new URL("http://localhost:" + PORT);
         m_unavailableURL = new URL("http://localhost:9999");
 
-        AgentContext agentContext = addTestMock(AgentContext.class);
-
-        LogService logService = addTestMock(LogService.class);
-        resetToNice(logService);
-
-        m_discoveryHandler = new DiscoveryHandlerImpl();
-        m_connectionHandler = new ConnectionHandlerImpl();
-        m_configurationHandler = addTestMock(ConfigurationHandler.class);
-
-        expect(agentContext.getConfigurationHandler()).andReturn(m_configurationHandler).anyTimes();
-        expect(agentContext.getConnectionHandler()).andReturn(m_connectionHandler).anyTimes();
-
+        m_agentContextImpl = mockAgentContext();
+        m_agentContext = m_agentContextImpl;
+        m_agentContextImpl.setHandler(DiscoveryHandler.class, new DiscoveryHandlerImpl());
+        m_agentContextImpl.setHandler(ConnectionHandler.class, new ConnectionHandlerImpl());
         replayTestMocks();
-        startHandler(m_connectionHandler, agentContext);
-        startHandler(m_discoveryHandler, agentContext);
+        m_agentContextImpl.start();
     }
 
     @AfterTest
-    public void tearDownAgain() throws Exception {
-        stopHandler(m_connectionHandler);
-        stopHandler(m_discoveryHandler);
-        verifyTestMocks();
+    public void tearDownOnceAgain() throws Exception {
         m_webServer.stop();
+
+        m_agentContextImpl.stop();
+        verifyTestMocks();
+        clearTestMocks();
     }
 
     @Test
     public void testAvailableURL() throws Exception {
-        reset(m_configurationHandler);
-        expect(m_configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+        ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_CONNECTION_AUTHTYPE), anyObject(String.class)))
             .andReturn(null).anyTimes();
-        expect(m_configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_DISCOVERY_SERVERURLS), anyObject(String.class)))
             .andReturn(m_availableURL.toExternalForm()).anyTimes();
-        replay(m_configurationHandler);
-        assertEquals(m_discoveryHandler.getServerUrl(), m_availableURL);
+        expect(configurationHandler.getBoolean(AgentConstants.CONFIG_DISCOVERY_CHECKING, false))
+            .andReturn(true).anyTimes();
+        replay(configurationHandler);
+        DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
+        assertEquals(discoveryHandler.getServerUrl(), m_availableURL);
     }
 
     @Test
     public void testUnavailableURL_unavailable() throws Exception {
-        reset(m_configurationHandler);
-        expect(m_configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+        ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_CONNECTION_AUTHTYPE), anyObject(String.class)))
             .andReturn(null).anyTimes();
-        expect(m_configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_DISCOVERY_SERVERURLS), anyObject(String.class)))
             .andReturn(m_unavailableURL.toExternalForm()).anyTimes();
-        replay(m_configurationHandler);
-        assertNull(m_discoveryHandler.getServerUrl());
+        expect(configurationHandler.getBoolean(AgentConstants.CONFIG_DISCOVERY_CHECKING, false))
+            .andReturn(true).anyTimes();
+        replay(configurationHandler);
+        DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
+        assertNull(discoveryHandler.getServerUrl());
     }
 
     @Test
     public void testUnavailableAfterConfigUpdate() throws Exception {
-        reset(m_configurationHandler);
-        expect(m_configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+        ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_CONNECTION_AUTHTYPE), anyObject(String.class)))
             .andReturn(null).anyTimes();
-        expect(m_configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_DISCOVERY_SERVERURLS), anyObject(String.class)))
             .andReturn(m_availableURL.toExternalForm()).once();
-        expect(m_configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_DISCOVERY_SERVERURLS), anyObject(String.class)))
             .andReturn(m_unavailableURL.toExternalForm()).once();
-        replay(m_configurationHandler);
-        assertEquals(m_discoveryHandler.getServerUrl(), m_availableURL);
-        assertNull(m_discoveryHandler.getServerUrl());
+        expect(configurationHandler.getBoolean(AgentConstants.CONFIG_DISCOVERY_CHECKING, false))
+            .andReturn(true).anyTimes();
+        replay(configurationHandler);
+        DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
+        assertEquals(discoveryHandler.getServerUrl(), m_availableURL);
+        assertNull(discoveryHandler.getServerUrl());
     }
 
     @Test
     public void testAvailableAfterConfigUpdate() throws Exception {
-        reset(m_configurationHandler);
-        expect(m_configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+        ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_CONNECTION_AUTHTYPE), anyObject(String.class)))
             .andReturn(null).anyTimes();
-        expect(m_configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_DISCOVERY_SERVERURLS), anyObject(String.class)))
             .andReturn(m_unavailableURL.toExternalForm()).once();
-        expect(m_configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_DISCOVERY_SERVERURLS), anyObject(String.class)))
             .andReturn(m_availableURL.toExternalForm()).once();
-        replay(m_configurationHandler);
-        assertNull(m_discoveryHandler.getServerUrl());
-        assertEquals(m_discoveryHandler.getServerUrl(), m_availableURL);
+        expect(configurationHandler.getBoolean(AgentConstants.CONFIG_DISCOVERY_CHECKING, false))
+            .andReturn(true).anyTimes();
+        replay(configurationHandler);
+        DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
+        assertNull(discoveryHandler.getServerUrl());
+        assertEquals(discoveryHandler.getServerUrl(), m_availableURL);
     }
 
     @Test
     public void testAvailableAfterUnavailableURL() throws Exception {
-        reset(m_configurationHandler);
-        expect(m_configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+        ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_CONNECTION_AUTHTYPE), anyObject(String.class)))
             .andReturn(null).anyTimes();
-        expect(m_configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_DISCOVERY_SERVERURLS), anyObject(String.class)))
             .andReturn(m_unavailableURL.toExternalForm() + "," + m_availableURL.toExternalForm()).once();
-        replay(m_configurationHandler);
-        assertEquals(m_discoveryHandler.getServerUrl(), m_availableURL);
+        expect(configurationHandler.getBoolean(AgentConstants.CONFIG_DISCOVERY_CHECKING, false))
+            .andReturn(true).anyTimes();
+        replay(configurationHandler);
+        DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
+        assertEquals(discoveryHandler.getServerUrl(), m_availableURL);
     }
 
     @Test
     public void testEmptyURLConfig() throws Exception {
-        reset(m_configurationHandler);
-        expect(m_configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+        ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_CONNECTION_AUTHTYPE), anyObject(String.class)))
             .andReturn(null).anyTimes();
-        expect(m_configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_DISCOVERY_SERVERURLS), anyObject(String.class)))
             .andReturn("").once();
-        replay(m_configurationHandler);
-        assertNull(m_discoveryHandler.getServerUrl());
+        expect(configurationHandler.getBoolean(AgentConstants.CONFIG_DISCOVERY_CHECKING, false))
+            .andReturn(true).anyTimes();
+        replay(configurationHandler);
+        DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
+        assertNull(discoveryHandler.getServerUrl());
     }
 
     @Test
     public void testBadURLConfig() throws Exception {
-        reset(m_configurationHandler);
-        expect(m_configurationHandler.get(eq(ConnectionHandlerImpl.PROP_AUTHTYPE), anyObject(String.class)))
+        ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
+        reset(configurationHandler);
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_CONNECTION_AUTHTYPE), anyObject(String.class)))
             .andReturn(null).anyTimes();
-        expect(m_configurationHandler.get(eq(DiscoveryHandlerImpl.CONFIG_KEY_SERVERURLS), anyObject(String.class)))
+        expect(configurationHandler.get(eq(AgentConstants.CONFIG_DISCOVERY_SERVERURLS), anyObject(String.class)))
             .andReturn("foobar").once();
-        replay(m_configurationHandler);
-        assertNull(m_discoveryHandler.getServerUrl());
+        expect(configurationHandler.getBoolean(AgentConstants.CONFIG_DISCOVERY_CHECKING, false))
+            .andReturn(true).anyTimes();
+        replay(configurationHandler);
+        DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
+        assertNull(discoveryHandler.getServerUrl());
     }
 }

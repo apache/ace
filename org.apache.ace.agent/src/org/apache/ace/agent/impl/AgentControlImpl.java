@@ -26,6 +26,7 @@ import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.FeedbackHandler;
+import org.apache.ace.agent.IdentificationHandler;
 
 /**
  * Implementation of the public agent control service.
@@ -40,22 +41,27 @@ public class AgentControlImpl implements AgentControl {
     }
 
     @Override
+    public String getAgentId() {
+        return m_agentContext.getHandler(IdentificationHandler.class).getAgentId();
+    }
+
+    @Override
     public ConfigurationHandler getConfigurationHandler() {
-        return m_agentContext.getConfigurationHandler();
+        return m_agentContext.getHandler(ConfigurationHandler.class);
     }
 
     @Override
     public DeploymentHandler getDeploymentHandler() {
-        return m_agentContext.getDeploymentHandler();
+        return m_agentContext.getHandler(DeploymentHandler.class);
     }
 
     @Override
     public AgentUpdateHandler getAgentUpdateHandler() {
-        return m_agentContext.getAgentUpdateHandler();
+        return m_agentContext.getHandler(AgentUpdateHandler.class);
     }
 
     @Override
     public FeedbackHandler getFeedbackHandler() {
-        return m_agentContext.getFeedbackHandler();
+        return m_agentContext.getHandler(FeedbackHandler.class);
     }
 }

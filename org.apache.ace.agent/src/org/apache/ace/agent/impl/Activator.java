@@ -18,30 +18,27 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.apache.ace.agent.impl.ReflectionUtil.configureField;
-import static org.apache.ace.agent.impl.ReflectionUtil.invokeMethod;
-
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.AgentControl;
+import org.apache.ace.agent.AgentUpdateHandler;
+import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.ConnectionHandler;
+import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DiscoveryHandler;
+import org.apache.ace.agent.DownloadHandler;
+import org.apache.ace.agent.EventsHandler;
+import org.apache.ace.agent.FeedbackHandler;
 import org.apache.ace.agent.IdentificationHandler;
+import org.apache.ace.agent.LoggingHandler;
 import org.apache.ace.agent.impl.DependencyTrackerImpl.DependencyCallback;
 import org.apache.ace.agent.impl.DependencyTrackerImpl.LifecycleCallbacks;
-import org.apache.felix.deploymentadmin.DeploymentAdminImpl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.deploymentadmin.DeploymentAdmin;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
@@ -49,18 +46,12 @@ import org.osgi.service.packageadmin.PackageAdmin;
  */
 public class Activator implements BundleActivator {
 
-    // internal delegates
-    private final EventsHandlerImpl m_internalEvents = new EventsHandlerImpl();
-    private final LoggingHandlerImpl m_internalLogger = new LoggingHandlerImpl(LogService.LOG_DEBUG);
-
     // managed state
-    private AgentContextImpl m_agentContext;
-    private AgentControlImpl m_agentControl;
-    private ScheduledExecutorService m_executorService;
-    private EventLoggerImpl m_eventLoggerImpl;
-    private DefaultController m_defaultController;
-    private volatile DeploymentAdmin m_deploymentAdmin;
-    private ServiceRegistration m_agentControlRegistration;
+    private volatile AgentContextImpl m_agentContext;
+    private volatile ScheduledExecutorService m_executorService;
+    private volatile ServiceRegistration m_agentControlRegistration;
+    private volatile BundleContext m_bundleContext;
+    private volatile DependencyTrackerImpl m_dependencyTracker;
 
     // injected services
     private volatile PackageAdmin m_packageAdmin;
@@ -68,15 +59,13 @@ public class Activator implements BundleActivator {
     private volatile DiscoveryHandler m_discoveryHandler;
     private volatile ConnectionHandler m_connectionHandler;
 
-    private volatile BundleContext m_bundleContext;
-    private DependencyTrackerImpl m_dependencyTracker;
-
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
 
         m_bundleContext = bundleContext;
         m_executorService = Executors.newScheduledThreadPool(1, new InternalThreadFactory());
 
+        // FIXME minimize
         m_dependencyTracker = new DependencyTrackerImpl(bundleContext, new LifecycleCallbacks() {
 
             @Override
@@ -101,15 +90,13 @@ public class Activator implements BundleActivator {
         });
 
         m_dependencyTracker.addDependency(PackageAdmin.class, null, new DependencyCallback() {
-
             @Override
             public void updated(Object service) {
                 m_packageAdmin = (PackageAdmin) service;
             }
         });
 
-        // FIXME fake config
-        if (Boolean.parseBoolean(System.getProperty("agent.identificationhandler.disabled"))) {
+        if (Boolean.parseBoolean(System.getProperty(AgentConstants.CONFIG_IDENTIFICATION_DISABLED))) {
             m_dependencyTracker.addDependency(IdentificationHandler.class, null, new DependencyCallback() {
                 @Override
                 public void updated(Object service) {
@@ -117,8 +104,8 @@ public class Activator implements BundleActivator {
                 }
             });
         }
-        // FIXME fake config
-        if (Boolean.parseBoolean(System.getProperty("agent.discoveryhandler.disabled"))) {
+
+        if (Boolean.parseBoolean(System.getProperty(AgentConstants.CONFIG_DISCOVERY_DISABLED))) {
             m_dependencyTracker.addDependency(DiscoveryHandler.class, null, new DependencyCallback() {
                 @Override
                 public void updated(Object service) {
@@ -126,8 +113,8 @@ public class Activator implements BundleActivator {
                 }
             });
         }
-        // FIXME fake config
-        if (Boolean.parseBoolean(System.getProperty("agent.connectionhandler.disabled"))) {
+
+        if (Boolean.parseBoolean(System.getProperty(AgentConstants.CONFIG_CONNECTION_DISABLED))) {
             m_dependencyTracker.addDependency(ConnectionHandler.class, null, new DependencyCallback() {
                 @Override
                 public void updated(Object service) {
@@ -146,162 +133,52 @@ public class Activator implements BundleActivator {
         m_executorService = null;
     }
 
-    void startAgent() throws Exception {
-
-        m_internalLogger.logInfo("activator", "Agent starting...", null);
-
-        m_deploymentAdmin = new DeploymentAdminImpl();
-        configureField(m_deploymentAdmin, BundleContext.class, m_bundleContext);
-        configureField(m_deploymentAdmin, PackageAdmin.class, m_packageAdmin);
-        configureField(m_deploymentAdmin, EventAdmin.class, new InternalEventAdmin(m_internalEvents));
-        configureField(m_deploymentAdmin, LogService.class, new InternalLogService(m_internalLogger, "deployment"));
-        invokeMethod(m_deploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
+    private void startAgent() throws Exception {
 
         m_agentContext = new AgentContextImpl(m_bundleContext.getDataFile(""));
-        m_agentContext.setLoggingHandler(m_internalLogger);
-        m_agentContext.setEventsHandler(m_internalEvents);
-        m_agentContext.setConfigurationHandler(new ConfigurationHandlerImpl());
-        m_agentContext.setExecutorService(m_executorService);
-        m_agentContext.setConnectionHandler(new ConnectionHandlerImpl());
-        m_agentContext.setIdentificationHandler(new IdentificationHandlerImpl());
-        m_agentContext.setDiscoveryHandler(new DiscoveryHandlerImpl());
-        m_agentContext.setDownloadHandler(new DownloadHandlerImpl());
-        m_agentContext.setDeploymentHandler(new DeploymentHandlerImpl(m_deploymentAdmin));
-        m_agentContext.setAgentUpdateHandler(new AgentUpdateHandlerImpl(m_bundleContext));
-        m_agentContext.setFeedbackHandler(new FeedbackHandlerImpl());
-        m_agentContext.start();
-        m_internalLogger.logInfo("activator", "AgentContext started", null);
+        m_agentContext.setHandler(LoggingHandler.class, new LoggingHandlerImpl());
+        m_agentContext.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
+        m_agentContext.setHandler(EventsHandler.class, new EventsHandlerImpl(m_bundleContext));
+        m_agentContext.setHandler(ScheduledExecutorService.class, m_executorService);
+        m_agentContext.setHandler(DownloadHandler.class, new DownloadHandlerImpl());
+        m_agentContext.setHandler(DeploymentHandler.class, new DeploymentHandlerImpl(m_bundleContext, m_packageAdmin));
+        m_agentContext.setHandler(AgentUpdateHandler.class, new AgentUpdateHandlerImpl(m_bundleContext));
+        m_agentContext.setHandler(FeedbackHandler.class, new FeedbackHandlerImpl());
 
-        m_agentControl = new AgentControlImpl(m_agentContext);
-        m_agentControlRegistration = m_bundleContext.registerService(AgentControl.class.getName(), m_agentControl, null);
-        m_internalLogger.logInfo("activator", "AgentControl registered", null);
-
-        m_defaultController = new DefaultController();
-        m_defaultController.start(m_agentContext);
-        m_internalLogger.logInfo("activator", "DefaultController started", null);
-
-        // FIXME fake config
-        if (!Boolean.parseBoolean(System.getProperty("agent.auditlogging.disabled"))) {
-            m_eventLoggerImpl = new EventLoggerImpl(m_agentControl, m_bundleContext);
-            m_bundleContext.addBundleListener(m_eventLoggerImpl);
-            m_bundleContext.addFrameworkListener(m_eventLoggerImpl);
-            m_internalEvents.registerHandler(m_eventLoggerImpl, EventLoggerImpl.TOPICS_INTEREST);
-            m_internalLogger.logInfo("activator", "Audit logger started", null);
+        if (m_identificationHandler != null) {
+            m_agentContext.setHandler(IdentificationHandler.class, m_identificationHandler);
         }
         else {
-            m_internalLogger.logInfo("activator", "Audit logger disabled", null);
+            m_agentContext.setHandler(IdentificationHandler.class, new IdentificationHandlerImpl());
         }
-        m_internalLogger.logInfo("activator", "Agent statup complete", null);
+
+        if (m_discoveryHandler != null) {
+            m_agentContext.setHandler(DiscoveryHandler.class, m_discoveryHandler);
+        }
+        else {
+            m_agentContext.setHandler(DiscoveryHandler.class, new DiscoveryHandlerImpl());
+        }
+
+        if (m_connectionHandler != null) {
+            m_agentContext.setHandler(ConnectionHandler.class, m_connectionHandler);
+        }
+        else {
+            m_agentContext.setHandler(ConnectionHandler.class, new ConnectionHandlerImpl());
+        }
+
+        m_agentContext.addComponent(new DefaultController());
+        m_agentContext.addComponent(new EventLoggerImpl(m_bundleContext));
+        m_agentContext.start();
+
+        m_agentControlRegistration = m_bundleContext.registerService(
+            AgentControl.class.getName(), new AgentControlImpl(m_agentContext), null);
     }
 
-    void stopAgent() throws Exception {
-
-        m_internalLogger.logInfo("activator", "Agent stopping..", null);
-
+    private void stopAgent() throws Exception {
         m_agentControlRegistration.unregister();
         m_agentControlRegistration = null;
-
-        m_defaultController.stop();
-        m_defaultController = null;
-
-        invokeMethod(m_deploymentAdmin, "stop", new Class<?>[] {}, new Object[] {});
-
-        if (m_eventLoggerImpl != null) {
-            m_bundleContext.removeFrameworkListener(m_eventLoggerImpl);
-            m_bundleContext.removeBundleListener(m_eventLoggerImpl);
-            m_internalEvents.unregisterHandler(m_eventLoggerImpl);
-        }
-
         m_agentContext.stop();
         m_agentContext = null;
-
-        m_internalLogger.logInfo("activator", "Agent stopped", null);
-    }
-
-    private void configureDeploymentAdmin() {
-        m_deploymentAdmin = new DeploymentAdminImpl();
-        configureField(m_deploymentAdmin, BundleContext.class, m_bundleContext);
-        configureField(m_deploymentAdmin, PackageAdmin.class, m_packageAdmin);
-        configureField(m_deploymentAdmin, EventAdmin.class, new InternalEventAdmin(m_internalEvents));
-        configureField(m_deploymentAdmin, LogService.class, new InternalLogService(m_internalLogger, "deployment"));
-        invokeMethod(m_deploymentAdmin, "start", new Class<?>[] {}, new Object[] {});
-    }
-
-    /**
-     * Internal EventAdmin that delegates to actual InternalEvents. Used to inject into the DeploymentAdmin only.
-     */
-    static class InternalEventAdmin implements EventAdmin {
-
-        private final EventsHandler m_events;
-
-        public InternalEventAdmin(EventsHandler events) {
-            m_events = events;
-        }
-
-        @Override
-        public void postEvent(Event event) {
-            m_events.postEvent(event.getTopic(), getPayload(event));
-        }
-
-        @Override
-        public void sendEvent(Event event) {
-            m_events.postEvent(event.getTopic(), getPayload(event));
-        }
-
-        private static Dictionary<String, String> getPayload(Event event) {
-            Dictionary<String, String> payload = new Hashtable<String, String>();
-            for (String propertyName : event.getPropertyNames()) {
-                payload.put(propertyName, event.getProperty(propertyName).toString());
-            }
-            return payload;
-        }
-    }
-
-    /**
-     * Internal LogService that wraps delegates to actual InternalLogger. Used to inject into the DeploymentAdmin only.
-     */
-    static class InternalLogService implements LogService {
-
-        private final LoggingHandler m_logger;
-        private final String m_identifier;
-
-        public InternalLogService(LoggingHandler logger, String identifier) {
-            m_logger = logger;
-            m_identifier = identifier;
-        }
-
-        @Override
-        public void log(int level, String message) {
-            log(level, message, null);
-        }
-
-        @Override
-        public void log(int level, String message, Throwable exception) {
-            switch (level) {
-                case LogService.LOG_WARNING:
-                    m_logger.logWarning(m_identifier, message, exception);
-                    return;
-                case LogService.LOG_INFO:
-                    m_logger.logInfo(m_identifier, message, exception);
-                    return;
-                case LogService.LOG_DEBUG:
-                    m_logger.logDebug(m_identifier, message, exception);
-                    return;
-                default:
-                    m_logger.logError(m_identifier, message, exception);
-                    return;
-            }
-        }
-
-        @Override
-        public void log(ServiceReference sr, int level, String message) {
-            log(level, message, null);
-        }
-
-        @Override
-        public void log(ServiceReference sr, int level, String message, Throwable exception) {
-            log(level, message, exception);
-        }
     }
 
     /**
@@ -315,8 +192,8 @@ public class Activator implements BundleActivator {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r, String.format(m_name, ++m_count));
+            thread.setDaemon(true);
             return thread;
         }
     }
-
 }

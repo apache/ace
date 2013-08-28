@@ -29,7 +29,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.Writer;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -45,7 +44,9 @@ import java.util.TreeSet;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.ConnectionHandler;
+import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.FeedbackChannel;
+import org.apache.ace.agent.IdentificationHandler;
 import org.apache.ace.agent.RetryAfterException;
 import org.apache.ace.log.LogDescriptor;
 import org.apache.ace.log.LogEvent;
@@ -93,16 +94,18 @@ public class FeedbackChannelImpl implements FeedbackChannel {
     public synchronized void sendFeedback() throws RetryAfterException, IOException {
         String identification = getIdentification();
         URL serverURL = getServerURL();
-        if (identification == null || serverURL == null)
+        if (identification == null || serverURL == null) {
             return;
+        }
         URLConnection sendConnection = null;
         Writer writer = null;
         try {
             URL sendURL = new URL(serverURL, m_name + "/" + COMMAND_SEND);
             sendConnection = getConnectionHandler().getConnection(sendURL);
             sendConnection.setDoOutput(true);
-            if (sendConnection instanceof HttpURLConnection)
+            if (sendConnection instanceof HttpURLConnection) {
                 ((HttpURLConnection) sendConnection).setChunkedStreamingMode(8192);
+            }
             writer = new BufferedWriter(new OutputStreamWriter(sendConnection.getOutputStream()));
             SortedSet<Long> storeIDs = getStoreIDs();
             for (Long storeID : storeIDs) {
@@ -111,13 +114,8 @@ public class FeedbackChannelImpl implements FeedbackChannel {
                 synchronizeStore(storeID, queryConnection.getInputStream(), writer);
             }
             writer.flush();
+            ConnectionUtil.checkConnectionResponse(sendConnection);
             sendConnection.getContent();
-        }
-        catch (ConnectException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
         }
         finally {
             if (writer != null)
@@ -347,15 +345,15 @@ public class FeedbackChannelImpl implements FeedbackChannel {
     }
 
     private ConnectionHandler getConnectionHandler() {
-        return m_agentContext.getConnectionHandler();
+        return m_agentContext.getHandler(ConnectionHandler.class);
     }
 
     private String getIdentification() {
-        return m_agentContext.getIdentificationHandler().getAgentId();
+        return m_agentContext.getHandler(IdentificationHandler.class).getAgentId();
     }
 
     private URL getServerURL() {
-        return m_agentContext.getDiscoveryHandler().getServerUrl();
+        return m_agentContext.getHandler(DiscoveryHandler.class).getServerUrl();
     }
 
     // bridging to log api
@@ -381,12 +379,9 @@ public class FeedbackChannelImpl implements FeedbackChannel {
         /**
          * Create a new File based Store.
          * 
-         * @param store
-         *            the file to use as backend.
-         * @param id
-         *            the log id of the store
-         * @throws java.io.IOException
-         *             in case the file is not rw.
+         * @param store the file to use as backend.
+         * @param id the log id of the store
+         * @throws java.io.IOException in case the file is not rw.
          */
         Store(File store, long id) throws IOException {
             m_store = new RandomAccessFile(store, "rwd");
@@ -427,8 +422,7 @@ public class FeedbackChannelImpl implements FeedbackChannel {
         /**
          * Reset the store to the beginning of the records
          * 
-         * @throws java.io.IOException
-         *             in case of an IO error.
+         * @throws java.io.IOException in case of an IO error.
          */
         public void reset() throws IOException {
             m_store.seek(0);
@@ -439,8 +433,7 @@ public class FeedbackChannelImpl implements FeedbackChannel {
          * Determine whether there are any records left based on the current postion.
          * 
          * @return <code>true</code> if there are still records to be read.
-         * @throws java.io.IOException
-         *             in case of an IO error.
+         * @throws java.io.IOException in case of an IO error.
          */
         public boolean hasNext() throws IOException {
             return m_store.getFilePointer() < m_store.length();
@@ -483,8 +476,7 @@ public class FeedbackChannelImpl implements FeedbackChannel {
         /**
          * Make sure the store is readable. As a result, the store is at the end of the records.
          * 
-         * @throws java.io.IOException
-         *             in case of any IO error.
+         * @throws java.io.IOException in case of any IO error.
          */
         public void init() throws IOException {
             reset();
@@ -501,8 +493,7 @@ public class FeedbackChannelImpl implements FeedbackChannel {
         /**
          * Skip the next record if there is any.
          * 
-         * @throws java.io.IOException
-         *             in case of any IO error or if there is no record left.
+         * @throws java.io.IOException in case of any IO error or if there is no record left.
          */
         public void skip() throws IOException {
             long pos = m_store.getFilePointer();
@@ -524,10 +515,8 @@ public class FeedbackChannelImpl implements FeedbackChannel {
         /**
          * Store the given record data as the next record.
          * 
-         * @param entry
-         *            the data of the record to store.
-         * @throws java.io.IOException
-         *             in case of any IO error.
+         * @param entry the data of the record to store.
+         * @throws java.io.IOException in case of any IO error.
          */
         public void append(long id, byte[] entry) throws IOException {
             long pos = m_store.getFilePointer();
@@ -547,8 +536,7 @@ public class FeedbackChannelImpl implements FeedbackChannel {
         /**
          * Try to truncate the store at the current record.
          * 
-         * @throws java.io.IOException
-         *             in case of any IO error.
+         * @throws java.io.IOException in case of any IO error.
          */
         public void truncate() throws IOException {
             m_store.setLength(m_store.getFilePointer());
@@ -557,8 +545,7 @@ public class FeedbackChannelImpl implements FeedbackChannel {
         /**
          * Release any resources.
          * 
-         * @throws java.io.IOException
-         *             in case of any IO error.
+         * @throws java.io.IOException in case of any IO error.
          */
         public void close() throws IOException {
             m_store.close();

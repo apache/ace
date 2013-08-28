@@ -30,7 +30,6 @@ import java.net.URL;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandle;
@@ -48,7 +47,6 @@ import org.testng.annotations.Test;
  */
 public class CustomControllerTest extends BaseAgentTest {
 
-    AgentControl m_agentControl;
     Version m_version1 = Version.parseVersion("1.0.0");
     Version m_version2 = Version.parseVersion("2.0.0");
     Version m_version3 = Version.parseVersion("3.0.0");
@@ -58,6 +56,9 @@ public class CustomControllerTest extends BaseAgentTest {
     File m_dummyFile;
     URL m_dummyFileUrl;
     InputStream m_dummyInputStream;
+
+    AgentControl m_agentControl;
+    AgentContextImpl m_agentContext;
 
     @BeforeTest
     public void setUpOnceAgain() throws Exception {
@@ -69,7 +70,7 @@ public class CustomControllerTest extends BaseAgentTest {
         m_dummyFile = File.createTempFile("mock", ".txt");
         m_dummyFile.deleteOnExit();
         m_dummyFileUrl = m_dummyFile.toURI().toURL();
-        
+
         m_workDir = new File(m_dummyFile.getParentFile(), "test-" + System.currentTimeMillis());
         m_workDir.mkdir();
     }
@@ -94,19 +95,20 @@ public class CustomControllerTest extends BaseAgentTest {
         deploymentHandler.deployPackage(notNull(InputStream.class));
         expectLastCall().once();
 
-        AgentContext agentContext = addTestMock(AgentContext.class);
-        expect(agentContext.getDeploymentHandler()).andReturn(deploymentHandler).anyTimes();
-        expect(agentContext.getWorkDir()).andReturn(m_workDir).anyTimes();
-
+        m_agentContext = mockAgentContext();
+        m_agentContext.setHandler(DeploymentHandler.class, deploymentHandler);
         replayTestMocks();
-        m_agentControl = new AgentControlImpl(agentContext);
+        
+        m_agentContext.start();
+        m_agentControl = new AgentControlImpl(m_agentContext);
     }
 
     @AfterMethod
     public void tearDownOnceAgain() throws Exception {
+        m_dummyInputStream.close();
+        m_agentContext.stop();
         verifyTestMocks();
         clearTestMocks();
-        m_dummyInputStream.close();
     }
 
     @Test
