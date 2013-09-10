@@ -229,4 +229,10 @@ public interface AuditEvent
      * </dl>
      */
     public static final int DEPLOYMENTCONTROL_INSTALL = (DEPLOYMENTCONTROL_BASE + 1);
+    
+    /** Base event type for all target properties related events. */
+    public static final int TARGETPROPERTIES_BASE = 4000;
+    
+    /** Sets a new collection of properties for this target. */
+    public static final int TARGETPROPERTIES_SET = (TARGETPROPERTIES_BASE + 1);
 }
