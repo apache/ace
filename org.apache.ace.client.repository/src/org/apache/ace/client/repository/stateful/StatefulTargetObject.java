@@ -56,6 +56,7 @@ public interface StatefulTargetObject extends RepositoryObject {
     public final static String KEY_LAST_INSTALL_SUCCESS = "KEY_LAST_INSTALL_SUCCESS";
     public final static String KEY_ACKNOWLEDGED_INSTALL_VERSION = "KEY_ACKNOWLEDGED_INSTALL_VERSION";
     public final static String[] KEYS_ALL = new String[] {KEY_ID, KEY_REGISTRATION_STATE, KEY_STORE_STATE, KEY_PROVISIONING_STATE, KEY_LAST_INSTALL_VERSION, KEY_LAST_INSTALL_SUCCESS, KEY_ACKNOWLEDGED_INSTALL_VERSION};
+    public static final String TARGETPROPERTIES_PREFIX = "target.";
 
     /**
      * Represents a current deployment package version which cannot be found, i.e.,

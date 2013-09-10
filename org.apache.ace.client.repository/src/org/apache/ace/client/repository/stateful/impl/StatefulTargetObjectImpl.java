@@ -54,9 +54,12 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     private final Object m_lock = new Object();
     private TargetObject m_targetObject;
     private List<LogDescriptor> m_processedAuditEvents = new ArrayList<LogDescriptor>();
+    private Dictionary m_processedTargetProperties;
     private Map<String, String> m_attributes = new HashMap<String, String>();
     /** This boolean is used to suppress STATUS_CHANGED events during the creation of the object. */
     private boolean m_inConstructor = true;
+    /** Boolean to ensure we don't recursively enter the determineProvisioningState() method. */
+    private boolean m_determiningProvisioningState = false;
 
     /**
      * Creates a new <code>StatefulTargetObjectImpl</code>. After creation, it will have the
@@ -185,6 +188,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
         synchronized (m_lock) {
             m_targetObject = m_repository.getTargetObject(getID());
             determineRegistrationState();
+            determineTargetPropertiesState();
             if (needsVerify) {
                 verifyExistence();
             }
@@ -295,52 +299,78 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     private void determineProvisioningState() {
         /*
          * This method gets all audit events it has not yet seen, and goes through them, backward
-         * in time, to find either and INSTALL or a COMPLETE event. A INSTALL event gives us a version,
-         * and tells us we're in InProgress. A COMPLETE tells gives us a version, and a success. The success
+         * in time, to find either an INSTALL or a COMPLETE and a TARGETPROPERTIES event.
+         * An INSTALL event gives us a version, and tells us we're in InProgress.
+         * A COMPLETE event tells gives us a version, and a success. The success
          * will be stored, and also sets the state to OK or Failed, unless the version we found has already been
          * acknowledged, the the state is set to Idle. Also, if there is no information whatsoever, we assume Idle.
+         * A TARGETPROPERTIES event will set the target properties accordingly, with the right prefix, overwriting
+         * any old target properties.
          */
         synchronized (m_lock) {
+            // make sure we don't recursively execute, which can happen when target properties
+            // are being set or removed (which triggers a notification, which in turn triggers
+            // a call to determineStatus).
+            if (m_determiningProvisioningState) {
+                return;
+            }
+            m_determiningProvisioningState = true;
             List<LogDescriptor> allDescriptors = m_repository.getAllDescriptors(getID());
             List<LogDescriptor> newDescriptors = m_repository.diffLogDescriptorLists(allDescriptors, m_processedAuditEvents);
 
             List<LogEvent> newEvents = m_repository.getAuditEvents(newDescriptors);
+            boolean foundDeploymentEvent = false;
+            boolean foundPropertiesEvent = false;
             for (int position = newEvents.size() - 1; position >= 0; position--) {
                 LogEvent event = newEvents.get(position);
                 
-                // TODO we need to check here if the deployment package is actually the right one
-                String currentVersion = (String) event.getProperties().get(AuditEvent.KEY_VERSION);
-                if (event.getType() == AuditEvent.DEPLOYMENTCONTROL_INSTALL) {
-                    addStatusAttribute(KEY_LAST_INSTALL_VERSION, currentVersion);
-                    setProvisioningState(ProvisioningState.InProgress);
-                    sendNewAuditlog(newDescriptors);
-                    m_processedAuditEvents = allDescriptors;
-                    return;
-                }
-                else if (event.getType() == AuditEvent.DEPLOYMENTADMIN_COMPLETE) {
-                    addStatusAttribute(KEY_LAST_INSTALL_VERSION, currentVersion);
-                    if ((currentVersion != null) && currentVersion.equals(getStatusAttribute(KEY_ACKNOWLEDGED_INSTALL_VERSION))) {
-                        setProvisioningState(ProvisioningState.Idle);
+                if (!foundDeploymentEvent) {
+                    // TODO we need to check here if the deployment package is actually the right one
+                    String currentVersion = (String) event.getProperties().get(AuditEvent.KEY_VERSION);
+                    if (event.getType() == AuditEvent.DEPLOYMENTCONTROL_INSTALL) {
+                        addStatusAttribute(KEY_LAST_INSTALL_VERSION, currentVersion);
+                        setProvisioningState(ProvisioningState.InProgress);
                         sendNewAuditlog(newDescriptors);
                         m_processedAuditEvents = allDescriptors;
-                        return;
+                        foundDeploymentEvent = true;
                     }
-                    else {
-                        String value = (String) event.getProperties().get(AuditEvent.KEY_SUCCESS);
-                        addStatusAttribute(KEY_LAST_INSTALL_SUCCESS, value);
-                        if (Boolean.parseBoolean(value)) {
-                            setProvisioningState(ProvisioningState.OK);
+                    if (event.getType() == AuditEvent.DEPLOYMENTADMIN_COMPLETE) {
+                        addStatusAttribute(KEY_LAST_INSTALL_VERSION, currentVersion);
+                        if ((currentVersion != null) && currentVersion.equals(getStatusAttribute(KEY_ACKNOWLEDGED_INSTALL_VERSION))) {
+                            setProvisioningState(ProvisioningState.Idle);
                             sendNewAuditlog(newDescriptors);
                             m_processedAuditEvents = allDescriptors;
-                            return;
+                            foundDeploymentEvent = true;
                         }
                         else {
-                            setProvisioningState(ProvisioningState.Failed);
-                            sendNewAuditlog(newDescriptors);
-                            m_processedAuditEvents = allDescriptors;
-                            return;
+                            String value = (String) event.getProperties().get(AuditEvent.KEY_SUCCESS);
+                            addStatusAttribute(KEY_LAST_INSTALL_SUCCESS, value);
+                            if (Boolean.parseBoolean(value)) {
+                                setProvisioningState(ProvisioningState.OK);
+                                sendNewAuditlog(newDescriptors);
+                                m_processedAuditEvents = allDescriptors;
+                                foundDeploymentEvent = true;
+                            }
+                            else {
+                                setProvisioningState(ProvisioningState.Failed);
+                                sendNewAuditlog(newDescriptors);
+                                m_processedAuditEvents = allDescriptors;
+                                foundDeploymentEvent = true;
+                            }
                         }
                     }
+                }
+                if (!foundPropertiesEvent) {
+                    if (event.getType() == AuditEvent.TARGETPROPERTIES_SET) {
+                        m_processedTargetProperties = event.getProperties();
+                        foundPropertiesEvent = true;
+                        determineTargetPropertiesState();
+                    }
+                }
+                // as soon as we've found the latest of both types of events, we're done
+                if (foundDeploymentEvent && foundPropertiesEvent) {
+                    m_determiningProvisioningState = false;
+                    return;
                 }
             }
 
@@ -349,9 +379,36 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
             }
             sendNewAuditlog(newDescriptors);
             m_processedAuditEvents = allDescriptors;
+            m_determiningProvisioningState = false;
         }
     }
 
+    private void determineTargetPropertiesState() {
+        // only process them if the target is already registered
+        if (isRegistered() && m_processedTargetProperties != null) {
+            Dictionary tags = m_processedTargetProperties;
+            m_processedTargetProperties = null;
+            // clear "old" tags starting with the prefix
+            Enumeration<String> keys = m_targetObject.getTagKeys();
+            ArrayList<String> keysToDelete = new ArrayList<String>();
+            while (keys.hasMoreElements()) {
+                String key = keys.nextElement();
+                if (key.startsWith(TARGETPROPERTIES_PREFIX)) {
+                    keysToDelete.add(key);
+                }
+            }
+            for (String keyToDelete : keysToDelete) {
+                m_targetObject.removeTag(keyToDelete);
+            }
+            // add new tags and prefix them
+            Enumeration newKeys = tags.keys();
+            while (newKeys.hasMoreElements()) {
+                String newKey = (String) newKeys.nextElement();
+                m_targetObject.addTag(TARGETPROPERTIES_PREFIX + newKey, (String) tags.get(newKey));
+            }
+        }
+    }
+    
     private void sendNewAuditlog(List<LogDescriptor> events) {
         // Check whether there are actually events in the list.
         boolean containsData = false;
