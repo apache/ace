@@ -32,7 +32,6 @@ import org.apache.ace.agent.DownloadState;
 /**
  * A {@link DownloadHandle} implementation that supports pause/resume semantics based on HTTP Range headers assuming the
  * server supports this feature.
- * 
  */
 class DownloadHandleImpl implements DownloadHandle {
 
@@ -80,8 +79,9 @@ class DownloadHandleImpl implements DownloadHandle {
     }
 
     DownloadHandle start(int failAtPosition) {
-        if (m_started)
-            throw new IllegalStateException("Can not call start on a handle that is allready started");
+        if (m_started) {
+            throw new IllegalStateException("Can not call start on a handle that is already started");
+        }
         if (m_file == null) {
             try {
                 m_file = File.createTempFile("download", ".bin");
@@ -96,8 +96,9 @@ class DownloadHandleImpl implements DownloadHandle {
 
     @Override
     public DownloadHandle stop() {
-        if (!m_started && !m_completed)
+        if (!m_started && !m_completed) {
             throw new IllegalStateException("Can not call stop on a handle that is not yet started");
+        }
         m_started = false;
         stopDownload();
         return this;
@@ -174,22 +175,24 @@ class DownloadHandleImpl implements DownloadHandle {
     }
 
     private static void callProgressListener(ProgressListener listener, long contentLength, long progress) {
-        if (listener != null)
+        if (listener != null) {
             try {
                 listener.progress(contentLength, progress);
             }
             catch (Exception e) {
                 // ignore
             }
+        }
     }
 
     private static void callCompletionListener(ResultListener listener, DownloadResult result) {
-        if (listener != null && result != null)
+        if (listener != null && result != null) {
             try {
                 listener.completed(result);
             }
             catch (Exception e) {
                 // ignore
             }
+        }
     }
 }

@@ -131,6 +131,12 @@ public interface AgentConstants {
     String CONFIG_CONNECTION_PASSWORD = CONFIG_KEY_NAMESPACE + ".connection.password";
 
     /**
+     * Configuration option to set the client-cert protocol for the default {@link ConnectionHandler}. Should be a
+     * string, default is <code>TLS</code>.
+     */
+    String CONFIG_CONNECTION_SSL_PROTOCOL = CONFIG_KEY_NAMESPACE + ".connection.sslProtocol";
+
+    /**
      * Configuration option to set the client-cert authentication keystore path for the default
      * {@link ConnectionHandler} . Should be a valid path, default is <code>""</code>.
      */

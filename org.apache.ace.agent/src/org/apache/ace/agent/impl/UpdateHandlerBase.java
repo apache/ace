@@ -18,6 +18,10 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.impl.ConnectionUtil.checkConnectionResponse;
+import static org.apache.ace.agent.impl.ConnectionUtil.close;
+import static org.apache.ace.agent.impl.ConnectionUtil.closeSilently;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +49,9 @@ public class UpdateHandlerBase extends ComponentBase {
         BufferedReader reader = null;
         try {
             connection = getConnection(endpoint);
-            ConnectionUtil.checkConnectionResponse(connection);
+
+            checkConnectionResponse(connection);
+
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String versionString;
             while ((versionString = reader.readLine()) != null) {
@@ -60,58 +66,9 @@ public class UpdateHandlerBase extends ComponentBase {
             return versions;
         }
         finally {
-            if (connection != null && connection instanceof HttpURLConnection) {
-                ((HttpURLConnection) connection).disconnect();
-            }
-            if (reader != null) {
-                reader.close();
-            }
+            closeSilently(reader);
+            close(connection);
         }
-    }
-
-    protected long getPackageSize(URL url) throws RetryAfterException, IOException {
-        long packageSize = -1l;
-        URLConnection urlConnection = null;
-        InputStream inputStream = null;
-        try {
-            urlConnection = url.openConnection();
-            if (urlConnection instanceof HttpURLConnection) {
-                ((HttpURLConnection) urlConnection).setRequestMethod("HEAD");
-            }
-
-            String dpSizeHeader = urlConnection.getHeaderField(AgentConstants.HEADER_DPSIZE);
-            if (dpSizeHeader != null) {
-                try {
-                    packageSize = Long.parseLong(dpSizeHeader);
-                }
-                catch (NumberFormatException e) {
-                    // ignore
-                }
-            }
-            return packageSize;
-        }
-        finally {
-            if (urlConnection != null && urlConnection instanceof HttpURLConnection) {
-                ((HttpURLConnection) urlConnection).disconnect();
-            }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                }
-                catch (IOException e) {
-                    // ignore
-                }
-            }
-        }
-    }
-
-    protected InputStream getInputStream(URL packageURL) throws RetryAfterException, IOException {
-        URLConnection urlConnection = null;
-        InputStream inputStream = null;
-        // TODO handle problems and retries
-        urlConnection = getConnection(packageURL);
-        inputStream = urlConnection.getInputStream();
-        return inputStream;
     }
 
     protected DownloadHandle getDownloadHandle(URL packageURL) {
@@ -120,6 +77,34 @@ public class UpdateHandlerBase extends ComponentBase {
 
     protected String getIdentification() {
         return getIdentificationHandler().getAgentId();
+    }
+
+    protected InputStream getInputStream(URL packageURL) throws IOException {
+        URLConnection urlConnection = null;
+        // TODO handle problems and retries
+        try {
+            urlConnection = getConnection(packageURL);
+            return urlConnection.getInputStream();
+        }
+        catch (IOException e) {
+            close(urlConnection);
+            throw e;
+        }
+    }
+
+    protected long getPackageSize(URL url) throws RetryAfterException, IOException {
+        URLConnection urlConnection = null;
+        try {
+            urlConnection = url.openConnection();
+            if (urlConnection instanceof HttpURLConnection) {
+                ((HttpURLConnection) urlConnection).setRequestMethod("HEAD");
+            }
+
+            return urlConnection.getHeaderFieldLong(AgentConstants.HEADER_DPSIZE, -1L);
+        }
+        finally {
+            close(urlConnection);
+        }
     }
 
     protected URL getServerURL() throws RetryAfterException {

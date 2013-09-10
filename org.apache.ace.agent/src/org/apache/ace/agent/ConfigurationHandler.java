@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -44,32 +45,47 @@ public interface ConfigurationHandler {
     /**
      * Retrieve the configuration value associated with the key, or the specified default.
      * 
-     * @param key The key, must not be <code>null</code>
-     * @param defaultValue The default value, must not be <code>null</code>
+     * @param key
+     *            The key, must not be <code>null</code>
+     * @param defaultValue
+     *            The default value, must not be <code>null</code>
      * @return The associated value if it exists, otherwise the default value
      */
     String get(String key, String defaultValue);
 
     /**
-     * Store a configuration value.
+     * Store a single configuration value.
      * 
-     * @param key The key, must not be <code>null</code>
-     * @param value The value, must not be <code>null</code>
+     * @param key
+     *            The key, must not be <code>null</code>
+     * @param value
+     *            The value, must not be <code>null</code>
      */
     void put(String key, String value);
 
     /**
+     * Store a configuration value.
+     * 
+     * @param props
+     *            the properties to put, cannot be <code>null</code>.
+     */
+    void putAll(Map<String, String> props);
+
+    /**
      * Remove a configuration value.
      * 
-     * @param key The key, must not be <code>null</code>
+     * @param key
+     *            The key, must not be <code>null</code>
      */
     void remove(String key);
 
     /**
      * Retrieve the configuration value associated with the key, or the specified default.
      * 
-     * @param key The key, must not be <code>null</code>
-     * @param defaultValue The default value
+     * @param key
+     *            The key, must not be <code>null</code>
+     * @param defaultValue
+     *            The default value
      * @return The associated value if it exists, otherwise the default value
      */
     long getLong(String key, long defaultValue);
@@ -77,16 +93,20 @@ public interface ConfigurationHandler {
     /**
      * Store a configuration value.
      * 
-     * @param key The key, must not be <code>null</code>
-     * @param value The value
+     * @param key
+     *            The key, must not be <code>null</code>
+     * @param value
+     *            The value
      */
     void putLong(String key, long value);
 
     /**
      * Retrieve the configuration value associated with the key, or the specified default.
      * 
-     * @param key The key, must not be <code>null</code>
-     * @param defaultValue The default value
+     * @param key
+     *            The key, must not be <code>null</code>
+     * @param defaultValue
+     *            The default value
      * @return The associated value if it exists, otherwise the default value
      */
     boolean getBoolean(String key, boolean defaultValue);
@@ -94,8 +114,10 @@ public interface ConfigurationHandler {
     /**
      * Store a configuration value.
      * 
-     * @param key The key, must not be <code>null</code>
-     * @param value The value
+     * @param key
+     *            The key, must not be <code>null</code>
+     * @param value
+     *            The value
      */
     void putBoolean(String key, boolean Value);
 }

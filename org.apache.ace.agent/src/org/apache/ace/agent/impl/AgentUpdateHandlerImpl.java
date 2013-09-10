@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.impl.ConnectionUtil.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,34 +56,8 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
 
     public AgentUpdateHandlerImpl(BundleContext bundleContext) {
         super("agentupdate");
+
         m_bundleContext = bundleContext;
-    }
-
-    @Override
-    public void onStart() throws Exception {
-        // at this point we know the agent has started, so any updater bundle that
-        // might still be running can be uninstalled
-        uninstallUpdaterBundle();
-    }
-
-    private void uninstallUpdaterBundle() throws BundleException {
-        for (Bundle b : m_bundleContext.getBundles()) {
-            if (UPDATER_SYMBOLICNAME.equals(b.getSymbolicName())) {
-                try {
-                    b.uninstall();
-                }
-                catch (BundleException e) {
-                    logError("Failed to uninstall updater bundle. Will try to stop it instead.", e);
-                    b.stop();
-                    throw e;
-                }
-            }
-        }
-    }
-
-    @Override
-    public Version getInstalledVersion() {
-        return m_bundleContext.getBundle().getVersion();
     }
 
     @Override
@@ -91,13 +66,18 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
     }
 
     @Override
+    public DownloadHandle getDownloadHandle(Version version) throws RetryAfterException, IOException {
+        return getDownloadHandle(getEndpoint(getServerURL(), getIdentification(), version));
+    }
+
+    @Override
     public InputStream getInputStream(Version version) throws RetryAfterException, IOException {
         return getInputStream(getEndpoint(getServerURL(), getIdentification(), version));
     }
 
     @Override
-    public DownloadHandle getDownloadHandle(Version version) throws RetryAfterException, IOException {
-        return getDownloadHandle(getEndpoint(getServerURL(), getIdentification(), version));
+    public Version getInstalledVersion() {
+        return m_bundleContext.getBundle().getVersion();
     }
 
     @Override
@@ -135,49 +115,50 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
         }
     }
 
+    @Override
+    public void onStart() throws Exception {
+        // at this point we know the agent has started, so any updater bundle that
+        // might still be running can be uninstalled
+        uninstallUpdaterBundle();
+    }
+
+    private Manifest createBundleManifest() {
+        Manifest manifest = new Manifest();
+        Attributes main = manifest.getMainAttributes();
+        main.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        main.put(new Attributes.Name("Bundle-ManifestVersion"), "2");
+        main.put(new Attributes.Name("Bundle-SymbolicName"), UPDATER_SYMBOLICNAME);
+        main.put(new Attributes.Name("Bundle-Version"), UPDATER_VERSION);
+        main.put(new Attributes.Name("Import-Package"), "org.osgi.framework");
+        main.put(new Attributes.Name("Bundle-Activator"), "org.apache.ace.agent.updater.Activator");
+        return manifest;
+    }
+
     /** Generates an input stream that contains a complete bundle containing our update code for the agent. */
     private InputStream generateBundle() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
         InputStream is = null;
-        JarOutputStream jos = null;
-        ByteArrayOutputStream baos;
+        JarOutputStream os = null;
         try {
-            baos = new ByteArrayOutputStream();
-            Manifest manifest = new Manifest();
-            Attributes main = manifest.getMainAttributes();
-            main.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-            main.put(new Attributes.Name("Bundle-ManifestVersion"), "2");
-            main.put(new Attributes.Name("Bundle-SymbolicName"), UPDATER_SYMBOLICNAME);
-            main.put(new Attributes.Name("Bundle-Version"), UPDATER_VERSION);
-            main.put(new Attributes.Name("Import-Package"), "org.osgi.framework");
-            main.put(new Attributes.Name("Bundle-Activator"), "org.apache.ace.agent.updater.Activator");
-            jos = new JarOutputStream(baos, manifest);
-            jos.putNextEntry(new JarEntry("org/apache/ace/agent/updater/Activator.class"));
             is = getClass().getResourceAsStream("/org/apache/ace/agent/updater/Activator.class");
-            byte[] buffer = new byte[1024];
-            int bytes;
-            while ((bytes = is.read(buffer)) != -1) {
-                jos.write(buffer, 0, bytes);
+
+            os = new JarOutputStream(baos, createBundleManifest());
+            os.putNextEntry(new JarEntry("org/apache/ace/agent/updater/Activator.class"));
+
+            try {
+                copy(is, os);
             }
-            jos.closeEntry();
+            finally {
+                os.closeEntry();
+            }
         }
         finally {
-            if (is != null) {
-                try {
-                    is.close();
-                }
-                catch (IOException e) {
-                }
-            }
-            if (jos != null) {
-                try {
-                    jos.close();
-                }
-                catch (IOException e) {
-                }
-            }
+            closeSilently(is);
+            closeSilently(os);
         }
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        return bais;
+
+        return new ByteArrayInputStream(baos.toByteArray());
     }
 
     private URL getEndpoint(URL serverURL, String identification, Version version) {
@@ -186,6 +167,21 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
         }
         catch (MalformedURLException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    private void uninstallUpdaterBundle() throws BundleException {
+        for (Bundle b : m_bundleContext.getBundles()) {
+            if (UPDATER_SYMBOLICNAME.equals(b.getSymbolicName())) {
+                try {
+                    b.uninstall();
+                }
+                catch (BundleException e) {
+                    logError("Failed to uninstall updater bundle. Will try to stop it instead.", e);
+                    b.stop();
+                    throw e;
+                }
+            }
         }
     }
 }

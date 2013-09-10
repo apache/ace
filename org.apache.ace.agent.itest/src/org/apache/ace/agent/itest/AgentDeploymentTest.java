@@ -25,10 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.AgentControl;
+import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.LoggingHandler;
 import org.apache.ace.builder.DeploymentPackageBuilder;
@@ -63,7 +64,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
 
     private enum Failure {
         EMPTY_STREAM, CORRUPT_STREAM, ABORT_STREAM, VERSIONS_RETRY_AFTER, DEPLOYMENT_RETRY_AFTER
-
     }
 
     private volatile TestDeploymentServlet m_servlet;
@@ -126,17 +126,24 @@ public class AgentDeploymentTest extends BaseAgentTest {
         m_http.unregister("/deployment");
         m_http.unregister("/agent");
         m_http.unregister("/auditlog");
+
+        resetAgentBundleState();
     }
 
-    public void testDeployment() throws Exception {
-
+    public void testStreamingDeployment() throws Exception {
         AgentControl control = getService(AgentControl.class);
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_LOGGING_LEVEL, LoggingHandler.Levels.DEBUG.name());
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_IDENTIFICATION_AGENTID, "007");
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_CONTROLLER_STREAMING, "true");
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_CONTROLLER_SYNCDELAY, "1");
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL, "2");
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_CONTROLLER_RETRIES, "2");
+
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(AgentConstants.CONFIG_LOGGING_LEVEL, LoggingHandler.Levels.DEBUG.name());
+        props.put(AgentConstants.CONFIG_IDENTIFICATION_AGENTID, "007");
+        props.put(AgentConstants.CONFIG_CONTROLLER_STREAMING, "true");
+        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCDELAY, "1");
+        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL, "1");
+        props.put(AgentConstants.CONFIG_CONTROLLER_RETRIES, "2");
+
+        ConfigurationHandler configurationHandler = control.getConfigurationHandler();
+        configurationHandler.putAll(props);
+
         waitForInstalledVersion(Version.emptyVersion);
 
         expectSuccessfulDeployment(m_package1, Failure.VERSIONS_RETRY_AFTER);
@@ -145,21 +152,22 @@ public class AgentDeploymentTest extends BaseAgentTest {
         expectSuccessfulDeployment(m_package4, Failure.CORRUPT_STREAM);
         expectSuccessfulDeployment(m_package5, Failure.ABORT_STREAM);
         expectSuccessfulDeployment(m_package6, null);
+    }
 
-        resetAgentBundleState();
+    public void testNonStreamingDeployment() throws Exception {
+        AgentControl control = getService(AgentControl.class);
 
-        control = getService(AgentControl.class);
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_LOGGING_LEVEL, LoggingHandler.Levels.DEBUG.name());
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_IDENTIFICATION_AGENTID, "007");
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_CONTROLLER_STREAMING, "true");
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_CONTROLLER_SYNCDELAY, "2");
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL, "2");
-        control.getConfigurationHandler().put(AgentConstants.CONFIG_CONTROLLER_RETRIES, "2");
-        m_servlet.clearPackages();
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(AgentConstants.CONFIG_LOGGING_LEVEL, LoggingHandler.Levels.DEBUG.name());
+        props.put(AgentConstants.CONFIG_IDENTIFICATION_AGENTID, "007");
+        props.put(AgentConstants.CONFIG_CONTROLLER_STREAMING, "false");
+        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCDELAY, "1");
+        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL, "1");
+        props.put(AgentConstants.CONFIG_CONTROLLER_RETRIES, "2");
 
-        control.getConfigurationHandler().put("ace.agent.controller.updateStreaming", "false");
-        control.getConfigurationHandler().put("ace.agent.identification.agentId", "007");
-        control.getConfigurationHandler().put("ace.agent.controller.syncDelay", "2");
+        ConfigurationHandler configurationHandler = control.getConfigurationHandler();
+        configurationHandler.putAll(props);
+
         waitForInstalledVersion(Version.emptyVersion);
 
         expectSuccessfulDeployment(m_package1, Failure.VERSIONS_RETRY_AFTER);
@@ -181,6 +189,8 @@ public class AgentDeploymentTest extends BaseAgentTest {
         waitForEventReceived("org/osgi/service/deployment/INSTALL");
         waitForEventReceived("org/osgi/service/deployment/COMPLETE");
         waitForInstalledVersion(dpackage.getVersion());
+
+        System.out.println("---");
     }
 
     private void waitForInstalledVersion(Version version) throws Exception {
@@ -231,33 +241,15 @@ public class AgentDeploymentTest extends BaseAgentTest {
         jar.getManifest(); // Not sure whether this is needed...
         File file = File.createTempFile("testbundle", ".jar");
         jar.write(file);
+        b.close();
         return file;
     }
 
     private static class TestBundle {
-
-        private final String m_name;
-        private final Version m_version;
-        private final String[] m_headers;
         private final File m_file;
 
         public TestBundle(String name, Version version, String... headers) throws Exception {
-            m_name = name;
-            m_version = version;
-            m_headers = headers;
             m_file = createBundle(name, version, headers);
-        }
-
-        public String getName() {
-            return m_name;
-        }
-
-        public Version getVersion() {
-            return m_version;
-        }
-
-        public String[] getHeaders() {
-            return m_headers;
         }
 
         public File getFile() {
@@ -266,16 +258,11 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     private static class TestPackage {
-
-        private final String m_name;
         private final Version m_version;
-        private final TestBundle[] m_bundles;
         private final File m_file;
 
         public TestPackage(String name, Version version, TestBundle... bundles) throws Exception {
-            m_name = name;
             m_version = version;
-            m_bundles = bundles;
 
             File[] files = new File[bundles.length];
             for (int i = 0; i < bundles.length; i++) {
@@ -284,16 +271,8 @@ public class AgentDeploymentTest extends BaseAgentTest {
             m_file = createPackage(name, version, files);
         }
 
-        public String getName() {
-            return m_name;
-        }
-
         public Version getVersion() {
             return m_version;
-        }
-
-        public TestBundle[] getBundles() {
-            return m_bundles;
         }
 
         public File getFile() {
@@ -302,11 +281,10 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     private static class TestEventListener implements EventListener {
-
-        private final List<String> m_topics = new ArrayList<String>();
+        private final CopyOnWriteArrayList<String> m_topics = new CopyOnWriteArrayList<String>();
 
         @Override
-        public synchronized void handle(String topic, Map<String, String> payload) {
+        public void handle(String topic, Map<String, String> payload) {
             System.out.println("Event: " + topic + " => " + payload);
             m_topics.add(topic);
         }
@@ -317,11 +295,12 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     private static class TestDeploymentServlet extends HttpServlet {
-
         private static final long serialVersionUID = 1L;
+
+        private static final String BACKOFF_TIME = "1";
+
         private final Map<String, TestPackage> m_packages = new HashMap<String, TestPackage>();
         private final String m_agentId;
-
         private Failure m_failure;
 
         public TestDeploymentServlet(String agentId) {
@@ -330,7 +309,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
 
         @Override
         protected synchronized void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
             String pathinfoTail = req.getPathInfo().replaceFirst("/" + m_agentId + "/versions/?", "");
             if (pathinfoTail.equals("")) {
                 sendVersions(resp);
@@ -348,18 +326,14 @@ public class AgentDeploymentTest extends BaseAgentTest {
             m_packages.put(testPackage.getVersion().toString(), testPackage);
         }
 
-        public synchronized void clearPackages() {
-            m_packages.clear();
-        }
-
         public synchronized void setFailure(Failure failure) {
             m_failure = failure;
         }
 
         private void sendPackage(TestPackage dpackage, HttpServletResponse resp) throws IOException {
             if (m_failure == Failure.DEPLOYMENT_RETRY_AFTER) {
-                resp.addHeader("Retry-After", "3");
-                resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                resp.addHeader("Retry-After", BACKOFF_TIME);
+                resp.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Simulated server overload");
                 m_failure = null;
                 return;
             }
@@ -402,8 +376,8 @@ public class AgentDeploymentTest extends BaseAgentTest {
 
         private void sendVersions(HttpServletResponse resp) throws IOException {
             if (m_failure == Failure.VERSIONS_RETRY_AFTER) {
-                resp.addHeader("Retry-After", "3");
-                resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                resp.addHeader("Retry-After", BACKOFF_TIME);
+                resp.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Simulated server overload");
                 m_failure = null;
                 return;
             }
@@ -418,7 +392,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     private static class TestUpdateServlet extends HttpServlet {
-
         private static final long serialVersionUID = 1L;
 
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -428,7 +401,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     private static class TestAuditlogServlet extends HttpServlet {
-
         private static final long serialVersionUID = 1L;
 
         // FIXME Ignoring auditlog.. but why do we get and empty send if we set range to high?

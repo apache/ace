@@ -24,15 +24,34 @@ package org.apache.ace.agent;
 public interface AgentContextAware {
 
     /**
-     * Agent context started.
+     * Called when the agent context is initializing, and is called <em>before</em> {@link #start(AgentContext)}.
+     * <p>
+     * Use this method to register event listeners and/or perform other forms of initialization related tasks that need
+     * to be done prior to {@link #start(AgentContext)} being called.
+     * </p>
      * 
-     * @param agentContext The agent context
-     * @throws Exception If the component fails to start
+     * @param agentContext
+     *            the agent context that is initializing, never <code>null</code>.
+     * @throws Exception
+     *             if the component fails to initialize, which is logged and ignored by the agent.
+     */
+    void init(AgentContext agentContext) throws Exception;
+
+    /**
+     * Called when the agent context is started.
+     * 
+     * @param agentContext
+     *            the agent context that is started, never <code>null</code>.
+     * @throws Exception
+     *             if the component fails to start, which is logged and ignored by the agent.
      */
     void start(AgentContext agentContext) throws Exception;
 
     /**
-     * @throws Exception If the component fails to stop
+     * Called when the agent context is stopped.
+     * 
+     * @throws Exception
+     *             if the component fails to stop, which is logged and ignored by the agent.
      */
     void stop() throws Exception;
 }

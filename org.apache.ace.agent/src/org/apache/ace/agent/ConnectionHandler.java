@@ -32,6 +32,18 @@ public interface ConnectionHandler {
      */
     enum Types {
         NONE, BASIC, CLIENTCERT;
+
+        public static Types parseType(String name) {
+            if (name == null) {
+                return Types.NONE;
+            }
+            try {
+                return Types.valueOf(name.toUpperCase().trim());
+            }
+            catch (Exception e) {
+                return Types.NONE;
+            }
+        }
     }
 
     /**

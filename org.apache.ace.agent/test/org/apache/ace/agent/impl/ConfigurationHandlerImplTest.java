@@ -77,23 +77,23 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
 
     @Test
     public void testConfigSystemProps() throws Exception {
-
         String systemKey1 = AgentConstants.CONFIG_KEY_NAMESPACE + "key1";
         String systemKey2 = AgentConstants.CONFIG_KEY_NAMESPACE + "key2";
 
         System.setProperty(systemKey1, "value1");
         System.setProperty(systemKey2, "value2");
 
-        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
         m_agentContextImpl.stop();
-        m_agentContextImpl.setHandler(ConfigurationHandler.class, configurationHandler);
+
+        m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
         m_agentContextImpl.start();
-        configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
+
+        ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
         assertNotNull(configurationHandler.keySet());
         assertEquals(2, configurationHandler.keySet().size());
-        assertEquals(configurationHandler.get(systemKey1, "qqq"), "value1");
-        assertEquals(configurationHandler.get(systemKey2, "qqq"), "value2");
+        assertEquals(configurationHandler.get(systemKey1, "default1"), "value1");
+        assertEquals(configurationHandler.get(systemKey2, "default2"), "value2");
 
         // System props should be persisted
 
@@ -101,8 +101,10 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         System.clearProperty(systemKey2);
 
         m_agentContextImpl.stop();
+
         m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
         m_agentContextImpl.start();
+
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
         assertNotNull(configurationHandler.keySet());

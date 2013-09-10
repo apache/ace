@@ -70,14 +70,23 @@ public class AgentContextImpl implements AgentContext {
     /**
      * Start the context.
      * 
-     * @throws Exception On failure.
+     * @throws Exception
+     *             On failure.
      */
     public void start() throws Exception {
+        // Make sure the agent-context is set for all known handlers before they are started, this way we can ensure
+        // they can properly call each other in their onStart() methods...
         for (Class<?> handlerIface : KNOWN_HANDLERS) {
             Object handler = m_handlers.get(handlerIface);
             if (handler == null) {
                 throw new IllegalStateException("Can not start context. Missing handler: " + handlerIface.getName());
             }
+            initAgentContextAware(handler);
+        }
+        for (Object component : m_components) {
+            initAgentContextAware(component);
+        }
+        for (Object handler : m_handlers.values()) {
             startAgentContextAware(handler);
         }
         for (Object component : m_components) {
@@ -88,7 +97,8 @@ public class AgentContextImpl implements AgentContext {
     /**
      * Stop the context.
      * 
-     * @throws Exception On failure.
+     * @throws Exception
+     *             On failure.
      */
     public void stop() throws Exception {
         for (Object component : m_components) {
@@ -106,43 +116,64 @@ public class AgentContextImpl implements AgentContext {
         return m_workDir;
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
     public <T> T getHandler(Class<T> iface) {
-        return (T) m_handlers.get(iface);
+        Object result = m_handlers.get(iface);
+        return iface.cast(result);
     }
 
     /**
      * Set a handler on the context.
      * 
-     * @param iface The handler interface
-     * @param handler The handler implementation
+     * @param iface
+     *            The handler interface
+     * @param handler
+     *            The handler implementation
      */
-    public void setHandler(Class<?> iface, Object handler) {
-        if (!iface.isAssignableFrom(handler.getClass())) {
-            throw new IllegalArgumentException("Handler is not assignable to handler interface: "
-                + handler.getClass().getName() + " => " + iface.getName());
-        }
+    public <T> void setHandler(Class<T> iface, T handler) {
         m_handlers.put(iface, handler);
     }
 
     /**
-     * Add a component on the context.
+     * Add a component on the context. 
      * 
-     * @param component The component
+     * @param component
+     *            The component
      */
     public void addComponent(AgentContextAware component) {
         m_components.add(component);
     }
 
-    private void startAgentContextAware(Object object) throws Exception {
+    private void initAgentContextAware(Object object) throws Exception {
         if (object instanceof AgentContextAware) {
-            ((AgentContextAware) object).start(this);
+            try {
+                ((AgentContextAware) object).init(this);
+            }
+            catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
     }
 
-    private void stopAgentContextAware(Object object) throws Exception {
+    private void startAgentContextAware(Object object) {
         if (object instanceof AgentContextAware) {
-            ((AgentContextAware) object).stop();
+            try {
+                ((AgentContextAware) object).start(this);
+            }
+            catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }
+    }
+
+    private void stopAgentContextAware(Object object) {
+        if (object instanceof AgentContextAware) {
+            try {
+                ((AgentContextAware) object).stop();
+            }
+            catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
     }
 }

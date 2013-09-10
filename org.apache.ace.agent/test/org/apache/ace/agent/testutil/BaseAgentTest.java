@@ -18,75 +18,29 @@
  */
 package org.apache.ace.agent.testutil;
 
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import static org.easymock.EasyMock.*;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentContextAware;
 import org.apache.ace.agent.impl.AgentContextImpl;
+import org.osgi.framework.BundleContext;
 
 /**
  * Simple base class.
  */
 public abstract class BaseAgentTest {
+    private final Set<Object> m_mocks = new HashSet<Object>();
 
-    private Set<Object> m_mocks = new HashSet<Object>();
-
-    protected AgentContextImpl mockAgentContext() throws Exception {
-        return mockAgentContext("" + System.currentTimeMillis());
-    }
-
-    protected AgentContextImpl mockAgentContext(String subDir) throws Exception {
-        File contextDir = new File(getWorkDir(), subDir);
-        contextDir.mkdirs();
-        cleanDir(contextDir);
-        AgentContextImpl context = new AgentContextImpl(contextDir);
-        for (Class<?> handlerClass : AgentContextImpl.KNOWN_HANDLERS) {
-            context.setHandler(handlerClass, addTestMock(handlerClass));
-        }
-        return context;
-    }
-
-    protected <T extends Object> T addTestMock(Class<T> clazz) {
+    protected <T> T addTestMock(Class<T> clazz) {
         T mock = createNiceMock(clazz);
         m_mocks.add(mock);
         return mock;
-    }
-
-    protected void replayTestMocks() {
-        for (Object mock : m_mocks)
-            replay(mock);
-    }
-
-    protected void verifyTestMocks() {
-        for (Object mock : m_mocks)
-            verify(mock);
-    }
-
-    protected void clearTestMocks() {
-        m_mocks.clear();
-    }
-
-    protected File getWorkDir() {
-        return new File("generated");
-    }
-
-    protected void startHandler(Object handler, AgentContext agentContext) throws Exception {
-        if (handler instanceof AgentContextAware) {
-            ((AgentContextAware) handler).start(agentContext);
-        }
-    }
-
-    protected void stopHandler(Object handler) throws Exception {
-        if (handler instanceof AgentContextAware) {
-            ((AgentContextAware) handler).stop();
-        }
     }
 
     protected void cleanDir(File dir) {
@@ -105,6 +59,71 @@ public abstract class BaseAgentTest {
                     file.delete();
                 }
             }
+        }
+    }
+
+    protected void clearTestMocks() {
+        m_mocks.clear();
+    }
+
+    protected File getWorkDir() {
+        return new File("generated");
+    }
+
+    protected AgentContextImpl mockAgentContext() throws Exception {
+        return mockAgentContext("mockAgentContext" + System.currentTimeMillis());
+    }
+
+    protected AgentContextImpl mockAgentContext(String subDir) throws Exception {
+        File contextDir = new File(getWorkDir(), subDir);
+        contextDir.mkdirs();
+        cleanDir(contextDir);
+
+        AgentContextImpl context = new AgentContextImpl(contextDir);
+        for (Class<?> handlerClass : AgentContextImpl.KNOWN_HANDLERS) {
+            if (ScheduledExecutorService.class.equals(handlerClass)) {
+                // always inject a proper executor service that simply invokes synchronously...
+                context.setHandler(ScheduledExecutorService.class, new SynchronousExecutorService());
+            }
+            else {
+                setMockedHandler(context, handlerClass);
+            }
+        }
+        return context;
+    }
+
+    protected BundleContext mockBundleContext() throws Exception {
+        BundleContext result = createNiceMock(BundleContext.class);
+        expect(result.createFilter(anyObject(String.class))).andReturn(null).anyTimes();
+        replay(result);
+        return result;
+    }
+
+    protected void replayTestMocks() {
+        for (Object mock : m_mocks) {
+            replay(mock);
+        }
+    }
+
+    protected <T> void setMockedHandler(AgentContextImpl context, Class<T> clazz) {
+        context.setHandler(clazz, addTestMock(clazz));
+    }
+
+    protected void startHandler(Object handler, AgentContext agentContext) throws Exception {
+        if (handler instanceof AgentContextAware) {
+            ((AgentContextAware) handler).start(agentContext);
+        }
+    }
+
+    protected void stopHandler(Object handler) throws Exception {
+        if (handler instanceof AgentContextAware) {
+            ((AgentContextAware) handler).stop();
+        }
+    }
+
+    protected void verifyTestMocks() {
+        for (Object mock : m_mocks) {
+            verify(mock);
         }
     }
 }

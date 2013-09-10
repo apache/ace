@@ -78,11 +78,14 @@ public class AgentExtensionTest extends BaseAgentTest {
     }
 
     private ServiceRegistration registerIdentification(final String id, final int rank) {
-        return m_bundleContext
-            .registerService(IdentificationHandler.class.getName(), new IdentificationHandler() {
-
+        return m_bundleContext.registerService(IdentificationHandler.class.getName(), new IdentificationHandler() {
                 @Override
                 public String getAgentId() {
+                    return id;
+                }
+                
+                @Override
+                public String toString() {
                     return id;
                 }
             }, new Properties() {

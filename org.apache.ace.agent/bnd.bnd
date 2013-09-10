@@ -39,10 +39,9 @@ javac.debug:  off
 	org.apache.ace.log.api;version=latest
 
 -sources false
--runfw: org.apache.felix.framework;version='[4.0.3,4.0.3]'
+-runfw: org.apache.felix.framework;version='[4.0,5.0)'
 -runee: JavaSE-1.6
 -runbundles: org.apache.felix.gogo.command,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.felix.gogo.shell
--runproperties: agent.controller.syncdelay=1,\
-	agent.logging.level=DEBUG
+-runproperties: agent.controller.syncdelay=1

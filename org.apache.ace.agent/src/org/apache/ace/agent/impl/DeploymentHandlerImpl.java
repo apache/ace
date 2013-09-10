@@ -18,11 +18,11 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.impl.ReflectionUtil.configureField;
+import static org.apache.ace.agent.impl.ReflectionUtil.invokeMethod;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -82,11 +82,15 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
     @Override
     public Version getInstalledVersion() {
         Version highestVersion = Version.emptyVersion;
+        String identification = getIdentification();
+
         DeploymentPackage[] installedPackages = m_deploymentAdmin.listDeploymentPackages();
         for (DeploymentPackage installedPackage : installedPackages) {
-            if (installedPackage.getName().equals(getIdentification())
-                && installedPackage.getVersion().compareTo(highestVersion) > 0) {
-                highestVersion = installedPackage.getVersion();
+            String packageId = installedPackage.getName();
+            Version packageVersion = installedPackage.getVersion();
+
+            if (identification.equals(packageId) && packageVersion.compareTo(highestVersion) > 0) {
+                highestVersion = packageVersion;
             }
         }
         return highestVersion;
@@ -118,8 +122,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
     };
 
     private URL getPackageURL(Version version, boolean fixPackage) throws RetryAfterException, IOException {
-        URL url = getEndpoint(getServerURL(), getIdentification(), fixPackage ? getInstalledVersion() : Version.emptyVersion, version);
-        return url;
+        return getEndpoint(getServerURL(), getIdentification(), fixPackage ? getInstalledVersion() : Version.emptyVersion, version);
     }
 
     private URL getEndpoint(URL serverURL, String identification) {
@@ -145,41 +148,10 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
         }
     }
 
-    private static void configureField(Object object, Class<?> iface, Object instance) {
-        // Note: Does not check super classes!
-        Field[] fields = object.getClass().getDeclaredFields();
-        AccessibleObject.setAccessible(fields, true);
-        for (int j = 0; j < fields.length; j++) {
-            if (fields[j].getType().equals(iface)) {
-                try {
-                    fields[j].set(object, instance);
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    throw new IllegalStateException("Coudld not set field " + fields[j].getName() + " on " + object);
-                }
-            }
-        }
-    }
-
-    private static Object invokeMethod(Object object, String methodName, Class<?>[] signature, Object[] parameters) {
-        // Note: Does not check super classes!
-        Class<?> clazz = object.getClass();
-        try {
-            Method method = clazz.getDeclaredMethod(methodName, signature);
-            return method.invoke(object, parameters);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     /**
      * Internal EventAdmin that delegates to actual InternalEvents. Used to inject into the DeploymentAdmin only.
      */
-    class EventAdminBridge implements EventAdmin {
-
+    final class EventAdminBridge implements EventAdmin {
         @Override
         public void postEvent(Event event) {
             getEventsHandler().postEvent(event.getTopic(), getPayload(event));
@@ -202,8 +174,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
     /**
      * Internal LogService that wraps delegates to actual InternalLogger. Used to inject into the DeploymentAdmin only.
      */
-    class LogServiceBridge implements LogService {
-
+    final class LogServiceBridge implements LogService {
         @Override
         public void log(int level, String message) {
             log(level, message, null);
@@ -237,5 +208,4 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
             log(level, message, exception);
         }
     }
-
 }

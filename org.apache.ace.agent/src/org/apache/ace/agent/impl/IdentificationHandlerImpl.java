@@ -28,16 +28,15 @@ import org.apache.ace.agent.IdentificationHandler;
  * 
  */
 public class IdentificationHandlerImpl extends ComponentBase implements IdentificationHandler {
+    /** Default name to use for a new target. */
+    public static final String CONFIG_DEFAULT_AGENTID = "defaultTargetID";
 
     public IdentificationHandlerImpl() {
         super("identification");
     }
 
-    public static final String CONFIG_DEFAULT_AGENTID = "defaultTargetID";
-
     @Override
     public String getAgentId() {
-        String configValue = getConfigurationHandler().get(CONFIG_IDENTIFICATION_AGENTID, "defaultTargetID");
-        return configValue;
+        return getConfigurationHandler().get(CONFIG_IDENTIFICATION_AGENTID, CONFIG_DEFAULT_AGENTID);
     }
 }

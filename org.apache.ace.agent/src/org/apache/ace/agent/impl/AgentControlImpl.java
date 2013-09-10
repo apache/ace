@@ -30,10 +30,8 @@ import org.apache.ace.agent.IdentificationHandler;
 
 /**
  * Implementation of the public agent control service.
- * 
  */
 public class AgentControlImpl implements AgentControl {
-
     private final AgentContext m_agentContext;
 
     public AgentControlImpl(AgentContext agentContext) throws IOException {

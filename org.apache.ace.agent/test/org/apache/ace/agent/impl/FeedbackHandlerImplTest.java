@@ -18,11 +18,8 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reset;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -32,6 +29,7 @@ import java.util.Set;
 
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.ConfigurationHandler;
+import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.FeedbackHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.testng.annotations.AfterMethod;
@@ -49,7 +47,11 @@ public class FeedbackHandlerImplTest extends BaseAgentTest {
     public void setUpAgain(Method method) throws Exception {
         m_agentContextImpl = mockAgentContext(method.getName());
         replayTestMocks();
+
         m_agentContextImpl.setHandler(FeedbackHandler.class, new FeedbackHandlerImpl());
+        m_agentContextImpl.setHandler(EventsHandler.class, new EventsHandlerImpl(mockBundleContext()));
+        m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
+
         m_agentContextImpl.start();
     }
 
@@ -61,33 +63,79 @@ public class FeedbackHandlerImplTest extends BaseAgentTest {
     }
 
     @Test
-    public void testFeedbackChannelConfig() throws Exception {
+    public void testSingleFeedbackChannelConfig() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
-        reset(configurationHandler);
-        expect(configurationHandler.get(eq(AgentConstants.CONFIG_FEEDBACK_CHANNELS),
-            anyObject(String.class))).andReturn("auditlog").anyTimes();
-        replay(configurationHandler);
+
+        configurationHandler.put(AgentConstants.CONFIG_FEEDBACK_CHANNELS, "auditlog");
 
         FeedbackHandler feedbackHandler = m_agentContextImpl.getHandler(FeedbackHandler.class);
+
         Set<String> names = feedbackHandler.getChannelNames();
         assertNotNull(names);
-        assertTrue(names.size() == 1);
+        assertEquals(1, names.size());
         assertTrue(names.contains("auditlog"));
-        assertNotNull(feedbackHandler.getChannel("auditlog"));
-        assertNull(feedbackHandler.getChannel("QQQ"));
 
-        reset(configurationHandler);
-        expect(configurationHandler.get(eq(AgentConstants.CONFIG_FEEDBACK_CHANNELS),
-            anyObject(String.class))).andReturn("auditlog, customchannel").anyTimes();
-        replay(configurationHandler);
+        assertNotNull(feedbackHandler.getChannel("auditlog"));
+        assertNull(feedbackHandler.getChannel("nonExistingChannel"));
+    }
+
+    @Test
+    public void testUpdateConfigAddFeedbackChannel() throws Exception {
+        ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
+
+        configurationHandler.put(AgentConstants.CONFIG_FEEDBACK_CHANNELS, "auditlog");
+
+        FeedbackHandler feedbackHandler = m_agentContextImpl.getHandler(FeedbackHandler.class);
+
+        Set<String> names = feedbackHandler.getChannelNames();
+        assertNotNull(names);
+        assertEquals(1, names.size());
+        assertTrue(names.contains("auditlog"));
+
+        assertNotNull(feedbackHandler.getChannel("auditlog"));
+        assertNull(feedbackHandler.getChannel("nonExistingChannel"));
+
+        configurationHandler.put(AgentConstants.CONFIG_FEEDBACK_CHANNELS, "auditlog, customchannel");
 
         names = feedbackHandler.getChannelNames();
         assertNotNull(names);
-        assertTrue(names.size() == 2);
+        assertEquals(2, names.size());
         assertTrue(names.contains("auditlog"));
         assertTrue(names.contains("customchannel"));
+
         assertNotNull(feedbackHandler.getChannel("auditlog"));
         assertNotNull(feedbackHandler.getChannel("customchannel"));
-        assertNull(feedbackHandler.getChannel("QQQ"));
+        assertNull(feedbackHandler.getChannel("nonExistingChannel"));
+    }
+
+    @Test
+    public void testUpdateConfigRemoveFeedbackChannel() throws Exception {
+        ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
+
+        configurationHandler.put(AgentConstants.CONFIG_FEEDBACK_CHANNELS, "auditlog, customchannel");
+
+        FeedbackHandler feedbackHandler = m_agentContextImpl.getHandler(FeedbackHandler.class);
+
+        Set<String> names = feedbackHandler.getChannelNames();
+        assertNotNull(names);
+        assertEquals(2, names.size());
+        assertTrue(names.contains("auditlog"));
+        assertTrue(names.contains("customchannel"));
+
+        assertNotNull(feedbackHandler.getChannel("auditlog"));
+        assertNotNull(feedbackHandler.getChannel("customchannel"));
+        assertNull(feedbackHandler.getChannel("nonExistingChannel"));
+
+        configurationHandler.put(AgentConstants.CONFIG_FEEDBACK_CHANNELS, "auditlog");
+
+        names = feedbackHandler.getChannelNames();
+        assertNotNull(names);
+        assertEquals(1, names.size());
+        assertTrue(names.contains("auditlog"));
+        assertFalse(names.contains("customchannel"));
+
+        assertNotNull(feedbackHandler.getChannel("auditlog"));
+        assertNull(feedbackHandler.getChannel("customchannel"));
+        assertNull(feedbackHandler.getChannel("nonExistingChannel"));
     }
 }

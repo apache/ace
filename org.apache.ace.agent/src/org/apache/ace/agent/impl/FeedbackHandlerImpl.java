@@ -19,82 +19,90 @@
 package org.apache.ace.agent.impl;
 
 import static org.apache.ace.agent.AgentConstants.CONFIG_FEEDBACK_CHANNELS;
+import static org.apache.ace.agent.impl.InternalConstants.AGENT_CONFIG_CHANGED;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.agent.FeedbackHandler;
 
 /**
  * Default implementation of the feedback handler.
  */
-public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandler {
-
-    private final Map<String, FeedbackChannelImpl> m_channels = new HashMap<String, FeedbackChannelImpl>();
-    private Set<String> m_channelNames;
-    private String m_channelNamesConfig;
+public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandler, EventListener {
+    private final ConcurrentMap<String, FeedbackChannelImpl> m_channels;
 
     public FeedbackHandlerImpl() {
         super("feedback");
-    }
 
-    @Override
-    protected void onStart() throws Exception {
-        synchronized (m_channels) {
-            ensureChannels(); // fail fast
-        }
-    }
-
-    @Override
-    protected void onStop() throws Exception {
-        synchronized (m_channels) {
-            clearChannels();
-        }
+        m_channels = new ConcurrentHashMap<String, FeedbackChannelImpl>();
     }
 
     @Override
     public Set<String> getChannelNames() throws IOException {
-        synchronized (m_channels) {
-            ensureChannels();
-            return m_channelNames;
-        }
+        return m_channels.keySet();
     }
 
     @Override
     public FeedbackChannel getChannel(String name) throws IOException {
-        synchronized (m_channels) {
-            ensureChannels();
-            return m_channels.get(name);
+        return m_channels.get(name);
+    }
+
+    @Override
+    public void handle(String topic, Map<String, String> payload) {
+        if (AGENT_CONFIG_CHANGED.equals(topic)) {
+            String value = payload.get(CONFIG_FEEDBACK_CHANNELS);
+            if (value != null && !"".equals(value.trim())) {
+                Set<String> seen = new HashSet<String>(m_channels.keySet());
+
+                Set<String> channelNames = split(value);
+                if (channelNames.containsAll(seen) && seen.containsAll(channelNames)) {
+                    // Nothing to do...
+                    return;
+                }
+
+                for (String channelName : channelNames) {
+                    try {
+                        m_channels.putIfAbsent(channelName, new FeedbackChannelImpl(getAgentContext(), channelName));
+                        seen.remove(channelName);
+                    }
+                    catch (IOException exception) {
+                        logError("Failed to created feedback channel for '%s'", exception, channelName);
+                    }
+                }
+
+                for (String oldChannelName : seen) {
+                    FeedbackChannelImpl channel = m_channels.remove(oldChannelName);
+                    try {
+                        channel.closeStore();
+                    }
+                    catch (IOException exception) {
+                        logError("Failed to close feedback channel for '%s'", exception, oldChannelName);
+                    }
+                }
+            }
         }
     }
 
-    private void ensureChannels() throws IOException {
-        String channelNamesConfig = getConfigurationHandler().get(CONFIG_FEEDBACK_CHANNELS, "auditlog");
-        if (m_channelNamesConfig != null && m_channelNamesConfig.equals(channelNamesConfig)) {
-            return;
-        }
+    @Override
+    protected void onInit() throws Exception {
+        getEventsHandler().addListener(this);
+    }
 
-        m_channelNamesConfig = channelNamesConfig;
-        m_channelNames = Collections.unmodifiableSet(getConfigurationValues(channelNamesConfig));
+    @Override
+    protected void onStop() throws Exception {
+        getEventsHandler().removeListener(this);
+
         m_channels.clear();
-        for (String channelName : m_channelNames) {
-            m_channels.put(channelName, new FeedbackChannelImpl(getAgentContext(), channelName));
-        }
     }
 
-    private void clearChannels() {
-        m_channelNamesConfig = null;
-        m_channelNames = null;
-        m_channels.clear();
-    }
-
-    // TODO move to util or configurationhandler
-    private static Set<String> getConfigurationValues(String value) {
+    private static Set<String> split(String value) {
         Set<String> trimmedValues = new HashSet<String>();
         if (value != null) {
             String[] rawValues = value.split(",");

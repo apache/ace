@@ -21,6 +21,7 @@ package org.apache.ace.agent.impl;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.FeedbackChannel;
@@ -45,50 +46,58 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
     public static final String TOPIC_COMPLETE = "org/osgi/service/deployment/COMPLETE";
 
     private final BundleContext m_bundleContext;
-    private volatile boolean m_isStarted = false;
+    private final AtomicBoolean m_isStarted;
 
     public EventLoggerImpl(BundleContext bundleContext) {
         super("auditlogger");
+
         m_bundleContext = bundleContext;
+        m_isStarted = new AtomicBoolean(false);
+    }
+
+    @Override
+    protected void onInit() throws Exception {
+        getEventsHandler().addListener(this);
     }
 
     @Override
     protected void onStart() throws Exception {
-        getEventsHandler().addListener(this);
-        m_bundleContext.addBundleListener(this);
-        m_bundleContext.addFrameworkListener(this);
-        m_isStarted = true;
+        if (m_isStarted.compareAndSet(false, true)) {
+            m_bundleContext.addBundleListener(this);
+            m_bundleContext.addFrameworkListener(this);
+        }
     }
 
     @Override
     protected void onStop() throws Exception {
-        m_isStarted = false;
-        getEventsHandler().removeListener(this);
-        m_bundleContext.removeBundleListener(this);
-        m_bundleContext.removeFrameworkListener(this);
+        if (m_isStarted.compareAndSet(true, false)) {
+            getEventsHandler().removeListener(this);
+
+            m_bundleContext.removeBundleListener(this);
+            m_bundleContext.removeFrameworkListener(this);
+        }
     }
 
     @Override
     public void handle(String topic, Map<String, String> payload) {
-        if (!m_isStarted) {
+        if (!m_isStarted.get()) {
             return;
         }
 
         int eventType = AuditEvent.DEPLOYMENTADMIN_BASE;
         Map<String, String> props = new HashMap<String, String>();
 
-        if (topic.equals(TOPIC_INSTALL)) {
+        if (TOPIC_INSTALL.equals(topic)) {
             String deplPackName = payload.get("deploymentpackage.name");
             eventType = AuditEvent.DEPLOYMENTADMIN_INSTALL;
             props.put(AuditEvent.KEY_NAME, deplPackName);
         }
-
-        else if (topic.equals(TOPIC_UNINSTALL)) {
+        else if (TOPIC_UNINSTALL.equals(topic)) {
             String deplPackName = payload.get("deploymentpackage.name");
             eventType = AuditEvent.DEPLOYMENTADMIN_UNINSTALL;
             props.put(AuditEvent.KEY_NAME, deplPackName);
         }
-        else if (topic.equals(TOPIC_COMPLETE)) {
+        else if (TOPIC_COMPLETE.equals(topic)) {
             eventType = AuditEvent.DEPLOYMENTADMIN_COMPLETE;
             props.put(AuditEvent.KEY_NAME, payload.get("deploymentpackage.name"));
             props.put(AuditEvent.KEY_VERSION, getDeploymentHandler().getInstalledVersion().toString());
@@ -99,7 +108,7 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
 
     @Override
     public void bundleChanged(BundleEvent event) {
-        if (!m_isStarted) {
+        if (!m_isStarted.get()) {
             return;
         }
 
@@ -155,7 +164,7 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
 
     @Override
     public void frameworkEvent(FrameworkEvent event) {
-        if (!m_isStarted) {
+        if (!m_isStarted.get()) {
             return;
         }
         int eventType = AuditEvent.FRAMEWORK_BASE;
@@ -221,10 +230,12 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
             if (channel != null) {
                 channel.write(eventType, payload);
             }
+            else {
+                logWarning("Feedback event *not* written as no channel is available!");
+            }
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logWarning("Failed to write feedback event!", e);
         }
     }
 }

@@ -24,21 +24,26 @@ import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_RETRIES;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_STREAMING;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCDELAY;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL;
-
+import static org.apache.ace.agent.impl.InternalConstants.AGENT_CONFIG_CHANGED;
+import static org.apache.ace.agent.impl.ConnectionUtil.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.DownloadState;
+import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.agent.RetryAfterException;
 import org.osgi.framework.Version;
@@ -47,45 +52,100 @@ import org.osgi.service.deploymentadmin.DeploymentException;
 /**
  * Default configurable controller
  */
-public class DefaultController extends ComponentBase implements Runnable {
+public class DefaultController extends ComponentBase implements Runnable, EventListener {
 
     private volatile ScheduledFuture<?> m_scheduledFuture;
     private volatile UpdateInstaller m_updateInstaller;
 
+    private final AtomicBoolean m_disabled;
+    private final AtomicBoolean m_updateStreaming;
+    private final AtomicBoolean m_fixPackage;
+    private final AtomicLong m_maxRetries;
+    private final AtomicLong m_interval;
+    private final AtomicLong m_syncDelay;
+
     public DefaultController() {
         super("controller");
+
+        m_disabled = new AtomicBoolean(false);
+        m_interval = new AtomicLong(60);
+        m_syncDelay = new AtomicLong(5);
+
+        m_updateStreaming = new AtomicBoolean(true);
+        m_fixPackage = new AtomicBoolean(true);
+        m_maxRetries = new AtomicLong(1);
     }
 
     @Override
-    protected void onStart() throws Exception {
-        long delay = getConfigurationHandler().getLong(CONFIG_CONTROLLER_SYNCDELAY, 5);
-        scheduleRun(delay);
-        logDebug("Controller scheduled to run in %d seconds", delay);
-    }
+    public void handle(String topic, Map<String, String> payload) {
+        if (AGENT_CONFIG_CHANGED.equals(topic)) {
+            String value = payload.get(CONFIG_CONTROLLER_DISABLED);
+            if (value != null && !"".equals(value)) {
+                m_disabled.set(Boolean.parseBoolean(value));
+            }
 
-    @Override
-    protected void onStop() throws Exception {
-        if (m_updateInstaller != null) {
-            m_updateInstaller.reset();
+            value = payload.get(CONFIG_CONTROLLER_STREAMING);
+            if (value != null && !"".equals(value)) {
+                m_updateStreaming.set(Boolean.parseBoolean(value));
+            }
+
+            value = payload.get(CONFIG_CONTROLLER_FIXPACKAGES);
+            if (value != null && !"".equals(value)) {
+                m_fixPackage.set(Boolean.parseBoolean(value));
+            }
+
+            value = payload.get(CONFIG_CONTROLLER_SYNCDELAY);
+            if (value != null && !"".equals(value)) {
+                try {
+                    m_syncDelay.set(Long.parseLong(value));
+                }
+                catch (NumberFormatException exception) {
+                    // Ignore...
+                }
+            }
+
+            value = payload.get(CONFIG_CONTROLLER_RETRIES);
+            if (value != null && !"".equals(value)) {
+                try {
+                    m_maxRetries.set(Long.parseLong(value));
+                }
+                catch (NumberFormatException exception) {
+                    // Ignore...
+                }
+            }
+
+            value = payload.get(CONFIG_CONTROLLER_SYNCINTERVAL);
+            if (value != null && !"".equals(value)) {
+                try {
+                    m_interval.set(Long.parseLong(value));
+                }
+                catch (NumberFormatException exception) {
+                    // Ignore...
+                }
+            }
+            
+            logDebug("Config changed: disabled: %s, update: %s, fixPkg: %s, syncDelay: %d, syncInterval: %d, maxRetries: %d", m_disabled.get(), m_updateStreaming.get(), m_fixPackage.get(), m_syncDelay.get(), m_interval.get(), m_maxRetries.get());
         }
-        unscheduleRun();
     }
 
     @Override
     public void run() {
-        boolean disabled = getConfigurationHandler().getBoolean(CONFIG_CONTROLLER_DISABLED, false);
-        long interval = getConfigurationHandler().getLong(CONFIG_CONTROLLER_SYNCINTERVAL, 60);
-        if (disabled) {
-            logDebug("Controller disabled by configuration. Skipping..");
-            scheduleRun(interval);
-            return;
-        }
+        boolean disabled = m_disabled.get();
+        long interval = m_interval.get();
 
-        logDebug("Controller syncing...");
         try {
+            if (disabled) {
+                logDebug("Controller disabled by configuration. Skipping...");
+                return;
+            }
+
+            logDebug("Controller syncing...");
+
             runFeedback();
             runAgentUpdate();
             runDeploymentUpdate();
+
+            logDebug("Sync completed. Rescheduled in %d seconds", interval);
         }
         catch (RetryAfterException e) {
             // any method may throw this causing the sync to abort. The server is busy so no sense in trying
@@ -98,12 +158,39 @@ public class DefaultController extends ComponentBase implements Runnable {
             // we can do but log it as an error and reschedule as usual.
             logError("Sync aborted due to Exception.", e);
         }
-        scheduleRun(interval);
-        logDebug("Sync completed. Rescheduled in %d seconds", interval);
+        finally {
+            scheduleRun(interval);
+        }
+    }
+
+    @Override
+    protected void onInit() throws Exception {
+        getEventsHandler().addListener(this);
+    }
+
+    @Override
+    protected void onStart() throws Exception {
+        long delay = m_syncDelay.get();
+
+        scheduleRun(delay);
+
+        logDebug("Controller scheduled to run in %d seconds", delay);
+    }
+
+    @Override
+    protected void onStop() throws Exception {
+        getEventsHandler().removeListener(this);
+
+        if (m_updateInstaller != null) {
+            m_updateInstaller.reset();
+        }
+
+        unscheduleRun();
     }
 
     private void runFeedback() throws RetryAfterException {
         logDebug("Synchronizing feedback channels");
+
         Set<String> names = getFeedbackChannelNames();
         for (String name : names) {
             FeedbackChannel channel = getFeedbackChannel(name);
@@ -128,7 +215,7 @@ public class DefaultController extends ComponentBase implements Runnable {
         catch (IOException e) {
             // Probably a serious problem due to local IO related to feedback. No cause to abort the sync so we just log
             // it as an error.
-            logError("Exception while Looking up feedback channelnames. This is ");
+            logError("Exception while looking up feedback channel names.");
         }
         return Collections.emptySet();
     }
@@ -147,6 +234,7 @@ public class DefaultController extends ComponentBase implements Runnable {
 
     private void runAgentUpdate() throws RetryAfterException {
         logDebug("Checking for agent update");
+
         Version current = getAgentUpdateHandler().getInstalledVersion();
         SortedSet<Version> available = getAvailableAgentVersions();
         Version highest = Version.emptyVersion;
@@ -160,6 +248,7 @@ public class DefaultController extends ComponentBase implements Runnable {
         }
 
         logInfo("Installing agent update %s => %s", current, highest);
+
         InputStream inputStream = null;
         try {
             inputStream = getAgentUpdateHandler().getInputStream(highest);
@@ -170,6 +259,9 @@ public class DefaultController extends ComponentBase implements Runnable {
             // just log it as a warning.
             // FIXME Does not cover failed updates and should handle retries
             logWarning("Exception while installing agent update %s", e, highest);
+        }
+        finally {
+            closeSilently(inputStream);
         }
     }
 
@@ -186,8 +278,8 @@ public class DefaultController extends ComponentBase implements Runnable {
     }
 
     private void runDeploymentUpdate() throws RetryAfterException {
-
         logDebug("Checking for deployment update");
+
         Version current = getDeploymentHandler().getInstalledVersion();
         SortedSet<Version> available = getAvailableDeploymentVersions();
         Version highest = Version.emptyVersion;
@@ -200,9 +292,9 @@ public class DefaultController extends ComponentBase implements Runnable {
             return;
         }
 
-        boolean updateStreaming = getConfigurationHandler().getBoolean(CONFIG_CONTROLLER_STREAMING, true);
-        boolean fixPackage = getConfigurationHandler().getBoolean(CONFIG_CONTROLLER_FIXPACKAGES, true);
-        long maxRetries = getConfigurationHandler().getLong(CONFIG_CONTROLLER_RETRIES, 1);
+        boolean updateStreaming = m_updateStreaming.get();
+        boolean fixPackage = m_fixPackage.get();
+        long maxRetries = m_maxRetries.get();
 
         getUpdateInstaller(updateStreaming).installUpdate(current, highest, fixPackage, maxRetries);
     }
@@ -248,7 +340,7 @@ public class DefaultController extends ComponentBase implements Runnable {
 
     private void unscheduleRun() {
         if (m_scheduledFuture != null)
-            m_scheduledFuture.cancel(true);
+            m_scheduledFuture.cancel(false /* mayInterruptWhileRunning */);
     }
 
     /**
@@ -256,7 +348,6 @@ public class DefaultController extends ComponentBase implements Runnable {
      * delegates the rest to concrete implementations.
      */
     abstract static class UpdateInstaller {
-
         private final DefaultController m_controller;
         private Version m_lastVersion = null;
         private int m_failureCount = 0;
@@ -315,14 +406,12 @@ public class DefaultController extends ComponentBase implements Runnable {
      * UpdateInstaller that provides streaming deployment package install. The install is blocking.
      */
     static class StreamingUpdateInstaller extends UpdateInstaller {
-
         public StreamingUpdateInstaller(DefaultController controller) {
             super(controller);
         }
 
         @Override
         public void doInstallUpdate(Version from, Version to, boolean fix) throws RetryAfterException, DeploymentException, IOException {
-
             getController().logInfo("Installing streaming deployment update %s => %s", from, to);
 
             DeploymentHandler deploymentHandler = getController().getDeploymentHandler();
@@ -346,6 +435,7 @@ public class DefaultController extends ComponentBase implements Runnable {
 
         @Override
         protected void doReset() {
+            // Nop
         }
     }
 
@@ -354,7 +444,6 @@ public class DefaultController extends ComponentBase implements Runnable {
      * completion this installer will reschedule the controller.
      */
     static class DownloadUpdateInstaller extends UpdateInstaller implements DownloadHandle.ProgressListener, DownloadHandle.ResultListener {
-
         // active download state
         private volatile DownloadHandle m_downloadHandle;
         private volatile DownloadResult m_downloadResult = null;
@@ -431,7 +520,7 @@ public class DefaultController extends ComponentBase implements Runnable {
         @Override
         public void completed(DownloadResult result) {
             m_downloadResult = result;
-            getController().logInfo("Deployment package donwload completed for version %s. Rescheduling the controller to run in %d seconds", m_downloadVersion, 1);
+            getController().logInfo("Deployment package download completed for version %s. Rescheduling the controller to run in %d seconds", m_downloadVersion, 1);
             getController().scheduleRun(1);
         }
 

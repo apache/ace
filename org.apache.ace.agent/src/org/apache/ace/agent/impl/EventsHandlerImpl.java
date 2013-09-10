@@ -18,15 +18,12 @@
  */
 package org.apache.ace.agent.impl;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.EventsHandler;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -37,45 +34,20 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * {@link #removeListener(EventListener)}.
  */
 public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
-
-    private final List<EventListener> m_listeners = new CopyOnWriteArrayList<EventListener>();
+    private final CopyOnWriteArrayList<EventListener> m_listeners = new CopyOnWriteArrayList<EventListener>();
     private final BundleContext m_bundleContext;
-
-    private ServiceTracker m_tracker;
+    //
+    private volatile ServiceTracker m_tracker;
 
     public EventsHandlerImpl(BundleContext bundleContext) throws Exception {
         super("events");
+
         m_bundleContext = bundleContext;
-        Filter listenerFilter = m_bundleContext.createFilter("(" + Constants.OBJECTCLASS + "=" + EventListener.class.getName() + ")");
-        m_tracker = new ServiceTracker(m_bundleContext, listenerFilter, new ServiceTrackerCustomizer() {
-
-            @Override
-            public Object addingService(ServiceReference reference) {
-                Object service = m_bundleContext.getService(reference);
-                addListener((EventListener) service);
-                return service;
-            }
-
-            @Override
-            public void removedService(ServiceReference reference, Object service) {
-                removeListener((EventListener) service);
-            }
-
-            @Override
-            public void modifiedService(ServiceReference reference, Object service) {
-            }
-        });
     }
 
     @Override
-    protected void onStart() throws Exception {
-        m_tracker.open();
-    }
-
-    @Override
-    protected void onStop() throws Exception {
-        m_tracker.close();
-        m_listeners.clear();
+    public void addListener(EventListener listener) {
+        m_listeners.addIfAbsent(listener);
     }
 
     @Override
@@ -96,8 +68,13 @@ public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
     }
 
     @Override
-    public void sendEvent(final String topic, final Map<String, String> payload) {
-        for (final EventListener listener : m_listeners) {
+    public void removeListener(EventListener listener) {
+        m_listeners.remove(listener);
+    }
+
+    @Override
+    public void sendEvent(String topic, Map<String, String> payload) {
+        for (EventListener listener : m_listeners) {
             try {
                 listener.handle(topic, payload);
             }
@@ -108,12 +85,30 @@ public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
     }
 
     @Override
-    public void addListener(EventListener listener) {
-        m_listeners.add(listener);
+    protected void onInit() throws Exception {
+        m_tracker = new ServiceTracker(m_bundleContext, EventListener.class.getName(), new ServiceTrackerCustomizer() {
+            @Override
+            public Object addingService(ServiceReference reference) {
+                Object service = m_bundleContext.getService(reference);
+                addListener((EventListener) service);
+                return service;
+            }
+
+            @Override
+            public void modifiedService(ServiceReference reference, Object service) {
+            }
+
+            @Override
+            public void removedService(ServiceReference reference, Object service) {
+                removeListener((EventListener) service);
+            }
+        });
+        m_tracker.open();
     }
 
     @Override
-    public void removeListener(EventListener listener) {
-        m_listeners.remove(listener);
+    protected void onStop() throws Exception {
+        m_tracker.close();
+        m_listeners.clear();
     }
 }

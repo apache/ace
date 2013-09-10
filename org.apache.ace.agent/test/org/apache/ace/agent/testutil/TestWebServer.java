@@ -42,16 +42,106 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 /**
- * Test utility that manages a Jetty webserver with a {@link DefaultServlet} that support HTTP range downloads and a simple
- * HTTP protocol dump filter. It can be extended with custom test servlets.
+ * Test utility that manages a Jetty webserver with a {@link DefaultServlet} that support HTTP range downloads and a
+ * simple HTTP protocol dump filter. It can be extended with custom test servlets.
  */
 public class TestWebServer {
 
-    private Server m_server;
-    private ServletContextHandler m_contextHandler;
+    static class HttpDumpFilter implements Filter {
+        @Override
+        public void destroy() {
+            // Nop
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+            HttpServletRequest hreq = (HttpServletRequest) req;
+            HttpServletResponse hres = (HttpServletResponse) res;
+
+            ResponseInfoCollector coll = new ResponseInfoCollector(hres);
+            chain.doFilter(req, coll);
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("> ").append(hreq.getMethod()).append(" ").append(hreq.getRequestURI()).append(" ").append(req.getProtocol()).append('\n');
+            Enumeration<String> attrs = hreq.getHeaderNames();
+            while (attrs.hasMoreElements()) {
+                String attr = attrs.nextElement();
+                sb.append("> ").append(attr).append(": ").append(hreq.getHeader(attr)).append('\n');
+            }
+
+            sb.append("< ").append(hreq.getProtocol()).append(" ").append(coll.statusCode).append(" ").append(coll.statusMessage).append('\n');
+            for (String headerName : coll.headers.keySet()) {
+                sb.append("< ").append(headerName).append(": ").append(coll.headers.get(headerName)).append('\n');
+            }
+
+            System.out.println(sb);
+        }
+
+        @Override
+        public void init(FilterConfig config) throws ServletException {
+            // Nop
+        }
+    }
+
+    static class ResponseInfoCollector extends HttpServletResponseWrapper {
+        long statusCode;
+        String statusMessage = "";
+        Map<String, String> headers = new HashMap<String, String>();
+
+        public ResponseInfoCollector(HttpServletResponse response) {
+            super(response);
+        }
+
+        @Override
+        public void sendError(int sc) throws IOException {
+            statusCode = sc;
+            super.sendError(sc);
+        }
+
+        @Override
+        public void sendError(int sc, String msg) throws IOException {
+            statusCode = sc;
+            statusMessage = msg;
+            super.sendError(sc, msg);
+        }
+
+        @Override
+        public void setDateHeader(String name, long date) {
+            headers.put(name, new Date(date).toString());
+            super.setDateHeader(name, date);
+        }
+
+        @Override
+        public void setHeader(String name, String value) {
+            headers.put(name, value);
+            super.setHeader(name, value);
+        }
+
+        @Override
+        public void setIntHeader(String name, int value) {
+            headers.put(name, "" + value);
+            super.setIntHeader(name, value);
+        }
+
+        @Override
+        public void setStatus(int sc) {
+            statusCode = sc;
+            super.setStatus(sc);
+        }
+
+        @Override
+        public void setStatus(int sc, String sm) {
+            statusCode = sc;
+            statusMessage = sm;
+            super.setStatus(sc, sm);
+        }
+    }
+
+    private final ServletContextHandler m_contextHandler;
+    private final Server m_server;
 
     public TestWebServer(int port, String contextPath, String basePath) throws Exception {
-
         m_server = new Server(port);
 
         m_contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
@@ -68,6 +158,10 @@ public class TestWebServer {
         m_server.setHandler(m_contextHandler);
     }
 
+    public void addServlet(Servlet servlet, String pathPsec) {
+        m_contextHandler.addServlet(new ServletHolder(servlet), pathPsec);
+    }
+
     public void start() throws Exception {
         m_server.start();
     }
@@ -75,87 +169,5 @@ public class TestWebServer {
     public void stop() throws Exception {
         m_server.stop();
         m_server.join();
-    }
-
-    public void addServlet(Servlet servlet, String pathPsec) {
-        m_contextHandler.addServlet(new ServletHolder(servlet), pathPsec);
-    }
-
-    static class HttpDumpFilter implements Filter {
-
-        @Override
-        public void init(FilterConfig arg0) throws ServletException {
-        }
-
-        @Override
-        public void destroy() {
-        }
-
-        @Override
-        public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-            HttpServletRequest hreq = (HttpServletRequest) req;
-            HttpServletResponse hres = (HttpServletResponse) res;
-
-            @SuppressWarnings("unchecked")
-            Enumeration<String> attrs = hreq.getHeaderNames();
-            System.out.println("> " + hreq.getMethod() + " " + hreq.getRequestURI() + " " + req.getProtocol());
-            while (attrs.hasMoreElements()) {
-                String attr = attrs.nextElement();
-                System.out.println("> " + attr + ":" + hreq.getHeader(attr));
-            }
-            ResponseInfoCollector coll = new ResponseInfoCollector(hres);
-            chain.doFilter(req, coll);
-
-            // servlet API 3.0
-            // System.out.println("< " + res.getStatus());
-            // for (String headerName : res.getHeaderNames())
-            // System.out.println("< " + headerName + ":" + res.getHeader(headerName));
-            System.out.println("< " + coll.statusCode + " " + coll.statusMessage);
-            for (String headerName : coll.headers.keySet()) {
-                System.out.println("< " + headerName + ":" + coll.headers.get(headerName));
-            }
-        }
-    }
-
-    static class ResponseInfoCollector extends HttpServletResponseWrapper {
-
-        long statusCode;
-        String statusMessage;
-        Map<String, String> headers = new HashMap<String, String>();
-
-        public ResponseInfoCollector(HttpServletResponse response) {
-            super(response);
-        }
-
-        @Override
-        public void setHeader(String name, String value) {
-            headers.put(name, value);
-            super.setHeader(name, value);
-        }
-
-        @Override
-        public void setDateHeader(String name, long date) {
-            headers.put(name, new Date(date).toString());
-            super.setDateHeader(name, date);
-        }
-
-        @Override
-        public void setIntHeader(String name, int value) {
-            headers.put(name, "" + value);
-            super.setIntHeader(name, value);
-        }
-
-        @Override
-        public void setStatus(int sc, String sm) {
-            statusCode = sc;
-            statusMessage = sm;
-            super.setStatus(sc, sm);
-        }
-
-        @Override
-        public void setStatus(int sc) {
-            statusCode = sc;
-            super.setStatus(sc);
-        }
     }
 }

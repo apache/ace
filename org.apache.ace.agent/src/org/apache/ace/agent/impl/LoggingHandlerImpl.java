@@ -19,73 +19,91 @@
 package org.apache.ace.agent.impl;
 
 import static org.apache.ace.agent.AgentConstants.CONFIG_LOGGING_LEVEL;
+import static org.apache.ace.agent.impl.InternalConstants.AGENT_CONFIG_CHANGED;
 
 import java.util.Date;
+import java.util.Map;
 
+import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.LoggingHandler;
 
 /**
  * Default thread-safe {@link LoggingHandler} implementation that logs messages to {@link System.out} .
  */
-public class LoggingHandlerImpl extends ComponentBase implements LoggingHandler {
+public class LoggingHandlerImpl extends ComponentBase implements LoggingHandler, EventListener {
+    private static final Levels DEFAULT = Levels.WARNING;
+    
+    private volatile Levels m_logLevel;
 
     public LoggingHandlerImpl() {
         super("logging");
+        
+        m_logLevel = DEFAULT;
+    }
+    
+    @Override
+    public void handle(String topic, Map<String, String> payload) {
+        if (AGENT_CONFIG_CHANGED.equals(topic)) {
+            String newValue = payload.get(CONFIG_LOGGING_LEVEL);
+
+            m_logLevel = fromName(newValue);
+        }
     }
 
     @Override
     public void logDebug(String component, String message, Throwable exception, Object... args) {
-        Levels level = getLogLevel();
-        if (level == Levels.DEBUG) {
-            log(Levels.DEBUG.name(), component, message, exception, args);
-        }
+        log(Levels.DEBUG, component, message, exception, args);
     }
 
     @Override
     public void logInfo(String component, String message, Throwable exception, Object... args) {
-        Levels level = getLogLevel();
-        if (level == Levels.DEBUG || level == Levels.INFO) {
-            log(Levels.INFO.name(), component, message, exception, args);
-        }
+        log(Levels.INFO, component, message, exception, args);
     }
 
     @Override
     public void logWarning(String component, String message, Throwable exception, Object... args) {
-        Levels level = getLogLevel();
-        if (level == Levels.DEBUG || level == Levels.INFO || level == Levels.WARNING) {
-            log(Levels.WARNING.name(), component, message, exception, args);
-        }
+        log(Levels.WARNING, component, message, exception, args);
     }
 
     @Override
     public void logError(String component, String message, Throwable exception, Object... args) {
-        log(Levels.ERROR.name(), component, message, exception, args);
+        log(Levels.ERROR, component, message, exception, args);
+    }
+    
+    @Override
+    protected void onInit() throws Exception {
+        getEventsHandler().addListener(this);
+    }
+    
+    @Override
+    protected void onStop() throws Exception {
+        getEventsHandler().removeListener(this);
     }
 
-    private void log(String level, String component, String message, Throwable exception, Object... args) {
+    private void log(Levels logLevel, String component, String message, Throwable exception, Object... args) {
+        if (m_logLevel.ordinal() > logLevel.ordinal()) {
+            // we're not interested at this log entry...
+            return;
+        }
         if (args.length > 0) {
             message = String.format(message, args);
         }
-        String line = String.format("[%s] %TT (%s) %s", level, new Date(), component, message);
-        System.out.println(line);
+        System.out.printf("[%s] %TT (%s) %s%n", logLevel, new Date(), component, message);
+
         if (exception != null) {
             exception.printStackTrace(System.out);
         }
     }
 
-    // TODO performance; replace with configuration events
-    private Levels getLogLevel() {
-        String config = getConfigurationHandler().get(CONFIG_LOGGING_LEVEL, Levels.INFO.name());
-        return fromName(config);
-    }
-
     private static Levels fromName(String name) {
-        name = name.toUpperCase().trim();
+        if (name == null) {
+            return DEFAULT;
+        }
         try {
             return Levels.valueOf(name.toUpperCase().trim());
         }
         catch (Exception e) {
-            return Levels.ERROR;
+            return DEFAULT;
         }
     }
 }

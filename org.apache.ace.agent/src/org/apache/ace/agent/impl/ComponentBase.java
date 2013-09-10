@@ -38,8 +38,8 @@ import org.apache.ace.agent.LoggingHandler;
  * Convenience implementation base class for all {@link AgentContextAware} components, such as handlers & controllers.
  */
 public abstract class ComponentBase implements AgentContextAware {
-
     private final String m_identifier;
+    // Injected by AgentContextImpl...
     private volatile AgentContext m_context;
 
     public ComponentBase(String handlerIdentifier) {
@@ -47,30 +47,54 @@ public abstract class ComponentBase implements AgentContextAware {
     }
 
     @Override
+    public final void init(AgentContext agentContext) throws Exception {
+        if (agentContext == null) {
+            throw new IllegalArgumentException("Context must not be null");
+        }
+        if (m_context == null) {
+            m_context = agentContext;
+        }
+        onInit();
+    }
+
+    @Override
     public final void start(AgentContext agentContext) throws Exception {
         if (agentContext == null) {
             throw new IllegalArgumentException("Context must not be null");
         }
-        m_context = agentContext;
+        if (m_context == null) {
+            m_context = agentContext;
+        }
         onStart();
     }
 
     @Override
     public final void stop() throws Exception {
-        onStop();
-        m_context = null;
+        try {
+            onStop();
+        }
+        finally {
+            m_context = null;
+        }
     }
 
     protected final AgentContext getAgentContext() {
-        if (m_context == null)
+        if (m_context == null) {
             throw new IllegalStateException("Handler is not started: " + m_identifier);
+        }
         return m_context;
     }
 
+    protected void onInit() throws Exception {
+        // Nop
+    }
+
     protected void onStart() throws Exception {
+        // Nop
     }
 
     protected void onStop() throws Exception {
+        // Nop
     }
 
     protected final IdentificationHandler getIdentificationHandler() {

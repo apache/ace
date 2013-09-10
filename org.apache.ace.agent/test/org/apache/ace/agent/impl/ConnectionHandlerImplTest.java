@@ -18,17 +18,13 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.notNull;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reset;
 import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -39,6 +35,8 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.ConnectionHandler;
+import org.apache.ace.agent.ConnectionHandler.Types;
+import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
 import org.testng.annotations.AfterTest;
@@ -48,45 +46,47 @@ import org.testng.annotations.Test;
 /**
  * Testing {@link ConnectionHandlerImpl},
  */
-// TODO test CLIENT_CERT
 public class ConnectionHandlerImplTest extends BaseAgentTest {
 
     static class BasicAuthServlet extends HttpServlet {
-
         private static final long serialVersionUID = 1L;
 
         private final String m_authHeader;
 
         public BasicAuthServlet(String username, String password) {
-            m_authHeader = "Basic " + DatatypeConverter.printBase64Binary((username + ":" + password).getBytes());
+            m_authHeader = "Basic ".concat(DatatypeConverter.printBase64Binary((username + ":" + password).getBytes()));
         }
 
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String authHeader = req.getHeader("Authorization");
-            if (authHeader == null || !authHeader.equals(m_authHeader))
+            if (authHeader == null || !authHeader.equals(m_authHeader)) {
                 resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Requires Basic Auth");
-            resp.setStatus(HttpServletResponse.SC_OK);
+            } else {
+                resp.setStatus(HttpServletResponse.SC_OK);
+            }
         }
     }
 
-    private TestWebServer m_webServer;
-    private String m_user = "Mickey";
-    private String m_pass = "Mantle";
-    private URL m_basicAuthURL;
+    private static final int PORT = 8880;
+    private static final String USERNAME = "john.doe";
+    private static final String PASSWORD = "secret";
 
+    private TestWebServer m_webServer;
+    private URL m_basicAuthURL;
     private AgentContextImpl m_agentContext;
 
     @BeforeTest
     public void setUpOnceAgain() throws Exception {
+        m_basicAuthURL = new URL("http://localhost:" + PORT + "/basicauth");
 
-        int port = 8880;
-        m_basicAuthURL = new URL("http://localhost:" + port + "/basicauth");
-        m_webServer = new TestWebServer(port, "/", "generated");
-        m_webServer.addServlet(new BasicAuthServlet(m_user, m_pass), "/basicauth/*");
+        m_webServer = new TestWebServer(PORT, "/", "generated");
+        m_webServer.addServlet(new BasicAuthServlet(USERNAME, PASSWORD), "/basicauth/*");
         m_webServer.start();
 
         m_agentContext = mockAgentContext();
+        m_agentContext.setHandler(EventsHandler.class, new EventsHandlerImpl(mockBundleContext()));
+        m_agentContext.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
         m_agentContext.setHandler(ConnectionHandler.class, new ConnectionHandlerImpl());
 
         replayTestMocks();
@@ -103,24 +103,30 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
 
     @Test
     public void testBasicAuthFORBIDDEN() throws Exception {
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(AgentConstants.CONFIG_CONNECTION_AUTHTYPE, Types.NONE.name());
+
         ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
+        configurationHandler.putAll(props);
+
         ConnectionHandler connectionHandler = m_agentContext.getHandler(ConnectionHandler.class);
-        reset(configurationHandler);
-        expect(configurationHandler.get(notNull(String.class), anyObject(String.class))).andReturn(null).anyTimes();
-        replay(configurationHandler);
         HttpURLConnection connection = (HttpURLConnection) connectionHandler.getConnection(m_basicAuthURL);
+
         assertEquals(connection.getResponseCode(), HttpServletResponse.SC_FORBIDDEN);
     }
 
     @Test
     public void testBasicAuthOK() throws Exception {
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(AgentConstants.CONFIG_CONNECTION_AUTHTYPE, Types.BASIC.name());
+        props.put(AgentConstants.CONFIG_CONNECTION_USERNAME, USERNAME);
+        props.put(AgentConstants.CONFIG_CONNECTION_PASSWORD, PASSWORD);
+
         ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
+        configurationHandler.putAll(props);
+
         ConnectionHandler connectionHandler = m_agentContext.getHandler(ConnectionHandler.class);
-        reset(configurationHandler);
-        expect(configurationHandler.get(eq(AgentConstants.CONFIG_CONNECTION_AUTHTYPE), anyObject(String.class))).andReturn("BASIC").anyTimes();
-        expect(configurationHandler.get(eq(AgentConstants.CONFIG_CONNECTION_USERNAME), anyObject(String.class))).andReturn(m_user).anyTimes();
-        expect(configurationHandler.get(eq(AgentConstants.CONFIG_CONNECTION_PASSWORD), anyObject(String.class))).andReturn(m_pass).anyTimes();
-        replay(configurationHandler);
+
         HttpURLConnection connection = (HttpURLConnection) connectionHandler.getConnection(m_basicAuthURL);
         assertEquals(connection.getResponseCode(), HttpServletResponse.SC_OK);
     }
