@@ -549,9 +549,14 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * @param object the repository object to update, cannot be <code>null</code>.
      */
     protected void update(REPO_OBJ object) {
-        Item item = getItem(object.getDefinition());
-        if (item != null) {
-            populateItem(object, item);
+        if (object != null) {
+            String definition = object.getDefinition();
+            if (definition != null) {
+                Item item = getItem(definition);
+                if (item != null) {
+                    populateItem(object, item);
+                }
+            }
         }
     }
 
