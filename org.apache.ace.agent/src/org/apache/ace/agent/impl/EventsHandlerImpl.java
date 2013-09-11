@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -51,13 +52,15 @@ public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
     }
 
     @Override
-    public void postEvent(final String topic, final Map<String, String> payload) {
+    public void postEvent(final String topic, Map<String, String> payload) {
+        // Make sure that the payload isn't changed while posting events...
+        final Map<String, String> eventPayload = new HashMap<String, String>(payload);
         for (final EventListener listener : m_listeners) {
             getExecutorService().submit(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        listener.handle(topic, payload);
+                        listener.handle(topic, eventPayload);
                     }
                     catch (Exception e) {
                         logWarning("Exception while posting event", e);
@@ -74,9 +77,11 @@ public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
 
     @Override
     public void sendEvent(String topic, Map<String, String> payload) {
+        // Make sure that the payload isn't changed while sending events...
+        final Map<String, String> eventPayload = new HashMap<String, String>(payload);
         for (EventListener listener : m_listeners) {
             try {
-                listener.handle(topic, payload);
+                listener.handle(topic, eventPayload);
             }
             catch (Exception e) {
                 logWarning("Exception while sending event", e);

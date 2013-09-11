@@ -231,7 +231,7 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
                 channel.write(eventType, payload);
             }
             else {
-                logWarning("Feedback event *not* written as no channel is available!");
+//                logDebug("Feedback event *not* written as no channel is available!");
             }
         }
         catch (IOException e) {

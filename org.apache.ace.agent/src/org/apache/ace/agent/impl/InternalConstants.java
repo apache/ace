@@ -27,5 +27,12 @@ public interface InternalConstants {
      * Event topic used to report changes in the agent's configuration.
      */
     String AGENT_CONFIG_CHANGED = "agent/config/CHANGED";
-
+    /**
+     * Internal event topic used when a deployment is started.
+     */
+    String AGENT_DEPLOYMENT_INSTALL = "agent/deployment/INSTALL";
+    /**
+     * Internal event topic used when a deployment is complete (either or not successful).
+     */
+    String AGENT_DEPLOYMENT_COMPLETE = "agent/deployment/COMPLETE";
 }

@@ -65,7 +65,7 @@ public class Activator implements BundleActivator, LifecycleCallback {
      */
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        m_executorService = Executors.newScheduledThreadPool(1, new InternalThreadFactory());
+        m_executorService = Executors.newScheduledThreadPool(5, new InternalThreadFactory());
 
         m_dependencyTracker = new DependencyTrackerImpl(bundleContext, this);
 

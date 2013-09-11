@@ -24,9 +24,9 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.DigestInputStream;
@@ -219,28 +219,28 @@ public class DownloadHandlerTest extends BaseAgentTest {
     private static void assertSuccessFul(final DownloadResult result, int statusCode, String digest) throws Exception {
         assertEquals(result.getState(), DownloadState.SUCCESSFUL, "Expected state SUCCESSFUL after succesful completion");
         assertEquals(result.getCode(), statusCode, "Expected statusCode " + statusCode + " after successful completion");
-        assertNotNull(result.getFile(), "Expected non null file after successful completion");
+        assertNotNull(result.getInputStream(), "Expected non null file after successful completion");
         assertNotNull(result.getHeaders(), "Expected non null headers after successful completion");
         assertNull(result.getCause(), "Excpected null cause after successful completion");
-        assertEquals(getDigest(result.getFile()), digest, "Expected same digest after successful completion");
+        assertEquals(getDigest(result.getInputStream()), digest, "Expected same digest after successful completion");
     }
 
     private static void assertFailed(final DownloadResult result, int statusCode) throws Exception {
         assertEquals(result.getState(), DownloadState.FAILED, "DownloadState must be FAILED after failed completion");
         assertEquals(result.getCode(), statusCode, "Expected statusCode " + statusCode + " after failed completion");
-        assertNull(result.getFile(), "File must not be null after failed completion");
+        assertNull(result.getInputStream(), "File must not be null after failed completion");
     }
 
     private static void assertStopped(final DownloadResult result, int statusCode) throws Exception {
         assertEquals(result.getState(), DownloadState.STOPPED, "DownloadState must be STOPPED after stopped completion");
         assertEquals(result.getCode(), statusCode, "Expected statusCode " + statusCode + " after stopped completion");
         assertNotNull(result.getHeaders(), "Expected headers not to be null after stopped completion");
-        assertNull(result.getFile(), "File must not be null after failed download");
+        assertNull(result.getInputStream(), "File must not be null after failed download");
         assertNull(result.getCause(), "Excpected cause to null null after stopped completion");
     }
 
-    private static String getDigest(File file) throws Exception {
-        DigestInputStream dis = new DigestInputStream(new FileInputStream(file), MessageDigest.getInstance("MD5"));
+    private static String getDigest(InputStream is) throws Exception {
+        DigestInputStream dis = new DigestInputStream(is, MessageDigest.getInstance("MD5"));
         while (dis.read() != -1) {
         }
         dis.close();

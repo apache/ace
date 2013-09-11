@@ -19,6 +19,9 @@
 package org.apache.ace.agent.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -47,8 +50,9 @@ public class DownloadResultImpl implements DownloadResult {
     }
 
     @Override
-    public File getFile() {
-        return m_file;
+    @SuppressWarnings("resource")
+    public InputStream getInputStream() throws IOException {
+        return m_file != null ? new FileInputStream(m_file) : null;
     }
 
     @Override

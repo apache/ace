@@ -18,7 +18,8 @@
  */
 package org.apache.ace.agent;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -36,13 +37,15 @@ public interface DownloadResult {
     DownloadState getState();
 
     /**
-     * Returns the download file.
+     * Returns an input stream to the downloaded result.
      * 
-     * @return The file, <code>null</code> if the download was unsuccessful
+     * @return an input stream, can be <code>null</code> if the download was unsuccessful.
      */
-    // TODO inputstream
-    File getFile();
+    InputStream getInputStream() throws IOException;
 
+    /**
+     * @return
+     */
     int getCode();
 
     Map<String, List<String>> getHeaders();

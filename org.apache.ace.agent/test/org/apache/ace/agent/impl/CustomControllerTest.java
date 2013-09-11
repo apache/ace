@@ -82,7 +82,7 @@ public class CustomControllerTest extends BaseAgentTest {
 
         DownloadResult downloadResult = addTestMock(DownloadResult.class);
         expect(downloadResult.getState()).andReturn(DownloadState.SUCCESSFUL).anyTimes();
-        expect(downloadResult.getFile()).andReturn(m_dummyFile).anyTimes();
+        expect(downloadResult.getInputStream()).andReturn(m_dummyInputStream).anyTimes();
 
         DownloadHandle downloadHandle = addTestMock(DownloadHandle.class);
         expect(downloadHandle.start()).andReturn(downloadHandle).anyTimes();
@@ -122,7 +122,7 @@ public class CustomControllerTest extends BaseAgentTest {
             DownloadResult result = handle.start().result();
 
             if (result.getState() == DownloadState.SUCCESSFUL) {
-                InputStream inputStream = new FileInputStream(result.getFile());
+                InputStream inputStream = result.getInputStream();
                 try {
                     m_agentControl.getDeploymentHandler().deployPackage(inputStream);
                 }

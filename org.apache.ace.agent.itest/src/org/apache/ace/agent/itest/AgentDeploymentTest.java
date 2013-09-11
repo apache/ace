@@ -20,15 +20,15 @@ package org.apache.ace.agent.itest;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -38,17 +38,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.ConfigurationHandler;
+import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.EventListener;
-import org.apache.ace.agent.LoggingHandler;
-import org.apache.ace.builder.DeploymentPackageBuilder;
+import org.apache.ace.agent.LoggingHandler.Levels;
 import org.apache.felix.dm.Component;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.service.http.HttpService;
-
-import aQute.lib.osgi.Builder;
-import aQute.lib.osgi.Jar;
 
 /**
  * Tests updating the management agent. In fact it tests different failure paths first, and finally gets to update the
@@ -66,183 +64,27 @@ public class AgentDeploymentTest extends BaseAgentTest {
         EMPTY_STREAM, CORRUPT_STREAM, ABORT_STREAM, VERSIONS_RETRY_AFTER, DEPLOYMENT_RETRY_AFTER
     }
 
-    private volatile TestDeploymentServlet m_servlet;
-    private volatile HttpService m_http;
-    private volatile TestEventListener m_listener;
+    private static class TestAuditlogServlet extends HttpServlet {
+        private static final long serialVersionUID = 1L;
 
-    private final Version version1 = Version.parseVersion("1.0.0");
-    private final Version version2 = Version.parseVersion("2.0.0");
-    private final Version version3 = Version.parseVersion("3.0.0");
-    private final Version version4 = Version.parseVersion("4.0.0");
-    private final Version version5 = Version.parseVersion("5.0.0");
-    private final Version version6 = Version.parseVersion("6.0.0");
+        // FIXME Ignoring auditlog.. but why do we get and empty send if we set range to high?
 
-    private TestPackage m_package1;
-    private TestPackage m_package2;
-    private TestPackage m_package3;
-    private TestPackage m_package4;
-    private TestPackage m_package5;
-    private TestPackage m_package6;
+        @Override
+        protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+            response.setContentType("text/plain");
+            PrintWriter writer = response.getWriter();
+            writer.println(request.getParameter("tid") + "," + request.getParameter("logid") + ",0-10");
+            writer.close();
+        }
 
-    @Override
-    protected Component[] getDependencies() {
-        m_listener = new TestEventListener();
-        return new Component[] {
-            createComponent()
-                .setImplementation(this)
-                .add(createServiceDependency().setService(HttpService.class).setRequired(true)),
-            createComponent()
-                .setInterface(EventListener.class.getName(), null)
-                .setImplementation(m_listener)
-        };
-    }
-
-    @Override
-    public void configureAdditionalServices() throws Exception {
-
-        TestBundle bundle1v1 = new TestBundle("bundle1", version1);
-        TestBundle bundle1v2 = new TestBundle("bundle1", version2);
-        TestBundle bundle2v1 = new TestBundle("bundle2", version1);
-        TestBundle bundle2v2 = new TestBundle("bundle2", version2);
-
-        TestBundle bundle3v1 = new TestBundle("bundle3", version1, Constants.BUNDLE_ACTIVATOR, "no.Such.Class");
-        TestBundle bundle3v2 = new TestBundle("bundle3", version2);
-
-        m_package1 = new TestPackage("007", version1, bundle1v1);
-        m_package2 = new TestPackage("007", version2, bundle1v2);
-        m_package3 = new TestPackage("007", version3, bundle1v2, bundle2v1);
-        m_package4 = new TestPackage("007", version4, bundle1v2, bundle2v2);
-        m_package5 = new TestPackage("007", version5, bundle1v2, bundle2v2, bundle3v1);
-        m_package6 = new TestPackage("007", version6, bundle1v2, bundle2v2, bundle3v2);
-
-        m_servlet = new TestDeploymentServlet("007");
-        m_http.registerServlet("/deployment", m_servlet, null, null);
-        m_http.registerServlet("/agent", new TestUpdateServlet(), null, null);
-        m_http.registerServlet("/auditlog", new TestAuditlogServlet(), null, null);
-
-    }
-
-    public void tearDown() throws Exception {
-        m_http.unregister("/deployment");
-        m_http.unregister("/agent");
-        m_http.unregister("/auditlog");
-
-        resetAgentBundleState();
-    }
-
-    public void testStreamingDeployment() throws Exception {
-        AgentControl control = getService(AgentControl.class);
-
-        Map<String, String> props = new HashMap<String, String>();
-        props.put(AgentConstants.CONFIG_LOGGING_LEVEL, LoggingHandler.Levels.DEBUG.name());
-        props.put(AgentConstants.CONFIG_IDENTIFICATION_AGENTID, "007");
-        props.put(AgentConstants.CONFIG_CONTROLLER_STREAMING, "true");
-        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCDELAY, "1");
-        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL, "1");
-        props.put(AgentConstants.CONFIG_CONTROLLER_RETRIES, "2");
-
-        ConfigurationHandler configurationHandler = control.getConfigurationHandler();
-        configurationHandler.putAll(props);
-
-        waitForInstalledVersion(Version.emptyVersion);
-
-        expectSuccessfulDeployment(m_package1, Failure.VERSIONS_RETRY_AFTER);
-        expectSuccessfulDeployment(m_package2, Failure.DEPLOYMENT_RETRY_AFTER);
-        expectSuccessfulDeployment(m_package3, Failure.EMPTY_STREAM);
-        expectSuccessfulDeployment(m_package4, Failure.CORRUPT_STREAM);
-        expectSuccessfulDeployment(m_package5, Failure.ABORT_STREAM);
-        expectSuccessfulDeployment(m_package6, null);
-    }
-
-    public void testNonStreamingDeployment() throws Exception {
-        AgentControl control = getService(AgentControl.class);
-
-        Map<String, String> props = new HashMap<String, String>();
-        props.put(AgentConstants.CONFIG_LOGGING_LEVEL, LoggingHandler.Levels.DEBUG.name());
-        props.put(AgentConstants.CONFIG_IDENTIFICATION_AGENTID, "007");
-        props.put(AgentConstants.CONFIG_CONTROLLER_STREAMING, "false");
-        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCDELAY, "1");
-        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL, "1");
-        props.put(AgentConstants.CONFIG_CONTROLLER_RETRIES, "2");
-
-        ConfigurationHandler configurationHandler = control.getConfigurationHandler();
-        configurationHandler.putAll(props);
-
-        waitForInstalledVersion(Version.emptyVersion);
-
-        expectSuccessfulDeployment(m_package1, Failure.VERSIONS_RETRY_AFTER);
-        expectSuccessfulDeployment(m_package2, Failure.DEPLOYMENT_RETRY_AFTER);
-        expectSuccessfulDeployment(m_package3, Failure.EMPTY_STREAM);
-        expectSuccessfulDeployment(m_package4, Failure.CORRUPT_STREAM);
-        expectSuccessfulDeployment(m_package5, Failure.ABORT_STREAM);
-        expectSuccessfulDeployment(m_package6, null);
-    }
-
-    private void expectSuccessfulDeployment(TestPackage dpackage, Failure failure) throws Exception {
-        synchronized (m_servlet) {
-            if (failure != null) {
-                m_servlet.setFailure(Failure.VERSIONS_RETRY_AFTER);
+        @Override
+        protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+            InputStream is = request.getInputStream();
+            while (is.read() != -1) {
             }
-            m_servlet.addPackage(dpackage);
-            m_listener.getTopics().clear();
+            is.close();
+            response.setContentType("text/plain");
         }
-        waitForEventReceived("org/osgi/service/deployment/INSTALL");
-        waitForEventReceived("org/osgi/service/deployment/COMPLETE");
-        waitForInstalledVersion(dpackage.getVersion());
-
-        System.out.println("---");
-    }
-
-    private void waitForInstalledVersion(Version version) throws Exception {
-        ServiceReference reference = m_bundleContext.getServiceReference(AgentControl.class.getName());
-        AgentControl control = (AgentControl) m_bundleContext.getService(reference);
-        int timeout = 100;
-        while (!control.getDeploymentHandler().getInstalledVersion().equals(version)) {
-            Thread.sleep(100);
-            if (timeout-- <= 0) {
-                m_bundleContext.ungetService(reference);
-                fail("Timed out while waiting for deployment " + version);
-            }
-        }
-        m_bundleContext.ungetService(reference);
-    }
-
-    private void waitForEventReceived(String topic) throws Exception {
-        int timeout = 100;
-        while (!m_listener.getTopics().contains(topic)) {
-            Thread.sleep(100);
-            if (timeout-- <= 0) {
-                fail("Timed out while waiting for event " + topic);
-            }
-        }
-    }
-
-    private static File createPackage(String name, Version version, File... bundles) throws Exception {
-        DeploymentPackageBuilder builder = DeploymentPackageBuilder.createDeploymentPackage(name, version.toString());
-        for (File bundle : bundles) {
-            builder.addBundle(bundle.toURI().toURL());
-        }
-        File file = File.createTempFile("testpackage", ".jar");
-        OutputStream fos = new FileOutputStream(file);
-        builder.generate(fos);
-        fos.close();
-        return file;
-    }
-
-    private static File createBundle(String bsn, Version version, String... headers) throws Exception {
-        Builder b = new Builder();
-        b.setProperty("Bundle-SymbolicName", bsn);
-        b.setProperty("Bundle-Version", version.toString());
-        for (int i = 0; i < headers.length; i += 2) {
-            b.setProperty(headers[i], headers[i + 1]);
-        }
-        b.setProperty("Include-Resource", "bnd.bnd"); // prevent empty jar bug
-        Jar jar = b.build();
-        jar.getManifest(); // Not sure whether this is needed...
-        File file = File.createTempFile("testbundle", ".jar");
-        jar.write(file);
-        b.close();
-        return file;
     }
 
     private static class TestBundle {
@@ -254,43 +96,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
 
         public File getFile() {
             return m_file;
-        }
-    }
-
-    private static class TestPackage {
-        private final Version m_version;
-        private final File m_file;
-
-        public TestPackage(String name, Version version, TestBundle... bundles) throws Exception {
-            m_version = version;
-
-            File[] files = new File[bundles.length];
-            for (int i = 0; i < bundles.length; i++) {
-                files[i] = bundles[i].getFile();
-            }
-            m_file = createPackage(name, version, files);
-        }
-
-        public Version getVersion() {
-            return m_version;
-        }
-
-        public File getFile() {
-            return m_file;
-        }
-    }
-
-    private static class TestEventListener implements EventListener {
-        private final CopyOnWriteArrayList<String> m_topics = new CopyOnWriteArrayList<String>();
-
-        @Override
-        public void handle(String topic, Map<String, String> payload) {
-            System.out.println("Event: " + topic + " => " + payload);
-            m_topics.add(topic);
-        }
-
-        public List<String> getTopics() {
-            return m_topics;
         }
     }
 
@@ -307,6 +112,19 @@ public class AgentDeploymentTest extends BaseAgentTest {
             m_agentId = agentId;
         }
 
+        public synchronized void addPackage(TestPackage testPackage) {
+            m_packages.put(testPackage.getVersion().toString(), testPackage);
+        }
+
+        public synchronized void setFailure(Failure failure) {
+            m_failure = failure;
+        }
+
+        public synchronized void reset() {
+            m_failure = null;
+            m_packages.clear();
+        }
+
         @Override
         protected synchronized void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String pathinfoTail = req.getPathInfo().replaceFirst("/" + m_agentId + "/versions/?", "");
@@ -320,14 +138,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
                 }
                 sendPackage(dpackage, resp);
             }
-        }
-
-        public synchronized void addPackage(TestPackage testPackage) {
-            m_packages.put(testPackage.getVersion().toString(), testPackage);
-        }
-
-        public synchronized void setFailure(Failure failure) {
-            m_failure = failure;
         }
 
         private void sendPackage(TestPackage dpackage, HttpServletResponse resp) throws IOException {
@@ -346,13 +156,11 @@ public class AgentDeploymentTest extends BaseAgentTest {
                 os = resp.getOutputStream();
 
                 if (m_failure == Failure.EMPTY_STREAM) {
-                    m_failure = null;
                     return;
                 }
 
                 if (m_failure == Failure.CORRUPT_STREAM) {
                     os.write("garbage".getBytes());
-                    m_failure = null;
                 }
 
                 int b;
@@ -360,7 +168,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
                 while ((b = fis.read()) != -1) {
                     os.write(b);
                     if (count++ == middle && m_failure == Failure.ABORT_STREAM) {
-                        m_failure = null;
                         break;
                     }
                 }
@@ -391,6 +198,97 @@ public class AgentDeploymentTest extends BaseAgentTest {
         }
     }
 
+    private static class TestEventListener implements EventListener {
+        private final Map<String, List<Map<String, String>>> m_topics = new HashMap<String, List<Map<String, String>>>();
+
+        public Map<String, List<Map<String, String>>> getTopics() {
+            Map<String, List<Map<String, String>>> result;
+            synchronized (m_topics) {
+                result = new HashMap<String, List<Map<String, String>>>(m_topics);
+            }
+            return result;
+        }
+
+        public boolean containsTopic(String topic) {
+            synchronized (m_topics) {
+                return m_topics.containsKey(topic);
+            }
+        }
+
+        public boolean containsTopic(String topic, Map<String, String> expectedProperties) {
+            synchronized (m_topics) {
+                List<Map<String, String>> payloads = m_topics.get(topic);
+                if (payloads == null || payloads.isEmpty()) {
+                    return expectedProperties.isEmpty();
+                }
+                for (Map<String, String> payload : payloads) {
+                    if (matches(expectedProperties, payload)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        @Override
+        public void handle(String topic, Map<String, String> payload) {
+            if (LOGLEVEL == Levels.DEBUG) {
+                System.out.printf("Handling event: %s => %s.%n", topic, payload);
+            }
+
+            synchronized (m_topics) {
+                List<Map<String, String>> payloads = m_topics.get(topic);
+                if (payloads == null) {
+                    payloads = new ArrayList<Map<String, String>>();
+                    m_topics.put(topic, payloads);
+                }
+                payloads.add(payload);
+            }
+        }
+
+        private static boolean matches(Map<String, String> source, Map<String, String> target) {
+            for (Map.Entry<String, String> sourceEntry : source.entrySet()) {
+                String sourceKey = sourceEntry.getKey();
+                String sourceValue = sourceEntry.getValue();
+
+                if (!target.containsKey(sourceKey)) {
+                    return false;
+                }
+                String targetValue = target.get(sourceKey);
+                if (!sourceValue.equals(targetValue)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    private static class TestPackage {
+        private final String m_name;
+        private final Version m_version;
+        private final File m_file;
+
+        public TestPackage(String name, Version version, TestBundle... bundles) throws Exception {
+            m_name = name;
+            m_version = version;
+
+            File[] files = new File[bundles.length];
+            for (int i = 0; i < bundles.length; i++) {
+                files[i] = bundles[i].getFile();
+            }
+            m_file = createPackage(m_name, m_version, files);
+        }
+
+        public File getFile() {
+            return m_file;
+        }
+
+        public Version getVersion() {
+            return m_version;
+        }
+    }
+
     private static class TestUpdateServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
 
@@ -400,26 +298,341 @@ public class AgentDeploymentTest extends BaseAgentTest {
         }
     }
 
-    private static class TestAuditlogServlet extends HttpServlet {
-        private static final long serialVersionUID = 1L;
+    private static final String AGENT_DEPLOYMENT_COMPLETE = "agent/deployment/COMPLETE";
+    private static final String AGENT_DEPLOYMENT_INSTALL = "agent/deployment/INSTALL";
 
-        // FIXME Ignoring auditlog.. but why do we get and empty send if we set range to high?
+    private static final String AGENT_ID = "007";
+    private static final String TEST_BUNDLE_NAME_PREFIX = "test.bundle";
+    private static final Levels LOGLEVEL = Levels.INFO;
 
-        @Override
-        protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            response.setContentType("text/plain");
-            PrintWriter writer = response.getWriter();
-            writer.println(request.getParameter("tid") + "," + request.getParameter("logid") + ",0-10");
-            writer.close();
+    private static final Version V1_0_0 = Version.parseVersion("1.0.0");
+    private static final Version V2_0_0 = Version.parseVersion("2.0.0");
+    private static final Version V3_0_0 = Version.parseVersion("3.0.0");
+    private static final Version V4_0_0 = Version.parseVersion("4.0.0");
+    private static final Version V5_0_0 = Version.parseVersion("5.0.0");
+    private static final Version V6_0_0 = Version.parseVersion("6.0.0");
+
+    private volatile TestDeploymentServlet m_servlet;
+    private volatile HttpService m_http;
+    private volatile TestEventListener m_listener;
+
+    private TestPackage m_package1;
+    private TestPackage m_package2;
+    private TestPackage m_package3;
+    private TestPackage m_package4;
+    private TestPackage m_package5;
+    private TestPackage m_package6;
+
+    /**
+     * Test case for ACE-323: when a version of a DP was downloaded correctly, but did not install correctly, we should
+     * not keep trying, unless a newer version of that DP is available.
+     */
+    public void testFailedDeploymentWithoutRetrying() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package1, null);
+
+        // Try to install a DP that fails due to an aborted stream...
+        expectFailedDeployment(m_package2, Failure.ABORT_STREAM);
+        waitForInstalledVersion(V1_0_0);
+
+        // The failed DP should not be installed again...
+        TimeUnit.SECONDS.sleep(2); // sleep a little while to show the retry in the log...
+
+        // If we install a newer version, it should succeed...
+        expectSuccessfulDeployment(m_package6, null);
+
+        // Check our event log, should contain all handled events...
+        Map<String, List<Map<String, String>>> topics = m_listener.getTopics();
+
+        List<Map<String, String>> events = topics.get(AGENT_DEPLOYMENT_INSTALL);
+        // should contain exactly three different elements...
+        assertEquals(events.toString(), 3, events.size());
+
+        events = topics.get(AGENT_DEPLOYMENT_COMPLETE);
+        // should contain exactly three different elements...
+        assertEquals(events.toString(), 3, events.size());
+    }
+
+    /**
+     * Tests that we can install upgrades for an earlier installed DP.
+     */
+    public void testInstallUpgradeDeploymentPackage() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        // Try to install a DP that fails at bundle-starting due to a non-existing class, but this does not revert the
+        // installation of the DP itself...
+        expectSuccessfulDeployment(m_package5, null);
+
+        // If we install a newer version, it should succeed...
+        expectSuccessfulDeployment(m_package6, null);
+    }
+
+    /**
+     * Tests the deployment of "non-streamed" deployment packages in various situations.
+     */
+    public void testNonStreamingDeployment() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package6, null);
+    }
+
+    /**
+     * Tests the deployment of "non-streamed" deployment packages in various situations.
+     */
+    public void testNonStreamingDeployment_AbortedStream() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        expectFailedDeployment(m_package5, Failure.ABORT_STREAM);
+    }
+
+    /**
+     * Tests the deployment of "non-streamed" deployment packages in various situations.
+     */
+    public void testNonStreamingDeployment_CorruptStream() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        expectFailedDeployment(m_package4, Failure.CORRUPT_STREAM);
+    }
+
+    /**
+     * Tests the deployment of "non-streamed" deployment packages in various situations.
+     */
+    public void testNonStreamingDeployment_DeploymentRetryAfter() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package2, Failure.DEPLOYMENT_RETRY_AFTER);
+    }
+
+    /**
+     * Tests the deployment of "non-streamed" deployment packages in various situations.
+     */
+    public void testNonStreamingDeployment_EmptyStream() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        expectFailedDeployment(m_package3, Failure.EMPTY_STREAM);
+    }
+
+    /**
+     * Tests the deployment of "non-streamed" deployment packages in various situations.
+     */
+    public void testNonStreamingDeployment_VersionsRetryAfter() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package1, Failure.VERSIONS_RETRY_AFTER);
+    }
+
+    /**
+     * Tests the deployment of "streamed" deployment packages in various situations.
+     */
+    public void testStreamingDeployment() throws Exception {
+        setupAgentForStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package6, null);
+    }
+
+    /**
+     * Tests the deployment of "streamed" deployment packages in various situations.
+     */
+    public void testStreamingDeployment_AbortStream() throws Exception {
+        setupAgentForStreamingDeployment();
+
+        expectFailedDeployment(m_package5, Failure.ABORT_STREAM);
+    }
+
+    /**
+     * Tests the deployment of "streamed" deployment packages in various situations.
+     */
+    public void testStreamingDeployment_CorruptStream() throws Exception {
+        setupAgentForStreamingDeployment();
+
+        expectFailedDeployment(m_package4, Failure.CORRUPT_STREAM);
+    }
+
+    /**
+     * Tests the deployment of "streamed" deployment packages in various situations.
+     */
+    public void testStreamingDeployment_DeploymentRetryAfter() throws Exception {
+        setupAgentForStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package2, Failure.DEPLOYMENT_RETRY_AFTER);
+    }
+
+    /**
+     * Tests the deployment of "streamed" deployment packages in various situations.
+     */
+    public void testStreamingDeployment_EmptyStream() throws Exception {
+        setupAgentForStreamingDeployment();
+
+        expectFailedDeployment(m_package3, Failure.EMPTY_STREAM);
+    }
+
+    /**
+     * Tests the deployment of "streamed" deployment packages in various situations.
+     */
+    public void testStreamingDeployment_VersionsRetryAfter() throws Exception {
+        setupAgentForStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package1, Failure.VERSIONS_RETRY_AFTER);
+    }
+
+    @Override
+    protected void configureAdditionalServices() throws Exception {
+        TestBundle bundle1v1 = new TestBundle(TEST_BUNDLE_NAME_PREFIX.concat("1"), V1_0_0);
+        TestBundle bundle1v2 = new TestBundle(TEST_BUNDLE_NAME_PREFIX.concat("1"), V2_0_0);
+        TestBundle bundle2v1 = new TestBundle(TEST_BUNDLE_NAME_PREFIX.concat("2"), V1_0_0);
+        TestBundle bundle2v2 = new TestBundle(TEST_BUNDLE_NAME_PREFIX.concat("2"), V2_0_0);
+        TestBundle bundle3v1 = new TestBundle(TEST_BUNDLE_NAME_PREFIX.concat("3"), V1_0_0, Constants.BUNDLE_ACTIVATOR, "no.such.Class");
+        TestBundle bundle3v2 = new TestBundle(TEST_BUNDLE_NAME_PREFIX.concat("3"), V2_0_0);
+
+        m_package1 = new TestPackage(AGENT_ID, V1_0_0, bundle1v1);
+        m_package2 = new TestPackage(AGENT_ID, V2_0_0, bundle1v2);
+        m_package3 = new TestPackage(AGENT_ID, V3_0_0, bundle1v2, bundle2v1);
+        m_package4 = new TestPackage(AGENT_ID, V4_0_0, bundle1v2, bundle2v2);
+        m_package5 = new TestPackage(AGENT_ID, V5_0_0, bundle1v2, bundle2v2, bundle3v1);
+        m_package6 = new TestPackage(AGENT_ID, V6_0_0, bundle1v2, bundle2v2, bundle3v2);
+
+        m_servlet = new TestDeploymentServlet(AGENT_ID);
+
+        m_http.registerServlet("/deployment", m_servlet, null, null);
+        m_http.registerServlet("/agent", new TestUpdateServlet(), null, null);
+        m_http.registerServlet("/auditlog", new TestAuditlogServlet(), null, null);
+    }
+
+    @Override
+    protected Component[] getDependencies() {
+        m_listener = new TestEventListener();
+        return new Component[] {
+            createComponent()
+                .setImplementation(this)
+                .add(createServiceDependency().setService(HttpService.class).setRequired(true)),
+            createComponent()
+                .setInterface(EventListener.class.getName(), null)
+                .setImplementation(m_listener)
+        };
+    }
+
+    protected void tearDown() throws Exception {
+        // Remove all provisioned components...
+        m_dependencyManager.clear();
+
+        m_http.unregister("/deployment");
+        m_http.unregister("/agent");
+        m_http.unregister("/auditlog");
+
+        // Force an uninstall of all remaining test bundles...
+        for (Bundle bundle : m_bundleContext.getBundles()) {
+            String bsn = bundle.getSymbolicName();
+            if (bsn.startsWith(TEST_BUNDLE_NAME_PREFIX)) {
+                bundle.uninstall();
+            }
         }
 
-        @Override
-        protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            InputStream is = request.getInputStream();
-            while (is.read() != -1) {
+        resetAgentBundleState();
+    }
+
+    private Map<String, String> createAgentConfiguration(boolean useStreaming) {
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(AgentConstants.CONFIG_IDENTIFICATION_AGENTID, AGENT_ID);
+        props.put(AgentConstants.CONFIG_LOGGING_LEVEL, LOGLEVEL.name());
+        props.put(AgentConstants.CONFIG_CONTROLLER_STREAMING, Boolean.toString(useStreaming));
+        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCDELAY, "1");
+        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL, "1");
+        props.put(AgentConstants.CONFIG_CONTROLLER_RETRIES, "2");
+        return props;
+    }
+
+    private void expectSuccessfulDeployment(TestPackage dpackage, Failure failure) throws Exception {
+        deployPackage(dpackage, failure);
+
+        waitForEventReceived(AGENT_DEPLOYMENT_INSTALL);
+        waitForEventReceived(AGENT_DEPLOYMENT_COMPLETE, "successful", "true");
+
+        waitForInstalledVersion(dpackage.getVersion());
+    }
+
+    private void expectFailedDeployment(TestPackage dpackage, Failure failure) throws Exception {
+        deployPackage(dpackage, failure);
+
+        waitForEventReceived(AGENT_DEPLOYMENT_INSTALL);
+        waitForEventReceived(AGENT_DEPLOYMENT_COMPLETE, "successful", "false");
+    }
+
+    private void deployPackage(TestPackage dpackage, Failure failure) {
+        synchronized (m_servlet) {
+            m_servlet.setFailure(failure);
+            m_servlet.addPackage(dpackage);
+        }
+    }
+
+    private void setupAgentForNonStreamingDeployment() throws Exception {
+        AgentControl control = getService(AgentControl.class);
+
+        Map<String, String> props = createAgentConfiguration(false /* useStreaming */);
+
+        ConfigurationHandler configurationHandler = control.getConfigurationHandler();
+        configurationHandler.putAll(props);
+
+        synchronized (m_servlet) {
+            m_servlet.reset();
+        }
+
+        waitForInstalledVersion(Version.emptyVersion);
+    }
+
+    private void setupAgentForStreamingDeployment() throws Exception {
+        AgentControl control = getService(AgentControl.class);
+
+        Map<String, String> props = createAgentConfiguration(true /* useStreaming */);
+
+        ConfigurationHandler configurationHandler = control.getConfigurationHandler();
+        configurationHandler.putAll(props);
+
+        waitForInstalledVersion(Version.emptyVersion);
+    }
+
+    private void waitForEventReceived(String topic) throws Exception {
+        int timeout = 100;
+        while (!m_listener.containsTopic(topic)) {
+            Thread.sleep(100);
+            if (timeout-- <= 0) {
+                fail("Timed out while waiting for event " + topic);
             }
-            is.close();
-            response.setContentType("text/plain");
+        }
+    }
+
+    private void waitForEventReceived(String topic, String... properties) throws Exception {
+        Map<String, String> props = new HashMap<String, String>();
+        for (int i = 0; i < properties.length; i += 2) {
+            props.put(properties[i], properties[i + 1]);
+        }
+
+        int timeout = 100;
+        while (!m_listener.containsTopic(topic, props)) {
+            Thread.sleep(100);
+            if (timeout-- <= 0) {
+                fail("Timed out while waiting for event " + topic);
+            }
+        }
+    }
+
+    private void waitForInstalledVersion(Version version) throws Exception {
+        ServiceReference reference = m_bundleContext.getServiceReference(AgentControl.class.getName());
+
+        try {
+            AgentControl control = (AgentControl) m_bundleContext.getService(reference);
+            DeploymentHandler deploymentHandler = control.getDeploymentHandler();
+
+            int timeout = 100;
+            while (!deploymentHandler.getInstalledVersion().equals(version)) {
+                Thread.sleep(100);
+                if (timeout-- <= 0) {
+                    fail("Timed out while waiting for deployment " + version);
+                }
+            }
+        }
+        finally {
+            m_bundleContext.ungetService(reference);
         }
     }
 }
