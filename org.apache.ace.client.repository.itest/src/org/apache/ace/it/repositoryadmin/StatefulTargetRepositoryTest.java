@@ -28,6 +28,7 @@ import static org.apache.ace.client.repository.stateful.StatefulTargetObject.UNK
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,8 @@ import org.apache.ace.client.repository.stateful.StatefulTargetObject.StoreState
 import org.apache.ace.log.AuditEvent;
 import org.apache.ace.log.LogEvent;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.useradmin.User;
 
 /**
@@ -185,17 +188,24 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 		List<LogEvent> events = new ArrayList<LogEvent>();
 		Properties props = new Properties();
 		events.add(new LogEvent("myNewTarget3", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+		// add an (old) set of target properties
+		Properties props2 = new Properties();
+		props2.put("mykey", "myoldvalue");
+		props2.put("myoldkey", "myoldvalue");
+		events.add(new LogEvent("myNewTarget3", 1, 2, 2, AuditEvent.TARGETPROPERTIES_SET, props2));
+		// add a new set of target properties
+		Properties props3 = new Properties();
+		props3.put("mykey", "myvalue");
+		events.add(new LogEvent("myNewTarget3", 1, 3, 3, AuditEvent.TARGETPROPERTIES_SET, props3));
 		m_auditLogStore.put(events);
 		m_statefulTargetRepository.refresh();
 		
 		// do checks
+		TargetObject to = sgo1.getTargetObject();
+		assertNotNull("Stateful target should be backed by a target object.", to);
+		assertEquals("Target should have a property mykey with value myvalue.", "myvalue", to.getTag("target.mykey"));
+		assertNull("This old key should no longer have been associated with this target.", to.getTag("target.myoldkey"));
 		assertTrue("Adding auditlog data for a target does not influence its isRegistered().", sgo1.isRegistered());
-		try {
-		    sgo1.getTargetObject();
-		}
-		catch (IllegalStateException ise) {
-		    assertTrue("We should be able to get sgo1's targetObject.", false);
-		}
 		
 		// add auditlog data for other target
 		events = new ArrayList<LogEvent>();
@@ -287,7 +297,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 		// Finally, create a distribution object
 		final DistributionObject l1 = createBasicDistributionObject("thedistribution");
 		
-		assertTrue("We just created a Staful GW object, is should not be registered", !sgo1.isRegistered());
+		assertTrue("We just created a Stateful target object, is should not be registered", !sgo1.isRegistered());
 		
 		// register sgo1 again and create an association in 1 go
 		Distribution2TargetAssociation lgw1 = runAndWaitForEvent(new Callable<Distribution2TargetAssociation>() {
@@ -303,9 +313,9 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 		        m_bundleContext.createFilter("(" + KEY_REGISTRATION_STATE + "=" + RegistrationState.Registered + ")"))
 		        .size();
 		assert nrRegistered == 2 : "We expect to filter out two registered targets, but we find " + nrRegistered;
-		assertTrue("A stateful gw object should be registered", sgo1.isRegistered());
-		assertTrue("The stateful gw object should be associated to thedistribution.", sgo1.isAssociated(l1, DistributionObject.class));
-		assertTrue("Both ends of distribution - stateful gw should be satisfied.", lgw1.isSatisfied());
+		assertTrue("A stateful target object should be registered", sgo1.isRegistered());
+		assertTrue("The stateful target object should be associated to the distribution.", sgo1.isAssociated(l1, DistributionObject.class));
+		assertTrue("Both ends of distribution - stateful target should be satisfied.", lgw1.isSatisfied());
 		
 		cleanUp();
     }
