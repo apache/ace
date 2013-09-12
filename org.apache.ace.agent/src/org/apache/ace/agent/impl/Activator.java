@@ -18,8 +18,8 @@
  */
 package org.apache.ace.agent.impl;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -65,7 +65,8 @@ public class Activator implements BundleActivator, LifecycleCallback {
      */
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        m_executorService = Executors.newScheduledThreadPool(5, new InternalThreadFactory());
+        // Essentially a single-threaded executor with scheduling support...
+        m_executorService = new ScheduledThreadPoolExecutor(1 /* core pool size */, new InternalThreadFactory());
 
         m_dependencyTracker = new DependencyTrackerImpl(bundleContext, this);
 
@@ -114,7 +115,7 @@ public class Activator implements BundleActivator, LifecycleCallback {
         m_agentContext.setHandler(DeploymentHandler.class, new DeploymentHandlerImpl(context, m_packageAdmin));
         m_agentContext.setHandler(AgentUpdateHandler.class, new AgentUpdateHandlerImpl(context));
         m_agentContext.setHandler(FeedbackHandler.class, new FeedbackHandlerImpl());
-        
+
         IdentificationHandler identificationHandler = (m_identificationHandler != null) ? m_identificationHandler : new IdentificationHandlerImpl();
         m_agentContext.setHandler(IdentificationHandler.class, identificationHandler);
 
@@ -126,7 +127,7 @@ public class Activator implements BundleActivator, LifecycleCallback {
 
         m_agentContext.addComponent(new DefaultController());
         m_agentContext.addComponent(new EventLoggerImpl(context));
-        
+
         m_agentContext.start();
 
         m_agentControlRegistration = context.registerService(AgentControl.class.getName(), new AgentControlImpl(m_agentContext), null);
