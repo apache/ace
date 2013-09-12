@@ -100,7 +100,18 @@ public class UpdateHandlerBase extends ComponentBase {
                 ((HttpURLConnection) urlConnection).setRequestMethod("HEAD");
             }
 
-            return urlConnection.getHeaderFieldLong(AgentConstants.HEADER_DPSIZE, -1L);
+            long dpSize = -1L;
+            // getHeaderFieldLong is added in JDK7, unfortunately...
+            String headerDPSize = urlConnection.getHeaderField(AgentConstants.HEADER_DPSIZE);
+            if (headerDPSize != null && !"".equals(headerDPSize.trim())) {
+                try {
+                    dpSize = Long.parseLong(headerDPSize);
+                }
+                catch (NumberFormatException exception) {
+                    // Ignore, use default of -1...
+                }
+            }
+            return dpSize;
         }
         finally {
             close(urlConnection);
