@@ -21,7 +21,6 @@ package org.apache.ace.agent.impl;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertSame;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,11 +31,11 @@ import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -45,12 +44,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.agent.AgentContext;
+import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DownloadHandle;
-import org.apache.ace.agent.DownloadHandle.ProgressListener;
-import org.apache.ace.agent.DownloadHandle.ResultListener;
+import org.apache.ace.agent.DownloadHandle.DownloadProgressListener;
 import org.apache.ace.agent.DownloadHandler;
 import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.DownloadState;
+import org.apache.ace.agent.EventsHandler;
+import org.apache.ace.agent.LoggingHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
 import org.testng.annotations.AfterTest;
@@ -68,12 +69,14 @@ public class DownloadHandlerTest extends BaseAgentTest {
         @Override
         public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
             String retry = req.getParameter("retry");
-            if (retry != null)
+            if (retry != null) {
                 ((HttpServletResponse) res).setHeader("Retry-After", retry);
+            }
             int code = 500;
             String status = req.getParameter("status");
-            if (status != null)
+            if (status != null) {
                 code = Integer.parseInt(status);
+            }
             ((HttpServletResponse) res).sendError(code, "You asked for it");
         }
     }
@@ -91,14 +94,16 @@ public class DownloadHandlerTest extends BaseAgentTest {
 
     @BeforeTest
     public void setUpOnceAgain() throws Exception {
-
         int port = 8883;
 
         m_200url = new URL("http://localhost:" + port + "/testfile.txt");
         m_404url = new URL("http://localhost:" + port + "/error?status=404");
         m_503url = new URL("http://localhost:" + port + "/error?status=503&retry=500");
 
-        m_200file = new File(new File("generated"), "testfile.txt");
+        File dataLocation = new File("generated");
+
+        m_200file = new File(dataLocation, "testfile.txt");
+
         DigestOutputStream dos = new DigestOutputStream(new FileOutputStream(m_200file), MessageDigest.getInstance("MD5"));
         for (int i = 0; i < 10000; i++) {
             dos.write(String.valueOf(System.currentTimeMillis()).getBytes());
@@ -114,9 +119,13 @@ public class DownloadHandlerTest extends BaseAgentTest {
         m_agentContextImpl = mockAgentContext();
         m_agentContext = m_agentContextImpl;
 
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+
         m_agentContextImpl.setHandler(ScheduledExecutorService.class, executorService);
-        m_agentContextImpl.setHandler(DownloadHandler.class, new DownloadHandlerImpl());
+        m_agentContextImpl.setHandler(EventsHandler.class, new EventsHandlerImpl(mockBundleContext()));
+        m_agentContextImpl.setHandler(ConnectionHandler.class, new ConnectionHandlerImpl());
+        m_agentContextImpl.setHandler(LoggingHandler.class, new LoggingHandlerImpl());
+        m_agentContextImpl.setHandler(DownloadHandler.class, new DownloadHandlerImpl(dataLocation));
 
         m_agentContextImpl.start();
         replayTestMocks();
@@ -132,95 +141,65 @@ public class DownloadHandlerTest extends BaseAgentTest {
     @Test
     public void testSuccessful_noresume_result() throws Exception {
         DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
-        final DownloadHandle handle = downloadHandler.getHandle(m_200url).start();
-        final DownloadResult result = handle.result();
-        assertSuccessFul(result, 200, m_200digest);
-    }
 
-    @Test
-    public void testSuccessful_noresume_listener() throws Exception {
-        DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
-        final CountDownLatch latch = new CountDownLatch(1);
-        final List<DownloadResult> holder = new ArrayList<DownloadResult>();
-        final DownloadHandle handle = downloadHandler.getHandle(m_200url)
-            .setCompletionListener(new ResultListener() {
-                @Override
-                public void completed(DownloadResult result) {
-                    holder.add(result);
-                    latch.countDown();
-                }
-            }).start();
-        latch.await();
-        assertSuccessFul(holder.get(0), 200, m_200digest);
-        assertSame(handle.result(), holder.get(0), "Await should return same result given to the completion handler.");
+        DownloadResult result = downloadHandler.getHandle(m_200url).startAndAwaitResult(10, TimeUnit.SECONDS);
+        assertSuccessFul(result, 200, m_200digest);
     }
 
     @Test
     public void testSuccessful_resume_result() throws Exception {
         DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
+
+        final AtomicReference<DownloadResult> resultRef = new AtomicReference<DownloadResult>();
+        final CountDownLatch latch = new CountDownLatch(1);
+
         final DownloadHandle handle = downloadHandler.getHandle(m_200url);
-        handle.setProgressListener(new ProgressListener() {
+        handle.start(new DownloadProgressListener() {
             @Override
-            public void progress(long contentLength, long progress) {
+            public void progress(long read, long total) {
                 handle.stop();
             }
-        }).start();
-        assertStopped(handle.result(), 200);
-        assertStopped(handle.start().result(), 206);
-        assertSuccessFul(handle.setProgressListener(null).start().result(), 206, m_200digest);
-    }
 
-    @Test
-    public void testFailedIO_nostatus_result() throws Exception {
-        DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
-        DownloadHandle handle = downloadHandler.getHandle(m_200url, 2048);
+            @Override
+            public void completed(DownloadResult downloadResult) {
+                resultRef.set(downloadResult);
+                latch.countDown();
+            }
+        });
 
-        DownloadResult result = ((DownloadHandleImpl) handle).start(DownloadCallableImpl.FAIL_OPENCONNECTION).result();
-        assertFailed(result, 0);
-        assertNull(result.getHeaders());
+        latch.await(5, TimeUnit.SECONDS);
 
-        result = ((DownloadHandleImpl) handle).start(DownloadCallableImpl.FAIL_OPENINPUTSTREAM).result();
-        assertFailed(result, 200);
-        assertNotNull(result.getHeaders());
+        DownloadResult result = resultRef.get();
 
-        result = ((DownloadHandleImpl) handle).start(DownloadCallableImpl.FAIL_OPENOUTPUTSTREAM).result();
-        assertFailed(result, 200);
-        assertNotNull(result.getHeaders());
-
-        result = ((DownloadHandleImpl) handle).start(DownloadCallableImpl.FAIL_AFTERFIRSTWRITE).result();
-        assertFailed(result, 200);
-        assertNotNull(result.getHeaders());
-
-        result = ((DownloadHandleImpl) handle).start(DownloadCallableImpl.FAIL_AFTERFIRSTWRITE).result();
-        assertFailed(result, 206);
-        assertNotNull(result.getHeaders());
-
-        result = handle.start().result();
-        assertSuccessFul(result, 206, m_200digest);
+        assertStopped(result, 200);
+        assertSuccessFul(handle.startAndAwaitResult(Integer.MAX_VALUE, TimeUnit.SECONDS), 206, m_200digest);
     }
 
     @Test
     public void testFailed404_noresume_result() throws Exception {
         DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
-        final DownloadResult result = downloadHandler.getHandle(m_404url).start().result();
+
+        DownloadResult result = downloadHandler.getHandle(m_404url).startAndAwaitResult(10, TimeUnit.SECONDS);
         assertFailed(result, 404);
     }
 
     @Test
     public void testFailed503_noresume_result() throws Exception {
         DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
-        DownloadResult result = downloadHandler.getHandle(m_503url).start().result();
+
+        DownloadHandle handle = downloadHandler.getHandle(m_503url);
+
+        DownloadResult result = handle.startAndAwaitResult(10, TimeUnit.SECONDS);
         assertFailed(result, 503);
-        assertNotNull(result.getHeaders().get("Retry-After"), "Expected a Retry-After header from error servlet");
-        assertNotNull(result.getHeaders().get("Retry-After").get(0), "Expected a Retry-After header from error servlet");
-        assertEquals(result.getHeaders().get("Retry-After").get(0), "500", "Expected a Retry-After header from error servlet");
+
+        result = handle.startAndAwaitResult(10, TimeUnit.SECONDS);
+        assertFailed(result, 503);
     }
 
     private static void assertSuccessFul(final DownloadResult result, int statusCode, String digest) throws Exception {
         assertEquals(result.getState(), DownloadState.SUCCESSFUL, "Expected state SUCCESSFUL after succesful completion");
         assertEquals(result.getCode(), statusCode, "Expected statusCode " + statusCode + " after successful completion");
         assertNotNull(result.getInputStream(), "Expected non null file after successful completion");
-        assertNotNull(result.getHeaders(), "Expected non null headers after successful completion");
         assertNull(result.getCause(), "Excpected null cause after successful completion");
         assertEquals(getDigest(result.getInputStream()), digest, "Expected same digest after successful completion");
     }
@@ -234,7 +213,6 @@ public class DownloadHandlerTest extends BaseAgentTest {
     private static void assertStopped(final DownloadResult result, int statusCode) throws Exception {
         assertEquals(result.getState(), DownloadState.STOPPED, "DownloadState must be STOPPED after stopped completion");
         assertEquals(result.getCode(), statusCode, "Expected statusCode " + statusCode + " after stopped completion");
-        assertNotNull(result.getHeaders(), "Expected headers not to be null after stopped completion");
         assertNull(result.getInputStream(), "File must not be null after failed download");
         assertNull(result.getCause(), "Excpected cause to null null after stopped completion");
     }

@@ -18,6 +18,8 @@
  */
 package org.apache.ace.agent;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * A {@link DownloadHandle} provides control over an asynchronous download and access to the resulting file when the it
  * is completed. <br/>
@@ -30,76 +32,50 @@ package org.apache.ace.agent;
  * <ul>
  */
 public interface DownloadHandle {
-
-    /**
-     * Size of the buffer used while downloading the content stream.
-     */
-    int DEFAULT_READBUFFER_SIZE = 1024;
-
-    /**
-     * Callback interface; when registered the progress method will be invoked while downloading the content stream for
-     * every {@link READBUFFER_SIZE} bytes.
-     */
-    interface ProgressListener {
-        /**
-         * Called while downloading the content stream.
-         * 
-         * @param contentLength The total length of the content or -1 if unknown.
-         * @param progress The number of bytes that has been received so far.
-         */
-        void progress(long contentLength, long progress);
-    }
-
     /**
      * Callback interface; when registered the completed method will be invoked when the download terminates for any
      * reason.
-     * 
      */
-    interface ResultListener {
+    interface DownloadProgressListener {
+        /**
+         * Called while downloading the content stream.
+         * 
+         * @param bytesRead
+         *            The number of bytes that has been received so far;
+         * @param totalBytes
+         *            The total length of the content or -1 if unknown.
+         */
+        void progress(long bytesRead, long totalBytes);
+
         /**
          * Called when a download terminates.
          * 
-         * @param result The result of the download.
+         * @param result
+         *            The result of the download.
          */
         void completed(DownloadResult result);
     }
 
     /**
-     * Registers the progress listener.
-     * 
-     * @param listener The progress listener.
-     * @return this
+     * Starts the download, reporting the result and progress to the supplied listeners.
      */
-    DownloadHandle setProgressListener(ProgressListener listener);
+    void start(DownloadProgressListener listener);
 
     /**
-     * Registers the completion listener.
+     * Convenience method to start the download and block until it is finished.
      * 
-     * @param listener The completion listener.
-     * @return this
+     * @param timeout
+     *            the timeout to wait for a result;
+     * @param unit
+     *            the unit of the timeout to wait for a result.
+     * @return the download result, never <code>null</code>.
      */
-    DownloadHandle setCompletionListener(ResultListener listener);
-
-    /**
-     * Starts the download.
-     * 
-     * @return this
-     */
-    DownloadHandle start();
+    DownloadResult startAndAwaitResult(long timeout, TimeUnit unit) throws InterruptedException;
 
     /**
      * Pauses the download.
-     * 
-     * @return this
      */
-    DownloadHandle stop();
-
-    /**
-     * Retrieves the download result. Will wait for completion before returning.
-     * 
-     * @return The result of the download
-     */
-    DownloadResult result();
+    void stop();
 
     /**
      * Releases any resources that may be held by the handle.

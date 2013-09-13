@@ -35,12 +35,28 @@ import java.util.TreeSet;
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.RetryAfterException;
+import org.apache.ace.agent.UpdateHandler;
 import org.osgi.framework.Version;
 
-public class UpdateHandlerBase extends ComponentBase {
+abstract class UpdateHandlerBase extends ComponentBase implements UpdateHandler {
 
     public UpdateHandlerBase(String componentIdentifier) {
         super(componentIdentifier);
+    }
+
+    @Override
+    public final Version getHighestAvailableVersion() throws RetryAfterException, IOException {
+        SortedSet<Version> available = new TreeSet<Version>();
+        try {
+            available = getAvailableVersions();
+        }
+        catch (IOException e) {
+            // Hopefully temporary problem due to remote IO or configuration. No cause to abort the sync so we just
+            // log it as a warning.
+            logWarning("Exception while retrieving agent versions", e);
+        }
+
+        return getHighestVersion(available);
     }
 
     protected SortedSet<Version> getAvailableVersions(URL endpoint) throws RetryAfterException, IOException {
@@ -79,15 +95,18 @@ public class UpdateHandlerBase extends ComponentBase {
         return getIdentificationHandler().getAgentId();
     }
 
-    protected InputStream getInputStream(URL packageURL) throws IOException {
-        URLConnection urlConnection = null;
+    protected InputStream getInputStream(URL packageURL) throws RetryAfterException, IOException {
+        URLConnection connection = null;
         // TODO handle problems and retries
         try {
-            urlConnection = getConnection(packageURL);
-            return urlConnection.getInputStream();
+            connection = getConnection(packageURL);
+
+            checkConnectionResponse(connection);
+
+            return connection.getInputStream();
         }
         catch (IOException e) {
-            close(urlConnection);
+            close(connection);
             throw e;
         }
     }
@@ -129,5 +148,13 @@ public class UpdateHandlerBase extends ComponentBase {
 
     private URLConnection getConnection(URL url) throws IOException {
         return getConnectionHandler().getConnection(url);
+    }
+
+    private Version getHighestVersion(SortedSet<Version> available) {
+        Version highest = Version.emptyVersion;
+        if (available != null && !available.isEmpty()) {
+            highest = available.last();
+        }
+        return highest;
     }
 }

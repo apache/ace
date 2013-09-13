@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
+import java.io.File;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 
@@ -25,9 +26,19 @@ import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandler;
 
 public class DownloadHandlerImpl extends ComponentBase implements DownloadHandler {
+    private final File m_dataLocation;
 
-    public DownloadHandlerImpl() {
+    public DownloadHandlerImpl(File dataLocation) {
         super("downloads");
+
+        m_dataLocation = dataLocation;
+    }
+
+    /**
+     * @return the location to (temporarily) store data.
+     */
+    public File getDataLocation() {
+        return m_dataLocation;
     }
 
     @Override

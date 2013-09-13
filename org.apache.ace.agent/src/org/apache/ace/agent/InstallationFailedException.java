@@ -16,24 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.ace.agent.impl;
+package org.apache.ace.agent;
 
 /**
- * Represents internal constants.
+ * Generic exception that is thrown when an installation of an update failed.
+ * 
+ * @see UpdateHandler#install(java.io.InputStream)
  */
-public interface InternalConstants {
+public class InstallationFailedException extends Exception {
+    private static final long serialVersionUID = 1L;
+
     /**
-     * Event topic used to report changes in the agent's configuration.
+     * Creates a new {@link InstallationFailedException} instance.
      */
-    String AGENT_CONFIG_CHANGED = "agent/config/CHANGED";
+    public InstallationFailedException(String msg) {
+        super(msg);
+    }
+
     /**
-     * Internal event topic used when the installation of a deployment package or agent update is started.
+     * Creates a new {@link InstallationFailedException} instance.
      */
-    String AGENT_INSTALLATION_START = "agent/installation/START";
-    /**
-     * Internal event topic used when the installation of a deployment package or agent update is complete (either or
-     * not successful).
-     */
-    String AGENT_INSTALLATION_COMPLETE = "agent/installation/COMPLETE";
+    public InstallationFailedException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

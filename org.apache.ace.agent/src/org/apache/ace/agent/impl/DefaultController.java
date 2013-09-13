@@ -25,9 +25,7 @@ import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_STREAMING;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCDELAY;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL;
 import static org.apache.ace.agent.impl.ConnectionUtil.closeSilently;
-import static org.apache.ace.agent.impl.InternalConstants.AGENT_CONFIG_CHANGED;
-import static org.apache.ace.agent.impl.InternalConstants.AGENT_DEPLOYMENT_COMPLETE;
-import static org.apache.ace.agent.impl.InternalConstants.AGENT_DEPLOYMENT_INSTALL;
+import static org.apache.ace.agent.impl.InternalConstants.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,132 +33,118 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.ace.agent.AgentUpdateHandler;
-import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandle;
+import org.apache.ace.agent.DownloadHandle.DownloadProgressListener;
 import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.DownloadState;
 import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.FeedbackChannel;
+import org.apache.ace.agent.InstallationFailedException;
 import org.apache.ace.agent.RetryAfterException;
+import org.apache.ace.agent.UpdateHandler;
 import org.osgi.framework.Version;
-import org.osgi.service.deploymentadmin.DeploymentException;
 
 /**
  * Default configurable controller
  */
 public class DefaultController extends ComponentBase implements Runnable, EventListener {
-
     /**
      * UpdateInstaller that provides download deployment package install. The install is non-blocking. Upon download
      * completion this installer will reschedule the controller.
      */
-    static class DownloadUpdateInstaller extends UpdateInstaller implements DownloadHandle.ProgressListener, DownloadHandle.ResultListener {
-        // active download state
+    static class DownloadUpdateInstaller extends UpdateInstaller {
         private volatile DownloadHandle m_downloadHandle;
-        private volatile DownloadResult m_downloadResult = null;
-        private volatile Version m_downloadVersion;
-        private volatile long m_downloadLength = 0;
-        private volatile long m_downloadProgress = 0;
+        private volatile UpdateInfo m_updateInfo;
 
         public DownloadUpdateInstaller(DefaultController controller) {
             super(controller);
         }
 
         @Override
-        public void completed(DownloadResult result) {
-            int delay = 1; // seconds
-            m_downloadResult = result;
-            getController().logInfo("Deployment package download completed for version %s. Rescheduling the controller to run in %d seconds", m_downloadVersion, delay);
-            getController().scheduleRun(delay);
-        }
+        public void doInstallUpdate(final UpdateHandler delegate, final UpdateInfo updateInfo) throws RetryAfterException {
+            DefaultController controller = getController();
 
-        @Override
-        public void doInstallUpdate(Version fromVersion, Version toVersion, boolean fixPackage) throws RetryAfterException, DeploymentException, IOException {
-            DeploymentHandler deploymentHandler = getController().getDeploymentHandler();
-
-            if (m_downloadHandle != null && !m_downloadVersion.equals(toVersion)) {
-                getController().logInfo("Cancelling deployment package download for %s because a newer version is available...", m_downloadVersion);
+            if (m_downloadHandle != null && m_updateInfo != null && !m_updateInfo.m_to.equals(updateInfo.m_to)) {
+                controller.logInfo("Cancelling download of %s update for %s because a newer version is available...", m_updateInfo.m_type, m_updateInfo.m_to);
                 m_downloadHandle.discard();
                 m_downloadHandle = null;
             }
 
             if (m_downloadHandle == null) {
-                getController().logInfo("Starting deployment package download %s => %s...", fromVersion, toVersion);
+                controller.logInfo("Starting download of %s update, %s => %s...", updateInfo.m_type, updateInfo.m_from, updateInfo.m_to);
 
-                m_downloadVersion = toVersion;
+                m_updateInfo = updateInfo;
 
-                m_downloadHandle = deploymentHandler.getDownloadHandle(toVersion, fixPackage);
-                m_downloadHandle.setProgressListener(this).setCompletionListener(this).start();
-                return;
-            }
+                m_downloadHandle = delegate.getDownloadHandle(updateInfo.m_to, updateInfo.m_fixPackage);
+                m_downloadHandle.start(new DownloadProgressListener() {
+                    @Override
+                    public void completed(DownloadResult result) {
+                        DefaultController controller = getController();
+                        DownloadState state = result.getState();
 
-            if (m_downloadResult == null) {
-                getController().logInfo("Deployment package download for %s is in progress %d / %d", toVersion, m_downloadProgress, m_downloadLength);
-                return;
-            }
+                        String type = updateInfo.m_type;
+                        Version fromVersion = updateInfo.m_from;
+                        Version toVersion = updateInfo.m_to;
 
-            DownloadState state = m_downloadResult.getState();
-            if (DownloadState.FAILED == state) {
-                getController().logWarning("Deployment package download for %s is FAILED. Restarting download...");
+                        if (DownloadState.FAILED == state) {
+                            controller.logInfo("Download of %s update is FAILED. Restarting download...", type);
 
-                m_downloadHandle.discard();
-                m_downloadHandle = null;
+                            m_downloadHandle.discard();
+                            m_downloadHandle = null;
+                        }
+                        else if (DownloadState.STOPPED == state) {
+                            controller.logInfo("Download of %s update is STOPPED. Resuming download...", type);
 
-                throw new IOException("Download failed for deployment update " + fromVersion + " => " + toVersion);
-            }
-            else if (DownloadState.STOPPED == state) {
-                getController().logInfo("Deployment package download for %s is STOPPED. Trying to resume download...");
+                            m_downloadHandle.start(this);
+                        }
+                        else if (DownloadState.SUCCESSFUL == state) {
+                            controller.logInfo("Installing %s update %s => %s...", type, fromVersion, toVersion);
 
-                m_downloadResult = null;
-                m_downloadHandle.start();
-            }
-            else if (DownloadState.SUCCESSFUL == state) {
-                getController().logInfo("Installing downloaded deployment update %s => %s...", fromVersion, toVersion);
+                            boolean success = false;
+                            Exception cause = null;
 
-                getController().sendDeploymentInstallEvent(fromVersion, toVersion, fixPackage);
-                
-                InputStream inputStream = null;
-                boolean success = false;
+                            try {
+                                startInstallation(updateInfo);
 
-                try {
-                    inputStream = m_downloadResult.getInputStream();
+                                delegate.install(result.getInputStream());
 
-                    deploymentHandler.deployPackage(inputStream);
+                                success = true;
+                            }
+                            catch (Exception exception) {
+                                cause = exception;
+                                controller.logWarning("Installation of %s update failed!", exception, type);
+                            }
+                            finally {
+                                m_downloadHandle.discard();
+                                m_downloadHandle = null;
 
-                    success = true;
-                }
-                finally {
-                    m_downloadHandle.discard();
-                    m_downloadHandle = null;
+                                endInstallation(updateInfo, success, cause);
+                            }
+                        }
+                    }
 
-                    closeSilently(inputStream);
-
-                    getController().sendDeploymentCompletedEvent(fromVersion, toVersion, fixPackage, success);
-                }
+                    @Override
+                    public void progress(long contentLength, long progress) {
+                        if (updateInfo != null) {
+                            getController().logInfo("Progress of %s update download: %d of %d bytes...", updateInfo.m_type, progress, contentLength);
+                        }
+                    }
+                });
             }
         }
 
         @Override
         public void doReset() {
             if (m_downloadHandle != null) {
-                getController().logInfo("Cancelling deployment package download for version %s because of reset...", m_downloadVersion);
+                getController().logInfo("Cancelling deployment package download for version %s because of reset...", m_updateInfo.m_to);
                 m_downloadHandle.discard();
             }
             clearDownloadState();
-        }
-
-        @Override
-        public void progress(long contentLength, long progress) {
-            m_downloadLength = contentLength;
-            m_downloadProgress = progress;
         }
 
         private void clearDownloadState() {
@@ -168,8 +152,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
                 m_downloadHandle.discard();
             }
             m_downloadHandle = null;
-            m_downloadResult = null;
-            m_downloadVersion = null;
+            m_updateInfo = null;
         }
     }
 
@@ -182,27 +165,34 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         }
 
         @Override
-        public void doInstallUpdate(Version from, Version to, boolean fix) throws RetryAfterException, DeploymentException, IOException {
-            getController().logInfo("Installing streaming deployment update %s => %s", from, to);
+        public void doInstallUpdate(UpdateHandler delegate, UpdateInfo updateInfo) throws RetryAfterException {
+            DefaultController controller = getController();
 
-            getController().sendDeploymentInstallEvent(from, to, fix);
-
-            DeploymentHandler deploymentHandler = getController().getDeploymentHandler();
+            controller.logInfo("Installing streaming %s update %s => %s", updateInfo.m_type, updateInfo.m_from, updateInfo.m_to);
 
             InputStream inputStream = null;
-            boolean success = false;
 
             try {
-                inputStream = deploymentHandler.getInputStream(to, fix);
+                inputStream = delegate.getInputStream(updateInfo.m_to, updateInfo.m_fixPackage);
 
-                deploymentHandler.deployPackage(inputStream);
+                startInstallation(updateInfo);
 
-                success = true;
+                delegate.install(inputStream);
+
+                endInstallation(updateInfo, true /* success */, null);
+            }
+            catch (RetryAfterException ex) {
+                // We aren't ready yet...
+                throw ex;
+            }
+            catch (InstallationFailedException ex) {
+                endInstallation(updateInfo, false /* success */, ex);
+            }
+            catch (IOException ex) {
+                endInstallation(updateInfo, false /* success */, ex);
             }
             finally {
                 closeSilently(inputStream);
-
-                getController().sendDeploymentCompletedEvent(from, to, fix, success);
             }
         }
 
@@ -213,10 +203,27 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
     }
 
     /**
-     * Base class for internal installer strategies. This implementation handles max update retry contraints and
+     * Small container for information about an update.
+     */
+    static class UpdateInfo {
+        final Version m_from;
+        final Version m_to;
+        final boolean m_fixPackage;
+        final String m_type;
+
+        public UpdateInfo(String type, Version from, Version to, boolean fixPackage) {
+            m_from = from;
+            m_to = to;
+            m_type = type;
+            m_fixPackage = fixPackage;
+        }
+    }
+
+    /**
+     * Base class for internal installer strategies. This implementation handles max update retry constraints and
      * delegates the rest to concrete implementations.
      */
-    abstract static class UpdateInstaller {
+    static abstract class UpdateInstaller {
         private final DefaultController m_controller;
         private Version m_lastVersionTried = null;
         private boolean m_lastVersionSuccessful = true;
@@ -226,71 +233,139 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
             m_controller = controller;
         }
 
-        public final boolean canInstallUpdate(Version fromVersion, Version toVersion, long maxRetries) {
-            if (toVersion.compareTo(fromVersion) > 0) {
-                // Possible newer version, lets check our administration whether we actually need to do something...
-                if (m_lastVersionTried != null && toVersion.equals(m_lastVersionTried)) {
-                    if (m_failureCount >= maxRetries) {
-                        m_controller.logDebug("Ignoring update %s => %s because max retries (%d) reached!", fromVersion, toVersion, maxRetries);
-                        return false;
-                    }
-                    if (!m_lastVersionSuccessful) {
-                        m_controller.logDebug("Ignoring update %s => %s because it failed previously!", fromVersion, toVersion);
-                        return false;
-                    }
-                }
+        /**
+         * Checks whether there's an update to install, and if so, uses the given delegate to actually install the
+         * update.
+         * 
+         * @param delegate
+         *            the update handle to use for installing the update;
+         * @param fixPackage
+         *            <code>true</code> if the update should be downloaded as a "fix package", or <code>false</code> if
+         *            it should be a "complete" update;
+         * @param maxRetries
+         *            the maximum number of times an update should be retries.
+         * @throws RetryAfterException
+         *             in case the server is too busy and we should defer our update to a later moment in time;
+         * @throws IOException
+         *             in case of problems accessing the server.
+         */
+        public final void installUpdate(UpdateHandler delegate, boolean fixPackage, long maxRetries) throws RetryAfterException, IOException {
+            Version fromVersion = delegate.getInstalledVersion();
+            Version toVersion = delegate.getHighestAvailableVersion();
 
-                m_controller.logDebug("Need to install update: newer deployment version available!");
-                return true;
-            }
-            else {
-                m_controller.logDebug("No need to install update: no newer deployment version available!");
-                return false;
-            }
-        }
+            UpdateInfo updateInfo = new UpdateInfo(delegate.getName(), fromVersion, toVersion, fixPackage);
 
-        public final void installUpdate(Version fromVersion, Version toVersion, boolean fixPackage) throws RetryAfterException {
+            // Check whether we actually do need to do something...
+            if (!canInstallUpdate(updateInfo, maxRetries)) {
+                return;
+            }
+
             if (m_lastVersionTried == null || !toVersion.equals(m_lastVersionTried)) {
                 m_lastVersionTried = toVersion;
                 m_lastVersionSuccessful = true;
                 m_failureCount = 0;
             }
 
-            try {
-                doInstallUpdate(fromVersion, toVersion, fixPackage);
-                // As we've just successfully installed this update, reset the failure counter...
-                m_failureCount = 0;
-                m_lastVersionSuccessful = true;
-            }
-            catch (RetryAfterException e) {
-                // The server is busy. Re-throw so the controller can abort the sync and reschedule.
-                throw (e);
-            }
-            catch (DeploymentException e) {
-                getController().logWarning("Exception while deploying the package", e);
-                e.printStackTrace();
-                m_failureCount++;
-                m_lastVersionSuccessful = false;
-            }
-            catch (IOException e) {
-                getController().logWarning("Exception opening/streaming package inputstream", e);
-                e.printStackTrace();
-                m_failureCount++;
-            }
+            doInstallUpdate(delegate, updateInfo);
         }
 
+        /**
+         * Called when we should discard any pending installations.
+         */
         public final void reset() {
             m_lastVersionTried = null;
             m_failureCount = 0;
             doReset();
         }
 
-        protected abstract void doInstallUpdate(Version from, Version to, boolean fix) throws RetryAfterException, DeploymentException, IOException;
+        /**
+         * Called when an update is available and should be installed. Implementations should do the actual installation
+         * of the update using the given delegate.
+         * 
+         * @param delegate
+         *            the delegate to use for installing the update;
+         * @param updateInfo
+         *            some information about the update.
+         * @throws RetryAfterException
+         *             in case the server is too busy and we should defer our update to a later moment in time.
+         */
+        protected abstract void doInstallUpdate(UpdateHandler delegate, UpdateInfo updateInfo) throws RetryAfterException;
 
+        /**
+         * Called when we should discard any pending installations.
+         */
         protected abstract void doReset();
+
+        /**
+         * Should be called to notify that an installation is ended, successfully or unsuccessfully.
+         * 
+         * @param updateInfo
+         *            the information about the update;
+         * @param success
+         *            <code>true</code> if the installation was successful, <code>false</code> otherwise;
+         * @param cause
+         *            the (optional) cause why the installation failed.
+         */
+        protected final void endInstallation(UpdateInfo updateInfo, boolean success, Exception cause) {
+            m_lastVersionSuccessful = success;
+            if (cause instanceof InstallationFailedException || cause instanceof IOException) {
+                m_failureCount++;
+            }
+            else {
+                m_failureCount = 0;
+            }
+            m_controller.sendDeploymentCompletedEvent(updateInfo, success);
+        }
 
         protected final DefaultController getController() {
             return m_controller;
+        }
+
+        /**
+         * Should be called to notify that an installation is started.
+         * 
+         * @param updateInfo
+         *            the information about the update.
+         */
+        protected final void startInstallation(UpdateInfo updateInfo) {
+            m_controller.sendDeploymentInstallEvent(updateInfo);
+        }
+
+        /**
+         * Determines whether, according to the given information about the possible update, we should actually perform
+         * an update or not.
+         * 
+         * @param updateInfo
+         *            the information about the possible update;
+         * @param maxRetries
+         *            the maximum number of times an installation should be retried.
+         * @return <code>true</code> if there is a possible update to install, <code>false</code> otherwise.
+         */
+        private boolean canInstallUpdate(UpdateInfo updateInfo, long maxRetries) {
+            Version fromVersion = updateInfo.m_from;
+            Version toVersion = updateInfo.m_to;
+            String type = updateInfo.m_type;
+
+            if (toVersion.compareTo(fromVersion) > 0) {
+                // Possible newer version, lets check our administration whether we actually need to do something...
+                if (m_lastVersionTried != null && toVersion.equals(m_lastVersionTried)) {
+                    if (m_failureCount >= maxRetries) {
+                        m_controller.logDebug("Ignoring %s update %s => %s because max retries (%d) reached!", type, fromVersion, toVersion, maxRetries);
+                        return false;
+                    }
+                    if (!m_lastVersionSuccessful) {
+                        m_controller.logDebug("Ignoring %s update %s => %s because it failed previously!", type, fromVersion, toVersion);
+                        return false;
+                    }
+                }
+
+                m_controller.logDebug("Need to install update: newer %s version available!", type);
+                return true;
+            }
+            else {
+                m_controller.logDebug("No need to install update: no newer %s version available!", type);
+                return false;
+            }
         }
     }
 
@@ -433,25 +508,27 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         m_scheduledFuture = getExecutorService().schedule(this, seconds, TimeUnit.SECONDS);
     }
 
-    protected void sendDeploymentCompletedEvent(Version from, Version to, boolean fixPackage, boolean success) {
+    protected void sendDeploymentCompletedEvent(UpdateInfo updateInfo, boolean success) {
         Map<String, String> eventProps = new HashMap<String, String>();
+        eventProps.put("type", updateInfo.m_type);
         eventProps.put("name", getIdentificationHandler().getAgentId());
-        eventProps.put("fromVersion", from.toString());
-        eventProps.put("toVersion", to.toString());
-        eventProps.put("fixPackage", Boolean.toString(fixPackage));
+        eventProps.put("fromVersion", updateInfo.m_from.toString());
+        eventProps.put("toVersion", updateInfo.m_to.toString());
+        eventProps.put("fixPackage", Boolean.toString(updateInfo.m_fixPackage));
         eventProps.put("successful", Boolean.toString(success));
 
-        getEventsHandler().postEvent(AGENT_DEPLOYMENT_COMPLETE, eventProps);
+        getEventsHandler().postEvent(AGENT_INSTALLATION_COMPLETE, eventProps);
     }
 
-    protected void sendDeploymentInstallEvent(Version from, Version to, boolean fixPackage) {
+    protected void sendDeploymentInstallEvent(UpdateInfo updateInfo) {
         Map<String, String> eventProps = new HashMap<String, String>();
+        eventProps.put("type", updateInfo.m_type);
         eventProps.put("name", getIdentificationHandler().getAgentId());
-        eventProps.put("fromVersion", from.toString());
-        eventProps.put("toVersion", to.toString());
-        eventProps.put("fixPackage", Boolean.toString(fixPackage));
+        eventProps.put("fromVersion", updateInfo.m_from.toString());
+        eventProps.put("toVersion", updateInfo.m_to.toString());
+        eventProps.put("fixPackage", Boolean.toString(updateInfo.m_fixPackage));
 
-        getEventsHandler().postEvent(AGENT_DEPLOYMENT_INSTALL, eventProps);
+        getEventsHandler().postEvent(AGENT_INSTALLATION_START, eventProps);
     }
 
     private FeedbackChannel getFeedbackChannel(String name) {
@@ -478,44 +555,9 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         return Collections.emptySet();
     }
 
-    private Version getHighestAvailableAgentVersion() throws RetryAfterException {
-        SortedSet<Version> available = new TreeSet<Version>();
-        try {
-            available = getAgentUpdateHandler().getAvailableVersions();
-        }
-        catch (IOException e) {
-            // Hopefully temporary problem due to remote IO or configuration. No cause to abort the sync so we just
-            // log it as a warning.
-            logWarning("Exception while retrieving agent versions", e);
-        }
-
-        return getHighestVersion(available);
-    }
-
-    private Version getHighestAvailableDeploymentVersion() throws RetryAfterException {
-        SortedSet<Version> available = new TreeSet<Version>();
-        try {
-            available = getDeploymentHandler().getAvailableVersions();
-        }
-        catch (IOException e) {
-            // Hopefully temporary problem due to remote IO or configuration. No cause to abort the sync so we just
-            // log it as a warning.
-            logWarning("Exception while retrieving deployment versions", e);
-        }
-
-        return getHighestVersion(available);
-    }
-
-    private Version getHighestVersion(SortedSet<Version> available) {
-        Version highest = Version.emptyVersion;
-        if (available != null && !available.isEmpty()) {
-            highest = available.last();
-        }
-        return highest;
-    }
-
-    private UpdateInstaller getUpdateInstaller(boolean streaming) {
-        if (streaming) {
+    private UpdateInstaller getUpdateInstaller() {
+        boolean updateUsingStreams = m_updateStreaming.get();
+        if (updateUsingStreams) {
             if (m_updateInstaller == null) {
                 m_updateInstaller = new StreamingUpdateInstaller(this);
             }
@@ -536,54 +578,24 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         return m_updateInstaller;
     }
 
-    private void runAgentUpdate() throws RetryAfterException {
+    private void runAgentUpdate() throws RetryAfterException, IOException {
         logDebug("Checking for agent updates...");
 
-        AgentUpdateHandler agentUpdateHandler = getAgentUpdateHandler();
+        long maxRetries = m_maxRetries.get();
+        boolean fixPackage = m_fixPackage.get();
 
-        Version current = agentUpdateHandler.getInstalledVersion();
-        Version highest = getHighestAvailableAgentVersion();
-
-        if (highest.compareTo(current) < 1) {
-            logDebug("No agent update available for version %s", current);
-            return;
-        }
-
-        logInfo("Installing agent update %s => %s", current, highest);
-
-        InputStream inputStream = null;
-        try {
-            inputStream = agentUpdateHandler.getInputStream(highest);
-            agentUpdateHandler.install(inputStream);
-        }
-        catch (IOException e) {
-            // Hopefully temporary problem due to remote IO or configuration. No cause to abort the sync so we
-            // just log it as a warning.
-            // FIXME Does not cover failed updates and should handle retries
-            logWarning("Exception while installing agent update %s", e, highest);
-        }
-        finally {
-            closeSilently(inputStream);
-        }
+        UpdateInstaller updateInstaller = getUpdateInstaller();
+        updateInstaller.installUpdate(getAgentUpdateHandler(), fixPackage, maxRetries);
     }
 
-    private void runDeploymentUpdate() throws RetryAfterException {
+    private void runDeploymentUpdate() throws RetryAfterException, IOException {
         logDebug("Checking for deployment updates...");
 
-        DeploymentHandler deploymentHandler = getDeploymentHandler();
-
-        Version current = deploymentHandler.getInstalledVersion();
-        Version highest = getHighestAvailableDeploymentVersion();
-
         long maxRetries = m_maxRetries.get();
-        boolean updateUsingStreams = m_updateStreaming.get();
-        
-        UpdateInstaller updateInstaller = getUpdateInstaller(updateUsingStreams);
-        if (updateInstaller.canInstallUpdate(current, highest, maxRetries)) {
-            boolean fixPackage = m_fixPackage.get();
+        boolean fixPackage = m_fixPackage.get();
 
-            updateInstaller.installUpdate(current, highest, fixPackage);
-        }
+        UpdateInstaller updateInstaller = getUpdateInstaller();
+        updateInstaller.installUpdate(getDeploymentHandler(), fixPackage, maxRetries);
     }
 
     private void runFeedback() throws RetryAfterException {

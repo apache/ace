@@ -22,26 +22,28 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.DownloadState;
 
 public class DownloadResultImpl implements DownloadResult {
+    private final DownloadState m_state;
+    private final File m_file;
+    private final int m_code;
+    private final Throwable m_cause;
 
-    final DownloadState m_state;
-    final File m_file;
-    final int m_code;
-    final Map<String, List<String>> m_headers;
-    final Throwable m_cause;
+    DownloadResultImpl(DownloadState state, Throwable cause, int code) {
+        m_state = state;
+        m_file = null;
+        m_code = code;
+        m_cause = cause;
+    }
 
-    DownloadResultImpl(DownloadState state, File file, int code, Map<String, List<String>> headers, Throwable cause) {
+    DownloadResultImpl(DownloadState state, File file, int code) {
         m_state = state;
         m_file = file;
         m_code = code;
-        m_headers = headers;
-        m_cause = cause;
+        m_cause = null;
     }
 
     @Override
@@ -58,11 +60,6 @@ public class DownloadResultImpl implements DownloadResult {
     @Override
     public int getCode() {
         return m_code;
-    }
-
-    @Override
-    public Map<String, List<String>> getHeaders() {
-        return m_headers;
     }
 
     @Override

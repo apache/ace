@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
+import java.io.File;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -105,13 +106,15 @@ public class Activator implements BundleActivator, LifecycleCallback {
      * Called by our {@link DependencyTrackerImpl} when all dependencies are satisfied.
      */
     public void componentStarted(BundleContext context) throws Exception {
-        m_agentContext = new AgentContextImpl(context.getDataFile(""));
+        final File bundleDataArea = context.getDataFile("");
+
+        m_agentContext = new AgentContextImpl(bundleDataArea);
 
         m_agentContext.setHandler(LoggingHandler.class, new LoggingHandlerImpl());
         m_agentContext.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
         m_agentContext.setHandler(EventsHandler.class, new EventsHandlerImpl(context));
         m_agentContext.setHandler(ScheduledExecutorService.class, m_executorService);
-        m_agentContext.setHandler(DownloadHandler.class, new DownloadHandlerImpl());
+        m_agentContext.setHandler(DownloadHandler.class, new DownloadHandlerImpl(bundleDataArea));
         m_agentContext.setHandler(DeploymentHandler.class, new DeploymentHandlerImpl(context, m_packageAdmin));
         m_agentContext.setHandler(AgentUpdateHandler.class, new AgentUpdateHandlerImpl(context));
         m_agentContext.setHandler(FeedbackHandler.class, new FeedbackHandlerImpl());

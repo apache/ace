@@ -20,8 +20,6 @@ package org.apache.ace.agent;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Represents the result of a download task.
@@ -44,11 +42,9 @@ public interface DownloadResult {
     InputStream getInputStream() throws IOException;
 
     /**
-     * @return
+     * @return the result code
      */
     int getCode();
-
-    Map<String, List<String>> getHeaders();
 
     /**
      * Return the cause of an unsuccessful download.

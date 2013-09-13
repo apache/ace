@@ -34,5 +34,6 @@ public interface DownloadHandler {
     DownloadHandle getHandle(URL url);
 
     // TODO named handlers (resume over urls)
+    @Deprecated
     DownloadHandle getHandle(URL url, int readBufferSize);
 }

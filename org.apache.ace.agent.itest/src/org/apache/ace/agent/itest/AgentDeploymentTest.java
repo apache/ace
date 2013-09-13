@@ -116,13 +116,13 @@ public class AgentDeploymentTest extends BaseAgentTest {
             m_packages.put(testPackage.getVersion().toString(), testPackage);
         }
 
-        public synchronized void setFailure(Failure failure) {
-            m_failure = failure;
-        }
-
         public synchronized void reset() {
             m_failure = null;
             m_packages.clear();
+        }
+
+        public synchronized void setFailure(Failure failure) {
+            m_failure = failure;
         }
 
         @Override
@@ -199,15 +199,24 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     private static class TestEventListener implements EventListener {
-        private final Map<String, List<Map<String, String>>> m_topics = new HashMap<String, List<Map<String, String>>>();
+        private static boolean matches(Map<String, String> source, Map<String, String> target) {
+            for (Map.Entry<String, String> sourceEntry : source.entrySet()) {
+                String sourceKey = sourceEntry.getKey();
+                String sourceValue = sourceEntry.getValue();
 
-        public Map<String, List<Map<String, String>>> getTopics() {
-            Map<String, List<Map<String, String>>> result;
-            synchronized (m_topics) {
-                result = new HashMap<String, List<Map<String, String>>>(m_topics);
+                if (!target.containsKey(sourceKey)) {
+                    return false;
+                }
+                String targetValue = target.get(sourceKey);
+                if (!sourceValue.equals(targetValue)) {
+                    return false;
+                }
             }
-            return result;
+
+            return true;
         }
+
+        private final Map<String, List<Map<String, String>>> m_topics = new HashMap<String, List<Map<String, String>>>();
 
         public boolean containsTopic(String topic) {
             synchronized (m_topics) {
@@ -230,6 +239,14 @@ public class AgentDeploymentTest extends BaseAgentTest {
             }
         }
 
+        public Map<String, List<Map<String, String>>> getTopics() {
+            Map<String, List<Map<String, String>>> result;
+            synchronized (m_topics) {
+                result = new HashMap<String, List<Map<String, String>>>(m_topics);
+            }
+            return result;
+        }
+
         @Override
         public void handle(String topic, Map<String, String> payload) {
             if (LOGLEVEL == Levels.DEBUG) {
@@ -244,23 +261,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
                 }
                 payloads.add(payload);
             }
-        }
-
-        private static boolean matches(Map<String, String> source, Map<String, String> target) {
-            for (Map.Entry<String, String> sourceEntry : source.entrySet()) {
-                String sourceKey = sourceEntry.getKey();
-                String sourceValue = sourceEntry.getValue();
-
-                if (!target.containsKey(sourceKey)) {
-                    return false;
-                }
-                String targetValue = target.get(sourceKey);
-                if (!sourceValue.equals(targetValue)) {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 
@@ -298,8 +298,8 @@ public class AgentDeploymentTest extends BaseAgentTest {
         }
     }
 
-    private static final String AGENT_DEPLOYMENT_COMPLETE = "agent/deployment/COMPLETE";
-    private static final String AGENT_DEPLOYMENT_INSTALL = "agent/deployment/INSTALL";
+    private static final String AGENT_INSTALLATION_START = "agent/installation/START";
+    private static final String AGENT_INSTALLATION_COMPLETE = "agent/installation/COMPLETE";
 
     private static final String AGENT_ID = "007";
     private static final String TEST_BUNDLE_NAME_PREFIX = "test.bundle";
@@ -345,11 +345,11 @@ public class AgentDeploymentTest extends BaseAgentTest {
         // Check our event log, should contain all handled events...
         Map<String, List<Map<String, String>>> topics = m_listener.getTopics();
 
-        List<Map<String, String>> events = topics.get(AGENT_DEPLOYMENT_INSTALL);
+        List<Map<String, String>> events = topics.get(AGENT_INSTALLATION_START);
         // should contain exactly three different elements...
         assertEquals(events.toString(), 3, events.size());
 
-        events = topics.get(AGENT_DEPLOYMENT_COMPLETE);
+        events = topics.get(AGENT_INSTALLATION_COMPLETE);
         // should contain exactly three different elements...
         assertEquals(events.toString(), 3, events.size());
     }
@@ -476,6 +476,29 @@ public class AgentDeploymentTest extends BaseAgentTest {
         expectSuccessfulDeployment(m_package1, Failure.VERSIONS_RETRY_AFTER);
     }
 
+    /**
+     * Tests the deployment of "streamed" deployment packages simulating an "unstable" connection.
+     */
+    public void testStreamingDeploymentWithUnstableConnection() throws Exception {
+        setupAgentForStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package1, null);
+        
+        expectFailedDeployment(m_package6, Failure.EMPTY_STREAM);
+        waitForInstalledVersion(V1_0_0);
+
+        expectFailedDeployment(m_package6, Failure.CORRUPT_STREAM);
+        waitForInstalledVersion(V1_0_0);
+
+        expectFailedDeployment(m_package6, Failure.ABORT_STREAM);
+        waitForInstalledVersion(V1_0_0);
+
+        expectFailedDeployment(m_package6, Failure.EMPTY_STREAM);
+        waitForInstalledVersion(V1_0_0);
+
+        expectFailedDeployment(m_package6, null);
+    }
+
     @Override
     protected void configureAdditionalServices() throws Exception {
         TestBundle bundle1v1 = new TestBundle(TEST_BUNDLE_NAME_PREFIX.concat("1"), V1_0_0);
@@ -542,27 +565,27 @@ public class AgentDeploymentTest extends BaseAgentTest {
         return props;
     }
 
-    private void expectSuccessfulDeployment(TestPackage dpackage, Failure failure) throws Exception {
-        deployPackage(dpackage, failure);
-
-        waitForEventReceived(AGENT_DEPLOYMENT_INSTALL);
-        waitForEventReceived(AGENT_DEPLOYMENT_COMPLETE, "successful", "true");
-
-        waitForInstalledVersion(dpackage.getVersion());
-    }
-
-    private void expectFailedDeployment(TestPackage dpackage, Failure failure) throws Exception {
-        deployPackage(dpackage, failure);
-
-        waitForEventReceived(AGENT_DEPLOYMENT_INSTALL);
-        waitForEventReceived(AGENT_DEPLOYMENT_COMPLETE, "successful", "false");
-    }
-
     private void deployPackage(TestPackage dpackage, Failure failure) {
         synchronized (m_servlet) {
             m_servlet.setFailure(failure);
             m_servlet.addPackage(dpackage);
         }
+    }
+
+    private void expectFailedDeployment(TestPackage dpackage, Failure failure) throws Exception {
+        deployPackage(dpackage, failure);
+
+        waitForEventReceived(AGENT_INSTALLATION_START);
+        waitForEventReceived(AGENT_INSTALLATION_COMPLETE, "successful", "false");
+    }
+
+    private void expectSuccessfulDeployment(TestPackage dpackage, Failure failure) throws Exception {
+        deployPackage(dpackage, failure);
+
+        waitForEventReceived(AGENT_INSTALLATION_START);
+        waitForEventReceived(AGENT_INSTALLATION_COMPLETE, "successful", "true");
+
+        waitForInstalledVersion(dpackage.getVersion());
     }
 
     private void setupAgentForNonStreamingDeployment() throws Exception {

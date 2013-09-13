@@ -18,7 +18,9 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.apache.ace.agent.impl.ConnectionUtil.*;
+import static org.apache.ace.agent.impl.ConnectionUtil.closeSilently;
+import static org.apache.ace.agent.impl.ConnectionUtil.copy;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -66,29 +68,34 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
     }
 
     @Override
-    public DownloadHandle getDownloadHandle(Version version) throws RetryAfterException, IOException {
+    public DownloadHandle getDownloadHandle(Version version, boolean fixPackage) throws RetryAfterException {
         return getDownloadHandle(getEndpoint(getServerURL(), getIdentification(), version));
     }
 
     @Override
-    public InputStream getInputStream(Version version) throws RetryAfterException, IOException {
+    public InputStream getInputStream(Version version, boolean fixPackage) throws RetryAfterException, IOException {
         return getInputStream(getEndpoint(getServerURL(), getIdentification(), version));
     }
-
+    
     @Override
     public Version getInstalledVersion() {
         return m_bundleContext.getBundle().getVersion();
     }
 
     @Override
-    public long getSize(Version version) throws RetryAfterException, IOException {
+    public String getName() {
+        return "agent";
+    }
+
+    @Override
+    public long getSize(Version version, boolean fixPackage) throws RetryAfterException, IOException {
         return getPackageSize(getEndpoint(getServerURL(), getIdentification(), version));
     }
 
     @Override
     public void install(InputStream stream) throws IOException {
         try {
-            InputStream currentBundleVersion = getInputStream(m_bundleContext.getBundle().getVersion());
+            InputStream currentBundleVersion = getInputStream(m_bundleContext.getBundle().getVersion(), false /* fixPackage */);
             Bundle bundle = m_bundleContext.installBundle("agent-updater", generateBundle());
             bundle.start();
             ServiceTracker st = new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(" + Constants.OBJECTCLASS + "=org.apache.ace.agent.updater.Activator)"), null);
@@ -136,15 +143,17 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
 
     /** Generates an input stream that contains a complete bundle containing our update code for the agent. */
     private InputStream generateBundle() throws IOException {
+        final String activatorClass = "org/apache/ace/agent/updater/Activator.class";
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         InputStream is = null;
         JarOutputStream os = null;
         try {
-            is = getClass().getResourceAsStream("/org/apache/ace/agent/updater/Activator.class");
+            is = getClass().getResourceAsStream("/".concat(activatorClass));
 
             os = new JarOutputStream(baos, createBundleManifest());
-            os.putNextEntry(new JarEntry("org/apache/ace/agent/updater/Activator.class"));
+            os.putNextEntry(new JarEntry(activatorClass));
 
             try {
                 copy(is, os);

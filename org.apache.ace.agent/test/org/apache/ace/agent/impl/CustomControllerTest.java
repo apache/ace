@@ -21,7 +21,7 @@ package org.apache.ace.agent.impl;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.notNull;
+import static org.easymock.EasyMock.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.DeploymentHandler;
@@ -77,7 +78,6 @@ public class CustomControllerTest extends BaseAgentTest {
 
     @BeforeMethod
     public void setUpAgain() throws Exception {
-
         m_dummyInputStream = new FileInputStream(m_dummyFile);
 
         DownloadResult downloadResult = addTestMock(DownloadResult.class);
@@ -85,20 +85,19 @@ public class CustomControllerTest extends BaseAgentTest {
         expect(downloadResult.getInputStream()).andReturn(m_dummyInputStream).anyTimes();
 
         DownloadHandle downloadHandle = addTestMock(DownloadHandle.class);
-        expect(downloadHandle.start()).andReturn(downloadHandle).anyTimes();
-        expect(downloadHandle.result()).andReturn(downloadResult).anyTimes();
+        expect(downloadHandle.startAndAwaitResult(anyLong(), notNull(TimeUnit.class))).andReturn(downloadResult).anyTimes();
 
         DeploymentHandler deploymentHandler = addTestMock(DeploymentHandler.class);
         expect(deploymentHandler.getInstalledVersion()).andReturn(m_version2).anyTimes();
         expect(deploymentHandler.getAvailableVersions()).andReturn(m_availableVersions).anyTimes();
         expect(deploymentHandler.getDownloadHandle(eq(m_version3), eq(true))).andReturn(downloadHandle).once();
-        deploymentHandler.deployPackage(notNull(InputStream.class));
+        deploymentHandler.install(notNull(InputStream.class));
         expectLastCall().once();
 
         m_agentContext = mockAgentContext();
         m_agentContext.setHandler(DeploymentHandler.class, deploymentHandler);
         replayTestMocks();
-        
+
         m_agentContext.start();
         m_agentControl = new AgentControlImpl(m_agentContext);
     }
@@ -112,19 +111,18 @@ public class CustomControllerTest extends BaseAgentTest {
     }
 
     @Test
-    public void testDowlownloading() throws Exception {
-
+    public void testDownloading() throws Exception {
         Version current = m_agentControl.getDeploymentHandler().getInstalledVersion();
         Version highest = m_agentControl.getDeploymentHandler().getAvailableVersions().last();
-        if (highest.compareTo(current) > 0) {
 
+        if (highest.compareTo(current) > 0) {
             DownloadHandle handle = m_agentControl.getDeploymentHandler().getDownloadHandle(highest, true);
-            DownloadResult result = handle.start().result();
+            DownloadResult result = handle.startAndAwaitResult(5, TimeUnit.SECONDS);
 
             if (result.getState() == DownloadState.SUCCESSFUL) {
                 InputStream inputStream = result.getInputStream();
                 try {
-                    m_agentControl.getDeploymentHandler().deployPackage(inputStream);
+                    m_agentControl.getDeploymentHandler().install(inputStream);
                 }
                 finally {
                     inputStream.close();

@@ -210,7 +210,7 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
     @Test
     public void testPackageSize() throws Exception {
         DeploymentHandler deploymentHandler = m_agentContext.getHandler(DeploymentHandler.class);
-        long packageSize = deploymentHandler.getPackageSize(m_version1, true);
+        long packageSize = deploymentHandler.getSize(m_version1, true);
         assertEquals(packageSize, m_remotePackageSize);
     }
 
@@ -219,7 +219,7 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
         DeploymentHandler deploymentHandler = m_agentContext.getHandler(DeploymentHandler.class);
         InputStream inputStream = deploymentHandler.getInputStream(m_version3, true);
         try {
-            deploymentHandler.deployPackage(inputStream);
+            deploymentHandler.install(inputStream);
         }
         finally {
             inputStream.close();

@@ -20,11 +20,15 @@ package org.apache.ace.agent.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.DownloadState;
@@ -34,22 +38,17 @@ import org.apache.ace.agent.DownloadState;
  * server supports this feature.
  */
 class DownloadHandleImpl implements DownloadHandle {
+    /**
+     * Size of the buffer used while downloading the content stream.
+     */
+    private static final int DEFAULT_READBUFFER_SIZE = 1024;
 
     private final DownloadHandlerImpl m_handler;
     private final URL m_url;
     private final int m_readBufferSize;
 
-    private volatile boolean m_started = false;
-    private volatile boolean m_completed = false;
-
     private volatile Future<Void> m_future;
-    private volatile DownloadCallableImpl m_callable;
     private volatile File m_file;
-
-    private volatile ProgressListener m_progressListener;
-    private volatile ResultListener m_completionListener;
-
-    private volatile DownloadResult m_downloadResult;
 
     DownloadHandleImpl(DownloadHandlerImpl handler, URL url) {
         this(handler, url, DEFAULT_READBUFFER_SIZE);
@@ -62,137 +61,90 @@ class DownloadHandleImpl implements DownloadHandle {
     }
 
     @Override
-    public DownloadHandle setProgressListener(ProgressListener listener) {
-        m_progressListener = listener;
-        return this;
-    }
-
-    @Override
-    public DownloadHandle setCompletionListener(ResultListener listener) {
-        m_completionListener = listener;
-        return this;
-    }
-
-    @Override
-    public DownloadHandle start() {
-        return start(-1);
-    }
-
-    DownloadHandle start(int failAtPosition) {
-        if (m_started) {
-            throw new IllegalStateException("Can not call start on a handle that is already started");
+    public void discard() {
+        try {
+            stop();
         }
+        finally {
+            m_file.delete();
+        }
+    }
+
+    @Override
+    public void start(DownloadProgressListener listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("Listener cannot be null!");
+        }
+
+        if (m_future != null && !m_future.isDone()) {
+            throw new IllegalStateException("Can not call start on a handle that is already started!");
+        }
+
         if (m_file == null) {
             try {
-                m_file = File.createTempFile("download", ".bin");
+                m_file = File.createTempFile("download", ".bin", m_handler.getDataLocation());
             }
             catch (IOException e) {
-                failedCallback(0, null, e);
+                listener.completed(new DownloadResultImpl(DownloadState.FAILED, e, -1));
             }
         }
-        startDownload(failAtPosition);
-        return this;
+
+        m_future = getExecutor().submit(new DownloadCallableImpl(this, listener, m_file, m_readBufferSize));
     }
 
     @Override
-    public DownloadHandle stop() {
-        if (!m_started && !m_completed) {
-            throw new IllegalStateException("Can not call stop on a handle that is not yet started");
+    public DownloadResult startAndAwaitResult(long timeout, TimeUnit unit) throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<DownloadResult> result = new AtomicReference<DownloadResult>();
+
+        start(new DownloadProgressListener() {
+            @Override
+            public void progress(long bytesRead, long totalBytes) {
+                // Nop
+            }
+
+            @Override
+            public void completed(DownloadResult downloadResult) {
+                result.set(downloadResult);
+                latch.countDown();
+            }
+        });
+        if (!latch.await(timeout, unit)) {
+            throw new InterruptedException("Failed to obtain result within given time constaints!");
         }
-        m_started = false;
-        stopDownload();
-        return this;
+        return result.get();
     }
 
     @Override
-    public DownloadResult result() {
-        if (m_completed)
-            return m_downloadResult;
-        if (!m_started)
-            throw new IllegalStateException("Can not call result on a handle that is not yet started");
-        try {
-            m_future.get();
+    public void stop() {
+        Future<Void> future = m_future;
+        if (future != null) {
+            if (future.isDone()) {
+                throw new IllegalStateException("Can not call stop on a handle that is not yet started or completed!");
+            }
+
+            future.cancel(true /* mayInterruptIfRunning */);
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return m_downloadResult;
+        m_future = null;
     }
 
-    @Override
-    public void discard() {
-        if (m_started)
-            stop();
-        m_file.delete();
-    }
-
-    void progressCallback(int statusCode, Map<String, List<String>> headers, long contentLength, long progress) {
-        callProgressListener(m_progressListener, contentLength, progress);
-    }
-
-    void successfulCallback(int statusCode, Map<String, List<String>> headers) {
-        m_started = false;
-        m_completed = true;
-        m_downloadResult = new DownloadResultImpl(DownloadState.SUCCESSFUL, m_file, statusCode, headers, null);
-        callCompletionListener(m_completionListener, m_downloadResult);
-    }
-
-    void stoppedCallback(int statusCode, Map<String, List<String>> headers, Throwable cause) {
-        m_started = false;
-        m_completed = false;
-        m_downloadResult = new DownloadResultImpl(DownloadState.STOPPED, null, statusCode, headers, cause);
-        callCompletionListener(m_completionListener, m_downloadResult);
-    }
-
-    void failedCallback(int statusCode, Map<String, List<String>> headers, Throwable cause) {
-        m_started = false;
-        m_completed = false;
-        m_downloadResult = new DownloadResultImpl(DownloadState.FAILED, null, statusCode, headers, cause);
-        callCompletionListener(m_completionListener, m_downloadResult);
-    }
-
-    void logDebug(String message, Object... args) {
+    final void logDebug(String message, Object... args) {
         m_handler.logDebug(message, args);
     }
 
-    void logInfo(String message, Object... args) {
-        m_handler.logInfo(message, args);
+    final void logWarning(String message, Throwable cause, Object... args) {
+        m_handler.logWarning(message, cause, args);
     }
 
-    void logWarning(String message, Object... args) {
-        m_handler.logWarning(message, args);
+    final HttpURLConnection openConnection() throws IOException {
+        return (HttpURLConnection) getConnectionHandler().getConnection(m_url);
     }
 
-    private void startDownload(int failAtPosition) {
-        m_started = true;
-        m_callable = new DownloadCallableImpl(this, m_url, m_file, m_readBufferSize, failAtPosition);
-        m_future = m_handler.getExecutor().submit(m_callable);
+    private ConnectionHandler getConnectionHandler() {
+        return m_handler.getConnectionHandler();
     }
 
-    private void stopDownload() {
-        m_started = false;
-        m_callable.abort();
-    }
-
-    private static void callProgressListener(ProgressListener listener, long contentLength, long progress) {
-        if (listener != null) {
-            try {
-                listener.progress(contentLength, progress);
-            }
-            catch (Exception e) {
-                // ignore
-            }
-        }
-    }
-
-    private static void callCompletionListener(ResultListener listener, DownloadResult result) {
-        if (listener != null && result != null) {
-            try {
-                listener.completed(result);
-            }
-            catch (Exception e) {
-                // ignore
-            }
-        }
+    private ExecutorService getExecutor() {
+        return m_handler.getExecutor();
     }
 }
