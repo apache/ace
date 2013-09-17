@@ -69,6 +69,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
             return payload;
         }
     }
+
     /**
      * Internal LogService that wraps delegates to actual InternalLogger. Used to inject into the DeploymentAdmin only.
      */
@@ -175,6 +176,11 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
             m_deploymentAdmin.installDeploymentPackage(inputStream);
         }
         catch (DeploymentException exception) {
+            Throwable cause = exception.getCause();
+            // Properly handle possible server overload...
+            if (cause instanceof RetryAfterException) {
+                throw (RetryAfterException) cause;
+            }
             throw new InstallationFailedException("Installation of deployment package failed!", exception);
         }
     }

@@ -29,9 +29,5 @@ public enum DownloadState {
     /**
      * The handle completed because it was stopped.
      */
-    STOPPED,
-    /**
-     * The handle completed due to an unrecoverable error. It can not be resumed.
-     */
-    FAILED
+    STOPPED;
 }

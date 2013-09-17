@@ -25,7 +25,9 @@ import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_STREAMING;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCDELAY;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL;
 import static org.apache.ace.agent.impl.ConnectionUtil.closeSilently;
-import static org.apache.ace.agent.impl.InternalConstants.*;
+import static org.apache.ace.agent.impl.InternalConstants.AGENT_CONFIG_CHANGED;
+import static org.apache.ace.agent.impl.InternalConstants.AGENT_INSTALLATION_COMPLETE;
+import static org.apache.ace.agent.impl.InternalConstants.AGENT_INSTALLATION_START;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +35,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,7 +45,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandle.DownloadProgressListener;
 import org.apache.ace.agent.DownloadResult;
-import org.apache.ace.agent.DownloadState;
 import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.agent.InstallationFailedException;
@@ -57,9 +60,10 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
      * UpdateInstaller that provides download deployment package install. The install is non-blocking. Upon download
      * completion this installer will reschedule the controller.
      */
-    static class DownloadUpdateInstaller extends UpdateInstaller {
+    static class DownloadUpdateInstaller extends UpdateInstaller implements DownloadProgressListener {
         private volatile DownloadHandle m_downloadHandle;
         private volatile UpdateInfo m_updateInfo;
+        private volatile Future<DownloadResult> m_future;
 
         public DownloadUpdateInstaller(DefaultController controller) {
             super(controller);
@@ -69,72 +73,101 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         public void doInstallUpdate(final UpdateHandler delegate, final UpdateInfo updateInfo) throws RetryAfterException {
             DefaultController controller = getController();
 
-            if (m_downloadHandle != null && m_updateInfo != null && !m_updateInfo.m_to.equals(updateInfo.m_to)) {
-                controller.logInfo("Cancelling download of %s update for %s because a newer version is available...", m_updateInfo.m_type, m_updateInfo.m_to);
-                m_downloadHandle.discard();
-                m_downloadHandle = null;
-            }
+            String type = updateInfo.m_type;
+            Version fromVersion = updateInfo.m_from;
+            Version toVersion = updateInfo.m_to;
 
-            if (m_downloadHandle == null) {
+            if (m_downloadHandle != null) {
+                // Ongoing download?
+                if (m_updateInfo != null && !m_updateInfo.m_to.equals(toVersion)) {
+                    controller.logInfo("Cancelling download of %s update for %s because a newer version is available...", m_updateInfo.m_type, m_updateInfo.m_to);
+
+                    clearDownloadState();
+                }
+            }
+            else {
                 controller.logInfo("Starting download of %s update, %s => %s...", updateInfo.m_type, updateInfo.m_from, updateInfo.m_to);
 
                 m_updateInfo = updateInfo;
+                m_future = null;
 
                 m_downloadHandle = delegate.getDownloadHandle(updateInfo.m_to, updateInfo.m_fixPackage);
-                m_downloadHandle.start(new DownloadProgressListener() {
-                    @Override
-                    public void completed(DownloadResult result) {
-                        DefaultController controller = getController();
-                        DownloadState state = result.getState();
+            }
 
-                        String type = updateInfo.m_type;
-                        Version fromVersion = updateInfo.m_from;
-                        Version toVersion = updateInfo.m_to;
+            if (m_future == null) {
+                m_future = m_downloadHandle.start(this);
+            }
+            else {
+                if (!m_future.isDone()) {
+                    controller.logDebug("Still awaiting completion of download...");
+                    return;
+                }
+                else if (m_future.isCancelled()) {
+                    controller.logInfo("Download of %s update is CANCELLED. Resuming download...", type);
 
-                        if (DownloadState.FAILED == state) {
-                            controller.logInfo("Download of %s update is FAILED. Restarting download...", type);
+                    // We're stopped early...
+                    m_future = m_downloadHandle.start(this);
+                    return;
+                }
 
-                            m_downloadHandle.discard();
-                            m_downloadHandle = null;
-                        }
-                        else if (DownloadState.STOPPED == state) {
-                            controller.logInfo("Download of %s update is STOPPED. Resuming download...", type);
+                try {
+                    try {
+                        DownloadResult downloadResult = m_future.get();
 
-                            m_downloadHandle.start(this);
-                        }
-                        else if (DownloadState.SUCCESSFUL == state) {
+                        if (downloadResult.isComplete()) {
                             controller.logInfo("Installing %s update %s => %s...", type, fromVersion, toVersion);
 
-                            boolean success = false;
-                            Exception cause = null;
+                            startInstallation(updateInfo);
 
-                            try {
-                                startInstallation(updateInfo);
+                            delegate.install(downloadResult.getInputStream());
 
-                                delegate.install(result.getInputStream());
+                            endInstallation(updateInfo, true /* success */, null);
 
-                                success = true;
-                            }
-                            catch (Exception exception) {
-                                cause = exception;
-                                controller.logWarning("Installation of %s update failed!", exception, type);
-                            }
-                            finally {
-                                m_downloadHandle.discard();
-                                m_downloadHandle = null;
+                            clearDownloadState();
+                        }
+                        else {
+                            controller.logInfo("Download of %s update is STOPPED. Resuming download...", type);
 
-                                endInstallation(updateInfo, success, cause);
-                            }
+                            // We're stopped early...
+                            m_future = m_downloadHandle.start(this);
                         }
                     }
+                    catch (InterruptedException exception) {
+                        controller.logInfo("Download of %s update is INTERRUPTED. Resuming download...", type);
 
-                    @Override
-                    public void progress(long contentLength, long progress) {
-                        if (updateInfo != null) {
-                            getController().logInfo("Progress of %s update download: %d of %d bytes...", updateInfo.m_type, progress, contentLength);
+                        // We're stopped early...
+                        m_future = m_downloadHandle.start(this);
+                    }
+                    catch (ExecutionException exception) {
+                        clearDownloadState();
+
+                        Throwable cause = exception.getCause();
+                        if (cause instanceof RetryAfterException) {
+                            throw (RetryAfterException) cause;
+                        }
+                        else if (cause instanceof Exception) {
+                            throw (Exception) cause;
+                        }
+                        else {
+                            throw new RuntimeException("Failed to handle cause!", cause);
                         }
                     }
-                });
+                }
+                catch (RetryAfterException ex) {
+                    // Does not cause the installation to end...
+                    throw ex;
+                }
+                catch (Exception ex) {
+                    // All other exceptions cause the installation to end/fail...
+                    endInstallation(updateInfo, false /* success */, ex);
+                }
+            }
+        }
+
+        @Override
+        public void progress(long bytesRead, long totalBytes) {
+            if (m_updateInfo != null) {
+                getController().logInfo("Progress of %s update download: %d of %d bytes...", m_updateInfo.m_type, bytesRead, totalBytes);
             }
         }
 
@@ -152,6 +185,10 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
                 m_downloadHandle.discard();
             }
             m_downloadHandle = null;
+            if (m_future != null && !m_future.isDone()) {
+                m_future.cancel(true /* mayInterruptIfRunning */);
+            }
+            m_future = null;
             m_updateInfo = null;
         }
     }
@@ -185,10 +222,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
                 // We aren't ready yet...
                 throw ex;
             }
-            catch (InstallationFailedException ex) {
-                endInstallation(updateInfo, false /* success */, ex);
-            }
-            catch (IOException ex) {
+            catch (Exception ex) {
                 endInstallation(updateInfo, false /* success */, ex);
             }
             finally {
@@ -306,7 +340,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
          * @param cause
          *            the (optional) cause why the installation failed.
          */
-        protected final void endInstallation(UpdateInfo updateInfo, boolean success, Exception cause) {
+        protected final void endInstallation(UpdateInfo updateInfo, boolean success, Exception cause) throws RetryAfterException {
             m_lastVersionSuccessful = success;
             if (cause instanceof InstallationFailedException || cause instanceof IOException) {
                 m_failureCount++;
@@ -465,8 +499,8 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         catch (RetryAfterException e) {
             // any method may throw this causing the sync to abort. The server is busy so no sense in trying
             // anything else until the retry window has passed.
-            interval = e.getSeconds();
-            logWarning("Sync received retry exception from server. Rescheduled in %d seconds", e.getSeconds());
+            interval = e.getBackoffTime();
+            logWarning("Sync received retry exception from server. Rescheduled in %d seconds", e.getBackoffTime());
         }
         catch (Exception e) {
             // serious problem throw by a method that decides this is cause enough to abort the sync. Not much

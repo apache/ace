@@ -96,19 +96,7 @@ abstract class UpdateHandlerBase extends ComponentBase implements UpdateHandler 
     }
 
     protected InputStream getInputStream(URL packageURL) throws RetryAfterException, IOException {
-        URLConnection connection = null;
-        // TODO handle problems and retries
-        try {
-            connection = getConnection(packageURL);
-
-            checkConnectionResponse(connection);
-
-            return connection.getInputStream();
-        }
-        catch (IOException e) {
-            close(connection);
-            throw e;
-        }
+        return new ContentRangeInputStream(getConnectionHandler(), packageURL);
     }
 
     protected long getPackageSize(URL url) throws RetryAfterException, IOException {

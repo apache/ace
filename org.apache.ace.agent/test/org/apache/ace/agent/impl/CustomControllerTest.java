@@ -21,7 +21,8 @@ package org.apache.ace.agent.impl;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.isNull;
+import static org.easymock.EasyMock.notNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,13 +30,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
 
 import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandle;
+import org.apache.ace.agent.DownloadHandle.DownloadProgressListener;
 import org.apache.ace.agent.DownloadResult;
-import org.apache.ace.agent.DownloadState;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.osgi.framework.Version;
 import org.testng.annotations.AfterMethod;
@@ -77,15 +78,19 @@ public class CustomControllerTest extends BaseAgentTest {
     }
 
     @BeforeMethod
+    @SuppressWarnings("unchecked")
     public void setUpAgain() throws Exception {
         m_dummyInputStream = new FileInputStream(m_dummyFile);
 
         DownloadResult downloadResult = addTestMock(DownloadResult.class);
-        expect(downloadResult.getState()).andReturn(DownloadState.SUCCESSFUL).anyTimes();
+        expect(downloadResult.isComplete()).andReturn(true).anyTimes();
         expect(downloadResult.getInputStream()).andReturn(m_dummyInputStream).anyTimes();
+        
+        Future<DownloadResult> future = addTestMock(Future.class);
+        expect(future.get()).andReturn(downloadResult).anyTimes();
 
         DownloadHandle downloadHandle = addTestMock(DownloadHandle.class);
-        expect(downloadHandle.startAndAwaitResult(anyLong(), notNull(TimeUnit.class))).andReturn(downloadResult).anyTimes();
+        expect(downloadHandle.start(isNull(DownloadProgressListener.class))).andReturn(future).anyTimes();
 
         DeploymentHandler deploymentHandler = addTestMock(DeploymentHandler.class);
         expect(deploymentHandler.getInstalledVersion()).andReturn(m_version2).anyTimes();
@@ -117,9 +122,11 @@ public class CustomControllerTest extends BaseAgentTest {
 
         if (highest.compareTo(current) > 0) {
             DownloadHandle handle = m_agentControl.getDeploymentHandler().getDownloadHandle(highest, true);
-            DownloadResult result = handle.startAndAwaitResult(5, TimeUnit.SECONDS);
 
-            if (result.getState() == DownloadState.SUCCESSFUL) {
+            Future<DownloadResult> future = handle.start(null);
+            DownloadResult result = future.get();
+            
+            if (result.isComplete()) {
                 InputStream inputStream = result.getInputStream();
                 try {
                     m_agentControl.getDeploymentHandler().install(inputStream);

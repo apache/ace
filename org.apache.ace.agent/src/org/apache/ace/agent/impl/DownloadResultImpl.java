@@ -18,52 +18,39 @@
  */
 package org.apache.ace.agent.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.DownloadState;
 
+/**
+ * Default, non thread-safe, implementation of {@link DownloadResult}.
+ */
 public class DownloadResultImpl implements DownloadResult {
     private final DownloadState m_state;
-    private final File m_file;
-    private final int m_code;
-    private final Throwable m_cause;
+    private final InputStream m_inputStream;
 
-    DownloadResultImpl(DownloadState state, Throwable cause, int code) {
+    DownloadResultImpl(DownloadState state) {
         m_state = state;
-        m_file = null;
-        m_code = code;
-        m_cause = cause;
+        m_inputStream = null;
     }
 
-    DownloadResultImpl(DownloadState state, File file, int code) {
+    DownloadResultImpl(DownloadState state, InputStream is) {
         m_state = state;
-        m_file = file;
-        m_code = code;
-        m_cause = null;
+        m_inputStream = is;
     }
 
     @Override
-    public DownloadState getState() {
-        return m_state;
-    }
-
-    @Override
-    @SuppressWarnings("resource")
     public InputStream getInputStream() throws IOException {
-        return m_file != null ? new FileInputStream(m_file) : null;
+        if (!isComplete()) {
+            throw new IllegalStateException("Cannot access incomplete download result!");
+        }
+        return m_inputStream;
     }
 
     @Override
-    public int getCode() {
-        return m_code;
-    }
-
-    @Override
-    public Throwable getCause() {
-        return m_cause;
+    public boolean isComplete() {
+        return DownloadState.SUCCESSFUL == m_state;
     }
 }

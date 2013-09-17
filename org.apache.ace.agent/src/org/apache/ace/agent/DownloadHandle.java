@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
 
 /**
  * A {@link DownloadHandle} provides control over an asynchronous download and access to the resulting file when the it
@@ -46,31 +46,14 @@ public interface DownloadHandle {
          *            The total length of the content or -1 if unknown.
          */
         void progress(long bytesRead, long totalBytes);
-
-        /**
-         * Called when a download terminates.
-         * 
-         * @param result
-         *            The result of the download.
-         */
-        void completed(DownloadResult result);
     }
 
     /**
      * Starts the download, reporting the result and progress to the supplied listeners.
-     */
-    void start(DownloadProgressListener listener);
-
-    /**
-     * Convenience method to start the download and block until it is finished.
      * 
-     * @param timeout
-     *            the timeout to wait for a result;
-     * @param unit
-     *            the unit of the timeout to wait for a result.
-     * @return the download result, never <code>null</code>.
+     * @return a future promise for the download result, never <code>null</code>.
      */
-    DownloadResult startAndAwaitResult(long timeout, TimeUnit unit) throws InterruptedException;
+    Future<DownloadResult> start(DownloadProgressListener listener);
 
     /**
      * Pauses the download.

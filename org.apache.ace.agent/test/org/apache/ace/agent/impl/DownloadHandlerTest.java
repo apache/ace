@@ -19,8 +19,10 @@
 package org.apache.ace.agent.impl;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,11 +33,12 @@ import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -49,9 +52,9 @@ import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandle.DownloadProgressListener;
 import org.apache.ace.agent.DownloadHandler;
 import org.apache.ace.agent.DownloadResult;
-import org.apache.ace.agent.DownloadState;
 import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.LoggingHandler;
+import org.apache.ace.agent.RetryAfterException;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
 import org.testng.annotations.AfterTest;
@@ -85,7 +88,6 @@ public class DownloadHandlerTest extends BaseAgentTest {
     private URL m_200url;
     private File m_200file;
     private String m_200digest;
-
     private URL m_404url;
     private URL m_503url;
 
@@ -142,45 +144,36 @@ public class DownloadHandlerTest extends BaseAgentTest {
     public void testSuccessful_noresume_result() throws Exception {
         DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
 
-        DownloadResult result = downloadHandler.getHandle(m_200url).startAndAwaitResult(10, TimeUnit.SECONDS);
-        assertSuccessFul(result, 200, m_200digest);
+        DownloadHandle handle = downloadHandler.getHandle(m_200url);
+        Future<DownloadResult> result = handle.start(null);
+
+        assertSuccessful(result, 200, m_200digest);
     }
 
     @Test
     public void testSuccessful_resume_result() throws Exception {
         DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
 
-        final AtomicReference<DownloadResult> resultRef = new AtomicReference<DownloadResult>();
-        final CountDownLatch latch = new CountDownLatch(1);
-
         final DownloadHandle handle = downloadHandler.getHandle(m_200url);
-        handle.start(new DownloadProgressListener() {
+        Future<DownloadResult> future = handle.start(new DownloadProgressListener() {
             @Override
             public void progress(long read, long total) {
                 handle.stop();
             }
-
-            @Override
-            public void completed(DownloadResult downloadResult) {
-                resultRef.set(downloadResult);
-                latch.countDown();
-            }
         });
 
-        latch.await(5, TimeUnit.SECONDS);
-
-        DownloadResult result = resultRef.get();
-
-        assertStopped(result, 200);
-        assertSuccessFul(handle.startAndAwaitResult(Integer.MAX_VALUE, TimeUnit.SECONDS), 206, m_200digest);
+        assertStopped(future, 200);
+        assertSuccessful(handle.start(null), 206, m_200digest);
     }
 
     @Test
     public void testFailed404_noresume_result() throws Exception {
         DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
 
-        DownloadResult result = downloadHandler.getHandle(m_404url).startAndAwaitResult(10, TimeUnit.SECONDS);
-        assertFailed(result, 404);
+        DownloadHandle handle = downloadHandler.getHandle(m_404url);
+        Future<DownloadResult> future = handle.start(null);
+
+        assertIOException(future);
     }
 
     @Test
@@ -189,32 +182,61 @@ public class DownloadHandlerTest extends BaseAgentTest {
 
         DownloadHandle handle = downloadHandler.getHandle(m_503url);
 
-        DownloadResult result = handle.startAndAwaitResult(10, TimeUnit.SECONDS);
-        assertFailed(result, 503);
+        assertRetryException(handle.start(null));
 
-        result = handle.startAndAwaitResult(10, TimeUnit.SECONDS);
-        assertFailed(result, 503);
+        assertRetryException(handle.start(null));
     }
 
-    private static void assertSuccessFul(final DownloadResult result, int statusCode, String digest) throws Exception {
-        assertEquals(result.getState(), DownloadState.SUCCESSFUL, "Expected state SUCCESSFUL after succesful completion");
-        assertEquals(result.getCode(), statusCode, "Expected statusCode " + statusCode + " after successful completion");
+    private static void assertSuccessful(Future<DownloadResult> future, int statusCode, String digest) throws Exception {
+        DownloadResult result = future.get(5, TimeUnit.SECONDS);
+
+        assertTrue(result.isComplete(), "Expected state SUCCESSFUL after succesful completion");
         assertNotNull(result.getInputStream(), "Expected non null file after successful completion");
-        assertNull(result.getCause(), "Excpected null cause after successful completion");
+
         assertEquals(getDigest(result.getInputStream()), digest, "Expected same digest after successful completion");
     }
 
-    private static void assertFailed(final DownloadResult result, int statusCode) throws Exception {
-        assertEquals(result.getState(), DownloadState.FAILED, "DownloadState must be FAILED after failed completion");
-        assertEquals(result.getCode(), statusCode, "Expected statusCode " + statusCode + " after failed completion");
-        assertNull(result.getInputStream(), "File must not be null after failed completion");
+    private static void assertRetryException(Future<DownloadResult> future) throws Exception {
+        try {
+            future.get(5, TimeUnit.SECONDS);
+
+            fail("Expected ExecutionException!");
+        }
+        catch (ExecutionException exception) {
+            // Expected...
+            assertTrue(exception.getCause() instanceof RetryAfterException, "Expected RetryAfterException, got " + exception.getCause());
+        }
+
+        assertFalse(future.isCancelled());
+        assertTrue(future.isDone());
     }
 
-    private static void assertStopped(final DownloadResult result, int statusCode) throws Exception {
-        assertEquals(result.getState(), DownloadState.STOPPED, "DownloadState must be STOPPED after stopped completion");
-        assertEquals(result.getCode(), statusCode, "Expected statusCode " + statusCode + " after stopped completion");
-        assertNull(result.getInputStream(), "File must not be null after failed download");
-        assertNull(result.getCause(), "Excpected cause to null null after stopped completion");
+    private static void assertIOException(Future<DownloadResult> future) throws Exception {
+        try {
+            future.get(5, TimeUnit.SECONDS);
+
+            fail("Expected ExecutionException!");
+        }
+        catch (ExecutionException exception) {
+            // Expected...
+            assertTrue(exception.getCause() instanceof IOException, "Expected IOException, got " + exception.getCause());
+        }
+
+        assertFalse(future.isCancelled());
+        assertTrue(future.isDone());
+    }
+
+    private static void assertStopped(Future<DownloadResult> future, int statusCode) throws Exception {
+        try {
+            future.get(5, TimeUnit.SECONDS);
+
+            fail("Expected CancellationException!");
+        }
+        catch (CancellationException exception) {
+            // Expected...
+        }
+
+        assertTrue(future.isCancelled());
     }
 
     private static String getDigest(InputStream is) throws Exception {

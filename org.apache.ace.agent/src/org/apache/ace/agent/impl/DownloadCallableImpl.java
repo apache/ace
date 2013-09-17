@@ -18,28 +18,23 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.apache.ace.agent.impl.ConnectionUtil.close;
 import static org.apache.ace.agent.impl.ConnectionUtil.closeSilently;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.util.concurrent.Callable;
 
 import org.apache.ace.agent.DownloadHandle.DownloadProgressListener;
+import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.DownloadState;
 
 /**
  * Responsible for actually downloading content from a download handle.
  */
-final class DownloadCallableImpl implements Callable<Void> {
-    private static final int SC_OK = 200;
-    private static final int SC_PARTIAL_CONTENT = 206;
-
+final class DownloadCallableImpl implements Callable<DownloadResult> {
     private final DownloadHandleImpl m_handle;
     private final DownloadProgressListener m_listener;
     private final File m_target;
@@ -53,108 +48,46 @@ final class DownloadCallableImpl implements Callable<Void> {
     }
 
     @Override
-    public Void call() throws Exception {
-        int statusCode = 0;
-        HttpURLConnection httpUrlConnection = null;
+    public DownloadResult call() throws Exception {
+        ContentRangeInputStream is = null;
+        OutputStream os = null;
+
+        long targetLength = m_target.length();
+        boolean appendTarget = (targetLength > 0);
 
         try {
-            boolean partialContent = false;
-            boolean appendTarget = false;
-
-            httpUrlConnection = m_handle.openConnection();
-
-            long targetSize = m_target.length();
-            if (targetSize > 0) {
-                String rangeHeader = String.format("bytes=%d-", targetSize);
-
-                m_handle.logDebug("Requesting Range %s", rangeHeader);
-
-                httpUrlConnection.setRequestProperty("Range", rangeHeader);
-            }
-
-            statusCode = httpUrlConnection.getResponseCode();
-            if (statusCode == SC_OK) {
-                partialContent = false;
-            }
-            else if (statusCode == SC_PARTIAL_CONTENT) {
-                partialContent = true;
-            }
-            else {
-                // TODO handle retry-after?!
-                throw new IOException("Unable to handle server response code " + statusCode);
-            }
-
-            long totalBytes = httpUrlConnection.getContentLength();
-            if (partialContent) {
-                String contentRange = httpUrlConnection.getHeaderField("Content-Range");
-                if (contentRange == null) {
-                    throw new IOException("Server returned no Content-Range for partial content");
-                }
-                if (!contentRange.startsWith("bytes ")) {
-                    throw new IOException("Server returned non bytes Content-Range " + contentRange);
-                }
-
-                String tmp = contentRange;
-                tmp = tmp.replace("byes ", "");
-                String[] parts = tmp.split("/");
-                String start = parts[0].split("-")[0];
-                String end = parts[0].split("-")[1];
-
-                m_handle.logDebug("Size: %d, range from %d to %d.", parts[1], start, end);
-
-                if ("*".equals(parts[1])) {
-                    totalBytes = -1;
-                }
-                else {
-                    totalBytes = Long.parseLong(parts[1]);
-                }
-            }
-
-            long bytesRead = 0l;
-            if (partialContent) {
-                bytesRead = targetSize;
-                appendTarget = true;
-            }
-
-            InputStream inputStream = httpUrlConnection.getInputStream();
-            OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(m_target, appendTarget));
+            is = new ContentRangeInputStream(m_handle.getConnectionHandler(), m_handle.getURL(), targetLength);
+            os = new BufferedOutputStream(new FileOutputStream(m_target, appendTarget));
 
             byte buffer[] = new byte[m_readBufferSize];
+            long bytesRead = targetLength, totalBytes = -1L;
             int read;
 
-            try {
-                while (!Thread.currentThread().isInterrupted() && (read = inputStream.read(buffer)) >= 0) {
-                    outputStream.write(buffer, 0, read);
-                    bytesRead += read;
+            while (!Thread.currentThread().isInterrupted() && (read = is.read(buffer)) >= 0) {
+                os.write(buffer, 0, read);
+                // update local administration...
+                bytesRead += read;
+                totalBytes = is.getContentSize();
 
+                if (m_listener != null) {
                     m_listener.progress(bytesRead, totalBytes);
                 }
             }
-            finally {
-                closeSilently(outputStream);
-                closeSilently(inputStream);
-            }
 
-            boolean stoppedEarly = (totalBytes > 0L && bytesRead < totalBytes);
+            boolean stoppedEarly = Thread.currentThread().isInterrupted() || (totalBytes > 0L && bytesRead < totalBytes);
             if (stoppedEarly) {
-                m_handle.logDebug("Download stopped early: %d of %d bytes downloaded...", bytesRead, totalBytes);
+                m_handle.logDebug("Download stopped early: %d of %d bytes downloaded... (%d)", bytesRead, totalBytes, targetLength);
 
-                m_listener.completed(new DownloadResultImpl(DownloadState.STOPPED, (File) null, statusCode));
-            } else {
-                m_handle.logDebug("Download completed: %d bytes downloaded...", totalBytes);
-                
-                m_listener.completed(new DownloadResultImpl(DownloadState.SUCCESSFUL, m_target, statusCode));
+                return new DownloadResultImpl(DownloadState.STOPPED);
             }
-        }
-        catch (Exception e) {
-            m_handle.logWarning("Download failed!", e);
 
-            m_listener.completed(new DownloadResultImpl(DownloadState.FAILED, e, statusCode));
+            m_handle.logDebug("Download completed: %d bytes downloaded...", totalBytes);
+
+            return new DownloadResultImpl(DownloadState.SUCCESSFUL, new FileInputStream(m_target));
         }
         finally {
-            close(httpUrlConnection);
+            closeSilently(os);
+            closeSilently(is);
         }
-
-        return null;
     }
 }

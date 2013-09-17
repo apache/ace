@@ -26,14 +26,6 @@ import java.io.InputStream;
  * 
  */
 public interface DownloadResult {
-
-    /**
-     * Returns the state of the result.
-     * 
-     * @return The state
-     */
-    DownloadState getState();
-
     /**
      * Returns an input stream to the downloaded result.
      * 
@@ -42,14 +34,7 @@ public interface DownloadResult {
     InputStream getInputStream() throws IOException;
 
     /**
-     * @return the result code
+     * @return <code>true</code> if the download is complete, <code>false</code> if not.
      */
-    int getCode();
-
-    /**
-     * Return the cause of an unsuccessful download.
-     * 
-     * @return The cause, <code>null</code> if the download was successful
-     */
-    Throwable getCause();
+    boolean isComplete();
 }

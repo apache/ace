@@ -18,12 +18,14 @@
  */
 package org.apache.ace.agent;
 
+import java.io.IOException;
+
 /**
  * Exception that indicates that the upstream server responded with a Retry-After.
  */
-public class RetryAfterException extends Exception {
-
+public class RetryAfterException extends IOException {
     private static final long serialVersionUID = 1L;
+
     private final int m_seconds;
 
     public RetryAfterException(int seconds) {
@@ -31,7 +33,12 @@ public class RetryAfterException extends Exception {
         m_seconds = seconds;
     }
 
-    public int getSeconds() {
+    /**
+     * Returns the time to "back off" from accessing the server.
+     * 
+     * @return a back off time, in seconds.
+     */
+    public int getBackoffTime() {
         return m_seconds;
     }
 }

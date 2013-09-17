@@ -20,18 +20,13 @@ package org.apache.ace.agent.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadResult;
-import org.apache.ace.agent.DownloadState;
 
 /**
  * A {@link DownloadHandle} implementation that supports pause/resume semantics based on HTTP Range headers assuming the
@@ -47,7 +42,7 @@ class DownloadHandleImpl implements DownloadHandle {
     private final URL m_url;
     private final int m_readBufferSize;
 
-    private volatile Future<Void> m_future;
+    private volatile Future<DownloadResult> m_future;
     private volatile File m_file;
 
     DownloadHandleImpl(DownloadHandlerImpl handler, URL url) {
@@ -66,64 +61,38 @@ class DownloadHandleImpl implements DownloadHandle {
             stop();
         }
         finally {
-            m_file.delete();
+            if (m_file != null) {
+                m_file.delete();
+            }
         }
     }
 
     @Override
-    public void start(DownloadProgressListener listener) {
-        if (listener == null) {
-            throw new IllegalArgumentException("Listener cannot be null!");
-        }
-
+    public Future<DownloadResult> start(DownloadProgressListener listener) {
         if (m_future != null && !m_future.isDone()) {
             throw new IllegalStateException("Can not call start on a handle that is already started!");
         }
+        m_future = null;
 
         if (m_file == null) {
             try {
                 m_file = File.createTempFile("download", ".bin", m_handler.getDataLocation());
             }
             catch (IOException e) {
-                listener.completed(new DownloadResultImpl(DownloadState.FAILED, e, -1));
+                throw new RuntimeException("Failed to create temporary file!", e);
             }
         }
 
-        m_future = getExecutor().submit(new DownloadCallableImpl(this, listener, m_file, m_readBufferSize));
-    }
-
-    @Override
-    public DownloadResult startAndAwaitResult(long timeout, TimeUnit unit) throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicReference<DownloadResult> result = new AtomicReference<DownloadResult>();
-
-        start(new DownloadProgressListener() {
-            @Override
-            public void progress(long bytesRead, long totalBytes) {
-                // Nop
-            }
-
-            @Override
-            public void completed(DownloadResult downloadResult) {
-                result.set(downloadResult);
-                latch.countDown();
-            }
-        });
-        if (!latch.await(timeout, unit)) {
-            throw new InterruptedException("Failed to obtain result within given time constaints!");
-        }
-        return result.get();
+        return m_future = getExecutor().submit(new DownloadCallableImpl(this, listener, m_file, m_readBufferSize));
     }
 
     @Override
     public void stop() {
-        Future<Void> future = m_future;
+        Future<?> future = m_future;
         if (future != null) {
-            if (future.isDone()) {
-                throw new IllegalStateException("Can not call stop on a handle that is not yet started or completed!");
+            if (!future.isDone()) {
+                future.cancel(true /* mayInterruptIfRunning */);
             }
-
-            future.cancel(true /* mayInterruptIfRunning */);
         }
         m_future = null;
     }
@@ -136,12 +105,12 @@ class DownloadHandleImpl implements DownloadHandle {
         m_handler.logWarning(message, cause, args);
     }
 
-    final HttpURLConnection openConnection() throws IOException {
-        return (HttpURLConnection) getConnectionHandler().getConnection(m_url);
-    }
-
-    private ConnectionHandler getConnectionHandler() {
+    final ConnectionHandler getConnectionHandler() {
         return m_handler.getConnectionHandler();
+    }
+    
+    final URL getURL() {
+        return m_url;
     }
 
     private ExecutorService getExecutor() {

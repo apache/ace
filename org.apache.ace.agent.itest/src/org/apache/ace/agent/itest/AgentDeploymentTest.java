@@ -19,11 +19,11 @@
 package org.apache.ace.agent.itest;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +61,7 @@ import org.osgi.service.http.HttpService;
 public class AgentDeploymentTest extends BaseAgentTest {
 
     private enum Failure {
-        EMPTY_STREAM, CORRUPT_STREAM, ABORT_STREAM, VERSIONS_RETRY_AFTER, DEPLOYMENT_RETRY_AFTER
+        EMPTY_STREAM, CORRUPT_STREAM, ABORT_STREAM, VERSIONS_RETRY_AFTER, DEPLOYMENT_RETRY_AFTER, CONTENT_RANGE
     }
 
     private static class TestAuditlogServlet extends HttpServlet {
@@ -136,11 +136,11 @@ public class AgentDeploymentTest extends BaseAgentTest {
                 if (dpackage == null) {
                     throw new IllegalStateException("Test error! Should never happen... " + pathinfoTail);
                 }
-                sendPackage(dpackage, resp);
+                sendPackage(dpackage, req, resp);
             }
         }
 
-        private void sendPackage(TestPackage dpackage, HttpServletResponse resp) throws IOException {
+        private void sendPackage(TestPackage dpackage, HttpServletRequest req, HttpServletResponse resp) throws IOException {
             if (m_failure == Failure.DEPLOYMENT_RETRY_AFTER) {
                 resp.addHeader("Retry-After", BACKOFF_TIME);
                 resp.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Simulated server overload");
@@ -148,11 +148,34 @@ public class AgentDeploymentTest extends BaseAgentTest {
                 return;
             }
 
-            long middle = dpackage.getFile().length() / 2;
-            FileInputStream fis = null;
+            final long fileLength = dpackage.getFile().length();
+            final long middle = fileLength / 2;
+
+            long start = 0L;
+            long end = fileLength;
+
+            if (m_failure == Failure.CONTENT_RANGE) {
+                String rangeHdr = req.getHeader("Range");
+                if (rangeHdr != null && rangeHdr.startsWith("bytes=")) {
+                    // Continuation...
+                    String[] range = rangeHdr.substring(6).split("-");
+
+                    start = Long.parseLong(range[0]);
+                }
+                else {
+                    // Initial chuck...
+                    end = fileLength / 2;
+                }
+
+                resp.addHeader("Content-Range", String.format("bytes %d-%d/%d", start, end, fileLength));
+
+                resp.setStatus(206); // partial
+            }
+
+            RandomAccessFile raf = null;
             OutputStream os = null;
             try {
-                fis = new FileInputStream(dpackage.getFile());
+                raf = new RandomAccessFile(dpackage.getFile(), "r");
                 os = resp.getOutputStream();
 
                 if (m_failure == Failure.EMPTY_STREAM) {
@@ -163,18 +186,21 @@ public class AgentDeploymentTest extends BaseAgentTest {
                     os.write("garbage".getBytes());
                 }
 
+                if (m_failure == Failure.CONTENT_RANGE) {
+                    raf.seek(start);
+                }
+
                 int b;
                 int count = 0;
-                while ((b = fis.read()) != -1) {
+                while (count < (end - start) && (b = raf.read()) != -1) {
                     os.write(b);
                     if (count++ == middle && m_failure == Failure.ABORT_STREAM) {
                         break;
                     }
                 }
-
             }
             finally {
-                fis.close();
+                raf.close();
                 if (os != null) {
                     os.close();
                 }
@@ -423,6 +449,15 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     /**
+     * Tests the deployment of "non-streamed" deployment packages in various situations.
+     */
+    public void testNonStreamingDeployment_ChunkedContentRange() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package6, Failure.CONTENT_RANGE);
+    }
+
+    /**
      * Tests the deployment of "streamed" deployment packages in various situations.
      */
     public void testStreamingDeployment() throws Exception {
@@ -477,13 +512,22 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     /**
+     * Tests the deployment of "streamed" deployment packages in various situations.
+     */
+    public void testStreamingDeployment_ChunkedContentRange() throws Exception {
+        setupAgentForStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package1, Failure.CONTENT_RANGE);
+    }
+
+    /**
      * Tests the deployment of "streamed" deployment packages simulating an "unstable" connection.
      */
     public void testStreamingDeploymentWithUnstableConnection() throws Exception {
         setupAgentForStreamingDeployment();
 
         expectSuccessfulDeployment(m_package1, null);
-        
+
         expectFailedDeployment(m_package6, Failure.EMPTY_STREAM);
         waitForInstalledVersion(V1_0_0);
 
@@ -615,7 +659,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     private void waitForEventReceived(String topic) throws Exception {
-        int timeout = 100;
+        int timeout = 10000;
         while (!m_listener.containsTopic(topic)) {
             Thread.sleep(100);
             if (timeout-- <= 0) {

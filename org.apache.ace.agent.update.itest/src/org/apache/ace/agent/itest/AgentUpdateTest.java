@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -52,16 +54,11 @@ import org.osgi.service.http.HttpService;
  * </ul>
  */
 public class AgentUpdateTest extends IntegrationTestBase {
-
     private volatile HttpService m_http;
     private volatile AgentUpdateOBRServlet m_servlet;
 
     private enum Phase {
         CORRUPT_STREAM, BUNDLE_DOES_NOT_RESOLVE, BUNDLE_DOES_NOT_START, BUNDLE_WORKS
-    }
-
-    private enum PhaseStatus {
-        ACTIVE, DONE
     }
 
     @Override
@@ -85,33 +82,23 @@ public class AgentUpdateTest extends IntegrationTestBase {
     }
 
     public void testAgentUpdate() throws Exception {
+        final int defaultTimeout = 15;
 
-        int timeout = 50;
-        m_servlet.setPhase(Phase.CORRUPT_STREAM);
-        while (m_servlet.getPhaseStatus() == PhaseStatus.ACTIVE) {
-            Thread.sleep(200);
-            if (timeout-- <= 0) {
-                fail("Timed out while recovering from update with broken stream.");
-            }
-        }
-        timeout = 50;
-        m_servlet.setPhase(Phase.BUNDLE_DOES_NOT_RESOLVE);
-        while (m_servlet.getPhaseStatus() == PhaseStatus.ACTIVE) {
-            Thread.sleep(200);
-            if (timeout-- <= 0) {
-                fail("Timed out while recovering from update with agent that does not resolve.");
-            }
-        }
-        timeout = 50;
-        m_servlet.setPhase(Phase.BUNDLE_DOES_NOT_START);
-        while (m_servlet.getPhaseStatus() == PhaseStatus.ACTIVE) {
-            Thread.sleep(200);
-            if (timeout-- <= 0) {
-                fail("Timed out while recovering from update with agent that does not start.");
-            }
-        }
-        timeout = 50;
-        m_servlet.setPhase(Phase.BUNDLE_WORKS);
+        CountDownLatch latch;
+
+        latch = m_servlet.setPhase(Phase.CORRUPT_STREAM, new CountDownLatch(1));
+        assertTrue("Timed out while recovering from update with broken stream.", latch.await(defaultTimeout, TimeUnit.SECONDS));
+
+        latch = m_servlet.setPhase(Phase.BUNDLE_DOES_NOT_RESOLVE, new CountDownLatch(1));
+        assertTrue("Timed out while recovering from update with agent that does not resolve.", latch.await(defaultTimeout, TimeUnit.SECONDS));
+
+        latch = m_servlet.setPhase(Phase.BUNDLE_DOES_NOT_START, new CountDownLatch(1));
+        assertTrue("Timed out while recovering from update with agent that does not start.", latch.await(defaultTimeout, TimeUnit.SECONDS));
+
+        latch = m_servlet.setPhase(Phase.BUNDLE_WORKS, new CountDownLatch(1));
+        assertTrue("Timed out while starting working bundle?!", latch.await(defaultTimeout, TimeUnit.SECONDS));
+
+        int timeout = defaultTimeout;
         while (timeout-- > 0) {
             Thread.sleep(200);
             for (Bundle b : m_bundleContext.getBundles()) {
@@ -126,10 +113,9 @@ public class AgentUpdateTest extends IntegrationTestBase {
     }
 
     private static class AgentUpdateOBRServlet extends HttpServlet {
-
         private static final long serialVersionUID = 1L;
         private Phase m_phase;
-        private PhaseStatus m_phaseStatus;
+        private CountDownLatch m_latch;
 
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -154,13 +140,11 @@ public class AgentUpdateTest extends IntegrationTestBase {
             }
         }
 
-        public synchronized void setPhase(Phase phase) {
+        public synchronized CountDownLatch setPhase(Phase phase, CountDownLatch latch) {
             m_phase = phase;
-            m_phaseStatus = PhaseStatus.ACTIVE;
-        }
-
-        public synchronized PhaseStatus getPhaseStatus() {
-            return m_phaseStatus;
+            m_latch = latch;
+            System.out.println("Updating in phase: " + phase);
+            return latch;
         }
 
         private InputStream getBundle() throws IOException {
@@ -195,10 +179,10 @@ public class AgentUpdateTest extends IntegrationTestBase {
             jis.close();
             jos.close();
             if (m_phase == Phase.BUNDLE_WORKS && "2.0.0".equals(version)) {
-                m_phaseStatus = PhaseStatus.DONE;
+                m_latch.countDown();
             }
             if (m_phase != Phase.BUNDLE_WORKS && "1.0.0".equals(version)) {
-                m_phaseStatus = PhaseStatus.DONE;
+                m_latch.countDown();
             }
         }
     }

@@ -34,11 +34,12 @@ class ConnectionUtil {
     /**
      * The HTTP header indicating the 'backoff' time to use. See section 14.37 of HTTP1.1 spec (RFC2616).
      */
-    private static final String HTTP_RETRY_AFTER = "Retry-After";
+    public static final String HTTP_RETRY_AFTER = "Retry-After";
     /**
      * Default backoff time, in seconds.
      */
-    private static final int DEFAULT_RETRY_TIME = 30;
+    public static final int DEFAULT_RETRY_TIME = 30;
+
     /** Default buffer size for use in stream-copying, in bytes. */
     private static final int DEFAULT_BUFFER_SIZE = 32 * 1024;
 
@@ -57,12 +58,13 @@ class ConnectionUtil {
         int responseCode = getResponseCode(connection);
         switch (responseCode) {
             case 200:
+            case 206:
                 return;
             case 503:
                 int retry = ((HttpURLConnection) connection).getHeaderFieldInt(HTTP_RETRY_AFTER, DEFAULT_RETRY_TIME);
                 throw new RetryAfterException(retry);
             default:
-                throw new IOException("Unable to handle server responsecode: " + responseCode);
+                throw new IOException("Unable to handle server responsecode: " + responseCode + ", for " + connection.getURL());
         }
     }
 
@@ -71,14 +73,20 @@ class ConnectionUtil {
      * 
      * @param connection
      *            the URL connection to close, can be <code>null</code> in which case this method does nothing.
+     * @return always <code>null</code>, for easy chaining.
      */
-    public static void close(URLConnection connection) {
+    public static URLConnection close(URLConnection connection) {
         if (connection instanceof HttpURLConnection) {
             ((HttpURLConnection) connection).disconnect();
         }
+        return null;
     }
 
-    public static void closeSilently(Closeable closeable) {
+    /**
+     * @param closeable
+     * @return always <code>null</code>, for easy chaining.
+     */
+    public static Closeable closeSilently(Closeable closeable) {
         try {
             if (closeable != null) {
                 closeable.close();
@@ -87,6 +95,7 @@ class ConnectionUtil {
         catch (IOException exception) {
             // Ignore...
         }
+        return null;
     }
 
     public static void copy(InputStream is, OutputStream os) throws IOException {
