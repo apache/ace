@@ -55,41 +55,6 @@ import org.osgi.service.http.HttpService;
 
 public class DeploymentIntegrationTest extends IntegrationTestBase implements BundleListener, EventHandler {
 
-//    @org.ops4j.pax.exam.junit.Configuration
-//    public Option[] configuration() {
-//        return options(
-//            systemProperty("org.osgi.service.http.port").value("" + TestConstants.PORT),
-//            new VMOption("-ea"),
-//            junitBundles(),
-//            provision(
-//                wrappedBundle(maven("org.apache.ace", "org.apache.ace.deployment.provider.base")), // necessary since we use an impl class here...
-//                Ace.util(),
-//                Osgi.compendium(),
-//                Felix.dependencyManager(),
-//                jetty(),
-//                Felix.configAdmin(),
-//                Felix.eventAdmin(),
-//                Felix.deploymentAdmin(),
-//                Ace.authenticationApi(),
-//                Ace.connectionFactory(),
-//                Ace.scheduler(),
-//                Ace.deploymentProviderApi(),
-//                Ace.deploymentProviderFilebased(),
-//                Ace.discoveryApi(),
-//                Ace.discoveryProperty(),
-//                Ace.identificationApi(),
-//                Ace.identificationProperty(),
-//                Ace.httplistener(),
-//                Ace.deploymentApi(),
-//                Ace.deploymentDeploymentAdmin(),
-//                Ace.deploymentServlet(),
-//                Ace.deploymentTaskBase(),
-//                Ace.deploymentTask(),
-//                Ace.deploymentStreamgenerator()
-//            )
-//        );
-//    }
-
     protected void configureProvisionedServices() throws IOException {
         m_tempDir = File.createTempFile("test", "");
         m_tempDir.delete();
@@ -117,7 +82,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
     private ServiceRegistration m_deploymentAdminProxyRegistration;
 
     @Override
-	protected void configureAdditionalServices() throws Exception {
+    protected void configureAdditionalServices() throws Exception {
         deleteDirOrFile(m_tempDir);
     }
 
@@ -149,14 +114,15 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
         Bundle[] bundles = m_bundleContext.getBundles();
         Bundle bundle = null;
         for (int i = 0; i < bundles.length; i++) {
-            if("bundle1".equals(bundles[i].getSymbolicName())) {
+            if ("bundle1".equals(bundles[i].getSymbolicName())) {
                 bundle = bundles[i];
                 break;
             }
         }
         assert m_deployment.getDeploymentPackage(bundle) != null : "Deployment admin did not return the expected deployment package";
 
-        // Test deploy a version 1.1.0 on top of the previous 1.0.0 with one new bundle and one updated to version 1.1.0 (i.e., two fix-package bundles)
+        // Test deploy a version 1.1.0 on top of the previous 1.0.0 with one new bundle and one updated to version 1.1.0
+        // (i.e., two fix-package bundles)
         versions = new String[] { "bundle1", "bundle2", "bundle3", "bundle4" };
         File version = createVersion("1.1.0");
         generateBundle(new File(version, "0.jar"), versions[0], "1.1.0");
@@ -209,7 +175,8 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
     }
 
     private void assertState(Bundle[] start, Bundle[] current, String[] versions) {
-        assert (start.length + versions.length) == current.length : "System has " + (((start.length + versions.length) < current.length) ? "more" : "less") + " bundes then expected: expected " + (start.length + versions.length) + ", found " + current.length;
+        assert (start.length + versions.length) == current.length : "System has " + (((start.length + versions.length) < current.length) ? "more" : "less") + " bundes then expected: expected " + (start.length + versions.length) + ", found "
+            + current.length;
         for (int i = 0; i < start.length; i++) {
             assert current[i].getSymbolicName().equals(start[i].getSymbolicName()) : "Bundle names do not match: " + current[i].getSymbolicName() + " v.s. " + start[i];
         }
@@ -256,9 +223,8 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
     }
 
     /**
-     * Input stream wrapper that creates an input stream that breaks after N bytes. When it
-     * breaks, it will throw an IO exception and sends a notification to the semaphore that
-     * allows the overall test to continue.
+     * Input stream wrapper that creates an input stream that breaks after N bytes. When it breaks, it will throw an IO
+     * exception and sends a notification to the semaphore that allows the overall test to continue.
      */
     private class BrokenInputStream extends InputStream {
         private final InputStream m_normalStream;
@@ -343,8 +309,8 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
         configure(IdentificationConstants.IDENTIFICATION_PID, IdentificationConstants.IDENTIFICATION_TARGETID_KEY, GWID);
         // configure scheduler
         configure(SchedulerConstants.SCHEDULER_PID,
-             "org.apache.ace.target.auditlog.task.AuditLogSyncTask", POLL_INTERVAL,
-             "org.apache.ace.deployment.task.DeploymentUpdateTask", POLL_INTERVAL);
+            "org.apache.ace.target.auditlog.task.AuditLogSyncTask", POLL_INTERVAL,
+            "org.apache.ace.deployment.task.DeploymentUpdateTask", POLL_INTERVAL);
     }
 
     private void unconfigureTarget() throws IOException {
