@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -107,8 +108,8 @@ public class SynchronousExecutorService implements ScheduledExecutorService {
     }
 
     @Override
-    public <T> Future<T> submit(Callable<T> task) {
-        throw new UnsupportedOperationException();
+    public <T> Future<T> submit(final Callable<T> task) {
+        return Executors.newSingleThreadExecutor().submit(task);
     }
 
     @Override

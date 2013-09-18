@@ -39,8 +39,8 @@ import org.apache.ace.agent.ConnectionHandler.Types;
 import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -76,7 +76,7 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
     private URL m_basicAuthURL;
     private AgentContextImpl m_agentContext;
 
-    @BeforeTest
+    @BeforeClass
     public void setUpOnceAgain() throws Exception {
         m_basicAuthURL = new URL("http://localhost:" + PORT + "/basicauth");
 
@@ -93,7 +93,7 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
         m_agentContext.start();
     }
 
-    @AfterTest
+    @AfterClass
     public void tearDownOnceAgain() throws Exception {
         m_agentContext.stop();
         m_webServer.stop();

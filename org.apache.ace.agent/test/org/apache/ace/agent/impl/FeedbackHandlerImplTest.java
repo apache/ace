@@ -25,15 +25,14 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Set;
 
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.FeedbackHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -48,9 +47,9 @@ public class FeedbackHandlerImplTest extends BaseAgentTest {
 
     private AgentContextImpl m_agentContextImpl;
 
-    @BeforeMethod
-    public void setUpAgain(Method method) throws Exception {
-        m_agentContextImpl = mockAgentContext(method.getName());
+    @BeforeClass
+    public void setUpAgain() throws Exception {
+        m_agentContextImpl = mockAgentContext();
         replayTestMocks();
 
         m_agentContextImpl.setHandler(FeedbackHandler.class, new FeedbackHandlerImpl());
@@ -60,8 +59,8 @@ public class FeedbackHandlerImplTest extends BaseAgentTest {
         m_agentContextImpl.start();
     }
 
-    @AfterMethod
-    public void tearDownAgain(Method method) throws Exception {
+    @AfterClass
+    public void tearDownAgain() throws Exception {
         m_agentContextImpl.stop();
         verifyTestMocks();
         clearTestMocks();

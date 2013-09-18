@@ -20,7 +20,6 @@ package org.apache.ace.agent.impl;
 
 import java.io.File;
 import java.net.URL;
-import java.util.concurrent.ExecutorService;
 
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandler;
@@ -44,17 +43,5 @@ public class DownloadHandlerImpl extends ComponentBase implements DownloadHandle
     @Override
     public DownloadHandle getHandle(URL url) {
         return new DownloadHandleImpl(this, url);
-    }
-
-    @Override
-    public DownloadHandle getHandle(URL url, int readBufferSize) {
-        return new DownloadHandleImpl(this, url, readBufferSize);
-    }
-
-    /*
-     * handle support methods
-     */
-    ExecutorService getExecutor() {
-        return getExecutorService();
     }
 }

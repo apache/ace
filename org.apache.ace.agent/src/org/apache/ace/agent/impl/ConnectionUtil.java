@@ -111,6 +111,18 @@ class ConnectionUtil {
         }
     }
 
+    public static void skip(URLConnection connection, long count) {
+        try {
+            InputStream is = connection.getInputStream();
+            while (count-- > 0) {
+                is.read();
+            }
+        }
+        catch (IOException ignored) {
+            // Ignored...
+        }
+    }
+
     /**
      * Returns the response code for the given URL connection (assuming this connection represents a HTTP(S) URL).
      * 

@@ -56,8 +56,8 @@ import org.apache.ace.agent.testutil.TestWebServer;
 import org.osgi.framework.Version;
 import org.osgi.service.deploymentadmin.DeploymentAdmin;
 import org.osgi.service.deploymentadmin.DeploymentPackage;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -118,9 +118,8 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
 
     private AgentContextImpl m_agentContext;
 
-    @BeforeTest
+    @BeforeClass
     public void setUpOnceAgain() throws Exception {
-
         serverURL = new URL("http://localhost:" + port + "/");
         m_webserver = new TestWebServer(port, "/", "generated");
         m_webserver.start();
@@ -178,7 +177,7 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
         m_agentContext.start();
     }
 
-    @AfterTest
+    @AfterClass
     public void tearDownOnceAgain() throws Exception {
         m_webserver.stop();
         m_agentContext.stop();

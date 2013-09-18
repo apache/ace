@@ -19,8 +19,9 @@
 package org.apache.ace.agent.impl;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -33,26 +34,17 @@ import org.apache.ace.agent.DownloadResult;
  * server supports this feature.
  */
 class DownloadHandleImpl implements DownloadHandle {
-    /**
-     * Size of the buffer used while downloading the content stream.
-     */
-    private static final int DEFAULT_READBUFFER_SIZE = 1024;
-
     private final DownloadHandlerImpl m_handler;
+    private final File m_file;
     private final URL m_url;
-    private final int m_readBufferSize;
 
     private volatile Future<DownloadResult> m_future;
-    private volatile File m_file;
 
     DownloadHandleImpl(DownloadHandlerImpl handler, URL url) {
-        this(handler, url, DEFAULT_READBUFFER_SIZE);
-    }
-
-    DownloadHandleImpl(DownloadHandlerImpl handler, URL url, int readBufferSize) {
         m_handler = handler;
         m_url = url;
-        m_readBufferSize = readBufferSize;
+        
+        m_file = new File(m_handler.getDataLocation(), getDownloadFileName());
     }
 
     @Override
@@ -61,9 +53,7 @@ class DownloadHandleImpl implements DownloadHandle {
             stop();
         }
         finally {
-            if (m_file != null) {
-                m_file.delete();
-            }
+            m_file.delete();
         }
     }
 
@@ -74,20 +64,12 @@ class DownloadHandleImpl implements DownloadHandle {
         }
         m_future = null;
 
-        if (m_file == null) {
-            try {
-                m_file = File.createTempFile("download", ".bin", m_handler.getDataLocation());
-            }
-            catch (IOException e) {
-                throw new RuntimeException("Failed to create temporary file!", e);
-            }
-        }
-
         ExecutorService executor = getExecutor();
         if (executor.isShutdown()) {
             m_handler.logWarning("Cannot start download, executor is shut down!");
-        } else {
-            m_future = executor.submit(new DownloadCallableImpl(this, listener, m_file, m_readBufferSize));
+        }
+        else {
+            m_future = executor.submit(new DownloadCallableImpl(this, listener, m_file));
         }
 
         return m_future;
@@ -104,6 +86,18 @@ class DownloadHandleImpl implements DownloadHandle {
         m_future = null;
     }
 
+    final ConnectionHandler getConnectionHandler() {
+        return m_handler.getConnectionHandler();
+    }
+    
+    final File getDownloadFile() {
+        return m_file;
+    }
+
+    final URL getURL() {
+        return m_url;
+    }
+
     final void logDebug(String message, Object... args) {
         m_handler.logDebug(message, args);
     }
@@ -112,15 +106,19 @@ class DownloadHandleImpl implements DownloadHandle {
         m_handler.logWarning(message, cause, args);
     }
 
-    final ConnectionHandler getConnectionHandler() {
-        return m_handler.getConnectionHandler();
-    }
-
-    final URL getURL() {
-        return m_url;
+    /**
+     * @return the filename for the (temporary) download location.
+     */
+    private String getDownloadFileName() {
+        try {
+            return URLEncoder.encode(m_url.toExternalForm(), "ASCII");
+        }
+        catch (UnsupportedEncodingException exception) {
+            throw new RuntimeException("ASCII encoding not supported?!");
+        }
     }
 
     private ExecutorService getExecutor() {
-        return m_handler.getExecutor();
+        return m_handler.getExecutorService();
     }
 }

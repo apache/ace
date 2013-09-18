@@ -21,19 +21,20 @@ package org.apache.ace.agent;
 import java.net.URL;
 
 /**
- * Service interface for a DownloadHandler component.
+ * Service interface for downloading content from a particular {@link URL}.
+ * <p>
+ * Download handles should be used for all download-related tasks, allowing one to download content asynchronously, and
+ * temporarily stop an ongoing download to resume it on a later moment.
+ * </p>
  */
 public interface DownloadHandler {
 
     /**
-     * Returns a {@link DownloadHandle} for a URL.
+     * Returns a {@link DownloadHandle} for a given URL.
      * 
-     * @param url The url
-     * @return The {@link DownloadHandle}
+     * @param url
+     *            The url to create a download handle for, cannot be <code>null</code>.
+     * @return a new {@link DownloadHandle} instance, never <code>null</code>.
      */
     DownloadHandle getHandle(URL url);
-
-    // TODO named handlers (resume over urls)
-    @Deprecated
-    DownloadHandle getHandle(URL url, int readBufferSize);
 }

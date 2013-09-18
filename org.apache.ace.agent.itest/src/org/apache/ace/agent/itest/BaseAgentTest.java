@@ -114,5 +114,6 @@ public abstract class BaseAgentTest extends IntegrationTestBase {
             }
             file.delete();
         }
+        dir.delete();
     }
 }

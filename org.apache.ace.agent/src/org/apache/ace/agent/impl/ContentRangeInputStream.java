@@ -18,12 +18,14 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.impl.ConnectionUtil.DEFAULT_RETRY_TIME;
 import static org.apache.ace.agent.impl.ConnectionUtil.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 
 import org.apache.ace.agent.ConnectionHandler;
 import org.apache.ace.agent.RetryAfterException;
@@ -54,7 +56,7 @@ class ContentRangeInputStream extends InputStream {
 
     // see ST_* constants...
     private volatile int m_state;
-    private volatile HttpURLConnection m_conn;
+    private volatile URLConnection m_conn;
     // administration...
     private volatile long m_readTotal;
     private volatile long m_readChunk;
@@ -212,16 +214,24 @@ class ContentRangeInputStream extends InputStream {
      * @param conn
      *            the URL connection to add the HTTP-Range header to, cannot be <code>null</code>.
      */
-    private void applyRangeHeader(HttpURLConnection conn) {
+    private void applyRangeHeader(URLConnection conn) {
         if (m_readTotal > 0L || m_chunkSize > 0) {
-            String rangeHeader;
-            if (m_chunkSize > 0) {
-                rangeHeader = String.format("%s=%d-%d", BYTES, m_readTotal, (m_readTotal + m_chunkSize));
+            if (conn instanceof HttpURLConnection) {
+                String rangeHeader;
+                if (m_chunkSize > 0) {
+                    rangeHeader = String.format("%s=%d-%d", BYTES, m_readTotal, (m_readTotal + m_chunkSize));
+                }
+                else {
+                    rangeHeader = String.format("%s=%d-", BYTES, m_readTotal);
+                }
+                conn.setRequestProperty(HDR_RANGE, rangeHeader);
+            } else {
+                // Non-HTTP connection, skip the first few bytes when calling this method for the first time...
+                if (m_contentInfo == null) {
+                    long skip = m_readTotal;
+                    ConnectionUtil.skip(conn, skip);
+                }
             }
-            else {
-                rangeHeader = String.format("%s=%d-", BYTES, m_readTotal);
-            }
-            conn.setRequestProperty(HDR_RANGE, rangeHeader);
         }
     }
 
@@ -245,8 +255,7 @@ class ContentRangeInputStream extends InputStream {
      */
     private void closeChunk() {
         if (m_conn != null) {
-            ConnectionUtil.close(m_conn);
-            m_conn = null;
+            m_conn = ConnectionUtil.close(m_conn);
             m_readChunk = 0;
         }
     }
@@ -278,7 +287,16 @@ class ContentRangeInputStream extends InputStream {
      * @throws IOException
      *             in case of I/O problems or unexpected content.
      */
-    private long[] getContentRangeInfo(HttpURLConnection conn) throws IOException {
+    private long[] getContentRangeInfo(URLConnection conn) throws IOException {
+        if (conn instanceof HttpURLConnection) {
+            return getHttpContentRangeInfo((HttpURLConnection) conn);
+        }
+
+        long totalBytes = conn.getContentLength();
+        return new long[] { totalBytes, totalBytes };
+    }
+
+    private long[] getHttpContentRangeInfo(HttpURLConnection conn) throws IOException {
         int rc = conn.getResponseCode();
         if (rc == SC_OK) {
             // Non-chunked response...
@@ -338,7 +356,7 @@ class ContentRangeInputStream extends InputStream {
      */
     private boolean prepareNextChunk() throws IOException {
         if ((m_conn == null) && contentRemaining()) {
-            m_conn = (HttpURLConnection) m_handler.getConnection(m_url);
+            m_conn = m_handler.getConnection(m_url);
 
             applyRangeHeader(m_conn);
 

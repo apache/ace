@@ -31,8 +31,8 @@ import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -49,7 +49,7 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
     private AgentContext m_agentContext;
     private AgentContextImpl m_agentContextImpl;
 
-    @BeforeTest
+    @BeforeClass
     public void setUpOnceAgain() throws Exception {
         m_webServer = new TestWebServer(PORT, "/", "generated");
         m_webServer.start();
@@ -66,7 +66,7 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
         m_agentContextImpl.start();
     }
 
-    @AfterTest
+    @AfterClass
     public void tearDownOnceAgain() throws Exception {
         m_webServer.stop();
 

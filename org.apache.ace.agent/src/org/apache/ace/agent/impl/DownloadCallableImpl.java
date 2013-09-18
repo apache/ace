@@ -22,7 +22,6 @@ import static org.apache.ace.agent.impl.ConnectionUtil.closeSilently;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
@@ -35,16 +34,19 @@ import org.apache.ace.agent.DownloadState;
  * Responsible for actually downloading content from a download handle.
  */
 final class DownloadCallableImpl implements Callable<DownloadResult> {
+    /**
+     * Size of the buffer used while downloading the content stream.
+     */
+    private static final int READBUFFER_SIZE = 4096;
+
     private final DownloadHandleImpl m_handle;
     private final DownloadProgressListener m_listener;
     private final File m_target;
-    private final int m_readBufferSize;
 
-    DownloadCallableImpl(DownloadHandleImpl handle, DownloadProgressListener listener, File target, int readBufferSize) {
+    DownloadCallableImpl(DownloadHandleImpl handle, DownloadProgressListener listener, File target) {
         m_handle = handle;
         m_listener = listener;
         m_target = target;
-        m_readBufferSize = readBufferSize;
     }
 
     @Override
@@ -59,7 +61,7 @@ final class DownloadCallableImpl implements Callable<DownloadResult> {
             is = new ContentRangeInputStream(m_handle.getConnectionHandler(), m_handle.getURL(), targetLength);
             os = new BufferedOutputStream(new FileOutputStream(m_target, appendTarget));
 
-            byte buffer[] = new byte[m_readBufferSize];
+            byte buffer[] = new byte[READBUFFER_SIZE];
             long bytesRead = targetLength, totalBytes = -1L;
             int read;
 
@@ -83,7 +85,7 @@ final class DownloadCallableImpl implements Callable<DownloadResult> {
 
             m_handle.logDebug("Download completed: %d bytes downloaded...", totalBytes);
 
-            return new DownloadResultImpl(DownloadState.SUCCESSFUL, new FileInputStream(m_target));
+            return new DownloadResultImpl(DownloadState.SUCCESSFUL, m_target);
         }
         finally {
             closeSilently(os);

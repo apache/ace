@@ -18,6 +18,8 @@
  */
 package org.apache.ace.agent.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -29,16 +31,16 @@ import org.apache.ace.agent.DownloadState;
  */
 public class DownloadResultImpl implements DownloadResult {
     private final DownloadState m_state;
-    private final InputStream m_inputStream;
+    private final File m_result;
 
     DownloadResultImpl(DownloadState state) {
         m_state = state;
-        m_inputStream = null;
+        m_result = null;
     }
 
-    DownloadResultImpl(DownloadState state, InputStream is) {
+    DownloadResultImpl(DownloadState state, File result) {
         m_state = state;
-        m_inputStream = is;
+        m_result = result;
     }
 
     @Override
@@ -46,7 +48,7 @@ public class DownloadResultImpl implements DownloadResult {
         if (!isComplete()) {
             throw new IllegalStateException("Cannot access incomplete download result!");
         }
-        return m_inputStream;
+        return new FileInputStream(m_result);
     }
 
     @Override

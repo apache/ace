@@ -33,11 +33,8 @@ import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
@@ -54,11 +51,12 @@ import org.apache.ace.agent.DownloadHandler;
 import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.LoggingHandler;
+import org.apache.ace.agent.LoggingHandler.Levels;
 import org.apache.ace.agent.RetryAfterException;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -94,17 +92,18 @@ public class DownloadHandlerTest extends BaseAgentTest {
     private AgentContextImpl m_agentContextImpl;
     private AgentContext m_agentContext;
 
-    @BeforeTest
+    @BeforeClass
     public void setUpOnceAgain() throws Exception {
-        int port = 8883;
-
-        m_200url = new URL("http://localhost:" + port + "/testfile.txt");
-        m_404url = new URL("http://localhost:" + port + "/error?status=404");
-        m_503url = new URL("http://localhost:" + port + "/error?status=503&retry=500");
-
         File dataLocation = new File("generated");
 
-        m_200file = new File(dataLocation, "testfile.txt");
+        m_200file = File.createTempFile("download", ".bin", dataLocation);
+        m_200file.deleteOnExit();
+
+        int port = 8883;
+
+        m_200url = new URL("http://localhost:" + port + "/" + m_200file.getName());
+        m_404url = new URL("http://localhost:" + port + "/error?status=404");
+        m_503url = new URL("http://localhost:" + port + "/error?status=503&retry=500");
 
         DigestOutputStream dos = new DigestOutputStream(new FileOutputStream(m_200file), MessageDigest.getInstance("MD5"));
         for (int i = 0; i < 10000; i++) {
@@ -114,26 +113,23 @@ public class DownloadHandlerTest extends BaseAgentTest {
         dos.close();
         m_200digest = new BigInteger(dos.getMessageDigest().digest()).toString();
 
-        m_webServer = new TestWebServer(port, "/", "generated");
+        m_webServer = new TestWebServer(port, "/", dataLocation.getName());
         m_webServer.addServlet(new TestErrorServlet(), "/error");
         m_webServer.start();
 
         m_agentContextImpl = mockAgentContext();
         m_agentContext = m_agentContextImpl;
 
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-
-        m_agentContextImpl.setHandler(ScheduledExecutorService.class, executorService);
         m_agentContextImpl.setHandler(EventsHandler.class, new EventsHandlerImpl(mockBundleContext()));
         m_agentContextImpl.setHandler(ConnectionHandler.class, new ConnectionHandlerImpl());
-        m_agentContextImpl.setHandler(LoggingHandler.class, new LoggingHandlerImpl());
+        m_agentContextImpl.setHandler(LoggingHandler.class, new LoggingHandlerImpl(Levels.DEBUG));
         m_agentContextImpl.setHandler(DownloadHandler.class, new DownloadHandlerImpl(dataLocation));
 
         m_agentContextImpl.start();
         replayTestMocks();
     }
 
-    @AfterTest
+    @AfterClass
     public void tearDownOnceAgain() throws Exception {
         m_agentContextImpl.stop();
         m_webServer.stop();
@@ -145,6 +141,8 @@ public class DownloadHandlerTest extends BaseAgentTest {
         DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
 
         DownloadHandle handle = downloadHandler.getHandle(m_200url);
+        handle.discard();
+
         Future<DownloadResult> result = handle.start(null);
 
         assertSuccessful(result, 200, m_200digest);
@@ -155,10 +153,12 @@ public class DownloadHandlerTest extends BaseAgentTest {
         DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
 
         final DownloadHandle handle = downloadHandler.getHandle(m_200url);
+        handle.discard();
+
         Future<DownloadResult> future = handle.start(new DownloadProgressListener() {
             @Override
             public void progress(long read, long total) {
-                handle.stop();
+                Thread.currentThread().interrupt();
             }
         });
 
@@ -227,16 +227,9 @@ public class DownloadHandlerTest extends BaseAgentTest {
     }
 
     private static void assertStopped(Future<DownloadResult> future, int statusCode) throws Exception {
-        try {
-            future.get(5, TimeUnit.SECONDS);
+        DownloadResult downloadResult = future.get(5, TimeUnit.SECONDS);
 
-            fail("Expected CancellationException!");
-        }
-        catch (CancellationException exception) {
-            // Expected...
-        }
-
-        assertTrue(future.isCancelled());
+        assertFalse(downloadResult.isComplete());
     }
 
     private static String getDigest(InputStream is) throws Exception {

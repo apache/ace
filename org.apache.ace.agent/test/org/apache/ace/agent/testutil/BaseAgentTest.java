@@ -18,48 +18,41 @@
  */
 package org.apache.ace.agent.testutil;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Stack;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentContextAware;
 import org.apache.ace.agent.impl.AgentContextImpl;
 import org.osgi.framework.BundleContext;
+import org.testng.annotations.AfterClass;
 
 /**
  * Simple base class.
  */
 public abstract class BaseAgentTest {
     private final Set<Object> m_mocks = new HashSet<Object>();
-
+    private File m_contextDir;
+    
     protected <T> T addTestMock(Class<T> clazz) {
         T mock = createNiceMock(clazz);
         m_mocks.add(mock);
         return mock;
     }
 
-    protected void cleanDir(File dir) {
-        if (!dir.isDirectory())
-            throw new IllegalStateException();
-        Stack<File> dirs = new Stack<File>();
-        dirs.push(dir);
-        while (!dirs.isEmpty()) {
-            File currentDir = dirs.pop();
-            File[] files = currentDir.listFiles();
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    dirs.push(file);
-                }
-                else {
-                    file.delete();
-                }
-            }
-        }
+    @AfterClass
+    protected void cleanupMess() throws IOException {
+        cleanDir(m_contextDir);
+        m_contextDir.delete();
     }
 
     protected void clearTestMocks() {
@@ -75,11 +68,15 @@ public abstract class BaseAgentTest {
     }
 
     protected AgentContextImpl mockAgentContext(String subDir) throws Exception {
-        File contextDir = new File(getWorkDir(), subDir);
-        contextDir.mkdirs();
-        cleanDir(contextDir);
+        if (m_contextDir != null) {
+            cleanDir(m_contextDir);
+            m_contextDir.delete();
+        }
+        m_contextDir = new File(getWorkDir(), subDir);
+        m_contextDir.mkdirs();
+        cleanDir(m_contextDir);
 
-        AgentContextImpl context = new AgentContextImpl(contextDir);
+        AgentContextImpl context = new AgentContextImpl(m_contextDir);
         for (Class<?> handlerClass : AgentContextImpl.KNOWN_HANDLERS) {
             if (ScheduledExecutorService.class.equals(handlerClass)) {
                 // always inject a proper executor service that simply invokes synchronously...
@@ -93,7 +90,9 @@ public abstract class BaseAgentTest {
     }
 
     protected BundleContext mockBundleContext() throws Exception {
+        File dataFile = new File("generated");
         BundleContext result = createNiceMock(BundleContext.class);
+        expect(result.getDataFile(anyObject(String.class))).andReturn(dataFile).anyTimes();
         expect(result.createFilter(anyObject(String.class))).andReturn(null).anyTimes();
         replay(result);
         return result;
@@ -124,6 +123,19 @@ public abstract class BaseAgentTest {
     protected void verifyTestMocks() {
         for (Object mock : m_mocks) {
             verify(mock);
+        }
+    }
+
+    private void cleanDir(File dir) {
+        if (!dir.isDirectory()) {
+            throw new IllegalStateException("Not a directory: " + dir);
+        }
+        File[] files = dir.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                cleanDir(file);
+            }
+            file.delete();
         }
     }
 }

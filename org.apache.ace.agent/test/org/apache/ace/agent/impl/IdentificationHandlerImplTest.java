@@ -31,8 +31,8 @@ import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.IdentificationHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -43,7 +43,7 @@ public class IdentificationHandlerImplTest extends BaseAgentTest {
     private AgentContextImpl m_agentContextImpl;
     private AgentContext m_agentContext;
 
-    @BeforeTest
+    @BeforeClass
     public void setUpAgain() throws Exception {
         m_agentContextImpl = mockAgentContext();
         m_agentContext = m_agentContextImpl;
@@ -52,7 +52,7 @@ public class IdentificationHandlerImplTest extends BaseAgentTest {
         replayTestMocks();
     }
 
-    @AfterTest
+    @AfterClass
     public void tearDownAgain() throws Exception {
         m_agentContextImpl.stop();
         verifyTestMocks();
