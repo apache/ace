@@ -28,11 +28,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
+import java.io.InterruptedIOException;
 import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -83,6 +84,7 @@ public class DownloadHandlerTest extends BaseAgentTest {
     }
 
     private TestWebServer m_webServer;
+
     private URL m_200url;
     private File m_200file;
     private String m_200digest;
@@ -111,7 +113,7 @@ public class DownloadHandlerTest extends BaseAgentTest {
             dos.write(" Lorum Ipsum Lorum Ipsum Lorum Ipsum Lorum Ipsum Lorum Ipsum\n".getBytes());
         }
         dos.close();
-        m_200digest = new BigInteger(dos.getMessageDigest().digest()).toString();
+        m_200digest = new String(dos.getMessageDigest().digest());
 
         m_webServer = new TestWebServer(port, "/", dataLocation.getName());
         m_webServer.addServlet(new TestErrorServlet(), "/error");
@@ -137,36 +139,6 @@ public class DownloadHandlerTest extends BaseAgentTest {
     }
 
     @Test
-    public void testSuccessful_noresume_result() throws Exception {
-        DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
-
-        DownloadHandle handle = downloadHandler.getHandle(m_200url);
-        handle.discard();
-
-        Future<DownloadResult> result = handle.start(null);
-
-        assertSuccessful(result, 200, m_200digest);
-    }
-
-    @Test
-    public void testSuccessful_resume_result() throws Exception {
-        DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
-
-        final DownloadHandle handle = downloadHandler.getHandle(m_200url);
-        handle.discard();
-
-        Future<DownloadResult> future = handle.start(new DownloadProgressListener() {
-            @Override
-            public void progress(long read, long total) {
-                Thread.currentThread().interrupt();
-            }
-        });
-
-        assertStopped(future, 200);
-        assertSuccessful(handle.start(null), 206, m_200digest);
-    }
-
-    @Test
     public void testFailed404_noresume_result() throws Exception {
         DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
 
@@ -187,31 +159,37 @@ public class DownloadHandlerTest extends BaseAgentTest {
         assertRetryException(handle.start(null));
     }
 
-    private static void assertSuccessful(Future<DownloadResult> future, int statusCode, String digest) throws Exception {
-        DownloadResult result = future.get(5, TimeUnit.SECONDS);
+    @Test
+    public void testSuccessful_noresume_result() throws Exception {
+        DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
 
-        assertTrue(result.isComplete(), "Expected state SUCCESSFUL after succesful completion");
-        assertNotNull(result.getInputStream(), "Expected non null file after successful completion");
+        DownloadHandle handle = downloadHandler.getHandle(m_200url);
+        handle.discard();
 
-        assertEquals(getDigest(result.getInputStream()), digest, "Expected same digest after successful completion");
+        Future<DownloadResult> result = handle.start(null);
+
+        assertSuccessful(result, m_200digest);
     }
 
-    private static void assertRetryException(Future<DownloadResult> future) throws Exception {
-        try {
-            future.get(5, TimeUnit.SECONDS);
+    @Test
+    public void testSuccessful_resume_result() throws Exception {
+        DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
 
-            fail("Expected ExecutionException!");
-        }
-        catch (ExecutionException exception) {
-            // Expected...
-            assertTrue(exception.getCause() instanceof RetryAfterException, "Expected RetryAfterException, got " + exception.getCause());
-        }
+        final DownloadHandle handle = downloadHandler.getHandle(m_200url);
+        handle.discard();
 
-        assertFalse(future.isCancelled());
-        assertTrue(future.isDone());
+        Future<DownloadResult> future = handle.start(new DownloadProgressListener() {
+            @Override
+            public void progress(long read, long total) {
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        assertStopped(future);
+        assertSuccessful(handle.start(null), m_200digest);
     }
 
-    private static void assertIOException(Future<DownloadResult> future) throws Exception {
+    private void assertIOException(Future<DownloadResult> future) throws Exception {
         try {
             future.get(5, TimeUnit.SECONDS);
 
@@ -226,17 +204,51 @@ public class DownloadHandlerTest extends BaseAgentTest {
         assertTrue(future.isDone());
     }
 
-    private static void assertStopped(Future<DownloadResult> future, int statusCode) throws Exception {
-        DownloadResult downloadResult = future.get(5, TimeUnit.SECONDS);
+    private void assertRetryException(Future<DownloadResult> future) throws Exception {
+        try {
+            future.get(5, TimeUnit.SECONDS);
 
-        assertFalse(downloadResult.isComplete());
+            fail("Expected ExecutionException!");
+        }
+        catch (ExecutionException exception) {
+            // Expected...
+            assertTrue(exception.getCause() instanceof RetryAfterException, "Expected RetryAfterException, got " + exception.getCause());
+        }
+
+        assertFalse(future.isCancelled());
+        assertTrue(future.isDone());
     }
 
-    private static String getDigest(InputStream is) throws Exception {
+    private void assertStopped(Future<DownloadResult> future) throws Exception {
+        try {
+            DownloadResult result = future.get(5, TimeUnit.SECONDS);
+            assertFalse(result.isComplete());
+        }
+        catch (CancellationException exception) {
+            // Ok; also fine...
+            assertTrue(future.isCancelled());
+        }
+        catch (ExecutionException exception) {
+            Throwable cause = exception.getCause();
+            // On Solaris, interrupting an I/O operation yields an InterruptedIOException...
+            assertTrue(cause instanceof InterruptedIOException, "Expected InterruptedIOException, but got: " + cause);
+        }
+    }
+
+    private void assertSuccessful(Future<DownloadResult> future, String digest) throws Exception {
+        DownloadResult result = future.get(5, TimeUnit.SECONDS);
+
+        assertTrue(result.isComplete(), "Expected state SUCCESSFUL after succesful completion");
+        assertNotNull(result.getInputStream(), "Expected non null file after successful completion");
+
+        assertEquals(getDigest(result.getInputStream()), digest, "Expected same digest after successful completion");
+    }
+
+    private String getDigest(InputStream is) throws Exception {
         DigestInputStream dis = new DigestInputStream(is, MessageDigest.getInstance("MD5"));
         while (dis.read() != -1) {
         }
         dis.close();
-        return new BigInteger(dis.getMessageDigest().digest()).toString();
+        return new String(dis.getMessageDigest().digest());
     }
 }

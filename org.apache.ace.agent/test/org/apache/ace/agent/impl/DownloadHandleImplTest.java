@@ -20,17 +20,18 @@ package org.apache.ace.agent.impl;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InterruptedIOException;
 import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -124,7 +125,6 @@ public class DownloadHandleImplTest extends BaseAgentTest {
         future = handle.start(null);
 
         downloadResult = future.get(5, TimeUnit.SECONDS);
-        assertNotNull(downloadResult, "Failed to finish download?!");
         assertTrue(downloadResult.isComplete());
 
         File file = ((DownloadHandleImpl) handle).getDownloadFile();
@@ -152,13 +152,7 @@ public class DownloadHandleImplTest extends BaseAgentTest {
             }
         });
 
-        try {
-            future.get(5, TimeUnit.SECONDS);
-        }
-        catch (CancellationException exception) {
-            // Ok; expected...
-        }
-        assertTrue(future.isCancelled());
+        assertDownloadStopped(future);
 
         File file = ((DownloadHandleImpl) handle).getDownloadFile();
         long fileLength = file.length();
@@ -171,7 +165,6 @@ public class DownloadHandleImplTest extends BaseAgentTest {
         future = handle2.start(null);
 
         downloadResult = future.get(5, TimeUnit.SECONDS);
-        assertNotNull(downloadResult, "Failed to finish download?!");
         assertTrue(downloadResult.isComplete());
 
         fileLength = file.length();
@@ -199,9 +192,7 @@ public class DownloadHandleImplTest extends BaseAgentTest {
             }
         });
 
-        downloadResult = future.get(5, TimeUnit.SECONDS);
-        assertNotNull(downloadResult, "Failed to stop download?!");
-        assertFalse(downloadResult.isComplete());
+        assertDownloadStopped(future);
 
         File file = ((DownloadHandleImpl) handle).getDownloadFile();
         long firstFileLength = file.length();
@@ -219,13 +210,7 @@ public class DownloadHandleImplTest extends BaseAgentTest {
             }
         });
 
-        try {
-            future.get(5, TimeUnit.SECONDS);
-        }
-        catch (CancellationException exception) {
-            // Ok; expected...
-        }
-        assertTrue(future.isCancelled());
+        assertDownloadStopped(future);
 
         long secondFileLength = file.length();
 
@@ -237,13 +222,28 @@ public class DownloadHandleImplTest extends BaseAgentTest {
         future = handle3.start(null);
 
         downloadResult = future.get(5, TimeUnit.SECONDS);
-        assertNotNull(downloadResult, "Failed to complete download?!");
         assertTrue(downloadResult.isComplete());
 
         assertEquals(file.length(), m_contentLength, "Not all content downloaded for " + file.getName() + "?");
 
         // Verify the contents of the downloaded file is what we expect...
         assertEquals(getDigest(file), m_digest);
+    }
+
+    private void assertDownloadStopped(Future<DownloadResult> future) throws Exception {
+        try {
+            DownloadResult result = future.get(5, TimeUnit.SECONDS);
+            assertFalse(result.isComplete());
+        }
+        catch (CancellationException exception) {
+            // Ok; also fine...
+            assertTrue(future.isCancelled());
+        }
+        catch (ExecutionException exception) {
+            Throwable cause = exception.getCause();
+            // On Solaris, interrupting an I/O operation yields an InterruptedIOException...
+            assertTrue(cause instanceof InterruptedIOException, "Expected InterruptedIOException, but got: " + cause);
+        }
     }
 
     private String getDigest(File file) throws Exception {
