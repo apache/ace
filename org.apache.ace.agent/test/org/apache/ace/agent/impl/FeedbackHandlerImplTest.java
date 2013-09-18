@@ -18,16 +18,16 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.CONFIG_FEEDBACK_CHANNELS;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.FeedbackHandler;
@@ -40,6 +40,11 @@ import org.testng.annotations.Test;
  * Testing {@link FeedbackHandlerImplTest}.
  */
 public class FeedbackHandlerImplTest extends BaseAgentTest {
+    private static final String AUDITLOG = InternalConstants.AUDITLOG_FEEDBACK_CHANNEL;
+    private static final String CUSTOMCHANNEL = "customchannel";
+    private static final String NON_EXISTING_CHANNEL = "nonExistingChannel";
+
+    private static final String AUDITLOG_AND_CUSTOMCHANNEL = AUDITLOG + "," + CUSTOMCHANNEL;
 
     private AgentContextImpl m_agentContextImpl;
 
@@ -62,80 +67,88 @@ public class FeedbackHandlerImplTest extends BaseAgentTest {
         clearTestMocks();
     }
 
+    /**
+     * Tests that there is always a default channel registered when starting the agent.
+     */
+    @Test
+    public void testDefaultFeedbackChannelPresent() throws Exception {
+        FeedbackHandler feedbackHandler = m_agentContextImpl.getHandler(FeedbackHandler.class);
+
+        assertFeedbackChannelNames(feedbackHandler, AUDITLOG);
+        assertFeedbackChannelsPresent(feedbackHandler, AUDITLOG);
+
+        assertFeedbackChannelsNotPresent(feedbackHandler, NON_EXISTING_CHANNEL);
+    }
+
     @Test
     public void testSingleFeedbackChannelConfig() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(AgentConstants.CONFIG_FEEDBACK_CHANNELS, "auditlog");
+        configurationHandler.put(CONFIG_FEEDBACK_CHANNELS, AUDITLOG);
 
         FeedbackHandler feedbackHandler = m_agentContextImpl.getHandler(FeedbackHandler.class);
 
-        Set<String> names = feedbackHandler.getChannelNames();
-        assertNotNull(names);
-        assertEquals(1, names.size());
-        assertTrue(names.contains("auditlog"));
-
-        assertNotNull(feedbackHandler.getChannel("auditlog"));
-        assertNull(feedbackHandler.getChannel("nonExistingChannel"));
+        assertFeedbackChannelNames(feedbackHandler, AUDITLOG);
+        assertFeedbackChannelsPresent(feedbackHandler, AUDITLOG);
     }
 
     @Test
     public void testUpdateConfigAddFeedbackChannel() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(AgentConstants.CONFIG_FEEDBACK_CHANNELS, "auditlog");
+        configurationHandler.put(CONFIG_FEEDBACK_CHANNELS, AUDITLOG);
 
         FeedbackHandler feedbackHandler = m_agentContextImpl.getHandler(FeedbackHandler.class);
 
-        Set<String> names = feedbackHandler.getChannelNames();
-        assertNotNull(names);
-        assertEquals(1, names.size());
-        assertTrue(names.contains("auditlog"));
+        assertFeedbackChannelNames(feedbackHandler, AUDITLOG);
 
-        assertNotNull(feedbackHandler.getChannel("auditlog"));
-        assertNull(feedbackHandler.getChannel("nonExistingChannel"));
+        assertFeedbackChannelsPresent(feedbackHandler, AUDITLOG);
+        assertFeedbackChannelsNotPresent(feedbackHandler, CUSTOMCHANNEL);
 
-        configurationHandler.put(AgentConstants.CONFIG_FEEDBACK_CHANNELS, "auditlog, customchannel");
+        configurationHandler.put(CONFIG_FEEDBACK_CHANNELS, AUDITLOG_AND_CUSTOMCHANNEL);
 
-        names = feedbackHandler.getChannelNames();
-        assertNotNull(names);
-        assertEquals(2, names.size());
-        assertTrue(names.contains("auditlog"));
-        assertTrue(names.contains("customchannel"));
+        assertFeedbackChannelNames(feedbackHandler, AUDITLOG, CUSTOMCHANNEL);
 
-        assertNotNull(feedbackHandler.getChannel("auditlog"));
-        assertNotNull(feedbackHandler.getChannel("customchannel"));
-        assertNull(feedbackHandler.getChannel("nonExistingChannel"));
+        assertFeedbackChannelsPresent(feedbackHandler, AUDITLOG, CUSTOMCHANNEL);
     }
 
     @Test
     public void testUpdateConfigRemoveFeedbackChannel() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(AgentConstants.CONFIG_FEEDBACK_CHANNELS, "auditlog, customchannel");
+        configurationHandler.put(CONFIG_FEEDBACK_CHANNELS, AUDITLOG_AND_CUSTOMCHANNEL);
 
         FeedbackHandler feedbackHandler = m_agentContextImpl.getHandler(FeedbackHandler.class);
 
-        Set<String> names = feedbackHandler.getChannelNames();
-        assertNotNull(names);
-        assertEquals(2, names.size());
-        assertTrue(names.contains("auditlog"));
-        assertTrue(names.contains("customchannel"));
+        assertFeedbackChannelNames(feedbackHandler, AUDITLOG, CUSTOMCHANNEL);
+        assertFeedbackChannelsPresent(feedbackHandler, AUDITLOG, CUSTOMCHANNEL);
 
-        assertNotNull(feedbackHandler.getChannel("auditlog"));
-        assertNotNull(feedbackHandler.getChannel("customchannel"));
-        assertNull(feedbackHandler.getChannel("nonExistingChannel"));
+        configurationHandler.put(CONFIG_FEEDBACK_CHANNELS, AUDITLOG);
 
-        configurationHandler.put(AgentConstants.CONFIG_FEEDBACK_CHANNELS, "auditlog");
+        assertFeedbackChannelNames(feedbackHandler, AUDITLOG);
+        assertFeedbackChannelsPresent(feedbackHandler, AUDITLOG);
 
-        names = feedbackHandler.getChannelNames();
-        assertNotNull(names);
-        assertEquals(1, names.size());
-        assertTrue(names.contains("auditlog"));
-        assertFalse(names.contains("customchannel"));
+        assertFeedbackChannelsNotPresent(feedbackHandler, CUSTOMCHANNEL);
+    }
 
-        assertNotNull(feedbackHandler.getChannel("auditlog"));
-        assertNull(feedbackHandler.getChannel("customchannel"));
-        assertNull(feedbackHandler.getChannel("nonExistingChannel"));
+    private void assertFeedbackChannelNames(FeedbackHandler handler, String... names) throws IOException {
+        Set<String> availableNames = handler.getChannelNames();
+        assertNotNull(availableNames);
+        assertEquals(availableNames.size(), names.length);
+        for (String name : names) {
+            assertTrue(availableNames.contains(name), "Expected channel '" + name + "' to be present!");
+        }
+    }
+
+    private void assertFeedbackChannelsPresent(FeedbackHandler handler, String... names) throws IOException {
+        for (String name : names) {
+            assertNotNull(handler.getChannel(name), "Expected channel '" + name + "' to be present!");
+        }
+    }
+
+    private void assertFeedbackChannelsNotPresent(FeedbackHandler handler, String... names) throws IOException {
+        for (String name : names) {
+            assertNull(handler.getChannel(name), "Expected channel '" + name + "' NOT to be present!");
+        }
     }
 }
