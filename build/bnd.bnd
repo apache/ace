@@ -1,5 +1,9 @@
 -nobundles
 -dependson \
+    org.apache.ace.agent,\
+    org.apache.ace.agent.itest,\
+    org.apache.ace.agent.launcher,\
+    org.apache.ace.agent.update.itest,\
     org.apache.ace.ant.tasks,\
     org.apache.ace.authentication,\
     org.apache.ace.authentication.itest,\
@@ -19,6 +23,7 @@
     org.apache.ace.deployment.rp.autoconf,\
     org.apache.ace.deployment.rp.autoconf.itest,\
     org.apache.ace.discovery,\
+    org.apache.ace.gogo,\
     org.apache.ace.http,\
     org.apache.ace.http.itest,\
     org.apache.ace.identification,\
@@ -31,7 +36,6 @@
     org.apache.ace.managementagent,\
     org.apache.ace.nodelauncher,\
     org.apache.ace.obr,\
-    org.apache.ace.gogo,\
     org.apache.ace.processlauncher,\
     org.apache.ace.range.api,\
     org.apache.ace.repository,\
