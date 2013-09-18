@@ -642,9 +642,10 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
     }
 
     private void runFeedback() throws RetryAfterException {
-        logDebug("Synchronizing feedback channels");
-
         Set<String> names = getFeedbackChannelNames();
+
+        logDebug("Synchronizing feedback channels: %s", names);
+
         for (String name : names) {
             FeedbackChannel channel = getFeedbackChannel(name);
             if (channel != null) {
@@ -655,7 +656,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
                 catch (IOException e) {
                     // Hopefully temporary problem due to remote IO or configuration. No cause to abort the sync so we
                     // just log it as a warning.
-                    logWarning("Exception while sending feedback on channel: %s", e, name);
+                    logWarning("Exception while sending feedback for channel: %s", e, name);
                 }
             }
         }

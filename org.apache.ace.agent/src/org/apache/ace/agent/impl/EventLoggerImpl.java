@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.log.AuditEvent;
@@ -35,15 +36,15 @@ import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
 
 /**
- * Service component that listens for
- * 
+ * Service component that listens for various events from the OSGi framework and writes those events to the audit log
+ * feedback channel.
  */
 public class EventLoggerImpl extends ComponentBase implements BundleListener, FrameworkListener, EventListener {
+    public static final String EVENTLOGGER_FEEDBACKCHANNEL = InternalConstants.AUDITLOG_FEEDBACK_CHANNEL;
 
-    public static final String EVENTLOGGER_FEEDBACKCHANNEL = "auditlog";
-    public static final String TOPIC_INSTALL = "org/osgi/service/deployment/INSTALL";
-    public static final String TOPIC_UNINSTALL = "org/osgi/service/deployment/UNINSTALL";
-    public static final String TOPIC_COMPLETE = "org/osgi/service/deployment/COMPLETE";
+    public static final String TOPIC_INSTALL = AgentConstants.EVENT_DEPLOYMENT_INSTALL;
+    public static final String TOPIC_UNINSTALL = AgentConstants.EVENT_DEPLOYMENT_UNINSTALL;
+    public static final String TOPIC_COMPLETE = AgentConstants.EVENT_DEPLOYMENT_COMPLETE;
 
     private final BundleContext m_bundleContext;
     private final AtomicBoolean m_isStarted;
@@ -229,9 +230,6 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
             FeedbackChannel channel = getFeedbackHandler().getChannel(EVENTLOGGER_FEEDBACKCHANNEL);
             if (channel != null) {
                 channel.write(eventType, payload);
-            }
-            else {
-//                logDebug("Feedback event *not* written as no channel is available!");
             }
         }
         catch (IOException e) {

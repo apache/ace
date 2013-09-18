@@ -23,6 +23,10 @@ package org.apache.ace.agent.impl;
  */
 public interface InternalConstants {
     /**
+     * The feedback channel for reporting the audit events of a target.
+     */
+    String AUDITLOG_FEEDBACK_CHANNEL = "auditlog";
+    /**
      * Internal event topic used by the default controller to fire events when the installation of a deployment package
      * <em>or</em> agent update is started. This is sent always prior to the beginning of an installation.
      */

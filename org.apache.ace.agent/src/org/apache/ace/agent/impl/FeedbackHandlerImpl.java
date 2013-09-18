@@ -20,6 +20,7 @@ package org.apache.ace.agent.impl;
 
 import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_FEEDBACK_CHANNELS;
+import static org.apache.ace.agent.impl.InternalConstants.*;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -36,6 +37,17 @@ import org.apache.ace.agent.FeedbackHandler;
  * Default implementation of the feedback handler.
  */
 public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandler, EventListener {
+    private static Set<String> split(String value) {
+        Set<String> trimmedValues = new HashSet<String>();
+        if (value != null) {
+            String[] rawValues = value.split(",");
+            for (String rawValue : rawValues) {
+                trimmedValues.add(rawValue.trim());
+            }
+        }
+        return trimmedValues;
+    }
+
     private final ConcurrentMap<String, FeedbackChannelImpl> m_channels;
 
     public FeedbackHandlerImpl() {
@@ -45,13 +57,13 @@ public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandle
     }
 
     @Override
-    public Set<String> getChannelNames() throws IOException {
-        return m_channels.keySet();
+    public FeedbackChannel getChannel(String name) throws IOException {
+        return m_channels.get(name);
     }
 
     @Override
-    public FeedbackChannel getChannel(String name) throws IOException {
-        return m_channels.get(name);
+    public Set<String> getChannelNames() throws IOException {
+        return m_channels.keySet();
     }
 
     @Override
@@ -69,7 +81,7 @@ public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandle
 
                 for (String channelName : channelNames) {
                     try {
-                        m_channels.putIfAbsent(channelName, new FeedbackChannelImpl(getAgentContext(), channelName));
+                        registerFeedbackChannel(channelName);
                         seen.remove(channelName);
                     }
                     catch (IOException exception) {
@@ -78,9 +90,8 @@ public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandle
                 }
 
                 for (String oldChannelName : seen) {
-                    FeedbackChannelImpl channel = m_channels.remove(oldChannelName);
                     try {
-                        channel.closeStore();
+                        unregisterFeedbackChannel(oldChannelName);
                     }
                     catch (IOException exception) {
                         logError("Failed to close feedback channel for '%s'", exception, oldChannelName);
@@ -96,20 +107,34 @@ public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandle
     }
 
     @Override
+    protected void onStart() throws Exception {
+        // Make sure the default audit log is present...
+        registerFeedbackChannel(AUDITLOG_FEEDBACK_CHANNEL);
+    }
+
+    @Override
     protected void onStop() throws Exception {
         getEventsHandler().removeListener(this);
 
-        m_channels.clear();
-    }
-
-    private static Set<String> split(String value) {
-        Set<String> trimmedValues = new HashSet<String>();
-        if (value != null) {
-            String[] rawValues = value.split(",");
-            for (String rawValue : rawValues) {
-                trimmedValues.add(rawValue.trim());
+        for (String channelName : getChannelNames()) {
+            try {
+                unregisterFeedbackChannel(channelName);
+            }
+            catch (IOException exception) {
+                logWarning("Failed to close feedback channel '%s'", exception, channelName);
             }
         }
-        return trimmedValues;
+    }
+
+    private void registerFeedbackChannel(String channelName) throws IOException {
+        FeedbackChannelImpl channel = new FeedbackChannelImpl(getAgentContext(), channelName);
+        m_channels.putIfAbsent(channelName, channel);
+    }
+
+    private void unregisterFeedbackChannel(String oldChannelName) throws IOException {
+        FeedbackChannelImpl channel = m_channels.remove(oldChannelName);
+        if (channel != null) {
+            channel.closeStore();
+        }
     }
 }

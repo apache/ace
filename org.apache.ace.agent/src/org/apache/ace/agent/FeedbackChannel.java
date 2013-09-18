@@ -21,23 +21,26 @@ package org.apache.ace.agent;
 import java.io.IOException;
 import java.util.Map;
 
-
 /**
- *
+ * Represents a channel on which feedback information can be reported back to the server. An agent can configure
+ * multiple feedback channels for reporting different pieces of information. By default, one feedback channel is
+ * present, which is used for reporting the audit events.
  */
 public interface FeedbackChannel {
 
     /**
-     * Synchronizes the feedback with the current server. Ensures the server has at least as much feedback data as we
-     * do.
+     * Synchronizes the current feedback with the server(s), ensuring that those servers have the same (snapshot of)
+     * feedback data as the agent currently has.
      */
     void sendFeedback() throws RetryAfterException, IOException;
 
     /**
-     * Logs a new message to the channel.
+     * Logs a new message to this feedback channel.
      * 
      * @param type
+     *            the type of the log-event to write;
      * @param properties
+     *            the actual contents of the message to write, cannot be <code>null</code>.
      */
     void write(int type, Map<String, String> properties) throws IOException;
 }
