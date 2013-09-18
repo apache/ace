@@ -21,6 +21,8 @@ package org.apache.ace.agent.impl;
 import static org.testng.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -232,9 +234,9 @@ public class ContentRangeInputStreamTest {
 
     /** Stub implementation that simply opens all given URLs. */
     private static class TestConnectionHandler implements ConnectionHandler {
-        private final HttpURLConnection m_conn;
+        private final URLConnection m_conn;
 
-        public TestConnectionHandler(HttpURLConnection conn) {
+        public TestConnectionHandler(URLConnection conn) {
             m_conn = conn;
         }
 
@@ -305,6 +307,18 @@ public class ContentRangeInputStreamTest {
         }
         while (read > 0);
         return sb.toString();
+    }
+
+    /**
+     * Tests that we call {@link InputStream#close()} multiple times.
+     */
+    @Test
+    public void testDoubleClosedStreamOk() throws Exception {
+        ConnectionHandler handler = new TestConnectionHandler(new CompleteContentConnection(m_content, true));
+
+        ContentRangeInputStream is = new ContentRangeInputStream(handler, m_testURL);
+        is.close(); // simulate an early close...
+        is.close(); // not a problem...
     }
 
     /**
@@ -403,6 +417,54 @@ public class ContentRangeInputStreamTest {
         ContentRangeInputStream is = new ContentRangeInputStream(handler, m_testURL);
 
         assertEquals(slurpAsStringWithBuffer(is), content);
+    }
+
+    /**
+     * Tests that we can read non-partial content and return the expected contents.
+     */
+    @Test
+    public void testReadNonPartialFileContentByteForByteOk() throws Exception {
+        File file = File.createTempFile("cris", ".tmp");
+        file.deleteOnExit();
+
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(m_content.getBytes());
+        fos.close();
+
+        ConnectionHandler handler = new TestConnectionHandler(file.toURI().toURL().openConnection());
+        ContentRangeInputStream is = new ContentRangeInputStream(handler, m_testURL);
+
+        assertEquals(slurpAsStringByteForByte(is), m_content);
+
+        // try several additional reads, which should all return -1 (= EOF)...
+        int tries = 5;
+        while (--tries > 0) {
+            assertEquals(is.read(), -1);
+        }
+    }
+
+    /**
+     * Tests that we can read non-partial content and return the expected contents.
+     */
+    @Test
+    public void testReadNonPartialFileContentByteForByteWithOffsetOk() throws Exception {
+        File file = File.createTempFile("cris", ".tmp");
+        file.deleteOnExit();
+
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(m_content.getBytes());
+        fos.close();
+
+        ConnectionHandler handler = new TestConnectionHandler(file.toURI().toURL().openConnection());
+        ContentRangeInputStream is = new ContentRangeInputStream(handler, m_testURL, 48);
+
+        assertEquals(slurpAsStringByteForByte(is), m_content.substring(48));
+
+        // try several additional reads, which should all return -1 (= EOF)...
+        int tries = 5;
+        while (--tries > 0) {
+            assertEquals(is.read(), -1);
+        }
     }
 
     /**
