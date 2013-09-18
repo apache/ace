@@ -98,7 +98,7 @@ public interface AgentConstants {
      * Configuration option to set initial sync delay seconds of the default controller. Should be an int, default is
      * <code>5</code>.
      */
-    String CONFIG_CONTROLLER_SYNCDELAY = CONFIG_KEY_NAMESPACE + ".controller.syndelay";
+    String CONFIG_CONTROLLER_SYNCDELAY = CONFIG_KEY_NAMESPACE + ".controller.syncdelay";
 
     /**
      * Configuration option to set initial sync interval seconds of the default controller. Should be an int, default is
@@ -167,22 +167,32 @@ public interface AgentConstants {
     String CONFIG_FEEDBACK_CHANNELS = CONFIG_KEY_NAMESPACE + ".feedback.channels";
 
     /**
-     * Event topic for deployment install events.
+     * Event topic used to report changes in the agent's configuration. This topic is used to report configuration
+     * changes to all interested listeners. To receive these events, register an {@link EventListener} and check for
+     * this topic. The payload for these kind of events is a snapshot(!) of the current configuration.
+     */
+    String EVENT_AGENT_CONFIG_CHANGED = "agent/config/CHANGED";
+
+    /**
+     * Event topic for deployment install events, as used by the deployment admin service. Note that this event is only
+     * fired for the installation of deployment packages.
      */
     String EVENT_DEPLOYMENT_INSTALL = "org/osgi/service/deployment/INSTALL";
 
     /**
-     * Event topic for deployment uninstall events.
+     * Event topic for deployment uninstall events, as used by the deployment admin service. Note that this event is
+     * only fired for the uninstallation of deployment packages.
      */
     String EVENT_DEPLOYMENT_UNINSTALL = "org/osgi/service/deployment/UNINSTALL";
 
     /**
-     * Event topic for deployment install events.
+     * Event topic for deployment install events, as used by the deployment admin service. Note that this event is only
+     * fired when the installation of deployment packages completes.
      */
     String EVENT_DEPLOYMENT_COMPLETE = "org/osgi/service/deployment/COMPLETE";
 
     /**
-     * HTTP headers name for Deployment Package size estimate.
+     * HTTP header name used for Deployment Package size estimate, in bytes.
      */
     String HEADER_DPSIZE = "X-ACE-DPSize";
 }

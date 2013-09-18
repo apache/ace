@@ -11,4 +11,8 @@
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.apache.felix.log.maxSize=1000,\
 	launch.keep=false,\
-	launch.storage.dir=bundle-cache
+	launch.storage.dir=bundle-cache,\
+	agent.logging.level=DEBUG,\
+	agent.controller.syncinterval=5,\
+	agent.controller.syncdelay=1,\
+	agent.identification.agentid=demo

@@ -324,8 +324,8 @@ public class AgentDeploymentTest extends BaseAgentTest {
         }
     }
 
-    private static final String AGENT_INSTALLATION_START = "agent/installation/START";
-    private static final String AGENT_INSTALLATION_COMPLETE = "agent/installation/COMPLETE";
+    private static final String AGENT_INSTALLATION_START = "agent/defaultController/installation/START";
+    private static final String AGENT_INSTALLATION_COMPLETE = "agent/defaultController/installation/COMPLETE";
 
     private static final String AGENT_ID = "007";
     private static final String TEST_BUNDLE_NAME_PREFIX = "test.bundle";

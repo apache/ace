@@ -21,6 +21,7 @@ package org.apache.ace.agent.impl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.EventsHandler;
@@ -56,7 +57,12 @@ public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
         // Make sure that the payload isn't changed while posting events...
         final Map<String, String> eventPayload = new HashMap<String, String>(payload);
         for (final EventListener listener : m_listeners) {
-            getExecutorService().submit(new Runnable() {
+            ScheduledExecutorService executor = getExecutorService();
+            if (executor.isShutdown()) {
+                logWarning("Cannot post event, executor is shut down!");
+                return;
+            }
+            executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     try {

@@ -120,7 +120,7 @@ class ConnectionUtil {
      * @throws IOException
      *             if retrieving the response code failed.
      */
-    public static int getResponseCode(URLConnection connection) throws IOException {
+    private static int getResponseCode(URLConnection connection) throws IOException {
         if (connection instanceof HttpURLConnection) {
             return ((HttpURLConnection) connection).getResponseCode();
         }

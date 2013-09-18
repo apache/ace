@@ -18,12 +18,11 @@
  */
 package org.apache.ace.agent;
 
-import java.io.IOException;
 
 /**
  * Exception that indicates that the upstream server responded with a Retry-After.
  */
-public class RetryAfterException extends IOException {
+public class RetryAfterException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     private final int m_seconds;

@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_DISABLED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_FIXPACKAGES;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_RETRIES;
@@ -25,7 +26,6 @@ import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_STREAMING;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCDELAY;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL;
 import static org.apache.ace.agent.impl.ConnectionUtil.closeSilently;
-import static org.apache.ace.agent.impl.InternalConstants.AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.impl.InternalConstants.AGENT_INSTALLATION_COMPLETE;
 import static org.apache.ace.agent.impl.InternalConstants.AGENT_INSTALLATION_START;
 
@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -85,7 +86,8 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
                     clearDownloadState();
                 }
             }
-            else {
+
+            if (m_downloadHandle == null) {
                 controller.logInfo("Starting download of %s update, %s => %s...", updateInfo.m_type, updateInfo.m_from, updateInfo.m_to);
 
                 m_updateInfo = updateInfo;
@@ -427,7 +429,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
 
     @Override
     public void handle(String topic, Map<String, String> payload) {
-        if (AGENT_CONFIG_CHANGED.equals(topic)) {
+        if (EVENT_AGENT_CONFIG_CHANGED.equals(topic)) {
             String value = payload.get(CONFIG_CONTROLLER_DISABLED);
             if (value != null && !"".equals(value)) {
                 m_disabled.set(Boolean.parseBoolean(value));
@@ -539,7 +541,14 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
 
     protected void scheduleRun(long seconds) {
         unscheduleRun();
-        m_scheduledFuture = getExecutorService().schedule(this, seconds, TimeUnit.SECONDS);
+
+        ScheduledExecutorService executor = getExecutorService();
+        if (executor.isShutdown()) {
+            logWarning("Cannot schedule controller task, executor is shut down!");
+        }
+        else {
+            m_scheduledFuture = executor.schedule(this, seconds, TimeUnit.SECONDS);
+        }
     }
 
     protected void sendDeploymentCompletedEvent(UpdateInfo updateInfo, boolean success) {

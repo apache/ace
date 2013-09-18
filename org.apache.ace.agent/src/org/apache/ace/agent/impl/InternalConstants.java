@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.ace.agent.impl;
 
 /**
@@ -24,16 +23,13 @@ package org.apache.ace.agent.impl;
  */
 public interface InternalConstants {
     /**
-     * Event topic used to report changes in the agent's configuration.
+     * Internal event topic used by the default controller to fire events when the installation of a deployment package
+     * <em>or</em> agent update is started. This is sent always prior to the beginning of an installation.
      */
-    String AGENT_CONFIG_CHANGED = "agent/config/CHANGED";
+    String AGENT_INSTALLATION_START = "agent/defaultController/installation/START";
     /**
-     * Internal event topic used when the installation of a deployment package or agent update is started.
+     * Internal event topic used by the default controller to fire events when the installation of a deployment package
+     * <em>or</em> agent update is complete (either or not successful).
      */
-    String AGENT_INSTALLATION_START = "agent/installation/START";
-    /**
-     * Internal event topic used when the installation of a deployment package or agent update is complete (either or
-     * not successful).
-     */
-    String AGENT_INSTALLATION_COMPLETE = "agent/installation/COMPLETE";
+    String AGENT_INSTALLATION_COMPLETE = "agent/defaultController/installation/COMPLETE";
 }

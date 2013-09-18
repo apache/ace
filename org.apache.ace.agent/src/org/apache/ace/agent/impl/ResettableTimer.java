@@ -20,14 +20,13 @@ package org.apache.ace.agent.impl;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Provides a timer that can be reset.
  * <p>
- * Taken from Apache Felix UserAdmin File-based store implementation.
+ * Taken and adapted from Apache Felix UserAdmin File-based store implementation.
  * </p>
  */
 final class ResettableTimer {
@@ -36,20 +35,6 @@ final class ResettableTimer {
     private final long m_timeout;
     private final TimeUnit m_timeUnit;
     private final AtomicReference<ScheduledFuture<?>> m_futureRef;
-
-    /**
-     * Creates a new {@link ResettableTimer} calling a given task when a given timeout exceeds.
-     * 
-     * @param task
-     *            the task to execute upon timout, cannot be <code>null</code>;
-     * @param timeout
-     *            the timeout value, > 0;
-     * @param unit
-     *            the time unit of the timeout value, cannot be <code>null</code>.
-     */
-    public ResettableTimer(Runnable task, long timeout, TimeUnit unit) {
-        this(new ScheduledThreadPoolExecutor(1), task, timeout, unit);
-    }
 
     /**
      * Creates a new {@link ResettableTimer} calling a given task when a given timeout exceeds.
@@ -64,19 +49,6 @@ final class ResettableTimer {
      *            the time unit of the timeout value, cannot be <code>null</code>.
      */
     public ResettableTimer(ScheduledExecutorService executor, Runnable task, long timeout, TimeUnit unit) {
-        if (executor == null) {
-            throw new IllegalArgumentException("Executor cannot be null!");
-        }
-        if (task == null) {
-            throw new IllegalArgumentException("Task cannot be null!");
-        }
-        if (timeout <= 0) {
-            throw new IllegalArgumentException("Timeout cannot be negative!");
-        }
-        if (unit == null) {
-            throw new IllegalArgumentException("TimeUnit cannot be null!");
-        }
-
         m_executor = executor;
         m_task = task;
         m_timeout = timeout;
@@ -86,37 +58,20 @@ final class ResettableTimer {
     }
 
     /**
-     * Returns the state of this timer.
-     * 
-     * @return <code>true</code> if this timer is shut down, <code>false</code> otherwise.
-     */
-    public boolean isShutDown() {
-        return m_executor.isShutdown();
-    }
-
-    /**
      * Schedules the task for execution with the contained timeout. If a task is already pending or running, it will be
      * cancelled (not interrupted). The new task will be scheduled to run in now + timeout.
+     * 
+     * @return <code>true</code> if the schedule was successful, <code>false</code> otherwise.
      */
-    public ScheduledFuture<?> schedule() {
+    public boolean schedule() {
         ScheduledFuture<?> currentTask = cancelCurrentTask();
+        if (m_executor.isShutdown()) {
+            // We cannot submit any new tasks...
+            return false;
+        }
         ScheduledFuture<?> newTask = m_executor.schedule(m_task, m_timeout, m_timeUnit);
         m_futureRef.compareAndSet(currentTask, newTask);
-        return newTask;
-    }
-
-    /**
-     * Shuts down this timer, allowing any pending tasks to execute. After this method is called, {@link #schedule()}
-     * may no longer be called.
-     */
-    public void shutDown() {
-        m_executor.shutdown();
-        try {
-            m_executor.awaitTermination(2 * m_timeout, m_timeUnit);
-        }
-        catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        return true;
     }
 
     /**

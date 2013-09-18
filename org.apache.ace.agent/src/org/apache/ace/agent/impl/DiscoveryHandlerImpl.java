@@ -18,9 +18,9 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_DISCOVERY_CHECKING;
 import static org.apache.ace.agent.AgentConstants.CONFIG_DISCOVERY_SERVERURLS;
-import static org.apache.ace.agent.impl.InternalConstants.AGENT_CONFIG_CHANGED;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -134,7 +134,7 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
 
     @Override
     public void handle(String topic, Map<String, String> payload) {
-        if (AGENT_CONFIG_CHANGED.equals(topic)) {
+        if (EVENT_AGENT_CONFIG_CHANGED.equals(topic)) {
             String value = payload.get(CONFIG_DISCOVERY_SERVERURLS);
             if (value != null && !"".equals(value.trim())) {
                 String[] urls = value.trim().split("\\s*,\\s*");

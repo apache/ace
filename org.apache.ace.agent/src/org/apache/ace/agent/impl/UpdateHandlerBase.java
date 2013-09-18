@@ -46,16 +46,7 @@ abstract class UpdateHandlerBase extends ComponentBase implements UpdateHandler 
 
     @Override
     public final Version getHighestAvailableVersion() throws RetryAfterException, IOException {
-        SortedSet<Version> available = new TreeSet<Version>();
-        try {
-            available = getAvailableVersions();
-        }
-        catch (IOException e) {
-            // Hopefully temporary problem due to remote IO or configuration. No cause to abort the sync so we just
-            // log it as a warning.
-            logWarning("Exception while retrieving agent versions", e);
-        }
-
+        SortedSet<Version> available = getAvailableVersions();
         return getHighestVersion(available);
     }
 

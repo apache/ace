@@ -18,9 +18,9 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_KEY_NAMESPACE;
 import static org.apache.ace.agent.AgentConstants.CONFIG_KEY_RETAIN;
-import static org.apache.ace.agent.impl.InternalConstants.AGENT_CONFIG_CHANGED;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,14 +49,13 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     /** File name use for storage. */
     public static final String CONFIG_STORAGE_FILENAME = "config.properties";
 
-    private final ResettableTimer m_timer;
+    private ResettableTimer m_timer;
     private volatile ConcurrentMap<Object, Object> m_configProps;
 
     public ConfigurationHandlerImpl() {
         super("configuration");
 
         m_configProps = new ConcurrentHashMap<Object, Object>();
-        m_timer = new ResettableTimer(this, 1, TimeUnit.SECONDS);
     }
 
     @Override
@@ -150,6 +149,8 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     protected void onInit() throws Exception {
         loadConfig();
         loadSystemProps();
+
+        m_timer = new ResettableTimer(getExecutorService(), this, 5, TimeUnit.SECONDS);
     }
 
     @Override
@@ -160,9 +161,6 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
 
     @Override
     protected void onStop() throws Exception {
-        if (!m_timer.isShutDown()) {
-            m_timer.shutDown();
-        }
         // Make sure the configuration is written one last time...
         storeConfig();
     }
@@ -172,7 +170,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
         for (Map.Entry<Object, Object> entry : m_configProps.entrySet()) {
             props.put((String) entry.getKey(), (String) entry.getValue());
         }
-        getEventsHandler().postEvent(AGENT_CONFIG_CHANGED, props);
+        getEventsHandler().postEvent(EVENT_AGENT_CONFIG_CHANGED, props);
     }
 
     private File getConfigDir() throws IOException {
@@ -225,7 +223,9 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     }
 
     private void scheduleStore() {
-        m_timer.schedule();
+        if (!m_timer.schedule()) {
+            logWarning("Cannot schedule task to store configuration. Executor is shut down!");
+        }
     }
 
     private void storeConfig() throws IOException {

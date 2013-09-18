@@ -18,14 +18,15 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_AUTHTYPE;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_KEYFILE;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_KEYPASS;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_PASSWORD;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_SSL_PROTOCOL;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_TRUSTFILE;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_TRUSTPASS;
-import static org.apache.ace.agent.AgentConstants.*;
-import static org.apache.ace.agent.impl.InternalConstants.AGENT_CONFIG_CHANGED;
+import static org.apache.ace.agent.AgentConstants.CONFIG_CONNECTION_USERNAME;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -101,7 +102,7 @@ public class ConnectionHandlerImpl extends ComponentBase implements ConnectionHa
 
     @Override
     public void handle(String topic, Map<String, String> payload) {
-        if (AGENT_CONFIG_CHANGED.equals(topic)) {
+        if (EVENT_AGENT_CONFIG_CHANGED.equals(topic)) {
             m_credentials = getCredentials(payload);
         }
     }

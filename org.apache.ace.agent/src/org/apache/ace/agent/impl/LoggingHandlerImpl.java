@@ -18,8 +18,8 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_LOGGING_LEVEL;
-import static org.apache.ace.agent.impl.InternalConstants.AGENT_CONFIG_CHANGED;
 
 import java.util.Date;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class LoggingHandlerImpl extends ComponentBase implements LoggingHandler,
     
     @Override
     public void handle(String topic, Map<String, String> payload) {
-        if (AGENT_CONFIG_CHANGED.equals(topic)) {
+        if (EVENT_AGENT_CONFIG_CHANGED.equals(topic)) {
             String newValue = payload.get(CONFIG_LOGGING_LEVEL);
 
             m_logLevel = fromName(newValue);

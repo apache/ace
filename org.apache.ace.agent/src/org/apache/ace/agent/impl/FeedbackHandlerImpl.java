@@ -18,8 +18,8 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_FEEDBACK_CHANNELS;
-import static org.apache.ace.agent.impl.InternalConstants.AGENT_CONFIG_CHANGED;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -56,7 +56,7 @@ public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandle
 
     @Override
     public void handle(String topic, Map<String, String> payload) {
-        if (AGENT_CONFIG_CHANGED.equals(topic)) {
+        if (EVENT_AGENT_CONFIG_CHANGED.equals(topic)) {
             String value = payload.get(CONFIG_FEEDBACK_CHANNELS);
             if (value != null && !"".equals(value.trim())) {
                 Set<String> seen = new HashSet<String>(m_channels.keySet());

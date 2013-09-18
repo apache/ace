@@ -83,7 +83,14 @@ class DownloadHandleImpl implements DownloadHandle {
             }
         }
 
-        return m_future = getExecutor().submit(new DownloadCallableImpl(this, listener, m_file, m_readBufferSize));
+        ExecutorService executor = getExecutor();
+        if (executor.isShutdown()) {
+            m_handler.logWarning("Cannot start download, executor is shut down!");
+        } else {
+            m_future = executor.submit(new DownloadCallableImpl(this, listener, m_file, m_readBufferSize));
+        }
+
+        return m_future;
     }
 
     @Override
@@ -108,7 +115,7 @@ class DownloadHandleImpl implements DownloadHandle {
     final ConnectionHandler getConnectionHandler() {
         return m_handler.getConnectionHandler();
     }
-    
+
     final URL getURL() {
         return m_url;
     }
