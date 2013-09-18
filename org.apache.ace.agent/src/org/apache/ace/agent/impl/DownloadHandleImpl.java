@@ -43,7 +43,7 @@ class DownloadHandleImpl implements DownloadHandle {
     DownloadHandleImpl(DownloadHandlerImpl handler, URL url) {
         m_handler = handler;
         m_url = url;
-        
+
         m_file = new File(m_handler.getDataLocation(), getDownloadFileName());
     }
 
@@ -78,18 +78,16 @@ class DownloadHandleImpl implements DownloadHandle {
     @Override
     public void stop() {
         Future<?> future = m_future;
-        if (future != null) {
-            if (!future.isDone()) {
-                future.cancel(true /* mayInterruptIfRunning */);
-            }
-        }
         m_future = null;
+        if (future != null && !future.isDone()) {
+            future.cancel(true /* mayInterruptIfRunning */);
+        }
     }
 
     final ConnectionHandler getConnectionHandler() {
         return m_handler.getConnectionHandler();
     }
-    
+
     final File getDownloadFile() {
         return m_file;
     }

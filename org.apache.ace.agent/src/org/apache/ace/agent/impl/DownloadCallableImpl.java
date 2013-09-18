@@ -65,15 +65,21 @@ final class DownloadCallableImpl implements Callable<DownloadResult> {
             long bytesRead = targetLength, totalBytes = -1L;
             int read;
 
-            while (!Thread.currentThread().isInterrupted() && (read = is.read(buffer)) >= 0) {
-                os.write(buffer, 0, read);
-                // update local administration...
-                bytesRead += read;
-                totalBytes = is.getContentSize();
+            try {
+                while (!Thread.currentThread().isInterrupted() && (read = is.read(buffer)) >= 0) {
+                    os.write(buffer, 0, read);
+                    // update local administration...
+                    bytesRead += read;
+                    totalBytes = is.getContentSize();
 
-                if (m_listener != null) {
-                    m_listener.progress(bytesRead, totalBytes);
+                    if (m_listener != null) {
+                        m_listener.progress(bytesRead, totalBytes);
+                    }
                 }
+            }
+            finally {
+                // Ensure that buffers are flushed in our output stream...
+                os.flush();
             }
 
             boolean stoppedEarly = Thread.currentThread().isInterrupted() || (totalBytes > 0L && bytesRead < totalBytes);

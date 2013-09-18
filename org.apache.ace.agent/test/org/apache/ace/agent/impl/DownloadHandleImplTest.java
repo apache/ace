@@ -207,7 +207,8 @@ public class DownloadHandleImplTest extends BaseAgentTest {
         long firstFileLength = file.length();
 
         assertTrue(file.exists(), file.getName() + " does not exist?!");
-        assertTrue(firstFileLength > 0 && firstFileLength < m_contentLength, "Nothing downloaded yet for " + file.getName() + "?");
+        assertTrue(firstFileLength > 0, "Nothing downloaded yet for " + file.getName() + "?");
+        assertTrue(firstFileLength < m_contentLength, "Everything downloaded for " + file.getName() + "?");
 
         final DownloadHandle handle2 = downloadHandler.getHandle(m_testContentURL);
         // Resume the download, but stop it after reading the first chunk of data...
@@ -228,7 +229,8 @@ public class DownloadHandleImplTest extends BaseAgentTest {
 
         long secondFileLength = file.length();
 
-        assertTrue(secondFileLength > firstFileLength && secondFileLength < m_contentLength, "Nothing downloaded yet for " + file.getName() + "?");
+        assertTrue(secondFileLength > firstFileLength, "Nothing downloaded yet for " + file.getName() + "?");
+        assertTrue(secondFileLength < m_contentLength, "Everything downloaded for " + file.getName() + "?");
 
         DownloadHandle handle3 = downloadHandler.getHandle(m_testContentURL);
         // Resume the download, and finish it...
