@@ -40,7 +40,8 @@ Private-Package: org.apache.ace.agent.itest
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.apache.ace.server.port=8080,\
 	org.osgi.service.http.port=8080,\
-	org.apache.felix.log.maxSize=1000
+	org.apache.felix.log.maxSize=1000,\
+	org.apache.ace.configurator.CONFIG_DIR=../org.apache.ace.agent.update.itest/conf
 Import-Package: org.apache.ace.agent,\
 	!org.osgi.service.component.annotations,\
 	*
