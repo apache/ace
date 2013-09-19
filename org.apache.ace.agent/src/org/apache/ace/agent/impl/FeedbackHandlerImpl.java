@@ -134,7 +134,7 @@ public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandle
     private void unregisterFeedbackChannel(String oldChannelName) throws IOException {
         FeedbackChannelImpl channel = m_channels.remove(oldChannelName);
         if (channel != null) {
-            channel.closeStore();
+            channel.stop();
         }
     }
 }
