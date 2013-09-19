@@ -23,6 +23,7 @@ import static org.apache.ace.agent.impl.ConnectionUtil.closeSilently;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
 
@@ -63,10 +64,14 @@ final class DownloadCallableImpl implements Callable<DownloadResult> {
 
             byte buffer[] = new byte[READBUFFER_SIZE];
             long bytesRead = targetLength, totalBytes = -1L;
-            int read;
+            int read = 0;
 
             try {
-                while (!Thread.currentThread().isInterrupted() && (read = is.read(buffer)) >= 0) {
+                while (!Thread.currentThread().isInterrupted() && (read >= 0)) {
+                    read = is.read(buffer);
+                    if (read < 0) {
+                        break; // EOF...
+                    }
                     os.write(buffer, 0, read);
                     // update local administration...
                     bytesRead += read;
@@ -76,6 +81,10 @@ final class DownloadCallableImpl implements Callable<DownloadResult> {
                         m_listener.progress(bytesRead, totalBytes);
                     }
                 }
+            }
+            catch (InterruptedIOException exception) {
+                // restore interrupted flag...
+                Thread.currentThread().interrupt();
             }
             finally {
                 // Ensure that buffers are flushed in our output stream...

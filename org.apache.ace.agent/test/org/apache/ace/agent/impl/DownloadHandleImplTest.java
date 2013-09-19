@@ -188,6 +188,7 @@ public class DownloadHandleImplTest extends BaseAgentTest {
         future = handle.start(new DownloadProgressListener() {
             @Override
             public void progress(long bytesRead, long totalBytes) {
+                System.out.printf("Downloaded %d from %d bytes, interrupting download...%n", bytesRead, totalBytes);
                 Thread.currentThread().interrupt();
             }
         });
@@ -206,6 +207,7 @@ public class DownloadHandleImplTest extends BaseAgentTest {
         future = handle2.start(new DownloadProgressListener() {
             @Override
             public void progress(long bytesRead, long totalBytes) {
+                System.out.printf("Downloaded %d from %d bytes, stopping download...%n", bytesRead, totalBytes);
                 handle2.stop();
             }
         });
@@ -214,7 +216,9 @@ public class DownloadHandleImplTest extends BaseAgentTest {
 
         long secondFileLength = file.length();
 
-        assertTrue(secondFileLength > firstFileLength, "Nothing downloaded yet for " + file.getName() + "?");
+        System.out.printf("First size: %d, second size: %d; total = %d.%n", firstFileLength, secondFileLength, m_contentLength);
+
+        assertTrue(secondFileLength > firstFileLength, "Nothing extra downloaded for " + file.getName() + "?");
         assertTrue(secondFileLength < m_contentLength, "Everything downloaded for " + file.getName() + "?");
 
         DownloadHandle handle3 = downloadHandler.getHandle(m_testContentURL);
