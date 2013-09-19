@@ -368,6 +368,8 @@ public class AgentDeploymentTest extends BaseAgentTest {
         // If we install a newer version, it should succeed...
         expectSuccessfulDeployment(m_package6, null);
 
+        TimeUnit.SECONDS.sleep(2); // sleep a little while to receive async events..
+        
         // Check our event log, should contain all handled events...
         Map<String, List<Map<String, String>>> topics = m_listener.getTopics();
 
