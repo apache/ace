@@ -119,9 +119,6 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
             );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (!authenticate(req)) {
@@ -176,10 +173,14 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         }
     }
 
-    private void handlePackageDelivery(final String targetID, final String version, final List<String> versions, final HttpServletRequest request, final HttpServletResponse response) throws AceRestException {
+    private void handlePackageDelivery(String targetID, String version, List<String> versions, HttpServletRequest request, HttpServletResponse response) throws AceRestException {
+
         ServletOutputStream output = null;
 
         try {
+            // Wrap response to add support for range requests
+            response = new ContentRangeResponseWrapper(request, response);
+
             if (!versions.contains(version)) {
                 throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown version (" + version + ")");
             }
@@ -275,6 +276,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         return "Ace Deployment Servlet Endpoint";
     }
 
+    @Override
     public void updated(Dictionary settings) throws ConfigurationException {
         if (settings != null) {
             String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);

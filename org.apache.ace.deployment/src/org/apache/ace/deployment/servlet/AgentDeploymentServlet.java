@@ -251,10 +251,13 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
         }
     }
 
-    private void handlePackageDelivery(final String agentID, final Version version, final HttpServletRequest request, final HttpServletResponse response) throws AceRestException {
+    private void handlePackageDelivery(String agentID, Version version, HttpServletRequest request, HttpServletResponse response) throws AceRestException {
         ServletOutputStream output = null;
 
         try {
+            // Wrap response to add support for range requests
+            response = new ContentRangeResponseWrapper(request, response);
+
             InputStream inputStream = null;
             try {
                 inputStream = getAgentFromOBR(m_obrURL, agentID, version);
