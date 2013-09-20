@@ -63,7 +63,7 @@ public class LogEvent implements Comparable {
         }
         catch (Exception e) {
             throw new IllegalArgumentException(
-                "Could not create log event from: " + representation);
+                "Could not create log event from: " + representation, e);
         }
     }
 
