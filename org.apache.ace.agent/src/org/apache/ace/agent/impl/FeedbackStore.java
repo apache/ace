@@ -22,6 +22,7 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * The general idea is to provide easy access to a file of records. It supports iterating over records both by skipping
@@ -31,7 +32,7 @@ import java.io.RandomAccessFile;
 public class FeedbackStore {
     private final RandomAccessFile m_store;
     private final long m_id;
-    private long m_current;
+    private final AtomicLong m_current;
 
     /**
      * Create a new File based Store.
@@ -46,6 +47,7 @@ public class FeedbackStore {
     FeedbackStore(File store, long id) throws IOException {
         m_store = new RandomAccessFile(store, "rwd");
         m_id = id;
+        m_current = new AtomicLong(0);
     }
 
     /**
@@ -60,7 +62,7 @@ public class FeedbackStore {
         }
         long result = 0;
         try {
-            m_store.seek(m_current);
+            m_store.seek(m_current.get());
             result = readCurrentID();
             m_store.seek(pos);
         }
@@ -87,7 +89,7 @@ public class FeedbackStore {
      */
     public void reset() throws IOException {
         m_store.seek(0);
-        m_current = 0;
+        m_current.set(0);
     }
 
     /**
@@ -108,6 +110,7 @@ public class FeedbackStore {
      * @throws IOException
      *             in case of an IO error.
      */
+    @SuppressWarnings("unused")
     public byte[] read() throws IOException {
         long pos = m_store.getFilePointer();
         try {
@@ -117,7 +120,7 @@ public class FeedbackStore {
                 int next = m_store.readInt();
                 byte[] entry = new byte[next];
                 m_store.readFully(entry);
-                m_current = current;
+                setCurrent(current);
                 return entry;
             }
         }
@@ -139,12 +142,14 @@ public class FeedbackStore {
         try {
             if (pos < m_store.length()) {
                 long id = m_store.readLong();
-                m_store.seek(pos);
                 return id;
             }
         }
         catch (IOException ex) {
             handle(pos, ex);
+        }
+        finally {
+            m_store.seek(pos);
         }
         return -1;
     }
@@ -173,6 +178,7 @@ public class FeedbackStore {
      * @throws IOException
      *             in case of any IO error or if there is no record left.
      */
+    @SuppressWarnings("unused")
     public void skip() throws IOException {
         long pos = m_store.getFilePointer();
         try {
@@ -181,8 +187,8 @@ public class FeedbackStore {
             if (m_store.length() < next + m_store.getFilePointer()) {
                 throw new IOException("Unexpected end of file");
             }
-            m_store.seek(m_store.getFilePointer() + next);
-            m_current = pos;
+            m_store.skipBytes(next);
+            setCurrent(pos);
             pos = m_store.getFilePointer();
         }
         catch (IOException ex) {
@@ -200,13 +206,15 @@ public class FeedbackStore {
      */
     public void append(long id, byte[] entry) throws IOException {
         long pos = m_store.getFilePointer();
+        long length = m_store.length();
         try {
-            m_store.seek(m_store.length());
+            m_store.seek(length);
             long current = m_store.getFilePointer();
             m_store.writeLong(id);
             m_store.writeInt(entry.length);
             m_store.write(entry);
             m_store.seek(pos);
+            setCurrent(current);
         }
         catch (IOException ex) {
             handle(pos, ex);
@@ -249,11 +257,19 @@ public class FeedbackStore {
             m_store.seek(pos);
         }
         catch (IOException ex) {
-        	// we don't log this, seeking back to pos is a 'best effort'
-        	// attempt to keep the file consistent and it would be very
-        	// strange for it to fail (in which case we have no code to
-        	// deal with that anyway)
+            // we don't log this, seeking back to pos is a 'best effort'
+            // attempt to keep the file consistent and it would be very
+            // strange for it to fail (in which case we have no code to
+            // deal with that anyway)
         }
-        throw exception;    
+        throw exception;
+    }
+
+    private void setCurrent(long pos) {
+        long old;
+        do {
+            old = m_current.get();
+        }
+        while (!m_current.compareAndSet(old, pos));
     }
 }
