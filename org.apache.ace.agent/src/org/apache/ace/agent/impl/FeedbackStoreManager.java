@@ -398,7 +398,12 @@ public class FeedbackStoreManager {
             }
         }
 
-        return stores.toArray(new FeedbackStore[0]);
+        // replace the last reference to the current store to make sure there are no multiple FeedbackStores for one
+        // file
+        if (stores.size() >= 1 && m_currentStore.getId() == storeId) {
+            stores.set(stores.size() - 1, m_currentStore);
+        }
+        return stores.toArray(new FeedbackStore[stores.size()]);
     }
 
     /**
