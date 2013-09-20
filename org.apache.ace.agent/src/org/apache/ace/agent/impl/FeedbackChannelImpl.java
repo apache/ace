@@ -121,7 +121,7 @@ public class FeedbackChannelImpl implements FeedbackChannel {
     }
 
     @Override
-    public void write(int type, Map<String, String> properties) throws IOException {
+    public synchronized void write(int type, Map<String, String> properties) throws IOException {
         m_storeManager.write(type, properties);
     }
 
