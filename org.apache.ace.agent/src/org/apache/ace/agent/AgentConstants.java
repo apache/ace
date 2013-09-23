@@ -59,14 +59,14 @@ public interface AgentConstants {
     String CONFIG_DISCOVERY_DISABLED = CONFIG_KEY_NAMESPACE + ".discovery.disabled";
 
     /**
-     * Configuration option for the serverurls of the default discovery handler. Should be a comma-seperated list of
-     * valid urls, default is <code>http://localhost:8080</code>.
+     * Configuration option for the serverURLs of the default discovery handler. Should be a comma-separated list of
+     * valid URLs in order of importance, default is <code>http://localhost:8080</code>.
      */
     String CONFIG_DISCOVERY_SERVERURLS = CONFIG_KEY_NAMESPACE + ".discovery.serverurls";
 
     /**
      * Configuration option to enable checking for the default discovery handler. Should be e {true,false}, default is
-     * false.
+     * true.
      */
     String CONFIG_DISCOVERY_CHECKING = CONFIG_KEY_NAMESPACE + ".discovery.checking";
 
