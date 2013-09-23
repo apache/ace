@@ -18,9 +18,9 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_DISCOVERY_CHECKING;
 import static org.apache.ace.agent.AgentConstants.CONFIG_DISCOVERY_SERVERURLS;
+import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -29,131 +29,65 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.EventListener;
 
 /**
- * Default thread-safe {@link DiscoveryHandler} implementation that reads the serverURL(s) from the configuration using
- * key {@link CONFIG_DISCOVERY_SERVERURLS}. If the {@link CONFIG_DISCOVERY_CHECKING} flag is a connection is opened to
- * test whether a serverURL is available before it is returned.
+ * Default {@link DiscoveryHandler} implementation that reads the serverURL(s) from the configuration using key
+ * {@link CONFIG_DISCOVERY_SERVERURLS}.
  */
 public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHandler, EventListener {
 
+    /*
+     * The caching logic in this code is not strictly thread-safe. It does not need to be considering the use-case and
+     * the fact that it is eventually correct. Therefore the implementation is optimized for simplicity, performance and
+     * garbage reduction in the performance critical path.
+     */
+
     private static class CheckedURL {
-        /** cache timeout in milliseconds. */
-        private static final long CACHE_TIME = 30000;
 
-        public final URL m_url;
-        private final AtomicLong m_timestamp;
-        private final AtomicBoolean m_blackListed;
+        private final URL m_url;
+        private final long m_cacheTime;
+        private volatile long m_timestamp = 0l;
+        private volatile boolean m_available = false;
 
-        public CheckedURL(URL url) {
+        public CheckedURL(URL url, long cacheTime) {
             m_url = url;
-            m_blackListed = new AtomicBoolean(false);
-            m_timestamp = new AtomicLong(0L);
+            m_cacheTime = cacheTime;
         }
 
-        public void available() {
-            m_blackListed.set(false);
-            m_timestamp.set(System.currentTimeMillis());
+        public void setAvailable(boolean value) {
+            m_available = value;
+            m_timestamp = System.currentTimeMillis();
         }
 
-        public void blacklist() {
-            m_blackListed.set(true);
-            m_timestamp.set(System.currentTimeMillis());
-        }
-
-        public boolean isBlacklisted() {
-            boolean result = m_blackListed.get();
-            if (result) {
-                if (!isRecentlyChecked()) {
-                    // lift the ban...
-                    m_blackListed.compareAndSet(result, false);
-                    result = false;
-                }
-            }
-            return result;
+        public boolean isAvailable() {
+            return m_available;
         }
 
         public boolean isRecentlyChecked() {
-            return m_timestamp.get() > (System.currentTimeMillis() - CACHE_TIME);
+            return m_timestamp > (System.currentTimeMillis() - m_cacheTime);
+        }
+
+        public URL getURL() {
+            return m_url;
         }
     }
 
-    /** default server URL. */
     private static final String DEFAULT_SERVER_URL = "http://localhost:8080";
-    /** whether or not to test server URLs. */
-    private static final boolean DEFAULT_CHECK_SERVER_ULRS = false;
+    private static final boolean DEFAULT_CHECK_SERVER_URLS = true;
+    private static final long DEFAULT_CACHE_MILLISECONDS = 30000;
+    private final Map<String, CheckedURL> m_checkedURLs = new HashMap<String, CheckedURL>();
 
-    private final List<String> m_urls;
-    private final AtomicBoolean m_checkURLs;
-    private final ConcurrentMap<String, CheckedURL> m_availableURLs;
+    private volatile List<String> m_serverURLs = Arrays.asList(DEFAULT_SERVER_URL);
+    private volatile boolean m_checkURLs = DEFAULT_CHECK_SERVER_URLS;
 
     public DiscoveryHandlerImpl() {
         super("discovery");
-
-        m_availableURLs = new ConcurrentHashMap<String, CheckedURL>();
-        m_checkURLs = new AtomicBoolean(DEFAULT_CHECK_SERVER_ULRS);
-        m_urls = new ArrayList<String>(Arrays.asList(DEFAULT_SERVER_URL));
-    }
-
-    /**
-     * Returns the first available URL, based on the order specified in the configuration.
-     * 
-     * @return a (valid) server URL, or <code>null</code> in case no server URL was valid.
-     */
-    @Override
-    public URL getServerUrl() {
-        String[] urls;
-        synchronized (m_urls) {
-            urls = new String[m_urls.size()];
-            m_urls.toArray(urls);
-        }
-        boolean checking = m_checkURLs.get();
-
-        URL url = null;
-        for (String urlValue : urls) {
-            if ((url = getURL(urlValue, checking)) != null) {
-                break;
-            }
-        }
-
-        if (url == null) {
-            logWarning("No valid server URL discovered?!");
-        }
-
-        return url;
-    }
-
-    @Override
-    public void handle(String topic, Map<String, String> payload) {
-        if (EVENT_AGENT_CONFIG_CHANGED.equals(topic)) {
-            String value = payload.get(CONFIG_DISCOVERY_SERVERURLS);
-            if (value != null && !"".equals(value.trim())) {
-                String[] urls = value.trim().split("\\s*,\\s*");
-
-                synchronized (m_urls) {
-                    m_urls.clear();
-                    m_urls.addAll(Arrays.asList(urls));
-                }
-                // Assume nothing about the newly configured URLs...
-                m_availableURLs.clear();
-            }
-
-            value = payload.get(CONFIG_DISCOVERY_CHECKING);
-            if (value != null) {
-                boolean checkURLs = Boolean.parseBoolean(value);
-                // last one wins...
-                m_checkURLs.set(checkURLs);
-            }
-        }
     }
 
     @Override
@@ -164,59 +98,101 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
     @Override
     protected void onStop() throws Exception {
         getEventsHandler().removeListener(this);
+        m_checkedURLs.clear();
+    }
 
-        m_availableURLs.clear();
+    @Override
+    public void handle(String topic, Map<String, String> payload) {
+        if (!EVENT_AGENT_CONFIG_CHANGED.equals(topic)) {
+            return;
+        }
+
+        List<String> serverURLs = new ArrayList<String>();
+        String urlsValue = payload.get(CONFIG_DISCOVERY_SERVERURLS);
+        if (urlsValue == null || "".equals(urlsValue.trim())) {
+            serverURLs.addAll(Arrays.asList(DEFAULT_SERVER_URL));
+        }
+        else {
+            String[] urls = urlsValue.trim().split("\\s*,\\s*");
+            serverURLs.addAll(Arrays.asList(urls));
+        }
+        m_serverURLs = serverURLs;
+
+        String checkingValue = payload.get(CONFIG_DISCOVERY_CHECKING);
+        m_checkURLs = Boolean.parseBoolean(checkingValue);
+
+        logDebug("Config changed: urls: %s, checking: %s", urlsValue, checkingValue);
+        m_checkedURLs.clear();
+    }
+
+    /**
+     * Returns the first available URL from a the ordered list of the configured server URLs. If the
+     * {@link CONFIG_DISCOVERY_CHECKING} flag is set a connection is opened to test whether a serverURL is available
+     * before it is returned.
+     * 
+     * @return a (valid) server URL, or <code>null</code> in case no server URL was valid.
+     */
+    @Override
+    public URL getServerUrl() {
+
+        List<String> serverURLs = m_serverURLs; // local reference
+        boolean checkURLs = m_checkURLs; // local value
+
+        URL url = null;
+        for (String urlValue : serverURLs) {
+            url = getURL(urlValue, checkURLs);
+            if (url != null) {
+                break;
+            }
+        }
+        if (url == null) {
+            logWarning("No valid server URL discovered?!");
+        }
+        return url;
     }
 
     private URL getURL(String serverURL, boolean checkURL) {
-        CheckedURL checkedURL = null;
-        URL result = null;
 
         try {
-            logDebug("Start getting URL for : %s", serverURL);
+            if (!checkURL) {
+                return new URL(serverURL);
+            }
 
-            checkedURL = m_availableURLs.get(serverURL);
+            CheckedURL checkedURL = m_checkedURLs.get(serverURL);
             if (checkedURL == null) {
-                checkedURL = new CheckedURL(new URL(serverURL));
-
-                CheckedURL putResult = m_availableURLs.putIfAbsent(serverURL, checkedURL);
-                if (putResult != null) {
-                    // lost the put, make sure to use the correct object...
-                    checkedURL = putResult;
+                checkedURL = new CheckedURL(new URL(serverURL), DEFAULT_CACHE_MILLISECONDS);
+                m_checkedURLs.put(serverURL, checkedURL);
+            }
+            else {
+                if (checkedURL.isRecentlyChecked()) {
+                    if (checkedURL.isAvailable()) {
+                        logDebug("Returning cached serverURL: %s", serverURL);
+                        return checkedURL.getURL();
+                    }
+                    else {
+                        logDebug("Ignoring blacklisted serverURL: %s", serverURL);
+                        return null;
+                    }
                 }
             }
 
-            if (checkedURL.isBlacklisted()) {
-                logDebug("Ignoring blacklisted serverURL: %s", serverURL);
-                // Take the short way home...
+            try {
+                tryConnect(checkedURL.m_url);
+                logDebug("Succesfully connected to serverURL: %s", serverURL);
+                checkedURL.setAvailable(true);
+                return checkedURL.getURL();
+            }
+            catch (IOException e) {
+                logWarning("Blacklisting unavailable serverURL: %s", serverURL);
+                checkedURL.setAvailable(false);
                 return null;
             }
 
-            result = checkedURL.m_url;
-            if (checkURL && !checkedURL.isRecentlyChecked()) {
-                logDebug("Trying to connect to serverURL: %s", serverURL);
-
-                tryConnect(checkedURL.m_url);
-                // no exception was thrown trying to connect to the URL, so assume it's available...
-                checkedURL.available();
-
-                logDebug("Succesfully connected to serverURL: %s", serverURL);
-            }
         }
         catch (MalformedURLException e) {
             logWarning("Ignoring invalid/malformed serverURL: %s", serverURL);
-            // No need to blacklist for this case, we're trying to create a CheckedURL which isn't present...
-            result = null;
+            return null;
         }
-        catch (IOException e) {
-            logWarning("Temporarily blacklisting unavailable serverURL: %s", serverURL);
-            if (checkedURL != null) {
-                checkedURL.blacklist();
-            }
-            result = null;
-        }
-
-        return result;
     }
 
     private void tryConnect(URL serverURL) throws IOException {
