@@ -42,5 +42,5 @@ public interface DeploymentVersionRepository extends ObjectRepository<Deployment
      * @param directives A map of directives to be packed into the object.
      * @return The newly created deployment artifact object.
      */
-    public DeploymentArtifact createDeploymentArtifact(String url, Map<String, String> directives);
+    public DeploymentArtifact createDeploymentArtifact(String url, long size, Map<String, String> directives);
 }

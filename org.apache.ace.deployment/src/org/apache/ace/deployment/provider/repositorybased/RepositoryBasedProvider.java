@@ -258,26 +258,27 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
 
         // get the bundledata for each URL
         for (XmlDeploymentArtifact pair : deploymentArtifacts) {
+            long artifactSize = pair.getSize();
+            
             Map<String, String> directives = pair.getDirective();
-
             if (directives.get(DIRECTIVE_KEY_PROCESSORID) == null) {
                 // this is a bundle.
                 String symbolicName = directives.get(KEY_SYMBOLICNAME);
                 String bundleVersion = directives.get(KEY_VERSION);
                 if (symbolicName != null) {
                     // it is the right symbolic name
-                    if (symbolicName.trim().equals("")) {
+                    if ("".equals(symbolicName.trim())) {
                         m_log.log(LogService.LOG_WARNING, "Invalid bundle:" + pair.toString() + " the symbolic name is empty.");
                     }
                     else {
-                        result.add(new ArtifactDataImpl(pair.getUrl(), directives, symbolicName, bundleVersion, true));
+                        result.add(new ArtifactDataImpl(pair.getUrl(), directives, symbolicName, artifactSize, bundleVersion, true /* hasChanged */));
                     }
                 }
             }
             else {
                 // it is an artifact.
                 String filename = directives.get(DIRECTIVE_KEY_RESOURCE_ID);
-                result.add(new ArtifactDataImpl(filename, pair.getUrl(), directives, true));
+                result.add(new ArtifactDataImpl(pair.getUrl(), directives, filename, artifactSize, true /* hasChanged */));
             }
 
         }

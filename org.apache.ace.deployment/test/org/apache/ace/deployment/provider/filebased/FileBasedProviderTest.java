@@ -83,7 +83,7 @@ public class FileBasedProviderTest {
      * make a bundle with the given symbolic name and version in the given file.
      */
     private ArtifactData generateBundle(File file, String symbolicName, String version) throws Exception {
-        ArtifactData bundle = new ArtifactDataImpl(file.getName(), symbolicName, version, file.toURI().toURL(), false);
+        ArtifactData bundle = new ArtifactDataImpl(file.getName(), symbolicName, file.length(), version, file.toURI().toURL(), false);
         BundleStreamGenerator.generateBundle(bundle);
         return bundle;
     }
@@ -201,6 +201,7 @@ public class FileBasedProviderTest {
         Iterator<ArtifactData> it = bundleData.iterator();
         while(it.hasNext()) {
             ArtifactData data = it.next();
+            assert data.getSize() > 200 : "Bundle has no sensible size?!";
             assert !data.hasChanged() : "The data should not have been changed.";
         }
     }

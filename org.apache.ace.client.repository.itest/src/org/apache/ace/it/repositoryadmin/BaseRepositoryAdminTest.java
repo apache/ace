@@ -85,7 +85,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
             m_name = String.format("user-%s", Long.toHexString(System.nanoTime()));
         }
 
-        public Dictionary getCredentials() {
+        public Dictionary<Object, Object> getCredentials() {
             return new Properties();
         }
 
@@ -93,7 +93,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
             return m_name;
         }
 
-        public Dictionary getProperties() {
+        public Dictionary<Object, Object> getProperties() {
             return new Properties();
         }
 
@@ -237,11 +237,14 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
     }
 
     protected ArtifactObject createBasicBundleObject(String symbolicName, String version, String processorPID) {
+        return createBasicBundleObject(symbolicName, version, processorPID, null);
+    }
+    
+    protected ArtifactObject createBasicBundleObject(String symbolicName, String version, String processorPID, String size) {
         Map<String, String> attr = new HashMap<String, String>();
         attr.put(BundleHelper.KEY_SYMBOLICNAME, symbolicName);
         attr.put(ArtifactObject.KEY_MIMETYPE, BundleHelper.MIMETYPE);
         attr.put(ArtifactObject.KEY_URL, "http://" + symbolicName + "-" + ((version == null) ? "null" : version));
-        Map<String, String> tags = new HashMap<String, String>();
 
         if (version != null) {
             attr.put(BundleHelper.KEY_VERSION, version);
@@ -249,6 +252,11 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
         if (processorPID != null) {
             attr.put(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, processorPID);
         }
+        if (size != null) {
+            attr.put(ArtifactObject.KEY_SIZE, size);
+        }
+
+        Map<String, String> tags = new HashMap<String, String>();
         return m_artifactRepository.create(attr, tags);
     }
 

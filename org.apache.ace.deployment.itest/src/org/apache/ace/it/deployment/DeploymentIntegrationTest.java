@@ -53,6 +53,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpService;
 
+@SuppressWarnings("restriction")
 public class DeploymentIntegrationTest extends IntegrationTestBase implements BundleListener, EventHandler {
 
     protected void configureProvisionedServices() throws IOException {
@@ -332,7 +333,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
     }
 
     private ArtifactData generateBundle(File file, String symbolicName, String version) throws Exception {
-        ArtifactData bundle = new ArtifactDataImpl(file.getName(), symbolicName, version, file.toURI().toURL(), false);
+        ArtifactData bundle = new ArtifactDataImpl(file.getName(), symbolicName, file.length(), version, file.toURI().toURL(), false);
         BundleStreamGenerator.generateBundle(bundle);
         return bundle;
     }

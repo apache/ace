@@ -55,7 +55,6 @@ public class BundleHelperTest {
     @Test(groups = { UNIT })
     public void testManifestExtraction() {
         ArtifactResource artifact = new ArtifactResource() {
-
             @Override
             public InputStream openStream() throws IOException {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -68,6 +67,11 @@ public class BundleHelperTest {
                 JarOutputStream jos = new JarOutputStream(baos, manifest);
                 jos.close();
                 return new ByteArrayInputStream(baos.toByteArray());
+            }
+
+            @Override
+            public long getSize() throws IOException {
+                return -1L;
             }
 
             @Override
@@ -84,7 +88,6 @@ public class BundleHelperTest {
     @Test(groups = { UNIT })
     public void testLocalizedManifestExtraction() {
         ArtifactResource artifact = new ArtifactResource() {
-
             @Override
             public InputStream openStream() throws IOException {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -111,6 +114,11 @@ public class BundleHelperTest {
             }
 
             @Override
+            public long getSize() throws IOException {
+                return -1L;
+            }
+
+            @Override
             public URL getURL() {
                 return null;
             }
@@ -127,7 +135,6 @@ public class BundleHelperTest {
         // note that we do not set the Bundle-Localization header
 
         ArtifactResource artifact = new ArtifactResource() {
-
             @Override
             public InputStream openStream() throws IOException {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -147,6 +154,11 @@ public class BundleHelperTest {
             }
 
             @Override
+            public long getSize() throws IOException {
+                return -1L;
+            }
+
+            @Override
             public URL getURL() {
                 return null;
             }
@@ -160,7 +172,6 @@ public class BundleHelperTest {
     @Test(groups = { UNIT })
     public void testLocalizedManifestExtractionWithLocale() {
         ArtifactResource artifact = new ArtifactResource() {
-
             @Override
             public InputStream openStream() throws IOException {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -181,6 +192,11 @@ public class BundleHelperTest {
             }
 
             @Override
+            public long getSize() throws IOException {
+                return -1L;
+            }
+
+            @Override
             public URL getURL() {
                 return null;
             }
@@ -194,7 +210,6 @@ public class BundleHelperTest {
     @Test(groups = { UNIT })
     public void testLocalizedManifestExtractionWithLocaleOverrule() {
         ArtifactResource artifact = new ArtifactResource() {
-
             @Override
             public InputStream openStream() throws IOException {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -221,6 +236,11 @@ public class BundleHelperTest {
 
                 jos.close();
                 return new ByteArrayInputStream(baos.toByteArray());
+            }
+
+            @Override
+            public long getSize() throws IOException {
+                return -1L;
             }
 
             @Override

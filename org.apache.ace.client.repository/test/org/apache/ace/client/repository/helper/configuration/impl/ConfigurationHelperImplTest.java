@@ -83,6 +83,11 @@ public class ConfigurationHelperImplTest {
                 return url;
             }
             
+            @Override
+            public long getSize() throws IOException {
+                return -1L;
+            }
+            
             public InputStream openStream() throws IOException {
                 return getURL().openStream();
             }

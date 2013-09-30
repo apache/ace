@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -340,6 +339,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
 
         helper.checkAttributes(attributes);
         attributes.put(ArtifactObject.KEY_ARTIFACT_DESCRIPTION, "");
+        attributes.put(ArtifactObject.KEY_SIZE, Long.toString(resource.getSize()));
         if (overwrite) {
             attributes.put(ArtifactObject.KEY_MIMETYPE, mimetype);
         }
@@ -574,6 +574,15 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
                 return url;
             }
 
+            @Override
+            public long getSize() throws IOException {
+                // Take care of the fact that an URL could need credentials to be accessible!!!
+                URLConnection conn = m_connectionFactory.createConnection(getURL());
+                conn.setUseCaches(true);
+                return conn.getContentLength();
+            }
+
+            @Override
             public InputStream openStream() throws IOException {
                 // Take care of the fact that an URL could need credentials to be accessible!!!
                 URLConnection conn = m_connectionFactory.createConnection(getURL());

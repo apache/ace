@@ -132,7 +132,6 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
                             // Do a file.toURI().toURL() to preserve special path characters
                             // see http://www.javalobby.org/java/forums/t19698.html
                             URL bundleUrl = new URL(null, jarFile.toURI().toURL().toString(), new URLStreamHandler() {
-
                                 @Override
                                 protected URLConnection openConnection(final URL u) throws IOException {
                                     return new URLConnection(u) {
@@ -180,7 +179,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
                                     };
                                 }
                             });
-                            bundleData.add(new ArtifactDataImpl(jarFile.getName(), symbolicName, bundleVersion, bundleUrl, true));
+                            bundleData.add(new ArtifactDataImpl(jarFile.getName(), symbolicName, jarFile.length(), bundleVersion, bundleUrl, true));
                         }
                         catch (IllegalArgumentException iae) {
                             m_log.log(LogService.LOG_WARNING, "Invalid bundle:" + jarFile.getAbsolutePath() + " has an illegal version", iae);

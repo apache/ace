@@ -70,6 +70,7 @@ public class DeploymentTest {
         assert exceptionthrown : "Illegal argument for getVersion() did not throw exception";
     }
 
+    @SuppressWarnings("unused")
     private class MockDeploymentAdmin {
         public DeploymentPackage installDeploymentPackage(InputStream is) {
             return m_mockDeploymentPackage;
@@ -80,6 +81,7 @@ public class DeploymentTest {
         }
     }
 
+    @SuppressWarnings("unused")
     private class MockDeploymentPackage {
         public String getName() {
             return MOCK_NAME;

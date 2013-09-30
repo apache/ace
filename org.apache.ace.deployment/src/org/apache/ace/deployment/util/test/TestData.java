@@ -38,22 +38,32 @@ public class TestData implements ArtifactData {
         m_changed = changed;
     }
 
+    @Override
     public boolean hasChanged() {
         return m_changed;
     }
 
+    @Override
     public String getFilename() {
         return m_fileName;
     }
 
+    @Override
+    public long getSize() {
+        return -1L;
+    }
+    
+    @Override
     public String getSymbolicName() {
         return m_symbolicName;
     }
 
+    @Override
     public URL getUrl() {
         return m_url;
     }
 
+    @Override
     public String getVersion() {
         return m_version;
     }
@@ -63,6 +73,7 @@ public class TestData implements ArtifactData {
         return null;
     }
 
+    @Override
     public Attributes getManifestAttributes(boolean fixPackage) {
         Attributes a = new Attributes();
         a.putValue("Bundle-SymbolicName", getSymbolicName());
@@ -70,15 +81,18 @@ public class TestData implements ArtifactData {
         return a;
     }
 
+    @Override
     public String getProcessorPid() {
         // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
     public boolean isBundle() {
         return true;
     }
 
+    @Override
     public boolean isCustomizer() {
         return false;
     }

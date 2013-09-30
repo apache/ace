@@ -60,6 +60,11 @@ public interface ArtifactObject extends RepositoryObject {
      * Holds a human-readable description for this artifact.
      */
     public static final String KEY_ARTIFACT_DESCRIPTION = "artifactDescription";
+    /** 
+     * Key to be used in the <code>ArtifactObject</code>'s attributes.
+     * Holds the (estimated) size, in bytes, for this artifact.
+     */
+    public static final String KEY_SIZE = "artifactSize";
 
     public static final String TOPIC_ENTITY_ROOT = ArtifactObject.class.getSimpleName() + "/";
 
@@ -111,6 +116,10 @@ public interface ArtifactObject extends RepositoryObject {
      * Returns a description for this object. May return <code>null</code>.
      */
     public String getDescription();
+    /**
+     * Returns an (estimated) size, in bytes, for this object, can be -1L if no size is known.
+     */
+    public long getSize();
     /**
      * Sets a description for this artifact.
      */

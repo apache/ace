@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.deployment.processor.DeploymentProcessor;
+import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.streamgenerator.StreamGenerator;
 import org.apache.felix.dm.Component;
@@ -47,25 +48,29 @@ import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 
 /**
- * The DeploymentServlet class provides in a list of versions available for a target and a stream
- * of data containing the DeploymentPackage (or fix package) for a specific target and version.
+ * The DeploymentServlet class provides in a list of versions available for a target and a stream of data containing the
+ * DeploymentPackage (or fix package) for a specific target and version.
  */
 public class DeploymentServlet extends HttpServlet implements ManagedService {
     private static final long serialVersionUID = 1L;
 
     /** A boolean denoting whether or not authentication is enabled. */
     private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
+    /** HTTP header name used for Deployment Package size estimate, in bytes. */
+    private static final String HEADER_DPSIZE = "X-ACE-DPSize";
+    /** Multiplication factor for the DP size to account for slight changes in file change due to resource processors. */
+    private static final double DPSIZE_FACTOR = 1.1;
 
     public static final String CURRENT = "current";
     public static final String PROCESSOR = "processor";
     public static final String VERSIONS = "versions";
     public static final String DP_MIMETYPE = "application/vnd.osgi.dp";
     public static final String TEXT_MIMETYPE = "text/plain";
-    
+
     private final ConcurrentMap<String, DeploymentProcessor> m_processors = new ConcurrentHashMap<String, DeploymentProcessor>();
-    
+
     // injected by Dependency Manager
-    private volatile DependencyManager m_dm; 
+    private volatile DependencyManager m_dm;
     private volatile LogService m_log;
     private volatile StreamGenerator m_streamGenerator;
     private volatile DeploymentProvider m_provider;
@@ -74,30 +79,77 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
     private volatile boolean m_useAuth = false;
 
     /**
-     * Responds to GET requests sent to this endpoint, the response depends on the requested path:
-     * <li>http://host/endpoint/targetid/versions/ returns a list of versions available for the specified target
-     * <li>http://host/endpoint/targetid/versions/x.y.z returns a deployment package stream for the specified target and version
-     *
-     * The status code of the response can be one of the following:
-     * <li><code>HttpServletResponse.SC_BAD_REQUEST</code> - If no target is specified or the request is malformed in a different way.
-     * <li><code>HttpServletResponse.SC_NOT_FOUND</code> - If the specified target or version does not exist.
-     * <li><code>HttpServletResponse.SC_INTERNAL_SERVER_ERROR</code> - If there was a problem processing the request.
-     * <li><code>HttpServletResponse.SC_OK</code> - If all went fine
+     * Responds to GET requests sent to this endpoint, the response depends on the requested path: <li>
+     * http://host/endpoint/targetid/versions/ returns a list of versions available for the specified target <li>
+     * http://host/endpoint/targetid/versions/x.y.z returns a deployment package stream for the specified target and
+     * version
+     * 
+     * The status code of the response can be one of the following: <li><code>HttpServletResponse.SC_BAD_REQUEST</code>
+     * - If no target is specified or the request is malformed in a different way. <li>
+     * <code>HttpServletResponse.SC_NOT_FOUND</code> - If the specified target or version does not exist. <li>
+     * <code>HttpServletResponse.SC_INTERNAL_SERVER_ERROR</code> - If there was a problem processing the request. <li>
+     * <code>HttpServletResponse.SC_OK</code> - If all went fine
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             String[] pathElements = verifyAndGetPathElements(request.getPathInfo());
             String targetID = pathElements[1];
-            List<String> versions = getVersions(targetID);
             int numberOfElements = pathElements.length;
 
             if (numberOfElements == 3) {
-                handleVersionsRequest(versions, response);
+                handleVersionsRequest(targetID, response);
             }
             else {
                 String version = pathElements[3];
-                handlePackageDelivery(targetID, version, versions, request, response);
+                handlePackageDelivery(targetID, version, request, response);
+            }
+        }
+        catch (AceRestException e) {
+            m_log.log(LogService.LOG_WARNING, e.getMessage(), e);
+            e.handleAsHttpError(response);
+        }
+    }
+
+    /**
+     * Responds to HEAD requests for particular deployment versions by sending back the estimated size of an update.
+     */
+    @Override
+    protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            String[] pathElements = verifyAndGetPathElements(request.getPathInfo());
+            int numberOfElements = pathElements.length;
+
+            if (numberOfElements == 4) {
+                String targetID = pathElements[1];
+                String version = pathElements[3];
+
+                String current = request.getParameter(CURRENT);
+
+                List<ArtifactData> artifacts;
+                if (current != null) {
+                    artifacts = m_provider.getBundleData(targetID, current, version);
+                } else {
+                    artifacts = m_provider.getBundleData(targetID, version);
+                }
+                
+                long dpSize = 0L;
+                for (ArtifactData artifactData : artifacts) {
+                    long size = artifactData.getSize();
+                    if (size > 0L) {
+                        dpSize += size;
+                    }
+                    else {
+                        dpSize = -1L;
+                        break; // cannot determine the DP size...
+                    }
+                }
+
+                response.setContentType(DP_MIMETYPE);
+
+                if (dpSize > 0) {
+                    response.addHeader(HEADER_DPSIZE, Long.toString((long) (DPSIZE_FACTOR * dpSize)));
+                }
             }
         }
         catch (AceRestException e) {
@@ -109,7 +161,8 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
     /**
      * Called by Dependency Manager upon initialization of this component.
      * 
-     * @param comp the component to initialize, cannot be <code>null</code>.
+     * @param comp
+     *            the component to initialize, cannot be <code>null</code>.
      */
     protected void init(Component comp) {
         comp.add(m_dm.createServiceDependency()
@@ -124,7 +177,8 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         if (!authenticate(req)) {
             // Authentication failed; don't proceed with the original request...
             resp.sendError(SC_UNAUTHORIZED);
-        } else {
+        }
+        else {
             // Authentication successful, proceed with original request...
             super.service(req, resp);
         }
@@ -133,7 +187,8 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
     /**
      * Authenticates, if needed the user with the information from the given request.
      * 
-     * @param request the request to obtain the credentials from, cannot be <code>null</code>.
+     * @param request
+     *            the request to obtain the credentials from, cannot be <code>null</code>.
      * @return <code>true</code> if the authentication was successful, <code>false</code> otherwise.
      */
     private boolean authenticate(HttpServletRequest request) {
@@ -148,14 +203,18 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
     }
 
     /**
-     * Serve the case where requested path is like:
-     * http://host/endpoint/targetid/versions/ returns a list of versions available for the specified target
-     *
-     * @param versions versions to be put into response
-     * @param response response object.
+     * Serve the case where requested path is like: http://host/endpoint/targetid/versions/ returns a list of versions
+     * available for the specified target
+     * 
+     * @param targetID
+     *            the target ID for which to return all available versions;
+     * @param response
+     *            response object.
      */
-    private void handleVersionsRequest(List<String> versions, HttpServletResponse response) throws AceRestException {
+    private void handleVersionsRequest(String targetID, HttpServletResponse response) throws AceRestException {
         ServletOutputStream output = null;
+
+        List<String> versions = getVersions(targetID);
 
         response.setContentType(TEXT_MIMETYPE);
         try {
@@ -173,17 +232,19 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         }
     }
 
-    private void handlePackageDelivery(String targetID, String version, List<String> versions, HttpServletRequest request, HttpServletResponse response) throws AceRestException {
-
+    private void handlePackageDelivery(String targetID, String version, HttpServletRequest request, HttpServletResponse response) throws AceRestException {
         ServletOutputStream output = null;
+
+        List<String> versions = getVersions(targetID);
+        if (!versions.contains(version)) {
+            throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown version (" + version + ")");
+        }
 
         try {
             // Wrap response to add support for range requests
             response = new ContentRangeResponseWrapper(request, response);
+            response.setContentType(DP_MIMETYPE);
 
-            if (!versions.contains(version)) {
-                throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown version (" + version + ")");
-            }
             String current = request.getParameter(CURRENT);
             String processor = request.getParameter(PROCESSOR);
 
@@ -205,7 +266,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
                     throw new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not find a deployment processor called: " + processor);
                 }
             }
-            response.setContentType(DP_MIMETYPE);
+
             output = response.getOutputStream();
             byte[] buffer = new byte[1024 * 32];
             for (int bytesRead = inputStream.read(buffer); bytesRead != -1; bytesRead = inputStream.read(buffer)) {
@@ -249,14 +310,15 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
     }
 
     /**
-     * Make sure the path is valid.
-     * Also returns the splited version of #path.
-     *
-     * @param path http request path
-     *
+     * Make sure the path is valid. Also returns the splited version of #path.
+     * 
+     * @param path
+     *            http request path
+     * 
      * @return splitted version of #path. Split delim is "/"
-     *
-     * @throws org.apache.ace.deployment.servlet.AceRestException if path is not valid or cannot be processed.
+     * 
+     * @throws org.apache.ace.deployment.servlet.AceRestException
+     *             if path is not valid or cannot be processed.
      */
     private String[] verifyAndGetPathElements(String path) throws AceRestException {
         if (path == null) {

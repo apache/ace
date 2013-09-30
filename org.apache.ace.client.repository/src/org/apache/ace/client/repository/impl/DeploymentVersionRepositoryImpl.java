@@ -113,8 +113,8 @@ public class DeploymentVersionRepositoryImpl extends ObjectRepositoryImpl<Deploy
         return result;
     }
 
-    public DeploymentArtifact createDeploymentArtifact(String url, Map<String, String> directives) {
-        DeploymentArtifactImpl result =  new DeploymentArtifactImpl(url);
+    public DeploymentArtifact createDeploymentArtifact(String url, long size, Map<String, String> directives) {
+        DeploymentArtifactImpl result =  new DeploymentArtifactImpl(url, size);
         for (Map.Entry<String, String> entry : directives.entrySet()) {
             result.addDirective(entry.getKey(), entry.getValue());
         }

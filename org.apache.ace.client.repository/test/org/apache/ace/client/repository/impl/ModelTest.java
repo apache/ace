@@ -36,18 +36,18 @@ import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
-import org.apache.ace.client.repository.object.TargetObject;
+import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
 import org.apache.ace.client.repository.object.FeatureObject;
-import org.apache.ace.client.repository.object.DistributionObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
-import org.apache.ace.client.repository.repository.TargetRepository;
-import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
-import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
 import org.apache.ace.client.repository.repository.DistributionRepository;
+import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
+import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
@@ -126,6 +126,21 @@ public class ModelTest {
     }
 
     /**
+     * Tests that we can create artifacts which contain a certain size (estimate). See ACE-384.
+     */
+    @Test( groups = { TestUtils.UNIT } )
+    public void testArtifactObjectSize() {
+        ArtifactObject artifactWithSize = createBasicArtifactObject("myartifact", "1.0.0", "10");
+        assert artifactWithSize.getSize() == 10 : "The artifact did not have a valid size?!";
+        
+        ArtifactObject artifactWithoutSize = createBasicArtifactObject("artifactWithoutSize", "1.0.0", null);
+        assert artifactWithoutSize.getSize() == -1L : "The artifact did have a size?!";
+
+        ArtifactObject artifactWithInvalidSize = createBasicArtifactObject("artifactWithInvalidSize", "1.0.0", "xyz");
+        assert artifactWithInvalidSize.getSize() == -1L : "The artifact did have a size?!";
+    }
+    
+    /**
      * The artifact object can test functionality coming from
      * RepositoryObjectImpl, and ArtifactRepository checks much of
      * ObjectRepositoryImpl.
@@ -134,7 +149,7 @@ public class ModelTest {
     @Test( groups = { TestUtils.UNIT } )
     public void testArtifactObjectAndRepository() throws InvalidSyntaxException {
         // Create a very simple artifact.
-        ArtifactObject a = createBasicArtifactObject("myartifact", "1.0.0");
+        ArtifactObject a = createBasicArtifactObject("myartifact", "1.0.0", "1");
 
         // Try to create an illegal one
         try {
@@ -648,12 +663,18 @@ public class ModelTest {
     }
 
     private ArtifactObject createBasicArtifactObject(String symbolicName, String version) {
+        return createBasicArtifactObject(symbolicName, version, null);
+    }
+
+    private ArtifactObject createBasicArtifactObject(String symbolicName, String version, String size) {
         Map<String, String> attr = new HashMap<String, String>();
         attr.put(BundleHelper.KEY_SYMBOLICNAME, symbolicName);
         attr.put(ArtifactObject.KEY_MIMETYPE, BundleHelper.MIMETYPE);
         attr.put(ArtifactObject.KEY_URL, "http://" + symbolicName + "-v" + ((version == null) ? "null" : version));
+        if (size != null) {
+            attr.put(ArtifactObject.KEY_SIZE, size); // bytes
+        }
         Map<String, String> tags = new HashMap<String, String>();
-
         if (version != null) {
             attr.put(BundleHelper.KEY_VERSION, version);
         }
@@ -692,7 +713,7 @@ public class ModelTest {
 
         List<DeploymentArtifactImpl> deploymentArtifacts = new ArrayList<DeploymentArtifactImpl>();
         for (String s : artifacts) {
-            deploymentArtifacts.add(new DeploymentArtifactImpl(s));
+            deploymentArtifacts.add(new DeploymentArtifactImpl(s, -1L));
         }
         return m_deploymentVersionRepository.create(attr, tags, deploymentArtifacts.toArray(new DeploymentArtifact[0]));
     }

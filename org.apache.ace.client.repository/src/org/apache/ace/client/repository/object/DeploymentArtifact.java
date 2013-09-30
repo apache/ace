@@ -54,6 +54,11 @@ public interface DeploymentArtifact {
      * @return the URL for this deployment artifact.
      */
     public String getUrl();
+    
+    /**
+     * @return the (estimated) size of this deployment artifact, in bytes.
+     */
+    public long getSize();
 
     /**
      * @param key A key String, such as the <code>DIRECTIVE_</code> constants in

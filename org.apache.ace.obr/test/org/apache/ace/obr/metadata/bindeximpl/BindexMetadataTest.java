@@ -34,7 +34,8 @@ import org.testng.annotations.Test;
 public class BindexMetadataTest {
 
     private ArtifactData generateBundle(File file, String symbolicName, String version) throws Exception {
-        ArtifactData bundle = new ArtifactDataImpl(file.getName(), symbolicName, version, file.toURI().toURL(), false);
+        // create a mock bundle, which is only used to generate the bundle on disk, and not used for anything else...
+        ArtifactData bundle = new ArtifactDataImpl(file.getName(), symbolicName, -1L, version, file.toURI().toURL(), false);
         BundleStreamGenerator.generateBundle(bundle);
         return bundle;
     }

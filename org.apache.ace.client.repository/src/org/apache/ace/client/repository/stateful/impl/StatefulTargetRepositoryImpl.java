@@ -568,7 +568,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                 directives.put(DeploymentArtifact.REPOSITORY_PATH, repositoryPath);
             }
 
-            result.add(m_deploymentRepository.createDeploymentArtifact(bundle.getURL(), directives));
+            result.add(m_deploymentRepository.createDeploymentArtifact(bundle.getURL(), bundle.getSize(), directives));
         }
 
         for (ArtifactObject artifact : artifacts.keySet()) {
@@ -584,7 +584,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                 directives.put(DeploymentArtifact.REPOSITORY_PATH, repositoryPath);
             }
             result.add(m_deploymentRepository.createDeploymentArtifact(
-                m_artifactRepository.preprocessArtifact(artifact, to, targetID, version), directives));
+                m_artifactRepository.preprocessArtifact(artifact, to, targetID, version), artifact.getSize(), directives));
         }
 
         return result.toArray(new DeploymentArtifact[result.size()]);

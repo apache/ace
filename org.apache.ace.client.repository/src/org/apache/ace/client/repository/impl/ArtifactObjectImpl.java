@@ -30,8 +30,8 @@ import org.apache.ace.client.repository.object.FeatureObject;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Implementation class for the ArtifactObject. For 'what it does', see ArtifactObject,
- * for 'how it works', see RepositoryObjectImpl.<br>
+ * Implementation class for the ArtifactObject. For 'what it does', see ArtifactObject, for 'how it works', see
+ * RepositoryObjectImpl.<br>
  * <br>
  * Some functionality of this class is delegated to implementers of {@link ArtifactHelper}.
  */
@@ -39,8 +39,8 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
     private final static String XML_NODE = "artifact";
 
     /*
-     * As a general rule, RepositoryObjects do not know about their repository. However, since the Helper
-     * to be used is dictated by the repository, this rule is broken for this class.
+     * As a general rule, RepositoryObjects do not know about their repository. However, since the Helper to be used is
+     * dictated by the repository, this rule is broken for this class.
      */
     private final ArtifactRepositoryImpl m_repo;
 
@@ -58,7 +58,7 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
         super(reader, notifier, XML_NODE);
         m_repo = repo;
     }
-    
+
     private static String[] completeMandatoryAttributes(String[] mandatory) {
         String[] result = new String[mandatory.length + 1];
         for (int i = 0; i < mandatory.length; i++) {
@@ -89,6 +89,19 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
     @Override
     public Comparator<ArtifactObject> getComparator() {
         return getHelper().getComparator();
+    }
+
+    @Override
+    public long getSize() {
+        String size = getAttribute(KEY_SIZE);
+        try {
+            if (size != null) {
+                return Long.parseLong(size);
+            }
+        }
+        catch (NumberFormatException exception) {
+        }
+        return -1L;
     }
 
     public String getURL() {
@@ -127,7 +140,7 @@ public class ArtifactObjectImpl extends RepositoryObjectImpl<ArtifactObject> imp
     String[] getDefiningKeys() {
         return getHelper().getDefiningKeys().clone();
     }
-    
+
     private ArtifactHelper getHelper() {
         // getMimetype is safe, as is getHelper, and m_repo is final, so no
         // need to synchronize here...

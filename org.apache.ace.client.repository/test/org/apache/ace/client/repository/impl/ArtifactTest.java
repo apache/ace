@@ -64,7 +64,7 @@ public class ArtifactTest {
         ArtifactHelper helper = new MockHelper("yourURL");
 
         try {
-            createArtifact("myMime", "myUrl", null, null);
+            createArtifact("myMime", "myUrl", null, null, null);
             assert false : "There is no helper for this type of artifact.";
         }
         catch (IllegalArgumentException iae) {
@@ -73,9 +73,10 @@ public class ArtifactTest {
 
         m_artifactRepository.addHelper("myMime", helper);
 
-        ArtifactObject obj = createArtifact("myMime", "myUrl", null, null);
+        ArtifactObject obj = createArtifact("myMime", "myUrl", null, null, "10");
 
         assert obj.getURL().equals("yourURL");
+        assert obj.getSize() == 10;
 
         try {
             m_artifactRepository.getHelper("yourMime");
@@ -91,12 +92,12 @@ public class ArtifactTest {
         m_artifactRepository.addHelper("myMime", new MockHelper());
         m_artifactRepository.addHelper(BundleHelper.MIMETYPE, new BundleHelperImpl());
 
-        createArtifact(BundleHelper.MIMETYPE, "normalBundle", "normalBundle", null);
+        createArtifact(BundleHelper.MIMETYPE, "normalBundle", "normalBundle", null, "10");
 
-        ArtifactObject resourceProcessor1 = createArtifact(BundleHelper.MIMETYPE, "resourceProcessor1", "resourceProcessor1", "somePID");
-        ArtifactObject resourceProcessor2 = createArtifact(BundleHelper.MIMETYPE, "resourceProcessor2", "resourceProcessor2", "someOtherPID");
+        ArtifactObject resourceProcessor1 = createArtifact(BundleHelper.MIMETYPE, "resourceProcessor1", "resourceProcessor1", "somePID", "11");
+        ArtifactObject resourceProcessor2 = createArtifact(BundleHelper.MIMETYPE, "resourceProcessor2", "resourceProcessor2", "someOtherPID", "12");
 
-        ArtifactObject myArtifact = createArtifact("myMime", "myArtifact", null, null);
+        ArtifactObject myArtifact = createArtifact("myMime", "myArtifact", null, null, "13");
 
         assert m_artifactRepository.get().size() == 2 : "We expect to find two artifacts, but we find " + m_artifactRepository.get().size();
 
@@ -106,15 +107,31 @@ public class ArtifactTest {
         list = m_artifactRepository.getResourceProcessors();
         assert (list.size() == 2) && list.contains(resourceProcessor1) && list.contains(resourceProcessor2) : "We expect to find both our resource processors when asking for them; we find " + list.size() + " artifacts.";
 
-       m_artifactRepository.get(m_artifactRepository.createFilter("(" + BundleHelper.MIMETYPE + "=my\\(Mi\\*me)"));
+        list = m_artifactRepository.get(m_artifactRepository.createFilter("(mimetype=myMime)"));
+        assert (list.size() == 1) && list.contains(myArtifact) : "Expected a single artifact with the specified mimetype!";
+
+        list = m_artifactRepository.get(m_artifactRepository.createFilter("(mimetype=my\\(Mi\\*me)"));
+        assert (list.size() == 0) : "Expected no artifact to match the requested filter!";
     }
 
-    private ArtifactObject createArtifact(String mimetype, String URL, String symbolicName, String processorPID) {
+    @Test( groups = { TestUtils.UNIT } )
+    public void testArtifactSizeDeterminedByRepository() throws InvalidSyntaxException {
+        m_artifactRepository.addHelper(BundleHelper.MIMETYPE, new BundleHelperImpl());
+        ArtifactObject artifact = createArtifact(BundleHelper.MIMETYPE, "normalBundle", "normalBundle", null, "10");
+
+        List<ArtifactObject> list = m_artifactRepository.get();
+        assert (list.size() == 1) && list.contains(artifact) : "Expected a single artifact with the specified mimetype!";
+        
+        assert list.get(0).getSize() == 10 : "Expected the size to be filled in!";
+    }
+
+    private ArtifactObject createArtifact(String mimetype, String URL, String symbolicName, String processorPID, String size) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(ArtifactObject.KEY_MIMETYPE, mimetype);
         attributes.put(ArtifactObject.KEY_URL, URL);
-        Map<String, String> tags = new HashMap<String, String>();
-
+        if (size != null) {
+            attributes.put(ArtifactObject.KEY_SIZE, size);
+        }
         if (symbolicName != null) {
             attributes.put(BundleHelper.KEY_SYMBOLICNAME, symbolicName);
         }
@@ -122,6 +139,7 @@ public class ArtifactTest {
             attributes.put(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, processorPID);
         }
 
+        Map<String, String> tags = new HashMap<String, String>();
         return m_artifactRepository.create(attributes, tags);
     }
 }

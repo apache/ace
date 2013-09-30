@@ -69,6 +69,7 @@ public class RepositoryBasedProviderTest {
     private static final String ARTIFACTS_TAG = "artifacts";
     private static final String ARTIFACT_TAG = "deploymentArtifact";
     private static final String URL_TAG = "url";
+    private static final String SIZE_TAG = "size";
     private static final String DIRECTIVES_TAG = "directives";
     private static final String ATTRIBUTES_TAG = "attributes";
     private static final String DEPLOYMENTVERSION_TAG = "deploymentversion";
@@ -156,7 +157,8 @@ public class RepositoryBasedProviderTest {
      */
     private ArtifactData generateBundle(File file, Map<String, String> directives, String symbolicName, String version,
         Map<String, String> additionalHeaders) throws Exception {
-        ArtifactData bundle = new ArtifactDataImpl(file.toURI().toURL(), directives, symbolicName, version, false);
+        // create a mock bundle, which is only used to generate the bundle on disk, and not used for anything else...
+        ArtifactData bundle = new ArtifactDataImpl(file.toURI().toURL(), directives, symbolicName, -1L, version, false);
         if (additionalHeaders == null) {
             BundleStreamGenerator.generateBundle(bundle);
         }
@@ -332,6 +334,9 @@ public class RepositoryBasedProviderTest {
             Element url = doc.createElement(URL_TAG);
             url.setTextContent(s[0]);
             artifact.appendChild(url);
+            Element size = doc.createElement(SIZE_TAG);
+            size.setTextContent("100");
+            artifact.appendChild(size);
             Element directives = doc.createElement(DIRECTIVES_TAG);
             for (int i = 1; i < s.length; i += 2) {
                 Element directive = doc.createElement(s[i]);
@@ -458,6 +463,7 @@ public class RepositoryBasedProviderTest {
         Iterator<ArtifactData> it = bundleData.iterator();
         while (it.hasNext()) {
             ArtifactData data = it.next();
+            assert data.getSize() == 100 : "Bundle has no sensible size?! " + data.getSize();
             assert !data.hasChanged() : "The data should not have been changed.";
         }
     }

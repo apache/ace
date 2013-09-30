@@ -54,7 +54,6 @@ import org.apache.ace.client.repository.repository.DistributionRepository;
 import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
 import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
-import org.apache.ace.client.repository.stateful.impl.StatefulTargetRepositoryImpl;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.ext.BackupRepository;
