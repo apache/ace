@@ -140,6 +140,23 @@ public class AgentDeploymentTest extends BaseAgentTest {
             }
         }
 
+        @Override
+        protected synchronized void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String pathinfoTail = req.getPathInfo().replaceFirst("/" + m_agentId + "/versions/?", "");
+            if (pathinfoTail.equals("")) {
+                sendVersions(resp);
+            }
+            else {
+                TestPackage dpackage = m_packages.get(pathinfoTail);
+                if (dpackage == null) {
+                    throw new IllegalStateException("Test error! Should never happen... " + pathinfoTail);
+                }
+                int offset = -2;
+                resp.addIntHeader("X-ACE-DPSize", offset + dpackage.m_version.getMajor());
+                resp.flushBuffer();
+            }
+        }
+
         private void sendPackage(TestPackage dpackage, HttpServletRequest req, HttpServletResponse resp) throws IOException {
             if (m_failure == Failure.DEPLOYMENT_RETRY_AFTER) {
                 resp.addHeader("Retry-After", BACKOFF_TIME);
@@ -369,7 +386,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
         expectSuccessfulDeployment(m_package6, null);
 
         TimeUnit.SECONDS.sleep(2); // sleep a little while to receive async events..
-        
+
         // Check our event log, should contain all handled events...
         Map<String, List<Map<String, String>>> topics = m_listener.getTopics();
 
@@ -394,6 +411,36 @@ public class AgentDeploymentTest extends BaseAgentTest {
 
         // If we install a newer version, it should succeed...
         expectSuccessfulDeployment(m_package6, null);
+    }
+
+    /**
+     * Tests that we can install upgrades for an earlier installed DP.
+     */
+    public void testGetSizeEstimateForDeploymentPackage() throws Exception {
+        AgentControl control = getService(AgentControl.class);
+
+        Map<String, String> props = createAgentConfiguration(false /* useStreaming */, 10 /* secs */);
+
+        ConfigurationHandler configurationHandler = control.getConfigurationHandler();
+        configurationHandler.putAll(props);
+
+        synchronized (m_servlet) {
+            m_servlet.reset();
+        }
+
+        waitForInstalledVersion(Version.emptyVersion);
+
+        synchronized (m_servlet) {
+            m_servlet.addPackage(m_package1);
+            m_servlet.addPackage(m_package2);
+            m_servlet.addPackage(m_package6);
+        }
+
+        DeploymentHandler deploymentHandler = control.getDeploymentHandler();
+        // the size is (major-version # - 2)...
+        assertEquals(4, deploymentHandler.getSize(V6_0_0, false));
+        assertEquals(0, deploymentHandler.getSize(V2_0_0, false));
+        assertEquals(-1, deploymentHandler.getSize(V1_0_0, false));
     }
 
     /**
@@ -600,13 +647,13 @@ public class AgentDeploymentTest extends BaseAgentTest {
         resetAgentBundleState();
     }
 
-    private Map<String, String> createAgentConfiguration(boolean useStreaming) {
+    private Map<String, String> createAgentConfiguration(boolean useStreaming, int syncInterval) {
         Map<String, String> props = new HashMap<String, String>();
         props.put(AgentConstants.CONFIG_IDENTIFICATION_AGENTID, AGENT_ID);
         props.put(AgentConstants.CONFIG_LOGGING_LEVEL, LOGLEVEL.name());
         props.put(AgentConstants.CONFIG_CONTROLLER_STREAMING, Boolean.toString(useStreaming));
         props.put(AgentConstants.CONFIG_CONTROLLER_SYNCDELAY, "1");
-        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL, "1");
+        props.put(AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL, Integer.toString(syncInterval));
         props.put(AgentConstants.CONFIG_CONTROLLER_RETRIES, "2");
         return props;
     }
@@ -637,7 +684,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
     private void setupAgentForNonStreamingDeployment() throws Exception {
         AgentControl control = getService(AgentControl.class);
 
-        Map<String, String> props = createAgentConfiguration(false /* useStreaming */);
+        Map<String, String> props = createAgentConfiguration(false /* useStreaming */, 1 /* sec */);
 
         ConfigurationHandler configurationHandler = control.getConfigurationHandler();
         configurationHandler.putAll(props);
@@ -652,7 +699,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
     private void setupAgentForStreamingDeployment() throws Exception {
         AgentControl control = getService(AgentControl.class);
 
-        Map<String, String> props = createAgentConfiguration(true /* useStreaming */);
+        Map<String, String> props = createAgentConfiguration(true /* useStreaming */, 1 /* sec */);
 
         ConfigurationHandler configurationHandler = control.getConfigurationHandler();
         configurationHandler.putAll(props);
