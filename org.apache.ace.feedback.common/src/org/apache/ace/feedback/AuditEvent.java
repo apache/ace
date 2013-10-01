@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.log;
+package org.apache.ace.feedback;
 
 /**
- * Audit log event. These events are recorded in the audit log, which keeps track of
- * all life cycle events that occur on a target.
+ * Auditlog event. This interface defines a set of constants to define the eventtypes used for the auditlog.
+ * These auditlog constants identify the actions on the target that the server needs to process and validate deployment. 
+ * 
+ * These feedback events are recorded in the auditlog feedbackchannel.
  */
 public interface AuditEvent
 {

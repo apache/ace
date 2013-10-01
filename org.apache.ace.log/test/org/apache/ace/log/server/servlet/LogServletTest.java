@@ -29,8 +29,8 @@ import java.util.Properties;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.log.server.servlet.LogServlet;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.SortedRangeSet;
@@ -43,9 +43,9 @@ import org.testng.annotations.Test;
 public class LogServletTest {
 
     private LogServlet m_logServlet;
-    private LogDescriptor m_range = new LogDescriptor("tID", 123, new SortedRangeSet("1-3"));
-    private LogEvent m_event1 = new LogEvent("tID", 123, 1, 888888, 1, new Properties());
-    private LogEvent m_event2 = new LogEvent("tID", 123, 2, 888888, 2, new Properties());
+    private Descriptor m_range = new Descriptor("tID", 123, new SortedRangeSet("1-3"));
+    private Event m_event1 = new Event("tID", 123, 1, 888888, 1, new Properties());
+    private Event m_event2 = new Event("tID", 123, 2, 888888, 2, new Properties());
     private MockLogStore m_mockStore;
 
     @BeforeMethod(alwaysRun = true)
@@ -63,7 +63,7 @@ public class LogServletTest {
     @Test(groups = { UNIT })
     public void queryLog() throws Exception {
         MockServletOutputStream output = new MockServletOutputStream();
-        boolean result = m_logServlet.handleQuery(m_range.getTargetID(), String.valueOf(m_range.getLogID()), null, output);
+        boolean result = m_logServlet.handleQuery(m_range.getTargetID(), String.valueOf(m_range.getStoreID()), null, output);
         assert result;
         assert m_range.toRepresentation().equals(output.m_text);
         output.m_text = "";
@@ -75,14 +75,14 @@ public class LogServletTest {
     @Test(groups = { UNIT })
     public void receiveLog() throws Exception {
         MockServletOutputStream output = new MockServletOutputStream();
-        boolean result = m_logServlet.handleReceive(m_range.getTargetID(), String.valueOf(m_range.getLogID()), "1", null, output);
+        boolean result = m_logServlet.handleReceive(m_range.getTargetID(), String.valueOf(m_range.getStoreID()), "1", null, output);
         assert result;
         String expected = m_event1.toRepresentation() + "\n";
         String actual = output.m_text;
         assert expected.equals(actual) : "We expected '" + expected + "', but received '" + actual + "'";
 
         output = new MockServletOutputStream();
-        result = m_logServlet.handleReceive(m_range.getTargetID(), String.valueOf(m_range.getLogID()), null , null, output);
+        result = m_logServlet.handleReceive(m_range.getTargetID(), String.valueOf(m_range.getStoreID()), null , null, output);
         assert result;
         expected = m_event1.toRepresentation() + "\n" + m_event2.toRepresentation() + "\n";
         actual = output.m_text;
@@ -97,18 +97,18 @@ public class LogServletTest {
         m_logServlet.handleSend(input);
 
         String actual = "";
-        for (Iterator<LogEvent> i = m_mockStore.m_events.iterator(); i.hasNext();) {
-            LogEvent event = i.next();
+        for (Iterator<Event> i = m_mockStore.m_events.iterator(); i.hasNext();) {
+            Event event = i.next();
             actual = actual + event.toRepresentation() + "\n";
         }
         assert expected.equals(actual);
     }
 
     private class MockLogStore implements LogStore {
-        public List<LogEvent> m_events = new ArrayList<LogEvent>();
+        public List<Event> m_events = new ArrayList<Event>();
 
-        public List<LogEvent> get(LogDescriptor range) {
-            List<LogEvent> events = new ArrayList<LogEvent>();
+        public List<Event> get(Descriptor range) {
+            List<Event> events = new ArrayList<Event>();
             if (range.getRangeSet().contains(1)) {
                 events.add(m_event1);
             }
@@ -117,18 +117,18 @@ public class LogServletTest {
             }
             return events;
         }
-        public List<LogDescriptor> getDescriptors(String targetID) {
+        public List<Descriptor> getDescriptors(String targetID) {
             return null;
         }
-        public List<LogDescriptor> getDescriptors() {
-            List<LogDescriptor> ranges = new ArrayList<LogDescriptor>();
+        public List<Descriptor> getDescriptors() {
+            List<Descriptor> ranges = new ArrayList<Descriptor>();
             ranges.add(m_range);
             return ranges;
         }
-        public LogDescriptor getDescriptor(String targetID, long logID) throws IOException {
+        public Descriptor getDescriptor(String targetID, long logID) throws IOException {
             return m_range;
         }
-        public void put(List<LogEvent> events) throws IOException {
+        public void put(List<Event> events) throws IOException {
             m_events = events;
         }
     }

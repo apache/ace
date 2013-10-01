@@ -24,7 +24,7 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.ace.log.AuditEvent;
+import org.apache.ace.feedback.AuditEvent;
 import org.apache.ace.log.Log;
 import org.apache.ace.log.listener.MockLog.LogEntry;
 import org.apache.ace.test.utils.TestUtils;

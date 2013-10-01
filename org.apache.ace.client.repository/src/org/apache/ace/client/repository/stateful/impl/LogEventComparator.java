@@ -20,15 +20,15 @@ package org.apache.ace.client.repository.stateful.impl;
 
 import java.util.Comparator;
 
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Event;
 
-public final class LogEventComparator implements Comparator<LogEvent> {
-	public int compare(LogEvent left, LogEvent right) {
-        if (left.getLogID() == right.getLogID()) {
+public final class LogEventComparator implements Comparator<Event> {
+	public int compare(Event left, Event right) {
+        if (left.getStoreID() == right.getStoreID()) {
             return sgn(left.getTime() - right.getTime());
         }
         else {
-            return sgn(left.getLogID() - right.getLogID());
+            return sgn(left.getStoreID() - right.getStoreID());
         }
     }
 

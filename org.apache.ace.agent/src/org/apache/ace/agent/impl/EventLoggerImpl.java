@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.FeedbackChannel;
-import org.apache.ace.log.AuditEvent;
+import org.apache.ace.feedback.AuditEvent;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;

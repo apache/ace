@@ -31,9 +31,9 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.ace.discovery.Discovery;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.identification.Identification;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
 import org.apache.ace.log.target.store.LogStore;
 import org.apache.ace.log.target.task.LogSyncTask;
 import org.apache.ace.range.SortedRangeSet;
@@ -62,7 +62,7 @@ public class LogSyncTaskTest {
 
     @Test(groups = { UNIT })
     public synchronized void getRange() throws Exception {
-        final LogDescriptor range = new LogDescriptor(TARGET_ID, 1, new SortedRangeSet("1-10"));
+        final Descriptor range = new Descriptor(TARGET_ID, 1, new SortedRangeSet("1-10"));
         m_task.getDescriptor(new InputStream() {
             int m_count = 0;
             byte[] m_bytes = (range.toRepresentation() + "\n").getBytes();
@@ -81,9 +81,9 @@ public class LogSyncTaskTest {
 
     @Test(groups = { UNIT })
     public synchronized void synchronizeLog() throws Exception {
-        final LogDescriptor range = new LogDescriptor(TARGET_ID, 1, new SortedRangeSet(new long[] {0}));
-        final LogEvent event = new LogEvent(TARGET_ID, 1, 1, 1, 1, new Properties());
-        final List<LogEvent> events = new ArrayList<LogEvent>();
+        final Descriptor range = new Descriptor(TARGET_ID, 1, new SortedRangeSet(new long[] {0}));
+        final Event event = new Event(TARGET_ID, 1, 1, 1, 1, new Properties());
+        final List<Event> events = new ArrayList<Event>();
         events.add(event);
 
         InputStream input = new InputStream() {
@@ -110,7 +110,7 @@ public class LogSyncTaskTest {
             public List<?> get(long logID) throws IOException { return null; }
             public long[] getLogIDs() throws IOException { return null; }
             @SuppressWarnings("unchecked")
-            public LogEvent put(int type, Dictionary props) throws IOException { return null; }
+            public Event put(int type, Dictionary props) throws IOException { return null; }
         });
         MockConnection connection = new MockConnection(new URL("http://mock"));
         

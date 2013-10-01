@@ -30,11 +30,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.property.constants.DiscoveryConstants;
+import org.apache.ace.log.Log;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.property.constants.IdentificationConstants;
-import org.apache.ace.log.Log;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
@@ -197,9 +197,9 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
             String tid2 = "47";
 
             // prepare the store
-            List<LogEvent> events = new ArrayList<LogEvent>();
-            events.add(new LogEvent(tid1, 1, 1, 1, 1, new Properties()));
-            events.add(new LogEvent(tid2, 1, 1, 1, 1, new Properties()));
+            List<Event> events = new ArrayList<Event>();
+            events.add(new Event(tid1, 1, 1, 1, 1, new Properties()));
+            events.add(new Event(tid2, 1, 1, 1, 1, new Properties()));
             m_serverStore.put(events);
 
             List<String> result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/query");
@@ -234,14 +234,14 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
                 m_auditLogSyncTask.run();
 
                 // get and evaluate results (note that there is some concurrency that might interfere with this test)
-                List<LogDescriptor> ranges2 = m_serverStore.getDescriptors();
+                List<Descriptor> ranges2 = m_serverStore.getDescriptors();
                 if (ranges2.isEmpty()) {
                     continue;
                 }
 
-                for (LogDescriptor descriptor : ranges2) {
-                    List<LogEvent> events = m_serverStore.get(descriptor);
-                    for (LogEvent event : events) {
+                for (Descriptor descriptor : ranges2) {
+                    List<Event> events = m_serverStore.get(descriptor);
+                    for (Event event : events) {
                         if (event.getType() == type) {
                             Dictionary properties = event.getProperties();
                             assertEquals("value1", properties.get("one"));

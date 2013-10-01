@@ -43,8 +43,8 @@ import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.agent.IdentificationHandler;
 import org.apache.ace.agent.LoggingHandler;
 import org.apache.ace.agent.RetryAfterException;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.range.SortedRangeSet;
 
@@ -145,7 +145,7 @@ public class FeedbackChannelImpl implements FeedbackChannel {
         getLoggingHandler().logWarning("feedbackChannel(" + m_name + ")", msg, null, args);
     }
 
-    private LogDescriptor getQueryDescriptor(InputStream queryInput) throws IOException {
+    private Descriptor getQueryDescriptor(InputStream queryInput) throws IOException {
         BufferedReader queryReader = null;
         try {
             queryReader = new BufferedReader(new InputStreamReader(queryInput));
@@ -154,7 +154,7 @@ public class FeedbackChannelImpl implements FeedbackChannel {
                 throw new IOException("Could not construct LogDescriptor from stream because stream is empty");
             }
             try {
-                return new LogDescriptor(rangeString);
+                return new Descriptor(rangeString);
             }
             catch (IllegalArgumentException e) {
                 throw new IOException("Could not determine highest remote event id, received malformed event range (" + rangeString + ")");
@@ -188,15 +188,15 @@ public class FeedbackChannelImpl implements FeedbackChannel {
         long lowest = rangeIterator.next();
         long highest = delta.getHigh();
         if (lowest <= highest) {
-            List<LogEvent> events = m_storeManager.getEvents(storeID, lowest, highestLocal > highest ? highest : highestLocal);
-            Iterator<LogEvent> iter = events.iterator();
+            List<Event> events = m_storeManager.getEvents(storeID, lowest, highestLocal > highest ? highest : highestLocal);
+            Iterator<Event> iter = events.iterator();
             while (iter.hasNext()) {
-                LogEvent current = (LogEvent) iter.next();
+                Event current = (Event) iter.next();
                 while ((current.getID() > lowest) && rangeIterator.hasNext()) {
                     lowest = rangeIterator.next();
                 }
                 if (current.getID() == lowest) {
-                    LogEvent event = new LogEvent(identification, current);
+                    Event event = new Event(identification, current);
                     sendWriter.write(event.toRepresentation());
                     sendWriter.write("\n");
                 }

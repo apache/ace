@@ -1,6 +1,5 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
--buildpath: \
-	osgi.core,\
+-buildpath: osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\
 	biz.aQute.bnd,\
@@ -10,7 +9,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	gson,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
@@ -26,7 +24,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.client.repository.helper.base;version=latest,\
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
-	org.apache.ace.client.repository.helper.configuration;version=latest
+	org.apache.ace.client.repository.helper.configuration;version=latest,\
+	org.apache.ace.feedback.common;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runvm: -ea
 -runbundles: osgi.cmpn,\
@@ -78,7 +77,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.client.repository.helper.configuration;version=latest,\
 	org.apache.ace.client.repository.impl;version=latest,\
 	org.apache.ace.deployment.provider.repositorybased;version=latest,\
-	org.apache.ace.client.rest;version=latest
+	org.apache.ace.client.rest;version=latest,\
+	org.apache.ace.feedback.common;version=latest
 -runproperties: org.apache.felix.log.storeDebug=true,\
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.apache.felix.log.maxSize=1000

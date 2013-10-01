@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.log.util;
+package org.apache.ace.feedback.util;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;

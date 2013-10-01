@@ -10,6 +10,7 @@
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.amdatu.mongo,\
-	com.mongodb
+	com.mongodb,\
+	org.apache.ace.feedback.common;version=latest
 
 -sub: *.bnd

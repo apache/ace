@@ -39,9 +39,9 @@ import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
-import org.apache.ace.log.AuditEvent;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.AuditEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 
 /**
  * A <code>StatefulTargetObjectImpl</code> uses the interface of a <code>StatefulTargetObject</code>,
@@ -53,7 +53,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     private final StatefulTargetRepositoryImpl m_repository;
     private final Object m_lock = new Object();
     private TargetObject m_targetObject;
-    private List<LogDescriptor> m_processedAuditEvents = new ArrayList<LogDescriptor>();
+    private List<Descriptor> m_processedAuditEvents = new ArrayList<Descriptor>();
     private Dictionary m_processedTargetProperties;
     private Map<String, String> m_attributes = new HashMap<String, String>();
     /** This boolean is used to suppress STATUS_CHANGED events during the creation of the object. */
@@ -88,7 +88,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
         }
     }
 
-    public List<LogEvent> getAuditEvents() {
+    public List<Event> getAuditEvents() {
         return m_repository.getAuditEvents(getID());
     }
 
@@ -315,14 +315,14 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
                 return;
             }
             m_determiningProvisioningState = true;
-            List<LogDescriptor> allDescriptors = m_repository.getAllDescriptors(getID());
-            List<LogDescriptor> newDescriptors = m_repository.diffLogDescriptorLists(allDescriptors, m_processedAuditEvents);
+            List<Descriptor> allDescriptors = m_repository.getAllDescriptors(getID());
+            List<Descriptor> newDescriptors = m_repository.diffLogDescriptorLists(allDescriptors, m_processedAuditEvents);
 
-            List<LogEvent> newEvents = m_repository.getAuditEvents(newDescriptors);
+            List<Event> newEvents = m_repository.getAuditEvents(newDescriptors);
             boolean foundDeploymentEvent = false;
             boolean foundPropertiesEvent = false;
             for (int position = newEvents.size() - 1; position >= 0; position--) {
-                LogEvent event = newEvents.get(position);
+                Event event = newEvents.get(position);
                 
                 if (!foundDeploymentEvent) {
                     // TODO we need to check here if the deployment package is actually the right one
@@ -409,10 +409,10 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
         }
     }
     
-    private void sendNewAuditlog(List<LogDescriptor> events) {
+    private void sendNewAuditlog(List<Descriptor> events) {
         // Check whether there are actually events in the list.
         boolean containsData = false;
-        for (LogDescriptor l : events) {
+        for (Descriptor l : events) {
             containsData |= (l.getRangeSet().getHigh() != 0);
         }
 

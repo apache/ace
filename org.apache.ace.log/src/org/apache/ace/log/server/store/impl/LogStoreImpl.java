@@ -33,12 +33,11 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.Range;
 import org.apache.ace.range.SortedRangeSet;
-import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 /**
@@ -68,17 +67,17 @@ public class LogStoreImpl implements LogStore {
     }
 
     /**
-     * @see org.apache.ace.log.server.store.LogStore#get(org.apache.ace.log.LogDescriptor)
+     * @see org.apache.ace.log.server.store.LogStore#get(org.apache.ace.log.Descriptor)
      */
-    public synchronized List<LogEvent> get(LogDescriptor descriptor)
+    public synchronized List<Event> get(Descriptor descriptor)
             throws IOException {
-        final List<LogEvent> result = new ArrayList<LogEvent>();
+        final List<Event> result = new ArrayList<Event>();
         final SortedRangeSet set = descriptor.getRangeSet();
         BufferedReader in = null;
         try {
             File log = new File(new File(m_dir,
                     targetIDToFilename(descriptor.getTargetID())),
-                    String.valueOf(descriptor.getLogID()));
+                    String.valueOf(descriptor.getStoreID()));
             if (!log.isFile()) {
                 return result;
             }
@@ -87,7 +86,7 @@ public class LogStoreImpl implements LogStore {
             long counter = 0;
             for (String line = in.readLine(); line != null; line = in
                     .readLine()) {
-                LogEvent event = new LogEvent(line);
+                Event event = new Event(line);
                 long id = event.getID();
                 if ((counter != -1) && ++counter == id) {
 
@@ -122,34 +121,34 @@ public class LogStoreImpl implements LogStore {
     /**
      * @see org.apache.ace.log.server.store.LogStore#getDescriptor(String, long)
      */
-    public synchronized LogDescriptor getDescriptor(String targetID, long logID)
+    public synchronized Descriptor getDescriptor(String targetID, long logID)
             throws IOException {
         Long high = m_fileToID.get(new File(new File(m_dir,
                 targetIDToFilename(targetID)), String.valueOf(logID))
                 .getAbsolutePath());
         if (high != null) {
             Range r = new Range(1, high);
-            return new LogDescriptor(targetID, logID, new SortedRangeSet(
+            return new Descriptor(targetID, logID, new SortedRangeSet(
                     r.toRepresentation()));
         }
-        List<LogEvent> events = get(new LogDescriptor(targetID, logID,
+        List<Event> events = get(new Descriptor(targetID, logID,
                 SortedRangeSet.FULL_SET));
 
         long[] idsArray = new long[events.size()];
         int i = 0;
-        for (LogEvent e : events) {
+        for (Event e : events) {
             idsArray[i++] = e.getID();
         }
-        return new LogDescriptor(targetID, logID, new SortedRangeSet(idsArray));
+        return new Descriptor(targetID, logID, new SortedRangeSet(idsArray));
     }
 
     /**
      * @see org.apache.ace.log.server.store.LogStore#getDescriptors(String)
      */
-    public List<LogDescriptor> getDescriptors(String targetID)
+    public List<Descriptor> getDescriptors(String targetID)
             throws IOException {
         File dir = new File(m_dir, targetIDToFilename(targetID));
-        List<LogDescriptor> result = new ArrayList<LogDescriptor>();
+        List<Descriptor> result = new ArrayList<Descriptor>();
         if (!dir.isDirectory()) {
             return result;
         }
@@ -164,8 +163,8 @@ public class LogStoreImpl implements LogStore {
     /**
      * @see org.apache.ace.log.server.store.LogStore#getDescriptors()
      */
-    public List<LogDescriptor> getDescriptors() throws IOException {
-        List<LogDescriptor> result = new ArrayList<LogDescriptor>();
+    public List<Descriptor> getDescriptors() throws IOException {
+        List<Descriptor> result = new ArrayList<Descriptor>();
         for (String name : notNull(m_dir.list())) {
             result.addAll(getDescriptors(filenameToTargetID(name)));
         }
@@ -175,8 +174,8 @@ public class LogStoreImpl implements LogStore {
     /**
      * @see org.apache.ace.log.server.store.LogStore#put(java.util.List)
      */
-    public void put(List<LogEvent> events) throws IOException {
-        Map<String, Map<Long, List<LogEvent>>> sorted = sort(events);
+    public void put(List<Event> events) throws IOException {
+        Map<String, Map<Long, List<Event>>> sorted = sort(events);
         for (String targetID : sorted.keySet()) {
             for (Long logID : sorted.get(targetID).keySet()) {
                 put(targetID, logID, sorted.get(targetID).get(logID));
@@ -197,7 +196,7 @@ public class LogStoreImpl implements LogStore {
      *             in case of any error.
      */
     protected synchronized void put(String targetID, Long logID,
-            List<LogEvent> list) throws IOException {
+            List<Event> list) throws IOException {
         if ((list == null) || (list.size() == 0)) {
             // nothing to add, so return
             return;
@@ -215,9 +214,9 @@ public class LogStoreImpl implements LogStore {
                 cached = true;
             }
         }
-        List<LogEvent> events = null;
+        List<Event> events = null;
         if (!cached) {
-            events = get(new LogDescriptor(targetID, logID,
+            events = get(new Descriptor(targetID, logID,
                     SortedRangeSet.FULL_SET));
 
             // remove duplicates first
@@ -250,7 +249,7 @@ public class LogStoreImpl implements LogStore {
                         logID.toString())));
             }
             long high = 0;
-            for (LogEvent event : list) {
+            for (Event event : list) {
                 out.println(event.toRepresentation());
                 if (high < event.getID()) {
                     high = event.getID();
@@ -261,7 +260,7 @@ public class LogStoreImpl implements LogStore {
                 Dictionary props = new Hashtable();
                 props.put(LogStore.EVENT_PROP_LOGNAME, m_name);
                 props.put(LogStore.EVENT_PROP_LOG_EVENT, event);
-                m_eventAdmin.postEvent(new Event(LogStore.EVENT_TOPIC, props));
+                m_eventAdmin.postEvent(new org.osgi.service.event.Event(LogStore.EVENT_TOPIC, props));
             }
             if ((cached) && (high < Long.MAX_VALUE)) {
                 m_fileToID.put(file, new Long(high));
@@ -289,21 +288,21 @@ public class LogStoreImpl implements LogStore {
      *         a list of events that have those ids.
      */
     @SuppressWarnings("boxing")
-    protected Map<String, Map<Long, List<LogEvent>>> sort(List<LogEvent> events) {
-        Map<String, Map<Long, List<LogEvent>>> result = new HashMap<String, Map<Long, List<LogEvent>>>();
-        for (LogEvent event : events) {
-            Map<Long, List<LogEvent>> target = result
+    protected Map<String, Map<Long, List<Event>>> sort(List<Event> events) {
+        Map<String, Map<Long, List<Event>>> result = new HashMap<String, Map<Long, List<Event>>>();
+        for (Event event : events) {
+            Map<Long, List<Event>> target = result
                     .get(event.getTargetID());
 
             if (target == null) {
-                target = new HashMap<Long, List<LogEvent>>();
+                target = new HashMap<Long, List<Event>>();
                 result.put(event.getTargetID(), target);
             }
 
-            List<LogEvent> list = target.get(event.getLogID());
+            List<Event> list = target.get(event.getStoreID());
             if (list == null) {
-                list = new ArrayList<LogEvent>();
-                target.put(event.getLogID(), list);
+                list = new ArrayList<Event>();
+                target.put(event.getStoreID(), list);
             }
 
             list.add(event);

@@ -21,7 +21,7 @@ package org.apache.ace.log.target;
 import java.io.IOException;
 import java.util.Dictionary;
 import org.apache.ace.log.Log;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.log.target.store.LogStore;
 import org.osgi.service.log.LogService;
 
@@ -35,11 +35,11 @@ public class LogImpl implements Log {
         }
         catch (NullPointerException e) {
             // if we cannot store the event, we log it to the normal log as extensively as possible
-            m_log.log(LogService.LOG_WARNING, "Could not store event: " + (new LogEvent("", 0, 0, 0, type, properties)).toRepresentation(), e);
+            m_log.log(LogService.LOG_WARNING, "Could not store event: " + (new Event("", 0, 0, 0, type, properties)).toRepresentation(), e);
         }
         catch (IOException e) {
             // if we cannot store the event, we log it to the normal log as extensively as possible
-            m_log.log(LogService.LOG_WARNING, "Could not store event: " + (new LogEvent("", 0, 0, 0, type, properties)).toRepresentation(), e);
+            m_log.log(LogService.LOG_WARNING, "Could not store event: " + (new Event("", 0, 0, 0, type, properties)).toRepresentation(), e);
         }
     }
 }

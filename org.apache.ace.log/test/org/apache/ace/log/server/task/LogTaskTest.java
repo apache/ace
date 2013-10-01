@@ -25,7 +25,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.ace.log.LogDescriptor;
+import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.log.server.task.LogSyncTask;
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.range.SortedRangeSet;
@@ -34,14 +34,14 @@ import org.testng.annotations.Test;
 public class LogTaskTest {
 
     private class MockLogSyncTask extends LogSyncTask {
-        public List<LogDescriptor> m_calledWith = new ArrayList<LogDescriptor>();
+        public List<Descriptor> m_calledWith = new ArrayList<Descriptor>();
 
         public MockLogSyncTask(String endpoint, String name) {
             super(endpoint, name, LogSyncTask.Mode.PUSH);
         }
 
         @Override
-        protected void writeLogDescriptor(LogDescriptor descriptor, Writer writer) throws IOException {
+        protected void writeDescriptor(Descriptor descriptor, Writer writer) throws IOException {
             m_calledWith.add(descriptor);
         }
 
@@ -53,19 +53,19 @@ public class LogTaskTest {
     @Test(groups = { UNIT })
     public void testDeltaComputation() throws IOException {
         // TODO: Test the new LogDescriptor.
-        List<LogDescriptor> src = new ArrayList<LogDescriptor>();
-        List<LogDescriptor> dest = new ArrayList<LogDescriptor>();
+        List<Descriptor> src = new ArrayList<Descriptor>();
+        List<Descriptor> dest = new ArrayList<Descriptor>();
         MockLogSyncTask task = new MockLogSyncTask("mocklog", "mocklog");
         // compare two empty lists
         task.writeDelta(task.calculateDelta(src, dest), null);
         assert task.m_calledWith.isEmpty() : "Delta of two empty lists should be empty";
         // add something to the source
-        src.add(new LogDescriptor("gwid", 1, new SortedRangeSet("1-5")));
+        src.add(new Descriptor("gwid", 1, new SortedRangeSet("1-5")));
         task.writeDelta(task.calculateDelta(src, dest), null);
         assert task.m_calledWith.size() == 1 : "Delta should be 1 instead of: " + task.m_calledWith.size();
         task.m_calledWith.clear();
         // add an overlapping destination
-        dest.add(new LogDescriptor("gwid", 1, new SortedRangeSet("1-3")));
+        dest.add(new Descriptor("gwid", 1, new SortedRangeSet("1-3")));
         task.writeDelta(task.calculateDelta(src, dest), null);
         assert task.m_calledWith.size() == 1 : "Delta should be 1 instead of: " + task.m_calledWith.size();
         RangeIterator i = task.m_calledWith.get(0).getRangeSet().iterator();
@@ -74,7 +74,7 @@ public class LogTaskTest {
         assert !i.hasNext() : "Illegal value in SortedRangeSet";
         task.m_calledWith.clear();
         // add a non-overlapping destination
-        dest.add(new LogDescriptor("gwid", 2, new SortedRangeSet("50-100")));
+        dest.add(new Descriptor("gwid", 2, new SortedRangeSet("50-100")));
         task.writeDelta(task.calculateDelta(src, dest), null);
         assert task.m_calledWith.size() == 1 : "Delta should be 1 instead of: " + task.m_calledWith.size();
         i = task.m_calledWith.get(0).getRangeSet().iterator();
@@ -83,17 +83,17 @@ public class LogTaskTest {
         assert !i.hasNext() : "Illegal value in SortedRangeSet";
         task.m_calledWith.clear();
         // add non-overlapping source
-        src.add(new LogDescriptor("gwid", 2, new SortedRangeSet("1-49")));
+        src.add(new Descriptor("gwid", 2, new SortedRangeSet("1-49")));
         task.writeDelta(task.calculateDelta(src, dest), null);
         assert task.m_calledWith.size() == 2 : "Delta should be 2 instead of: " + task.m_calledWith.size();
         task.m_calledWith.clear();
         // add a source with gaps
-        src.add(new LogDescriptor("gwid", 3, new SortedRangeSet("1-10")));
-        dest.add(new LogDescriptor("gwid", 3, new SortedRangeSet("3,5-8")));
+        src.add(new Descriptor("gwid", 3, new SortedRangeSet("1-10")));
+        dest.add(new Descriptor("gwid", 3, new SortedRangeSet("3,5-8")));
         task.writeDelta(task.calculateDelta(src, dest), null);
         assert task.m_calledWith.size() == 3 : "Delta should be 3 instead of: " + task.m_calledWith.size();
-        for (LogDescriptor l : task.m_calledWith) {
-            if (l.getLogID() == 3) {
+        for (Descriptor l : task.m_calledWith) {
+            if (l.getStoreID() == 3) {
                 i = l.getRangeSet().iterator();
             }
         }

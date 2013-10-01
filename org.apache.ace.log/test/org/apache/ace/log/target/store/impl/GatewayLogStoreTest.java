@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.ace.feedback.AuditEvent;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.identification.Identification;
-import org.apache.ace.log.AuditEvent;
-import org.apache.ace.log.LogEvent;
 import org.apache.ace.log.target.store.LogStore;
 import org.apache.ace.log.target.store.impl.LogStoreImpl;
 import org.apache.ace.test.utils.TestUtils;
@@ -77,12 +77,12 @@ public class GatewayLogStoreTest {
         long highest = m_logStore.getHighestID(ids[0]);
         assert  highest == 3 : "Store with 3 entries should have 3 as highest id but was: " + highest;
         List<String> result = new ArrayList<String>();
-        for (LogEvent event : (List<LogEvent>) m_logStore.get(ids[0])) {
+        for (Event event : (List<Event>) m_logStore.get(ids[0])) {
             result.add(event.toRepresentation());
         }
         assert result.equals(events) : "Events " + events + " should equal full log " + result;
         result = new ArrayList<String>();
-        for (LogEvent event : (List<LogEvent>) m_logStore.get(ids[0], 1, highest)) {
+        for (Event event : (List<Event>) m_logStore.get(ids[0], 1, highest)) {
             result.add(event.toRepresentation());
         }
         assert result.equals(events) : "Events " + events + " should equal full log " + result;

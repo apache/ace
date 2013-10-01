@@ -15,12 +15,12 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.log.server.store.mongo;version=latest,\
 	org.apache.ace.range.api;version=latest,\
-	org.apache.ace.test;version=latest
+	org.apache.ace.test;version=latest,\
+	org.apache.ace.feedback.common;version=latest
 Private-Package: org.apache.ace.log.server.store.tests
 -runvm: -ea
 -runfw: org.apache.felix.framework;version='[4,5)'
--buildpath: \
-	osgi.core,\
+-buildpath: osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\
 	com.mongodb,\
@@ -29,8 +29,8 @@ Private-Package: org.apache.ace.log.server.store.tests
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.log.api;version=latest,\
-	org.apache.ace.log.server.store.api;version=latest
+	org.apache.ace.log.server.store.api;version=latest,\
+	org.apache.ace.feedback.common;version=latest
 -runsystempackages: sun.reflect
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Log Server Store itest

@@ -40,8 +40,8 @@ import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.IdentificationHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.range.SortedRangeSet;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
@@ -61,7 +61,7 @@ public class FeedbackChannelImplTest extends BaseAgentTest {
     static class TestSendFeedbackServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
 
-        List<LogEvent> m_events = new ArrayList<LogEvent>();
+        List<Event> m_events = new ArrayList<Event>();
 
         @SuppressWarnings("deprecation")
         @Override
@@ -70,7 +70,7 @@ public class FeedbackChannelImplTest extends BaseAgentTest {
             BufferedReader reader = new BufferedReader(new InputStreamReader(req.getInputStream()));
             String eventString;
             while ((eventString = reader.readLine()) != null) {
-                LogEvent event = new LogEvent(eventString);
+                Event event = new Event(eventString);
                 m_events.add(event);
             }
             resp.setStatus(200, "voila");
@@ -85,7 +85,7 @@ public class FeedbackChannelImplTest extends BaseAgentTest {
         protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
             String targetID = request.getParameter("tid");
             long logID = Long.parseLong(request.getParameter("logid"));
-            response.getOutputStream().print(new LogDescriptor(targetID, logID, new SortedRangeSet(new long[0])).toRepresentation());
+            response.getOutputStream().print(new Descriptor(targetID, logID, new SortedRangeSet(new long[0])).toRepresentation());
             response.setStatus(200, "voila");
         }
     }

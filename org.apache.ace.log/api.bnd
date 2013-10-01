@@ -1,4 +1,3 @@
-Private-Package: org.apache.ace.log.util
 Export-Package: org.apache.ace.log
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Log API

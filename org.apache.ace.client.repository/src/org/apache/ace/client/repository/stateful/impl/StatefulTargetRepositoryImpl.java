@@ -50,14 +50,13 @@ import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject.ApprovalState;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.log.server.store.LogStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.Version;
-import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
@@ -240,7 +239,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         return false;
     }
 
-    private Comparator<LogEvent> m_auditEventComparator = new LogEventComparator();
+    private Comparator<Event> m_auditEventComparator = new LogEventComparator();
 
     /**
      * Gets all auditlog events which are related to a given target ID.
@@ -249,7 +248,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      * @return a list of <code>AuditEvent</code>s related to this target ID,
      *         ordered in the order they happened. If no events can be found, and empty list will be returned.
      */
-    List<LogEvent> getAuditEvents(String targetID) {
+    List<Event> getAuditEvents(String targetID) {
         return getAuditEvents(getAllDescriptors(targetID));
     }
 
@@ -259,10 +258,10 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      * @param targetID The target ID
      * @return A list of LogDescriptors, in no particular order.
      */
-    List<LogDescriptor> getAllDescriptors(String targetID) {
-        List<LogDescriptor> result = new ArrayList<LogDescriptor>();
+    List<Descriptor> getAllDescriptors(String targetID) {
+        List<Descriptor> result = new ArrayList<Descriptor>();
         try {
-            List<LogDescriptor> descriptors = m_auditLogStore.getDescriptors(targetID);
+            List<Descriptor> descriptors = m_auditLogStore.getDescriptors(targetID);
             if (descriptors != null) {
                 result = descriptors;
             }
@@ -284,10 +283,10 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      * @return All AuditLog events that are in the audit store, but are not identified
      *         by <code>oldDescriptors</code>, ordered by 'happened-before'.
      */
-    List<LogEvent> getAuditEvents(List<LogDescriptor> events) {
+    List<Event> getAuditEvents(List<Descriptor> events) {
         // Get all events from the audit log store, if possible.
-        List<LogEvent> result = new ArrayList<LogEvent>();
-        for (LogDescriptor l : events) {
+        List<Event> result = new ArrayList<Event>();
+        for (Descriptor l : events) {
             try {
                 result.addAll(m_auditLogStore.get(l));
             }
@@ -301,15 +300,15 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         return result;
     }
 
-    List<LogDescriptor> diffLogDescriptorLists(List<LogDescriptor> all, List<LogDescriptor> seen) {
-        List<LogDescriptor> descriptors = new ArrayList<LogDescriptor>();
+    List<Descriptor> diffLogDescriptorLists(List<Descriptor> all, List<Descriptor> seen) {
+        List<Descriptor> descriptors = new ArrayList<Descriptor>();
 
         // Find out what events should be returned
-        for (LogDescriptor s : all) {
-            LogDescriptor diffs = s;
-            for (LogDescriptor d : seen) {
-                if ((s.getLogID() == d.getLogID()) && (s.getTargetID().equals(d.getTargetID()))) {
-                    diffs = new LogDescriptor(s.getTargetID(), s.getLogID(), d.getRangeSet().diffDest(s.getRangeSet()));
+        for (Descriptor s : all) {
+            Descriptor diffs = s;
+            for (Descriptor d : seen) {
+                if ((s.getStoreID() == d.getStoreID()) && (s.getTargetID().equals(d.getTargetID()))) {
+                    diffs = new Descriptor(s.getTargetID(), s.getStoreID(), d.getRangeSet().diffDest(s.getRangeSet()));
                 }
             }
             descriptors.add(diffs);
@@ -352,7 +351,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     void notifyChanged(StatefulTargetObject stoi, String topic, Properties additionalProperties) {
         additionalProperties.put(RepositoryObject.EVENT_ENTITY, stoi);
         additionalProperties.put(SessionFactory.SERVICE_SID, m_sessionID);
-        m_eventAdmin.postEvent(new Event(topic, (Dictionary) additionalProperties));
+        m_eventAdmin.postEvent(new org.osgi.service.event.Event(topic, (Dictionary) additionalProperties));
     }
 
     /**
@@ -424,7 +423,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      */
     private List<StatefulTargetObjectImpl> parseAuditLog() {
         List<StatefulTargetObjectImpl> result = new ArrayList<StatefulTargetObjectImpl>();
-        List<LogDescriptor> descriptors = null;
+        List<Descriptor> descriptors = null;
         try {
             descriptors = m_auditLogStore.getDescriptors();
         }
@@ -437,7 +436,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         }
 
         Set<String> targetIDs = new HashSet<String>();
-        for (LogDescriptor l : descriptors) {
+        for (Descriptor l : descriptors) {
             targetIDs.add(l.getTargetID());
         }
 
@@ -709,7 +708,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         }
     }
 
-    public void handleEvent(Event event) {
+    public void handleEvent(org.osgi.service.event.Event event) {
         String topic = event.getTopic();
         if (RepositoryAdmin.PRIVATE_TOPIC_HOLDUNTILREFRESH.equals(topic)) {
             m_holdEvents = true;

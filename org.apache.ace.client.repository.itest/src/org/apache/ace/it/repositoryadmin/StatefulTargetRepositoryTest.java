@@ -48,8 +48,8 @@ import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject.ProvisioningState;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject.RegistrationState;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject.StoreState;
-import org.apache.ace.log.AuditEvent;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.AuditEvent;
+import org.apache.ace.feedback.Event;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.User;
 
@@ -183,18 +183,18 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertTrue("We just preregistered a target, so it should be registered.", sgo1.isRegistered());
 
         // add auditlog data
-        List<LogEvent> events = new ArrayList<LogEvent>();
+        List<Event> events = new ArrayList<Event>();
         Properties props = new Properties();
-        events.add(new LogEvent("myNewTarget3", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("myNewTarget3", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
         // add an (old) set of target properties
         Properties props2 = new Properties();
         props2.put("mykey", "myoldvalue");
         props2.put("myoldkey", "myoldvalue");
-        events.add(new LogEvent("myNewTarget3", 1, 2, 2, AuditEvent.TARGETPROPERTIES_SET, props2));
+        events.add(new Event("myNewTarget3", 1, 2, 2, AuditEvent.TARGETPROPERTIES_SET, props2));
         // add a new set of target properties
         Properties props3 = new Properties();
         props3.put("mykey", "myvalue");
-        events.add(new LogEvent("myNewTarget3", 1, 3, 3, AuditEvent.TARGETPROPERTIES_SET, props3));
+        events.add(new Event("myNewTarget3", 1, 3, 3, AuditEvent.TARGETPROPERTIES_SET, props3));
         m_auditLogStore.put(events);
         m_statefulTargetRepository.refresh();
 
@@ -206,9 +206,9 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertTrue("Adding auditlog data for a target does not influence its isRegistered().", sgo1.isRegistered());
 
         // add auditlog data for other target
-        events = new ArrayList<LogEvent>();
+        events = new ArrayList<Event>();
         props = new Properties();
-        events.add(new LogEvent("myNewTarget4", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("myNewTarget4", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
         m_auditLogStore.put(events);
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
@@ -336,9 +336,9 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertTrue("We just preregistered a gateway, so it should be registered.", sgo1.isRegistered());
 
         // add auditlog data
-        List<LogEvent> events = new ArrayList<LogEvent>();
+        List<Event> events = new ArrayList<Event>();
         Properties props = new Properties();
-        events.add(new LogEvent("myNewGatewayA", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("myNewGatewayA", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
         m_auditLogStore.put(events);
         m_statefulTargetRepository.refresh();
 
@@ -351,9 +351,9 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
             assertTrue("We should be able to get sgo1's gatewayObject.", false);
         }
         // add auditlog data for other gateway
-        events = new ArrayList<LogEvent>();
+        events = new ArrayList<Event>();
         props = new Properties();
-        events.add(new LogEvent("myNewGatewayB", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("myNewGatewayB", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
         m_auditLogStore.put(events);
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
@@ -449,10 +449,10 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         final String targetId = String.format("target-%s", Long.toHexString(System.nanoTime()));
 
-        List<LogEvent> events = new ArrayList<LogEvent>();
+        List<Event> events = new ArrayList<Event>();
         Properties props = new Properties();
 
-        events.add(new LogEvent(targetId, 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event(targetId, 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
         // fill auditlog; no install data
         m_auditLogStore.put(events);
 
@@ -469,11 +469,11 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertEquals("We expect our object's provisioning state to be Idle;", ProvisioningState.Idle, sgo.getProvisioningState());
 
         // fill auditlog with complete-data
-        events = new ArrayList<LogEvent>();
+        events = new ArrayList<Event>();
         props = new Properties();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "123");
-        events.add(new LogEvent(targetId, 1, 2, 2, AuditEvent.DEPLOYMENTCONTROL_INSTALL, props));
+        events.add(new Event(targetId, 1, 2, 2, AuditEvent.DEPLOYMENTCONTROL_INSTALL, props));
 
         m_auditLogStore.put(events);
 
@@ -488,12 +488,12 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertEquals("We expect our object's provisioning state to be InProgress;", ProvisioningState.InProgress, sgo.getProvisioningState());
 
         // fill auditlog with install data
-        events = new ArrayList<LogEvent>();
+        events = new ArrayList<Event>();
         props = new Properties();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "123");
         props.put(AuditEvent.KEY_SUCCESS, "false");
-        events.add(new LogEvent(targetId, 1, 3, 3, AuditEvent.DEPLOYMENTADMIN_COMPLETE, props));
+        events.add(new Event(targetId, 1, 3, 3, AuditEvent.DEPLOYMENTADMIN_COMPLETE, props));
 
         m_auditLogStore.put(events);
 
@@ -513,11 +513,11 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertEquals("We expect our object's provisioning state to be Idle;", ProvisioningState.Idle, sgo.getProvisioningState());
 
         // add another install event.
-        events = new ArrayList<LogEvent>();
+        events = new ArrayList<Event>();
         props = new Properties();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "124");
-        events.add(new LogEvent(targetId, 1, 4, 4, AuditEvent.DEPLOYMENTCONTROL_INSTALL, props));
+        events.add(new Event(targetId, 1, 4, 4, AuditEvent.DEPLOYMENTCONTROL_INSTALL, props));
 
         m_auditLogStore.put(events);
 
@@ -532,12 +532,12 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertEquals("We expect our object's provisioning state to be InProgress;", ProvisioningState.InProgress, sgo.getProvisioningState());
 
         // fill auditlog with install data
-        events = new ArrayList<LogEvent>();
+        events = new ArrayList<Event>();
         props = new Properties();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "124");
         props.put(AuditEvent.KEY_SUCCESS, "true");
-        events.add(new LogEvent(targetId, 1, 5, 5, AuditEvent.DEPLOYMENTADMIN_COMPLETE, props));
+        events.add(new Event(targetId, 1, 5, 5, AuditEvent.DEPLOYMENTADMIN_COMPLETE, props));
 
         m_auditLogStore.put(events);
 
@@ -629,11 +629,11 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         final String targetID = ":)";
 
-        List<LogEvent> events = new ArrayList<LogEvent>();
+        List<Event> events = new ArrayList<Event>();
         Properties props = new Properties();
 
         // add a target with a weird name.
-        events.add(new LogEvent(targetID, 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event(targetID, 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
         // fill auditlog; no install data
         m_auditLogStore.put(events);
 

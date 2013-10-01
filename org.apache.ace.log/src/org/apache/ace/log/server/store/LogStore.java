@@ -21,30 +21,30 @@ package org.apache.ace.log.server.store;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 
 /**
- * Log store interface. Implementation of this service interface provide a persisted storage for LogEvent logs.
+ * Log store interface. Implementation of this service interface provide a persisted storage for Event logs.
  */
 public interface LogStore
 {
 
     /**
-     * Event topic that indicates a new LogEvent that has been added to the store. The name
-     * of the log is available as EVENT_PROP_LOGNAME, the original LogEvent as EVENT_PROP_LOG_EVENT.
+     * Event topic that indicates a new Event that has been added to the store. The name
+     * of the log is available as EVENT_PROP_LOGNAME, the original Event as EVENT_PROP_LOG_EVENT.
      */
-    public static final String EVENT_TOPIC = LogStore.class.getName().replace('.', '/') + "/LogEvent";
+    public static final String EVENT_TOPIC = LogStore.class.getName().replace('.', '/') + "/Event";
 
     /**
-     * Event property key containing the name of the log on which the LogEvent has been added.
+     * Event property key containing the name of the log on which the Event has been added.
      */
     public static final String EVENT_PROP_LOGNAME = "name";
 
     /**
-     * Event property key containing the LogEvent that has been added.
+     * Event property key containing the Event that has been added.
      */
-    public static final String EVENT_PROP_LOG_EVENT = "logEvent";
+    public static final String EVENT_PROP_LOG_EVENT = "Event";
 
     /**
      * Return all events in a given range.
@@ -53,7 +53,7 @@ public interface LogStore
      * @return a list of all events in this store that are in the given range.
      * @throws java.io.IOException in case of any error.
      */
-    public List<LogEvent> get(LogDescriptor range) throws IOException;
+    public List<Event> get(Descriptor range) throws IOException;
 
     /**
      * Get the range for the given id and the given log.
@@ -63,7 +63,7 @@ public interface LogStore
      * @return the range for the given id and the given log.
      * @throws java.io.IOException in case of any error.
      */
-    public LogDescriptor getDescriptor(String targetID, long logID) throws IOException;
+    public Descriptor getDescriptor(String targetID, long logID) throws IOException;
 
     /**
      * Store the given events. The implementation does not have to be transactional i.e., it might throw an exception and still
@@ -72,7 +72,7 @@ public interface LogStore
      * @param events a list of events to store.
      * @throws java.io.IOException in case of any error. It might be possible that only part of the events get stored.
      */
-    public void put(List<LogEvent> events) throws IOException;
+    public void put(List<Event> events) throws IOException;
 
     /**
      * Get the ranges of all logs of the given id.
@@ -81,7 +81,7 @@ public interface LogStore
      * @return a list of the ranges of all logs for the given id.
      * @throws java.io.IOException in case of any error.
      */
-    public List<LogDescriptor> getDescriptors(String targetID) throws IOException;
+    public List<Descriptor> getDescriptors(String targetID) throws IOException;
 
     /**
      * Get the ranges of all logs of all ids in this store.
@@ -89,5 +89,5 @@ public interface LogStore
      * @return a list of ranges of all logs for all ids in this store.
      * @throws java.io.IOException in case of any error.
      */
-    public List<LogDescriptor> getDescriptors() throws IOException;
+    public List<Descriptor> getDescriptors() throws IOException;
 }

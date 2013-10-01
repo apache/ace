@@ -18,21 +18,18 @@
  */
 package org.apache.ace.it.log;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.discovery.property.constants.DiscoveryConstants;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.property.constants.IdentificationConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.log.Log;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
@@ -112,14 +109,14 @@ public class LogIntegrationTest extends IntegrationTestBase {
             m_auditLogSyncTask.run();
 
             // get and evaluate results (note that there is some concurrency that might interfere with this test)
-            List<LogDescriptor> ranges2 = m_serverStore.getDescriptors();
+            List<Descriptor> ranges2 = m_serverStore.getDescriptors();
             if (ranges2.size() > 0) {
             	assertEquals("We should still have audit log events for one target on the server, but found " + ranges2.size(), 1, ranges2.size()); 
-                LogDescriptor range = ranges2.get(0);
-                List<LogEvent> events = m_serverStore.get(range);
+                Descriptor range = ranges2.get(0);
+                List<Event> events = m_serverStore.get(range);
                 if (events.size() > 1) {
                 	assertTrue("We should have a couple of events, at least more than the one we added ourselves.", events.size() > 1);
-                    for (LogEvent event : events) {
+                    for (Event event : events) {
                         if (event.getType() == 12345) {
                             assertEquals("We could not retrieve a property of our audit log event.", "value2", event.getProperties().get("two"));
                             found = true;
@@ -139,11 +136,11 @@ public class LogIntegrationTest extends IntegrationTestBase {
 
     private void doTestServlet() throws Exception {
         // prepare the store
-        List<LogEvent> events = new ArrayList<LogEvent>();
-        events.add(new LogEvent("42", 1, 1, 1, 1, new Properties()));
-        events.add(new LogEvent("47", 1, 1, 1, 1, new Properties()));
-        events.add(new LogEvent("47", 2, 1, 1, 1, new Properties()));
-        events.add(new LogEvent("47", 2, 2, 1, 1, new Properties()));
+        List<Event> events = new ArrayList<Event>();
+        events.add(new Event("42", 1, 1, 1, 1, new Properties()));
+        events.add(new Event("47", 1, 1, 1, 1, new Properties()));
+        events.add(new Event("47", 2, 1, 1, 1, new Properties()));
+        events.add(new Event("47", 2, 2, 1, 1, new Properties()));
         m_serverStore.put(events);
 
         List<String> result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/query");

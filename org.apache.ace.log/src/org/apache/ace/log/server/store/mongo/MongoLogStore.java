@@ -9,8 +9,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.amdatu.mongo.MongoDBService;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.Range;
 import org.apache.ace.range.SortedRangeSet;
@@ -31,12 +31,12 @@ public class MongoLogStore implements LogStore {
 	}
 
 	@Override
-	public List<LogEvent> get(LogDescriptor range) throws IOException {
+	public List<Event> get(Descriptor range) throws IOException {
 		DBCollection collection = m_mongoDBService.getDB().getCollection(m_logname);
 		long high = range.getRangeSet().getHigh();
 
 		BasicDBObject filter = new BasicDBObject().append("targetId",
-				range.getTargetID()).append("logId", range.getLogID());
+				range.getTargetID()).append("logId", range.getStoreID());
 		if (high > 0) {
 			filter.append("id", new BasicDBObject("$lte", high));
 		}
@@ -44,7 +44,7 @@ public class MongoLogStore implements LogStore {
 		DBCursor cursor = collection.find(filter);
 		cursor.sort(new BasicDBObject("id", 1));
 
-		List<LogEvent> logevents = new ArrayList<LogEvent>();
+		List<Event> Events = new ArrayList<Event>();
 		while (cursor.hasNext()) {
 			DBObject event = cursor.next();
 			String targetId = (String) event.get("targetId");
@@ -58,15 +58,15 @@ public class MongoLogStore implements LogStore {
 				properties.put(key, propertiesDbObject.get(key));
 			}
 
-			logevents.add(new LogEvent(targetId, logId, id, time, type,
+			Events.add(new Event(targetId, logId, id, time, type,
 					properties));
 		}
 
-		return logevents;
+		return Events;
 	}
 
 	@Override
-	public LogDescriptor getDescriptor(String targetID, long logID)
+	public Descriptor getDescriptor(String targetID, long logID)
 			throws IOException {
 
 		DBCollection collection = m_mongoDBService.getDB().getCollection(m_logname);
@@ -81,21 +81,21 @@ public class MongoLogStore implements LogStore {
 		if (cursor.hasNext()) {
 			DBObject row = cursor.next();
 			high = (Long) row.get("id");
-			return new LogDescriptor(targetID, logID, new SortedRangeSet(
+			return new Descriptor(targetID, logID, new SortedRangeSet(
 					new Range(1, high).toRepresentation()));
 		} else {
-			return new LogDescriptor(targetID, logID, SortedRangeSet.FULL_SET);
+			return new Descriptor(targetID, logID, SortedRangeSet.FULL_SET);
 		}
 	}
 
 	@Override
-	public void put(List<LogEvent> events) throws IOException {
+	public void put(List<Event> events) throws IOException {
 		DBCollection collection = m_mongoDBService.getDB().getCollection(m_logname);
 
-		for (LogEvent event : events) {
+		for (Event event : events) {
 			DBObject dbObject = new BasicDBObject()
 					.append("targetId", event.getTargetID())
-					.append("logId", event.getLogID())
+					.append("logId", event.getStoreID())
 					.append("id", event.getID())
 					.append("time", event.getTime())
 					.append("type", event.getType())
@@ -106,7 +106,7 @@ public class MongoLogStore implements LogStore {
 	}
 
 	@Override
-	public List<LogDescriptor> getDescriptors(String targetID)
+	public List<Descriptor> getDescriptors(String targetID)
 			throws IOException {
 		
 		DBCollection collection = m_mongoDBService.getDB().getCollection(m_logname);
@@ -119,7 +119,7 @@ public class MongoLogStore implements LogStore {
 		MapReduceOutput mapReduce = collection.mapReduce(m, r, null, OutputType.INLINE, filter);
 		Iterator<DBObject> iterator = mapReduce.results().iterator();
 		
-		List<LogDescriptor> descriptors = new ArrayList<LogDescriptor>();
+		List<Descriptor> descriptors = new ArrayList<Descriptor>();
 		while(iterator.hasNext()) {
 			DBObject row = iterator.next();
 			DBObject value = (DBObject)row.get("value");
@@ -138,7 +138,7 @@ public class MongoLogStore implements LogStore {
 	}
 
 	@Override
-	public List<LogDescriptor> getDescriptors() throws IOException {
+	public List<Descriptor> getDescriptors() throws IOException {
 		return getDescriptors(null);
 	}
 

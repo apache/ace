@@ -4,15 +4,15 @@ Bundle-Version: 1.0.0
 Bundle-Activator: org.apache.ace.agent.impl.Activator
 
 Private-Package: org.apache.ace.range,\
-	org.apache.ace.log.util,\
-	org.apache.ace.log,\
 	org.apache.ace.agent.impl,\
 	org.apache.ace.agent.updater,\
 	org.apache.felix.deploymentadmin,\
 	org.apache.felix.deploymentadmin.spi,\
 	org.osgi.service.event,\
 	org.osgi.service.log,\
-	org.osgi.util.tracker
+	org.osgi.util.tracker,\
+	org.apache.ace.feedback,\
+	org.apache.ace.feedback.util
 
 # No wildcard import here on purpose. Are you sure the agent must 
 # require an extra external dependency? Probably not...
@@ -36,7 +36,7 @@ javac.debug:  off
 	org.easymock,\
 	org.apache.felix.http.jetty;version=2.2.1,\
 	org.apache.ace.range.api;version=latest,\
-	org.apache.ace.log.api;version=latest
+	org.apache.ace.feedback.common;version=latest
 
 -sources false
 -runfw: org.apache.felix.framework;version='[4.0,5.0)'

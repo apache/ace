@@ -34,7 +34,7 @@ import java.util.TreeSet;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.LoggingHandler;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Event;
 
 /**
  * This class acts as a factory for retrieving/creating stores and it also is an adapter for the feedbackstore that is
@@ -166,7 +166,7 @@ public class FeedbackStoreManager {
             }
             // log the event
             long nextEventId = (m_highest = getHighestEventID(m_currentStore.getId()) + 1);
-            LogEvent result = new LogEvent(null, m_currentStore.getId(), nextEventId, System.currentTimeMillis(), type, dictionary);
+            Event result = new Event(null, m_currentStore.getId(), nextEventId, System.currentTimeMillis(), type, dictionary);
             m_currentStore.append(result.getID(), result.toRepresentation().getBytes());
         }
         catch (IOException ex) {
@@ -216,9 +216,9 @@ public class FeedbackStoreManager {
      * @param toEventId
      *            the end of the range of events
      */
-    public List<LogEvent> getEvents(long storeID, long fromEventID, long toEventID) throws IOException {
+    public List<Event> getEvents(long storeID, long fromEventID, long toEventID) throws IOException {
         FeedbackStore[] stores = getAllStores(storeID);
-        List<LogEvent> result = new ArrayList<LogEvent>();
+        List<Event> result = new ArrayList<Event>();
         try {
             for (FeedbackStore store : stores) {
                 try {
@@ -229,7 +229,7 @@ public class FeedbackStoreManager {
                     while (store.hasNext()) {
                         long eventID = store.readCurrentID();
                         if ((eventID >= fromEventID) && (eventID <= toEventID)) {
-                            result.add(new LogEvent(new String(store.read())));
+                            result.add(new Event(new String(store.read())));
                         }
                         else {
                             store.skip();

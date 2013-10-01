@@ -35,8 +35,8 @@ import java.util.List;
 
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.log.LogSync;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.SortedRangeSet;
@@ -115,8 +115,8 @@ public class LogSyncTask implements Runnable, LogSync {
         URLConnection queryConnection = m_connectionFactory.createConnection(new URL(host, m_endpoint + "/" + COMMAND_QUERY));
         InputStream queryInput = queryConnection.getInputStream();
 
-        List<LogDescriptor> localRanges = m_logStore.getDescriptors();
-        List<LogDescriptor> remoteRanges = getRanges(queryInput);
+        List<Descriptor> localRanges = m_logStore.getDescriptors();
+        List<Descriptor> remoteRanges = getRanges(queryInput);
 
         boolean result = false;
         if (push) {
@@ -128,7 +128,7 @@ public class LogSyncTask implements Runnable, LogSync {
         return result;
     }
 
-    protected boolean doPush(URL host, List<LogDescriptor> localRanges, List<LogDescriptor> remoteRanges) {
+    protected boolean doPush(URL host, List<Descriptor> localRanges, List<Descriptor> remoteRanges) {
         boolean result = false;
         OutputStream sendOutput = null;
         try {
@@ -145,7 +145,7 @@ public class LogSyncTask implements Runnable, LogSync {
             sendOutput = sendConnection.getOutputStream();
 
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sendOutput));
-            List<LogDescriptor> delta = calculateDelta(localRanges, remoteRanges);
+            List<Descriptor> delta = calculateDelta(localRanges, remoteRanges);
             result = !delta.isEmpty();
             writeDelta(delta, writer);
 
@@ -176,42 +176,42 @@ public class LogSyncTask implements Runnable, LogSync {
 
     /**
      * Writes the difference between local and remote to a writer.
-     * @param descriptors A list of LogDescriptors that identifies all local log entries that need to be written.
+     * @param descriptors A list of Descriptors that identifies all local log entries that need to be written.
      * @param writer A writer to write to.
      * @throws java.io.IOException
      */
-    protected void writeDelta(List<LogDescriptor> descriptors, Writer writer) throws IOException {
-        for (LogDescriptor l : descriptors) {
-            writeLogDescriptor(l, writer);
+    protected void writeDelta(List<Descriptor> descriptors, Writer writer) throws IOException {
+        for (Descriptor l : descriptors) {
+            writeDescriptor(l, writer);
         }
     }
 
     /**
-     * Writes the LogEvents described by the descriptor to the writer.
-     * @param descriptor A LogDescriptor that identifies the events to be written.
+     * Writes the Events described by the descriptor to the writer.
+     * @param descriptor A Descriptor that identifies the events to be written.
      * @param writer A writer to write the events to.
      * @throws java.io.IOException Thrown when either the writer goes wrong, or there is a problem
      * communicating with the local log store.
      */
-    protected void writeLogDescriptor(LogDescriptor descriptor, Writer writer) throws IOException {
-        List<LogEvent> events = m_logStore.get(descriptor);
-        for (LogEvent event : events) {
+    protected void writeDescriptor(Descriptor descriptor, Writer writer) throws IOException {
+        List<Event> events = m_logStore.get(descriptor);
+        for (Event event : events) {
             writer.write(event.toRepresentation() + "\n");
         }
         writer.flush();
     }
 
-    protected boolean doPull(URL host, List<LogDescriptor> localRanges, List<LogDescriptor> remoteRanges) {
+    protected boolean doPull(URL host, List<Descriptor> localRanges, List<Descriptor> remoteRanges) {
         boolean result = false;
-        List<LogDescriptor> delta = calculateDelta(remoteRanges, localRanges);
+        List<Descriptor> delta = calculateDelta(remoteRanges, localRanges);
         result = !delta.isEmpty();
-        for (LogDescriptor l : delta) {
+        for (Descriptor l : delta) {
             try {
                 /*
                  * The request currently contains a range. This is not yet supported by the servlet, but it will
                  * simply be ignored.
                  */
-                URL url = new URL(host, m_endpoint + "/" + COMMAND_RECEIVE + "?" + TARGETID_KEY + "=" + l.getTargetID() + "&" + LOGID_KEY + "=" + l.getLogID() + "&" + RANGE_KEY + "=" + l.getRangeSet().toRepresentation());
+                URL url = new URL(host, m_endpoint + "/" + COMMAND_RECEIVE + "?" + TARGETID_KEY + "=" + l.getTargetID() + "&" + LOGID_KEY + "=" + l.getStoreID() + "&" + RANGE_KEY + "=" + l.getRangeSet().toRepresentation());
                 
                 URLConnection receiveConnection = m_connectionFactory.createConnection(url);
                 InputStream receiveInput = receiveConnection.getInputStream();
@@ -234,12 +234,12 @@ public class LogSyncTask implements Runnable, LogSync {
 
     protected void readLogs(BufferedReader reader) {
         try {
-            List<LogEvent> events = new ArrayList<LogEvent>();
+            List<Event> events = new ArrayList<Event>();
 
             String eventString = null;
             while ((eventString = reader.readLine()) != null) {
                 try {
-                    LogEvent event = new LogEvent(eventString);
+                    Event event = new Event(eventString);
                     events.add(event);
                 }
                 catch (IllegalArgumentException e) {
@@ -255,23 +255,23 @@ public class LogSyncTask implements Runnable, LogSync {
     }
 
     /**
-     * Calculates the difference between two lists of <code>LogDescriptor</code>. The result will contain whatever is
+     * Calculates the difference between two lists of <code>Descriptor</code>. The result will contain whatever is
      * not in <code>destination</code>, but is in <code>source</code>.
      */
-    protected List<LogDescriptor> calculateDelta(List<LogDescriptor> source, List<LogDescriptor> destination) {
+    protected List<Descriptor> calculateDelta(List<Descriptor> source, List<Descriptor> destination) {
         /*
          * For each local descriptor, we try to find a matching remote one. If so, we will synchronize all events
          * that the remote does not have. If we do not find a matching one at all, we send the complete local
          * log.
          */
-        List<LogDescriptor> result = new ArrayList<LogDescriptor>();
-        for (LogDescriptor s : source) {
-            LogDescriptor diffs = s;
-            for (LogDescriptor d : destination) {
-                if ((s.getLogID() == d.getLogID()) && (s.getTargetID().equals(d.getTargetID()))) {
+        List<Descriptor> result = new ArrayList<Descriptor>();
+        for (Descriptor s : source) {
+            Descriptor diffs = s;
+            for (Descriptor d : destination) {
+                if ((s.getStoreID() == d.getStoreID()) && (s.getTargetID().equals(d.getTargetID()))) {
                     SortedRangeSet rangeDiff = d.getRangeSet().diffDest(s.getRangeSet());
                     if (!isEmptyRangeSet(rangeDiff)) {
-                        diffs = new LogDescriptor(s.getTargetID(), s.getLogID(), rangeDiff);
+                        diffs = new Descriptor(s.getTargetID(), s.getStoreID(), rangeDiff);
                     }
                     else {
                         diffs = null;
@@ -289,15 +289,15 @@ public class LogSyncTask implements Runnable, LogSync {
         return !set.iterator().hasNext();
     }
 
-    protected List<LogDescriptor> getRanges(InputStream stream) throws IOException {
-        List<LogDescriptor> result = new ArrayList<LogDescriptor>();
+    protected List<Descriptor> getRanges(InputStream stream) throws IOException {
+        List<Descriptor> result = new ArrayList<Descriptor>();
         BufferedReader queryReader = null;
         try {
             queryReader = new BufferedReader(new InputStreamReader(stream));
 
             for (String line = queryReader.readLine(); line != null; line = queryReader.readLine()) {
                 try {
-                    result.add(new LogDescriptor(line));
+                    result.add(new Descriptor(line));
                 }
                 catch (IllegalArgumentException iae) {
                     throw new IOException("Could not determine highest remote event id, received malformed event range: " + line);

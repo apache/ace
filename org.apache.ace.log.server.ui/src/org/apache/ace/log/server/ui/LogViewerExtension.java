@@ -33,9 +33,9 @@ import java.util.Map;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
-import org.apache.ace.log.AuditEvent;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.AuditEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
@@ -148,7 +148,7 @@ public class LogViewerExtension implements UIExtensionFactory {
      *            the event to get the type for, cannot be <code>null</code>.
      * @return a string representation of the event's type, never <code>null</code>.
      */
-    final String getEventType(LogEvent event) {
+    final String getEventType(Event event) {
         if (m_eventTypeMapping.isEmpty()) {
             // Lazily create a mapping of value -> name of all event-types...
             for (Field f : AuditEvent.class.getFields()) {
@@ -181,7 +181,7 @@ public class LogViewerExtension implements UIExtensionFactory {
      *            the event to create a textarea for, cannot be <code>null</code>.
      * @return a {@link TextArea} instance, never <code>null</code>.
      */
-    final TextArea getProperties(LogEvent event) {
+    final TextArea getProperties(Event event) {
         Dictionary props = event.getProperties();
 
         TextArea area = new TextArea("", dumpProperties(props));
@@ -193,7 +193,7 @@ public class LogViewerExtension implements UIExtensionFactory {
         return area;
     }
 
-    final Date getTime(LogEvent event) {
+    final Date getTime(Event event) {
         return new Date(event.getTime());
     }
 
@@ -233,10 +233,10 @@ public class LogViewerExtension implements UIExtensionFactory {
      */
     private void fillTable(RepositoryObject object, Table table) throws IOException {
         String id = object.getAttribute(TargetObject.KEY_ID);
-        List<LogDescriptor> desc = m_store.getDescriptors(id);
+        List<Descriptor> desc = m_store.getDescriptors(id);
         if (desc != null) {
-            for (LogDescriptor log : desc) {
-                for (LogEvent event : m_store.get(log)) {
+            for (Descriptor log : desc) {
+                for (Event event : m_store.get(log)) {
                     table.addItem(new Object[] { getTime(event), getEventType(event), getProperties(event) }, null);
                 }
             }

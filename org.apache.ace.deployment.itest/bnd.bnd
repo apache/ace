@@ -5,7 +5,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	javax.servlet,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
@@ -16,11 +15,11 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.servlet;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.deployment.provider.filebased;version=latest,\
-	org.apache.ace.deployment.util.test;version=latest
+	org.apache.ace.deployment.util.test;version=latest,\
+	org.apache.ace.feedback.common;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runvm: -ea
--runbundles: \
-	osgi.cmpn,\
+-runbundles: osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.eventadmin,\
@@ -48,7 +47,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.task.base;version=latest,\
 	org.apache.ace.deployment.streamgenerator;version=latest,\
 	org.apache.ace.deployment.provider.base;version=latest,\
-	org.apache.ace.test;version=latest
+	org.apache.ace.test;version=latest,\
+	org.apache.ace.feedback.common;version=latest,\
+	org.apache.ace.range.api;version=latest
 Private-Package: org.apache.ace.it.deployment, org.apache.ace.deployment.util.test
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Deployment itest

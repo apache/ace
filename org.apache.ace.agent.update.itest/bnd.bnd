@@ -22,7 +22,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 	org.apache.felix.configadmin,\
 	org.apache.ace.http.listener;version=latest,\
 	biz.aQute.bnd,\
-	org.apache.ace.builder;version=latest
+	org.apache.ace.builder;version=latest,\
+	org.apache.ace.log.api;version=latest
 Private-Package: org.apache.ace.agent.itest
 -runee: JavaSE-1.6
 -runvm: -ea

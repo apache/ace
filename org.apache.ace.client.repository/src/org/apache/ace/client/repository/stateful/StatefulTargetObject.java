@@ -26,7 +26,7 @@ import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Event;
 
 /**
  * Represents the information that a <code>TargetObject</code>
@@ -91,7 +91,7 @@ public interface StatefulTargetObject extends RepositoryObject {
      * Gets the list of AuditLog Events for this target. If no auditlog events
      * can be found, and empty list will be returned. The events are ordered ascending by timestamp.
      */
-    public List<LogEvent> getAuditEvents();
+    public List<Event> getAuditEvents();
 
     /**
      * Registers this target, which for now only exists in the AuditLog, into the

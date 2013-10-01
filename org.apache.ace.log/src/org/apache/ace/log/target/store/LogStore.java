@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.List;
 
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Event;
 
 /**
  * Server log store interface for the targets. Implementations of this service interface provide a persisted storage for
@@ -39,7 +39,7 @@ public interface LogStore
      * @return the created event that has been persisted.
      * @throws java.io.IOException in case of any IO error.
      */
-    public LogEvent put(int type, Dictionary props) throws IOException;
+    public Event put(int type, Dictionary props) throws IOException;
 
     /**
      * Get all events in the given log.
@@ -48,7 +48,7 @@ public interface LogStore
      * @return a list of LogEvent's that are currently in the log of the given logID.
      * @throws java.io.IOException in case of any IO error.
      */
-    public List/*<LogEvent>*/get(long logID) throws IOException;
+    public List/*<Event>*/get(long logID) throws IOException;
 
     /**
      * Get the events in the given log that are in the range of the given lower and upper bound.
@@ -60,7 +60,7 @@ public interface LogStore
      *         bounds.
      * @throws java.io.IOException in case of any IO error.
      */
-    public List/*<LogEvent>*/get(long logID, long from, long to) throws IOException;
+    public List/*<Event>*/get(long logID, long from, long to) throws IOException;
 
     /**
      * Get the the highest id of any LogEvent entry in the given log.

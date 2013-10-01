@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.authentication.api.AuthenticationService;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.SortedRangeSet;
 import org.osgi.service.log.LogService;
@@ -51,7 +51,7 @@ import org.osgi.service.useradmin.User;
  * http://host:port/auditlog/query?tid=myid&logid=123712636323 - Return the event range belonging to the specified target and log id
  *
  * Accepting new audit log events:
- * http://host:port/auditlog/send - Gets a new log event and puts it in the store, the event is inside the request and should be a formatted as done in <code>LogEvent.toRepresentation()</code>.
+ * http://host:port/auditlog/send - Gets a new log event and puts it in the store, the event is inside the request and should be a formatted as done in <code>Event.toRepresentation()</code>.
  *
  * Querying existing audit log events:
  * http://host:port/auditlog/receive - Return all known events
@@ -179,14 +179,14 @@ public class LogServlet extends HttpServlet {
     protected boolean handleQuery(String targetID, String logID, String filter, ServletOutputStream output) throws IOException {
         if ((targetID != null) && (logID != null)) {
             // target and log id are specified, return only the range that matches these id's
-            LogDescriptor range = m_store.getDescriptor(targetID, Long.parseLong(logID));
+            Descriptor range = m_store.getDescriptor(targetID, Long.parseLong(logID));
             output.print(range.toRepresentation());
             return true;
         }
         else if ((targetID == null) && (logID == null)) {
             // no target or log id has been specified, return all ranges
-            List<LogDescriptor> ranges = m_store.getDescriptors();
-            for (LogDescriptor range : ranges) {
+            List<Descriptor> ranges = m_store.getDescriptors();
+            for (Descriptor range : ranges) {
                 output.print(range.toRepresentation() + "\n");
             }
             return true;
@@ -199,8 +199,8 @@ public class LogServlet extends HttpServlet {
         if ((targetID != null) && (logID != null)) {
             // target and log id are specified, return only the events that are in the range that matches these id's
             if (range != null) {
-                LogDescriptor storeDescriptor = m_store.getDescriptor(targetID, Long.parseLong(logID));
-                outputRange(output, new LogDescriptor(storeDescriptor.getTargetID(), storeDescriptor.getLogID(), new SortedRangeSet(range)));
+                Descriptor storeDescriptor = m_store.getDescriptor(targetID, Long.parseLong(logID));
+                outputRange(output, new Descriptor(storeDescriptor.getTargetID(), storeDescriptor.getStoreID(), new SortedRangeSet(range)));
             }
             else {
                 outputRange(output, m_store.getDescriptor(targetID, Long.parseLong(logID)));
@@ -209,16 +209,16 @@ public class LogServlet extends HttpServlet {
         }
         else if ((targetID != null) && (logID == null)) {
             // target id is specified, log id is not, return all events that belong to the specified target id
-            List<LogDescriptor> descriptors = m_store.getDescriptors(targetID);
-            for (LogDescriptor descriptor : descriptors) {
+            List<Descriptor> descriptors = m_store.getDescriptors(targetID);
+            for (Descriptor descriptor : descriptors) {
                 outputRange(output, descriptor);
             }
             return true;
         }
         else if ((targetID == null) && (logID == null)) {
             // no target or log id has been specified, return all events
-            List<LogDescriptor> descriptors = m_store.getDescriptors();
-            for (LogDescriptor descriptor : descriptors) {
+            List<Descriptor> descriptors = m_store.getDescriptors();
+            for (Descriptor descriptor : descriptors) {
                 outputRange(output, descriptor);
             }
             return true;
@@ -228,7 +228,7 @@ public class LogServlet extends HttpServlet {
 
     // Handle a call to the send 'command'
     protected boolean handleSend(ServletInputStream input) throws IOException {
-        List<LogEvent> events = new ArrayList<LogEvent>();
+        List<Event> events = new ArrayList<Event>();
         boolean success = true;
 
         BufferedReader reader = null;
@@ -239,12 +239,12 @@ public class LogServlet extends HttpServlet {
             while ((eventString = reader.readLine()) != null) {
                 try {
                     m_log.log(LogService.LOG_DEBUG, "Log event received: '" + eventString +"'");
-                    LogEvent event = new LogEvent(eventString);
+                    Event event = new Event(eventString);
                     events.add(event);
                 }
                 catch (IllegalArgumentException iae) {
                     success = false;
-                    m_log.log(LogService.LOG_WARNING, "Could not construct LogEvent from string: '" + eventString + "'");
+                    m_log.log(LogService.LOG_WARNING, "Could not construct Event from string: '" + eventString + "'");
                 }
             }
         }
@@ -263,9 +263,9 @@ public class LogServlet extends HttpServlet {
     }
 
     // print string representations of all events in the specified range to the specified output
-    private void outputRange(ServletOutputStream output, LogDescriptor range) throws IOException {
-        List<LogEvent> events = m_store.get(range);
-        for (LogEvent event : events) {
+    private void outputRange(ServletOutputStream output, Descriptor range) throws IOException {
+        List<Event> events = m_store.get(range);
+        for (Event event : events) {
             output.print(event.toRepresentation() + "\n");
         }
     }

@@ -25,9 +25,9 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.amdatu.mongo.MongoDBService;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.it.IntegrationTestBase;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.felix.dm.Component;
 import org.osgi.service.log.LogService;
@@ -76,7 +76,7 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 
 			storeEvents();
 
-			List<LogEvent> events = m_logStore.get(new LogDescriptor("mytarget1,1,0"));
+			List<Event> events = m_logStore.get(new Descriptor("mytarget1,1,0"));
 			assertEquals(3, events.size());
 		} catch (MongoException ex) {
 			System.err.println("Mongodb not available on localhost, skipping test");
@@ -91,7 +91,7 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 
 			storeEvents();
 
-			List<LogEvent> events = m_logStore.get(new LogDescriptor("mytarget1,1,2"));
+			List<Event> events = m_logStore.get(new Descriptor("mytarget1,1,2"));
 			assertEquals(2, events.size());
 		} catch (Exception ex) {
 			System.err.println("Mongodb not available on localhost, skipping test");
@@ -106,13 +106,13 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 
 			storeEvents();
 
-			List<LogDescriptor> descriptors = m_logStore.getDescriptors();
+			List<Descriptor> descriptors = m_logStore.getDescriptors();
 			assertEquals(2, descriptors.size());
 			assertEquals("mytarget1", descriptors.get(0).getTargetID());
-			assertEquals(1, descriptors.get(0).getLogID());
+			assertEquals(1, descriptors.get(0).getStoreID());
 			assertEquals(4, descriptors.get(0).getRangeSet().getHigh());
 			assertEquals("mytarget2", descriptors.get(1).getTargetID());
-			assertEquals(1, descriptors.get(1).getLogID());
+			assertEquals(1, descriptors.get(1).getStoreID());
 			assertEquals(5, descriptors.get(1).getRangeSet().getHigh());
 		} catch (MongoException ex) {
 			System.err.println("Mongodb not available on localhost, skipping test");
@@ -131,23 +131,23 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 			Properties props = new Properties();
 			props.setProperty("myProperty", "myvalue");
 
-			LogEvent event1 = new LogEvent("mytarget1", 2, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-			LogEvent event2 = new LogEvent("mytarget1", 2, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+			Event event1 = new Event("mytarget1", 2, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+			Event event2 = new Event("mytarget1", 2, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
 
 			m_logStore.put(Arrays.asList(event1, event2));
 
-			List<LogDescriptor> descriptors = m_logStore.getDescriptors();
+			List<Descriptor> descriptors = m_logStore.getDescriptors();
 			assertEquals(3, descriptors.size());
 			assertEquals("mytarget1", descriptors.get(0).getTargetID());
-			assertEquals(1, descriptors.get(0).getLogID());
+			assertEquals(1, descriptors.get(0).getStoreID());
 			assertEquals(4, descriptors.get(0).getRangeSet().getHigh());
 
 			assertEquals("mytarget1", descriptors.get(1).getTargetID());
-			assertEquals(2, descriptors.get(1).getLogID());
+			assertEquals(2, descriptors.get(1).getStoreID());
 			assertEquals(2, descriptors.get(1).getRangeSet().getHigh());
 
 			assertEquals("mytarget2", descriptors.get(2).getTargetID());
-			assertEquals(1, descriptors.get(2).getLogID());
+			assertEquals(1, descriptors.get(2).getStoreID());
 			assertEquals(5, descriptors.get(2).getRangeSet().getHigh());
 		} catch (MongoException ex) {
 			System.err.println("Mongodb not available on localhost, skipping test");
@@ -165,19 +165,19 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 			Properties props = new Properties();
 			props.setProperty("myProperty", "myvalue");
 
-			LogEvent event1 = new LogEvent("mytarget1", 2, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-			LogEvent event2 = new LogEvent("mytarget1", 2, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+			Event event1 = new Event("mytarget1", 2, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+			Event event2 = new Event("mytarget1", 2, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
 
 			m_logStore.put(Arrays.asList(event1, event2));
 
-			List<LogDescriptor> descriptors = m_logStore.getDescriptors("mytarget1");
+			List<Descriptor> descriptors = m_logStore.getDescriptors("mytarget1");
 			assertEquals(2, descriptors.size());
 			assertEquals("mytarget1", descriptors.get(0).getTargetID());
-			assertEquals(1, descriptors.get(0).getLogID());
+			assertEquals(1, descriptors.get(0).getStoreID());
 			assertEquals(4, descriptors.get(0).getRangeSet().getHigh());
 
 			assertEquals("mytarget1", descriptors.get(1).getTargetID());
-			assertEquals(2, descriptors.get(1).getLogID());
+			assertEquals(2, descriptors.get(1).getStoreID());
 			assertEquals(2, descriptors.get(1).getRangeSet().getHigh());
 		} catch (MongoException ex) {
 			System.err.println("Mongodb not available on localhost, skipping test");
@@ -187,11 +187,11 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 	private void storeEvents() throws IOException {
 		Properties props = new Properties();
 		props.setProperty("myProperty", "myvalue");
-		LogEvent event1 = new LogEvent("mytarget1", 1, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-		LogEvent event2 = new LogEvent("mytarget1", 1, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-		LogEvent event3 = new LogEvent("mytarget2", 1, 3, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-		LogEvent event4 = new LogEvent("mytarget2", 1, 5, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-		LogEvent event5 = new LogEvent("mytarget1", 1, 4, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+		Event event1 = new Event("mytarget1", 1, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+		Event event2 = new Event("mytarget1", 1, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+		Event event3 = new Event("mytarget2", 1, 3, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+		Event event4 = new Event("mytarget2", 1, 5, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+		Event event5 = new Event("mytarget1", 1, 4, System.currentTimeMillis(), LogService.LOG_ERROR, props);
 
 		m_logStore.put(Arrays.asList(event1, event2, event3, event4, event5));
 	}

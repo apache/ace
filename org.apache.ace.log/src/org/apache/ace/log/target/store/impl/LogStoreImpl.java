@@ -27,7 +27,7 @@ import java.util.Dictionary;
 import java.util.List;
 
 import org.apache.ace.identification.Identification;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.log.target.store.LogStore;
 import org.osgi.service.log.LogService;
 
@@ -158,7 +158,7 @@ public class LogStoreImpl implements LogStore {
             while (store.hasNext()) {
                 long eventID = store.readCurrentID();
                 if ((eventID >= from) && (eventID <= to)) {
-                    result.add(new LogEvent(new String(store.read())));
+                    result.add(new Event(new String(store.read())));
                 } else {
                     store.skip();
                 }
@@ -251,9 +251,9 @@ public class LogStoreImpl implements LogStore {
      * @throws java.io.IOException
      *             in case of any IO error.
      */
-    public synchronized LogEvent put(int type, Dictionary props) throws IOException {
+    public synchronized Event put(int type, Dictionary props) throws IOException {
         try {
-            LogEvent result = new LogEvent(null, m_store.getId(), getNextID(), System.currentTimeMillis(), type, props);
+            Event result = new Event(null, m_store.getId(), getNextID(), System.currentTimeMillis(), type, props);
             m_store.append(result.getID(), result.toRepresentation().getBytes());
             return result;
         } 

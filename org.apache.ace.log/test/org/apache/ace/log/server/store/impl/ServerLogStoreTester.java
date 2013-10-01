@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.ace.log.AuditEvent;
-import org.apache.ace.log.LogDescriptor;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.AuditEvent;
+import org.apache.ace.feedback.Descriptor;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.log.server.store.impl.LogStoreImpl;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.event.EventAdmin;
@@ -60,13 +60,13 @@ public class ServerLogStoreTester {
     @SuppressWarnings("serial")
     @Test(groups = { UNIT })
     public void testLog() throws IOException {
-        List<LogDescriptor> ranges = m_logStore.getDescriptors();
+        List<Descriptor> ranges = m_logStore.getDescriptors();
         assert ranges.isEmpty() : "New store should have no ranges.";
-        List<LogEvent> events = new ArrayList<LogEvent>();
+        List<Event> events = new ArrayList<Event>();
         for (String target : new String[] { "g1", "g2", "g3" }) {
             for (long log : new long[] { 1, 2, 3, 5 }) {
                 for (long id : new long[] { 1, 2, 3, 20 }) {
-                    events.add(new LogEvent(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new Properties() {
+                    events.add(new Event(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new Properties() {
                         {
                             put("test", "bar");
                         }
@@ -76,19 +76,19 @@ public class ServerLogStoreTester {
         }
         m_logStore.put(events);
         assert m_logStore.getDescriptors().size() == 3 * 4 : "Incorrect amount of ranges returned from store";
-        List<LogEvent> stored = new ArrayList<LogEvent>();
-        for (LogDescriptor range : m_logStore.getDescriptors()) {
-            for (LogDescriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
-                stored.addAll(m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getLogID())));
+        List<Event> stored = new ArrayList<Event>();
+        for (Descriptor range : m_logStore.getDescriptors()) {
+            for (Descriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
+                stored.addAll(m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getStoreID())));
             }
         }
 
         Set<String> in = new HashSet<String>();
-        for (LogEvent event : events)  {
+        for (Event event : events)  {
             in.add(event.toRepresentation());
         }
         Set<String> out = new HashSet<String>();
-        for (LogEvent event : stored) {
+        for (Event event : stored) {
             out.add(event.toRepresentation());
         }
         assert in.equals(out) : "Stored events differ from the added.";
@@ -97,8 +97,8 @@ public class ServerLogStoreTester {
     @Test( groups = { TestUtils.UNIT } )
     public void testLogWithSpecialCharacters() throws IOException {
         String targetID = "myta\0rget";
-        LogEvent event = new LogEvent(targetID, 1, 1, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new Properties());
-        List<LogEvent> events = new ArrayList<LogEvent>();
+        Event event = new Event(targetID, 1, 1, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new Properties());
+        List<Event> events = new ArrayList<Event>();
         events.add(event);
         m_logStore.put(events);
         assert m_logStore.getDescriptors().size() == 1 : "Incorrect amount of ranges returned from store: expected 1, found " + m_logStore.getDescriptors().size();

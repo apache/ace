@@ -26,8 +26,8 @@ import java.util.concurrent.Callable;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
-import org.apache.ace.log.AuditEvent;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.AuditEvent;
+import org.apache.ace.feedback.Event;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
@@ -85,9 +85,9 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
     }
 
     private void doAutoTargetReg() throws Exception {
-        List<LogEvent> events = new ArrayList<LogEvent>();
+        List<Event> events = new ArrayList<Event>();
         Properties props = new Properties();
-        events.add(new LogEvent("anotherTarget", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("anotherTarget", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
         // fill auditlog; no install data
         m_auditLogStore.put(events);
 
@@ -122,7 +122,7 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
 
             // add a target which will not be autoregistered
             events.clear();
-            events.add(new LogEvent("secondTarget", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+            events.add(new Event("secondTarget", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
             m_auditLogStore.put(events);
 
             // do auto target action

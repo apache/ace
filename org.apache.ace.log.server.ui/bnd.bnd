@@ -1,11 +1,11 @@
 -buildpath: osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
-	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
 	com.vaadin;version=latest,\
-	org.apache.ace.webui.vaadin;version=latest
+	org.apache.ace.webui.vaadin;version=latest,\
+	org.apache.ace.feedback.common;version=latest
 Private-Package: org.apache.ace.log.server.ui
 Bundle-Activator: org.apache.ace.log.server.ui.Activator
 Bundle-Version: 1.0.0

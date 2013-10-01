@@ -46,7 +46,7 @@ import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
-import org.apache.ace.log.LogEvent;
+import org.apache.ace.feedback.Event;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.service.cm.ConfigurationException;
@@ -122,7 +122,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     public RESTClientServlet() {
         m_gson = (new GsonBuilder())
             .registerTypeHierarchyAdapter(RepositoryObject.class, new RepositoryObjectSerializer())
-            .registerTypeHierarchyAdapter(LogEvent.class, new LogEventSerializer())
+            .registerTypeHierarchyAdapter(Event.class, new LogEventSerializer())
             .create();
         
         m_workspaces = new HashMap<String, Workspace>();
@@ -566,7 +566,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
         else if (Workspace.TARGET.equals(entityType) && ACTION_AUDITEVENTS.equals(action)) {
             StatefulTargetObject target = (StatefulTargetObject) repositoryObject;
-            List<LogEvent> events = target.getAuditEvents();
+            List<Event> events = target.getAuditEvents();
 
             String startValue = req.getParameter("start");
             String maxValue = req.getParameter("max");
@@ -581,7 +581,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
             int end = Math.min(events.size(), start + max);
 
-            List<LogEvent> selection = events.subList(start, end);
+            List<Event> selection = events.subList(start, end);
             resp.getWriter().println(m_gson.toJson(selection));
         }
         else {
