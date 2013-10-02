@@ -22,19 +22,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.property.constants.DiscoveryConstants;
-import org.apache.ace.log.Log;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.property.constants.IdentificationConstants;
+import org.apache.ace.log.Log;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
@@ -198,8 +198,8 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
 
             // prepare the store
             List<Event> events = new ArrayList<Event>();
-            events.add(new Event(tid1, 1, 1, 1, 1, new Properties()));
-            events.add(new Event(tid2, 1, 1, 1, 1, new Properties()));
+            events.add(new Event(tid1, 1, 1, 1, 1));
+            events.add(new Event(tid2, 1, 1, 1, 1));
             m_serverStore.put(events);
 
             List<String> result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/query");
@@ -243,7 +243,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
                     List<Event> events = m_serverStore.get(descriptor);
                     for (Event event : events) {
                         if (event.getType() == type) {
-                            Dictionary properties = event.getProperties();
+                            Map<String, String> properties = event.getProperties();
                             assertEquals("value1", properties.get("one"));
                             assertEquals("value2", properties.get("two"));
                             found = true;

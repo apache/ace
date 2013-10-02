@@ -23,15 +23,15 @@ import static org.apache.ace.test.utils.TestUtils.UNIT;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.ace.feedback.AuditEvent;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
-import org.apache.ace.log.server.store.impl.LogStoreImpl;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.event.EventAdmin;
 import org.testng.annotations.AfterMethod;
@@ -60,17 +60,16 @@ public class ServerLogStoreTester {
     @SuppressWarnings("serial")
     @Test(groups = { UNIT })
     public void testLog() throws IOException {
+        Map<String, String> props = new HashMap<String, String>();
+        props.put("test", "bar");
+
         List<Descriptor> ranges = m_logStore.getDescriptors();
         assert ranges.isEmpty() : "New store should have no ranges.";
         List<Event> events = new ArrayList<Event>();
         for (String target : new String[] { "g1", "g2", "g3" }) {
             for (long log : new long[] { 1, 2, 3, 5 }) {
                 for (long id : new long[] { 1, 2, 3, 20 }) {
-                    events.add(new Event(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new Properties() {
-                        {
-                            put("test", "bar");
-                        }
-                    }));
+                    events.add(new Event(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, props));
                 }
             }
         }
@@ -84,7 +83,7 @@ public class ServerLogStoreTester {
         }
 
         Set<String> in = new HashSet<String>();
-        for (Event event : events)  {
+        for (Event event : events) {
             in.add(event.toRepresentation());
         }
         Set<String> out = new HashSet<String>();
@@ -94,10 +93,10 @@ public class ServerLogStoreTester {
         assert in.equals(out) : "Stored events differ from the added.";
     }
 
-    @Test( groups = { TestUtils.UNIT } )
+    @Test(groups = { TestUtils.UNIT })
     public void testLogWithSpecialCharacters() throws IOException {
         String targetID = "myta\0rget";
-        Event event = new Event(targetID, 1, 1, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new Properties());
+        Event event = new Event(targetID, 1, 1, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED);
         List<Event> events = new ArrayList<Event>();
         events.add(event);
         m_logStore.put(events);

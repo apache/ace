@@ -20,8 +20,9 @@ package org.apache.ace.log.server.store.tests;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.amdatu.mongo.MongoDBService;
@@ -128,8 +129,8 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 
 			storeEvents();
 
-			Properties props = new Properties();
-			props.setProperty("myProperty", "myvalue");
+	        Map<String, String> props = new HashMap<String, String>();
+			props.put("myProperty", "myvalue");
 
 			Event event1 = new Event("mytarget1", 2, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
 			Event event2 = new Event("mytarget1", 2, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
@@ -162,8 +163,8 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 
 			storeEvents();
 
-			Properties props = new Properties();
-			props.setProperty("myProperty", "myvalue");
+            Map<String, String> props = new HashMap<String, String>();
+			props.put("myProperty", "myvalue");
 
 			Event event1 = new Event("mytarget1", 2, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
 			Event event2 = new Event("mytarget1", 2, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
@@ -185,8 +186,8 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 	}
 
 	private void storeEvents() throws IOException {
-		Properties props = new Properties();
-		props.setProperty("myProperty", "myvalue");
+        Map<String, String> props = new HashMap<String, String>();
+		props.put("myProperty", "myvalue");
 		Event event1 = new Event("mytarget1", 1, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
 		Event event2 = new Event("mytarget1", 1, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
 		Event event3 = new Event("mytarget2", 1, 3, System.currentTimeMillis(), LogService.LOG_ERROR, props);

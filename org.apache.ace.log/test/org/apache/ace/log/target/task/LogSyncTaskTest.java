@@ -28,14 +28,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
 import org.apache.ace.identification.Identification;
 import org.apache.ace.log.target.store.LogStore;
-import org.apache.ace.log.target.task.LogSyncTask;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.log.LogService;
@@ -82,7 +80,7 @@ public class LogSyncTaskTest {
     @Test(groups = { UNIT })
     public synchronized void synchronizeLog() throws Exception {
         final Descriptor range = new Descriptor(TARGET_ID, 1, new SortedRangeSet(new long[] {0}));
-        final Event event = new Event(TARGET_ID, 1, 1, 1, 1, new Properties());
+        final Event event = new Event(TARGET_ID, 1, 1, 1, 1);
         final List<Event> events = new ArrayList<Event>();
         events.add(event);
 

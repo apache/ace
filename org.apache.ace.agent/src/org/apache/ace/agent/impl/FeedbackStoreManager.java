@@ -23,17 +23,23 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.ace.agent.AgentContext;
+import org.apache.ace.agent.IdentificationHandler;
 import org.apache.ace.agent.LoggingHandler;
+import org.apache.ace.agent.impl.FeedbackStore.Record;
 import org.apache.ace.feedback.Event;
 
 /**
@@ -46,18 +52,21 @@ import org.apache.ace.feedback.Event;
  * This managerclass takes care of the splitting of logs over multiple files, cleanup of old files, etc.
  */
 public class FeedbackStoreManager {
-
-    // This is the number of files the maxFileSize of the is split over
-    private static final int NUMBER_OF_FILES = 10;
     private static final String DIRECTORY_NAME = "feedback";
+    private static final int DEFAULT_STORE_SIZE = 1024 * 1024; // 1 MB
+    private static final int DEFAULT_FILE_SIZE = DEFAULT_STORE_SIZE / 10;
 
     private final AgentContext m_agentContext;
     private final String m_name;
     private final File m_baseDir;
+    /** the maximum size of all store files together. */
+    private final int m_maxStoreSize;
+    /** the maximum size of a single store file. */
     private final int m_maxFileSize;
 
-    private FeedbackStore m_currentStore;
-    private long m_highest;
+    private final AtomicBoolean m_closed;
+    private final AtomicReference<FeedbackStore> m_currentStoreRef;
+    private final SortedMap<Long, SortedSet<Integer>> m_storeFileIdx;
 
     private final FileFilter m_fileFilter = new FileFilter() {
         @Override
@@ -75,41 +84,74 @@ public class FeedbackStoreManager {
      *            the name of the feedbackstore
      */
     public FeedbackStoreManager(AgentContext agentContext, String name) throws IOException {
-        this(agentContext, name, 1024 * 1024);
+        this(agentContext, name, DEFAULT_STORE_SIZE, DEFAULT_FILE_SIZE);
     }
 
     /**
      * Create and initialize a store
      * 
      * @param agentContext
-     *            the agentcontext
+     *            the agent context
      * @param name
-     *            the name of the feedbackstore
+     *            the name of the store
+     * @param maxStoreSize
+     *            the maximum size for this store, in bytes;
      * @param maxFileSize
-     *            the maximum size for this feedbackstore in kB
+     *            the maximum size for one file, in bytes.
      */
-    public FeedbackStoreManager(AgentContext agentContext, String name, int maxFileSize) throws IOException {
+    public FeedbackStoreManager(AgentContext agentContext, String name, int maxStoreSize, int maxFileSize) throws IOException {
         m_agentContext = agentContext;
         m_name = name;
+        m_maxStoreSize = maxStoreSize;
         m_maxFileSize = maxFileSize;
+
+        if (m_maxFileSize > m_maxStoreSize) {
+            throw new IllegalArgumentException("Maximum file size cannot exceed maximum store size!");
+        }
+
+        m_closed = new AtomicBoolean(false);
+
         m_baseDir = new File(m_agentContext.getWorkDir(), DIRECTORY_NAME);
         if (!m_baseDir.isDirectory() && !m_baseDir.mkdirs()) {
             throw new IllegalArgumentException("Need valid dir");
         }
 
-        // Identify and initialize the latest store
-        SortedSet<Long> storeIDs = getAllFeedbackStoreIDs();
-        if (storeIDs.isEmpty()) {
-            m_currentStore = newFeedbackStore();
+        m_currentStoreRef = new AtomicReference<FeedbackStore>();
+        m_storeFileIdx = new TreeMap<Long, SortedSet<Integer>>();
+
+        Pattern p = Pattern.compile(m_name + "-(\\d+).(\\d+)");
+        File[] allFiles = m_baseDir.listFiles(m_fileFilter);
+        for (File file : allFiles) {
+            Matcher m = p.matcher(file.getName());
+            if (m.matches()) {
+                long storeId = Long.valueOf(m.group(1));
+                int fileNumber = Integer.valueOf(m.group(2));
+
+                SortedSet<Integer> storeFileNos = m_storeFileIdx.get(storeId);
+                if (storeFileNos == null) {
+                    storeFileNos = new TreeSet<Integer>();
+                    m_storeFileIdx.put(storeId, storeFileNos);
+                }
+                storeFileNos.add(fileNumber);
+            }
         }
-        else {
-            m_currentStore = getLastStore(storeIDs.last());
-            try {
-                m_currentStore.init();
+
+        // Identify and initialize the latest store...
+        FeedbackStore store = null;
+        try {
+            if (m_storeFileIdx.isEmpty()) {
+                store = newFeedbackStore();
             }
-            catch (IOException ex) {
-                handleException(m_currentStore, ex);
+            else {
+                Long lastStoreId = m_storeFileIdx.lastKey();
+                Integer fileNo = m_storeFileIdx.get(lastStoreId).last();
+
+                store = createStore(lastStoreId, fileNo);
             }
+            setStore(store);
+        }
+        catch (IOException ex) {
+            handleException(store, ex);
         }
     }
 
@@ -120,10 +162,9 @@ public class FeedbackStoreManager {
      *             if something goed wrong
      */
     public void close() throws IOException {
-        if (m_currentStore != null) {
-            m_currentStore.close();
+        if (m_closed.compareAndSet(false, true)) {
+            setStore(null); // will close automatically the previously set store...
         }
-        m_currentStore = null;
     }
 
     /**
@@ -132,77 +173,7 @@ public class FeedbackStoreManager {
      * @return a ordered set of all storeIds, oldest first
      */
     public SortedSet<Long> getAllFeedbackStoreIDs() throws IOException {
-        File[] files = getStoreFiles();
-        SortedSet<Long> storeIDs = new TreeSet<Long>();
-        for (int i = 0; i < files.length; i++) {
-            storeIDs.add(getStoreId(files[i]));
-        }
-        return storeIDs;
-    }
-
-    /**
-     * Write to the currently active store
-     * 
-     * @param type
-     *            the type of message
-     * @param properties
-     *            the properties to be logged
-     */
-    public void write(int type, Map<String, String> properties) throws IOException {
-        try {
-            // check if we exceed the maximum allowed store size, if we do cleanup an old file
-            // check if the current store file maximum filesize is reached, if it is the current store should be rotated
-            if (isCurrentStoreMaximumFileSizeReached()) {
-                if (isCleanupRequired()) {
-                    cleanup();
-                }
-                m_currentStore.close();
-                m_currentStore = createStore(m_currentStore.getId(), getLastLogfileNumber(m_currentStore.getId()) + 1);
-            }
-            // convert the map of properties to a dictionary
-            Dictionary<String, String> dictionary = new Hashtable<String, String>();
-            for (Entry<String, String> entry : properties.entrySet()) {
-                dictionary.put(entry.getKey(), entry.getValue());
-            }
-            // log the event
-            long nextEventId = (m_highest = getHighestEventID(m_currentStore.getId()) + 1);
-            Event result = new Event(null, m_currentStore.getId(), nextEventId, System.currentTimeMillis(), type, dictionary);
-            m_currentStore.append(result.getID(), result.toRepresentation().getBytes());
-        }
-        catch (IOException ex) {
-            handleException(m_currentStore, ex);
-        }
-    }
-
-    public void forceCreateNewStore() throws IOException {
-        m_currentStore = newFeedbackStore();
-    }
-
-    /**
-     * Give the highest eventId that is is present is the specified store
-     * 
-     * @param the
-     *            storeId
-     * @return the highest event present in the store
-     */
-    public long getHighestEventID(long storeID) throws IOException {
-        FeedbackStore store = getLastStore(storeID);
-        try {
-            if (m_highest == 0) {
-                store.init();
-                return (m_highest = store.getCurrent());
-            }
-            else {
-                return m_highest;
-            }
-        }
-        catch (IOException ex) {
-            handleException(store, ex);
-        }
-        finally {
-            closeIfNeeded(new FeedbackStore[] { store });
-        }
-        return -1;
+        return new TreeSet<Long>(m_storeFileIdx.keySet());
     }
 
     /**
@@ -217,34 +188,291 @@ public class FeedbackStoreManager {
      *            the end of the range of events
      */
     public List<Event> getEvents(long storeID, long fromEventID, long toEventID) throws IOException {
+        if (m_closed.get()) {
+            return Collections.emptyList();
+        }
+
         FeedbackStore[] stores = getAllStores(storeID);
-        List<Event> result = new ArrayList<Event>();
         try {
+            List<Record> records = new ArrayList<Record>();
             for (FeedbackStore store : stores) {
                 try {
-
-                    if (store.getCurrent() > fromEventID) {
-                        store.reset();
-                    }
-                    while (store.hasNext()) {
-                        long eventID = store.readCurrentID();
-                        if ((eventID >= fromEventID) && (eventID <= toEventID)) {
-                            result.add(new Event(new String(store.read())));
-                        }
-                        else {
-                            store.skip();
-                        }
+                    if (store.getFirstEventID() <= toEventID && store.getLastEventID() >= fromEventID) {
+                        records.addAll(store.getRecords(fromEventID, toEventID));
                     }
                 }
                 catch (Exception ex) {
                     handleException(store, ex);
                 }
             }
+
+            // Sort the records by their event ID...
+            Collections.sort(records);
+            // Unmarshal the records into concrete log events...
+            List<Event> result = new ArrayList<Event>();
+            for (Record record : records) {
+                result.add(new Event(record.m_entry));
+            }
+            return result;
         }
         finally {
             closeIfNeeded(stores);
         }
-        return result;
+    }
+
+    /**
+     * Give the highest eventId that is is present is the specified store
+     * 
+     * @param the
+     *            storeId
+     * @return the highest event present in the store, >= 0, or <tt>-1</tt> if this manager is already closed.
+     * @throws IOException
+     *             in case of I/O problems accessing the store(s).
+     */
+    public long getHighestEventID(long storeID) throws IOException {
+        if (m_closed.get()) {
+            return -1L;
+        }
+
+        FeedbackStore store = getLastStore(storeID);
+        try {
+            return store.getLastEventID();
+        }
+        finally {
+            closeIfNeeded(store);
+        }
+    }
+
+    /**
+     * Write to the currently active store
+     * 
+     * @param type
+     *            the type of message
+     * @param properties
+     *            the properties to be logged
+     */
+    public void write(int type, Map<String, String> properties) throws IOException {
+        if (m_closed.get()) {
+            // Nothing we can do here...
+            return;
+        }
+
+        FeedbackStore currentStore = getCurrentStore();
+
+        try {
+            long storeID = currentStore.getId();
+            // make sure to continue with the last written event in case we're rotating to a new file...
+            long nextEventId = currentStore.getLastEventID() + 1;
+
+            // check if the current store file maximum filesize is reached, if it is the current store should be rotated
+            if (isMaximumStoreSizeReached(currentStore)) {
+                int newFileNo = getLastLogfileNumber(storeID) + 1;
+                currentStore = setStore(createStore(storeID, newFileNo));
+
+                // check if we exceed the maximum allowed store size, if so, we do clean up old files...
+                cleanupOldStoreFiles();
+            }
+
+            // log the event XXX shouldn't the target ID be filled in?
+            Event result = new Event(getTargetID(), storeID, nextEventId, System.currentTimeMillis(), type, properties);
+
+            currentStore.append(result.getID(), result.toRepresentation().getBytes());
+        }
+        catch (IOException ex) {
+            handleException(currentStore, ex);
+        }
+    }
+
+    void forceCreateNewStore() throws IOException {
+        setStore(newFeedbackStore());
+    }
+
+    /**
+     * @throws IOException
+     */
+    private void cleanupOldStoreFiles() throws IOException {
+        int maxFiles = (int) Math.ceil(m_maxStoreSize / m_maxFileSize);
+
+        File[] storeFiles = getStoreFiles();
+        if (storeFiles.length > maxFiles) {
+            // we've exceeded our total storage limit...
+            int deleteTo = storeFiles.length - maxFiles;
+            // delete the files...
+            for (int i = 0; i < deleteTo; i++) {
+                storeFiles[i].delete();
+            }
+        }
+    }
+
+    /**
+     * Close all the feedbackstores if necessary
+     * 
+     * @param stores
+     *            a list of stores
+     */
+    private void closeIfNeeded(FeedbackStore... stores) {
+        for (FeedbackStore store : stores) {
+            if (store != getCurrentStore()) {
+                try {
+                    store.close();
+                }
+                catch (IOException ex) {
+                    // Not much we can do
+                }
+            }
+        }
+    }
+
+    /**
+     * Create a new feedbackstore with the specified storeId and fileNumber.
+     * 
+     * @param storeId
+     *            the storeId
+     * @param fileNumber
+     *            the new sequence number for this storeID
+     * @return a feedbackstore
+     */
+    private FeedbackStore createStore(long storeId, int fileNumber) throws IOException {
+        File storeFile = new File(m_baseDir, getStoreName(storeId, fileNumber));
+        m_storeFileIdx.get(storeId).add(Integer.valueOf(fileNumber));
+        return new FeedbackStore(storeFile, storeId);
+    }
+
+    /**
+     * Return all feedbackstores for a single storeId.
+     * 
+     * @param storeId
+     *            the storeId
+     * @return a list of all feedbackstores for this storeId
+     */
+    private FeedbackStore[] getAllStores(long storeId) throws IOException {
+        List<FeedbackStore> stores = new ArrayList<FeedbackStore>();
+
+        SortedSet<Integer> storeFileNos = m_storeFileIdx.get(storeId);
+
+        FeedbackStore currentStore = getCurrentStore();
+        if (currentStore.getId() == storeId) {
+            // The last one is the current store...
+            storeFileNos = storeFileNos.headSet(storeFileNos.last());
+        }
+        for (Integer fileNo : storeFileNos) {
+            stores.add(createStore(storeId, fileNo));
+        }
+        if (currentStore.getId() == storeId) {
+            stores.add(currentStore);
+        }
+
+        return stores.toArray(new FeedbackStore[stores.size()]);
+    }
+
+    /**
+     * Get the name of the store for a storeId
+     * 
+     * @param storeId
+     *            the storeId
+     * @return the basename of the file
+     */
+    private String getBaseStoreName(long storeId) {
+        return String.format("%s-%d.", m_name, storeId);
+    }
+
+    private FeedbackStore getCurrentStore() {
+        return m_currentStoreRef.get();
+    }
+
+    /**
+     * Returns the last file for the specified storeId
+     * 
+     * @param storeId
+     *            the storeID
+     * @return the latest (newest) file backing the specified storeID
+     */
+    private int getLastLogfileNumber(long storeId) throws IOException {
+        SortedSet<Integer> fileNos = m_storeFileIdx.get(storeId);
+        return (fileNos == null) ? 1 : fileNos.last();
+    }
+
+    /**
+     * Return the feedbackstore for the specified storeId. If there are multiple files for this storeId the last one is
+     * returned
+     * 
+     * @param the
+     *            storeId
+     * @return the feedbackstore for that storeID
+     */
+    private FeedbackStore getLastStore(long storeID) throws IOException {
+        FeedbackStore currentStore = getCurrentStore();
+        if (currentStore != null && currentStore.getId() == storeID) {
+            return currentStore;
+        }
+
+        int lastFileNo = getLastLogfileNumber(storeID);
+        return createStore(storeID, lastFileNo);
+    }
+
+    private int getLogfileNumber(String logfileName, long storeId) {
+        String extension = logfileName.replace(m_name + "-" + storeId + ".", "");
+        return Integer.parseInt(extension);
+    }
+
+    /**
+     * Return all store files for this store name, sorted by lastModifiedDate
+     * 
+     * @return a sorted list of files, oldest file first
+     */
+    private File[] getStoreFiles() throws IOException {
+        File[] files = (File[]) m_baseDir.listFiles(m_fileFilter);
+        if (files == null) {
+            throw new IOException("Unable to list store files in " + m_baseDir.getAbsolutePath());
+        }
+        // sort files on storeId and fileNumber
+        Arrays.sort(files, new Comparator<File>() {
+            public int compare(File f1, File f2) {
+                long storeId1 = getStoreId(f1);
+                long storeId2 = getStoreId(f2);
+
+                int result = (int) (storeId1 - storeId2);
+                if (result == 0) {
+                    int f1Number = getLogfileNumber(f1.getName(), storeId1);
+                    int f2Number = getLogfileNumber(f2.getName(), storeId2);
+                    result = f1Number - f2Number;
+                }
+                return result;
+            }
+        });
+        return files;
+    }
+
+    /**
+     * Parse the storeId from the specified fileName
+     * 
+     * @param storeFile
+     *            a store file
+     * @return the storeId
+     */
+    private long getStoreId(File storeFile) {
+        Pattern p = Pattern.compile(m_name + "-(\\d+)");
+        Matcher m = p.matcher(storeFile.getName());
+        if (m.find()) {
+            return Long.parseLong(m.group(1));
+        }
+        throw new RuntimeException("Invalid store file name: " + storeFile.getName());
+    }
+
+    /**
+     * Get the name of the store for a storeId
+     * 
+     * @param storeId
+     *            the storeId
+     * @return the basename of the file
+     */
+    private String getStoreName(long storeId, int fileNo) {
+        return String.format("%s%d", getBaseStoreName(storeId), fileNo);
+    }
+
+    private String getTargetID() {
+        IdentificationHandler idHandler = m_agentContext.getHandler(IdentificationHandler.class);
+        return idHandler.getAgentId();
     }
 
     /**
@@ -259,8 +487,8 @@ public class FeedbackStoreManager {
      */
     private void handleException(FeedbackStore store, Exception exception) throws IOException {
         logError("Exception caught while accessing feedback channel store #%d", exception, store.getId());
-        if (store == m_currentStore) {
-            m_currentStore = newFeedbackStore();
+        if (store == getCurrentStore()) {
+            setStore(newFeedbackStore()); // XXX
         }
 
         try {
@@ -286,87 +514,12 @@ public class FeedbackStoreManager {
      * 
      * @return is the maximum reached
      */
-    private boolean isCurrentStoreMaximumFileSizeReached() throws IOException {
-        return (m_currentStore.getFileSize()) >= (m_maxFileSize / NUMBER_OF_FILES);
+    private boolean isMaximumStoreSizeReached(FeedbackStore store) throws IOException {
+        return store.getFileSize() >= m_maxFileSize;
     }
 
-    /**
-     * Check if the maximum fileSize for all the logfiles together is reached
-     * 
-     * @return is the cleanup required
-     */
-    private boolean isCleanupRequired() throws IOException {
-        return getFileSize(getStoreFiles()) >= (m_maxFileSize);
-    }
-
-    /**
-     * Removes old logfiles starting from the oldest file. It stops when there is 10% free space.
-     */
-    private void cleanup() throws IOException {
-        File[] files = getStoreFiles();
-        while (getFileSize(files) > ((m_maxFileSize) / (NUMBER_OF_FILES - 1))) {
-            File oldestFile = files[0];
-            if (oldestFile != null) {
-                oldestFile.delete();
-            }
-            files = getStoreFiles();
-        }
-    }
-
-    /**
-     * Return the filesize of the given files in Kb
-     * 
-     * @param files
-     *            a list of files
-     */
-    private long getFileSize(File[] files) {
-        long size = 0;
-        for (File file : files) {
-            size += file.length();
-        }
-        return size;
-    }
-
-    /**
-     * Return the feedbackstore for the specified storeId. If there are multiple files for this storeId the last one is
-     * returned
-     * 
-     * @param the
-     *            storeId
-     * @return the feedbackstore for that storeID
-     */
-    private FeedbackStore getLastStore(long storeID) throws IOException {
-        if (m_currentStore != null && m_currentStore.getId() == storeID) {
-            return m_currentStore;
-        }
-
-        return createStore(storeID);
-    }
-
-    /**
-     * Return all store files for this store name, sorted by lastModifiedDate
-     * 
-     * @return a sorted list of files, oldest file first
-     */
-    private File[] getStoreFiles() throws IOException {
-        File[] files = (File[]) m_baseDir.listFiles(m_fileFilter);
-        if (files == null) {
-            throw new IOException("Unable to list store files in " + m_baseDir.getAbsolutePath());
-        }
-        // sort files on storeId and fileNumber
-        Arrays.sort(files, new Comparator<File>() {
-            public int compare(File f1, File f2) {
-                int result = (int) (getStoreId(f1) - getStoreId(f2));
-                if (result == 0) {
-                    int f1Number = getLogfileNumber(f1.getName(), getStoreName(getStoreId(f1)));
-                    int f2Number = getLogfileNumber(f2.getName(), getStoreName(getStoreId(f2)));
-                    result = f1Number - f2Number;
-                }
-                return result;
-            }
-
-        });
-        return files;
+    private void logError(String msg, Exception cause, Object... args) {
+        m_agentContext.getHandler(LoggingHandler.class).logError("feedbackChannel(" + m_name + ")", msg, cause, args);
     }
 
     /**
@@ -376,136 +529,35 @@ public class FeedbackStoreManager {
      */
     private FeedbackStore newFeedbackStore() throws IOException {
         long storeId = System.currentTimeMillis();
-        while (!(new File(m_baseDir, getStoreName(storeId) + ".1")).createNewFile()) {
+
+        String storeFilename;
+        File storeFile;
+        do {
+            storeFilename = getStoreName(storeId, 1);
+            storeFile = new File(m_baseDir, storeFilename);
+            if (storeFile.createNewFile()) {
+                break;
+            }
             storeId++;
         }
-        return new FeedbackStore(new File(m_baseDir, getStoreName(storeId) + ".1"), storeId);
+        while (true);
+
+        m_storeFileIdx.put(storeId, new TreeSet<Integer>(Arrays.asList(1)));
+
+        return new FeedbackStore(storeFile, storeId);
     }
 
-    /**
-     * Return all feedbackstores for a single storeId.
-     * 
-     * @param storeId
-     *            the storeId
-     * @return a list of all feedbackstores for this storeId
-     */
-    private FeedbackStore[] getAllStores(long storeId) throws IOException {
-        List<FeedbackStore> stores = new ArrayList<FeedbackStore>();
-        File[] files = getStoreFiles();
-        for (File file : files) {
-            if (storeId == getStoreId(file)) {
-                stores.add(new FeedbackStore(file, storeId));
-            }
+    private FeedbackStore setStore(FeedbackStore store) throws IOException {
+        FeedbackStore old;
+        do {
+            old = m_currentStoreRef.get();
+        }
+        while (!m_currentStoreRef.compareAndSet(old, store));
+
+        if (old != null) {
+            old.close();
         }
 
-        // replace the last reference to the current store to make sure there are no multiple FeedbackStores for one
-        // file
-        if (stores.size() >= 1 && m_currentStore.getId() == storeId) {
-            stores.set(stores.size() - 1, m_currentStore);
-        }
-        return stores.toArray(new FeedbackStore[stores.size()]);
+        return store;
     }
-
-    /**
-     * Create the feedbackstore for the specified storeId. If this storeId is already backed by files on disk then the
-     * last file will be used to create this feedbackstore.
-     * 
-     * @param storeId
-     *            the storeId
-     * @return the newest feedbackstore for this storeID
-     */
-    private FeedbackStore createStore(long storeId) throws IOException {
-        return createStore(storeId, getLastLogfileNumber(storeId));
-    }
-
-    /**
-     * Create a new feedbackstore with the specified storeId and fileNumber.
-     * 
-     * @param storeId
-     *            the storeId
-     * @param fileNumber
-     *            the new sequence number for this storeID
-     * @return a feedbackstore
-     */
-    private FeedbackStore createStore(long storeId, int fileNumber) throws IOException {
-        if (isCleanupRequired()) {
-            cleanup();
-        }
-        return new FeedbackStore(new File(m_baseDir, getStoreName(storeId) + "." + fileNumber), storeId);
-    }
-
-    /**
-     * Returns the last file for the specified storeId
-     * 
-     * @param storeId
-     *            the storeID
-     * @return the latest (newest) file backing the specified storeID
-     */
-    private int getLastLogfileNumber(long storeId) throws IOException {
-        File[] storeFiles = getStoreFiles();
-        String storeName = getStoreName(storeId);
-
-        int lastNumber = 1;
-        for (File file : storeFiles) {
-            String fileName = file.getName();
-            if (fileName.contains(storeName)) {
-                lastNumber = getLogfileNumber(fileName, storeName);
-            }
-        }
-        return lastNumber;
-    }
-
-    /**
-     * Get the name of the store for a storeId
-     * 
-     * @param storeId
-     *            the storeId
-     * @return the basename of the file
-     */
-    private String getStoreName(long storeId) {
-        return m_name + "-" + storeId;
-    }
-
-    private int getLogfileNumber(String logfileName, String storeName) {
-        String extension = logfileName.replace(storeName + ".", "");
-        return Integer.parseInt(extension);
-
-    }
-
-    /**
-     * Parse the storeId from the specified fileName
-     * 
-     * @param storeFile
-     *            a store file
-     * @return the storeId
-     */
-    private long getStoreId(File storeFile) {
-        // remove the extension from the filename
-        String storeName = storeFile.getName().replaceFirst("[.][^.]+$", "");
-        return Long.parseLong(storeName.replace(m_name + "-", ""));
-    }
-
-    /**
-     * Close all the feedbackstores if necessary
-     * 
-     * @param stores
-     *            a list of stores
-     */
-    private void closeIfNeeded(FeedbackStore[] stores) {
-        for (FeedbackStore store : stores) {
-            if (store != m_currentStore) {
-                try {
-                    store.close();
-                }
-                catch (IOException ex) {
-                    // Not much we can do
-                }
-            }
-        }
-    }
-
-    private void logError(String msg, Exception cause, Object... args) {
-        m_agentContext.getHandler(LoggingHandler.class).logError("feedbackChannel(" + m_name + ")", msg, cause, args);
-    }
-
 }

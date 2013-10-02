@@ -20,8 +20,8 @@ package org.apache.ace.log;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
-import java.util.Dictionary;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.ace.feedback.AuditEvent;
 import org.apache.ace.feedback.Event;
@@ -30,13 +30,13 @@ import org.testng.annotations.Test;
 public class LogEventTest {
     @Test(groups = { UNIT })
     public void serializeLogEvent() {
-        Event e = new Event("gwid", 1, 2, 3, AuditEvent.FRAMEWORK_STARTED, new Properties());
+        Event e = new Event("gwid", 1, 2, 3, AuditEvent.FRAMEWORK_STARTED);
         assert e.toRepresentation().equals("gwid,1,2,3," + AuditEvent.FRAMEWORK_STARTED);
-        Properties p = new Properties();
+        Map<String, String> p = new HashMap<String, String>();
         p.put(AuditEvent.KEY_ID, "my first value");
         e = new Event("gwid", 1, 2, 3, AuditEvent.BUNDLE_INSTALLED, p);
         assert e.toRepresentation().equals("gwid,1,2,3," + AuditEvent.BUNDLE_INSTALLED + "," + AuditEvent.KEY_ID + ",my first value");
-        e = new Event("gwid,gwid\n\r$", 1, 2, 3, AuditEvent.FRAMEWORK_STARTED, new Properties());
+        e = new Event("gwid,gwid\n\r$", 1, 2, 3, AuditEvent.FRAMEWORK_STARTED);
         assert e.toRepresentation().equals("gwid$kgwid$n$r$$,1,2,3," + AuditEvent.FRAMEWORK_STARTED);
     }
 
@@ -49,12 +49,13 @@ public class LogEventTest {
         assert e.getID() == 2 : "ID is not correctly parsed";
         assert e.getTime() == 3 : "Time is not correctly parsed";
         assert e.getType() == AuditEvent.FRAMEWORK_STARTED : "Event type is wrong";
-        Dictionary p = e.getProperties();
+        Map<String, String> p = e.getProperties();
         assert p != null : "Properties are not correctly parsed";
         assert p.get("a").equals("1") : "Property a should be 1";
         assert p.get("b").equals("2") : "Property a should be 1";
         assert p.get("c").equals("3") : "Property a should be 1";
     }
+
     @Test(groups = { UNIT })
     public void deserializeIllegalLogEvent() {
         try {

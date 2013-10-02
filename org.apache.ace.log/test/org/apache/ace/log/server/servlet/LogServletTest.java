@@ -24,14 +24,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
-import org.apache.ace.log.server.servlet.LogServlet;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.test.utils.TestUtils;
@@ -44,8 +42,8 @@ public class LogServletTest {
 
     private LogServlet m_logServlet;
     private Descriptor m_range = new Descriptor("tID", 123, new SortedRangeSet("1-3"));
-    private Event m_event1 = new Event("tID", 123, 1, 888888, 1, new Properties());
-    private Event m_event2 = new Event("tID", 123, 2, 888888, 2, new Properties());
+    private Event m_event1 = new Event("tID", 123, 1, 888888, 1);
+    private Event m_event2 = new Event("tID", 123, 2, 888888, 2);
     private MockLogStore m_mockStore;
 
     @BeforeMethod(alwaysRun = true)

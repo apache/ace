@@ -27,10 +27,12 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.SortedSet;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.testutil.BaseAgentTest;
+import org.apache.ace.feedback.Event;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -88,44 +90,46 @@ public class FeedbackStoreManagerTest extends BaseAgentTest {
         long storeID = getStoreID(feedbackStoreManager);
 
         assertEquals(feedbackStoreManager.getHighestEventID(storeID), 0);
-        feedbackStoreManager.write(1, new HashMap<String, String>());
-        assertEquals(feedbackStoreManager.getHighestEventID(storeID), 1);
 
-        assertEquals(feedbackStoreManager.getEvents(storeID, 1, 1).size(), 1);
+        feedbackStoreManager.write(1, new HashMap<String, String>());
+
+        assertEquals(feedbackStoreManager.getHighestEventID(storeID), 1);
+        assertEquals(feedbackStoreManager.getEvents(storeID, 0, 1).size(), 1);
 
         feedbackStoreManager.forceCreateNewStore();
 
-        assertEquals(feedbackStoreManager.getEvents(storeID, 1, 1).size(), 1);
+        assertEquals(feedbackStoreManager.getEvents(storeID, 0, 1).size(), 1);
     }
 
     @Test
     public void testLogfileRotation() throws Exception {
-        int maxSize = 20;
+        int maxSize = 100 * 1024;
 
-        FeedbackStoreManager feedbackStoreManager = new FeedbackStoreManager(m_agentContext, "test", maxSize);
+        FeedbackStoreManager feedbackStoreManager = new FeedbackStoreManager(m_agentContext, "test", maxSize, maxSize / 5);
         long storeID = getStoreID(feedbackStoreManager);
+        
+        int recordCount = 1000;
 
         assertEquals(feedbackStoreManager.getHighestEventID(storeID), 0);
         // absolutely exceed the set filesize for this store
-        for (int i = 0; i < 1000; i++) {
-            feedbackStoreManager.write(1, new HashMap<String, String>());
+        for (int i = 0; i < recordCount; i++) {
+            HashMap<String, String> eventProps = new HashMap<String, String>();
+            eventProps.put("key", "value" + i);
+            feedbackStoreManager.write(i, eventProps);
         }
 
         File[] logFiles = getLogFiles();
+        assertTrue(logFiles.length > 1);
 
-        assertTrue(logFiles.length <= 10);
-        // first available id
-        FeedbackStore first = new FeedbackStore(logFiles[0], getStoreId(logFiles[0]));
-        first.reset();
-        long firstId = first.readCurrentID() - 1;
-
-        assertEquals(feedbackStoreManager.getEvents(storeID, 1, 1000).size(), (1000 - firstId));
+        // take the last 1000 events...
+        List<Event> events = feedbackStoreManager.getEvents(storeID, 1, 1000);
+        assertEquals(events.size(), 1000);
 
         long logFileSize = 0;
         for (File file : logFiles) {
             logFileSize += file.length();
         }
-        assertTrue(logFileSize < (maxSize * 1024));
+        assertTrue(logFileSize < maxSize);
     }
 
     private long getStoreID(FeedbackStoreManager feedbackStoreManager) throws Exception {

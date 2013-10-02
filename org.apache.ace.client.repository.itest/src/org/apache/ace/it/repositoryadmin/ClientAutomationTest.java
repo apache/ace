@@ -86,8 +86,7 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
 
     private void doAutoTargetReg() throws Exception {
         List<Event> events = new ArrayList<Event>();
-        Properties props = new Properties();
-        events.add(new Event("anotherTarget", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("anotherTarget", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         // fill auditlog; no install data
         m_auditLogStore.put(events);
 
@@ -122,7 +121,7 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
 
             // add a target which will not be autoregistered
             events.clear();
-            events.add(new Event("secondTarget", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+            events.add(new Event("secondTarget", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
             m_auditLogStore.put(events);
 
             // do auto target action

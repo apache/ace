@@ -31,7 +31,6 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -70,12 +69,12 @@ public class FeedbackChannelImpl implements FeedbackChannel {
         m_storeManager = new FeedbackStoreManager(agentContext, name);
     }
 
-    public synchronized void stop() throws IOException {
+    public void stop() throws IOException {
         m_storeManager.close();
     }
 
     @Override
-    public synchronized void sendFeedback() throws RetryAfterException, IOException {
+    public void sendFeedback() throws RetryAfterException, IOException {
         String identification = getIdentification();
         URL serverURL = getServerURL();
 
@@ -96,8 +95,8 @@ public class FeedbackChannelImpl implements FeedbackChannel {
             if (sendConnection instanceof HttpURLConnection) {
                 ((HttpURLConnection) sendConnection).setChunkedStreamingMode(8192);
             }
-
             writer = new BufferedWriter(new OutputStreamWriter(sendConnection.getOutputStream()));
+
             SortedSet<Long> storeIDs = m_storeManager.getAllFeedbackStoreIDs();
             for (Long storeID : storeIDs) {
                 URL queryURL = new URL(serverURL, m_name + "/" + COMMAND_QUERY + "?" + PARAMETER_TARGETID + "=" + identification + "&" + PARAMETER_LOGID + "=" + storeID);
@@ -121,7 +120,7 @@ public class FeedbackChannelImpl implements FeedbackChannel {
     }
 
     @Override
-    public synchronized void write(int type, Map<String, String> properties) throws IOException {
+    public void write(int type, Map<String, String> properties) throws IOException {
         m_storeManager.write(type, properties);
     }
 
@@ -174,32 +173,41 @@ public class FeedbackChannelImpl implements FeedbackChannel {
 
     private void synchronizeStore(long storeID, InputStream queryInput, Writer sendWriter) throws IOException {
         long highestLocal = m_storeManager.getHighestEventID(storeID);
-        if (highestLocal == 0) {
+        if (highestLocal <= 0) {
+            // manager is closed...
             return;
         }
+
         SortedRangeSet localRange = new SortedRangeSet("1-" + highestLocal);
         SortedRangeSet remoteRange = getQueryDescriptor(queryInput).getRangeSet();
         SortedRangeSet delta = remoteRange.diffDest(localRange);
         RangeIterator rangeIterator = delta.iterator();
         if (!rangeIterator.hasNext()) {
+            // nothing to sync...
             return;
         }
-        String identification = getIdentification();
         long lowest = rangeIterator.next();
         long highest = delta.getHigh();
-        if (lowest <= highest) {
-            List<Event> events = m_storeManager.getEvents(storeID, lowest, highestLocal > highest ? highest : highestLocal);
-            Iterator<Event> iter = events.iterator();
-            while (iter.hasNext()) {
-                Event current = (Event) iter.next();
-                while ((current.getID() > lowest) && rangeIterator.hasNext()) {
-                    lowest = rangeIterator.next();
-                }
-                if (current.getID() == lowest) {
-                    Event event = new Event(identification, current);
-                    sendWriter.write(event.toRepresentation());
-                    sendWriter.write("\n");
-                }
+        if (lowest > highest) {
+            // nothing to sync...
+            return;
+        }
+
+        List<Event> events = m_storeManager.getEvents(storeID, lowest, highestLocal > highest ? highest : highestLocal);
+        if (events == null) {
+            // manager is closed...
+            return;
+        }
+
+        String identification = getIdentification();
+        for (Event current : events) {
+            while ((current.getID() > lowest) && rangeIterator.hasNext()) {
+                lowest = rangeIterator.next();
+            }
+            if (current.getID() == lowest) {
+                Event event = new Event(identification, current);
+                sendWriter.write(event.toRepresentation());
+                sendWriter.write("\n");
             }
         }
     }

@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
@@ -184,15 +183,14 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         // add auditlog data
         List<Event> events = new ArrayList<Event>();
-        Properties props = new Properties();
-        events.add(new Event("myNewTarget3", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("myNewTarget3", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         // add an (old) set of target properties
-        Properties props2 = new Properties();
+        Map<String, String> props2 = new HashMap<String, String>();
         props2.put("mykey", "myoldvalue");
         props2.put("myoldkey", "myoldvalue");
         events.add(new Event("myNewTarget3", 1, 2, 2, AuditEvent.TARGETPROPERTIES_SET, props2));
         // add a new set of target properties
-        Properties props3 = new Properties();
+        Map<String, String> props3 = new HashMap<String, String>();
         props3.put("mykey", "myvalue");
         events.add(new Event("myNewTarget3", 1, 3, 3, AuditEvent.TARGETPROPERTIES_SET, props3));
         m_auditLogStore.put(events);
@@ -207,8 +205,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         // add auditlog data for other target
         events = new ArrayList<Event>();
-        props = new Properties();
-        events.add(new Event("myNewTarget4", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("myNewTarget4", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         m_auditLogStore.put(events);
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
@@ -337,8 +334,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         // add auditlog data
         List<Event> events = new ArrayList<Event>();
-        Properties props = new Properties();
-        events.add(new Event("myNewGatewayA", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("myNewGatewayA", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         m_auditLogStore.put(events);
         m_statefulTargetRepository.refresh();
 
@@ -352,8 +348,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         }
         // add auditlog data for other gateway
         events = new ArrayList<Event>();
-        props = new Properties();
-        events.add(new Event("myNewGatewayB", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("myNewGatewayB", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         m_auditLogStore.put(events);
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
@@ -450,9 +445,8 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         final String targetId = String.format("target-%s", Long.toHexString(System.nanoTime()));
 
         List<Event> events = new ArrayList<Event>();
-        Properties props = new Properties();
 
-        events.add(new Event(targetId, 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event(targetId, 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         // fill auditlog; no install data
         m_auditLogStore.put(events);
 
@@ -470,7 +464,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         // fill auditlog with complete-data
         events = new ArrayList<Event>();
-        props = new Properties();
+        Map<String, String> props = new HashMap<String, String>();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "123");
         events.add(new Event(targetId, 1, 2, 2, AuditEvent.DEPLOYMENTCONTROL_INSTALL, props));
@@ -489,7 +483,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         // fill auditlog with install data
         events = new ArrayList<Event>();
-        props = new Properties();
+        props = new HashMap<String, String>();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "123");
         props.put(AuditEvent.KEY_SUCCESS, "false");
@@ -514,7 +508,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         // add another install event.
         events = new ArrayList<Event>();
-        props = new Properties();
+        props = new HashMap<String, String>();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "124");
         events.add(new Event(targetId, 1, 4, 4, AuditEvent.DEPLOYMENTCONTROL_INSTALL, props));
@@ -533,7 +527,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         // fill auditlog with install data
         events = new ArrayList<Event>();
-        props = new Properties();
+        props = new HashMap<String, String>();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "124");
         props.put(AuditEvent.KEY_SUCCESS, "true");
@@ -630,10 +624,9 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         final String targetID = ":)";
 
         List<Event> events = new ArrayList<Event>();
-        Properties props = new Properties();
 
         // add a target with a weird name.
-        events.add(new Event(targetID, 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event(targetID, 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         // fill auditlog; no install data
         m_auditLogStore.put(events);
 

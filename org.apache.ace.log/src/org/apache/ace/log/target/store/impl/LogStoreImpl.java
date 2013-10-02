@@ -24,10 +24,13 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.ace.identification.Identification;
 import org.apache.ace.feedback.Event;
+import org.apache.ace.identification.Identification;
 import org.apache.ace.log.target.store.LogStore;
 import org.osgi.service.log.LogService;
 
@@ -245,14 +248,21 @@ public class LogStoreImpl implements LogStore {
      * 
      * @param type
      *            the type the event.
-     * @param props
+     * @param dict
      *            the properties of the event.
      * @return the new event.
      * @throws java.io.IOException
      *             in case of any IO error.
      */
-    public synchronized Event put(int type, Dictionary props) throws IOException {
+    public synchronized Event put(int type, Dictionary dict) throws IOException {
         try {
+            Map<String, String> props = new HashMap<String, String>();
+            Enumeration keys = dict.keys();
+            while (keys.hasMoreElements()) {
+                String key = (String) keys.nextElement();
+                props.put(key, (String) dict.get(key));
+            }
+            
             Event result = new Event(null, m_store.getId(), getNextID(), System.currentTimeMillis(), type, props);
             m_store.append(result.getID(), result.toRepresentation().getBytes());
             return result;

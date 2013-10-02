@@ -54,7 +54,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     private final Object m_lock = new Object();
     private TargetObject m_targetObject;
     private List<Descriptor> m_processedAuditEvents = new ArrayList<Descriptor>();
-    private Dictionary m_processedTargetProperties;
+    private Map<String, String> m_processedTargetProperties;
     private Map<String, String> m_attributes = new HashMap<String, String>();
     /** This boolean is used to suppress STATUS_CHANGED events during the creation of the object. */
     private boolean m_inConstructor = true;
@@ -386,7 +386,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     private void determineTargetPropertiesState() {
         // only process them if the target is already registered
         if (isRegistered() && m_processedTargetProperties != null) {
-            Dictionary tags = m_processedTargetProperties;
+            Map<String, String> tags = m_processedTargetProperties;
             m_processedTargetProperties = null;
             // clear "old" tags starting with the prefix
             Enumeration<String> keys = m_targetObject.getTagKeys();
@@ -401,10 +401,8 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
                 m_targetObject.removeTag(keyToDelete);
             }
             // add new tags and prefix them
-            Enumeration newKeys = tags.keys();
-            while (newKeys.hasMoreElements()) {
-                String newKey = (String) newKeys.nextElement();
-                m_targetObject.addTag(TARGETPROPERTIES_PREFIX + newKey, (String) tags.get(newKey));
+            for (String newKey : tags.keySet()) {
+                m_targetObject.addTag(TARGETPROPERTIES_PREFIX + newKey, tags.get(newKey));
             }
         }
     }

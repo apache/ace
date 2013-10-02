@@ -22,7 +22,12 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * The general idea is to provide easy access to a file of records. It supports iterating over records both by skipping
@@ -30,9 +35,35 @@ import java.util.concurrent.atomic.AtomicLong;
  * record in case of an error -- hence, a call to truncate after an IOException might make the store readable again.
  */
 public class FeedbackStore {
+    /**
+     * Denotes a single record stored in a FeedbackStore.
+     */
+    public static class Record implements Comparable<Record> {
+        public final long m_id;
+        public final byte[] m_entry;
+
+        /**
+         * Creates a new {@link Record} instance.
+         */
+        public Record(long id, byte[] entry) {
+            m_id = id;
+            m_entry = entry;
+        }
+
+        @Override
+        public int compareTo(Record other) {
+            return (m_id < other.m_id ? -1 : (m_id == other.m_id ? 0 : 1));
+        }
+    }
+
+    private final File m_storeFile;
     private final RandomAccessFile m_store;
     private final long m_id;
-    private final AtomicLong m_current;
+
+    private long m_lowestEventID;
+    private long m_highestEventID;
+
+    private final ReadWriteLock m_rwLock = new ReentrantReadWriteLock();
 
     /**
      * Create a new File based Store.
@@ -45,31 +76,105 @@ public class FeedbackStore {
      *             in case the file is not rw.
      */
     FeedbackStore(File store, long id) throws IOException {
-        m_store = new RandomAccessFile(store, "rwd");
+        m_storeFile = store;
+        m_store = new RandomAccessFile(store, "rw");
         m_id = id;
-        m_current = new AtomicLong(0);
+
+        init();
     }
 
     /**
-     * Get the id of the current record.
+     * Store the given record data as the next record.
      * 
-     * @return the idea of the current record.
+     * @param entry
+     *            the data of the record to store.
+     * @throws IOException
+     *             in case of any IO error.
      */
-    public long getCurrent() throws IOException {
-        long pos = m_store.getFilePointer();
-        if (m_store.length() == 0) {
-            return 0;
-        }
-        long result = 0;
+    public void append(long id, byte[] entry) throws IOException {
+        Lock writeLock = m_rwLock.writeLock();
+
+        writeLock.lock();
         try {
-            m_store.seek(m_current.get());
-            result = readCurrentID();
-            m_store.seek(pos);
+            long pos = m_store.getFilePointer();
+            try {
+                long current = m_store.length();
+                // Go to end of file...
+                m_store.seek(current);
+
+                m_store.writeLong(id);
+                m_store.writeInt(entry.length);
+                m_store.write(entry);
+
+                // System.out.printf("Appended %d bytes for record #%d at %d (current = %d).%n", entry.length, id,
+                // current, m_store.getFilePointer());
+
+                // Go back to start of record...
+                m_store.seek(current);
+
+                updateIDs(id);
+            }
+            catch (IOException ex) {
+                handle(pos, ex);
+            }
         }
-        catch (IOException ex) {
-            handle(pos, ex);
+        finally {
+            writeLock.unlock();
         }
-        return result;
+    }
+
+    /**
+     * Release all resources.
+     * 
+     * @throws IOException
+     *             in case of any IO error.
+     */
+    public void close() throws IOException {
+        Lock writeLock = m_rwLock.writeLock();
+
+        writeLock.lock();
+        try {
+            m_store.close();
+        }
+        finally {
+            writeLock.unlock();
+        }
+    }
+
+    /**
+     * Return the filesize for this file
+     * 
+     * @return the size in bytes
+     * @throws IOException
+     *             in case of any IO error.
+     */
+    public long getFileSize() throws IOException {
+        Lock readLock = m_rwLock.readLock();
+
+        readLock.lock();
+        try {
+            return m_store.length();
+        }
+        finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
+     * Get the ID of the first written event record, which is most of the times the first event record.
+     * 
+     * @return the ID of the first record, >= 0.
+     */
+    public long getFirstEventID() {
+        Lock readLock = m_rwLock.readLock();
+
+        readLock.lock();
+        try {
+            return m_lowestEventID;
+        }
+        finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -82,76 +187,68 @@ public class FeedbackStore {
     }
 
     /**
-     * Reset the store to the beginning of the records
+     * Get the ID of the last written event record, which is most of the times the current event record.
      * 
-     * @throws java.io.IOException
-     *             in case of an IO error.
+     * @return the ID of the current record, >= 0.
      */
-    public void reset() throws IOException {
-        m_store.seek(0);
-        m_current.set(0);
-    }
+    public long getLastEventID() {
+        Lock readLock = m_rwLock.readLock();
 
-    /**
-     * Determine whether there are any records left based on the current postion.
-     * 
-     * @return <code>true</code> if there are still records to be read.
-     * @throws IOException
-     *             in case of an IO error.
-     */
-    public boolean hasNext() throws IOException {
-        return m_store.getFilePointer() < m_store.length();
-    }
-
-    /**
-     * Read a single logevent from this file
-     * 
-     * @return the bytes for a single logevent
-     * @throws IOException
-     *             in case of an IO error.
-     */
-    @SuppressWarnings("unused")
-    public byte[] read() throws IOException {
-        long pos = m_store.getFilePointer();
+        readLock.lock();
         try {
-            if (pos < m_store.length()) {
-                long current = m_store.getFilePointer();
-                long id = m_store.readLong();
-                int next = m_store.readInt();
-                byte[] entry = new byte[next];
-                m_store.readFully(entry);
-                setCurrent(current);
-                return entry;
-            }
-        }
-        catch (IOException ex) {
-            handle(pos, ex);
-        }
-        return null;
-    }
-
-    /**
-     * Return the id for the logevent at the current position in the file
-     * 
-     * @return the event id
-     * @throws IOException
-     *             in case of an IO error.
-     */
-    public long readCurrentID() throws IOException {
-        long pos = m_store.getFilePointer();
-        try {
-            if (pos < m_store.length()) {
-                long id = m_store.readLong();
-                return id;
-            }
-        }
-        catch (IOException ex) {
-            handle(pos, ex);
+            return m_highestEventID;
         }
         finally {
-            m_store.seek(pos);
+            readLock.unlock();
         }
-        return -1;
+    }
+
+    public List<Record> getRecords(long fromId, long toId) throws IOException {
+        RandomAccessFile raf = null;
+
+        List<Record> result = new ArrayList<Record>();
+
+        try {
+            // Take a NEW file instance as to ensure we do not
+            // disturb any concurrent writes while initializing...
+            raf = new RandomAccessFile(m_storeFile, "r");
+
+            // the length is live-updated, so we should be able
+            // to get as close as possible to the last written record...
+            while (raf.getFilePointer() < raf.length()) {
+                int headerSize = 12; // 8 for long, 4 for int...
+                waitToRead(raf, headerSize);
+
+                long id = raf.readLong();
+                int entrySize = raf.readInt();
+                waitToRead(raf, entrySize);
+
+                if ((id >= fromId) && (id <= toId)) {
+                    byte[] buffer = new byte[entrySize];
+                    raf.readFully(buffer);
+
+                    result.add(new Record(id, buffer));
+                }
+                else {
+                    int actual = 0;
+                    do {
+                        actual += raf.skipBytes(entrySize - actual);
+                    }
+                    while (actual < entrySize);
+                }
+            }
+        }
+        finally {
+            try {
+                if (raf != null) {
+                    raf.close();
+                }
+            }
+            catch (IOException ignored) {
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -160,64 +257,71 @@ public class FeedbackStore {
      * @throws IOException
      *             in case of any IO error.
      */
-    public void init() throws IOException {
-        reset();
+    void init() throws IOException {
+        Lock writeLock = m_rwLock.writeLock();
+        RandomAccessFile raf = null;
+
         try {
-            while (true) {
-                skip();
+            // Take a NEW file instance as to ensure we do not
+            // disturb any concurrent writes while initializing...
+            raf = new RandomAccessFile(m_storeFile, "r");
+
+            long lowest = Long.MAX_VALUE;
+            long highest = Long.MIN_VALUE;
+            boolean empty = true;
+
+            // the length is live-updated, so we should be able
+            // to get as close as possible to the last written record...
+            while (raf.getFilePointer() < raf.length()) {
+                long id = skip(raf);
+
+                lowest = Math.min(lowest, id);
+                highest = Math.max(highest, id);
+                empty = false;
             }
+
+            if (empty) {
+                lowest = Long.MAX_VALUE;
+                highest = 0;
+            }
+
+            writeLock.lock();
+            try {
+                m_lowestEventID = lowest;
+                m_highestEventID = highest;
+            }
+            finally {
+                writeLock.unlock();
+            }
+
+//            System.out.printf("Init, range = %d..%d.%n", m_lowestEventID, m_highestEventID);
         }
-        catch (EOFException ex) {
-            // done
+        finally {
+            try {
+                if (raf != null) {
+                    raf.close();
+                }
+            }
+            catch (IOException ignored) {
+            }
         }
     }
 
     /**
-     * Skip the next record if there is any.
+     * Reset the store to the beginning of the records
      * 
-     * @throws IOException
-     *             in case of any IO error or if there is no record left.
+     * @throws java.io.IOException
+     *             in case of an IO error.
      */
-    @SuppressWarnings("unused")
-    public void skip() throws IOException {
-        long pos = m_store.getFilePointer();
-        try {
-            long id = m_store.readLong();
-            int next = m_store.readInt();
-            if (m_store.length() < next + m_store.getFilePointer()) {
-                throw new IOException("Unexpected end of file");
-            }
-            m_store.skipBytes(next);
-            setCurrent(pos);
-            pos = m_store.getFilePointer();
-        }
-        catch (IOException ex) {
-            handle(pos, ex);
-        }
-    }
+    void reset() throws IOException {
+        Lock writeLock = m_rwLock.writeLock();
 
-    /**
-     * Store the given record data as the next record.
-     * 
-     * @param entry
-     *            the data of the record to store.
-     * @throws IOException
-     *             in case of any IO error.
-     */
-    public void append(long id, byte[] entry) throws IOException {
-        long pos = m_store.getFilePointer();
-        long length = m_store.length();
+        writeLock.lock();
         try {
-            m_store.seek(length);
-            long current = m_store.getFilePointer();
-            m_store.writeLong(id);
-            m_store.writeInt(entry.length);
-            m_store.write(entry);
-            m_store.seek(pos);
-            setCurrent(current);
+            m_store.seek(0);
         }
-        catch (IOException ex) {
-            handle(pos, ex);
+        finally {
+            writeLock.unlock();
         }
     }
 
@@ -228,28 +332,15 @@ public class FeedbackStore {
      *             in case of any IO error.
      */
     public void truncate() throws IOException {
-        m_store.setLength(m_store.getFilePointer());
-    }
+        Lock writeLock = m_rwLock.writeLock();
 
-    /**
-     * Release any resources.
-     * 
-     * @throws IOException
-     *             in case of any IO error.
-     */
-    public void close() throws IOException {
-        m_store.close();
-    }
-
-    /**
-     * Return the filesize for this file
-     * 
-     * @return the size in bytes
-     * @throws IOException
-     *             in case of any IO error.
-     */
-    public long getFileSize() throws IOException {
-        return m_store.length();
+        writeLock.lock();
+        try {
+            m_store.setLength(m_store.getFilePointer());
+        }
+        finally {
+            writeLock.unlock();
+        }
     }
 
     private void handle(long pos, IOException exception) throws IOException {
@@ -265,11 +356,52 @@ public class FeedbackStore {
         throw exception;
     }
 
-    private void setCurrent(long pos) {
-        long old;
+    /**
+     * Skips an entire record for the given {@link RandomAccessFile}, assuming it is placed at the beginning of a
+     * record!
+     * 
+     * @param raf
+     *            the {@link RandomAccessFile} to skip a record in, cannot be <code>null</code>.
+     * @return the event ID of the skipped record.
+     * @throws IOException
+     *             in case of I/O errors.
+     */
+    private long skip(RandomAccessFile raf) throws IOException {
+        int headerSize = 12; // 8 for long, 4 for int...
+        waitToRead(raf, headerSize);
+
+        long lastId = raf.readLong();
+        int entrySize = raf.readInt();
+
+        waitToRead(raf, entrySize);
+
+        int actual = 0;
         do {
-            old = m_current.get();
+            actual += raf.skipBytes(entrySize - actual);
         }
-        while (!m_current.compareAndSet(old, pos));
+        while (actual < entrySize);
+
+        return lastId;
+    }
+
+    private void updateIDs(long eventID) {
+        if (eventID < m_lowestEventID) {
+            m_lowestEventID = eventID;
+        }
+        if (eventID > m_highestEventID) {
+            m_highestEventID = eventID;
+        }
+    }
+
+    private void waitToRead(RandomAccessFile raf, int bytesNeeded) throws IOException {
+        int tryCount = 2000;
+        while (tryCount-- > 0 && (raf.getFilePointer() + bytesNeeded) > raf.length()) {
+            // Looking at a file that is changing, so it might well that the size is changing, wait a little and try
+            // again (wait 1 usec, 2 msec total waiting time)...
+            LockSupport.parkNanos(1000L);
+        }
+        if (tryCount <= 0) {
+            throw new EOFException("Unexpected end of file, expected at least " + bytesNeeded + " additional bytes!");
+        }
     }
 }

@@ -24,8 +24,6 @@ import java.lang.reflect.Modifier;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -182,7 +180,7 @@ public class LogViewerExtension implements UIExtensionFactory {
      * @return a {@link TextArea} instance, never <code>null</code>.
      */
     final TextArea getProperties(Event event) {
-        Dictionary props = event.getProperties();
+        Map<String, String> props = event.getProperties();
 
         TextArea area = new TextArea("", dumpProperties(props));
         area.setWidth(FILL_AREA);
@@ -200,17 +198,15 @@ public class LogViewerExtension implements UIExtensionFactory {
     /**
      * Dumps the given dictionary to a string by placing all key,value-pairs on a separate line.
      * 
-     * @param dict
+     * @param props
      *            the dictionary to dump, may be <code>null</code>.
      * @return a string dump of all properties in the given dictionary, never <code>null</code>.
      */
-    private String dumpProperties(Dictionary dict) {
+    private String dumpProperties(Map<String, String> props) {
         StringBuilder sb = new StringBuilder();
-        if (dict != null) {
-            Enumeration keys = dict.keys();
-            while (keys.hasMoreElements()) {
-                String key = keys.nextElement().toString();
-                String value = dict.get(key).toString();
+        if (props != null) {
+            for (String key : props.keySet()) {
+                String value = props.get(key);
 
                 if (sb.length() > 0) {
                     sb.append("\n");

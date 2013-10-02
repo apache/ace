@@ -137,10 +137,10 @@ public class LogIntegrationTest extends IntegrationTestBase {
     private void doTestServlet() throws Exception {
         // prepare the store
         List<Event> events = new ArrayList<Event>();
-        events.add(new Event("42", 1, 1, 1, 1, new Properties()));
-        events.add(new Event("47", 1, 1, 1, 1, new Properties()));
-        events.add(new Event("47", 2, 1, 1, 1, new Properties()));
-        events.add(new Event("47", 2, 2, 1, 1, new Properties()));
+        events.add(new Event("42", 1, 1, 1, 1));
+        events.add(new Event("47", 1, 1, 1, 1));
+        events.add(new Event("47", 2, 1, 1, 1));
+        events.add(new Event("47", 2, 2, 1, 1));
         m_serverStore.put(events);
 
         List<String> result = getResponse("http://localhost:" + TestConstants.PORT + "/auditlog/query");

@@ -63,7 +63,6 @@ public class FeedbackChannelImplTest extends BaseAgentTest {
 
         List<Event> m_events = new ArrayList<Event>();
 
-        @SuppressWarnings("deprecation")
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             resp.setContentType("text/plain");
@@ -73,20 +72,19 @@ public class FeedbackChannelImplTest extends BaseAgentTest {
                 Event event = new Event(eventString);
                 m_events.add(event);
             }
-            resp.setStatus(200, "voila");
+            resp.setStatus(200);
         }
     }
 
     static class TestQueryFeedbackServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
 
-        @SuppressWarnings("deprecation")
         @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
             String targetID = request.getParameter("tid");
             long logID = Long.parseLong(request.getParameter("logid"));
             response.getOutputStream().print(new Descriptor(targetID, logID, new SortedRangeSet(new long[0])).toRepresentation());
-            response.setStatus(200, "voila");
+            response.setStatus(200);
         }
     }
 
