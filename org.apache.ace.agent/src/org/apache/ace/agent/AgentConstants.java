@@ -18,6 +18,8 @@
  */
 package org.apache.ace.agent;
 
+import org.apache.ace.feedback.AuditEvent;
+
 /**
  * Compile time constants for this package. Includes configuration keys and event topics.
  */
@@ -39,7 +41,13 @@ public interface AgentConstants {
      * , default is <code>INFO</code>.
      */
     String CONFIG_LOGGING_LEVEL = CONFIG_KEY_NAMESPACE + ".logging.level";
-
+    
+    /**
+     * Exclude list for auditlog events. Should be a comma separated list of integers, as defined by {@link AuditEvent}.
+     * Example : '2001,2003,2005,3001'
+     */
+    String CONFIG_LOGGING_EXCLUDE_EVENTS = CONFIG_KEY_NAMESPACE + ".logging.events.exclude";
+    
     /**
      * Configuration option to disable the default identification handler. When set to true some other bundle must
      * provide it as a service. Should be <code>{true,false}</code>, default is <code>false</code>.

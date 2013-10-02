@@ -18,9 +18,14 @@
  */
 package org.apache.ace.agent.impl;
 
+import static org.apache.ace.agent.AgentConstants.CONFIG_LOGGING_EXCLUDE_EVENTS;
+import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
+
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.ace.agent.AgentConstants;
@@ -48,12 +53,14 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
 
     private final BundleContext m_bundleContext;
     private final AtomicBoolean m_isStarted;
+    private final Set<Integer> m_excludeEventList;
 
     public EventLoggerImpl(BundleContext bundleContext) {
         super("auditlogger");
 
         m_bundleContext = bundleContext;
         m_isStarted = new AtomicBoolean(false);
+        m_excludeEventList = new HashSet<Integer>();
     }
 
     @Override
@@ -85,6 +92,26 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
             return;
         }
 
+        if (EVENT_AGENT_CONFIG_CHANGED.equals(topic)) {
+            String excludeEventsString = payload.get(CONFIG_LOGGING_EXCLUDE_EVENTS);
+            if (excludeEventsString != null && !"".equals(excludeEventsString.trim())) {
+                logDebug(CONFIG_LOGGING_EXCLUDE_EVENTS + " configuration changed to " + excludeEventsString);
+                Set<Integer> excludeEvents = new HashSet<Integer>();
+                for(String s:excludeEventsString.trim().split("\\s*,\\s*")) {
+                    try {
+                        excludeEvents.add(Integer.parseInt(s));
+                    } catch (NumberFormatException nfe) {
+                        logWarning("Unable to parse " + CONFIG_LOGGING_EXCLUDE_EVENTS,  nfe);
+                    }
+                }
+                
+                synchronized (m_excludeEventList) {
+                    m_excludeEventList.clear();
+                    m_excludeEventList.addAll(excludeEvents);
+                }
+            }
+        }
+        
         int eventType = AuditEvent.DEPLOYMENTADMIN_BASE;
         Map<String, String> props = new HashMap<String, String>();
 
@@ -228,7 +255,11 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
     private void writeAuditEvent(int eventType, Map<String, String> payload) {
         try {
             FeedbackChannel channel = getFeedbackHandler().getChannel(EVENTLOGGER_FEEDBACKCHANNEL);
-            if (channel != null) {
+            boolean isExcluded;
+            synchronized(m_excludeEventList) {
+                isExcluded = m_excludeEventList.contains(eventType);
+            }
+            if (channel != null && !isExcluded) {
                 channel.write(eventType, payload);
             }
         }
