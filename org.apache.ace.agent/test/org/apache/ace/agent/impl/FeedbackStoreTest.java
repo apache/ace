@@ -218,7 +218,7 @@ public class FeedbackStoreTest {
         start.countDown();
 
         // waiting both threads to finish...
-        assertTrue(stop.await(30, TimeUnit.SECONDS));
+        assertTrue(stop.await(10 * writerCount, TimeUnit.SECONDS));
 
         int writtenCount = 0;
         for (int i = 0; i < writers.length; i++) {
@@ -276,7 +276,7 @@ public class FeedbackStoreTest {
         start.countDown();
 
         // waiting both threads to finish...
-        assertTrue(stop.await(30, TimeUnit.SECONDS));
+        assertTrue(stop.await(10 * (writerCount + readerCount), TimeUnit.SECONDS));
 
         int readCount = 0;
         for (int i = 0; i < readers.length; i++) {
