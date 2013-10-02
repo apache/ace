@@ -18,9 +18,11 @@
  */
 package org.apache.ace.feedback;
 
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.ace.feedback.util.Codec;
@@ -34,9 +36,13 @@ public class Event implements Comparable {
     private final long m_id;
     private final long m_time;
     private final int m_type;
-    private final Dictionary m_properties;
+    private final Map<String, String> m_properties;
 
-    public Event(String targetID, long storeID, long id, long time, int type, Dictionary properties) {
+    public Event(String targetID, long storeID, long id, long time, int type) {
+        this(targetID, storeID, id, time, type, Collections.<String, String> emptyMap());
+    }
+
+    public Event(String targetID, long storeID, long id, long time, int type, Map<String, String> properties) {
         m_targetID = targetID;
         m_storeID = storeID;
         m_id = id;
@@ -45,8 +51,27 @@ public class Event implements Comparable {
         m_properties = properties;
     }
 
+    public Event(String targetID, long storeID, long id, long time, int type, Dictionary<String, String> dictionary) {
+        m_targetID = targetID;
+        m_storeID = storeID;
+        m_id = id;
+        m_time = time;
+        m_type = type;
+        m_properties = new HashMap<String, String>();
+
+        Enumeration<String> keys = dictionary.elements();
+        while (keys.hasMoreElements()) {
+            String key = keys.nextElement();
+            m_properties.put(key, dictionary.get(key));
+        }
+    }
+
     public Event(String targetID, Event source) {
         this(targetID, source.getStoreID(), source.getID(), source.getTime(), source.getType(), source.getProperties());
+    }
+
+    public Event(byte[] representation) {
+        this(new String(representation));
     }
 
     public Event(String representation) {
@@ -57,7 +82,7 @@ public class Event implements Comparable {
             m_id = Long.parseLong(st.nextToken());
             m_time = Long.parseLong(st.nextToken());
             m_type = Integer.parseInt(st.nextToken());
-            m_properties = new Properties();
+            m_properties = new HashMap<String, String>();
             while (st.hasMoreTokens()) {
                 m_properties.put(st.nextToken(), Codec.decode(st.nextToken()));
             }
@@ -79,13 +104,11 @@ public class Event implements Comparable {
         result.append(m_time);
         result.append(',');
         result.append(m_type);
-        Enumeration e = m_properties.keys();
-        while (e.hasMoreElements()) {
-            String key = (String) e.nextElement();
+        for (String key : m_properties.keySet()) {
             result.append(',');
             result.append(key);
             result.append(',');
-            result.append(Codec.encode((String) m_properties.get(key)));
+            result.append(Codec.encode(m_properties.get(key)));
         }
         return result.toString();
     }
@@ -126,9 +149,10 @@ public class Event implements Comparable {
     }
 
     /**
-     * Returns the properties of the event. Properties are restricted to simple key value pairs, only a couple of types are allowed: String, int, long, boolean (TODO what do we need?).
+     * Returns the properties of the event. Properties are restricted to simple key value pairs, only a couple of types
+     * are allowed: String, int, long, boolean (TODO what do we need?).
      */
-    public Dictionary getProperties() {
+    public Map<String, String> getProperties() {
         return m_properties;
     }
 
