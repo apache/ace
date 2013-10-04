@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.amdatu.mongo.MongoDBService;
 import org.apache.ace.feedback.Descriptor;
@@ -34,167 +33,175 @@ import org.apache.felix.dm.Component;
 import org.osgi.service.log.LogService;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.CommandResult;
 import com.mongodb.DBCollection;
-import com.mongodb.MongoException;
 
 public class MongoLogStoreTest extends IntegrationTestBase {
-	private volatile LogStore m_logStore;
-	private volatile MongoDBService m_mongodbService;
+    private volatile LogStore m_logStore;
+    private volatile MongoDBService m_mongodbService;
 
-	@Override
-	protected void configureProvisionedServices() throws Exception {
-		configureFactory("org.amdatu.mongo", "dbName", "ace");
-		configureFactory("org.apache.ace.log.server.store.factory", "name", "serverlog");
-		super.configureProvisionedServices();
-	}
+    private DBCollection m_collection;
 
-	protected org.apache.felix.dm.Component[] getDependencies() {
-		return new Component[] { createComponent().setImplementation(this)
-				.add(createServiceDependency().setService(LogStore.class).setRequired(true))
-				.add(createServiceDependency().setService(MongoDBService.class).setRequired(true)) };
-	}
+    public void testGetDescriptorsForTarget() throws Exception {
+        if (!canRunTest()) {
+            return;
+        }
 
-	public void testPutEvents() throws Exception {
+        storeEvents();
 
-		try {
-			DBCollection collection = m_mongodbService.getDB().getCollection("serverlog");
-			collection.remove(new BasicDBObject());
-			TimeUnit.SECONDS.sleep(2);
-
-			storeEvents();
-			collection = m_mongodbService.getDB().getCollection("serverlog");
-			assertEquals(5, collection.count());
-		} catch (MongoException ex) {
-			System.err.println("Mongodb not available on localhost, skipping test");
-		}
-	}
-
-	public void testGetEvents() throws Exception {
-		try {
-			DBCollection collection = m_mongodbService.getDB().getCollection("serverlog");
-			collection.remove(new BasicDBObject());
-			TimeUnit.SECONDS.sleep(2);
-
-			storeEvents();
-
-			List<Event> events = m_logStore.get(new Descriptor("mytarget1,1,0"));
-			assertEquals(3, events.size());
-		} catch (MongoException ex) {
-			System.err.println("Mongodb not available on localhost, skipping test");
-		}
-	}
-
-	public void testGetEventsWithRange() throws Exception {
-		try {
-			DBCollection collection = m_mongodbService.getDB().getCollection("serverlog");
-			collection.remove(new BasicDBObject());
-			TimeUnit.SECONDS.sleep(2);
-
-			storeEvents();
-
-			List<Event> events = m_logStore.get(new Descriptor("mytarget1,1,2"));
-			assertEquals(2, events.size());
-		} catch (Exception ex) {
-			System.err.println("Mongodb not available on localhost, skipping test");
-		}
-	}
-
-	public void testGetDescriptorsSingleLogId() throws Exception {
-		try {
-			DBCollection collection = m_mongodbService.getDB().getCollection("serverlog");
-			collection.remove(new BasicDBObject());
-			TimeUnit.SECONDS.sleep(2);
-
-			storeEvents();
-
-			List<Descriptor> descriptors = m_logStore.getDescriptors();
-			assertEquals(2, descriptors.size());
-			assertEquals("mytarget1", descriptors.get(0).getTargetID());
-			assertEquals(1, descriptors.get(0).getStoreID());
-			assertEquals(4, descriptors.get(0).getRangeSet().getHigh());
-			assertEquals("mytarget2", descriptors.get(1).getTargetID());
-			assertEquals(1, descriptors.get(1).getStoreID());
-			assertEquals(5, descriptors.get(1).getRangeSet().getHigh());
-		} catch (MongoException ex) {
-			System.err.println("Mongodb not available on localhost, skipping test");
-		}
-
-	}
-
-	public void testGetDescriptorsMultipleLogIds() throws Exception {
-		try {
-			DBCollection collection = m_mongodbService.getDB().getCollection("serverlog");
-			collection.remove(new BasicDBObject());
-			TimeUnit.SECONDS.sleep(2);
-
-			storeEvents();
-
-	        Map<String, String> props = new HashMap<String, String>();
-			props.put("myProperty", "myvalue");
-
-			Event event1 = new Event("mytarget1", 2, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-			Event event2 = new Event("mytarget1", 2, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-
-			m_logStore.put(Arrays.asList(event1, event2));
-
-			List<Descriptor> descriptors = m_logStore.getDescriptors();
-			assertEquals(3, descriptors.size());
-			assertEquals("mytarget1", descriptors.get(0).getTargetID());
-			assertEquals(1, descriptors.get(0).getStoreID());
-			assertEquals(4, descriptors.get(0).getRangeSet().getHigh());
-
-			assertEquals("mytarget1", descriptors.get(1).getTargetID());
-			assertEquals(2, descriptors.get(1).getStoreID());
-			assertEquals(2, descriptors.get(1).getRangeSet().getHigh());
-
-			assertEquals("mytarget2", descriptors.get(2).getTargetID());
-			assertEquals(1, descriptors.get(2).getStoreID());
-			assertEquals(5, descriptors.get(2).getRangeSet().getHigh());
-		} catch (MongoException ex) {
-			System.err.println("Mongodb not available on localhost, skipping test");
-		}
-	}
-
-	public void testGetDescriptorsForTarget() throws Exception {
-		try {
-			DBCollection collection = m_mongodbService.getDB().getCollection("serverlog");
-			collection.remove(new BasicDBObject());
-			TimeUnit.SECONDS.sleep(2);
-
-			storeEvents();
-
-            Map<String, String> props = new HashMap<String, String>();
-			props.put("myProperty", "myvalue");
-
-			Event event1 = new Event("mytarget1", 2, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-			Event event2 = new Event("mytarget1", 2, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-
-			m_logStore.put(Arrays.asList(event1, event2));
-
-			List<Descriptor> descriptors = m_logStore.getDescriptors("mytarget1");
-			assertEquals(2, descriptors.size());
-			assertEquals("mytarget1", descriptors.get(0).getTargetID());
-			assertEquals(1, descriptors.get(0).getStoreID());
-			assertEquals(4, descriptors.get(0).getRangeSet().getHigh());
-
-			assertEquals("mytarget1", descriptors.get(1).getTargetID());
-			assertEquals(2, descriptors.get(1).getStoreID());
-			assertEquals(2, descriptors.get(1).getRangeSet().getHigh());
-		} catch (MongoException ex) {
-			System.err.println("Mongodb not available on localhost, skipping test");
-		}
-	}
-
-	private void storeEvents() throws IOException {
         Map<String, String> props = new HashMap<String, String>();
-		props.put("myProperty", "myvalue");
-		Event event1 = new Event("mytarget1", 1, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-		Event event2 = new Event("mytarget1", 1, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-		Event event3 = new Event("mytarget2", 1, 3, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-		Event event4 = new Event("mytarget2", 1, 5, System.currentTimeMillis(), LogService.LOG_ERROR, props);
-		Event event5 = new Event("mytarget1", 1, 4, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+        props.put("myProperty", "myvalue");
 
-		m_logStore.put(Arrays.asList(event1, event2, event3, event4, event5));
-	}
+        Event event1 = new Event("mytarget1", 2, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+        Event event2 = new Event("mytarget1", 2, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+
+        m_logStore.put(Arrays.asList(event1, event2));
+
+        List<Descriptor> descriptors = m_logStore.getDescriptors("mytarget1");
+        assertEquals(2, descriptors.size());
+        assertEquals("mytarget1", descriptors.get(0).getTargetID());
+        assertEquals(1, descriptors.get(0).getStoreID());
+        assertEquals(4, descriptors.get(0).getRangeSet().getHigh());
+
+        assertEquals("mytarget1", descriptors.get(1).getTargetID());
+        assertEquals(2, descriptors.get(1).getStoreID());
+        assertEquals(2, descriptors.get(1).getRangeSet().getHigh());
+    }
+
+    public void testGetDescriptorsMultipleLogIds() throws Exception {
+        if (!canRunTest()) {
+            return;
+        }
+
+        storeEvents();
+
+        Map<String, String> props = new HashMap<String, String>();
+        props.put("myProperty", "myvalue");
+
+        Event event1 = new Event("mytarget1", 2, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+        Event event2 = new Event("mytarget1", 2, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+
+        m_logStore.put(Arrays.asList(event1, event2));
+
+        List<Descriptor> descriptors = m_logStore.getDescriptors();
+        assertEquals(3, descriptors.size());
+        assertEquals("mytarget1", descriptors.get(0).getTargetID());
+        assertEquals(1, descriptors.get(0).getStoreID());
+        assertEquals(4, descriptors.get(0).getRangeSet().getHigh());
+
+        assertEquals("mytarget1", descriptors.get(1).getTargetID());
+        assertEquals(2, descriptors.get(1).getStoreID());
+        assertEquals(2, descriptors.get(1).getRangeSet().getHigh());
+
+        assertEquals("mytarget2", descriptors.get(2).getTargetID());
+        assertEquals(1, descriptors.get(2).getStoreID());
+        assertEquals(5, descriptors.get(2).getRangeSet().getHigh());
+    }
+
+    public void testGetDescriptorsSingleLogId() throws Exception {
+        if (!canRunTest()) {
+            return;
+        }
+
+        storeEvents();
+
+        List<Descriptor> descriptors = m_logStore.getDescriptors();
+        assertEquals(2, descriptors.size());
+        assertEquals("mytarget1", descriptors.get(0).getTargetID());
+        assertEquals(1, descriptors.get(0).getStoreID());
+        assertEquals(4, descriptors.get(0).getRangeSet().getHigh());
+        assertEquals("mytarget2", descriptors.get(1).getTargetID());
+        assertEquals(1, descriptors.get(1).getStoreID());
+        assertEquals(5, descriptors.get(1).getRangeSet().getHigh());
+    }
+
+    public void testGetEvents() throws Exception {
+        if (!canRunTest()) {
+            return;
+        }
+
+        storeEvents();
+
+        List<Event> events = m_logStore.get(new Descriptor("mytarget1,1,0"));
+        assertEquals(3, events.size());
+    }
+
+    public void testGetEventsWithRange() throws Exception {
+        if (!canRunTest()) {
+            return;
+        }
+
+        storeEvents();
+
+        List<Event> events = m_logStore.get(new Descriptor("mytarget1,1,2"));
+        assertEquals(2, events.size());
+    }
+
+    public void testPutEvents() throws Exception {
+        if (!canRunTest()) {
+            return;
+        }
+
+        storeEvents();
+
+        assertEquals(5, m_collection.count());
+    }
+
+    @Override
+    protected void configureAdditionalServices() throws Exception {
+        try {
+            m_collection = m_mongodbService.getDB().getCollection("serverlog");
+            // we always get a collection back, regardless if there is an actual MongoDB listening, hence we should do
+            // some actual calls that cause a connection to MongoDB to be created...
+            if (m_collection.getCount() > 0L) {
+                m_collection.remove(new BasicDBObject());
+            }
+        }
+        catch (Exception exception) {
+            System.err.println("Mongodb not available on localhost, skipping test...");
+            m_collection = null;
+        }
+    }
+
+    @Override
+    protected void configureProvisionedServices() throws Exception {
+        configureFactory("org.amdatu.mongo", "dbName", "ace");
+        configureFactory("org.apache.ace.log.server.store.factory", "name", "serverlog");
+    }
+
+    @Override
+    protected void doTearDown() throws Exception {
+        if (canRunTest()) {
+            m_collection.remove(new BasicDBObject());
+
+            CommandResult lastError = m_mongodbService.getDB().getLastError();
+            assertNull(lastError.getException());
+
+            assertTrue(m_collection.getCount() == 0L);
+        }
+    }
+
+    @Override
+    protected org.apache.felix.dm.Component[] getDependencies() {
+        return new Component[] { createComponent().setImplementation(this)
+            .add(createServiceDependency().setService(LogStore.class).setRequired(true))
+            .add(createServiceDependency().setService(MongoDBService.class).setRequired(true)) };
+    }
+
+    private boolean canRunTest() {
+        return m_collection != null;
+    }
+
+    private void storeEvents() throws IOException {
+        Map<String, String> props = new HashMap<String, String>();
+        props.put("myProperty", "myvalue");
+        Event event1 = new Event("mytarget1", 1, 1, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+        Event event2 = new Event("mytarget1", 1, 2, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+        Event event3 = new Event("mytarget2", 1, 3, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+        Event event4 = new Event("mytarget2", 1, 5, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+        Event event5 = new Event("mytarget1", 1, 4, System.currentTimeMillis(), LogService.LOG_ERROR, props);
+
+        m_logStore.put(Arrays.asList(event1, event2, event3, event4, event5));
+    }
 
 }
