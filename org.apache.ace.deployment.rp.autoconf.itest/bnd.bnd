@@ -1,6 +1,7 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 -runbundles: org.mockito.mockito-all,\
 	org.apache.ace.deployment.rp.autoconf;version=latest,\
+	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.managementagent;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.metatype,\

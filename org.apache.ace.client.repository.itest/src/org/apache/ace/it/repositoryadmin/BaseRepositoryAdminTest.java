@@ -353,7 +353,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
     }
 
     @Override
-    protected void tearDown() throws Exception {
+    protected void doTearDown() throws Exception {
     	try {
 			m_repositoryAdmin.logout(true);
 		} catch (RuntimeException e) {

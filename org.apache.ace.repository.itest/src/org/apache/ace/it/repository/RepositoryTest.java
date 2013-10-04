@@ -208,6 +208,7 @@ public class RepositoryTest extends IntegrationTestBase {
         Utils.waitForWebserver(m_host);
     }
 
+    @Override
     protected Component[] getDependencies() {
         return new Component[] {
             createComponent()
@@ -216,7 +217,8 @@ public class RepositoryTest extends IntegrationTestBase {
         };
     }
 
-    protected void tearDown() throws Exception {
+    @Override
+    protected void doTearDown() throws Exception {
         // remove all repositories, in case a test case does not reach it's cleanup section due to an exception
         removeAllRepositories();
     }

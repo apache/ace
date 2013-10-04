@@ -628,7 +628,8 @@ public class AgentDeploymentTest extends BaseAgentTest {
         };
     }
 
-    protected void tearDown() throws Exception {
+    @Override
+    protected void doTearDown() throws Exception {
         // Remove all provisioned components...
         m_dependencyManager.clear();
 

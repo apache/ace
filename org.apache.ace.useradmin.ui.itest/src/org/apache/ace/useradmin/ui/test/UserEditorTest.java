@@ -35,53 +35,249 @@ import org.osgi.service.useradmin.UserAdmin;
 
 public class UserEditorTest extends IntegrationTestBase {
 
+    private static final String TEST_GROUP = "TestGroup";
+
     private volatile UserEditor m_userEditor;
     private volatile Repository m_userRepository;
     private volatile UserAdmin m_userAdmin;
-    private boolean m_hasBeenSetup = false;
 
-    protected org.apache.felix.dm.Component[] getDependencies() {
-
-        return new Component[] { createComponent()
-            .setImplementation(this)
-            .add(createServiceDependency()
-                .setService(UserEditor.class)
-                .setRequired(true)
-            )
-            .add(createServiceDependency()
-                .setService(UserAdmin.class)
-                .setRequired(true)
-            )
-            .add(createServiceDependency()
-                .setService(Repository.class, "(&(name=users)(customer=apache))")
-                .setRequired(true))
-        };
+    public void GetUserBroken() {
+        User newUser = null;
+        Role newRole = m_userAdmin.createRole((String) "Testuser", Role.USER);
+        Group group = (Group) m_userAdmin.getRole(TEST_GROUP);
+        if (newRole != null && group != null) {
+            newUser = (User) newRole;
+            newUser.getProperties().put("username", "u");
+            newUser.getCredentials().put("password", "p");
+            group.addMember(newUser);
+        }
+        assertEquals("Testuser", m_userEditor.getUser("u").getName());
     }
 
-    @Override
-    protected void configureProvisionedServices() throws Exception {
+    public void testAddUserAndRemove() throws Exception {
+        String username = "name";
 
-        if (m_hasBeenSetup)
-            return;
+        UserDTO userDTO = new UserDTO(username, "pwd", TEST_GROUP);
+        m_userEditor.addUser(userDTO);
 
-        configureFactory("org.apache.ace.server.repository.factory",
-            "name", "users",
-            "customer", "apache",
-            "master", "true");
-        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
-            "repositoryName", "users",
-            "repositoryCustomer", "apache");
-        configure("org.apache.ace.scheduler",
-            "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
+        User user = m_userEditor.getUser(username);
+        assertNotNull(user);
+        assertEquals(username, (String) user.getProperties().get("username"));
+    }
+
+    public void testAddUserToEmptyGroupname() throws Exception {
+        try {
+            UserDTO userDTO = new UserDTO("name", "pwd", "");
+            m_userEditor.addUser(userDTO);
+
+            fail("Expected IllegalArgumentException!");
+        }
+        catch (IllegalArgumentException ex) {
+            assertEquals("Username, password and groupname cannot be null or \"\"", ex.getMessage());
+        }
+    }
+
+    public void testAddUserToNonExistingGroup() throws Exception {
+        try {
+            UserDTO userDTO = new UserDTO("name", "pwd", "nonexistingGroup");
+            m_userEditor.addUser(userDTO);
+
+            fail("Expected GroupNotFoundException!");
+        }
+        catch (GroupNotFoundException ex) {
+            assertEquals("Group: nonexistingGroup not found", ex.getMessage());
+        }
+    }
+
+    public void testAddUserToNullGroup() throws Exception {
+        try {
+            UserDTO userDTO = new UserDTO("user", "pwd", null);
+            m_userEditor.addUser(userDTO);
+
+            fail("Expected IllegalArgumentException!");
+        }
+        catch (IllegalArgumentException ex) {
+            assertEquals("Username, password and groupname cannot be null or \"\"", ex.getMessage());
+        }
+    }
+
+    public void testAddUserWithEmptyUsername() throws Exception {
+        try {
+            UserDTO userDTO = new UserDTO("", "pwd", TEST_GROUP);
+            m_userEditor.addUser(userDTO);
+
+            fail("Expected IllegalArgumentException!");
+        }
+        catch (IllegalArgumentException ex) {
+            assertEquals("Username, password and groupname cannot be null or \"\"", ex.getMessage());
+        }
+    }
+
+    public void testAddUserWithNullUsername() throws Exception {
+        try {
+            UserDTO userDTO = new UserDTO(null, "pwd", TEST_GROUP);
+            m_userEditor.addUser(userDTO);
+
+            fail("Expected IllegalArgumentException!");
+        }
+        catch (IllegalArgumentException ex) {
+            assertEquals("Username, password and groupname cannot be null or \"\"", ex.getMessage());
+        }
+    }
+
+    public void testEditNonExistingUser() throws Exception {
+        try {
+            UserDTO userDTO = new UserDTO("nonExistingUser", null, null);
+            userDTO.setUsername("anotherName");
+
+            m_userEditor.editUsername(userDTO);
+
+            fail("Expected UserNotFoundException!");
+        }
+        catch (UserNotFoundException userNotFoundException) {
+            assertEquals("User: nonExistingUser not found", userNotFoundException.getMessage());
+        }
+    }
+
+    public void testEditUsernameWithAlreadyExistingName() throws Exception {
+        UserDTO userDTO = new UserDTO("user1", "pwd", TEST_GROUP);
+        m_userEditor.addUser(userDTO);
+
+        userDTO = new UserDTO("user2", "pwd", TEST_GROUP);
+        m_userEditor.addUser(userDTO);
+
+        try {
+            userDTO.setUsername("user1");
+            m_userEditor.editUsername(userDTO);
+
+            fail("Expected UserAlreadyExistsException!");
+        }
+        catch (UserAlreadyExistsException userAlreadyExistsException) {
+            assertEquals("User: user1 already exists", userAlreadyExistsException.getMessage());
+        }
+    }
+
+    public void testEditUserNameWithEmptyName() throws GroupNotFoundException, UserAlreadyExistsException, UserNotFoundException {
+        UserDTO userDTO = new UserDTO("user", "pwd", TEST_GROUP);
+        m_userEditor.addUser(userDTO);
+
+        try {
+            userDTO.setUsername("");
+            m_userEditor.editUsername(userDTO);
+
+            fail("Expected IllegalArgumentException!");
+        }
+        catch (IllegalArgumentException invalidArgumentException) {
+            assertEquals("oldUsername and newUsername cannot be null or \"\" ", invalidArgumentException.getMessage());
+        }
+    }
+
+    public void testEditUserNameWithNull() throws GroupNotFoundException, UserAlreadyExistsException, UserNotFoundException {
+        UserDTO userDTO = new UserDTO("user", "pwd", TEST_GROUP);
+        m_userEditor.addUser(userDTO);
+
+        try {
+            userDTO.setUsername(null);
+            m_userEditor.editUsername(userDTO);
+
+            fail("Expected IllegalArgumentException!");
+        }
+        catch (IllegalArgumentException invalidArgumentException) {
+            assertEquals("oldUsername and newUsername cannot be null or \"\" ", invalidArgumentException.getMessage());
+        }
+    }
+
+    public void testEditUsernameWithValidName() throws Exception {
+        String username = "user1";
+
+        UserDTO userDTO = new UserDTO(username, "pwd", TEST_GROUP);
+        m_userEditor.addUser(userDTO);
+
+        m_userAdmin.getUser("username", username).getProperties().put("username", "user2");
+
+        User user = (User) m_userAdmin.getRole(username);
+        assertEquals(username, user.getName());
+        assertEquals("user2", (String) user.getProperties().get("username"));
+
+        user = m_userAdmin.getUser("username", "user2");
+        userDTO = new UserDTO(user, m_userEditor.getGroup(user));
+        assertEquals(username, user.getName());
+        assertEquals("user2", (String) user.getProperties().get("username"));
+    }
+
+    public void testEditUserWithEmptyPassword() throws Exception {
+        UserDTO userDTO = new UserDTO("tran", "tran", TEST_GROUP);
+        m_userEditor.addUser(userDTO);
+
+        try {
+            userDTO.setPassword("");
+            m_userEditor.editPassword(userDTO);
+
+            fail("Expected IllegalArgumentException!");
+        }
+        catch (IllegalArgumentException e) {
+            assertEquals("Username or Password cannot be null or \"\" ", e.getMessage());
+        }
+    }
+
+    public void testEditUserWithNullPassword() throws Exception {
+        UserDTO userDTO = new UserDTO("tran", "tran", TEST_GROUP);
+        m_userEditor.addUser(userDTO);
+
+        try {
+            userDTO.setPassword(null);
+            m_userEditor.editPassword(userDTO);
+
+            fail("Expected IllegalArgumentException!");
+        }
+        catch (IllegalArgumentException e) {
+            assertEquals("Username or Password cannot be null or \"\" ", e.getMessage());
+        }
+    }
+
+    public void testEditUserWithValidPassword() throws Exception {
+        String username = "user1";
+
+        UserDTO userDTO = new UserDTO(username, "pwd", TEST_GROUP);
+        m_userEditor.addUser(userDTO);
+
+        userDTO.setPassword(username);
+        m_userEditor.editPassword(userDTO);
+
+        assertEquals(username, (String) m_userEditor.getUser(username).getCredentials().get("password"));
+    }
+
+    public void testGetGroupByUser() {
+        Role newRole = m_userAdmin.createRole((String) "Testuser", Role.USER);
+        assertNotNull(newRole);
+
+        Group group = (Group) m_userAdmin.getRole(TEST_GROUP);
+        assertNotNull(group);
+
+        User newUser = (User) newRole;
+        newUser.getProperties().put("username", "u");
+        newUser.getCredentials().put("password", "p");
+        group.addMember(newUser);
+
+        Group userGroup = m_userEditor.getGroup(newUser);
+        assertNotNull(userGroup);
+        assertEquals(group.getName(), userGroup.getName());
+    }
+
+    public void testGetGroupByUserNull() {
+        assertNull(m_userEditor.getGroup(null));
+    }
+
+    public void testGetGroups() {
+        assertEquals(1, m_userEditor.getGroups().size());
+    }
+
+    public void testGetUsers() {
+        assertEquals(1, m_userEditor.getData().size());
     }
 
     @Override
     protected void configureAdditionalServices() throws Exception {
-
-        if (m_hasBeenSetup)
-            return;
-
-        m_hasBeenSetup = true;
         ByteArrayInputStream bis = new ByteArrayInputStream((
             "<roles>" +
                 "    <group name=\"TestGroup\">" +
@@ -112,204 +308,46 @@ public class UserEditorTest extends IntegrationTestBase {
         assertNotNull("Failed to load the user", user);
     }
 
-    public void testGetGroups() {
-        assertEquals(1, m_userEditor.getGroups().size());
+    @Override
+    protected void configureProvisionedServices() throws Exception {
+        configureFactory("org.apache.ace.server.repository.factory",
+            "name", "users",
+            "customer", "apache",
+            "master", "true");
+        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
+            "repositoryName", "users",
+            "repositoryCustomer", "apache");
+        configure("org.apache.ace.scheduler",
+            "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
     }
 
-    public void testGetUsers() {
-        assertEquals(1, m_userEditor.getData().size());
-    }
-
-    public void testGetGroupByUser() {
-        User newUser = null;
-        Role newRole = m_userAdmin.createRole((String) "Testuser", Role.USER);
-        Group group = (Group) m_userAdmin.getRole("TestGroup");
-        if (newRole != null && group != null) {
-            newUser = (User) newRole;
-            newUser.getProperties().put("username", "u");
-            newUser.getCredentials().put("password", "p");
-            group.addMember(newUser);
-        }
-        assertEquals(group, m_userEditor.getGroup(newUser));
-        m_userAdmin.removeRole("u");
-    }
-
-    public void testGetGroupByUserNull() {
-        assertNull(m_userEditor.getGroup(null));
-    }
-
-    public void testAddUserAndRemove() throws Exception {
-        UserDTO userDTO = new UserDTO("tran", "tran", "TestGroup");
-        m_userEditor.addUser(userDTO);
-        User user = m_userEditor.getUser("tran");
-        assertEquals("tran", (String) user.getProperties().get("username"));
-        m_userEditor.removeUser(userDTO);
-    }
-
-    public void testAddUserWithEmptyUsername() throws Exception {
-        try {
-            UserDTO userDTO = new UserDTO("", "tran", "TestGroup");
-            m_userEditor.addUser(userDTO);
-        }
-        catch (IllegalArgumentException ex) {
-            assertEquals("Username, password and groupname cannot be null or \"\"", ex.getMessage());
+    @Override
+    protected void doTearDown() throws Exception {
+        Role[] roles = m_userAdmin.getRoles(null);
+        for (Role role : roles) {
+            try {
+                m_userAdmin.removeRole(role.getName());
+            }
+            catch (Exception exception) {
+                // Ignore...
+            }
         }
     }
 
-    public void testAddUserWithNullUsername() throws Exception {
-        try {
-            UserDTO userDTO = new UserDTO(null, "tran", "TestGroup");
-            m_userEditor.addUser(userDTO);
-        }
-        catch (IllegalArgumentException ex) {
-            assertEquals("Username, password and groupname cannot be null or \"\"", ex.getMessage());
-        }
-    }
-
-    public void testAddUserToNonExistingGroup() throws Exception {
-        try {
-            UserDTO userDTO = new UserDTO("tran", "bob", "nonexistingGroup");
-            m_userEditor.addUser(userDTO);
-        }
-        catch (Exception ex) {
-            assertEquals("Group: nonexistingGroup not found", ex.getMessage());
-        }
-    }
-
-    public void testAddUserToNullGroup() throws Exception {
-        try {
-            UserDTO userDTO = new UserDTO("tran", "bob", null);
-            m_userEditor.addUser(userDTO);
-        }
-        catch (IllegalArgumentException ex) {
-            assertEquals("Username, password and groupname cannot be null or \"\"", ex.getMessage());
-        }
-    }
-
-    public void testAddUserToEmptyGroupname() throws Exception {
-        try {
-            UserDTO userDTO = new UserDTO("tran", "bob", "");
-            m_userEditor.addUser(userDTO);
-        }
-        catch (Exception ex) {
-            assertEquals("Username, password and groupname cannot be null or \"\"", ex.getMessage());
-        }
-    }
-
-    public void testEditUserWithValidPassword() throws Exception {
-        UserDTO userDTO = new UserDTO("bob", "tran", "TestGroup");
-        m_userEditor.addUser(userDTO);
-        userDTO.setPassword("bob");
-        m_userEditor.editPassword(userDTO);
-        assertEquals("bob", (String) m_userEditor.getUser("bob").getCredentials().get("password"));
-        m_userEditor.removeUser(userDTO);
-    }
-
-    public void testEditUserWithNullPassword() throws UserNotFoundException {
-        UserDTO userDTO = new UserDTO("tran", "tran", "TestGroup");
-
-        try {
-            m_userEditor.addUser(userDTO);
-            userDTO.setPassword(null);
-            m_userEditor.editPassword(userDTO);
-        }
-        catch (Exception e) {
-            assertEquals("Username or Password cannot be null or \"\" ", e.getMessage());
-            m_userEditor.removeUser(userDTO);
-        }
-    }
-
-    public void testEditUserWithEmptyPassword() throws UserNotFoundException {
-        UserDTO userDTO = new UserDTO("tran", "tran", "TestGroup");
-        try {
-
-            m_userEditor.addUser(userDTO);
-            userDTO.setPassword("");
-            m_userEditor.editPassword(userDTO);
-        }
-        catch (Exception e) {
-            assertEquals("Username or Password cannot be null or \"\" ", e.getMessage());
-            m_userEditor.removeUser(userDTO);
-        }
-    }
-
-    public void testEditNonExistingUser() {
-        try {
-            UserDTO userDTO = new UserDTO("BOOOOOB", null, null);
-            userDTO.setUsername("bob");
-            m_userEditor.editUsername(userDTO);
-        }
-        catch (Exception userNotFoundException) {
-            assertEquals("User: BOOOOOB not found", userNotFoundException.getMessage());
-        }
-    }
-
-    public void testEditUsernameWithValidName() throws Exception {
-        UserDTO userDTO = new UserDTO("lala", "tran", "TestGroup");
-        m_userEditor.addUser(userDTO);
-        m_userAdmin.getUser("username", "lala").getProperties().put("username", "lala1");
-        User user = (User) m_userAdmin.getRole("lala");
-        assertEquals("lala", user.getName());
-        assertEquals("lala1", (String) user.getProperties().get("username"));
-        user = m_userAdmin.getUser("username", "lala1");
-        userDTO = new UserDTO(user, m_userEditor.getGroup(user));
-        assertEquals("lala", user.getName());
-        assertEquals("lala1", (String) user.getProperties().get("username"));
-        m_userEditor.removeUser(userDTO);
-    }
-
-    public void testEditUsernameWithAlreadyExistingName() throws UserNotFoundException {
-        try {
-            UserDTO userDTO = new UserDTO("Hank", "password", "TestGroup");
-            m_userEditor.addUser(userDTO);
-            userDTO = new UserDTO("Dirk", "password", "TestGroup");
-            m_userEditor.addUser(userDTO);
-            userDTO.setUsername("Hank");
-            m_userEditor.editUsername(userDTO);
-        }
-        catch (Exception userAlreadyExistsException) {
-            assertEquals("User: Hank already exists", userAlreadyExistsException.getMessage());
-            m_userEditor.removeUser(new UserDTO("Hank", null, null));
-            m_userEditor.removeUser(new UserDTO("Dirk", null, null));
-        }
-    }
-
-    public void testEditUserNameWithNull() throws GroupNotFoundException, UserAlreadyExistsException, UserNotFoundException {
-        try {
-            UserDTO userDTO = new UserDTO("Dirk", "password", "TestGroup");
-            m_userEditor.addUser(userDTO);
-            userDTO.setUsername(null);
-            m_userEditor.editUsername(userDTO);
-        }
-        catch (Exception invalidArgumentException) {
-            assertEquals("oldUsername and newUsername cannot be null or \"\" ", invalidArgumentException.getMessage());
-            m_userEditor.removeUser(new UserDTO("Dirk", "password", "TestGroup"));
-        }
-    }
-
-    public void testEditUserNameWithEmptyName() throws GroupNotFoundException, UserAlreadyExistsException, UserNotFoundException {
-        try {
-            UserDTO userDTO = new UserDTO("Dirk", "password", "TestGroup");
-            m_userEditor.addUser(userDTO);
-            userDTO.setUsername("");
-            m_userEditor.editUsername(userDTO);
-        }
-        catch (Exception invalidArgumentException) {
-            assertEquals("oldUsername and newUsername cannot be null or \"\" ", invalidArgumentException.getMessage());
-            m_userEditor.removeUser(new UserDTO("Dirk", "password", "TestGroup"));
-        }
-    }
-
-    public void GetUserBroken() {
-        User newUser = null;
-        Role newRole = m_userAdmin.createRole((String) "Testuser", Role.USER);
-        Group group = (Group) m_userAdmin.getRole("TestGroup");
-        if (newRole != null && group != null) {
-            newUser = (User) newRole;
-            newUser.getProperties().put("username", "u");
-            newUser.getCredentials().put("password", "p");
-            group.addMember(newUser);
-        }
-        assertEquals("Testuser", m_userEditor.getUser("u").getName());
+    protected org.apache.felix.dm.Component[] getDependencies() {
+        return new Component[] { createComponent()
+            .setImplementation(this)
+            .add(createServiceDependency()
+                .setService(UserEditor.class)
+                .setRequired(true)
+            )
+            .add(createServiceDependency()
+                .setService(UserAdmin.class)
+                .setRequired(true)
+            )
+            .add(createServiceDependency()
+                .setService(Repository.class, "(&(name=users)(customer=apache))")
+                .setRequired(true))
+        };
     }
 }

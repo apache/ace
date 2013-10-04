@@ -6,6 +6,7 @@
 	osgi.cmpn,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.consolelogger;version=latest,\
+	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.log.target;version=latest,\
 	org.apache.ace.log.target.store.impl;version=latest,\
 	org.apache.ace.range.api;version=latest,\

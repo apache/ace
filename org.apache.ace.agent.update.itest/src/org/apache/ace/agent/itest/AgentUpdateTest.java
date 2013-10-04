@@ -77,7 +77,8 @@ public class AgentUpdateTest extends IntegrationTestBase {
         m_http.registerServlet("/obr", m_servlet, null, null);
     }
 
-    public void tearDown() throws Exception {
+    @Override
+    public void doTearDown() throws Exception {
         m_http.unregister("/obr");
     }
 

@@ -181,9 +181,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-
+    protected void doTearDown() throws Exception {
         // Remove the configuration to start without any configured authentication...
         getConfiguration(m_configurationPID).delete();
     }
