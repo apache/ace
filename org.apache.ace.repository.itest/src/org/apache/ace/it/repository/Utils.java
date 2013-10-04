@@ -19,6 +19,7 @@
 
 package org.apache.ace.it.repository;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,29 +28,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 final class Utils {
-	
-    private static final int COPY_BUFFER_SIZE = 4096;
-    private static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";           
 
-    static void waitForWebserver(URL host) throws IOException {
-        int retries = 1;
-        IOException ioe = null;
-        while (retries++ < 10) {
-	        try {
-	        	((HttpURLConnection) host.openConnection()).getResponseCode();
-	        	return;
-	        }
-	        catch (ConnectException e) {
-	        	ioe = e;
-	        	try {
-	        		Thread.sleep(retries * 50);
-	        	}
-	        	catch (InterruptedException ie) {}
-	        }
+    private static final int COPY_BUFFER_SIZE = 4096;
+    private static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
+
+    static void closeSilently(Closeable resource) {
+        if (resource != null) {
+            try {
+                resource.close();
+            }
+            catch (IOException exception) {
+                // Ignore...
+            }
         }
-        throw ioe;
     }
-    
+
     /* copy in to out */
     static void copy(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[COPY_BUFFER_SIZE];
@@ -59,17 +52,27 @@ final class Utils {
             bytes = in.read(buffer);
         }
     }
-    
+
     static int get(URL host, String endpoint, String customer, String name, String version, OutputStream out) throws IOException {
         URL url = new URL(host, endpoint + "?customer=" + customer + "&name=" + name + "&version=" + version);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            InputStream input = connection.getInputStream();
-            copy(input, out);
-            out.flush();
+        try {
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                InputStream input = connection.getInputStream();
+                try {
+                    copy(input, out);
+                    out.flush();
+                }
+                finally {
+                    closeSilently(input);
+                }
+            }
+            return responseCode;
         }
-        return responseCode;
+        finally {
+            connection.disconnect();
+        }
     }
 
     static int put(URL host, String endpoint, String customer, String name, String version, InputStream in) throws IOException {
@@ -82,12 +85,26 @@ final class Utils {
         connection.setChunkedStreamingMode(8192);
         connection.setRequestProperty("Content-Type", MIME_APPLICATION_OCTET_STREAM);
         OutputStream out = connection.getOutputStream();
-        copy(in, out);
-        out.flush();
+        try {
+            copy(in, out);
+            out.flush();
+        }
+        finally {
+            closeSilently(in);
+            closeSilently(out);
+        }
+
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             InputStream is = (InputStream) connection.getContent();
-            is.close();
+            try {
+                while (is.read() > 0) {
+                    // ignore...
+                }
+            }
+            finally {
+                closeSilently(is);
+            }
         }
         return responseCode;
     }
@@ -101,9 +118,49 @@ final class Utils {
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             InputStream input = connection.getInputStream();
-            copy(input, out);
-            out.flush();
+            try {
+                copy(input, out);
+                out.flush();
+            }
+            finally {
+                closeSilently(input);
+            }
         }
         return responseCode;
+    }
+
+    static void waitForWebserver(URL host) throws IOException {
+        int retries = 1;
+        IOException ioe = null;
+        HttpURLConnection conn = null;
+        while (retries++ < 10) {
+            try {
+                conn = (HttpURLConnection) host.openConnection();
+
+                int rc = conn.getResponseCode();
+                if (rc >= 0) {
+                    return;
+                }
+            }
+            catch (ConnectException e) {
+                ioe = e;
+                try {
+                    Thread.sleep(retries * 50);
+                }
+                catch (InterruptedException ie) {
+                    // We're asked to stop...
+                    return;
+                }
+            }
+            finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+                conn = null;
+            }
+        }
+        if (ioe != null) {
+            throw ioe;
+        }
     }
 }

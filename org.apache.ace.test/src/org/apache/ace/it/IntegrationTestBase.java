@@ -146,6 +146,15 @@ public class IntegrationTestBase extends TestCase {
     }
 
     /**
+     * @param filter
+     * @return an array of configurations, can be <code>null</code>.
+     */
+    protected Configuration[] listConfigurations(String filter) throws IOException, InvalidSyntaxException {
+        ConfigurationAdmin admin = getService(ConfigurationAdmin.class);
+        return admin.listConfigurations(filter);
+    }
+
+    /**
      * Sets whether or not any of the tracked configurations should be automatically be deleted when ending a test.
      * 
      * @param aClean

@@ -35,22 +35,23 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.repository.Repository;
-import org.apache.ace.repository.impl.constants.RepositoryConstants;
 import org.apache.ace.test.constants.TestConstants;
-import org.apache.felix.dm.Component;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * Integration test for our repositories, and the replication thereof.
  */
 public class RepositoryTest extends IntegrationTestBase {
-
-    private volatile ConfigurationAdmin m_configAdmin;
+    private static final String REPOSITORY_NAME = "name";
+    private static final String REPOSITORY_CUSTOMER = "customer";
+    private static final String REPOSITORY_MASTER = "master";
+    private static final String REPOSITORY_INITIAL_CONTENT = "initial";
+    private static final String REPOSITORY_BASE_DIR = "basedir";
+    private static final String REPOSITORY_FILE_EXTENSION = "fileextension";
 
     private URL m_host;
 
@@ -145,7 +146,7 @@ public class RepositoryTest extends IntegrationTestBase {
     }
 
     public void testGetAndPutWithCustomBasedirAndFileExtenions() throws Exception {
-        
+
         File tmpFile = File.createTempFile("repo", "");
         tmpFile.delete();
         tmpFile.mkdir();
@@ -209,15 +210,6 @@ public class RepositoryTest extends IntegrationTestBase {
     }
 
     @Override
-    protected Component[] getDependencies() {
-        return new Component[] {
-            createComponent()
-                .setImplementation(this)
-                .add(createServiceDependency().setService(ConfigurationAdmin.class).setRequired(true))
-        };
-    }
-
-    @Override
     protected void doTearDown() throws Exception {
         // remove all repositories, in case a test case does not reach it's cleanup section due to an exception
         removeAllRepositories();
@@ -229,32 +221,35 @@ public class RepositoryTest extends IntegrationTestBase {
 
     /* Configure a new repository instance */
     private void addRepository(String instanceName, String customer, String name, String basedir, String fileextension, String initial, boolean isMaster) throws IOException, InterruptedException, InvalidSyntaxException {
-        // Publish configuration for a repository instance
-        Properties props = new Properties();
-        props.put(RepositoryConstants.REPOSITORY_CUSTOMER, customer);
-        props.put(RepositoryConstants.REPOSITORY_NAME, name);
-        props.put(RepositoryConstants.REPOSITORY_BASE_DIR, basedir == null ? "" : basedir);
-        props.put(RepositoryConstants.REPOSITORY_FILE_EXTENSION, fileextension == null ? "" : fileextension);
-        props.put(RepositoryConstants.REPOSITORY_MASTER, String.valueOf(isMaster));
-        if (initial != null) {
-            props.put(RepositoryConstants.REPOSITORY_INITIAL_CONTENT, initial);
-        }
-        props.put("factory.instance.pid", instanceName);
-        Configuration config = m_configAdmin.createFactoryConfiguration("org.apache.ace.server.repository.factory", null);
-
         ServiceTracker tracker = new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(factory.instance.pid=" + instanceName + ")"), null);
         tracker.open();
 
+        // Publish configuration for a repository instance
+        Properties props = new Properties();
+        props.put(REPOSITORY_CUSTOMER, customer);
+        props.put(REPOSITORY_NAME, name);
+        props.put(REPOSITORY_BASE_DIR, basedir == null ? "" : basedir);
+        props.put(REPOSITORY_FILE_EXTENSION, fileextension == null ? "" : fileextension);
+        props.put(REPOSITORY_MASTER, String.valueOf(isMaster));
+        if (initial != null) {
+            props.put(REPOSITORY_INITIAL_CONTENT, initial);
+        }
+        props.put("factory.instance.pid", instanceName);
+        Configuration config = createFactoryConfiguration("org.apache.ace.server.repository.factory");
         config.update(props);
 
-        if (tracker.waitForService(1000) == null) {
-            throw new IOException("Did not get notified about new repository becoming available in time.");
+        try {
+            if (tracker.waitForService(1000) == null) {
+                throw new IOException("Did not get notified about new repository becoming available in time.");
+            }
         }
-        tracker.close();
+        finally {
+            tracker.close();
+        }
     }
 
     private void removeAllRepositories() throws IOException, InvalidSyntaxException, InterruptedException {
-        final Configuration[] configs = m_configAdmin.listConfigurations("(factory.instance.pid=*)");
+        final Configuration[] configs = listConfigurations("(factory.instance.pid=*)");
         if ((configs != null) && (configs.length > 0)) {
             final Semaphore sem = new Semaphore(0);
 
@@ -270,25 +265,29 @@ public class RepositoryTest extends IntegrationTestBase {
             };
             tracker.open();
 
-            for (int i = 0; i < configs.length; i++) {
-                configs[i].delete();
+            try {
+                for (int i = 0; i < configs.length; i++) {
+                    configs[i].delete();
+                }
+                if (!sem.tryAcquire(1, TimeUnit.SECONDS)) {
+                    throw new IOException("Not all instances were removed in time.");
+                }
             }
-
-            if (!sem.tryAcquire(1, TimeUnit.SECONDS)) {
-                throw new IOException("Not all instances were removed in time.");
+            finally {
+                tracker.close();
             }
-            tracker.close();
         }
     }
 
     private void removeRepository(String instanceName) throws IOException, InterruptedException, InvalidSyntaxException {
         Configuration[] configs = null;
         try {
-            configs = m_configAdmin.listConfigurations("(factory.instance.pid=" + instanceName + ")");
+            configs = listConfigurations("(factory.instance.pid=" + instanceName + ")");
         }
         catch (InvalidSyntaxException e) {
             // should not happen
         }
+
         if ((configs != null) && (configs.length > 0)) {
             final Semaphore sem = new Semaphore(0);
             ServiceTracker tracker = new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(factory.instance.pid=" + instanceName + ")"), null) {
@@ -300,10 +299,15 @@ public class RepositoryTest extends IntegrationTestBase {
             };
             tracker.open();
 
-            configs[0].delete();
+            try {
+                configs[0].delete();
 
-            if (!sem.tryAcquire(1, TimeUnit.SECONDS)) {
-                throw new IOException("Instance did not get removed in time.");
+                if (!sem.tryAcquire(1, TimeUnit.SECONDS)) {
+                    throw new IOException("Instance did not get removed in time.");
+                }
+            }
+            finally {
+                tracker.close();
             }
         }
     }
