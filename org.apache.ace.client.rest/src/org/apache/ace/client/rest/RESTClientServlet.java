@@ -469,7 +469,9 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             component = m_dm.createComponent().setImplementation(workspace);
             m_workspaceComponents.put(sessionID, component);
         }
-        m_sessionFactory.createSession(sessionID);
+        // any parameters supplied in this call are passed on to the session
+        // factory, so you can use these to configure your session
+        m_sessionFactory.createSession(sessionID, req.getParameterMap());
         m_dm.add(component);
         
         
@@ -753,10 +755,18 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     /*** SHELL COMMANDS ***/
 
     public Workspace cw() throws Exception {
-    	return cw(m_customerName, m_customerName, m_customerName);
+    	return cw(m_customerName, m_customerName, m_customerName, null);
+    }
+
+    public Workspace cw(Map sessionConfiguration) throws Exception {
+    	return cw(m_customerName, m_customerName, m_customerName, sessionConfiguration);
     }
     
 	public Workspace cw(String storeCustomerName, String targetCustomerName, String deploymentCustomerName) throws Exception {
+		return cw(storeCustomerName, targetCustomerName, deploymentCustomerName, null);
+	}
+    
+	public Workspace cw(String storeCustomerName, String targetCustomerName, String deploymentCustomerName, Map sessionConfiguration) throws Exception {
         final String sessionID;
         final Workspace workspace;
         final Component component;
@@ -769,7 +779,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             component = m_dm.createComponent().setImplementation(workspace);
             m_workspaceComponents.put(sessionID, component);
         }
-        m_sessionFactory.createSession(sessionID);
+        m_sessionFactory.createSession(sessionID, sessionConfiguration);
         m_dm.add(component);
         
         

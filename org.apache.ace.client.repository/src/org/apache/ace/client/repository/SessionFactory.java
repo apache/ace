@@ -18,6 +18,8 @@
  */
 package org.apache.ace.client.repository;
 
+import java.util.Map;
+
 /**
  * Factory service for creating and destroying sessions. Sessions are identified by some kind
  * of identification. This identification is also used as a service property in case there is
@@ -25,16 +27,20 @@ package org.apache.ace.client.repository;
  * service session ID. It is also used to listen to session specific events, in which case this
  * same property is part of the actual event so it can be used in event filters.
  */
-public interface SessionFactory
-{
+public interface SessionFactory {
     /** Session ID for session specific service or event. */
     public static final String SERVICE_SID = "service.sid";
+    
     /**
-     * Create a new session based on the supplied session ID.
+     * Create a new session based on the supplied session ID and configuration. Supplying a
+     * session configuration is optional. It can contain parameters to specifically configure
+     * the session.
      *
      * @param sessionID the session ID
+     * @param sessionConfiguration the session configuration, if any
      */
-    public void createSession(String sessionID);
+    public void createSession(String sessionID, Map sessionConfiguration);
+
     /**
      * Destroy an existing session supplied on the supplied session ID.
      *

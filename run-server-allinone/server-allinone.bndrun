@@ -75,5 +75,8 @@
 	launch.keep=true,\
 	launch.storage.dir=bundle-cache
 
+# Add some extra memory to the VM
+-runvm: -Xmx1G
+
 # Enable Yourkit profiling
 #-runvm: -Xmx1G -agentpath:/Applications/YourKit_Java_Profiler_12.0.5.app/bin/mac/libyjpagent.jnilib

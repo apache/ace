@@ -194,7 +194,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
 	protected void configureProvisionedServices() throws Exception {
         m_endpoint = new URL(HOST + ENDPOINT_NAME);
 
-        getService(SessionFactory.class).createSession("test-session-ID");
+        getService(SessionFactory.class).createSession("test-session-ID", null);
         configureFactory("org.apache.ace.log.server.store.factory",
             "name", "auditlog", "authentication.enabled", "false");
     }

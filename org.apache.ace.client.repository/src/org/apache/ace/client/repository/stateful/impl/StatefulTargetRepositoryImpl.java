@@ -79,9 +79,11 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     private Map<String, StatefulTargetObjectImpl> m_index = new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
     private final String m_sessionID;
     private boolean m_holdEvents = false;
+	private boolean m_showUnregisteredTargets;
 
-    public StatefulTargetRepositoryImpl(String sessionID) {
+    public StatefulTargetRepositoryImpl(String sessionID, boolean showUnregisteredTargets) {
         m_sessionID = sessionID;
+		m_showUnregisteredTargets = showUnregisteredTargets;
     }
 
     public StatefulTargetObject create(Map<String, String> attributes, Map<String, String> tags)
@@ -371,7 +373,9 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         synchronized (m_repository) {
             List<StatefulTargetObjectImpl> touched = new ArrayList<StatefulTargetObjectImpl>();
             touched.addAll(parseTargetRepository());
-            touched.addAll(parseAuditLog());
+            if (m_showUnregisteredTargets) {
+            	touched.addAll(parseAuditLog());
+            }
 
             // Now, it is possible we have not touched all objects. Find out which these are, and make
             // them check whether they should still exist.

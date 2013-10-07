@@ -50,6 +50,8 @@ import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.service.command.CommandProcessor;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -60,25 +62,24 @@ import org.osgi.service.prefs.PreferencesService;
  * Activator for the RepositoryAdmin bundle. Creates the repository admin, which internally
  * creates all required repositories.
  */
-public class Activator extends DependencyActivatorBase implements SessionFactory {
-    
-    private final Map<String, SessionData> m_sessions = new HashMap<String, SessionData>();
-
+public class Activator extends DependencyActivatorBase implements SessionFactory, ManagedService {
+	private static final String PID = "org.apache.ace.client.repository";
+    private static final String KEY_SHOWUNREGISTEREDTARGETS = "showunregisteredtargets";
+	private final Map<String, SessionData> m_sessions = new HashMap<String, SessionData>();
     private volatile DependencyManager m_dependencyManager;
+	private boolean m_showUnregisteredTargets;
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
         m_dependencyManager = manager;
         
         Properties props = new Properties();
+        props.put(Constants.SERVICE_PID, PID);
         props.put(CommandProcessor.COMMAND_SCOPE, "clientrepo");
         props.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "sessions" });
         
         manager.add(createComponent()
-            .setInterface(SessionFactory.class.getName(), props)
+            .setInterface(new String[] { SessionFactory.class.getName(), ManagedService.class.getName() }, props)
             .setImplementation(this)
         );
     }
@@ -98,18 +99,11 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         }
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public synchronized void destroy(BundleContext context, DependencyManager manager) throws Exception {
-        // Nop
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void createSession(String sessionID) {
+    public void createSession(String sessionID, Map sessionConfiguration) {
         SessionData sessionData = null;
         synchronized (m_sessions) {
             if (!m_sessions.containsKey(sessionID)) {
@@ -117,16 +111,19 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
                 m_sessions.put(sessionID, sessionData);
             }
         }
+        
+        boolean showUnregisteredTargets = m_showUnregisteredTargets;
+        if (sessionConfiguration != null) {
+        	Object value = sessionConfiguration.get(KEY_SHOWUNREGISTEREDTARGETS);
+        	showUnregisteredTargets = parseBoolean(value, m_showUnregisteredTargets);
+        }
 
         // Allow session to be created outside the lock; to avoid potential deadlocks...
         if (sessionData != null) {
-            createSessionServices(sessionData, sessionID);
+            createSessionServices(sessionData, sessionID, showUnregisteredTargets);
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public void destroySession(String sessionID) {
         SessionData sessionData = null;
         synchronized (m_sessions) {
@@ -146,7 +143,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
      * @param sessionID the session ID to use.
      */
     @SuppressWarnings("unchecked")
-    private void createSessionServices(SessionData sd, String sessionID) {
+    private void createSessionServices(SessionData sd, String sessionID, boolean showUnregisteredTargets) {
         RepositoryAdminImpl rai = new RepositoryAdminImpl(sessionID);
         Component repositoryAdminComponent = createComponent()
             .setInterface(RepositoryAdmin.class.getName(), rai.getSessionProps())
@@ -176,7 +173,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
             RepositoryAdmin.PRIVATE_TOPIC_LOGIN 
         });
         
-        StatefulTargetRepositoryImpl statefulTargetRepositoryImpl = new StatefulTargetRepositoryImpl(sessionID);
+        StatefulTargetRepositoryImpl statefulTargetRepositoryImpl = new StatefulTargetRepositoryImpl(sessionID, showUnregisteredTargets);
         Component statefulTargetRepositoryComponent = createComponent()
             .setInterface(new String[] { StatefulTargetRepository.class.getName(), EventHandler.class.getName() }, topic)
             .setImplementation(statefulTargetRepositoryImpl)
@@ -240,4 +237,26 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
             }
         }
     }
+
+	@Override
+	public void updated(Dictionary properties) throws ConfigurationException {
+		if (properties == null) {
+			// by default, we show unregistered targets
+			m_showUnregisteredTargets = true;
+		}
+		else {
+        	Object value = properties.get(KEY_SHOWUNREGISTEREDTARGETS);
+        	m_showUnregisteredTargets = parseBoolean(value, true);
+		}
+	}
+	
+	private boolean parseBoolean(Object value, boolean defaultValue) {
+    	if (value instanceof String) {
+    		return Boolean.parseBoolean((String) value);
+    	}
+    	else if (value instanceof Boolean) {
+    		return (Boolean) value;
+    	}
+    	return defaultValue;
+	}
 }

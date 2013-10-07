@@ -115,7 +115,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
     protected void configureProvisionedServices() throws Exception {
 
         String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
-        getService(SessionFactory.class).createSession("test-session-ID");
+        getService(SessionFactory.class).createSession("test-session-ID", null);
 
         configureFactory("org.apache.ace.server.repository.factory",
             RepositoryConstants.REPOSITORY_NAME, "users",

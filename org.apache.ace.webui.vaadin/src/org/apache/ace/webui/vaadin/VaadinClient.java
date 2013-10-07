@@ -257,7 +257,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         File dir = m_context.getDataFile(m_sessionID);
         dir.mkdir();
         m_sessionDir = dir;
-        m_sessionFactory.createSession(m_sessionID);
+        m_sessionFactory.createSession(m_sessionID, null);
         addSessionDependency(component, RepositoryAdmin.class);
         addSessionDependency(component, DistributionRepository.class);
         addSessionDependency(component, ArtifactRepository.class);

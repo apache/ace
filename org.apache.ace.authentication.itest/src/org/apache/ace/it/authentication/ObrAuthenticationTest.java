@@ -88,7 +88,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
         m_storeLocation.mkdirs();
 
         final String fileLocation = m_storeLocation.getAbsolutePath();
-        getService(SessionFactory.class).createSession("test-session-ID");
+        getService(SessionFactory.class).createSession("test-session-ID", null);
 
         configureFactory("org.apache.ace.server.repository.factory",
             RepositoryConstants.REPOSITORY_NAME, "users",

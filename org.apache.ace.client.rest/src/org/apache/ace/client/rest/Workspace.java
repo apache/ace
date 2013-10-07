@@ -508,6 +508,9 @@ public class Workspace {
     	cas(ARTIFACT2FEATURE, left, right, leftCardinality, rightCardinalty);
     }
     
+    public void da2f(RepositoryObject repositoryObject) {
+        deleteRepositoryObject(ARTIFACT2FEATURE, repositoryObject.getDefinition());
+    }
     
     /*** feature ***/
     
@@ -556,6 +559,9 @@ public class Workspace {
     	cas(FEATURE2DISTRIBUTION, left, right, leftCardinality, rightCardinalty);
     }
     
+    public void df2d(RepositoryObject repositoryObject) {
+        deleteRepositoryObject(FEATURE2DISTRIBUTION, repositoryObject.getDefinition());
+    }
     
     /*** distribution ***/
     
@@ -581,6 +587,9 @@ public class Workspace {
     	addRepositoryObject(DISTRIBUTION, attrs, tags);
     }
     
+    public void dd(RepositoryObject repositoryObject) {
+        deleteRepositoryObject(DISTRIBUTION, repositoryObject.getDefinition());
+    }
     
     /*** distribution to target association ***/
     
@@ -600,6 +609,9 @@ public class Workspace {
     	cas(DISTRIBUTION2TARGET, left, right, leftCardinality, rightCardinalty);
     }
     
+    public void dd2t(RepositoryObject repositoryObject) {
+        deleteRepositoryObject(DISTRIBUTION2TARGET, repositoryObject.getDefinition());
+    }
     
     /*** target ***/
     
@@ -625,6 +637,9 @@ public class Workspace {
     	return addRepositoryObject(TARGET, attrs, tags);
     }
     
+    public void dt(RepositoryObject repositoryObject) {
+        deleteRepositoryObject(TARGET, repositoryObject.getDefinition());
+    }
 
     /*** other/generic ***/
     
