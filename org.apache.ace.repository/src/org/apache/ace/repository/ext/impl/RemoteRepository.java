@@ -34,16 +34,15 @@ import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.Repository;
 
 /**
- * This class works as a local interface for a remote repository by handling the network
- * communication.
+ * This class works as a local interface for a remote repository by handling the network communication.
  */
 public class RemoteRepository implements Repository {
     private static final String COMMAND_QUERY = "/query";
     private static final String COMMAND_CHECKOUT = "/checkout";
     private static final String COMMAND_COMMIT = "/commit";
-    
+
     private static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
-    
+
     private static final int COPY_BUFFER_SIZE = 64 * 1024;
 
     private final URL m_url;
@@ -55,9 +54,12 @@ public class RemoteRepository implements Repository {
     /**
      * Creates a remote repository that connects to a given location with a given customer- and repository name.
      * 
-     * @param url The location of the repository.
-     * @param customer The customer name to use.
-     * @param name The repository name to use.
+     * @param url
+     *            The location of the repository.
+     * @param customer
+     *            The customer name to use.
+     * @param name
+     *            The repository name to use.
      */
     public RemoteRepository(URL url, String customer, String name) {
         if (url == null || customer == null || name == null) {
@@ -75,27 +77,29 @@ public class RemoteRepository implements Repository {
         }
 
         URL url = buildCommand(m_url, COMMAND_CHECKOUT, version);
+
         HttpURLConnection connection = (HttpURLConnection) m_connectionFactory.createConnection(url);
 
-        if (connection.getResponseCode() == HttpServletResponse.SC_NOT_FOUND) {
-        	connection.disconnect();
-    		throw new IllegalArgumentException("Requested version not found in remote repository. (" + connection.getResponseMessage() + ")");
+        int rc = connection.getResponseCode();
+        if (rc == HttpServletResponse.SC_NOT_FOUND) {
+            connection.disconnect();
+            throw new IllegalArgumentException("Requested version not found in remote repository. (" + connection.getResponseMessage() + ")");
         }
-        if (connection.getResponseCode() != HttpServletResponse.SC_OK) {
-        	connection.disconnect();
+        else if (rc != HttpServletResponse.SC_OK) {
+            connection.disconnect();
             throw new IOException("Connection error: " + connection.getResponseMessage());
         }
 
         return connection.getInputStream();
-        
+
     }
 
     public boolean commit(InputStream data, long fromVersion) throws IOException, IllegalArgumentException {
         URL url = buildCommand(m_url, COMMAND_COMMIT, fromVersion);
         HttpURLConnection connection = (HttpURLConnection) m_connectionFactory.createConnection(url);
-        
+
         // ACE-294: enable streaming mode causing only small amounts of memory to be
-        // used for this commit. Otherwise, the entire input stream is cached into 
+        // used for this commit. Otherwise, the entire input stream is cached into
         // memory prior to sending it to the server...
         connection.setChunkedStreamingMode(8192);
         connection.setRequestProperty("Content-Type", MIME_APPLICATION_OCTET_STREAM);
@@ -103,51 +107,56 @@ public class RemoteRepository implements Repository {
 
         OutputStream out = connection.getOutputStream();
         try {
-        	copy(data, out);
-        } finally {
-        	out.flush();
-        	out.close();
+            copy(data, out);
+
+            // causes the stream the be flushed and the server response to be obtained...
+            return connection.getResponseCode() == HttpServletResponse.SC_OK;
         }
-        
-        try {
-			return connection.getResponseCode() == HttpServletResponse.SC_OK;
-		} finally {
-			connection.disconnect();
-		}
+        finally {
+            out.flush();
+            out.close();
+            connection.disconnect();
+        }
     }
 
     public SortedRangeSet getRange() throws IOException {
         URL url = buildCommand(m_url, COMMAND_QUERY, 0);
-        
-        HttpURLConnection connection = (HttpURLConnection) m_connectionFactory.createConnection(url);
-        
-        try {
-	        if (connection.getResponseCode() == HttpServletResponse.SC_OK) {
-	            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-	            try {
-		            String line = reader.readLine();
-		            if (line == null) {
-		                throw new IOException("Repository not found: customer=" + m_customer + ", name=" + m_name);
-		            }
 
-		            String representation = line.substring(line.lastIndexOf(','));
-		            return new SortedRangeSet(representation);
-	            } finally {
-	            	reader.close();
-	            }
-	        }
-	
-	        throw new IOException("Connection error: " + connection.getResponseMessage());
-        } finally {
-        	connection.disconnect();
+        HttpURLConnection connection = (HttpURLConnection) m_connectionFactory.createConnection(url);
+
+        try {
+            if (connection.getResponseCode() == HttpServletResponse.SC_OK) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                try {
+                    String line = reader.readLine();
+                    if (line == null) {
+                        throw new IOException("Repository not found: customer=" + m_customer + ", name=" + m_name);
+                    }
+
+                    String representation = line.substring(line.lastIndexOf(','));
+                    return new SortedRangeSet(representation);
+                }
+                finally {
+                    reader.close();
+                }
+            }
+
+            throw new IOException("Connection error: " + connection.getResponseMessage());
+        }
+        finally {
+            connection.disconnect();
         }
     }
 
     /**
      * Helper method which copies the contents of an input stream to an output stream.
-     * @param in The input stream.
-     * @param out The output stream.
-     * @throws java.io.IOException Thrown when one of the streams is closed unexpectedly.
+     * 
+     * @param in
+     *            The input stream.
+     * @param out
+     *            The output stream.
+     * @throws java.io.IOException
+     *             Thrown when one of the streams is closed unexpectedly.
      */
     private static void copy(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[COPY_BUFFER_SIZE];
@@ -159,12 +168,13 @@ public class RemoteRepository implements Repository {
     }
 
     /**
-     * Builds a command string to use in the request to the server, based on the parameters
-     * this object was created with. The version is only mandatory for <code>CHECKOUT</code>
-     * and <code>COMMIT</code>.
+     * Builds a command string to use in the request to the server, based on the parameters this object was created
+     * with. The version is only mandatory for <code>CHECKOUT</code> and <code>COMMIT</code>.
      * 
-     * @param command A command string, use the <code>COMMAND_</code> constants in this file.
-     * @param version A version statement.
+     * @param command
+     *            A command string, use the <code>COMMAND_</code> constants in this file.
+     * @param version
+     *            A version statement.
      * @return The command string.
      */
     private URL buildCommand(URL url, String command, long version) {
@@ -188,12 +198,12 @@ public class RemoteRepository implements Repository {
             }
             params.append("version=").append(version);
         }
-        
+
         StringBuilder newURL = new StringBuilder();
         newURL.append(url.toExternalForm());
         newURL.append(command);
         if (params.length() > 0) {
-        	newURL.append("?").append(params);
+            newURL.append("?").append(params);
         }
 
         try {

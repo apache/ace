@@ -98,6 +98,25 @@ class ConnectionUtil {
         return null;
     }
 
+    /**
+     * @see http://docs.oracle.com/javase/6/docs/technotes/guides/net/http-keepalive.html
+     */
+    public static int handleIOException(URLConnection conn) {
+        int respCode = -1;
+        if (!(conn instanceof HttpURLConnection)) {
+            return respCode;
+        }
+
+        try {
+            respCode = ((HttpURLConnection) conn).getResponseCode();
+            flushStream(((HttpURLConnection) conn).getErrorStream());
+        }
+        catch (IOException ex) {
+            // deal with the exception
+        }
+        return respCode;
+    }
+
     public static void copy(InputStream is, OutputStream os) throws IOException {
         copy(is, os, DEFAULT_BUFFER_SIZE);
     }
@@ -129,14 +148,32 @@ class ConnectionUtil {
      * @param connection
      *            the URL connection to get the response code for, can be <code>null</code>.
      * @return the response code for the given connection, or <code>-1</code> if it could not be determined.
-     * @throws IOException
-     *             if retrieving the response code failed.
      */
-    private static int getResponseCode(URLConnection connection) throws IOException {
-        if (connection instanceof HttpURLConnection) {
-            return ((HttpURLConnection) connection).getResponseCode();
+    private static int getResponseCode(URLConnection connection) {
+        try {
+            if (connection instanceof HttpURLConnection) {
+                return ((HttpURLConnection) connection).getResponseCode();
+            }
+            return -1;
         }
-        return -1;
+        catch (IOException exception) {
+            return handleIOException(connection);
+        }
+    }
+
+    static void flushStream(InputStream is) {
+        byte[] buf = new byte[4096];
+        try {
+            while (is.read(buf) > 0) {
+                // Ignore...
+            }
+        }
+        catch (IOException ex) {
+            // deal with the exception
+        }
+        finally {
+            closeSilently(is);
+        }
     }
 
     private ConnectionUtil() {

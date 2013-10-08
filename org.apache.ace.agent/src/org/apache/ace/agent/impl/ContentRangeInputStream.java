@@ -19,7 +19,8 @@
 package org.apache.ace.agent.impl;
 
 import static org.apache.ace.agent.impl.ConnectionUtil.DEFAULT_RETRY_TIME;
-import static org.apache.ace.agent.impl.ConnectionUtil.*;
+import static org.apache.ace.agent.impl.ConnectionUtil.HTTP_RETRY_AFTER;
+import static org.apache.ace.agent.impl.ConnectionUtil.handleIOException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -165,7 +166,7 @@ class ContentRangeInputStream extends InputStream {
             return -1;
         }
 
-        InputStream is = m_conn.getInputStream();
+        InputStream is = getInputStream();
 
         int result = is.read();
         if (result > 0) {
@@ -194,7 +195,7 @@ class ContentRangeInputStream extends InputStream {
             return -1;
         }
 
-        InputStream is = m_conn.getInputStream();
+        InputStream is = getInputStream();
 
         int read = is.read(b, off, len);
         if (read >= 0) {
@@ -225,7 +226,8 @@ class ContentRangeInputStream extends InputStream {
                     rangeHeader = String.format("%s=%d-", BYTES, m_readTotal);
                 }
                 conn.setRequestProperty(HDR_RANGE, rangeHeader);
-            } else {
+            }
+            else {
                 // Non-HTTP connection, skip the first few bytes when calling this method for the first time...
                 if (m_contentInfo == null) {
                     long skip = m_readTotal;
@@ -297,7 +299,14 @@ class ContentRangeInputStream extends InputStream {
     }
 
     private long[] getHttpContentRangeInfo(HttpURLConnection conn) throws IOException {
-        int rc = conn.getResponseCode();
+        int rc;
+        try {
+            rc = conn.getResponseCode();
+        }
+        catch (IOException exception) {
+            rc = handleIOException(conn);
+        }
+
         if (rc == SC_OK) {
             // Non-chunked response...
             if (m_readTotal > 0) {
@@ -343,6 +352,22 @@ class ContentRangeInputStream extends InputStream {
         }
         else {
             throw new IOException("Unknown/unexpected status code: " + rc);
+        }
+    }
+
+    /**
+     * @return the current input stream, never <code>null</code>.
+     * @throws IOException
+     *             in case of I/O problems accessing the input stream.
+     */
+    private InputStream getInputStream() throws IOException {
+        try {
+            return m_conn.getInputStream();
+        }
+        catch (IOException exception) {
+            handleIOException(m_conn);
+            closeChunk();
+            throw exception;
         }
     }
 

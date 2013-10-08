@@ -19,7 +19,7 @@
 package org.apache.ace.agent.impl;
 
 import static org.apache.ace.agent.impl.ConnectionUtil.close;
-import static org.apache.ace.agent.impl.ConnectionUtil.closeSilently;
+import static org.apache.ace.agent.impl.ConnectionUtil.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -104,14 +104,16 @@ public class FeedbackChannelImpl implements FeedbackChannel {
                 try {
                     synchronizeStore(storeID, queryConnection.getInputStream(), writer);
                 }
+                catch (IOException e) {
+                    handleIOException(queryConnection);
+                }
                 finally {
                     close(queryConnection);
                 }
             }
             writer.flush();
 
-            ConnectionUtil.checkConnectionResponse(sendConnection);
-            sendConnection.getContent();
+            checkConnectionResponse(sendConnection);
         }
         finally {
             closeSilently(writer);
