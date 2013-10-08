@@ -18,13 +18,13 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_DISABLED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_FIXPACKAGES;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_RETRIES;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_STREAMING;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCDELAY;
 import static org.apache.ace.agent.AgentConstants.CONFIG_CONTROLLER_SYNCINTERVAL;
+import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.impl.ConnectionUtil.closeSilently;
 import static org.apache.ace.agent.impl.InternalConstants.AGENT_INSTALLATION_COMPLETE;
 import static org.apache.ace.agent.impl.InternalConstants.AGENT_INSTALLATION_START;
@@ -484,30 +484,32 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         boolean disabled = m_disabled.get();
         long interval = m_interval.get();
 
+        if (disabled) {
+        	logDebug("Controller disabled by configuration. Skipping...");
+        	return;
+        }
+        logDebug("Controller syncing...");
         try {
-            if (disabled) {
-                logDebug("Controller disabled by configuration. Skipping...");
-                return;
-            }
-
-            logDebug("Controller syncing...");
-
-            runFeedback();
-            runAgentUpdate();
-            runDeploymentUpdate();
-
-            logDebug("Sync completed. Rescheduled in %d seconds", interval);
+        	runFeedback();
+        	try {
+        		runAgentUpdate();
+        	}
+        	catch (IOException e) {
+                logError("Agent update aborted due to Exception.", e);
+        	}
+        	try {
+        		runDeploymentUpdate();
+        	}
+        	catch (IOException e) {
+                logError("Deployment update aborted due to Exception.", e);
+        	}
+        	logDebug("Sync completed. Rescheduled in %d seconds", interval);
         }
         catch (RetryAfterException e) {
             // any method may throw this causing the sync to abort. The server is busy so no sense in trying
             // anything else until the retry window has passed.
             interval = e.getBackoffTime();
             logWarning("Sync received retry exception from server. Rescheduled in %d seconds", e.getBackoffTime());
-        }
-        catch (Exception e) {
-            // serious problem throw by a method that decides this is cause enough to abort the sync. Not much
-            // we can do but log it as an error and reschedule as usual.
-            logError("Sync aborted due to Exception.", e);
         }
         finally {
             scheduleRun(interval);
