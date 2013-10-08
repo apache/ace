@@ -488,28 +488,18 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         	logDebug("Controller disabled by configuration. Skipping...");
         	return;
         }
-        logDebug("Controller syncing...");
         try {
+        	logDebug("Controller syncing...");
         	runFeedback();
-        	try {
-        		runAgentUpdate();
-        	}
-        	catch (IOException e) {
-                logError("Agent update aborted due to Exception.", e);
-        	}
-        	try {
-        		runDeploymentUpdate();
-        	}
-        	catch (IOException e) {
-                logError("Deployment update aborted due to Exception.", e);
-        	}
+        	runAgentUpdate();
+        	runDeploymentUpdate();
         	logDebug("Sync completed. Rescheduled in %d seconds", interval);
         }
         catch (RetryAfterException e) {
             // any method may throw this causing the sync to abort. The server is busy so no sense in trying
             // anything else until the retry window has passed.
             interval = e.getBackoffTime();
-            logWarning("Sync received retry exception from server. Rescheduled in %d seconds", e.getBackoffTime());
+            logWarning("Sync received retry exception from server. Rescheduled in %d seconds", interval);
         }
         finally {
             scheduleRun(interval);
@@ -623,24 +613,34 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         return m_updateInstaller;
     }
 
-    private void runAgentUpdate() throws RetryAfterException, IOException {
+    private void runAgentUpdate() throws RetryAfterException {
         logDebug("Checking for agent updates...");
 
         long maxRetries = m_maxRetries.get();
         boolean fixPackage = m_fixPackage.get();
 
         UpdateInstaller updateInstaller = getUpdateInstaller();
-        updateInstaller.installUpdate(getAgentUpdateHandler(), fixPackage, maxRetries);
+    	try {
+    		updateInstaller.installUpdate(getAgentUpdateHandler(), fixPackage, maxRetries);
+    	}
+    	catch (IOException e) {
+            logError("Agent update aborted due to Exception.", e);
+    	}
     }
 
-    private void runDeploymentUpdate() throws RetryAfterException, IOException {
+    private void runDeploymentUpdate() throws RetryAfterException {
         logDebug("Checking for deployment updates...");
 
         long maxRetries = m_maxRetries.get();
         boolean fixPackage = m_fixPackage.get();
 
         UpdateInstaller updateInstaller = getUpdateInstaller();
-        updateInstaller.installUpdate(getDeploymentHandler(), fixPackage, maxRetries);
+    	try {
+    		updateInstaller.installUpdate(getDeploymentHandler(), fixPackage, maxRetries);
+    	}
+    	catch (IOException e) {
+            logError("Deployment update aborted due to Exception.", e);
+    	}
     }
 
     private void runFeedback() throws RetryAfterException {
