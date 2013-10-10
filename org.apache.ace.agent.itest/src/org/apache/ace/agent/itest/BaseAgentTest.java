@@ -85,11 +85,11 @@ public abstract class BaseAgentTest extends IntegrationTestBase {
         Bundle agentBundle = getAgentBundle();
         File dataDir = agentBundle.getBundleContext().getDataFile("");
 
-//        System.out.println("BaseAgentTest: Stopping agent bundle");
+        // System.out.println("BaseAgentTest: Stopping agent bundle");
         agentBundle.stop();
-//        System.out.println("BaseAgentTest: Cleaning bundle data dir (" + dataDir + ")");
+        // System.out.println("BaseAgentTest: Cleaning bundle data dir (" + dataDir + ")");
         cleanDir(dataDir);
-//        System.out.println("BaseAgentTest: Cleaning system properties");
+        // System.out.println("BaseAgentTest: Cleaning system properties");
         Set<String> keysBeRemoved = new HashSet<String>();
         for (Object key : System.getProperties().keySet()) {
             if (key instanceof String && ((String) key).startsWith(AgentConstants.CONFIG_KEY_NAMESPACE)) {
@@ -99,7 +99,7 @@ public abstract class BaseAgentTest extends IntegrationTestBase {
         for (String removeKey : keysBeRemoved) {
             System.clearProperty(removeKey);
         }
-//        System.out.println("BaseAgentTest: Starting agent bundle");
+        // System.out.println("BaseAgentTest: Starting agent bundle");
         agentBundle.start();
     }
 

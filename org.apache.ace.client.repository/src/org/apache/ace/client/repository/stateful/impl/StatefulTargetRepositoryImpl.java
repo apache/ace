@@ -46,6 +46,7 @@ import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
+import org.apache.ace.client.repository.repository.RepositoryConfiguration;
 import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject.ApprovalState;
@@ -62,8 +63,8 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
 
 /**
- * Implements the StatefulTargetRepository. If an <code>AuditLogStore</code> is present,
- * it will be used; it is assumed that the auditlog store is up to date.
+ * Implements the StatefulTargetRepository. If an <code>AuditLogStore</code> is present, it will be used; it is assumed
+ * that the auditlog store is up to date.
  */
 public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, EventHandler, PreCommitMember {
     private BundleContext m_context; /* Injected by dependency manager */
@@ -77,13 +78,14 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     // TODO: Make the concurrencyLevel of this concurrent hashmap settable?
     private Map<String, StatefulTargetObjectImpl> m_repository = new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
     private Map<String, StatefulTargetObjectImpl> m_index = new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
-    private final String m_sessionID;
-    private boolean m_holdEvents = false;
-	private boolean m_showUnregisteredTargets;
 
-    public StatefulTargetRepositoryImpl(String sessionID, boolean showUnregisteredTargets) {
+    private final String m_sessionID;
+    private final RepositoryConfiguration m_repoConfig;
+    private boolean m_holdEvents = false;
+
+    public StatefulTargetRepositoryImpl(String sessionID, RepositoryConfiguration repoConfig) {
         m_sessionID = sessionID;
-		m_showUnregisteredTargets = showUnregisteredTargets;
+        m_repoConfig = repoConfig;
     }
 
     public StatefulTargetObject create(Map<String, String> attributes, Map<String, String> tags)
@@ -154,12 +156,13 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     /**
      * Gets the <code>TargetObject</code> which is identified by the <code>targetID</code>.
      * 
-     * @param targetID A string representing a target ID.
-     * @return The <code>TargetObject</code> from the <code>TargetRepository</code> which has the given
-     *         ID, or <code>null</code> if none can be found.
+     * @param targetID
+     *            A string representing a target ID.
+     * @return The <code>TargetObject</code> from the <code>TargetRepository</code> which has the given ID, or
+     *         <code>null</code> if none can be found.
      */
     TargetObject getTargetObject(String targetID) {
-// synchronized(m_repository) {
+        // synchronized(m_repository) {
         try {
             List<TargetObject> targets =
                 m_targetRepository.get(m_context.createFilter("(" + TargetObject.KEY_ID + "="
@@ -175,15 +178,16 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
             // The filter syntax is illegal, probably a bad target ID.
             return null;
         }
-// }
+        // }
     }
 
     /**
      * Gets the stateful representation of the given target ID.
      * 
-     * @param targetID A string representing a target ID.
-     * @return The <code>StatefulTargetyObjectImpl</code> which handles the given ID,
-     *         or <code>null</code> if none can be found.
+     * @param targetID
+     *            A string representing a target ID.
+     * @return The <code>StatefulTargetyObjectImpl</code> which handles the given ID, or <code>null</code> if none can
+     *         be found.
      */
     StatefulTargetObjectImpl getStatefulTargetObject(String targetID) {
         synchronized (m_repository) {
@@ -194,7 +198,8 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     /**
      * Creates and registers a new stateful target object based on the given ID.
      * 
-     * @param targetID A string representing a target ID.
+     * @param targetID
+     *            A string representing a target ID.
      * @return The newly created and registered <code>StatefulTargetObjectImpl</code>.
      */
     private StatefulTargetObjectImpl createStateful(String targetID) {
@@ -210,10 +215,10 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     }
 
     /**
-     * Removes the given entity from this object's repository, and notifies
-     * interested parties of this.
+     * Removes the given entity from this object's repository, and notifies interested parties of this.
      * 
-     * @param entity The StatefulTargetObjectImpl to be removed.
+     * @param entity
+     *            The StatefulTargetObjectImpl to be removed.
      */
     void removeStateful(StatefulTargetObjectImpl entity) {
         synchronized (m_repository) {
@@ -224,12 +229,12 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     }
 
     /**
-     * Adds the given stateful object to this object's repository, and notifies
-     * interested parties of this change.
+     * Adds the given stateful object to this object's repository, and notifies interested parties of this change.
      * 
-     * @param stoi A <code>StatefulTargetObjectImpl</code> to be registered.
-     * @return <code>true</code> when this object has been added to the repository
-     *         and listeners have been notified, <code>false</code> otherwise.
+     * @param stoi
+     *            A <code>StatefulTargetObjectImpl</code> to be registered.
+     * @return <code>true</code> when this object has been added to the repository and listeners have been notified,
+     *         <code>false</code> otherwise.
      */
     boolean add(StatefulTargetObjectImpl stoi) {
         if (!m_repository.containsKey(stoi)) {
@@ -246,9 +251,10 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     /**
      * Gets all auditlog events which are related to a given target ID.
      * 
-     * @param targetID A string representing a target ID.
-     * @return a list of <code>AuditEvent</code>s related to this target ID,
-     *         ordered in the order they happened. If no events can be found, and empty list will be returned.
+     * @param targetID
+     *            A string representing a target ID.
+     * @return a list of <code>AuditEvent</code>s related to this target ID, ordered in the order they happened. If no
+     *         events can be found, and empty list will be returned.
      */
     List<Event> getAuditEvents(String targetID) {
         return getAuditEvents(getAllDescriptors(targetID));
@@ -257,7 +263,8 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     /**
      * Gets all auditlog descriptors which are related to a given target.
      * 
-     * @param targetID The target ID
+     * @param targetID
+     *            The target ID
      * @return A list of LogDescriptors, in no particular order.
      */
     List<Descriptor> getAllDescriptors(String targetID) {
@@ -278,12 +285,13 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     /**
      * Gets all audit log events for a target is has not yet 'seen'.
      * 
-     * @param all A list of all <code>LogDescriptor</code> from which to filter
-     *        the new ones.
-     * @param seen A list of <code>LogDescriptor</code> objects, which indicate
-     *        the items the target has already processed.
-     * @return All AuditLog events that are in the audit store, but are not identified
-     *         by <code>oldDescriptors</code>, ordered by 'happened-before'.
+     * @param all
+     *            A list of all <code>LogDescriptor</code> from which to filter the new ones.
+     * @param seen
+     *            A list of <code>LogDescriptor</code> objects, which indicate the items the target has already
+     *            processed.
+     * @return All AuditLog events that are in the audit store, but are not identified by <code>oldDescriptors</code>,
+     *         ordered by 'happened-before'.
      */
     List<Event> getAuditEvents(List<Descriptor> events) {
         // Get all events from the audit log store, if possible.
@@ -326,13 +334,12 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     }
 
     /**
-     * Based on the information in this stateful object, creates a <code>TargetObject</code>
-     * in the <code>TargetRepository</code>.
-     * This function is intended to be used for targets which are not yet represented
-     * in the <code>TargetRepository</code>; if they already are, an <code>IllegalArgumentException</code>
-     * will be thrown.
+     * Based on the information in this stateful object, creates a <code>TargetObject</code> in the
+     * <code>TargetRepository</code>. This function is intended to be used for targets which are not yet represented in
+     * the <code>TargetRepository</code>; if they already are, an <code>IllegalArgumentException</code> will be thrown.
      * 
-     * @param targetID A string representing the ID of the new target.
+     * @param targetID
+     *            A string representing the ID of the new target.
      */
     void register(String targetID) {
         Map<String, String> attr = new HashMap<String, String>();
@@ -345,10 +352,13 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     /**
      * Notifies interested parties of a change to a <code>StatefulTargetObject</code>.
      * 
-     * @param stoi The <code>StatefulTargetObject</code> which has changed.
-     * @param topic A topic string for posting the event.
-     * @param additionalProperties A Properties event, already containing some extra properties. If
-     *        RepositoryObject.EVENT_ENTITY is used, it will be overwritten.
+     * @param stoi
+     *            The <code>StatefulTargetObject</code> which has changed.
+     * @param topic
+     *            A topic string for posting the event.
+     * @param additionalProperties
+     *            A Properties event, already containing some extra properties. If RepositoryObject.EVENT_ENTITY is
+     *            used, it will be overwritten.
      */
     void notifyChanged(StatefulTargetObject stoi, String topic, Properties additionalProperties) {
         additionalProperties.put(RepositoryObject.EVENT_ENTITY, stoi);
@@ -359,11 +369,17 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     /**
      * Notifies interested parties of a change to a <code>StatefulTargetObject</code>.
      * 
-     * @param stoi The <code>StatefulTargetObject</code> which has changed.
-     * @param topic A topic string for posting the event.
+     * @param stoi
+     *            The <code>StatefulTargetObject</code> which has changed.
+     * @param topic
+     *            A topic string for posting the event.
      */
     void notifyChanged(StatefulTargetObject stoi, String topic) {
         notifyChanged(stoi, topic, new Properties());
+    }
+
+    private boolean isShowUnregisteredTargets() {
+        return m_repoConfig.isShowUnregisteredTargets();
     }
 
     /**
@@ -373,8 +389,8 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         synchronized (m_repository) {
             List<StatefulTargetObjectImpl> touched = new ArrayList<StatefulTargetObjectImpl>();
             touched.addAll(parseTargetRepository());
-            if (m_showUnregisteredTargets) {
-            	touched.addAll(parseAuditLog());
+            if (isShowUnregisteredTargets()) {
+                touched.addAll(parseAuditLog());
             }
 
             // Now, it is possible we have not touched all objects. Find out which these are, and make
@@ -396,11 +412,11 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     }
 
     /**
-     * Checks all inhabitants of the <code>TargetRepository</code> to see
-     * whether we already have a stateful representation of them.
+     * Checks all inhabitants of the <code>TargetRepository</code> to see whether we already have a stateful
+     * representation of them.
      * 
-     * @param needsVerify states whether the objects which are 'touched' by this
-     *        actions should verify their existence.
+     * @param needsVerify
+     *            states whether the objects which are 'touched' by this actions should verify their existence.
      * @return A list of all the target objects that have been touched by this action.
      */
     private List<StatefulTargetObjectImpl> parseTargetRepository() {
@@ -419,11 +435,10 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     }
 
     /**
-     * Checks the audit log to see whether we already have a
-     * stateful object for all targets mentioned there.
+     * Checks the audit log to see whether we already have a stateful object for all targets mentioned there.
      * 
-     * @param needsVerify states whether the objects which are 'touched' by this
-     *        actions should verify their existence.
+     * @param needsVerify
+     *            states whether the objects which are 'touched' by this actions should verify their existence.
      */
     private List<StatefulTargetObjectImpl> parseAuditLog() {
         List<StatefulTargetObjectImpl> result = new ArrayList<StatefulTargetObjectImpl>();
@@ -445,9 +460,8 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         }
 
         /*
-         * Note: the parsing of the audit log and the creation/notification of the
-         * stateful objects has been separated, to prevent calling updateAuditEvents()
-         * multiple times on targets which have more than one log.
+         * Note: the parsing of the audit log and the creation/notification of the stateful objects has been separated,
+         * to prevent calling updateAuditEvents() multiple times on targets which have more than one log.
          */
         synchronized (m_repository) {
             for (String targetID : targetIDs) {
@@ -465,12 +479,14 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     }
 
     /**
-     * Approves the changes that will happen to the target based on the
-     * changes in the shop by generating a new deployment version.
+     * Approves the changes that will happen to the target based on the changes in the shop by generating a new
+     * deployment version.
      * 
-     * @param targetID A string representing a target ID.
+     * @param targetID
+     *            A string representing a target ID.
      * @return The version identifier of the new deployment package.
-     * @throws java.io.IOException When there is a problem generating the deployment version.
+     * @throws java.io.IOException
+     *             When there is a problem generating the deployment version.
      */
     String approve(String targetID) throws IOException {
         DeploymentVersionObject mostRecentDeploymentVersion = getMostRecentDeploymentVersion(targetID);
@@ -482,19 +498,19 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
             nextVersion = nextVersion(mostRecentDeploymentVersion.getVersion());
         }
         return nextVersion;
-//        return generateDeploymentVersion(targetID).getVersion();
+        // return generateDeploymentVersion(targetID).getVersion();
     }
 
     /**
-     * Generates an array of bundle URLs which have to be deployed on
-     * the target, given the current state of the shop.
-     * TODO: In the future, we want to add support for multiple shops.
-     * TODO: Is this prone to concurrency issues with changes distribution- and
-     * feature objects?
+     * Generates an array of bundle URLs which have to be deployed on the target, given the current state of the shop.
+     * TODO: In the future, we want to add support for multiple shops. TODO: Is this prone to concurrency issues with
+     * changes distribution- and feature objects?
      * 
-     * @param targetID A string representing a target.
+     * @param targetID
+     *            A string representing a target.
      * @return An array of artifact URLs.
-     * @throws java.io.IOException When there is a problem processing an artifact for deployment.
+     * @throws java.io.IOException
+     *             When there is a problem processing an artifact for deployment.
      */
     DeploymentArtifact[] getNecessaryDeploymentArtifacts(String targetID, String version) throws IOException {
         TargetObject to = getTargetObject(targetID);
@@ -638,7 +654,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                             ArtifactObject processor = allProcessors.get(processorPID);
                             if (processor == null) {
                                 // this means we cannot create a useful version; return null.
-                            	m_log.log(LogService.LOG_ERROR, "Cannot gather necessary artifacts: failed to find resource processor named '" + artifact.getProcessorPID() + "' for artifact '" + artifact.getName() + "'!");
+                                m_log.log(LogService.LOG_ERROR, "Cannot gather necessary artifacts: failed to find resource processor named '" + artifact.getProcessorPID() + "' for artifact '" + artifact.getName() + "'!");
                                 return null;
                             }
                             result.add(processor);
@@ -652,13 +668,14 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     }
 
     /**
-     * Generates a new deployment version for the the given target,
-     * based on the artifacts it is linked to by the distributions it is
-     * associated to.
+     * Generates a new deployment version for the the given target, based on the artifacts it is linked to by the
+     * distributions it is associated to.
      * 
-     * @param targetID A string representing a target.
+     * @param targetID
+     *            A string representing a target.
      * @return A new DeploymentVersionObject, representing this new version for the target.
-     * @throws java.io.IOException When there is a problem determining the artifacts to be deployed.
+     * @throws java.io.IOException
+     *             When there is a problem determining the artifacts to be deployed.
      */
     DeploymentVersionObject generateDeploymentVersion(String targetID) throws IOException {
         Map<String, String> attr = new HashMap<String, String>();
@@ -691,13 +708,12 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     }
 
     /**
-     * Generates the next version, based on the version passed in.
-     * The version is assumed to be an OSGi-version; for now, the next
-     * 'major' version is generated. In the future, we might want to do
-     * 'smarter' things here, like checking the impact of a new version
-     * and use the minor and micro versions, or attach some qualifier.
+     * Generates the next version, based on the version passed in. The version is assumed to be an OSGi-version; for
+     * now, the next 'major' version is generated. In the future, we might want to do 'smarter' things here, like
+     * checking the impact of a new version and use the minor and micro versions, or attach some qualifier.
      * 
-     * @param version A string representing a deployment version's version.
+     * @param version
+     *            A string representing a deployment version's version.
      * @return A string representing the next version.
      */
     private static String nextVersion(String version) {
@@ -763,7 +779,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                 }
             }
         }
-        
+
         if (RepositoryAdmin.PRIVATE_TOPIC_LOGIN.equals(topic) || RepositoryAdmin.PRIVATE_TOPIC_REFRESH.equals(topic)) {
             m_holdEvents = false;
             synchronized (m_repository) {
@@ -787,7 +803,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
             }
         }
     }
-    
+
     @Override
     public void reset() {
         synchronized (m_repository) {
@@ -808,7 +824,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         }
         return false;
     }
-    
+
     private boolean preCommitHasChanges(StatefulTargetObjectImpl stoi) {
         return stoi.getApprovalState().equals(ApprovalState.Approved) && stoi.needsApprove();
     }

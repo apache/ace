@@ -40,7 +40,6 @@ import org.osgi.framework.ServiceRegistration;
 public class AgentExtensionTest extends BaseAgentTest {
 
     public void testLifecycle() throws Exception {
-
         AgentControl agentControl = getService(AgentControl.class);
         assertNotNull(agentControl);
 

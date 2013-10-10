@@ -21,6 +21,7 @@ package org.apache.ace.client.repository.impl;
 import java.util.Map;
 
 import org.apache.ace.client.repository.object.TargetObject;
+import org.apache.ace.client.repository.repository.RepositoryConfiguration;
 import org.apache.ace.client.repository.repository.TargetRepository;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -32,18 +33,13 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 public class TargetRepositoryImpl extends ObjectRepositoryImpl<TargetObjectImpl, TargetObject> implements TargetRepository {
     private final static String XML_NODE = "targets";
 
-    public TargetRepositoryImpl(ChangeNotifier notifier) {
-        super(notifier, XML_NODE);
+    public TargetRepositoryImpl(ChangeNotifier notifier, RepositoryConfiguration repoConfig) {
+        super(notifier, XML_NODE, repoConfig);
     }
 
     @Override
     TargetObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
         return new TargetObjectImpl(attributes, tags, this);
-    }
-
-    @Override
-    TargetObjectImpl createNewInhabitant(Map<String, String> attributes) {
-        return new TargetObjectImpl(attributes, this);
     }
 
     @Override

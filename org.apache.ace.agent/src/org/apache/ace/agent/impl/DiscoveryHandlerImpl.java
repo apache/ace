@@ -134,7 +134,6 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
      */
     @Override
     public URL getServerUrl() {
-
         List<String> serverURLs = m_serverURLs; // local reference
         boolean checkURLs = m_checkURLs; // local value
 

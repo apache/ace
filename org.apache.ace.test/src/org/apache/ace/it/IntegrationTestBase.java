@@ -21,9 +21,11 @@ package org.apache.ace.it;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.ace.test.utils.Util.properties;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.ConnectException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.ComponentDependencyDeclaration;
 import org.apache.felix.dm.ComponentStateListener;
@@ -128,12 +131,71 @@ public class IntegrationTestBase extends TestCase {
      * configure(&quot;org.apache.felix.http&quot;,
      *     &quot;org.osgi.service.http.port&quot;, &quot;1234&quot;);
      * </pre>
+     * 
+     * @param pid
+     *            the configuration PID to configure;
+     * @param configuration
+     *            the configuration key/values (as pairs).
      */
     protected void configure(String pid, String... configuration) throws IOException {
         Properties props = properties(configuration);
         Configuration config = getConfiguration(pid);
         config.update(props);
         m_trackedConfigurations.add(config);
+    }
+
+    /**
+     * Configures the "org.apache.felix.http" and waits until the service is actually ready to process requests.
+     * <p>
+     * The reason that this method exists is that configuring the Felix HTTP bundle causes it to actually stop and
+     * restart, which is done asynchronously. This means that we cannot be sure that depending code is always able to
+     * directly use the HTTP service after its been configured.
+     * </p>
+     * 
+     * @param port
+     *            the new port to run the HTTP service on;
+     * @param configuration
+     *            the extra (optional) configuration key/values (as pairs).
+     * @see #configure(String, String...)
+     */
+    protected void configureHttpService(int port, String... configuration) throws IOException, InterruptedException {
+        final String httpPID = "org.apache.felix.http";
+        final String portProperty = "org.osgi.service.http.port";
+        final String expectedPort = Integer.toString(port);
+
+        // Do not track this configuration (yet)...
+        Properties props = properties(configuration);
+        props.put(portProperty, expectedPort);
+
+        Configuration config = getConfiguration(httpPID);
+        config.update(props);
+
+        // This ugly warth is necessary as Felix HTTP currently brings the entire service down & up if it gets
+        // reconfigured. There is no other way for us to tell whether the server is ready to accept calls...
+        URL url = new URL(String.format("http://localhost:%d/", port));
+        int tries = 50;
+        boolean ready = false;
+        do {
+            Thread.sleep(50);
+
+            try {
+                InputStream is = url.openStream();
+                is.close();
+                ready = true;
+            }
+            catch (ConnectException exception) {
+                // Not there yet...
+            }
+            catch (FileNotFoundException exception) {
+                // Ok; expected...
+                ready = true;
+            }
+        }
+        while (!ready && tries-- > 0);
+
+        if (tries == 0) {
+            throw new IOException("Failed waiting on HTTP service?!");
+        }
     }
 
     /**
@@ -476,6 +538,11 @@ public class IntegrationTestBase extends TestCase {
             m_dependencyManager.add(component);
         }
 
+        System.setProperty("org.apache.ace.server.port", Integer.toString(TestConstants.PORT));
+
+        // Ensure the HTTP service is running on the port we expect...
+        configureHttpService(TestConstants.PORT);
+
         // Call back the implementation...
         configureProvisionedServices();
 
@@ -486,10 +553,6 @@ public class IntegrationTestBase extends TestCase {
             }
 
             configureAdditionalServices();
-
-            // Wait for CM to settle or we may get "socket closed" due to HTTP service restarts
-            // JaWi: no longer needed with Felix HTTP v2.2.1?
-            // Thread.sleep(500);
         }
         catch (InterruptedException e) {
             fail("Interrupted while waiting for services to get started.");

@@ -24,6 +24,7 @@ import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
+import org.apache.ace.client.repository.repository.RepositoryConfiguration;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -38,8 +39,8 @@ public class Artifact2FeatureAssociationRepositoryImpl extends AssociationReposi
     private final ArtifactRepositoryImpl m_artifactRepository;
     private final FeatureRepositoryImpl m_featureRepository;
 
-    public Artifact2FeatureAssociationRepositoryImpl(ArtifactRepositoryImpl artifactRepository, FeatureRepositoryImpl featureRepository, ChangeNotifier notifier) {
-        super(notifier, XML_NODE);
+    public Artifact2FeatureAssociationRepositoryImpl(ArtifactRepositoryImpl artifactRepository, FeatureRepositoryImpl featureRepository, ChangeNotifier notifier, RepositoryConfiguration repoConfig) {
+        super(notifier, XML_NODE, repoConfig);
         m_artifactRepository = artifactRepository;
         m_featureRepository = featureRepository;
     }

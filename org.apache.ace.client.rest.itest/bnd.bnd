@@ -1,5 +1,6 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
--buildpath: osgi.core,\
+-buildpath: \
+	osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\
 	biz.aQute.bnd,\
@@ -29,6 +30,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runvm: -ea
 -runbundles: osgi.cmpn,\
+	com.sun.jersey.client,\
+	com.sun.jersey.core,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.eventadmin,\
@@ -42,8 +45,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.gogo.command,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.felix.gogo.shell,\
-	com.sun.jersey.client,\
-	com.sun.jersey.core,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\

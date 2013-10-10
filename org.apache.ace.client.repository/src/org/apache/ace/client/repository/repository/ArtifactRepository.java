@@ -95,15 +95,4 @@ public interface ArtifactRepository extends ObjectRepository<ArtifactObject> {
      * @throws IOException
      */
     public boolean needsNewVersion(ArtifactObject artifact, TargetObject target, String targetID, String fromVersion);
-
-	/**
-	 * Sets the OBR that this artifact repository should use to upload artifacts to.
-	 */
-	public void setObrBase(URL obrBase);
-
-    /**
-     * Gets the OBR that this artifact repository should use to upload artifacts to.
-     * Note that this method may return <code>null</code> if no base was set earlier.
-     */
-    public URL getObrBase();
 }

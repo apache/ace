@@ -2,7 +2,8 @@
 # it updates the agent bundle. This causes problems if other tests try to wire to
 # the the api package after the fact.
 Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
--runbundles: org.mockito.mockito-all,\
+-runbundles: \
+	org.mockito.mockito-all,\
 	org.apache.ace.agent;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
@@ -14,11 +15,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
-	org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell,\
-	org.apache.felix.dependencymanager.shell,\
-	org.apache.ace.configurator.impl;version=latest,\
+	org.apache.ace.deployment.provider.filebased;version=latest,\
 	org.apache.felix.configadmin,\
 	org.apache.ace.http.listener;version=latest,\
 	biz.aQute.bnd,\
@@ -37,12 +34,10 @@ Private-Package: org.apache.ace.agent.itest
 	junit.osgi,\
 	org.mockito.mockito-all	
 -runsystempackages: sun.reflect
--runproperties: org.apache.felix.log.storeDebug=true,\
+-runproperties: \
 	org.apache.felix.eventadmin.Timeout=0,\
-	org.apache.ace.server.port=8080,\
-	org.osgi.service.http.port=8080,\
-	org.apache.felix.log.maxSize=1000,\
-	org.apache.ace.configurator.CONFIG_DIR=../org.apache.ace.agent.update.itest/conf
+	org.apache.felix.log.storeDebug=true,\
+	org.apache.felix.log.maxSize=1000
 Import-Package: org.apache.ace.agent,\
 	!org.osgi.service.component.annotations,\
 	*

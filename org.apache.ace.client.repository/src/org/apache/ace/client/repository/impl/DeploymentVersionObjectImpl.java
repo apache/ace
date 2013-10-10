@@ -29,40 +29,77 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 /**
- * Implementation class for the DeploymentVersionObject. For 'what it does', see DeploymentVersionObject,
- * for 'how it works', see RepositoryObjectImpl.
+ * Implementation class for the DeploymentVersionObject. For 'what it does', see DeploymentVersionObject, for 'how it
+ * works', see RepositoryObjectImpl.
  */
 public class DeploymentVersionObjectImpl extends RepositoryObjectImpl<DeploymentVersionObject> implements DeploymentVersionObject {
+    private static final String[] DEFINING_KEYS = new String[] { KEY_TARGETID, KEY_VERSION };
+
     private final static String XML_NODE = "deploymentversion";
     private final static String ARTIFACTS_XML_NODE = "artifacts";
-    private DeploymentArtifact[] m_deploymentArtifacts;
 
-    /**
-     * Creates a new <code>DeploymentVersionObjectImpl</code>.
-     * @param attributes A map of attributes; must include <code>KEY_TARGETID</code>, <code>KEY_VERSION</code>.
-     * @param deploymentArtifacts A (possibly empty) array of DeploymentArtifacts.
-     * @param notifier A change notifier to be used by this object.
-     */
-    DeploymentVersionObjectImpl(Map<String, String> attributes, ChangeNotifier notifier) {
-        super(checkAttributes(attributes, new String[] {KEY_TARGETID, KEY_VERSION}, new boolean[] {false, false}), notifier, XML_NODE);
-    }
-
-    DeploymentVersionObjectImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier) {
-        super(checkAttributes(attributes, new String[] {KEY_TARGETID, KEY_VERSION}, new boolean[] {false, false}), tags, notifier, XML_NODE);
-    }
+    private volatile DeploymentArtifact[] m_deploymentArtifacts;
 
     DeploymentVersionObjectImpl(HierarchicalStreamReader reader, ChangeNotifier notifier) {
         super(reader, notifier, XML_NODE);
     }
 
-    synchronized void setDeploymentArtifacts(DeploymentArtifact[] deploymentArtifacts) {
-        if (m_deploymentArtifacts != null) {
-            throw new IllegalStateException("Deployment artifacts are already set; this can only be done once.");
+    /**
+     * Creates a new <code>DeploymentVersionObjectImpl</code>.
+     * 
+     * @param attributes
+     *            A map of attributes; must include <code>KEY_TARGETID</code>, <code>KEY_VERSION</code>.
+     * @param deploymentArtifacts
+     *            A (possibly empty) array of DeploymentArtifacts.
+     * @param notifier
+     *            A change notifier to be used by this object.
+     */
+    DeploymentVersionObjectImpl(Map<String, String> attributes, ChangeNotifier notifier) {
+        super(checkAttributes(attributes, DEFINING_KEYS, new boolean[] { false, false }), notifier, XML_NODE);
+    }
+
+    DeploymentVersionObjectImpl(Map<String, String> attributes, Map<String, String> tags, ChangeNotifier notifier) {
+        super(checkAttributes(attributes, DEFINING_KEYS, new boolean[] { false, false }), tags, notifier, XML_NODE);
+    }
+
+    public DeploymentArtifact[] getDeploymentArtifacts() {
+        DeploymentArtifact[] artifacts;
+        synchronized (this) {
+            artifacts = m_deploymentArtifacts;
         }
+        if (artifacts == null) {
+            throw new IllegalStateException("This object is not fully initialized yet.");
+        }
+        return artifacts.clone();
+    }
+
+    public String getTargetID() {
+        return getAttribute(KEY_TARGETID);
+    }
+
+    public String getVersion() {
+        return getAttribute(KEY_VERSION);
+    }
+
+    @Override
+    public String toString() {
+        return "DeploymentVersionObject[target=" + getTargetID() + ",version=" + getVersion() + "]";
+    }
+
+    @Override
+    String[] getDefiningKeys() {
+        return DEFINING_KEYS;
+    }
+
+    void setDeploymentArtifacts(DeploymentArtifact[] deploymentArtifacts) {
         if (deploymentArtifacts == null) {
             throw new IllegalArgumentException("The argument should not be null.");
         }
-        else {
+        synchronized (this) {
+            DeploymentArtifact[] old = m_deploymentArtifacts;
+            if (old != null) {
+                throw new IllegalStateException("Deployment artifacts are already set; this can only be done once.");
+            }
             m_deploymentArtifacts = deploymentArtifacts;
         }
     }
@@ -82,40 +119,19 @@ public class DeploymentVersionObjectImpl extends RepositoryObjectImpl<Deployment
     }
 
     @Override
-    protected synchronized void writeCustom(HierarchicalStreamWriter writer) {
-        if (m_deploymentArtifacts == null) {
+    protected void writeCustom(HierarchicalStreamWriter writer) {
+        DeploymentArtifact[] artifacts;
+        synchronized (this) {
+            artifacts = m_deploymentArtifacts;
+        }
+
+        if (artifacts == null) {
             throw new IllegalStateException("This object is not fully initialized, so it cannot be serialized.");
         }
         writer.startNode(ARTIFACTS_XML_NODE);
-        for (DeploymentArtifact da : m_deploymentArtifacts) {
+        for (DeploymentArtifact da : artifacts) {
             ((DeploymentArtifactImpl) da).marshal(writer);
         }
         writer.endNode();
     }
-
-    private static String[] DEFINING_KEYS = new String[] {KEY_TARGETID, KEY_VERSION};
-    @Override
-    String[] getDefiningKeys() {
-        return DEFINING_KEYS;
-    }
-
-    public String getTargetID() {
-        return getAttribute(KEY_TARGETID);
-    }
-
-    public String getVersion() {
-        return getAttribute(KEY_VERSION);
-    }
-
-    public synchronized DeploymentArtifact[] getDeploymentArtifacts() {
-        if (m_deploymentArtifacts == null) {
-            throw new IllegalStateException("This object is not fully initialized yet.");
-        }
-        return m_deploymentArtifacts.clone();
-    }
-    @Override
-    public String toString() {
-    	return "DeploymentVersionObject[target=" + getTargetID() + ",version=" + getVersion() + "]";
-    }
 }
-

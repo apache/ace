@@ -1,16 +1,15 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
--runbundles: org.mockito.mockito-all,\
-	org.apache.ace.deployment.rp.autoconf;version=latest,\
-	org.apache.ace.log.api;version=latest,\
-	org.apache.ace.managementagent;version=latest,\
-	org.apache.ace.test;version=latest,\
+-runbundles: \
+	org.mockito.mockito-all,\
 	org.apache.felix.metatype,\
 	org.apache.felix.dependencymanager,\
-	org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell,\
+	org.apache.felix.log,\
 	org.apache.felix.configadmin,\
-	org.apache.felix.eventadmin
+	org.apache.felix.eventadmin,\
+	org.apache.ace.test;version=latest,\
+	org.apache.ace.deployment.rp.autoconf;version=latest,\
+	org.apache.ace.log.api;version=latest,\
+	org.apache.ace.managementagent;version=latest
 -runee: JavaSE-1.6
 -runvm: -ea
 -runfw: org.apache.felix.framework

@@ -26,6 +26,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Properties;
 
+import org.apache.ace.test.constants.TestConstants;
 import org.testng.annotations.Test;
 
 /**
@@ -37,7 +38,7 @@ public class ConnectionFactoryImplTest {
     
     static {
         try {
-            TEST_URL = new URL("http://localhost:8080/");
+            TEST_URL = new URL("http://localhost:" + TestConstants.PORT + "/");
         }
         catch (MalformedURLException e) {
             throw new RuntimeException(e);

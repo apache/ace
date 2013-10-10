@@ -24,6 +24,7 @@ import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
 import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
+import org.apache.ace.client.repository.repository.RepositoryConfiguration;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -38,8 +39,8 @@ public class Feature2DistributionAssociationRepositoryImpl extends AssociationRe
     private final FeatureRepositoryImpl m_featureRepository;
     private final DistributionRepositoryImpl m_distributionRepository;
 
-    public Feature2DistributionAssociationRepositoryImpl(FeatureRepositoryImpl featureRepository, DistributionRepositoryImpl distributionRepository, ChangeNotifier notifier) {
-        super(notifier, XML_NODE);
+    public Feature2DistributionAssociationRepositoryImpl(FeatureRepositoryImpl featureRepository, DistributionRepositoryImpl distributionRepository, ChangeNotifier notifier, RepositoryConfiguration repoConfig) {
+        super(notifier, XML_NODE, repoConfig);
         m_featureRepository = featureRepository;
         m_distributionRepository = distributionRepository;
     }

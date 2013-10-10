@@ -73,7 +73,12 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.gogo.runtime,\
 	org.apache.felix.gogo.shell,\
 	org.apache.ace.feedback.common;version=latest
--runproperties: org.apache.felix.eventadmin.Timeout=0
+-runproperties: \
+	org.apache.felix.eventadmin.Timeout=0,\
+	org.apache.felix.log.storeDebug=true,\
+    org.apache.felix.log.maxSize=-1,\
+    org.osgi.framework.bootdelegation="com.yourkit.*,com.sun.*,sun.*,apple.*,com.apple.*"
+
 Private-Package: org.apache.ace.it.repositoryadmin
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Client Repository itest

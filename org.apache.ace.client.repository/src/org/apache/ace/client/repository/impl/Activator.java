@@ -40,6 +40,7 @@ import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
+import org.apache.ace.client.repository.repository.RepositoryConfiguration;
 import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.client.repository.stateful.impl.StatefulTargetRepositoryImpl;
@@ -59,49 +60,53 @@ import org.osgi.service.log.LogService;
 import org.osgi.service.prefs.PreferencesService;
 
 /**
- * Activator for the RepositoryAdmin bundle. Creates the repository admin, which internally
- * creates all required repositories.
+ * Activator for the RepositoryAdmin bundle. Creates the repository admin, which internally creates all required
+ * repositories.
  */
 public class Activator extends DependencyActivatorBase implements SessionFactory, ManagedService {
-	private static final String PID = "org.apache.ace.client.repository";
-    private static final String KEY_SHOWUNREGISTEREDTARGETS = "showunregisteredtargets";
-	private final Map<String, SessionData> m_sessions = new HashMap<String, SessionData>();
-    private volatile DependencyManager m_dependencyManager;
-	private boolean m_showUnregisteredTargets;
+    /**
+     * Small container that keeps the session-related services for us.
+     */
+    private static final class SessionData {
+        private final List<Component> m_services = new ArrayList<Component>();
 
-    @Override
-    public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
-        m_dependencyManager = manager;
-        
-        Properties props = new Properties();
-        props.put(Constants.SERVICE_PID, PID);
-        props.put(CommandProcessor.COMMAND_SCOPE, "clientrepo");
-        props.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "sessions" });
-        
-        manager.add(createComponent()
-            .setInterface(new String[] { SessionFactory.class.getName(), ManagedService.class.getName() }, props)
-            .setImplementation(this)
-        );
-    }
+        final void addComponents(DependencyManager manager, Component... comps) {
+            synchronized (m_services) {
+                for (Component c : comps) {
+                    m_services.add(c);
+                }
+            }
 
-    /** Shell command to show the active sessions. */
-    public void sessions() {
-        synchronized (m_sessions) {
-        	if (m_sessions.isEmpty()) {
-        		System.out.println("No sessions.");
-        	}
-        	else {
-        		System.out.println("Sessions:");
-        		for (Entry<String, SessionData> session : m_sessions.entrySet()) {
-        			System.out.println(" * " + session.getKey());
-        		}
-        	}
+            for (Component c : comps) {
+                manager.add(c);
+            }
+        }
+
+        final boolean isEmpty() {
+            synchronized (m_services) {
+                return m_services.isEmpty();
+            }
+        }
+
+        final void removeAllComponents(DependencyManager manager) {
+            Component[] comps;
+            synchronized (m_services) {
+                comps = m_services.toArray(new Component[m_services.size()]);
+                m_services.clear();
+            }
+
+            for (Component c : comps) {
+                manager.remove(c);
+            }
         }
     }
-    
-    @Override
-    public synchronized void destroy(BundleContext context, DependencyManager manager) throws Exception {
-    }
+
+    private static final String PID = "org.apache.ace.client.repository";
+
+    private final Map<String, SessionData> m_sessions = new HashMap<String, SessionData>();
+    private final RepositoryConfigurationImpl m_repoConfiguration = new RepositoryConfigurationImpl();
+
+    private volatile DependencyManager m_dependencyManager;
 
     public void createSession(String sessionID, Map sessionConfiguration) {
         SessionData sessionData = null;
@@ -111,17 +116,15 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
                 m_sessions.put(sessionID, sessionData);
             }
         }
-        
-        boolean showUnregisteredTargets = m_showUnregisteredTargets;
-        if (sessionConfiguration != null) {
-        	Object value = sessionConfiguration.get(KEY_SHOWUNREGISTEREDTARGETS);
-        	showUnregisteredTargets = parseBoolean(value, m_showUnregisteredTargets);
-        }
 
         // Allow session to be created outside the lock; to avoid potential deadlocks...
         if (sessionData != null) {
-            createSessionServices(sessionData, sessionID, showUnregisteredTargets);
+            createSessionServices(sessionData, sessionID, getConfiguration(sessionConfiguration));
         }
+    }
+
+    @Override
+    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
     }
 
     public void destroySession(String sessionID) {
@@ -135,16 +138,53 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
             destroySessionServices(sessionData, sessionID);
         }
     }
-    
+
+    @Override
+    public void init(BundleContext context, DependencyManager manager) throws Exception {
+        m_dependencyManager = manager;
+
+        Properties props = new Properties();
+        props.put(Constants.SERVICE_PID, PID);
+        props.put(CommandProcessor.COMMAND_SCOPE, "clientrepo");
+        props.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "sessions" });
+
+        manager.add(createComponent()
+            .setInterface(new String[] { SessionFactory.class.getName(), ManagedService.class.getName() }, props)
+            .setImplementation(this)
+            );
+    }
+
+    /** Shell command to show the active sessions. */
+    public void sessions() {
+        synchronized (m_sessions) {
+            if (m_sessions.isEmpty()) {
+                System.out.println("No sessions.");
+            }
+            else {
+                System.out.println("Sessions:");
+                for (Entry<String, SessionData> session : m_sessions.entrySet()) {
+                    System.out.println(" * " + session.getKey());
+                }
+            }
+        }
+    }
+
+    @Override
+    public void updated(Dictionary properties) throws ConfigurationException {
+        m_repoConfiguration.update(properties);
+    }
+
     /**
      * Creates all necessary session-related service for the given session.
      * 
-     * @param sd the session data to keep the session-related services;
-     * @param sessionID the session ID to use.
+     * @param sd
+     *            the session data to keep the session-related services;
+     * @param sessionID
+     *            the session ID to use.
      */
     @SuppressWarnings("unchecked")
-    private void createSessionServices(SessionData sd, String sessionID, boolean showUnregisteredTargets) {
-        RepositoryAdminImpl rai = new RepositoryAdminImpl(sessionID);
+    private void createSessionServices(SessionData sd, String sessionID, RepositoryConfiguration repoConfig) {
+        RepositoryAdminImpl rai = new RepositoryAdminImpl(sessionID, repoConfig);
         Component repositoryAdminComponent = createComponent()
             .setInterface(RepositoryAdmin.class.getName(), rai.getSessionProps())
             .setImplementation(rai)
@@ -168,12 +208,12 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
             Distribution2TargetAssociation.PRIVATE_TOPIC_ALL,
             TargetObject.PRIVATE_TOPIC_ALL,
             DeploymentVersionObject.PRIVATE_TOPIC_ALL,
-            RepositoryAdmin.PRIVATE_TOPIC_HOLDUNTILREFRESH, 
-            RepositoryAdmin.PRIVATE_TOPIC_REFRESH, 
-            RepositoryAdmin.PRIVATE_TOPIC_LOGIN 
+            RepositoryAdmin.PRIVATE_TOPIC_HOLDUNTILREFRESH,
+            RepositoryAdmin.PRIVATE_TOPIC_REFRESH,
+            RepositoryAdmin.PRIVATE_TOPIC_LOGIN
         });
-        
-        StatefulTargetRepositoryImpl statefulTargetRepositoryImpl = new StatefulTargetRepositoryImpl(sessionID, showUnregisteredTargets);
+
+        StatefulTargetRepositoryImpl statefulTargetRepositoryImpl = new StatefulTargetRepositoryImpl(sessionID, repoConfig);
         Component statefulTargetRepositoryComponent = createComponent()
             .setInterface(new String[] { StatefulTargetRepository.class.getName(), EventHandler.class.getName() }, topic)
             .setImplementation(statefulTargetRepositoryImpl)
@@ -184,7 +224,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
             .add(createServiceDependency().setService(BundleHelper.class).setRequired(true))
             .add(createServiceDependency().setService(EventAdmin.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false));
-        
+
         rai.addPreCommitMember(statefulTargetRepositoryImpl);
 
         // Publish our components to our session data for later use...
@@ -194,69 +234,29 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
     /**
      * Removes the session-related services from the session.
      * 
-     * @param sd the session data that keeps the session-related services;
-     * @param sessionID the session ID to use.
+     * @param sd
+     *            the session data that keeps the session-related services;
+     * @param sessionID
+     *            the session ID to use.
      */
     private void destroySessionServices(SessionData sd, String sessionID) {
         sd.removeAllComponents(m_dependencyManager);
     }
 
     /**
-     * Small container that keeps the session-related services for us.
+     * Creates a copy of the repository configuration that is supposed to remain stable for the duration of a session,
+     * if there are settings overridden. If no settings are to be overridden, the current (mutable!) repository
+     * configuration is used.
+     * 
+     * @param sessionConfiguration
+     *            the session configuration overriding the current repository configuration values, can be
+     *            <code>null</code> to keep the current configuration as-is.
+     * @return a new {@link RepositoryConfiguration} instance, never <code>null</code>.
      */
-    private static final class SessionData {
-        private final List<Component> m_services = new ArrayList<Component>();
-
-        final void addComponents(DependencyManager manager, Component... comps) {
-            synchronized (m_services) {
-                for (Component c : comps) {
-                    m_services.add(c);
-                }
-            }
-
-            for (Component c : comps) {
-                manager.add(c);
-            }
+    private RepositoryConfiguration getConfiguration(Map<String, Object> sessionConfiguration) {
+        if (sessionConfiguration != null) {
+            return new RepositoryConfigurationImpl(m_repoConfiguration, sessionConfiguration);
         }
-
-        final void removeAllComponents(DependencyManager manager) {
-            Component[] comps;
-            synchronized (m_services) {
-                comps = m_services.toArray(new Component[m_services.size()]);
-                m_services.clear();
-            }
-            
-            for (Component c : comps) {
-                manager.remove(c);
-            }
-        }
-        
-        final boolean isEmpty() {
-            synchronized (m_services) {
-                return m_services.isEmpty();
-            }
-        }
+        return m_repoConfiguration;
     }
-
-	@Override
-	public void updated(Dictionary properties) throws ConfigurationException {
-		if (properties == null) {
-			// by default, we show unregistered targets
-			m_showUnregisteredTargets = true;
-		}
-		else {
-        	Object value = properties.get(KEY_SHOWUNREGISTEREDTARGETS);
-        	m_showUnregisteredTargets = parseBoolean(value, true);
-		}
-	}
-	
-	private boolean parseBoolean(Object value, boolean defaultValue) {
-    	if (value instanceof String) {
-    		return Boolean.parseBoolean((String) value);
-    	}
-    	else if (value instanceof Boolean) {
-    		return (Boolean) value;
-    	}
-    	return defaultValue;
-	}
 }

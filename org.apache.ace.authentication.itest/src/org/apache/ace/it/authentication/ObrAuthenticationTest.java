@@ -63,6 +63,8 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
     private volatile ConnectionFactory m_connectionFactory;
     private volatile LogReaderService m_logReader;
 
+    private URL m_obrURL;
+
     @Override
     protected Component[] getDependencies() {
         return new Component[] {
@@ -107,6 +109,10 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             "org.apache.ace.server.servlet.endpoint", m_endpoint,
             "authentication.enabled", "true");
 
+        m_obrURL = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/");
+
+        configure("org.apache.ace.client.repository", "obrlocation", m_obrURL.toExternalForm());
+
         configure("org.apache.ace.obr.storage.file",
             "OBRInstance", "singleOBRStore",
             OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
@@ -120,15 +126,12 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             importSingleUser(m_userRepository, userName, password);
             waitForUser(m_userAdmin, userName);
 
-            URL obrURL = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/");
-            m_artifactRepository.setObrBase(obrURL);
-
-            URL testURL = new URL(obrURL, "repository.xml");
+            URL testURL = new URL(m_obrURL, "repository.xml");
 
             assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
 
             m_authConfigPID = configureFactory("org.apache.ace.connectionfactory",
-                "authentication.baseURL", obrURL.toExternalForm(),
+                "authentication.baseURL", m_obrURL.toExternalForm(),
                 "authentication.type", "basic",
                 "authentication.user.name", userName,
                 "authentication.user.password", password);

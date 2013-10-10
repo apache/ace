@@ -24,6 +24,7 @@ import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
+import org.apache.ace.client.repository.repository.RepositoryConfiguration;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -38,8 +39,8 @@ public class Distribution2TargetAssociationRepositoryImpl extends AssociationRep
     private final DistributionRepositoryImpl m_distributionRepository;
     private final TargetRepositoryImpl m_targetRepository;
 
-    public Distribution2TargetAssociationRepositoryImpl(DistributionRepositoryImpl distributionRepository, TargetRepositoryImpl targetRepository, ChangeNotifier notifier) {
-        super(notifier, XML_NODE);
+    public Distribution2TargetAssociationRepositoryImpl(DistributionRepositoryImpl distributionRepository, TargetRepositoryImpl targetRepository, ChangeNotifier notifier, RepositoryConfiguration repoConfig) {
+        super(notifier, XML_NODE, repoConfig);
         m_distributionRepository = distributionRepository;
         m_targetRepository = targetRepository;
     }

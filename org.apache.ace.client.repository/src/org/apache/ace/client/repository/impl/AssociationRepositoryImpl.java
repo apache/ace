@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.ace.client.repository.Association;
 import org.apache.ace.client.repository.AssociationRepository;
 import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.client.repository.repository.RepositoryConfiguration;
 
 
 /**
@@ -43,8 +44,8 @@ import org.apache.ace.client.repository.RepositoryObject;
 public abstract class AssociationRepositoryImpl<L extends RepositoryObject, R extends RepositoryObject, I extends AssociationImpl<L, R, T>, T extends Association<L, R>> extends ObjectRepositoryImpl<I, T> implements AssociationRepository<L, R, T> {
     private Object m_lock = new Object();
 
-    public AssociationRepositoryImpl(ChangeNotifier notifier, String xmlNode) {
-        super(notifier, xmlNode);
+    public AssociationRepositoryImpl(ChangeNotifier notifier, String xmlNode, RepositoryConfiguration repoConfig) {
+        super(notifier, xmlNode, repoConfig);
     }
 
     @SuppressWarnings("unchecked")
@@ -58,7 +59,9 @@ public abstract class AssociationRepositoryImpl<L extends RepositoryObject, R ex
                 attributes.put(Association.LEFT_CARDINALITY, "" + leftCardinality);
                 attributes.put(Association.RIGHT_CARDINALITY, "" + rightCardinality);
                 association = (T) createNewInhabitant(attributes);
-                add(association);
+                if (!add(association)) {
+                    return null;
+                }
             }
             catch (Exception e) {
                 // We have not been able to instantiate our constructor. Not much to do about that.
@@ -111,4 +114,13 @@ public abstract class AssociationRepositoryImpl<L extends RepositoryObject, R ex
             super.remove(entity);
         }
     }
+
+    /**
+     * Creates a new inhabitant of the repository based on a map of attributes.
+     * 
+     * @param attributes
+     *            A map of attributes
+     * @return The new inhabitant.
+     */
+    abstract I createNewInhabitant(Map<String, String> attributes);
 }

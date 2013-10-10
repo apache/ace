@@ -97,12 +97,4 @@ public interface RepositoryAdminLoginContext
      * @return this context, never <code>null</code>.
      */
     public RepositoryAdminLoginContext add(BaseRepositoryContext<?> repositoryContext);
-
-    /**
-     * When uploads are needed, this is the base OBR that will be used.
-     * 
-     * @param base The URL of the OBR to be used.
-     * @return this object, to allow chaining.
-     */
-    public RepositoryAdminLoginContext setObrBase(URL base);
 }

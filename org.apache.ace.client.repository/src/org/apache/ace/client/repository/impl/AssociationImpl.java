@@ -166,7 +166,6 @@ public class AssociationImpl<L extends RepositoryObject, R extends RepositoryObj
      * @param clazz The class of the 'other side' of this association.
      * @return The most suited endpoint; this could be equal to <code>endpoint</code>.
      */
-    @SuppressWarnings("unchecked")
     private <TYPE extends RepositoryObject> List<TYPE> locateEndpoint(ObjectRepositoryImpl<?, TYPE> objectRepositoryImpl, Filter filter, List<TYPE> endpoints, int cardinality, Class<? extends RepositoryObject> clazz, boolean notify) {
 
         List<TYPE> candidates = objectRepositoryImpl.get(filter);

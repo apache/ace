@@ -66,14 +66,12 @@ public class Workspace {
     
     private final String m_sessionID;
     private final URL m_repositoryURL;
-    private final URL m_obrURL;
     private final String m_storeCustomerName;
     private final String m_distributionCustomerName;
     private final String m_deploymentCustomerName;
     private final String m_storeRepositoryName;
     private final String m_distributionRepositoryName;
     private final String m_deploymentRepositoryName;
-    private final String m_serverUser;
 
     private volatile BundleContext m_context;
     private volatile DependencyManager m_manager;
@@ -87,21 +85,19 @@ public class Workspace {
     private volatile Distribution2TargetAssociationRepository m_distribution2TargetAssociationRepository;
     private volatile LogService m_log;
 
-    public Workspace(String sessionID, String repositoryURL, String obrURL, String customerName, String storeRepositoryName, String distributionRepositoryName, String deploymentRepositoryName, String serverUser) throws MalformedURLException {
-    	this(sessionID, repositoryURL, obrURL, customerName, storeRepositoryName, customerName, distributionRepositoryName, customerName, deploymentRepositoryName, serverUser);
+    public Workspace(String sessionID, String repositoryURL, String customerName, String storeRepositoryName, String distributionRepositoryName, String deploymentRepositoryName) throws MalformedURLException {
+    	this(sessionID, repositoryURL, customerName, storeRepositoryName, customerName, distributionRepositoryName, customerName, deploymentRepositoryName);
     }
 
-    public Workspace(String sessionID, String repositoryURL, String obrURL, String storeCustomerName, String storeRepositoryName, String distributionCustomerName, String distributionRepositoryName, String deploymentCustomerName, String deploymentRepositoryName, String serverUser) throws MalformedURLException {
+    public Workspace(String sessionID, String repositoryURL, String storeCustomerName, String storeRepositoryName, String distributionCustomerName, String distributionRepositoryName, String deploymentCustomerName, String deploymentRepositoryName) throws MalformedURLException {
         m_sessionID = sessionID;
         m_repositoryURL = new URL(repositoryURL);
-        m_obrURL = new URL(obrURL);
         m_storeCustomerName = storeCustomerName;
         m_distributionCustomerName = deploymentCustomerName;
         m_deploymentCustomerName = deploymentCustomerName;
         m_storeRepositoryName = storeRepositoryName;
         m_distributionRepositoryName = distributionRepositoryName;
         m_deploymentRepositoryName = deploymentRepositoryName;
-        m_serverUser = serverUser;
     }
     
     /**
@@ -149,8 +145,8 @@ public class Workspace {
     public boolean login(User user) {
         try {
             RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(user);
-            
-            context.setObrBase(m_obrURL)
+
+            context
                 .add(context.createShopRepositoryContext()
                     .setLocation(m_repositoryURL)
                     .setCustomer(m_storeCustomerName)
@@ -202,15 +198,16 @@ public class Workspace {
     }
 
     public List<RepositoryObject> getRepositoryObjects(String entityType) {
-        List list = getObjectRepository(entityType).get();
+        List<RepositoryObject> list = getObjectRepository(entityType).get();
         if (list != null) {
             return list;
         }
         else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
+    @SuppressWarnings("unchecked")
     public RepositoryObject addRepositoryObject(String entityType, Map<String, String> attributes, Map<String, String> tags) throws IllegalArgumentException {
         if (TARGET.equals(entityType)) {
             return ((StatefulTargetRepository) getObjectRepository(TARGET)).preregister(attributes, tags);
@@ -353,8 +350,8 @@ public class Workspace {
         }
     }
 
-    private Map getAttributes(RepositoryObject object) {
-        Map result = new HashMap();
+    private Map<String, String> getAttributes(RepositoryObject object) {
+        Map<String, String> result = new HashMap<String, String>();
         for (Enumeration<String> keys = object.getAttributeKeys(); keys.hasMoreElements();) {
             String key = keys.nextElement();
             result.put(key, object.getAttribute(key));
@@ -396,6 +393,7 @@ public class Workspace {
         return null;
     }
     
+    @SuppressWarnings("unchecked")
     public void deleteRepositoryObject(String entityType, String entityId) {
         ObjectRepository objectRepository = getObjectRepository(entityType);
         RepositoryObject repositoryObject = objectRepository.get(entityId);

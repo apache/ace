@@ -55,7 +55,7 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
     public void testAssociationsWithMovingEndpoints() throws Exception {
         final ArtifactObject b1 = createBasicBundleObject("thebundle", "1", null);
         final FeatureObject g1 = createBasicFeatureObject("thefeature");
-        
+
         final Artifact2FeatureAssociation bg = runAndWaitForEvent(new Callable<Artifact2FeatureAssociation>() {
             public Artifact2FeatureAssociation call() throws Exception {
                 Map<String, String> properties = new HashMap<String, String>();
@@ -152,7 +152,7 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
                 .setLocation(m_endpoint).setCustomer("apache").setName("deployment").setWriteable());
 
         m_repositoryAdmin.login(loginContext);
-        
+
         m_repositoryAdmin.checkout();
 
         runAndWaitForEvent(new Callable<Object>() {
@@ -188,14 +188,14 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
         assertTrue("Turning on the autoapprove should not automatically approve whatever was waiting.", sgo.needsApprove());
 
         sgo.approve();
-        
+
         runAndWaitForEvent(new Callable<Void>() {
             public Void call() throws Exception {
                 m_repositoryAdmin.commit();
                 return null;
             }
-        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);        
-        
+        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
+
         assertFalse("We approved the new version by hand, so we should not need approval.", sgo.needsApprove());
 
         runAndWaitForEvent(new Callable<Object>() {
@@ -212,8 +212,8 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
                 m_repositoryAdmin.commit();
                 return null;
             }
-        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);           
-        
+        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
+
         assertFalse("With autoapprove on, adding new deployment information should still not need approval (at least, after the two CHANGED events).", sgo.needsApprove());
 
         runAndWaitForEvent(new Callable<Object>() {
@@ -270,7 +270,6 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
 
         // Supply the OBR.
         addObr("/obr", "store");
-        m_artifactRepository.setObrBase(new URL(HOST + "/obr/"));
 
         m_artifactRepository.importArtifact(temp.toURI().toURL(), true);
 
@@ -345,8 +344,8 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
     }
 
     /**
-     * Tests read only repository access: marking a repository as readonly for a login should
-     * mean that it does not get committed, but local changes will stay around between logins.
+     * Tests read only repository access: marking a repository as readonly for a login should mean that it does not get
+     * committed, but local changes will stay around between logins.
      */
     public void testReadOnlyRepositoryAccess() throws Exception {
         User user1 = new MockUser();
@@ -441,8 +440,7 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
     }
 
     /**
-     * Tests the behavior with logging in and out (with multiple users), and communication
-     * with the server.
+     * Tests the behavior with logging in and out (with multiple users), and communication with the server.
      * 
      * @throws Exception
      */

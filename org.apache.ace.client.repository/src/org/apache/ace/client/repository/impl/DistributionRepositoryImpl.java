@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.repository.DistributionRepository;
+import org.apache.ace.client.repository.repository.RepositoryConfiguration;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
@@ -32,18 +33,13 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 public class DistributionRepositoryImpl extends ObjectRepositoryImpl<DistributionObjectImpl, DistributionObject> implements DistributionRepository {
     private final static String XML_NODE = "distributions";
 
-    public DistributionRepositoryImpl(ChangeNotifier notifier) {
-        super(notifier, XML_NODE);
+    public DistributionRepositoryImpl(ChangeNotifier notifier, RepositoryConfiguration repoConfig) {
+        super(notifier, XML_NODE, repoConfig);
     }
 
     @Override
     DistributionObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
         return new DistributionObjectImpl(attributes, tags, this);
-    }
-
-    @Override
-    DistributionObjectImpl createNewInhabitant(Map<String, String> attributes) {
-        return new DistributionObjectImpl(attributes, this);
     }
 
     @Override

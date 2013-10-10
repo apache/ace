@@ -24,9 +24,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.client.repository.repository.RepositoryConfiguration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
@@ -37,71 +41,148 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 /**
- * A basic Object Repository, having most of the functionality that the object repositories share.
- * The creation of new inhabitants, and the deserialization of inhabitants is delegated to
- * derived classes.
- *
- * @param <I> An implementation type of the repository object that this repository will store.
- * @param <T> The non-generic interface that <code>I</code> implements.
+ * A basic Object Repository, having most of the functionality that the object repositories share. The creation of new
+ * inhabitants, and the deserialization of inhabitants is delegated to derived classes.
+ * 
+ * @param <I>
+ *            An implementation type of the repository object that this repository will store.
+ * @param <T>
+ *            The non-generic interface that <code>I</code> implements.
  */
 abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends RepositoryObject> implements ObjectRepository<T>, EventHandler, ChangeNotifier {
-    protected BundleContext m_context; /* injected by dependency manager */
+    /* injected by dependency manager */
+    protected BundleContext m_context;
+    // for thread-safety
+    protected final ReadWriteLock m_lock = new ReentrantReadWriteLock();
 
     private final List<T> m_repo = new CopyOnWriteArrayList<T>();
     private final Map<String, T> m_index = new ConcurrentHashMap<String, T>();
-    
     private final ChangeNotifier m_notifier;
-
     private final String m_xmlNode;
+    private final RepositoryConfiguration m_repoConfig;
 
     private volatile boolean m_busy = false;
 
     /**
      * The main constructor for this repository.
-     * @param xmlNode The tag that represents this repository (not its objects) in an XML representation.
+     * 
+     * @param xmlNode
+     *            The tag that represents this repository (not its objects) in an XML representation.
      */
-    public ObjectRepositoryImpl(ChangeNotifier notifier, String xmlNode) {
+    public ObjectRepositoryImpl(ChangeNotifier notifier, String xmlNode, RepositoryConfiguration repoConfig) {
         m_notifier = notifier;
         m_xmlNode = xmlNode;
+        m_repoConfig = repoConfig;
     }
 
     /**
-     * Creates a new inhabitant of this repository with the given attributes. The actual creation of the
-     * object is delagated to a derived class; this function will make sure the correct events get fired
-     * and the object gets stored.
+     * Creates a new inhabitant of this repository with the given attributes. The actual creation of the object is
+     * delagated to a derived class; this function will make sure the correct events get fired and the object gets
+     * stored.
      */
     // About this SuppressWarnings: for some reason, the compiler cannot see that I is a proper subtype of T.
     @SuppressWarnings("unchecked")
-    public T create(Map<String, String> attributes, Map <String, String> tags) throws IllegalArgumentException {
+    public T create(Map<String, String> attributes, Map<String, String> tags) throws IllegalArgumentException {
         if (m_busy) {
             throw new IllegalStateException("The repository is currently busy, so no new objects can be created.");
         }
-        T result =  (T) createNewInhabitant(attributes, tags);
+        T result = (T) createNewInhabitant(attributes, tags);
         if (add(result)) {
             return result;
         }
         throw new IllegalArgumentException("Failed to add new object: entity already exists!");
     }
 
-    /**
-     * Helper method that stores an object in the repository, taking care of the right events.
-     * @param entity the object to be stored.
-     * @return true only when the object (or at least one identical to it) did not yet exist in the repository.
-     */
-    boolean add(T entity) {
-        boolean result = false;
+    public List<T> get() {
+        Lock readLock = m_lock.readLock();
+        readLock.lock();
+        try {
+            return new ArrayList<T>(m_repo);
+        }
+        finally {
+            readLock.unlock();
+        }
+    }
 
-        synchronized (m_repo) {
-            if (!m_repo.contains(entity)) {
-                m_repo.add(entity);
-                m_index.put(entity.getDefinition(), entity);
-                result = true;
+    public List<T> get(Filter filter) {
+        Lock readLock = m_lock.readLock();
+        readLock.lock();
+        try {
+            List<T> result = new ArrayList<T>();
+            for (T entry : m_repo) {
+                if (filter.match(entry.getDictionary())) {
+                    result.add(entry);
+                }
+            }
+            return result;
+        }
+        finally {
+            readLock.unlock();
+        }
+    }
+
+    public T get(String definition) {
+        Lock readLock = m_lock.readLock();
+        readLock.lock();
+        try {
+            return m_index.get(definition);
+        }
+        finally {
+            readLock.unlock();
+        }
+    }
+
+    public String getTopicAll(boolean publicTopic) {
+        return m_notifier.getTopicAll(publicTopic);
+    }
+
+    public String getXmlNode() {
+        return m_xmlNode;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void handleEvent(Event e) {
+        Lock readLock = m_lock.readLock();
+        readLock.lock();
+        try {
+            for (T inhabitant : m_repo) {
+                ((I) inhabitant).handleEvent(e);
             }
         }
-        if (result) {
-            notifyChanged(entity, RepositoryObject.TOPIC_ADDED_SUFFIX);
+        finally {
+            readLock.unlock();
         }
-        return result;
+    }
+
+    /**
+     * Writes this repository and its inhabitants to an XML stream. The serialization of the inhabitants will be
+     * delegated to the inhabitants themselves.
+     * 
+     * @param writer
+     *            The writer to write the XML representation to.
+     */
+    @SuppressWarnings("unchecked")
+    public void marshal(HierarchicalStreamWriter writer) {
+        Lock readLock = m_lock.readLock();
+        readLock.lock();
+        try {
+            writer.startNode(m_xmlNode);
+            for (T inhabitant : m_repo) {
+                ((I) inhabitant).marshal(writer);
+            }
+            writer.endNode();
+        }
+        finally {
+            readLock.unlock();
+        }
+    }
+
+    public void notifyChanged(String topic, Properties props) {
+        notifyChanged(topic, props, false);
+    }
+
+    public void notifyChanged(String topic, Properties props, boolean internalOnly) {
+        m_notifier.notifyChanged(topic, props, internalOnly);
     }
 
     @SuppressWarnings("unchecked")
@@ -109,99 +190,54 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         if (m_busy) {
             throw new IllegalStateException("The repository is currently busy, so no objects can be removed.");
         }
+
         boolean result = false;
-        synchronized (m_repo) {
+
+        Lock writeLock = m_lock.writeLock();
+        writeLock.lock();
+        try {
             if (m_repo.remove(entity)) {
                 m_index.remove(entity.getDefinition());
                 ((I) entity).setDeleted();
                 result = true;
             }
         }
+        finally {
+            writeLock.unlock();
+        }
+
         if (result) {
-            notifyChanged(entity, RepositoryObject.TOPIC_REMOVED_SUFFIX);
+            notifyEntityChanged(entity, RepositoryObject.TOPIC_REMOVED_SUFFIX);
         }
     }
 
     /**
-     * Removes all objects in this repository, without caring for the consistency and
-     * correct event firing.
+     * Sets this repository to busy: this will be delegated to all inhabitants.
      */
-    @SuppressWarnings("unchecked")
-    void removeAll() {
-        synchronized (m_repo) {
-            for (T object : m_repo) {
-                ((I) object).setDeleted();
+    public void setBusy(boolean busy) {
+        Lock writeLock = m_lock.writeLock();
+        writeLock.lock();
+        try {
+            for (RepositoryObject o : m_repo) {
+                ((RepositoryObjectImpl) o).setBusy(busy);
             }
-            m_repo.clear();
+            m_busy = busy;
         }
-    }
-
-    /**
-     * Notifies listeners of a change to a given object. It will also notify
-     * listeners of any changes to the status of this repository.
-     * @param entity The object that has changed.
-     * @param topic The topic to use.
-     */
-    private void notifyChanged(T entity, String topic) {
-        Properties props = new Properties();
-        props.put(RepositoryObject.EVENT_ENTITY, entity);
-        notifyChanged(topic, props, m_busy);
-    }
-
-    public void notifyChanged(String topic, Properties props, boolean internalOnly) {
-        m_notifier.notifyChanged(topic, props, internalOnly);
-    }
-
-    public void notifyChanged(String topic, Properties props) {
-        notifyChanged(topic, props, false);
-    }
-
-    public String getTopicAll(boolean publicTopic) {
-        return m_notifier.getTopicAll(publicTopic);
-    }
-
-    public List<T> get() {
-        return new ArrayList<T>(m_repo);
-    }
-
-    public List<T> get(Filter filter) {
-        List<T> result = new ArrayList<T>();
-        for (T entry : m_repo) {
-            if (filter.match(entry.getDictionary())) {
-                result.add(entry);
-            }
+        finally {
+            writeLock.unlock();
         }
-        return result;
-    }
-
-    public T get(String definition) {
-    	return m_index.get(definition);
-    }
-    
-    Filter createFilter(String filter) throws InvalidSyntaxException {
-        return m_context.createFilter(filter);
-    }
-
-    /**
-     * Writes this repository and its inhabitants to an XML stream. The serialization of
-     * the inhabitants will be delegated to the inhabitants themselves.
-     * @param writer The writer to write the XML representation to.
-     */
-    @SuppressWarnings("unchecked")
-    public void marshal(HierarchicalStreamWriter writer) {
-        writer.startNode(m_xmlNode);
-        for (T inhabitant : m_repo) {
-            ((I) inhabitant).marshal(writer);
-        }
-        writer.endNode();
     }
 
     /**
      * Reads the inhabitants of this repository from an XML stream.
-     * @param reader A reader of the XML representation.
+     * 
+     * @param reader
+     *            A reader of the XML representation.
      */
     @SuppressWarnings("unchecked")
     public void unmarshal(HierarchicalStreamReader reader) {
+        Lock writeLock = m_lock.writeLock();
+        writeLock.lock();
         try {
             while (reader.hasMoreChildren()) {
                 reader.moveDown();
@@ -214,49 +250,102 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         catch (Exception ex) {
             throw new IllegalArgumentException(ex);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void handleEvent(Event e) {
-        for (T inhabitant : m_repo) {
-            ((I) inhabitant).handleEvent(e);
+        finally {
+            writeLock.unlock();
         }
     }
 
     /**
-     * Creates a new inhabitant of the repository based on a map of attributes.
-     * @param attributes A map of attributes
-     * @param tags A map of tags
-     * @return The new inhabitant.
+     * Helper method that stores an object in the repository, taking care of the right events.
+     * 
+     * @param entity
+     *            the object to be stored.
+     * @return true only when the object (or at least one identical to it) did not yet exist in the repository.
      */
-    abstract I createNewInhabitant(Map<String, String> attributes, Map<String, String> tags);
-    /**
-     * Creates a new inhabitant of the repository based on a map of attributes.
-     * @param attributes A map of attributes
-     * @return The new inhabitant.
-     */
-    abstract I createNewInhabitant(Map<String, String> attributes);
+    boolean add(T entity) {
+        boolean result = false;
+
+        Lock writeLock = m_lock.writeLock();
+        writeLock.lock();
+        try {
+            if (!m_repo.contains(entity)) {
+                m_repo.add(entity);
+                m_index.put(entity.getDefinition(), entity);
+                result = true;
+            }
+        }
+        finally {
+            writeLock.unlock();
+        }
+
+        if (result) {
+            notifyEntityChanged(entity, RepositoryObject.TOPIC_ADDED_SUFFIX);
+        }
+
+        return result;
+    }
+
+    Filter createFilter(String filter) throws InvalidSyntaxException {
+        return m_context.createFilter(filter);
+    }
+
     /**
      * Creates a new inhabitant of the repository based on an XML representation.
-     * @param reader A reader for the XML representation.
+     * 
+     * @param reader
+     *            A reader for the XML representation.
      * @return The new inhabitant.
      */
     abstract I createNewInhabitant(HierarchicalStreamReader reader);
 
-    public String getXmlNode() {
-        return m_xmlNode;
+    /**
+     * Creates a new inhabitant of the repository based on a map of attributes.
+     * 
+     * @param attributes
+     *            A map of attributes
+     * @param tags
+     *            A map of tags
+     * @return The new inhabitant.
+     */
+    abstract I createNewInhabitant(Map<String, String> attributes, Map<String, String> tags);
+
+    /**
+     * Removes all objects in this repository, without caring for the consistency and correct event firing.
+     */
+    @SuppressWarnings("unchecked")
+    void removeAll() {
+        Lock writeLock = m_lock.writeLock();
+        writeLock.lock();
+        try {
+            for (T object : m_repo) {
+                ((I) object).setDeleted();
+            }
+            m_repo.clear();
+        }
+        finally {
+            writeLock.unlock();
+        }
     }
 
     /**
-     * Sets this repository to busy: this will be delegated to all inhabitants.
+     * @return the repository configuration, never <code>null</code>.s
      */
-    @SuppressWarnings("unchecked")
-    public void setBusy(boolean busy) {
-        synchronized(m_repo) {
-            m_busy = busy;
-            for (RepositoryObject o : m_repo) {
-                ((I) o).setBusy(busy);
-            }
-        }
+    protected final RepositoryConfiguration getRepositoryConfiguration() {
+        return m_repoConfig;
+    }
+
+    /**
+     * Notifies listeners of a change to a given object. It will also notify listeners of any changes to the status of
+     * this repository.
+     * 
+     * @param entity
+     *            The object that has changed.
+     * @param topic
+     *            The topic to use.
+     */
+    private void notifyEntityChanged(T entity, String topic) {
+        Properties props = new Properties();
+        props.put(RepositoryObject.EVENT_ENTITY, entity);
+        notifyChanged(topic, props, m_busy);
     }
 }

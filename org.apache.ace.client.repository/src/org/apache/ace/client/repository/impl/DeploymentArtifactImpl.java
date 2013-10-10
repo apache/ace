@@ -160,9 +160,7 @@ public class DeploymentArtifactImpl implements DeploymentArtifact {
     @Override
     public int hashCode() {
         int result = getUrl().hashCode();
-        //
         result ^= (int) (m_size ^ (m_size >>> 32));
-        ;
 
         for (String key : m_directives.keySet()) {
             result ^= getDirective(key).hashCode();
@@ -184,5 +182,4 @@ public class DeploymentArtifactImpl implements DeploymentArtifact {
 
         return result.toString();
     }
-
 }

@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -46,7 +45,7 @@ public class AuthenticationTestBase extends IntegrationTestBase {
         System.out.println("Log:");
         while (e.hasMoreElements()) {
             LogEntry entry = (LogEntry) e.nextElement();
-            System.out.println(" * " + (new Date(entry.getTime())) + " - " + entry.getMessage() + " - " + entry.getBundle().getBundleId() + " - " + entry.getException());
+            System.out.println(" * " + (new Date(entry.getTime())) + " - " + entry.getMessage() + " - " + entry.getBundle().getBundleId());
             if (entry.getException() != null) {
                 entry.getException().printStackTrace();
             }
@@ -93,26 +92,22 @@ public class AuthenticationTestBase extends IntegrationTestBase {
     protected final boolean waitForURL(ConnectionFactory connectionFactory, URL url, int responseCode, int timeout) {
         long deadline = System.currentTimeMillis() + timeout;
         while (System.currentTimeMillis() < deadline) {
+            HttpURLConnection connection = null;
             try {
-                URLConnection connection = connectionFactory.createConnection(url);
+                connection = (HttpURLConnection) connectionFactory.createConnection(url);
 
-                connection.connect();
-
-                if (connection instanceof HttpURLConnection) {
-                    int respCode = ((HttpURLConnection) connection).getResponseCode();
-                    if (respCode == responseCode) {
-                        return true;
-                    }
-                    else {
-                        System.err.println("Got response code " + respCode + " for " + url);
-                    }
+                int respCode = ((HttpURLConnection) connection).getResponseCode();
+                if (respCode == responseCode) {
+                    return true;
+                }
+                else {
+                    System.err.println("Got response code " + respCode + " for " + url);
                 }
             }
-            catch (ClassCastException cce) {
-                throw new IllegalArgumentException("Expected url to be an HTTP url, not: " + url.toString(), cce);
-            }
             catch (IOException ioe) {
-                // retry
+                if (connection != null) {
+                    connection.disconnect();
+                }
             }
             try {
                 Thread.sleep(100);

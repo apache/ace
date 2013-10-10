@@ -30,6 +30,7 @@ import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Bundle;
@@ -58,6 +59,7 @@ public class RESTClientTest extends IntegrationTestBase {
     public static final String PROCESSOR = "org.osgi.deployment.rp.autoconf";
 
     private static final String STOREPATH = "generated/store";
+    private static final String HOST = "http://localhost:" + TestConstants.PORT;
 
     private static boolean m_hasBeenSetup = false;
     private static int m_testRunCount = 0;
@@ -102,7 +104,7 @@ public class RESTClientTest extends IntegrationTestBase {
         Client client = Client.create();
         client.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
         try {
-            WebResource r = client.resource("http://localhost:8080/client/work");
+            WebResource r = client.resource(HOST.concat("/client/work"));
             try {
                 r.post(String.class, "");
                 fail("We should have been redirected to a new workspace.");
@@ -110,7 +112,7 @@ public class RESTClientTest extends IntegrationTestBase {
             catch (UniformInterfaceException e) {
                 ClientResponse response = e.getResponse();
                 URI location = response.getLocation();
-                assertTrue(location.toString().startsWith("http://localhost:8080/client/work/rest-"));
+                assertTrue(location.toString().startsWith(HOST.concat("/client/work/rest-")));
                 WebResource r2 = client.resource(location);
                 r2.get(String.class);
                 r2.delete();
@@ -165,7 +167,7 @@ public class RESTClientTest extends IntegrationTestBase {
                 w2.post();
                 w2.delete();
             }
-            WebResource t1versions = client.resource("http://localhost:8080/deployment/bar.t1/versions");
+            WebResource t1versions = client.resource(HOST.concat("/deployment/bar.t1/versions"));
             assertEquals("1.0.0\n", t1versions.get(String.class));
         }
         catch (Exception e) {
@@ -229,7 +231,7 @@ public class RESTClientTest extends IntegrationTestBase {
             w2.post();
             w2.delete();
 
-            WebResource t1versions = client.resource("http://localhost:8080/deployment/foo.t1/versions");
+            WebResource t1versions = client.resource(HOST.concat("/deployment/foo.t1/versions"));
             assertEquals("1.0.0\n", t1versions.get(String.class));
         }
         catch (Exception e) {
@@ -288,7 +290,7 @@ public class RESTClientTest extends IntegrationTestBase {
             assertResources(gson, w2, "target", 3);
             w2.delete();
 
-            WebResource t1versions = client.resource("http://localhost:8080/deployment/t4/versions");
+            WebResource t1versions = client.resource(HOST.concat("/deployment/t4/versions"));
             assertEquals("1.0.0\n", t1versions.get(String.class));
         }
         catch (Exception e) {
@@ -354,8 +356,12 @@ public class RESTClientTest extends IntegrationTestBase {
     }
 
     private void configureServer() throws IOException {
+        configure("org.apache.ace.client.repository",
+            "obrlocation", HOST.concat("/obr/"));
+
         configure("org.apache.ace.client.rest",
             "org.apache.ace.server.servlet.endpoint", "/client",
+            "repository.url", HOST.concat("/repository"),
             "authentication.enabled", "false");
 
         configure("org.apache.ace.deployment.servlet",
@@ -374,12 +380,12 @@ public class RESTClientTest extends IntegrationTestBase {
             "fileLocation", STOREPATH);
 
         configure("org.apache.ace.deployment.provider.repositorybased",
-            "url", "http://localhost:8080/repository",
+            "url", HOST.concat("/repository"),
             "name", "deployment",
             "customer", "apache");
 
         configure("org.apache.ace.discovery.property",
-            "serverURL", "http://localhost:8080");
+            "serverURL", HOST);
 
         configure("org.apache.ace.identification.property",
             "targetID", "target-test");
@@ -418,7 +424,7 @@ public class RESTClientTest extends IntegrationTestBase {
             "master", "true");
 
         configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
-            "repositoryLocation", "http://localhost:8080/repository",
+            "repositoryLocation", HOST.concat("/repository"),
             "repositoryCustomer", "apache",
             "repositoryName", "user");
     }
@@ -497,7 +503,6 @@ public class RESTClientTest extends IntegrationTestBase {
     }
 
     /** Create a user so we can log in to the server. */
-    @SuppressWarnings("unchecked")
     private void createServerUser() {
         User user = (User) m_user.createRole("d", Role.USER);
         user.getProperties().put("username", "d");
@@ -551,7 +556,7 @@ public class RESTClientTest extends IntegrationTestBase {
 
     /** Creates a new workspace. */
     private WebResource createWorkspace(Client c) {
-        WebResource r = c.resource("http://localhost:8080/client/work");
+        WebResource r = c.resource(HOST.concat("/client/work"));
         try {
             r.post(String.class, "");
             fail("We should have been redirected to a new workspace.");

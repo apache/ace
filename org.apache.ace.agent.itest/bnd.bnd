@@ -1,8 +1,10 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
--runbundles: org.mockito.mockito-all,\
+-runbundles: \
+	org.mockito.mockito-all,\
 	org.apache.ace.agent;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.builder;version=latest,\
+	org.apache.felix.configadmin,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.dependencymanager.shell,\
 	org.apache.felix.gogo.command,\
@@ -59,10 +61,9 @@ Private-Package: aQute.bnd.annotation.component,\
 	junit.osgi,\
 	org.mockito.mockito-all	
 -runsystempackages: sun.reflect
--runproperties: org.apache.felix.log.storeDebug=true,\
+-runproperties: \
 	org.apache.felix.eventadmin.Timeout=0,\
-	org.apache.ace.server.port=8080,\
-	org.osgi.service.http.port=8080,\
+	org.apache.felix.log.storeDebug=true,\
 	org.apache.felix.log.maxSize=1000
 Import-Package: org.apache.ace.agent,\
 	!org.osgi.service.component.annotations,\

@@ -58,7 +58,6 @@ class RepositorySet {
 
     private final User m_user;
     private final Preferences m_prefs;
-    @SuppressWarnings("unchecked")
     private final ObjectRepositoryImpl[] m_repos;
     private final CachedRepository m_repository;
     private final String m_name;
@@ -73,7 +72,6 @@ class RepositorySet {
      * Basics
      * ********/
 
-    @SuppressWarnings("unchecked")
     /**
      * Creates a new <code>RepositorySet</code>. Notes:
      * <ul>
@@ -116,7 +114,6 @@ class RepositorySet {
         return m_user;
     }
 
-    @SuppressWarnings("unchecked")
     ObjectRepositoryImpl[] getRepos() {
         return m_repos;
     }
@@ -151,6 +148,7 @@ class RepositorySet {
     /**
      * Only call this after the repository has been deserialized.
      */
+    @SuppressWarnings("unchecked")
     void loadPreferences() {
         Preferences workingNode = m_prefs.node(PREFS_LOCAL_WORKING_STATE);
         Map<String, WorkingState> entries = new HashMap<String, WorkingState>();
@@ -247,7 +245,6 @@ class RepositorySet {
         return m_repository.isCurrent();
     }
 
-    @SuppressWarnings("unchecked")
     void clearRepositories() {
         for (ObjectRepositoryImpl repo : getRepos()) {
             repo.setBusy(true);
@@ -284,7 +281,7 @@ class RepositorySet {
         if (m_modifiedHandler != null) {
             throw new IllegalStateException("A handler is already registered; only one can be used at a time.");
         }
-        Dictionary topic = new Hashtable();
+        Dictionary<String, Object> topic = new Hashtable<String, Object>();
         topic.put(EventConstants.EVENT_TOPIC, topics);
         topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + sessionID + ")");
         m_modifiedHandler = context.registerService(EventHandler.class.getName(), new ModifiedHandler(), topic);
@@ -304,6 +301,7 @@ class RepositorySet {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     private void resetModified(boolean fill) {
         m_workingState.clear();
         if (fill) {

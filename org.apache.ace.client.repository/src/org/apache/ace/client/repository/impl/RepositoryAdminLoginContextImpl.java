@@ -35,12 +35,12 @@ import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
 import org.osgi.service.useradmin.User;
 
+@SuppressWarnings({ "unchecked" })
 public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginContext {
-    
+
     private final String m_sessionid;
     private final User m_user;
     private final List<RepositorySetDescriptor> m_descriptors = new ArrayList<RepositorySetDescriptor>();
-    private URL m_obrBase;
 
     RepositoryAdminLoginContextImpl(User user, String sessionid) {
         m_user = user;
@@ -54,14 +54,15 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
         if (!(repositoryContext instanceof AbstractRepositoryContext)) {
             throw new IllegalArgumentException("Invalid repository context!");
         }
-        
+
         addDescriptor(((AbstractRepositoryContext<?>) repositoryContext).createDescriptor());
-        
+
         return this;
     }
 
     /**
-     * @param descriptor the descriptor to add, cannot be <code>null</code>.
+     * @param descriptor
+     *            the descriptor to add, cannot be <code>null</code>.
      */
     public void addDescriptor(RepositorySetDescriptor descriptor) {
         checkConsistency(descriptor);
@@ -103,19 +104,10 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
         return result;
     }
 
-    public RepositoryAdminLoginContext setObrBase(URL base) {
-        m_obrBase = base;
-        return this;
-    }
-
-    URL getObrBase() {
-        return m_obrBase;
-    }
-
     User getUser() {
         return m_user;
     }
-    
+
     String getSessionId() {
         return m_sessionid;
     }
@@ -123,7 +115,8 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
     /**
      * Checks the consistency of the internal descriptors with the one given.
      * 
-     * @param descriptor the to-be-added repository set descriptor, cannot be <code>null</code>.
+     * @param descriptor
+     *            the to-be-added repository set descriptor, cannot be <code>null</code>.
      */
     private void checkConsistency(RepositorySetDescriptor descriptor) {
         List<Class<? extends ObjectRepository>> seenClasses = new ArrayList<Class<? extends ObjectRepository>>();
@@ -134,11 +127,11 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
             seenClasses.addAll(Arrays.asList(rsd.m_objectRepositories));
             seenNames.add(rsd.m_name);
         }
-        
+
         if (seenNames.contains(descriptor.m_name)) {
             throw new IllegalArgumentException("Duplicate repository name!");
         }
-        
+
         for (Class<? extends ObjectRepository> clazz : descriptor.m_objectRepositories) {
             if (seenClasses.contains(clazz)) {
                 throw new IllegalArgumentException("Duplicate object repository!");
@@ -147,18 +140,16 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
     }
 
     /**
-     * Helper class to store all relevant information about a repository in a convenient location before
-     * we start using it.
+     * Helper class to store all relevant information about a repository in a convenient location before we start using
+     * it.
      */
     public static final class RepositorySetDescriptor {
         public final URL m_location;
         public final String m_customer;
         public final String m_name;
         public final boolean m_writeAccess;
-        @SuppressWarnings("unchecked")
         public final Class<? extends ObjectRepository>[] m_objectRepositories;
 
-        @SuppressWarnings("unchecked")
         public RepositorySetDescriptor(URL location, String customer, String name, boolean writeAccess, Class<? extends ObjectRepository>... objectRepositories) {
             m_location = location;
             m_customer = customer;
@@ -173,21 +164,21 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
         }
     }
 
-    static abstract class AbstractRepositoryContext<T extends BaseRepositoryContext<?>> implements BaseRepositoryContext<T> 
+    static abstract class AbstractRepositoryContext<T extends BaseRepositoryContext<?>> implements BaseRepositoryContext<T>
     {
         private URL m_location;
         private String m_name;
         private String m_customer;
         private boolean m_writeable;
         private final Class<? extends ObjectRepository<?>>[] m_repositories;
-        
+
         public AbstractRepositoryContext(Class<? extends ObjectRepository<?>>... repositories) {
             if (repositories == null || repositories.length == 0) {
                 throw new IllegalArgumentException("Need at least one object repository!");
             }
             m_repositories = repositories;
         }
-        
+
         public T setCustomer(String customer) {
             if (customer == null) {
                 throw new IllegalArgumentException("Customer cannot be null!");
@@ -216,23 +207,23 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
             m_writeable = true;
             return getThis();
         }
-        
+
         /**
          * @return a new repository set descriptor, never <code>null</code>.
          */
         final RepositorySetDescriptor createDescriptor() {
             return new RepositorySetDescriptor(m_location, m_customer, m_name, m_writeable, m_repositories);
         }
-        
+
         abstract T getThis();
     }
 
     static final class ShopRepositoryContextImpl extends AbstractRepositoryContext<ShopRepositoryContext> implements ShopRepositoryContext {
-        
+
         public ShopRepositoryContextImpl() {
             super(ArtifactRepository.class, FeatureRepository.class, Artifact2FeatureAssociationRepository.class, DistributionRepository.class, Feature2DistributionAssociationRepository.class);
         }
-        
+
         @Override
         ShopRepositoryContext getThis() {
             return this;
@@ -240,11 +231,11 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
     }
 
     static final class TargetRepositoryContextImpl extends AbstractRepositoryContext<TargetRepositoryContext> implements TargetRepositoryContext {
-        
+
         public TargetRepositoryContextImpl() {
             super(TargetRepository.class, Distribution2TargetAssociationRepository.class);
         }
-        
+
         @Override
         TargetRepositoryContext getThis() {
             return this;
@@ -252,11 +243,11 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
     }
 
     static final class DeploymentRepositoryContextImpl extends AbstractRepositoryContext<DeploymentRepositoryContext> implements DeploymentRepositoryContext {
-        
+
         public DeploymentRepositoryContextImpl() {
             super(DeploymentVersionRepository.class);
         }
-        
+
         @Override
         DeploymentRepositoryContext getThis() {
             return this;

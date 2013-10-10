@@ -18,23 +18,18 @@
  */
 package org.apache.ace.it.repositoryadmin;
 
-import static org.apache.ace.client.repository.RepositoryObject.PRIVATE_TOPIC_ROOT;
-import static org.apache.ace.client.repository.RepositoryObject.PUBLIC_TOPIC_ROOT;
-import static org.apache.ace.client.repository.stateful.StatefulTargetObject.TOPIC_ALL;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -64,6 +59,7 @@ import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.impl.constants.RepositoryConstants;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
+import org.apache.felix.dm.ComponentStateListener;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -76,9 +72,9 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.useradmin.User;
 import org.osgi.util.tracker.ServiceTracker;
 
-public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implements EventHandler {
+public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
 
-	final class MockUser implements User {
+    final class MockUser implements User {
         private final String m_name;
 
         public MockUser() {
@@ -109,58 +105,45 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
     protected static final String ENDPOINT_NAME = "/AdminRepTest";
     protected static final String HOST = "http://localhost:" + TestConstants.PORT;
 
-    protected volatile ConfigurationAdmin m_configAdmin; /* Injected by dependency manager */
-    protected volatile RepositoryAdmin m_repositoryAdmin; /* Injected by dependency manager */
-    protected volatile ArtifactRepository m_artifactRepository; /* Injected by dependency manager */
-    protected volatile Artifact2FeatureAssociationRepository m_artifact2featureRepository; /* Injected by dependency manager */
-    protected volatile FeatureRepository m_featureRepository; /* Injected by dependency manager */
-    protected volatile Feature2DistributionAssociationRepository m_feature2distributionRepository; /* Injected by dependency manager */
-    protected volatile DistributionRepository m_distributionRepository; /* Injected by dependency manager */
-    protected volatile Distribution2TargetAssociationRepository m_distribution2targetRepository; /* Injected by dependency manager */
-    protected volatile TargetRepository m_targetRepository; /* Injected by dependency manager */
-    protected volatile DeploymentVersionRepository m_deploymentVersionRepository; /* Injected by dependency manager */
-    protected volatile StatefulTargetRepository m_statefulTargetRepository; /* Injected by dependency manager */
-    protected volatile LogStore m_auditLogStore; /* Injected by dependency manager */
-    protected volatile List<String> m_waitingForTopic = Collections.synchronizedList(new ArrayList<String>());
-    protected volatile Semaphore m_semaphore;
-    
     protected URL m_endpoint;
-    
-    private volatile boolean m_runAndWaitDebug = false;
+    protected URL m_obrURL;
 
-    public void handleEvent(Event event) {
-        if (m_runAndWaitDebug) {
-            System.err.println("Received event: " + event.getTopic());
-        }
-        if (m_waitingForTopic.remove(event.getTopic())) {
-            if (m_runAndWaitDebug) {
-                System.err.println("Event was expected.");
-            }
-            if ((m_semaphore != null) && m_waitingForTopic.isEmpty()) {
-                m_semaphore.release();
-                m_runAndWaitDebug = false;
-            }
-        }
-    }
-    
+    /* All injected by dependency manager */
+    protected volatile ConfigurationAdmin m_configAdmin;
+    protected volatile RepositoryAdmin m_repositoryAdmin;
+    protected volatile ArtifactRepository m_artifactRepository;
+    protected volatile Artifact2FeatureAssociationRepository m_artifact2featureRepository;
+    protected volatile FeatureRepository m_featureRepository;
+    protected volatile Feature2DistributionAssociationRepository m_feature2distributionRepository;
+    protected volatile DistributionRepository m_distributionRepository;
+    protected volatile Distribution2TargetAssociationRepository m_distribution2targetRepository;
+    protected volatile TargetRepository m_targetRepository;
+    protected volatile DeploymentVersionRepository m_deploymentVersionRepository;
+    protected volatile StatefulTargetRepository m_statefulTargetRepository;
+    protected volatile LogStore m_auditLogStore;
+
     protected final void addObr(String endpoint, String fileLocation) throws IOException, InterruptedException {
+        String baseURL = String.format("http://localhost:%d%s/", TestConstants.PORT, endpoint);
+
+        m_obrURL = new URL(baseURL);
+
+        configure("org.apache.ace.client.repository", "obrlocation", m_obrURL.toExternalForm());
         configure("org.apache.ace.obr.servlet", "OBRInstance", "singleOBRServlet", "org.apache.ace.server.servlet.endpoint", endpoint, "authentication.enabled", "false");
         configure("org.apache.ace.obr.storage.file", "OBRInstance", "singleOBRStore", OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
 
         // Wait for the endpoint to respond.
-        // TODO below there is a similar url that does put a slash between port and endpoint, why?
-        URL url = new URL("http://localhost:" + TestConstants.PORT + endpoint + "/repository.xml");
-        int response = ((HttpURLConnection) url.openConnection()).getResponseCode();
+        URL repoURL = new URL(baseURL + "repository.xml");
+        int response = ((HttpURLConnection) repoURL.openConnection()).getResponseCode();
         int tries = 0;
         while ((response != 200) && (tries++ < 50)) {
-            response = ((HttpURLConnection) url.openConnection()).getResponseCode();
+            response = ((HttpURLConnection) repoURL.openConnection()).getResponseCode();
             Thread.sleep(100); // If we get interrupted, there will be a good reason for it.
         }
         if (tries == 50) {
             throw new IOException("The OBR servlet does not seem to be responding well. Last response code: " + response);
         }
     }
-    
+
     /* Configure a new repository instance */
     protected final void addRepository(String instanceName, String customer, String name, boolean isMaster) throws IOException,
         InterruptedException, InvalidSyntaxException {
@@ -185,16 +168,17 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
     }
 
     @Override
-	protected void configureAdditionalServices() throws Exception {
+    protected void configureAdditionalServices() throws Exception {
         // remove all repositories, in case a test case does not reach it's cleanup section due to an exception
         removeAllRepositories();
     }
 
     @Override
-	protected void configureProvisionedServices() throws Exception {
+    protected void configureProvisionedServices() throws Exception {
         m_endpoint = new URL(HOST + ENDPOINT_NAME);
 
         getService(SessionFactory.class).createSession("test-session-ID", null);
+
         configureFactory("org.apache.ace.log.server.store.factory",
             "name", "auditlog", "authentication.enabled", "false");
     }
@@ -216,10 +200,10 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
             m_repositoryAdmin.logout(true);
         }
         catch (Exception ioe) {
-//            ioe.printStackTrace(System.out);
+            // ioe.printStackTrace(System.out);
         }
     }
-    
+
     protected ArtifactObject createBasicArtifactObject(String name, String mimetype, String processorPID)
         throws InterruptedException {
         Map<String, String> attr = new HashMap<String, String>();
@@ -239,7 +223,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
     protected ArtifactObject createBasicBundleObject(String symbolicName, String version, String processorPID) {
         return createBasicBundleObject(symbolicName, version, processorPID, null);
     }
-    
+
     protected ArtifactObject createBasicBundleObject(String symbolicName, String version, String processorPID, String size) {
         Map<String, String> attr = new HashMap<String, String>();
         attr.put(BundleHelper.KEY_SYMBOLICNAME, symbolicName);
@@ -291,6 +275,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
         Properties propsServlet = new Properties();
         propsServlet.put(HttpConstants.ENDPOINT, endpoint + "invalid");
         propsServlet.put("OBRInstance", "singleOBRServlet");
+        propsServlet.put("authentication.enabled", "false");
         Configuration configServlet = m_configAdmin.getConfiguration("org.apache.ace.obr.servlet");
         configServlet.update(propsServlet);
 
@@ -308,15 +293,8 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
     }
 
     protected Component[] getDependencies() {
-        Dictionary<String, Object> topics = new Hashtable<String, Object>();
-        topics.put(EventConstants.EVENT_TOPIC, new String[] { PUBLIC_TOPIC_ROOT + "*",
-            PRIVATE_TOPIC_ROOT + "*",
-            RepositoryAdmin.PUBLIC_TOPIC_ROOT + "*",
-            RepositoryAdmin.PRIVATE_TOPIC_ROOT + "*",
-            TOPIC_ALL });
         return new Component[] {
             createComponent()
-                .setInterface(EventHandler.class.getName(), topics)
                 .setImplementation(this)
                 .add(createServiceDependency().setService(HttpService.class).setRequired(true))
                 .add(createServiceDependency().setService(RepositoryAdmin.class).setRequired(true))
@@ -334,18 +312,69 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
         };
     }
 
-    protected <T> T runAndWaitForEvent(Callable<T> callable, boolean debug, String... topic) throws Exception {
-        m_runAndWaitDebug = debug;
-        T result = null;
-        m_waitingForTopic.clear();
-        m_waitingForTopic.addAll(Arrays.asList(topic));
-        m_semaphore = new Semaphore(0);
-        result = callable.call();
-        assertTrue("We expect the event within a reasonable timeout.", m_semaphore.tryAcquire(15000, TimeUnit.MILLISECONDS));
-        m_semaphore = null;
-        return result;
+    protected <T> T runAndWaitForEvent(Callable<T> callable, final boolean debug, final String... topicList) throws Exception {
+        Dictionary<String, Object> topics = new Hashtable<String, Object>();
+        topics.put(EventConstants.EVENT_TOPIC, topicList);
+
+        final CopyOnWriteArrayList<String> waitingForTopic = new CopyOnWriteArrayList<String>(Arrays.asList(topicList));
+        final CountDownLatch topicLatch = new CountDownLatch(topicList.length);
+        final CountDownLatch startLatch = new CountDownLatch(1);
+
+        Component comp = m_dependencyManager.createComponent()
+            .setInterface(EventHandler.class.getName(), topics)
+            .setImplementation(new EventHandler() {
+                @Override
+                public void handleEvent(Event event) {
+                    if (debug) {
+                        System.err.println("Received event: " + event.getTopic());
+                    }
+                    if (waitingForTopic.remove(event.getTopic())) {
+                        if (debug) {
+                            System.err.println("Event was expected.");
+                        }
+                        topicLatch.countDown();
+                    }
+                }
+            });
+        comp.addStateListener(new ComponentStateListener() {
+            public void stopping(Component comp) {
+            }
+
+            public void stopped(Component comp) {
+            }
+
+            public void starting(Component comp) {
+            }
+
+            public void started(Component comp) {
+                startLatch.countDown();
+            }
+        });
+
+        if (debug) {
+            System.err.printf("Waiting for events: %s.%n", Arrays.toString(topicList));
+        }
+
+        m_dependencyManager.add(comp);
+
+        try {
+            assertTrue(startLatch.await(1500, TimeUnit.MILLISECONDS));
+
+            T result = callable.call();
+
+            boolean r = topicLatch.await(15000, TimeUnit.MILLISECONDS);
+            if (!r && debug) {
+                System.err.println("EVENT NOTIFICATION FAILED!!!");
+            }
+            assertTrue("We expect the event within a reasonable timeout.", r);
+
+            return result;
+        }
+        finally {
+            m_dependencyManager.remove(comp);
+        }
     }
-    
+
     protected void startRepositoryService() throws IOException {
         // configure the (replication)repository servlets
         configure("org.apache.ace.repository.servlet.RepositoryServlet", HttpConstants.ENDPOINT,
@@ -354,32 +383,36 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
 
     @Override
     protected void doTearDown() throws Exception {
-    	try {
-			m_repositoryAdmin.logout(true);
-		} catch (RuntimeException e) {
-			// Ignore...
-		}
+        try {
+            m_repositoryAdmin.logout(true);
+        }
+        catch (RuntimeException e) {
+            // Ignore...
+        }
 
-    	try {
-			cleanUp();
-		} catch (Exception e) {
-			// Ignore...
-		}
-    	
-    	try {
-			removeAllRepositories();
-		} catch (IOException e) {
-			// Ignore...
-		}
+        try {
+            cleanUp();
+        }
+        catch (Exception e) {
+            // Ignore...
+        }
+
+        try {
+            removeAllRepositories();
+        }
+        catch (IOException e) {
+            // Ignore...
+        }
     }
 
     private <T extends RepositoryObject> void clearRepository(ObjectRepository<T> rep) {
         for (T entity : rep.get()) {
             try {
-				rep.remove(entity);
-			} catch (RuntimeException e) {
-				// Ignore; try to recover...
-			}
+                rep.remove(entity);
+            }
+            catch (RuntimeException e) {
+                // Ignore; try to recover...
+            }
         }
         assertEquals("Something went wrong clearing the repository.", 0, rep.get().size());
     }
@@ -387,10 +420,11 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase implem
     private void clearResourceProcessors(ArtifactRepository rep) {
         for (ArtifactObject entity : rep.getResourceProcessors()) {
             try {
-				rep.remove(entity);
-			} catch (RuntimeException e) {
-				// Ignore; try to recover...
-			}
+                rep.remove(entity);
+            }
+            catch (RuntimeException e) {
+                // Ignore; try to recover...
+            }
         }
         assertEquals("Something went wrong clearing the repository.", 0, rep.get().size());
     }

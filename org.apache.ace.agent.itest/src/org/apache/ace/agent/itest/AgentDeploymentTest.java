@@ -41,6 +41,7 @@ import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.LoggingHandler.Levels;
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
@@ -419,10 +420,13 @@ public class AgentDeploymentTest extends BaseAgentTest {
     public void testGetSizeEstimateForDeploymentPackage() throws Exception {
         AgentControl control = getService(AgentControl.class);
 
-        Map<String, String> props = createAgentConfiguration(false /* useStreaming */, 10 /* secs */);
+        Map<String, String> props = createAgentConfiguration(false /* useStreaming */, 1000 /* secs */);
 
         ConfigurationHandler configurationHandler = control.getConfigurationHandler();
         configurationHandler.putAll(props);
+        
+        // Allow configuration to propagate...
+        Thread.sleep(100L);
 
         synchronized (m_servlet) {
             m_servlet.reset();
@@ -650,6 +654,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
 
     private Map<String, String> createAgentConfiguration(boolean useStreaming, int syncInterval) {
         Map<String, String> props = new HashMap<String, String>();
+        props.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, String.format("http://localhost:%d/", TestConstants.PORT));
         props.put(AgentConstants.CONFIG_IDENTIFICATION_AGENTID, AGENT_ID);
         props.put(AgentConstants.CONFIG_LOGGING_LEVEL, LOGLEVEL.name());
         props.put(AgentConstants.CONFIG_CONTROLLER_STREAMING, Boolean.toString(useStreaming));

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.RepositoryConfiguration;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
@@ -32,18 +33,13 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 public class FeatureRepositoryImpl extends ObjectRepositoryImpl<FeatureObjectImpl, FeatureObject> implements FeatureRepository {
     private final static String XML_NODE = "features";
 
-    public FeatureRepositoryImpl(ChangeNotifier notifier) {
-        super(notifier, XML_NODE);
+    public FeatureRepositoryImpl(ChangeNotifier notifier, RepositoryConfiguration repoConfig) {
+        super(notifier, XML_NODE, repoConfig);
     }
 
     @Override
     FeatureObjectImpl createNewInhabitant(Map<String, String> attributes, Map<String, String> tags) {
         return new FeatureObjectImpl(attributes, tags, this);
-    }
-
-    @Override
-    FeatureObjectImpl createNewInhabitant(Map<String, String> attributes) {
-        return new FeatureObjectImpl(attributes, this);
     }
 
     @Override

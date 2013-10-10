@@ -54,7 +54,7 @@ public class ArtifactTest {
             }
         });
 
-        m_artifactRepository = new ArtifactRepositoryImpl(TestUtils.createNullObject(ChangeNotifier.class));
+        m_artifactRepository = new ArtifactRepositoryImpl(TestUtils.createNullObject(ChangeNotifier.class), new RepositoryConfigurationImpl());
         TestUtils.configureObject(m_artifactRepository, LogService.class);
         TestUtils.configureObject(m_artifactRepository, BundleContext.class, bc);
     }

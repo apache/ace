@@ -18,6 +18,10 @@
  */
 package org.apache.ace.client.repository.impl;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -47,6 +51,7 @@ import org.apache.ace.client.repository.repository.Distribution2TargetAssociatio
 import org.apache.ace.client.repository.repository.DistributionRepository;
 import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
 import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.RepositoryConfiguration;
 import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.framework.BundleContext;
@@ -58,7 +63,6 @@ import org.osgi.service.prefs.Preferences;
 import org.osgi.service.prefs.PreferencesService;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
 
 /**
  * Test class for the object model used </code>org.apache.ace.client.repository<code>.
@@ -76,77 +80,16 @@ public class ModelTest {
     private RepositoryAdminImpl m_repositoryAdmin;
 
     private BundleHelperImpl m_bundleHelper = new BundleHelperImpl();
-
-
-    @BeforeMethod(alwaysRun = true)
-    private void initializeRepositoryAdmin() {
-        BundleContext bc = TestUtils.createMockObjectAdapter(BundleContext.class, new Object() {
-            @SuppressWarnings("unused")
-            public Filter createFilter(String filter) throws InvalidSyntaxException {
-                return createLocalFilter(filter);
-            }
-        });
-
-        ChangeNotifier notifier = TestUtils.createNullObject(ChangeNotifier.class);
-
-        m_artifactRepository = new ArtifactRepositoryImpl(notifier);
-        TestUtils.configureObject(m_artifactRepository, LogService.class);
-        TestUtils.configureObject(m_artifactRepository, BundleContext.class, bc);
-        m_artifactRepository.addHelper(BundleHelper.MIMETYPE, m_bundleHelper);
-        m_featureRepository = new FeatureRepositoryImpl(notifier);
-        TestUtils.configureObject(m_featureRepository, BundleContext.class, bc);
-        m_artifact2FeatureRepository = new Artifact2FeatureAssociationRepositoryImpl(m_artifactRepository, m_featureRepository, notifier);
-        TestUtils.configureObject(m_artifact2FeatureRepository, BundleContext.class, bc);
-        m_distributionRepository = new DistributionRepositoryImpl(notifier);
-        TestUtils.configureObject(m_distributionRepository, BundleContext.class, bc);
-        m_feature2DistributionRepository = new Feature2DistributionAssociationRepositoryImpl(m_featureRepository, m_distributionRepository, notifier);
-        TestUtils.configureObject(m_feature2DistributionRepository, BundleContext.class, bc);
-        m_targetRepository = new TargetRepositoryImpl(notifier);
-        TestUtils.configureObject(m_targetRepository, BundleContext.class, bc);
-        m_distribution2TargetRepository = new Distribution2TargetAssociationRepositoryImpl(m_distributionRepository, m_targetRepository, notifier);
-        TestUtils.configureObject(m_distribution2TargetRepository, BundleContext.class, bc);
-        m_deploymentVersionRepository = new DeploymentVersionRepositoryImpl(notifier);
-        TestUtils.configureObject(m_deploymentVersionRepository, BundleContext.class, bc);
-
-        m_repositoryAdmin = new RepositoryAdminImpl("testSessionID");
-
-        Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> repos = new HashMap<Class<? extends ObjectRepository>, ObjectRepositoryImpl>();
-        repos.put(ArtifactRepository.class, m_artifactRepository);
-        repos.put(Artifact2FeatureAssociationRepository.class, m_artifact2FeatureRepository);
-        repos.put(FeatureRepository.class, m_featureRepository);
-        repos.put(Feature2DistributionAssociationRepository.class, m_feature2DistributionRepository);
-        repos.put(DistributionRepository.class, m_distributionRepository);
-        repos.put(Distribution2TargetAssociationRepository.class, m_distribution2TargetRepository);
-        repos.put(TargetRepository.class, m_targetRepository);
-        repos.put(DeploymentVersionRepository.class, m_deploymentVersionRepository);
-
-        m_repositoryAdmin.initialize(repos);
-        TestUtils.configureObject(m_repositoryAdmin, Preferences.class);
-        TestUtils.configureObject(m_repositoryAdmin, PreferencesService.class);
-    }
+    private BundleContext m_mockBundleContext;
+    private ChangeNotifier m_mockChangeNotifier;
 
     /**
-     * Tests that we can create artifacts which contain a certain size (estimate). See ACE-384.
-     */
-    @Test( groups = { TestUtils.UNIT } )
-    public void testArtifactObjectSize() {
-        ArtifactObject artifactWithSize = createBasicArtifactObject("myartifact", "1.0.0", "10");
-        assert artifactWithSize.getSize() == 10 : "The artifact did not have a valid size?!";
-        
-        ArtifactObject artifactWithoutSize = createBasicArtifactObject("artifactWithoutSize", "1.0.0", null);
-        assert artifactWithoutSize.getSize() == -1L : "The artifact did have a size?!";
-
-        ArtifactObject artifactWithInvalidSize = createBasicArtifactObject("artifactWithInvalidSize", "1.0.0", "xyz");
-        assert artifactWithInvalidSize.getSize() == -1L : "The artifact did have a size?!";
-    }
-    
-    /**
-     * The artifact object can test functionality coming from
-     * RepositoryObjectImpl, and ArtifactRepository checks much of
-     * ObjectRepositoryImpl.
+     * The artifact object can test functionality coming from RepositoryObjectImpl, and ArtifactRepository checks much
+     * of ObjectRepositoryImpl.
+     * 
      * @throws InvalidSyntaxException
      */
-    @Test( groups = { TestUtils.UNIT } )
+    @Test(groups = { TestUtils.UNIT })
     public void testArtifactObjectAndRepository() throws InvalidSyntaxException {
         // Create a very simple artifact.
         ArtifactObject a = createBasicArtifactObject("myartifact", "1.0.0", "1");
@@ -169,7 +112,7 @@ public class ModelTest {
 
         a.addTag("mytag", "myvalue");
 
-        assert a.getTag("mytag").equals("myvalue")  : "We should be able to read an attribute we just put in ourselves.";
+        assert a.getTag("mytag").equals("myvalue") : "We should be able to read an attribute we just put in ourselves.";
         assert a.getTag(BundleHelper.KEY_SYMBOLICNAME) == null : "We should not find an attribute value when asking for a tag.";
 
         a.addTag(BundleHelper.KEY_SYMBOLICNAME, "mytagname");
@@ -183,7 +126,7 @@ public class ModelTest {
         String[] foundNames = (String[]) dict.get(BundleHelper.KEY_SYMBOLICNAME);
         assert foundNames.length == 2 : "For keys which are used both as a value and as a tag, we should get back both from the dictionary in an array.";
         assert (foundNames[0].equals("myartifact") && foundNames[1].equals("mytagname")) ||
-        (foundNames[1].equals("myartifact") && foundNames[0].equals("mytagname")) : "The order is undefined, but we should find both the items we put in for '"+BundleHelper.KEY_SYMBOLICNAME+"'.";
+            (foundNames[1].equals("myartifact") && foundNames[0].equals("mytagname")) : "The order is undefined, but we should find both the items we put in for '" + BundleHelper.KEY_SYMBOLICNAME + "'.";
 
         assert m_artifactRepository.get().size() == 1 : "The repository should contain exactly one artifact.";
         assert m_artifactRepository.get().get(0).equals(a) : "The repository should contain exactly our artifact.";
@@ -198,7 +141,7 @@ public class ModelTest {
             assert false : "Adding a artifact which is identical to one already in the repository should be illegal.";
         }
         catch (IllegalArgumentException iae) {
-            //expected
+            // expected
         }
 
         try {
@@ -213,9 +156,8 @@ public class ModelTest {
             assert false : "Changing key attributes in a artifact should not be allowed.";
         }
         catch (UnsupportedOperationException uoe) {
-            //expected
+            // expected
         }
-
 
         try {
             Map<String, String> attr = new HashMap<String, String>();
@@ -225,9 +167,8 @@ public class ModelTest {
             assert false : "Creating a artifact without specifying all mandatory atttributes should be illegal.";
         }
         catch (IllegalArgumentException iae) {
-            //expected
+            // expected
         }
-
 
         m_artifactRepository.remove(a);
 
@@ -243,95 +184,25 @@ public class ModelTest {
         assert m_artifactRepository.get().get(0).equals(b2) : "After removing our first artifact, the repository should contain only our second artifact.";
     }
 
-    @Test( groups = { TestUtils.UNIT } )
-    public void testRepositorySerialization() throws IOException {
-        createBasicArtifactObject("myartifact", "1");
-        createBasicArtifactObject("myartifact", "2");
+    /**
+     * Tests that we can create artifacts which contain a certain size (estimate). See ACE-384.
+     */
+    @Test(groups = { TestUtils.UNIT })
+    public void testArtifactObjectSize() {
+        ArtifactObject artifactWithSize = createBasicArtifactObject("myartifact", "1.0.0", "10");
+        assert artifactWithSize.getSize() == 10 : "The artifact did not have a valid size?!";
 
-        // Write the store to a stream, reset the repository, and re-read it.
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        RepositorySet store = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] {m_artifactRepository, m_artifact2FeatureRepository, m_featureRepository}, null, "", true);
-        new RepositorySerializer(store).toXML(buffer);
-        initializeRepositoryAdmin();
-        store = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] {m_artifactRepository, m_artifact2FeatureRepository, m_featureRepository}, null, "", true);
-        new RepositorySerializer(store).fromXML(new ByteArrayInputStream(buffer.toByteArray()));
+        ArtifactObject artifactWithoutSize = createBasicArtifactObject("artifactWithoutSize", "1.0.0", null);
+        assert artifactWithoutSize.getSize() == -1L : "The artifact did have a size?!";
 
-        assert m_artifactRepository.get().size() == 2 : "We expect to find 2 artifacts, but we find " + m_artifactRepository.get().size();
-    }
-
-    @Test( groups = { TestUtils.UNIT } )
-    public void testSerialization() throws IOException {
-        ArtifactObject b1 = createBasicArtifactObject("artifact1");
-        ArtifactObject b2 = createBasicArtifactObject("artifact2");
-        ArtifactObject b3 = createBasicArtifactObject("artifact3");
-
-        FeatureObject g1 = createBasicFeatureObject("feature1");
-        FeatureObject g2 = createBasicFeatureObject("feature2");
-
-        m_artifact2FeatureRepository.create(b1, g1);
-        m_artifact2FeatureRepository.create(b2, g2);
-        m_artifact2FeatureRepository.create(b3, g2);
-
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        RepositorySet store = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] {m_artifactRepository, m_featureRepository, m_artifact2FeatureRepository}, null, "", true);
-        new RepositorySerializer(store).toXML(buffer);
-        initializeRepositoryAdmin();
-        store = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] {m_artifactRepository, m_featureRepository, m_artifact2FeatureRepository}, null, "", true);
-        new RepositorySerializer(store).fromXML(new ByteArrayInputStream(buffer.toByteArray()));
-
-        assert m_artifactRepository.get().size() == 3 : "We expect to find 3 artifacts, but we find " + m_artifactRepository.get().size();
-        assert m_featureRepository.get().size() == 2 : "We expect to find 2 features, but we find " + m_featureRepository.get().size();
-        assert m_artifact2FeatureRepository.get().size() == 3 : "We expect to find 3 associations, but we find " + m_artifact2FeatureRepository.get().size();
-        assert b1.isAssociated(g1, FeatureObject.class) : "After serialization, b1 should still be associated with g1.";
-        assert !b1.isAssociated(g2, FeatureObject.class) : "After serialization, b1 should not be associated with g1.";
-        assert !b2.isAssociated(g1, FeatureObject.class) : "After serialization, b2 should not be associated with g2.";
-        assert b2.isAssociated(g2, FeatureObject.class) : "After serialization, b2 should still be associated with g2.";
-        assert !b3.isAssociated(g1, FeatureObject.class) : "After serialization, b3 should not be associated with g2.";
-        assert b3.isAssociated(g2, FeatureObject.class) : "After serialization, b3 should still be associated with g2.";
-    }
-
-    @Test( groups = { TestUtils.UNIT } )
-    public void testModelFiltering() throws InvalidSyntaxException {
-        initializeRepositoryAdmin();
-        // Create an empty artifact repository.
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("myattribute", "theattribute");
-        attributes.put("name", "attname");
-        Map<String, String> tags = new HashMap<String, String>();
-
-        assert m_featureRepository != null : "Something has gone wrong injecting the feature repository.";
-        FeatureObject g1 = m_featureRepository.create(attributes, tags);
-        g1.addTag("mytag", "thetag");
-        g1.addTag("name", "tagname");
-        g1.addTag("difficult", ")diffi)c*ul\\t");
-
-
-        assert m_featureRepository.get(createLocalFilter("(myattribute=*)")).size() == 1 : "There should be a myattribute in b1.";
-        assert m_featureRepository.get(createLocalFilter("(myattribute=theattribute)")).size() == 1 : "There should be myattribute=theattribute in b1.";
-        assert m_featureRepository.get(createLocalFilter("(myattribute=thetag)")).size() == 0 : "There should not be myattribute=thetag in b1.";
-        assert m_featureRepository.get(createLocalFilter("(mytag=*)")).size() == 1 : "There should be a mytag in b1.";
-        assert m_featureRepository.get(createLocalFilter("(mytag=thetag)")).size() == 1 : "There should be mytag=thetag in b1.";
-        assert m_featureRepository.get(createLocalFilter("(mytag=theattribute)")).size() == 0 : "There should not be mytag=theattribute in b1.";
-
-        assert m_featureRepository.get(createLocalFilter("(name=*)")).size() == 1 : "There should be a name parameter in b1.";
-        assert m_featureRepository.get(createLocalFilter("(name=attname)")).size() == 1 : "There should be a name=attname in b1.";
-        assert m_featureRepository.get(createLocalFilter("(name=tagname)")).size() == 1 : "There should be a name=tagname in b1.";
-        assert m_featureRepository.get(createLocalFilter("(name=thetag)")).size() == 0 : "There should not be name=thetag in b1.";
-
-        try {
-            m_featureRepository.get(createLocalFilter("(difficult=)diffi)c*ul\\t"));
-            assert false : "The non-escaped difficult string should raise an error.";
-        }
-        catch (InvalidSyntaxException ex) {
-            //expected
-        }
-        assert m_featureRepository.get(createLocalFilter("(difficult=" + RepositoryUtil.escapeFilterValue(")diffi)c*ul\\t") + ")")).size() == 1 : "The 'difficult' string should be correctly escaped, and thus return exactly one match.";
+        ArtifactObject artifactWithInvalidSize = createBasicArtifactObject("artifactWithInvalidSize", "1.0.0", "xyz");
+        assert artifactWithInvalidSize.getSize() == -1L : "The artifact did have a size?!";
     }
 
     /**
      * Tests the behavior when associating stuff, and removing associations.
      */
-    @Test( groups = { TestUtils.UNIT } )
+    @Test(groups = { TestUtils.UNIT })
     public void testAssociations() {
         initializeRepositoryAdmin();
         // Create two, rather boring, artifacts.
@@ -417,167 +288,40 @@ public class ModelTest {
         assert g3artifacts.containsAll(g3expectedArtifacts) && g3expectedArtifacts.containsAll(g3artifacts) : "g3 should be associated to exactly artifact 1.";
     }
 
+    @Test(groups = { TestUtils.UNIT })
+    public void testAssociationsWithCardinality() {
+        ArtifactObject a1 = createBasicArtifactObject("a1");
+        FeatureObject f1 = createBasicFeatureObject("f1");
+        FeatureObject f2 = createBasicFeatureObject("f2");
+        FeatureObject f3 = createBasicFeatureObject("f3");
 
-    /**
-     * Not a full-fledged testcase, but a quick test of the correctness of the
-     * specified classes for features, distributions and their associations. In essence,
-     * this test 'touches' all code which uses generic code which has been tested
-     * by TestAssociations.
-     */
-    @Test( groups = { TestUtils.UNIT } )
-    public void TestFeature2DistributionAssociations() {
-        initializeRepositoryAdmin();
-        FeatureObject f1 = createBasicFeatureObject("feature1");
-        DistributionObject d1 = createBasicDistributionObject("distribution1");
-        Feature2DistributionAssociation f2d1 = m_feature2DistributionRepository.create(f1, d1);
-
-        assert (f2d1.getLeft().size() == 1) && f2d1.getLeft().contains(f1) : "Left side of the association should be our feature.";
-        assert (f2d1.getRight().size() == 1) &&  f2d1.getRight().contains(d1) : "Right side of the association should be our distribution.";
-
-        assert f1.getArtifacts().size() == 0 : "Feature 1 should not be associated with any artifacts; it is associated with " + f1.getArtifacts().size() + ".";
-        assert f1.getDistributions().size() == 1 : "Feature 1 should be associated with exactly one distribution; it is associated with " + f1.getDistributions().size() + ".";
-
-        assert d1.getFeatures().size() == 1 : "Distribution 1 should be associated with exactly one feature; it is associated with " + d1.getFeatures().size() + ".";
-        assert d1.getTargets().size() == 0 : "Distribution 1 should not be associated with any targets; it is associated with " + d1.getTargets().size() + ".";
-    }
-
-    /**
-     * Not a full-fledged testcase, but a quick test of the correctness of the
-     * specified classes for distributions, targets and their associations. In essence,
-     * this test 'touches' all code which uses generic code which has been tested
-     * by TestAssociations.
-     */
-    @Test( groups = { TestUtils.UNIT } )
-    public void testDistribution2TargetAssociations() {
-        initializeRepositoryAdmin();
-        DistributionObject d1 = createBasicDistributionObject("distribution1");
-        TargetObject t1 = createBasicTargetObject("target1");
-        m_distribution2TargetRepository.create(d1, t1);
-
-        assert d1.getFeatures().size() == 0 : "Distribution 1 should not be associated with any features; it is associated with " + d1.getFeatures().size() + ".";
-        assert d1.getTargets().size() == 1 : "Distribution 1 should be associated with exactly one target; it is associated with " + d1.getTargets().size() + ".";
-
-        assert t1.getDistributions().size() == 1 : "Target 1 should be associated with exactly one distribution; it is associated with " + t1.getDistributions().size() + ".";
-    }
-
-    @Test( groups = { TestUtils.UNIT } )
-    public void testGetAssociationsWith() {
-        initializeRepositoryAdmin();
-        ArtifactObject a1 = createBasicArtifactObject("artifact1");
-        FeatureObject f1 = createBasicFeatureObject("feature1");
-        Artifact2FeatureAssociation a2f1 = m_artifact2FeatureRepository.create(a1, f1);
-
-        List<Artifact2FeatureAssociation> b1Associations = a1.getAssociationsWith(f1);
-        List<Artifact2FeatureAssociation> g1Associations = f1.getAssociationsWith(a1);
-
-        assert b1Associations.size() == 1 : "The artifact has exactly one association to the feature, but it shows " + b1Associations.size() + ".";
-        assert b1Associations.get(0) == a2f1 : "The artifact's association should be the one we created.";
-
-        assert g1Associations.size() == 1 : "The feature has exactly one association to the artifact.";
-        assert g1Associations.get(0) == a2f1 : "The feature's association should be the one we created.";
-    }
-
-    /**
-     * Tests the correctness of the equals() in RepositoryObject.
-     */
-    @Test( groups = { TestUtils.UNIT } )
-    public void testEquals() {
-        List<ArtifactObject> artifacts = new ArrayList<ArtifactObject>();
-        artifacts.add(createBasicArtifactObject("artifact1"));
-        artifacts.add(createBasicArtifactObject("artifact2"));
-        artifacts.get(1).addTag("thetag", "thevalue");
-        artifacts.add(createBasicArtifactObject("artifact3"));
-
-        List<ArtifactObject> backupArtifacts = new ArrayList<ArtifactObject>();
-        backupArtifacts.addAll(artifacts);
-
-        for (ArtifactObject b : backupArtifacts) {
-            artifacts.remove(b);
-        }
-
-        assert artifacts.size() == 0 : "The artifacts list should be empty; if not, the ArtifactObject's equals() could be broken.";
-    }
-
-    @Test( groups = { TestUtils.UNIT } )
-    public void testDeploymentVersion() throws IOException {
-        DeploymentVersionObject version = createBasicDeploymentVersionObject("target1", "1", new String[] {"artifact1", "artifact2"});
-
-        assert version.getDeploymentArtifacts().length == 2 : "We expect to find two artifacts, but we find " + version.getDeploymentArtifacts().length;
-        assert version.getDeploymentArtifacts()[0].getUrl().equals("artifact1");
-        assert version.getDeploymentArtifacts()[1].getUrl().equals("artifact2");
-
-        ((DeploymentArtifactImpl) version.getDeploymentArtifacts()[0]).addDirective("myDirective", "myValue");
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(Association.LEFT_ENDPOINT, "(" + BundleHelper.KEY_SYMBOLICNAME + "=a1)");
+        props.put(Association.LEFT_CARDINALITY, "1");
+        props.put(Association.RIGHT_ENDPOINT, "(" + FeatureObject.KEY_NAME + "=f*)");
+        props.put(Association.RIGHT_CARDINALITY, "2");
+        Map<String, String> tags = new HashMap<String, String>();
 
         try {
-            createBasicDeploymentVersionObject("target1", "1", new String[] {"artifact1", "artifact2"});
-            assert false : "Creating a deployment version with a target and version that already exists should not be allowed.";
+            m_artifact2FeatureRepository.create(props, tags);
+            assert false : "There are three matches for the feature, but we have a cardinality of 2; we should expect a NPE because no comparator is provided.";
         }
-        catch (IllegalArgumentException iae) {
+        catch (NullPointerException npe) {
             // expected
         }
 
-        assert m_deploymentVersionRepository.get().size() == 1 : "The disallowed version should not be in the repository; we find " + m_deploymentVersionRepository.get().size();
-        assert m_deploymentVersionRepository.get().get(0) == version : "Only our newly created version object should be in the repository.";
+        props.put(Association.RIGHT_CARDINALITY, "3");
 
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        RepositorySet deployment = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] {m_deploymentVersionRepository}, null, "", true);
-        new RepositorySerializer(deployment).toXML(buffer);
-        initializeRepositoryAdmin();
+        Artifact2FeatureAssociation bg = m_artifact2FeatureRepository.create(props, tags);
+        assert bg != null : "Assocating artifact to feature failed?!";
 
-        assert m_deploymentVersionRepository.get().size() == 0;
-
-        deployment = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] {m_deploymentVersionRepository}, null, "", true);
-        new RepositorySerializer(deployment).fromXML(new ByteArrayInputStream(buffer.toByteArray()));
-
-
-        assert m_deploymentVersionRepository.get().size() == 1 : "The disallowed version should not be in the repository.";
-        assert m_deploymentVersionRepository.get().get(0).equals(version) : "Only our newly created version object should be in the repository.";
-
-        assert m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts().length == 2 : "We expect to find two artifacts, but we find " + m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts().length;
-        assert m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts()[0].getUrl().equals("artifact1");
-        assert m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts()[0].getKeys().length == 1 : "We expect to find one directive in the first artifact.";
-        assert m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts()[0].getDirective("myDirective").equals("myValue") : "The directive should be 'myValue'.";
-        assert m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts()[1].getUrl().equals("artifact2");
+        assert a1.getFeatures().size() == 3 : "The artifact should be associated to three features.";
+        assert (f1.getArtifacts().size() == 1) && f1.getArtifacts().contains(a1) : "g1 should be associated to only b1.";
+        assert (f2.getArtifacts().size() == 1) && f2.getArtifacts().contains(a1) : "g1 should be associated to only b1.";
+        assert (f3.getArtifacts().size() == 1) && f3.getArtifacts().contains(a1) : "g1 should be associated to only b1.";
     }
 
-    @Test( groups = { TestUtils.UNIT } )
-    public void testDeploymentRepository() {
-        DeploymentVersionObject version11 = createBasicDeploymentVersionObject("target1", "1", new String[] {"artifact1", "artifact2"});
-        DeploymentVersionObject version12 = createBasicDeploymentVersionObject("target1", "2", new String[] {"artifact3", "artifact4"});
-        // Note the different order in adding the versions for target2.
-        DeploymentVersionObject version22 = createBasicDeploymentVersionObject("target2", "2", new String[] {"artifactC", "artifactD"});
-        DeploymentVersionObject version21 = createBasicDeploymentVersionObject("target2", "1", new String[] {"artifactA", "artifactB"});
-
-        assert m_deploymentVersionRepository.getDeploymentVersions("NotMyTarget").size() == 0 : "The deployment repository should not return" +
-        		"any versions when we ask for a target that does not exist, but it returns " + m_deploymentVersionRepository.getDeploymentVersions("NotMyTarget").size();
-
-        List<DeploymentVersionObject> for1 = m_deploymentVersionRepository.getDeploymentVersions("target1");
-        assert for1.size() == 2 : "We expect two versions for target1, but we find " + for1.size();
-        assert for1.get(0) == version11 : "The first version for target1 should be version11";
-        assert for1.get(1) == version12 : "The second version for target1 should be version12";
-
-        List<DeploymentVersionObject> for2 = m_deploymentVersionRepository.getDeploymentVersions("target2");
-        assert for2.size() == 2 : "We expect two versions for target2, but we find " + for2.size();
-        assert for2.get(0) == version21 : "The first version for target2 should be version21";
-        assert for2.get(1) == version22 : "The second version for target2 should be version22";
-
-        assert m_deploymentVersionRepository.getMostRecentDeploymentVersion("NotMyTarget") == null : "The most recent version for a non-existent target should not exist.";
-        assert m_deploymentVersionRepository.getMostRecentDeploymentVersion("target1") == version12 : "The most recent version for target1 should be version12";
-        assert m_deploymentVersionRepository.getMostRecentDeploymentVersion("target2") == version22 : "The most recent version for target2 should be version22";
-    }
-
-    @Test( groups = { TestUtils.UNIT } )
-    public void testDeploymentRepositoryFilter() {
-
-        String gwId = "\\ ( * ) target1)";
-        DeploymentVersionObject version1 = createBasicDeploymentVersionObject(gwId, "1", new String[] {"artifact1", "artifact2"});
-
-        List<DeploymentVersionObject> for1 = m_deploymentVersionRepository.getDeploymentVersions( gwId );
-        assert for1.size() == 1 : "We expect one version for" + gwId + ", but we find " + for1.size();
-        assert for1.get(0) == version1 : "The only version for" + gwId +  "should be version1";
-    }
-
-    @Test( groups = { TestUtils.UNIT } )
+    @Test(groups = { TestUtils.UNIT })
     public void testAssociationsWithLists() {
         ArtifactObject b1 = createBasicArtifactObject("b1");
         ArtifactObject b2 = createBasicArtifactObject("b2");
@@ -621,41 +365,341 @@ public class ModelTest {
         assert !foundArtifacts.contains(b3) : "g1 should not be associated with b3";
     }
 
-    @Test( groups = { TestUtils.UNIT } )
-    public void testAssociationsWithCardinality() {
-        ArtifactObject a1 = createBasicArtifactObject("a1");
-        FeatureObject f1 = createBasicFeatureObject("f1");
-        FeatureObject f2 = createBasicFeatureObject("f2");
-        FeatureObject f3 = createBasicFeatureObject("f3");
+    @Test(groups = { TestUtils.UNIT })
+    public void testDeploymentRepository() {
+        DeploymentVersionObject version11 = createBasicDeploymentVersionObject("target1", "1", new String[] { "artifact1", "artifact2" });
+        DeploymentVersionObject version12 = createBasicDeploymentVersionObject("target1", "2", new String[] { "artifact3", "artifact4" });
+        // Note the different order in adding the versions for target2.
+        DeploymentVersionObject version22 = createBasicDeploymentVersionObject("target2", "2", new String[] { "artifactC", "artifactD" });
+        DeploymentVersionObject version21 = createBasicDeploymentVersionObject("target2", "1", new String[] { "artifactA", "artifactB" });
 
-        Map<String, String> props = new HashMap<String, String>();
-        props.put(Association.LEFT_ENDPOINT, "(" + BundleHelper.KEY_SYMBOLICNAME + "=a1)");
-        props.put(Association.LEFT_CARDINALITY, "1");
-        props.put(Association.RIGHT_ENDPOINT, "(" + FeatureObject.KEY_NAME + "=f*)");
-        props.put(Association.RIGHT_CARDINALITY, "2");
-        Map<String, String> tags = new HashMap<String, String>();
+        assert m_deploymentVersionRepository.getDeploymentVersions("NotMyTarget").size() == 0 : "The deployment repository should not return" +
+            "any versions when we ask for a target that does not exist, but it returns " + m_deploymentVersionRepository.getDeploymentVersions("NotMyTarget").size();
 
-        try {
-            m_artifact2FeatureRepository.create(props, tags);
-            assert false : "There are three matches for the feature, but we have a cardinality of 2; we should expect a NPE because no comparator is provided.";
-        }
-        catch (NullPointerException npe) {
-            //expected
-        }
+        List<DeploymentVersionObject> for1 = m_deploymentVersionRepository.getDeploymentVersions("target1");
+        assert for1.size() == 2 : "We expect two versions for target1, but we find " + for1.size();
+        assert for1.get(0) == version11 : "The first version for target1 should be version11";
+        assert for1.get(1) == version12 : "The second version for target1 should be version12";
 
-        props.put(Association.RIGHT_CARDINALITY, "3");
+        List<DeploymentVersionObject> for2 = m_deploymentVersionRepository.getDeploymentVersions("target2");
+        assert for2.size() == 2 : "We expect two versions for target2, but we find " + for2.size();
+        assert for2.get(0) == version21 : "The first version for target2 should be version21";
+        assert for2.get(1) == version22 : "The second version for target2 should be version22";
 
-        Artifact2FeatureAssociation bg = m_artifact2FeatureRepository.create(props, tags);
-        assert bg != null : "Assocating artifact to feature failed?!";
-        
-        assert a1.getFeatures().size() == 3 : "The artifact should be associated to three features.";
-        assert (f1.getArtifacts().size() == 1) && f1.getArtifacts().contains(a1) : "g1 should be associated to only b1.";
-        assert (f2.getArtifacts().size() == 1) && f2.getArtifacts().contains(a1) : "g1 should be associated to only b1.";
-        assert (f3.getArtifacts().size() == 1) && f3.getArtifacts().contains(a1) : "g1 should be associated to only b1.";
+        assert m_deploymentVersionRepository.getMostRecentDeploymentVersion("NotMyTarget") == null : "The most recent version for a non-existent target should not exist.";
+        assert m_deploymentVersionRepository.getMostRecentDeploymentVersion("target1") == version12 : "The most recent version for target1 should be version12";
+        assert m_deploymentVersionRepository.getMostRecentDeploymentVersion("target2") == version22 : "The most recent version for target2 should be version22";
     }
 
-    private Filter createLocalFilter(String filter) throws InvalidSyntaxException {
-        return FrameworkUtil.createFilter(filter);
+    @Test(groups = { TestUtils.UNIT })
+    public void testDeploymentRepositoryFilter() {
+
+        String gwId = "\\ ( * ) target1)";
+        DeploymentVersionObject version1 = createBasicDeploymentVersionObject(gwId, "1", new String[] { "artifact1", "artifact2" });
+
+        List<DeploymentVersionObject> for1 = m_deploymentVersionRepository.getDeploymentVersions(gwId);
+        assert for1.size() == 1 : "We expect one version for" + gwId + ", but we find " + for1.size();
+        assert for1.get(0) == version1 : "The only version for" + gwId + "should be version1";
+    }
+
+    @Test(groups = { TestUtils.UNIT })
+    public void testDeploymentVersion() throws IOException {
+        DeploymentVersionObject version = createBasicDeploymentVersionObject("target1", "1", new String[] { "artifact1", "artifact2" });
+
+        assert version.getDeploymentArtifacts().length == 2 : "We expect to find two artifacts, but we find " + version.getDeploymentArtifacts().length;
+        assert version.getDeploymentArtifacts()[0].getUrl().equals("artifact1");
+        assert version.getDeploymentArtifacts()[1].getUrl().equals("artifact2");
+
+        ((DeploymentArtifactImpl) version.getDeploymentArtifacts()[0]).addDirective("myDirective", "myValue");
+
+        try {
+            createBasicDeploymentVersionObject("target1", "1", new String[] { "artifact1", "artifact2" });
+            assert false : "Creating a deployment version with a target and version that already exists should not be allowed.";
+        }
+        catch (IllegalArgumentException iae) {
+            // expected
+        }
+
+        assert m_deploymentVersionRepository.get().size() == 1 : "The disallowed version should not be in the repository; we find " + m_deploymentVersionRepository.get().size();
+        assert m_deploymentVersionRepository.get().get(0) == version : "Only our newly created version object should be in the repository.";
+
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        RepositorySet deployment = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] { m_deploymentVersionRepository }, null, "", true);
+        new RepositorySerializer(deployment).toXML(buffer);
+        initializeRepositoryAdmin();
+
+        assert m_deploymentVersionRepository.get().size() == 0;
+
+        deployment = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] { m_deploymentVersionRepository }, null, "", true);
+        new RepositorySerializer(deployment).fromXML(new ByteArrayInputStream(buffer.toByteArray()));
+
+        assert m_deploymentVersionRepository.get().size() == 1 : "The disallowed version should not be in the repository.";
+        assert m_deploymentVersionRepository.get().get(0).equals(version) : "Only our newly created version object should be in the repository.";
+
+        assert m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts().length == 2 : "We expect to find two artifacts, but we find " + m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts().length;
+        assert m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts()[0].getUrl().equals("artifact1");
+        assert m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts()[0].getKeys().length == 1 : "We expect to find one directive in the first artifact.";
+        assert m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts()[0].getDirective("myDirective").equals("myValue") : "The directive should be 'myValue'.";
+        assert m_deploymentVersionRepository.get().get(0).getDeploymentArtifacts()[1].getUrl().equals("artifact2");
+    }
+
+    /**
+     * Not a full-fledged testcase, but a quick test of the correctness of the specified classes for distributions,
+     * targets and their associations. In essence, this test 'touches' all code which uses generic code which has been
+     * tested by TestAssociations.
+     */
+    @Test(groups = { TestUtils.UNIT })
+    public void testDistribution2TargetAssociations() {
+        initializeRepositoryAdmin();
+        DistributionObject d1 = createBasicDistributionObject("distribution1");
+        TargetObject t1 = createBasicTargetObject("target1");
+        m_distribution2TargetRepository.create(d1, t1);
+
+        assert d1.getFeatures().size() == 0 : "Distribution 1 should not be associated with any features; it is associated with " + d1.getFeatures().size() + ".";
+        assert d1.getTargets().size() == 1 : "Distribution 1 should be associated with exactly one target; it is associated with " + d1.getTargets().size() + ".";
+
+        assert t1.getDistributions().size() == 1 : "Target 1 should be associated with exactly one distribution; it is associated with " + t1.getDistributions().size() + ".";
+    }
+
+    /**
+     * Tests the correctness of the equals() in RepositoryObject.
+     */
+    @Test(groups = { TestUtils.UNIT })
+    public void testEquals() {
+        List<ArtifactObject> artifacts = new ArrayList<ArtifactObject>();
+        artifacts.add(createBasicArtifactObject("artifact1"));
+        artifacts.add(createBasicArtifactObject("artifact2"));
+        artifacts.get(1).addTag("thetag", "thevalue");
+        artifacts.add(createBasicArtifactObject("artifact3"));
+
+        List<ArtifactObject> backupArtifacts = new ArrayList<ArtifactObject>();
+        backupArtifacts.addAll(artifacts);
+
+        for (ArtifactObject b : backupArtifacts) {
+            artifacts.remove(b);
+        }
+
+        assert artifacts.size() == 0 : "The artifacts list should be empty; if not, the ArtifactObject's equals() could be broken.";
+    }
+
+    /**
+     * Not a full-fledged testcase, but a quick test of the correctness of the specified classes for features,
+     * distributions and their associations. In essence, this test 'touches' all code which uses generic code which has
+     * been tested by TestAssociations.
+     */
+    @Test(groups = { TestUtils.UNIT })
+    public void TestFeature2DistributionAssociations() {
+        initializeRepositoryAdmin();
+        FeatureObject f1 = createBasicFeatureObject("feature1");
+        DistributionObject d1 = createBasicDistributionObject("distribution1");
+        Feature2DistributionAssociation f2d1 = m_feature2DistributionRepository.create(f1, d1);
+
+        assert (f2d1.getLeft().size() == 1) && f2d1.getLeft().contains(f1) : "Left side of the association should be our feature.";
+        assert (f2d1.getRight().size() == 1) && f2d1.getRight().contains(d1) : "Right side of the association should be our distribution.";
+
+        assert f1.getArtifacts().size() == 0 : "Feature 1 should not be associated with any artifacts; it is associated with " + f1.getArtifacts().size() + ".";
+        assert f1.getDistributions().size() == 1 : "Feature 1 should be associated with exactly one distribution; it is associated with " + f1.getDistributions().size() + ".";
+
+        assert d1.getFeatures().size() == 1 : "Distribution 1 should be associated with exactly one feature; it is associated with " + d1.getFeatures().size() + ".";
+        assert d1.getTargets().size() == 0 : "Distribution 1 should not be associated with any targets; it is associated with " + d1.getTargets().size() + ".";
+    }
+
+    @Test(groups = { TestUtils.UNIT })
+    public void testGetAssociationsWith() {
+        initializeRepositoryAdmin();
+        ArtifactObject a1 = createBasicArtifactObject("artifact1");
+        FeatureObject f1 = createBasicFeatureObject("feature1");
+        Artifact2FeatureAssociation a2f1 = m_artifact2FeatureRepository.create(a1, f1);
+
+        List<Artifact2FeatureAssociation> b1Associations = a1.getAssociationsWith(f1);
+        List<Artifact2FeatureAssociation> g1Associations = f1.getAssociationsWith(a1);
+
+        assert b1Associations.size() == 1 : "The artifact has exactly one association to the feature, but it shows " + b1Associations.size() + ".";
+        assert b1Associations.get(0) == a2f1 : "The artifact's association should be the one we created.";
+
+        assert g1Associations.size() == 1 : "The feature has exactly one association to the artifact.";
+        assert g1Associations.get(0) == a2f1 : "The feature's association should be the one we created.";
+    }
+
+    @Test(groups = { TestUtils.UNIT })
+    public void testLimitedNumberOfDeploymentVersions() throws IOException {
+        RepositoryConfigurationImpl repoConfig = new RepositoryConfigurationImpl();
+        repoConfig.setDeploymentVersionLimit(3); // only keep the 3 most recent deployment versions...
+
+        m_deploymentVersionRepository = new DeploymentVersionRepositoryImpl(m_mockChangeNotifier, repoConfig);
+        TestUtils.configureObject(m_deploymentVersionRepository, BundleContext.class, m_mockBundleContext);
+
+        // Add several bundles, but not enough to get any deployment version purged...
+        DeploymentVersionObject target1_v1 = createBasicDeploymentVersionObject("target1", "1", new String[] { "artifact1", "artifact2" });
+        DeploymentVersionObject target1_v2 = createBasicDeploymentVersionObject("target1", "2", new String[] { "artifact1", "artifact2" });
+        DeploymentVersionObject target1_v3 = createBasicDeploymentVersionObject("target1", "3", new String[] { "artifact1", "artifact2" });
+        DeploymentVersionObject target2_v1 = createBasicDeploymentVersionObject("target2", "1", new String[] { "artifact3", "artifact4" });
+        DeploymentVersionObject target2_v2 = createBasicDeploymentVersionObject("target2", "2", new String[] { "artifact3", "artifact5" });
+
+        List<DeploymentVersionObject> repo = m_deploymentVersionRepository.get();
+        // All created deployment versions should be present...
+        assertEquals(repo.size(), 5);
+        assertTrue(repo.contains(target1_v1));
+        assertTrue(repo.contains(target1_v2));
+        assertTrue(repo.contains(target1_v3));
+        assertTrue(repo.contains(target2_v1));
+        assertTrue(repo.contains(target2_v2));
+
+        // Add a new deployment version, which should cause the oldest (= version 1) of target1 to be purged...
+        DeploymentVersionObject target1_v4 = createBasicDeploymentVersionObject("target1", "4", new String[] { "artifact1", "artifact2" });
+
+        repo = m_deploymentVersionRepository.get();
+        // Still 5 deployment versions, without version 1 of target1...
+        assertEquals(repo.size(), 5);
+        assertFalse(repo.contains(target1_v1));
+        assertTrue(repo.contains(target1_v2));
+        assertTrue(repo.contains(target1_v3));
+        assertTrue(repo.contains(target1_v4));
+        assertTrue(repo.contains(target2_v1));
+        assertTrue(repo.contains(target2_v2));
+
+        // Add yet another deployment version, which should cause the oldest (= version 2) of target1 to be purged...
+        DeploymentVersionObject target1_v5 = createBasicDeploymentVersionObject("target1", "5", new String[] { "artifact1", "artifact2" });
+
+        repo = m_deploymentVersionRepository.get();
+        // Still 5 deployment versions, without versions 1 & 2 of target1...
+        assertEquals(repo.size(), 5);
+        assertFalse(repo.contains(target1_v1));
+        assertFalse(repo.contains(target1_v2));
+        assertTrue(repo.contains(target1_v3));
+        assertTrue(repo.contains(target1_v4));
+        assertTrue(repo.contains(target1_v5));
+        assertTrue(repo.contains(target2_v1));
+        assertTrue(repo.contains(target2_v2));
+    }
+
+    @Test(groups = { TestUtils.UNIT })
+    public void testModelFiltering() throws InvalidSyntaxException {
+        initializeRepositoryAdmin();
+        // Create an empty artifact repository.
+        Map<String, String> attributes = new HashMap<String, String>();
+        attributes.put("myattribute", "theattribute");
+        attributes.put("name", "attname");
+        Map<String, String> tags = new HashMap<String, String>();
+
+        assert m_featureRepository != null : "Something has gone wrong injecting the feature repository.";
+        FeatureObject g1 = m_featureRepository.create(attributes, tags);
+        g1.addTag("mytag", "thetag");
+        g1.addTag("name", "tagname");
+        g1.addTag("difficult", ")diffi)c*ul\\t");
+
+        assert m_featureRepository.get(createLocalFilter("(myattribute=*)")).size() == 1 : "There should be a myattribute in b1.";
+        assert m_featureRepository.get(createLocalFilter("(myattribute=theattribute)")).size() == 1 : "There should be myattribute=theattribute in b1.";
+        assert m_featureRepository.get(createLocalFilter("(myattribute=thetag)")).size() == 0 : "There should not be myattribute=thetag in b1.";
+        assert m_featureRepository.get(createLocalFilter("(mytag=*)")).size() == 1 : "There should be a mytag in b1.";
+        assert m_featureRepository.get(createLocalFilter("(mytag=thetag)")).size() == 1 : "There should be mytag=thetag in b1.";
+        assert m_featureRepository.get(createLocalFilter("(mytag=theattribute)")).size() == 0 : "There should not be mytag=theattribute in b1.";
+
+        assert m_featureRepository.get(createLocalFilter("(name=*)")).size() == 1 : "There should be a name parameter in b1.";
+        assert m_featureRepository.get(createLocalFilter("(name=attname)")).size() == 1 : "There should be a name=attname in b1.";
+        assert m_featureRepository.get(createLocalFilter("(name=tagname)")).size() == 1 : "There should be a name=tagname in b1.";
+        assert m_featureRepository.get(createLocalFilter("(name=thetag)")).size() == 0 : "There should not be name=thetag in b1.";
+
+        try {
+            m_featureRepository.get(createLocalFilter("(difficult=)diffi)c*ul\\t"));
+            assert false : "The non-escaped difficult string should raise an error.";
+        }
+        catch (InvalidSyntaxException ex) {
+            // expected
+        }
+        assert m_featureRepository.get(createLocalFilter("(difficult=" + RepositoryUtil.escapeFilterValue(")diffi)c*ul\\t") + ")")).size() == 1 : "The 'difficult' string should be correctly escaped, and thus return exactly one match.";
+    }
+
+    @Test(groups = { TestUtils.UNIT })
+    public void testRepositorySerialization() throws IOException {
+        createBasicArtifactObject("myartifact", "1");
+        createBasicArtifactObject("myartifact", "2");
+
+        // Write the store to a stream, reset the repository, and re-read it.
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        RepositorySet store = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] { m_artifactRepository, m_artifact2FeatureRepository, m_featureRepository }, null, "", true);
+        new RepositorySerializer(store).toXML(buffer);
+        initializeRepositoryAdmin();
+        store = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] { m_artifactRepository, m_artifact2FeatureRepository, m_featureRepository }, null, "", true);
+        new RepositorySerializer(store).fromXML(new ByteArrayInputStream(buffer.toByteArray()));
+
+        assert m_artifactRepository.get().size() == 2 : "We expect to find 2 artifacts, but we find " + m_artifactRepository.get().size();
+    }
+
+    @Test(groups = { TestUtils.UNIT })
+    public void testSerialization() throws IOException {
+        ArtifactObject b1 = createBasicArtifactObject("artifact1");
+        ArtifactObject b2 = createBasicArtifactObject("artifact2");
+        ArtifactObject b3 = createBasicArtifactObject("artifact3");
+
+        FeatureObject g1 = createBasicFeatureObject("feature1");
+        FeatureObject g2 = createBasicFeatureObject("feature2");
+
+        m_artifact2FeatureRepository.create(b1, g1);
+        m_artifact2FeatureRepository.create(b2, g2);
+        m_artifact2FeatureRepository.create(b3, g2);
+
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        RepositorySet store = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] { m_artifactRepository, m_featureRepository, m_artifact2FeatureRepository }, null, "", true);
+        new RepositorySerializer(store).toXML(buffer);
+        initializeRepositoryAdmin();
+        store = new RepositorySet(null, null, null, null, new ObjectRepositoryImpl[] { m_artifactRepository, m_featureRepository, m_artifact2FeatureRepository }, null, "", true);
+        new RepositorySerializer(store).fromXML(new ByteArrayInputStream(buffer.toByteArray()));
+
+        assert m_artifactRepository.get().size() == 3 : "We expect to find 3 artifacts, but we find " + m_artifactRepository.get().size();
+        assert m_featureRepository.get().size() == 2 : "We expect to find 2 features, but we find " + m_featureRepository.get().size();
+        assert m_artifact2FeatureRepository.get().size() == 3 : "We expect to find 3 associations, but we find " + m_artifact2FeatureRepository.get().size();
+        assert b1.isAssociated(g1, FeatureObject.class) : "After serialization, b1 should still be associated with g1.";
+        assert !b1.isAssociated(g2, FeatureObject.class) : "After serialization, b1 should not be associated with g1.";
+        assert !b2.isAssociated(g1, FeatureObject.class) : "After serialization, b2 should not be associated with g2.";
+        assert b2.isAssociated(g2, FeatureObject.class) : "After serialization, b2 should still be associated with g2.";
+        assert !b3.isAssociated(g1, FeatureObject.class) : "After serialization, b3 should not be associated with g2.";
+        assert b3.isAssociated(g2, FeatureObject.class) : "After serialization, b3 should still be associated with g2.";
+    }
+
+    @Test(groups = { TestUtils.UNIT })
+    public void testUnlimitedNumberOfDeploymentVersions() throws IOException {
+        RepositoryConfiguration repoConfig = new RepositoryConfigurationImpl();
+
+        m_deploymentVersionRepository = new DeploymentVersionRepositoryImpl(m_mockChangeNotifier, repoConfig);
+        TestUtils.configureObject(m_deploymentVersionRepository, BundleContext.class, m_mockBundleContext);
+
+        DeploymentVersionObject target1_v1 = createBasicDeploymentVersionObject("target1", "1", new String[] { "artifact1", "artifact2" });
+        DeploymentVersionObject target1_v2 = createBasicDeploymentVersionObject("target1", "2", new String[] { "artifact1", "artifact2" });
+        DeploymentVersionObject target1_v3 = createBasicDeploymentVersionObject("target1", "3", new String[] { "artifact1", "artifact2" });
+        DeploymentVersionObject target2_v1 = createBasicDeploymentVersionObject("target2", "1", new String[] { "artifact3", "artifact4" });
+        DeploymentVersionObject target2_v2 = createBasicDeploymentVersionObject("target2", "2", new String[] { "artifact3", "artifact5" });
+
+        List<DeploymentVersionObject> repo = m_deploymentVersionRepository.get();
+        assertEquals(repo.size(), 5);
+        assertTrue(repo.contains(target1_v1));
+        assertTrue(repo.contains(target1_v2));
+        assertTrue(repo.contains(target1_v3));
+        assertTrue(repo.contains(target2_v1));
+        assertTrue(repo.contains(target2_v2));
+
+        DeploymentVersionObject target1_v4 = createBasicDeploymentVersionObject("target1", "4", new String[] { "artifact1", "artifact2" });
+
+        repo = m_deploymentVersionRepository.get();
+        assertEquals(repo.size(), 6);
+        assertTrue(repo.contains(target1_v1));
+        assertTrue(repo.contains(target1_v2));
+        assertTrue(repo.contains(target1_v3));
+        assertTrue(repo.contains(target1_v4));
+        assertTrue(repo.contains(target2_v1));
+        assertTrue(repo.contains(target2_v2));
+
+        DeploymentVersionObject target1_v5 = createBasicDeploymentVersionObject("target1", "5", new String[] { "artifact1", "artifact2" });
+
+        repo = m_deploymentVersionRepository.get();
+        assertEquals(repo.size(), 7);
+        assertTrue(repo.contains(target1_v1));
+        assertTrue(repo.contains(target1_v2));
+        assertTrue(repo.contains(target1_v3));
+        assertTrue(repo.contains(target1_v4));
+        assertTrue(repo.contains(target1_v5));
+        assertTrue(repo.contains(target2_v1));
+        assertTrue(repo.contains(target2_v2));
     }
 
     private ArtifactObject createBasicArtifactObject(String symbolicName) {
@@ -681,30 +725,6 @@ public class ModelTest {
         return m_artifactRepository.create(attr, tags);
     }
 
-    private FeatureObject createBasicFeatureObject(String name) {
-        Map<String, String> attr = new HashMap<String, String>();
-        attr.put(FeatureObject.KEY_NAME, name);
-        Map<String, String> tags = new HashMap<String, String>();
-
-        return m_featureRepository.create(attr, tags);
-    }
-
-    private DistributionObject createBasicDistributionObject(String name) {
-        Map<String, String> attr = new HashMap<String, String>();
-        attr.put(DistributionObject.KEY_NAME, name);
-        Map<String, String> tags = new HashMap<String, String>();
-
-        return m_distributionRepository.create(attr, tags);
-    }
-
-    private TargetObject createBasicTargetObject(String id) {
-        Map<String, String> attr = new HashMap<String, String>();
-        attr.put(TargetObject.KEY_ID, id);
-        Map<String, String> tags = new HashMap<String, String>();
-
-        return m_targetRepository.create(attr, tags);
-    }
-
     private DeploymentVersionObject createBasicDeploymentVersionObject(String targetID, String version, String[] artifacts) {
         Map<String, String> attr = new HashMap<String, String>();
         attr.put(DeploymentVersionObject.KEY_TARGETID, targetID);
@@ -716,5 +736,82 @@ public class ModelTest {
             deploymentArtifacts.add(new DeploymentArtifactImpl(s, -1L));
         }
         return m_deploymentVersionRepository.create(attr, tags, deploymentArtifacts.toArray(new DeploymentArtifact[0]));
+    }
+
+    private DistributionObject createBasicDistributionObject(String name) {
+        Map<String, String> attr = new HashMap<String, String>();
+        attr.put(DistributionObject.KEY_NAME, name);
+        Map<String, String> tags = new HashMap<String, String>();
+
+        return m_distributionRepository.create(attr, tags);
+    }
+
+    private FeatureObject createBasicFeatureObject(String name) {
+        Map<String, String> attr = new HashMap<String, String>();
+        attr.put(FeatureObject.KEY_NAME, name);
+        Map<String, String> tags = new HashMap<String, String>();
+
+        return m_featureRepository.create(attr, tags);
+    }
+
+    private TargetObject createBasicTargetObject(String id) {
+        Map<String, String> attr = new HashMap<String, String>();
+        attr.put(TargetObject.KEY_ID, id);
+        Map<String, String> tags = new HashMap<String, String>();
+
+        return m_targetRepository.create(attr, tags);
+    }
+
+    private Filter createLocalFilter(String filter) throws InvalidSyntaxException {
+        return FrameworkUtil.createFilter(filter);
+    }
+
+    @BeforeMethod(alwaysRun = true)
+    private void initializeRepositoryAdmin() {
+        m_mockBundleContext = TestUtils.createMockObjectAdapter(BundleContext.class, new Object() {
+            @SuppressWarnings("unused")
+            public Filter createFilter(String filter) throws InvalidSyntaxException {
+                return createLocalFilter(filter);
+            }
+        });
+
+        m_mockChangeNotifier = TestUtils.createNullObject(ChangeNotifier.class);
+
+        RepositoryConfiguration repoConfig = new RepositoryConfigurationImpl();
+
+        m_artifactRepository = new ArtifactRepositoryImpl(m_mockChangeNotifier, repoConfig);
+        TestUtils.configureObject(m_artifactRepository, LogService.class);
+        TestUtils.configureObject(m_artifactRepository, BundleContext.class, m_mockBundleContext);
+        m_artifactRepository.addHelper(BundleHelper.MIMETYPE, m_bundleHelper);
+        m_featureRepository = new FeatureRepositoryImpl(m_mockChangeNotifier, repoConfig);
+        TestUtils.configureObject(m_featureRepository, BundleContext.class, m_mockBundleContext);
+        m_artifact2FeatureRepository = new Artifact2FeatureAssociationRepositoryImpl(m_artifactRepository, m_featureRepository, m_mockChangeNotifier, repoConfig);
+        TestUtils.configureObject(m_artifact2FeatureRepository, BundleContext.class, m_mockBundleContext);
+        m_distributionRepository = new DistributionRepositoryImpl(m_mockChangeNotifier, repoConfig);
+        TestUtils.configureObject(m_distributionRepository, BundleContext.class, m_mockBundleContext);
+        m_feature2DistributionRepository = new Feature2DistributionAssociationRepositoryImpl(m_featureRepository, m_distributionRepository, m_mockChangeNotifier, repoConfig);
+        TestUtils.configureObject(m_feature2DistributionRepository, BundleContext.class, m_mockBundleContext);
+        m_targetRepository = new TargetRepositoryImpl(m_mockChangeNotifier, repoConfig);
+        TestUtils.configureObject(m_targetRepository, BundleContext.class, m_mockBundleContext);
+        m_distribution2TargetRepository = new Distribution2TargetAssociationRepositoryImpl(m_distributionRepository, m_targetRepository, m_mockChangeNotifier, repoConfig);
+        TestUtils.configureObject(m_distribution2TargetRepository, BundleContext.class, m_mockBundleContext);
+        m_deploymentVersionRepository = new DeploymentVersionRepositoryImpl(m_mockChangeNotifier, repoConfig);
+        TestUtils.configureObject(m_deploymentVersionRepository, BundleContext.class, m_mockBundleContext);
+
+        m_repositoryAdmin = new RepositoryAdminImpl("testSessionID", repoConfig);
+
+        Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> repos = new HashMap<Class<? extends ObjectRepository>, ObjectRepositoryImpl>();
+        repos.put(ArtifactRepository.class, m_artifactRepository);
+        repos.put(Artifact2FeatureAssociationRepository.class, m_artifact2FeatureRepository);
+        repos.put(FeatureRepository.class, m_featureRepository);
+        repos.put(Feature2DistributionAssociationRepository.class, m_feature2DistributionRepository);
+        repos.put(DistributionRepository.class, m_distributionRepository);
+        repos.put(Distribution2TargetAssociationRepository.class, m_distribution2TargetRepository);
+        repos.put(TargetRepository.class, m_targetRepository);
+        repos.put(DeploymentVersionRepository.class, m_deploymentVersionRepository);
+
+        m_repositoryAdmin.initialize(repos);
+        TestUtils.configureObject(m_repositoryAdmin, Preferences.class);
+        TestUtils.configureObject(m_repositoryAdmin, PreferencesService.class);
     }
 }

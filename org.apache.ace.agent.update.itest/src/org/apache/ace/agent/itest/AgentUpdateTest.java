@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
@@ -37,7 +39,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ace.agent.AgentConstants;
+import org.apache.ace.agent.AgentControl;
 import org.apache.ace.it.IntegrationTestBase;
+import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
@@ -54,69 +59,31 @@ import org.osgi.service.http.HttpService;
  * </ul>
  */
 public class AgentUpdateTest extends IntegrationTestBase {
-    private volatile HttpService m_http;
-    private volatile AgentUpdateOBRServlet m_servlet;
-
-    private enum Phase {
-        CORRUPT_STREAM, BUNDLE_DOES_NOT_RESOLVE, BUNDLE_DOES_NOT_START, BUNDLE_WORKS
-    }
-
-    @Override
-    protected Component[] getDependencies() {
-        return new Component[] {
-            createComponent()
-                .setImplementation(this)
-                .add(createServiceDependency().setService(HttpService.class).setRequired(true))
-        };
-    }
-
-    @Override
-    public void configureAdditionalServices() throws Exception {
-        Thread.sleep(200);
-        m_servlet = new AgentUpdateOBRServlet();
-        m_http.registerServlet("/obr", m_servlet, null, null);
-    }
-
-    @Override
-    public void doTearDown() throws Exception {
-        m_http.unregister("/obr");
-    }
-
-    public void testAgentUpdate() throws Exception {
-        final int defaultTimeout = 15;
-
-        CountDownLatch latch;
-
-        latch = m_servlet.setPhase(Phase.CORRUPT_STREAM, new CountDownLatch(1));
-        assertTrue("Timed out while recovering from update with broken stream.", latch.await(defaultTimeout, TimeUnit.SECONDS));
-
-        latch = m_servlet.setPhase(Phase.BUNDLE_DOES_NOT_RESOLVE, new CountDownLatch(1));
-        assertTrue("Timed out while recovering from update with agent that does not resolve.", latch.await(defaultTimeout, TimeUnit.SECONDS));
-
-        latch = m_servlet.setPhase(Phase.BUNDLE_DOES_NOT_START, new CountDownLatch(1));
-        assertTrue("Timed out while recovering from update with agent that does not start.", latch.await(defaultTimeout, TimeUnit.SECONDS));
-
-        latch = m_servlet.setPhase(Phase.BUNDLE_WORKS, new CountDownLatch(1));
-        assertTrue("Timed out while starting working bundle?!", latch.await(defaultTimeout, TimeUnit.SECONDS));
-
-        int timeout = defaultTimeout;
-        while (timeout-- > 0) {
-            Thread.sleep(200);
-            for (Bundle b : m_bundleContext.getBundles()) {
-                if ("org.apache.ace.agent".equals(b.getSymbolicName())) {
-                    if (b.getVersion().equals(new Version("2.0.0"))) {
-                        return;
-                    }
-                }
+    private static class DummyAuditLogServlet extends HttpServlet {
+        private static final long serialVersionUID = 1L;
+        
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String pathInfo = req.getPathInfo();
+            if ("/send".equals(pathInfo)) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         }
-        fail("Timed out waiting for update with new agent.");
     }
-
+    
     private static class AgentUpdateOBRServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
         private Phase m_phase;
         private CountDownLatch m_latch;
+
+        public synchronized CountDownLatch setPhase(Phase phase, CountDownLatch latch) {
+            m_phase = phase;
+            m_latch = latch;
+            System.out.println("Updating in phase: " + phase);
+            return latch;
+        }
 
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -139,13 +106,6 @@ public class AgentUpdateTest extends IntegrationTestBase {
                     throw new Error("Statement should never be reached.");
                 }
             }
-        }
-
-        public synchronized CountDownLatch setPhase(Phase phase, CountDownLatch latch) {
-            m_phase = phase;
-            m_latch = latch;
-            System.out.println("Updating in phase: " + phase);
-            return latch;
         }
 
         private InputStream getBundle() throws IOException {
@@ -188,7 +148,84 @@ public class AgentUpdateTest extends IntegrationTestBase {
         }
     }
 
+    private enum Phase {
+        CORRUPT_STREAM, BUNDLE_DOES_NOT_RESOLVE, BUNDLE_DOES_NOT_START, BUNDLE_WORKS
+    }
+
     private static String createResource(String bsn, String version) {
         return "<resource id='" + bsn + "/" + version + "' symbolicname='" + bsn + "' version='" + version + "' uri='" + bsn + "-" + version + ".jar'></resource>";
+    }
+
+    private volatile HttpService m_http;
+    private volatile AgentUpdateOBRServlet m_servlet;
+
+    public void testAgentUpdate() throws Exception {
+        final int defaultTimeout = 150;
+
+        CountDownLatch latch;
+
+        latch = m_servlet.setPhase(Phase.CORRUPT_STREAM, new CountDownLatch(1));
+        assertTrue("Timed out while recovering from update with broken stream.", latch.await(defaultTimeout, TimeUnit.SECONDS));
+
+        latch = m_servlet.setPhase(Phase.BUNDLE_DOES_NOT_RESOLVE, new CountDownLatch(1));
+        assertTrue("Timed out while recovering from update with agent that does not resolve.", latch.await(defaultTimeout, TimeUnit.SECONDS));
+
+        latch = m_servlet.setPhase(Phase.BUNDLE_DOES_NOT_START, new CountDownLatch(1));
+        assertTrue("Timed out while recovering from update with agent that does not start.", latch.await(defaultTimeout, TimeUnit.SECONDS));
+
+        latch = m_servlet.setPhase(Phase.BUNDLE_WORKS, new CountDownLatch(1));
+        assertTrue("Timed out while starting working bundle?!", latch.await(defaultTimeout, TimeUnit.SECONDS));
+
+        int timeout = defaultTimeout;
+        while (timeout-- > 0) {
+            Thread.sleep(200);
+            for (Bundle b : m_bundleContext.getBundles()) {
+                if ("org.apache.ace.agent".equals(b.getSymbolicName())) {
+                    if (b.getVersion().equals(new Version("2.0.0"))) {
+                        return;
+                    }
+                }
+            }
+        }
+        fail("Timed out waiting for update with new agent.");
+    }
+
+    @Override
+    protected void configureProvisionedServices() throws Exception {
+        String serverURL = String.format("http://localhost:%d/", TestConstants.PORT);
+        String obrURL = serverURL.concat("obr/");
+        configure("org.apache.ace.deployment.servlet.agent",
+            "org.apache.ace.server.servlet.endpoint", "/agent",
+            "obr.url", obrURL,
+            "authentication.enabled", "false");
+
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, serverURL);
+
+        AgentControl agentControl = getService(AgentControl.class);
+        agentControl.getConfigurationHandler().putAll(props);
+    }
+
+    @Override
+    protected void configureAdditionalServices() throws Exception {
+        m_servlet = new AgentUpdateOBRServlet();
+        m_http.registerServlet("/obr", m_servlet, null, null);
+        
+        m_http.registerServlet("/auditlog", new DummyAuditLogServlet(), null, null);
+    }
+
+    @Override
+    protected void doTearDown() throws Exception {
+        m_http.unregister("/obr");
+        m_http.unregister("/auditlog");
+    }
+
+    @Override
+    protected Component[] getDependencies() {
+        return new Component[] {
+            createComponent()
+                .setImplementation(this)
+                .add(createServiceDependency().setService(HttpService.class).setRequired(true))
+        };
     }
 }

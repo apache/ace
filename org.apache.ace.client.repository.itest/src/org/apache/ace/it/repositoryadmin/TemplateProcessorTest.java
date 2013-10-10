@@ -50,7 +50,6 @@ import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject.StoreState;
-import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.User;
@@ -180,7 +179,7 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
                 m_repositoryAdmin.commit();
                 return null;
             }
-        }, true, TOPIC_STATUS_CHANGED);
+        }, false, TOPIC_STATUS_CHANGED);
         
         assertEquals("Store state for target should still be new, because the resource processor is missing.", StoreState.New, sgo.getStoreState());
         
@@ -258,7 +257,6 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         setupRepository();
         
         addObr("/obr", "store");
-        m_artifactRepository.setObrBase(new URL("http://localhost:" + TestConstants.PORT + "/obr/"));
 
         // create some template things
         String xmlHeader =

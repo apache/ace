@@ -34,18 +34,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ace.authentication.api.AuthenticationService;
-import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.SessionFactory;
-import org.apache.ace.client.repository.repository.Artifact2FeatureAssociationRepository;
-import org.apache.ace.client.repository.repository.ArtifactRepository;
-import org.apache.ace.client.repository.repository.Distribution2TargetAssociationRepository;
-import org.apache.ace.client.repository.repository.DistributionRepository;
-import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
-import org.apache.ace.client.repository.repository.FeatureRepository;
-import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
-import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.feedback.Event;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
@@ -74,8 +65,6 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
     /** URL of the repository to talk to. */
     private static final String KEY_REPOSITORY_URL = "repository.url";
-    /** URL of the OBR to talk to. */
-    private static final String KEY_OBR_URL = "obr.url";
     /** Name of the customer. */
     private static final String KEY_CUSTOMER_NAME = "customer.name";
     /** Name of the store repository. */
@@ -109,7 +98,6 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     
     private boolean m_useAuthentication;
     private String m_repositoryURL;
-    private String m_obrURL;
     private String m_customerName;
     private String m_storeRepositoryName;
     private String m_targetRepositoryName;
@@ -170,7 +158,6 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         synchronized (m_workspaces) {
             m_useAuthentication = Boolean.valueOf(useAuth);
             m_repositoryURL = getProperty(properties, KEY_REPOSITORY_URL, "http://localhost:8080/repository");
-            m_obrURL = getProperty(properties, KEY_OBR_URL, "http://localhost:8080/obr/");
             m_customerName = getProperty(properties, KEY_CUSTOMER_NAME, "apache");
             m_storeRepositoryName = getProperty(properties, KEY_STORE_REPOSITORY_NAME, "shop");
             m_targetRepositoryName = getProperty(properties, KEY_DISTRIBUTION_REPOSITORY_NAME, "target");
@@ -463,7 +450,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
         synchronized (m_workspaces) {
             sessionID = "rest-" + m_sessionID++;
-            workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, m_customerName, m_storeRepositoryName, m_targetRepositoryName, m_deploymentRepositoryName, m_serverUser);
+            workspace = new Workspace(sessionID, m_repositoryURL, m_customerName, m_storeRepositoryName, m_targetRepositoryName, m_deploymentRepositoryName);
             m_workspaces.put(sessionID, workspace);
 
             component = m_dm.createComponent().setImplementation(workspace);
@@ -773,7 +760,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
         synchronized (m_workspaces) {
             sessionID = "shell-" + m_sessionID++;
-            workspace = new Workspace(sessionID, m_repositoryURL, m_obrURL, storeCustomerName, m_storeRepositoryName, targetCustomerName, m_targetRepositoryName, deploymentCustomerName, m_deploymentRepositoryName, m_serverUser);
+            workspace = new Workspace(sessionID, m_repositoryURL, storeCustomerName, m_storeRepositoryName, targetCustomerName, m_targetRepositoryName, deploymentCustomerName, m_deploymentRepositoryName);
             m_workspaces.put(sessionID, workspace);
 
             component = m_dm.createComponent().setImplementation(workspace);

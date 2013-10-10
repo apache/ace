@@ -114,11 +114,11 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     private static long SESSION_ID = 1;
 
-    private static String targetRepo = "target";
-    private static String shopRepo = "shop";
-    private static String deployRepo = "deployment";
-    private static String customerName = "apache";
-    private static String endpoint = "/repository";
+    private static final String targetRepo = "target";
+    private static final String shopRepo = "shop";
+    private static final String deployRepo = "deployment";
+    private static final String customerName = "apache";
+    private static final String endpoint = "/repository";
 
     private volatile AuthenticationService m_authenticationService;
     private volatile BundleContext m_context;
@@ -1029,7 +1029,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
             
             // @formatter:off
-            context.setObrBase(m_obrUrl)
+            context
                 .add(context.createShopRepositoryContext()
                     .setLocation(m_repository).setCustomer(customerName).setName(shopRepo).setWriteable())
                 .add(context.createTargetRepositoryContext()

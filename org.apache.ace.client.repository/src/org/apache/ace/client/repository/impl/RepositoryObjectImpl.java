@@ -31,7 +31,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary<String, Object> implements RepositoryObject, EventHandler {
     private final Map<String, String> m_attributes = new HashMap<String, String>();
     private final Map<String, String> m_tags = new HashMap<String, String>();
-    @SuppressWarnings("unchecked")
     private final Map<Class, List<Association>> m_associations = new HashMap<Class, List<Association>>();
     private final ChangeNotifier m_notifier;
     private final String m_xmlNode;
@@ -265,7 +264,6 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void add(Association association, Class clazz) {
         synchronized (m_associations) {
             List<Association> associations = m_associations.get(clazz);
@@ -277,7 +275,6 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void remove(Association association, Class clazz) {
         synchronized (m_associations) {
             List<Association> associations = m_associations.get(clazz);
@@ -287,7 +284,6 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         }
     }
 
-    @SuppressWarnings("unchecked")
     public <A extends Associatable> List<A> getAssociations(Class<A> clazz) {
         synchronized (m_associations) {
             List<A> result = new ArrayList<A>();
@@ -306,7 +302,6 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         }
     }
 
-    @SuppressWarnings("unchecked")
     public boolean isAssociated(Object obj, Class clazz) {
         synchronized (m_associations) {
             if (obj == null) {
@@ -344,7 +339,6 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean equals(Object o) {
         synchronized(m_attributes) {
             if ((o == null) || !(getClass().isInstance(o))) {

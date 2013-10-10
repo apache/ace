@@ -25,9 +25,8 @@ import org.apache.ace.client.repository.helper.PropertyResolver;
 import org.apache.ace.client.repository.object.TargetObject;
 
 /**
- * Top-level property resolver, also able to return collections
- * of distributions, features and artifacts linked to this target
- * repository object.
+ * Top-level property resolver, also able to return collections of distributions, features and artifacts linked to this
+ * target repository object.
  */
 public class TargetPropertyResolver extends RepositoryPropertyResolver {
 
@@ -35,10 +34,11 @@ public class TargetPropertyResolver extends RepositoryPropertyResolver {
         super(to);
     }
 
+    @SuppressWarnings("unchecked")
     public Collection<PropertyResolver> getDistributions() {
         List<PropertyResolver> list = new ArrayList<PropertyResolver>();
 
-        List<RepositoryObject> distributions = (List<RepositoryObject>)getChildren();
+        List<RepositoryObject> distributions = (List<RepositoryObject>) getChildren();
 
         for (RepositoryObject repo : distributions) {
             list.add(new RepositoryPropertyResolver(repo));
