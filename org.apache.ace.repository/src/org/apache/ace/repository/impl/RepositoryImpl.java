@@ -59,11 +59,14 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
     /**
      * Creates a new repository.
      * 
-     * @param dir Directory to be used for storage of the repository data, will be created if needed.
-     * @param temp Directory to be used as temp directory, will be created if needed.
-     * @param isMaster True if this repository is a master repository, false otherwise.
-     * @throws IllegalArgumentException If <code>dir</code> and/or <code>temp</code> could not be created or is not a
-     *             directory.
+     * @param dir
+     *            Directory to be used for storage of the repository data, will be created if needed.
+     * @param temp
+     *            Directory to be used as temp directory, will be created if needed.
+     * @param isMaster
+     *            True if this repository is a master repository, false otherwise.
+     * @throws IllegalArgumentException
+     *             If <code>dir</code> and/or <code>temp</code> could not be created or is not a directory.
      */
     public RepositoryImpl(File dir, File temp, boolean isMaster) {
         this(dir, temp, "", isMaster);
@@ -72,12 +75,34 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
     /**
      * Creates a new repository.
      * 
-     * @param dir Directory to be used for storage of the repository data, will be created if needed.
-     * @param temp Directory to be used as temp directory, will be created if needed.
-     * @param fileExtension Extension to be used for repository files.
-     * @param isMaster True if this repository is a master repository, false otherwise.
-     * @throws IllegalArgumentException If <code>dir</code> and/or <code>temp</code> could not be created or is not a
-     *             directory.
+     * @param dir
+     *            Directory to be used for storage of the repository data, will be created if needed.
+     * @param temp
+     *            Directory to be used as temp directory, will be created if needed.
+     * @param isMaster
+     *            True if this repository is a master repository, false otherwise.
+     * @param limit
+     *            The maximum number of versions to store in this repository.
+     * @throws IllegalArgumentException
+     *             If <code>dir</code> and/or <code>temp</code> could not be created or is not a directory.
+     */
+    public RepositoryImpl(File dir, File temp, boolean isMaster, long limit) {
+        this(dir, temp, "", isMaster, limit);
+    }
+
+    /**
+     * Creates a new repository.
+     * 
+     * @param dir
+     *            Directory to be used for storage of the repository data, will be created if needed.
+     * @param temp
+     *            Directory to be used as temp directory, will be created if needed.
+     * @param fileExtension
+     *            Extension to be used for repository files.
+     * @param isMaster
+     *            True if this repository is a master repository, false otherwise.
+     * @throws IllegalArgumentException
+     *             If <code>dir</code> and/or <code>temp</code> could not be created or is not a directory.
      */
     public RepositoryImpl(File dir, File temp, String fileExtension, boolean isMaster) {
         this(dir, temp, fileExtension, isMaster, Long.MAX_VALUE);
@@ -86,27 +111,18 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
     /**
      * Creates a new repository.
      * 
-     * @param dir Directory to be used for storage of the repository data, will be created if needed.
-     * @param temp Directory to be used as temp directory, will be created if needed.
-     * @param isMaster True if this repository is a master repository, false otherwise.
-     * @param limit The maximum number of versions to store in this repository.
-     * @throws IllegalArgumentException If <code>dir</code> and/or <code>temp</code> could not be created or is not a
-     *             directory.
-     */
-    public RepositoryImpl(File dir, File temp, boolean isMaster, long limit) {
-        this(dir, temp, "", isMaster, limit);
-    }
-    
-    /**
-     * Creates a new repository.
-     * 
-     * @param dir Directory to be used for storage of the repository data, will be created if needed.
-     * @param temp Directory to be used as temp directory, will be created if needed.
-     * @param fileExtension Extension to be used for repository files.
-     * @param isMaster True if this repository is a master repository, false otherwise.
-     * @param limit The maximum number of versions to store in this repository.
-     * @throws IllegalArgumentException If <code>dir</code> and/or <code>temp</code> could not be created or is not a
-     *             directory.
+     * @param dir
+     *            Directory to be used for storage of the repository data, will be created if needed.
+     * @param temp
+     *            Directory to be used as temp directory, will be created if needed.
+     * @param fileExtension
+     *            Extension to be used for repository files.
+     * @param isMaster
+     *            True if this repository is a master repository, false otherwise.
+     * @param limit
+     *            The maximum number of versions to store in this repository.
+     * @throws IllegalArgumentException
+     *             If <code>dir</code> and/or <code>temp</code> could not be created or is not a directory.
      */
     public RepositoryImpl(File dir, File temp, String fileExtension, boolean isMaster, long limit) {
         m_isMaster = isMaster;
@@ -127,17 +143,85 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         m_fileExtension = fileExtension;
         m_limit = limit;
     }
-    
+
+    public InputStream checkout(long version) throws IOException, IllegalArgumentException {
+        if (version <= 0) {
+            throw new IllegalArgumentException("Version must be greater than 0.");
+        }
+
+        InputStream result = null;
+        File file = getFilename(version);
+        if (file.isFile()) {
+            result = new FileInputStream(file);
+        }
+        return result;
+    }
+
+    public boolean commit(InputStream data, long fromVersion) throws IOException, IllegalArgumentException {
+        if (!m_isMaster) {
+            throw new IllegalStateException("Commit is only permitted on master repositories");
+        }
+        if (fromVersion < 0) {
+            throw new IllegalArgumentException("Version must be greater than or equal to 0.");
+        }
+
+        long[] versions = getVersions();
+        if (versions.length == 0) {
+            if (fromVersion == 0) {
+                put(data, 1);
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        long lastVersion = versions[versions.length - 1];
+        if (lastVersion == fromVersion) {
+            put(data, fromVersion + 1);
+            // Make sure we do not exceed our max limit...
+            purgeOldFiles(getVersions(), m_limit);
+
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
     public InputStream get(long version) throws IOException, IllegalArgumentException {
         return checkout(version);
+    }
+
+    /**
+     * @return the directory in which this repository stores its files.
+     */
+    public File getDir() {
+        return m_dir;
+    }
+
+    /**
+     * @return the file extension used for this repository.
+     */
+    public String getFileExtension() {
+        return m_fileExtension;
+    }
+
+    @Override
+    public long getLimit() {
+        return m_limit;
+    }
+
+    public SortedRangeSet getRange() throws IOException {
+        return new SortedRangeSet(getVersions());
     }
 
     public boolean put(InputStream data, long version) throws IOException, IllegalArgumentException {
         if (version <= 0) {
             throw new IllegalArgumentException("Version must be greater than 0.");
         }
-        File file = new File(m_dir, Long.toString(version) + m_fileExtension);
+        File file = getFilename(version);
         if (file.exists()) {
             return false;
         }
@@ -181,53 +265,61 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         return true;
     }
 
-    public InputStream checkout(long version) throws IOException, IllegalArgumentException {
+    /**
+     * Updates the repository configuration.
+     * 
+     * @param isMaster
+     *            True if the repository is a master repository, false otherwise.
+     * @throws ConfigurationException
+     *             If it was impossible to use the new configuration.
+     */
+    public void updated(boolean isMaster, long limit) throws ConfigurationException {
+        if (limit < 1) {
+            throw new ConfigurationException(RepositoryConstants.REPOSITORY_LIMIT, "Limit must be at least 1, was " + limit);
+        }
+        m_isMaster = isMaster;
+        if (limit < m_limit) {
+            // limit was decreased, we might need to delete some old versions
+            try {
+                purgeOldFiles(getVersions(), limit);
+            }
+            catch (IOException e) {
+                throw new ConfigurationException(RepositoryConstants.REPOSITORY_LIMIT, "Could not set new limit to " + limit, e);
+            }
+        }
+        m_limit = limit;
+    }
+
+    /**
+     * Safely closes a given resource, ignoring any I/O exceptions that might occur by this.
+     * 
+     * @param resource
+     *            the resource to close, can be <code>null</code>.
+     */
+    private void closeQuietly(Closeable resource) {
+        try {
+            if (resource != null) {
+                resource.close();
+            }
+        }
+        catch (IOException e) {
+            // Ignored...
+        }
+    }
+
+    private boolean delete(long version) throws IOException, IllegalArgumentException {
         if (version <= 0) {
             throw new IllegalArgumentException("Version must be greater than 0.");
         }
-        File file = new File(m_dir, String.valueOf(version) + m_fileExtension);
-        return (file.isFile()) ? new FileInputStream(file) : null;
+        File file = getFilename(version);
+        if (file.exists()) {
+            return file.delete();
+        }
+        return false;
     }
 
-    public boolean commit(InputStream data, long fromVersion) throws IOException, IllegalArgumentException {
-        if (!m_isMaster) {
-            throw new IllegalStateException("Commit is only permitted on master repositories");
-        }
-        if (fromVersion < 0) {
-            throw new IllegalArgumentException("Version must be greater than or equal to 0.");
-        }
-
-        long[] versions = getVersions();
-        if (versions.length == 0) {
-            if (fromVersion == 0) {
-                put(data, 1);
-
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-
-        long lastVersion = versions[versions.length - 1];
-        if (lastVersion == fromVersion) {
-            put(data, fromVersion + 1);
-            long length = versions.length + 1;
-            int index = 0;
-            while (length > m_limit) {
-                delete(versions[index]);
-                index++;
-                length--;
-            }
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    public SortedRangeSet getRange() throws IOException {
-        return new SortedRangeSet(getVersions());
+    private File getFilename(long version) {
+        return new File(m_dir, String.format("%d%s", version, m_fileExtension));
     }
 
     /* returns list of all versions present in ascending order */
@@ -252,81 +344,15 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
     }
 
     /**
-     * Updates the repository configuration.
-     * 
-     * @param isMaster True if the repository is a master repository, false otherwise.
-     * @throws ConfigurationException If it was impossible to use the new configuration.
-     */
-    public void updated(boolean isMaster, long limit) throws ConfigurationException {
-        if (limit < 1) {
-            throw new ConfigurationException(RepositoryConstants.REPOSITORY_LIMIT, "Limit must be at least 1, was " + limit);
-        }
-        m_isMaster = isMaster;
-        if (limit < m_limit) {
-            // limit was decreased, we might need to delete some old versions
-            try {
-                long[] versions = getVersions();
-                int length = versions.length;
-                int index = 0;
-                while (length > limit) {
-                    delete(versions[index]);
-                    length--;
-                    index++;
-                }
-            }
-            catch (IOException e) {
-                throw new ConfigurationException(RepositoryConstants.REPOSITORY_LIMIT, "Could not set new limit to " + limit, e);
-            }
-        }
-        m_limit = limit;
-    }
-    
-    @Override
-    public long getLimit() {
-        return m_limit;
-    }
-
-    /**
-     * Renames a given source file to a new destination file.
-     * <p>
-     * This avoids the problem mentioned in ACE-155.<br/>
-     * The moveFile method from Commons-IO is not used, as it would mean that we need to include this JAR in several
-     * placed for only a few lines of code.
-     * </p>
-     * 
-     * @param source the file to rename;
-     * @param dest the file to rename to.
-     */
-    private void renameFile(File source, File dest) throws IOException {
-        boolean renameOK = false;
-        int attempts = 0;
-        while (!renameOK && (attempts++ < 10)) {
-            try {
-                renameOK = source.renameTo(dest);
-                if (!renameOK) {
-                    renameOK = moveFile(source, dest);
-                }
-            }
-            catch (IOException e) {
-                // In all other cases, we assume the source file is still locked and cannot be removed;
-            }
-        }
-
-        if (!renameOK) {
-            if (m_log != null) {
-                m_log.log(LogService.LOG_ERROR, "Unable to move new repository file to it's final location.");
-            }
-            throw new IOException("Could not move temporary file (" + source.getAbsolutePath() + ") to it's final location (" + dest.getAbsolutePath() + ")");
-        }
-    }
-
-    /**
      * Moves a given source file to a destination location, effectively resulting in a rename.
      * 
-     * @param source the source file to move;
-     * @param dest the destination file to move the file to.
+     * @param source
+     *            the source file to move;
+     * @param dest
+     *            the destination file to move the file to.
      * @return <code>true</code> if the move succeeded.
-     * @throws IOException in case of I/O problems.
+     * @throws IOException
+     *             in case of I/O problems.
      */
     private boolean moveFile(File source, File dest) throws IOException {
         final int bufferSize = 1024 * 1024; // 1MB
@@ -369,27 +395,49 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         return true;
     }
 
-    /**
-     * Safely closes a given resource, ignoring any I/O exceptions that might occur by this.
-     * 
-     * @param resource the resource to close, can be <code>null</code>.
-     */
-    private void closeQuietly(Closeable resource) {
-        try {
-            if (resource != null) {
-                resource.close();
-            }
-        }
-        catch (IOException e) {
-            // Ignored...
+    private void purgeOldFiles(long[] versions, long limit) throws IOException {
+        int length = versions.length;
+        int index = 0;
+        while (length > limit) {
+            delete(versions[index]);
+            length--;
+            index++;
         }
     }
 
-    private boolean delete(long version) throws IOException, IllegalArgumentException {
-        if (version <= 0) {
-            throw new IllegalArgumentException("Version must be greater than 0.");
+    /**
+     * Renames a given source file to a new destination file.
+     * <p>
+     * This avoids the problem mentioned in ACE-155.<br/>
+     * The moveFile method from Commons-IO is not used, as it would mean that we need to include this JAR in several
+     * placed for only a few lines of code.
+     * </p>
+     * 
+     * @param source
+     *            the file to rename;
+     * @param dest
+     *            the file to rename to.
+     */
+    private void renameFile(File source, File dest) throws IOException {
+        boolean renameOK = false;
+        int attempts = 0;
+        while (!renameOK && (attempts++ < 10)) {
+            try {
+                renameOK = source.renameTo(dest);
+                if (!renameOK) {
+                    renameOK = moveFile(source, dest);
+                }
+            }
+            catch (IOException e) {
+                // In all other cases, we assume the source file is still locked and cannot be removed;
+            }
         }
-        File file = new File(m_dir, String.valueOf(version) + m_fileExtension);
-        return file.delete();
+
+        if (!renameOK) {
+            if (m_log != null) {
+                m_log.log(LogService.LOG_ERROR, "Unable to move new repository file to it's final location.");
+            }
+            throw new IOException("Could not move temporary file (" + source.getAbsolutePath() + ") to it's final location (" + dest.getAbsolutePath() + ")");
+        }
     }
 }
