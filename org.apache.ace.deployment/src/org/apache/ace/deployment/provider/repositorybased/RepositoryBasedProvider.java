@@ -209,7 +209,13 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
             // ACE-240: allow local/remote repositories to be empty; as the target 
             // might be new & unregistered, it can have no repository yet... 
             input = getRepositoryStream(false /* fail */);
-            List<Version> versionList = getAvailableVersions(input, targetId);
+            List<Version> versionList;
+            if (input == null) {
+            	versionList = Collections.EMPTY_LIST;
+            }
+            else {
+            	versionList = getAvailableVersions(input, targetId);
+            }
             if (versionList.isEmpty()) {
                 m_log.log(LogService.LOG_DEBUG, "No versions found for target: " + targetId);
             }
@@ -416,8 +422,12 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
                 throw new IllegalArgumentException("There is no deployment information available.");
             }
         }
-
-        return new GZIPInputStream(result);
+        if (result == null) {
+        	return null;
+        }
+        else {
+        	return new GZIPInputStream(result);
+        }
     }
     
     private boolean isCacheUpToDate() {

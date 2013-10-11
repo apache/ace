@@ -53,7 +53,7 @@ public interface Repository
      * method as parameter.
      * 
      * @return a stream containing a checkout of the passed in version of
-     *         the repository, or null if the version does not exist
+     *         the repository, or <code>null</code> if the version does not exist
      * @throws java.io.IOException if there is an error reading the version
      * @throws IllegalArgumentException if the version is invalid.
      */

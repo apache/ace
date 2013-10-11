@@ -40,7 +40,7 @@ public interface BackupRepository
 
     /**
      * Reads the input stream from the current object. If there is no current version,
-     * an empty stream will be returned.
+     * <code>null</code> will be returned.
      * @return An input stream, from which can be read. Remember to close it.
      * @throws java.io.IOException Will be thrown when there is a problem storing the data.
      */

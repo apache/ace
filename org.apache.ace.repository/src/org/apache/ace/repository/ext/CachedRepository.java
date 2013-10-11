@@ -47,7 +47,7 @@ public interface CachedRepository extends Repository {
 
     /**
      * Gets the most recent version of the object. If no current version is available,
-     * and empty stream will be returned.
+     * <code>null</code> will be returned.
      * @param fail Indicates that this method should throw an IOException when no data
      * is available. Setting it to <code>false</code> will make it return an
      * empty stream in that case.

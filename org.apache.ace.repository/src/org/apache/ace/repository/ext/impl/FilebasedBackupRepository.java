@@ -53,7 +53,7 @@ public class FilebasedBackupRepository implements BackupRepository {
 
     public InputStream read() throws IOException {
         if (!m_current.exists()) {
-            return new ByteArrayInputStream(new byte[0]);
+            return null;
         }
         try {
             return new FileInputStream(m_current);
