@@ -83,11 +83,11 @@ public class RemoteRepository implements Repository {
         int rc = connection.getResponseCode();
         if (rc == HttpServletResponse.SC_NOT_FOUND) {
             connection.disconnect();
-            throw new IllegalArgumentException("Requested version not found in remote repository. (" + connection.getResponseMessage() + ")");
+            throw new IllegalArgumentException("Requested version not found in remote repository. (" + connection.getResponseMessage() + ") for " + url.toExternalForm());
         }
         else if (rc != HttpServletResponse.SC_OK) {
             connection.disconnect();
-            throw new IOException("Connection error: " + connection.getResponseMessage());
+            throw new IOException("Connection error: " + connection.getResponseMessage() + " for " + url.toExternalForm());
         }
 
         return connection.getInputStream();
@@ -130,7 +130,7 @@ public class RemoteRepository implements Repository {
                 try {
                     String line = reader.readLine();
                     if (line == null) {
-                        throw new IOException("Repository not found: customer=" + m_customer + ", name=" + m_name);
+                        throw new IOException("Repository not found: customer=" + m_customer + ", name=" + m_name + " for " + url.toExternalForm());
                     }
 
                     String representation = line.substring(line.lastIndexOf(','));
@@ -141,7 +141,7 @@ public class RemoteRepository implements Repository {
                 }
             }
 
-            throw new IOException("Connection error: " + connection.getResponseMessage());
+            throw new IOException("Connection error: " + connection.getResponseMessage() + " for " + url.toExternalForm());
         }
         finally {
             connection.disconnect();

@@ -103,7 +103,6 @@ public class RepositoryFactory implements ManagedServiceFactory {
      *             If any of the above explanation fails <b>or</b>when there is an internal error creating the
      *             repository.
      */
-    @SuppressWarnings("unchecked")
     public void updated(String pid, Dictionary dict) throws ConfigurationException {
         String customer = (String) dict.get(REPOSITORY_CUSTOMER);
         if ((customer == null) || "".equals(customer)) {
