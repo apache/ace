@@ -18,6 +18,47 @@ import aQute.lib.osgi.Jar;
 
 public abstract class BaseAgentTest extends IntegrationTestBase {
 
+    protected static class TestBundle {
+        private final File m_file;
+
+        public TestBundle(String name, Version version, String... headers) throws Exception {
+            m_file = createBundle(name, version, headers);
+        }
+
+        public File getFile() {
+            return m_file;
+        }
+    }
+
+    protected static class TestPackage {
+        private final String m_name;
+        private final Version m_version;
+        private final File m_file;
+
+        public TestPackage(String name, Version version, TestBundle... bundles) throws Exception {
+            m_name = name;
+            m_version = version;
+
+            File[] files = new File[bundles.length];
+            for (int i = 0; i < bundles.length; i++) {
+                files[i] = bundles[i].getFile();
+            }
+            m_file = createPackage(m_name, m_version, files);
+        }
+        
+        public String getName() {
+            return m_name;
+        }
+
+        public File getFile() {
+            return m_file;
+        }
+
+        public Version getVersion() {
+            return m_version;
+        }
+    }
+
     protected static File createBundle(String bsn, Version version, String... headers) throws Exception {
         Builder b = new Builder();
 

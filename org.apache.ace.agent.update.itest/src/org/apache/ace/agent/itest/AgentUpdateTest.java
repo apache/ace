@@ -43,6 +43,7 @@ import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.AgentControl;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.test.constants.TestConstants;
+import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
@@ -61,18 +62,19 @@ import org.osgi.service.http.HttpService;
 public class AgentUpdateTest extends IntegrationTestBase {
     private static class DummyAuditLogServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
-        
+
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String pathInfo = req.getPathInfo();
             if ("/send".equals(pathInfo)) {
                 resp.setStatus(HttpServletResponse.SC_OK);
-            } else {
+            }
+            else {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         }
     }
-    
+
     private static class AgentUpdateOBRServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
         private Phase m_phase;
@@ -106,6 +108,11 @@ public class AgentUpdateTest extends IntegrationTestBase {
                     throw new Error("Statement should never be reached.");
                 }
             }
+        }
+
+        protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+            response.setContentType("text/plain");
+            response.flushBuffer();
         }
 
         private InputStream getBundle() throws IOException {
@@ -209,9 +216,14 @@ public class AgentUpdateTest extends IntegrationTestBase {
     @Override
     protected void configureAdditionalServices() throws Exception {
         m_servlet = new AgentUpdateOBRServlet();
+
+        String url = String.format("http://localhost:%d/obr", TestConstants.PORT);
+        NetUtils.waitForURL(url, 404, 10000);
+
         m_http.registerServlet("/obr", m_servlet, null, null);
-        
         m_http.registerServlet("/auditlog", new DummyAuditLogServlet(), null, null);
+
+        NetUtils.waitForURL(url, 200, 10000);
     }
 
     @Override

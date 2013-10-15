@@ -41,16 +41,19 @@ public interface AgentConstants {
      * , default is <code>INFO</code>.
      */
     String CONFIG_LOGGING_LEVEL = CONFIG_KEY_NAMESPACE + ".logging.level";
-    
+
     /**
      * Exclude list for auditlog events. Should be a comma separated list of integers, as defined by {@link AuditEvent}.
      * Example : '2001,2003,2005,3001'
      */
     String CONFIG_LOGGING_EXCLUDE_EVENTS = CONFIG_KEY_NAMESPACE + ".logging.events.exclude";
-    
+
     /**
      * Configuration option to disable the default identification handler. When set to true some other bundle must
      * provide it as a service. Should be <code>{true,false}</code>, default is <code>false</code>.
+     * <p>
+     * Note that this property is expected to be set as system or environment setting!
+     * </p>
      */
     String CONFIG_IDENTIFICATION_DISABLED = CONFIG_KEY_NAMESPACE + ".identification.disabled";
 
@@ -63,6 +66,9 @@ public interface AgentConstants {
     /**
      * Configuration option to disable the default discovery handler. When set to true some other bundle must provide it
      * as a service. Should be <code>{true,false}</code>, default is <code>false</code>.
+     * <p>
+     * Note that this property is expected to be set as system or environment setting!
+     * </p>
      */
     String CONFIG_DISCOVERY_DISABLED = CONFIG_KEY_NAMESPACE + ".discovery.disabled";
 
@@ -81,6 +87,9 @@ public interface AgentConstants {
     /**
      * Configuration option to disable the default controller. When set to true some other bundle control the agent's
      * behavior. Should be <code>{true,false}</code>, default is <code>false</code>.
+     * <p>
+     * Note that this property is expected to be set as system or environment setting!
+     * </p>
      */
     String CONFIG_CONTROLLER_DISABLED = CONFIG_KEY_NAMESPACE + ".controller.disabled";
 
@@ -117,6 +126,9 @@ public interface AgentConstants {
     /**
      * Configuration option to disable the default {@link ConnectionHandler}. When set to true some other bundle must
      * provide it as a service. Should be <code>{true,false}</code>, default is <code>false</code>.
+     * <p>
+     * Note that this property is expected to be set as system or environment setting!
+     * </p>
      */
     String CONFIG_CONNECTION_DISABLED = CONFIG_KEY_NAMESPACE + ".connection.disabled";
 

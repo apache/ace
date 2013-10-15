@@ -541,7 +541,10 @@ public class IntegrationTestBase extends TestCase {
         System.setProperty("org.apache.ace.server.port", Integer.toString(TestConstants.PORT));
 
         // Ensure the HTTP service is running on the port we expect...
-        configureHttpService(TestConstants.PORT);
+        int port = Integer.getInteger("org.osgi.service.http.port", 8080);
+        if (port != TestConstants.PORT) {
+            configureHttpService(TestConstants.PORT);
+        }
 
         // Call back the implementation...
         configureProvisionedServices();

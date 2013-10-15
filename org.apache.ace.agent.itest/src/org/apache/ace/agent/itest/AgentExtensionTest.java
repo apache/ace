@@ -122,6 +122,7 @@ public class AgentExtensionTest extends BaseAgentTest {
             }, null);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T locateService(Class<T> iface) {
         ServiceReference reference = m_bundleContext.getServiceReference(iface.getName());
         if (reference == null) {

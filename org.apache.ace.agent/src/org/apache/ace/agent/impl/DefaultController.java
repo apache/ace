@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandle.DownloadProgressListener;
 import org.apache.ace.agent.DownloadResult;
@@ -418,7 +419,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
     public DefaultController() {
         super("controller");
 
-        m_disabled = new AtomicBoolean(false);
+        m_disabled = new AtomicBoolean(Boolean.getBoolean(AgentConstants.CONFIG_CONTROLLER_DISABLED));
         m_interval = new AtomicLong(60);
         m_syncDelay = new AtomicLong(5);
 

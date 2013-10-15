@@ -67,8 +67,9 @@ public class NetUtils {
         while (System.currentTimeMillis() < deadline) {
             try {
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
-                if (connection.getResponseCode() == responseCode) {
+                connection.setRequestMethod("HEAD");
+                int rc = connection.getResponseCode();
+                if (rc == responseCode) {
                     return true;
                 }
             }

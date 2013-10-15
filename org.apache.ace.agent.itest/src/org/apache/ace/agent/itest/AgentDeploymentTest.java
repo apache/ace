@@ -18,7 +18,6 @@
  */
 package org.apache.ace.agent.itest;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -88,18 +87,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
         }
     }
 
-    private static class TestBundle {
-        private final File m_file;
-
-        public TestBundle(String name, Version version, String... headers) throws Exception {
-            m_file = createBundle(name, version, headers);
-        }
-
-        public File getFile() {
-            return m_file;
-        }
-    }
-
     private static class TestDeploymentServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
 
@@ -153,7 +140,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
                     throw new IllegalStateException("Test error! Should never happen... " + pathinfoTail);
                 }
                 int offset = -2;
-                resp.addIntHeader("X-ACE-DPSize", offset + dpackage.m_version.getMajor());
+                resp.addIntHeader("X-ACE-DPSize", offset + dpackage.getVersion().getMajor());
                 resp.flushBuffer();
             }
         }
@@ -305,31 +292,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
                 }
                 payloads.add(payload);
             }
-        }
-    }
-
-    private static class TestPackage {
-        private final String m_name;
-        private final Version m_version;
-        private final File m_file;
-
-        public TestPackage(String name, Version version, TestBundle... bundles) throws Exception {
-            m_name = name;
-            m_version = version;
-
-            File[] files = new File[bundles.length];
-            for (int i = 0; i < bundles.length; i++) {
-                files[i] = bundles[i].getFile();
-            }
-            m_file = createPackage(m_name, m_version, files);
-        }
-
-        public File getFile() {
-            return m_file;
-        }
-
-        public Version getVersion() {
-            return m_version;
         }
     }
 
