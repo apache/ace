@@ -188,6 +188,7 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         attr.put(ArtifactObject.KEY_URL, "http://myprocessor");
         attr.put(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, "my.processor.pid");
         attr.put(BundleHelper.KEY_SYMBOLICNAME, "my.processor.bundle");
+        attr.put(BundleHelper.KEY_VERSION, "1.0.0");
         attr.put(ArtifactHelper.KEY_MIMETYPE, BundleHelper.MIMETYPE);
 
         ArtifactObject b2 = m_artifactRepository.create(attr, tags);
@@ -221,6 +222,78 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         assertEquals(a2.getURL(), artifact2.getUrl());
         assertEquals("my.processor.pid", artifact2.getDirective(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID));
         assertEquals(a2.getResourceId(), artifact2.getDirective(DeploymentArtifact.DIRECTIVE_KEY_RESOURCE_ID));
+        
+        // Now, add a new version of the processor (ACE-373)
+        assertFalse("There should be no changes.", sgo.needsApprove());
+
+        attr = new HashMap<String, String>();
+        attr.put(ArtifactObject.KEY_URL, "http://myprocessor/v2");
+        attr.put(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, "my.processor.pid");
+        attr.put(BundleHelper.KEY_SYMBOLICNAME, "my.processor.bundle");
+        attr.put(BundleHelper.KEY_VERSION, "2.0.0");
+        attr.put(ArtifactHelper.KEY_MIMETYPE, BundleHelper.MIMETYPE);
+
+        ArtifactObject b3 = m_artifactRepository.create(attr, tags);
+
+        assertTrue("By adding a resource processor, we should have triggered a change that needs to be approved.", sgo.needsApprove());
+
+        sgo.approve();
+
+        runAndWaitForEvent(new Callable<Void>() {
+            public Void call() throws Exception {
+                m_repositoryAdmin.commit();
+                return null;
+            }
+        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
+
+        dep = m_deploymentVersionRepository.getMostRecentDeploymentVersion(sgo.getID());
+
+        toDeploy = dep.getDeploymentArtifacts();
+
+        assertEquals("We expect to find four artifacts to deploy;", 4, toDeploy.length);
+        boolean foundBundle = false;
+        boolean foundProcessor = false;
+        boolean foundArtifact1 = false;
+        boolean foundArtifact2 = false;
+        for (DeploymentArtifact a : toDeploy) {
+            String url = a.getUrl();
+            if (url.equals(b1.getURL())) {
+                foundBundle = true;
+            }
+            else if (url.equals(b3.getURL())) {
+                assertEquals("true", a.getDirective(DeploymentArtifact.DIRECTIVE_ISCUSTOMIZER));
+                foundProcessor = true;
+            }
+            else if (url.equals(a1.getURL())) {
+                assertEquals("my.processor.pid", a.getDirective(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID));
+                foundArtifact1 = true;
+            }
+            else if (url.equals(a2.getURL())) {
+                assertEquals("my.processor.pid", a.getDirective(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID));
+                assertEquals(a2.getResourceId(), a.getDirective(DeploymentArtifact.DIRECTIVE_KEY_RESOURCE_ID));
+                foundArtifact2 = true;
+            }
+        }
+        assertTrue("Could not find bundle in deployment", foundBundle);
+        assertTrue("Could not find processor in deployment", foundProcessor);
+        assertTrue("Could not find artifact 1 in deployment", foundArtifact1);
+        assertTrue("Could not find artifact 2 in deployment", foundArtifact2);
+
+        // Now, let's add a new resource processor that is *older* than the one we already have.
+        // Nothing should change.
+
+        assertFalse("There should be no changes.", sgo.needsApprove());
+
+        attr = new HashMap<String, String>();
+        attr.put(ArtifactObject.KEY_URL, "http://myprocessor/v1.5");
+        attr.put(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, "my.processor.pid");
+        attr.put(BundleHelper.KEY_SYMBOLICNAME, "my.processor.bundle");
+        attr.put(BundleHelper.KEY_VERSION, "1.5.0");
+        attr.put(ArtifactHelper.KEY_MIMETYPE, BundleHelper.MIMETYPE);
+
+        m_artifactRepository.create(attr, tags);
+
+        assertFalse("By adding an older resource processor, we should not have triggered a change.", sgo.needsApprove());
 
         cleanUp();
 

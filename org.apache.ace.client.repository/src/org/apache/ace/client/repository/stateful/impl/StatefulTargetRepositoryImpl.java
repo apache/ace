@@ -549,10 +549,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         }
 
         // Find all processors
-        Map<String, ArtifactObject> allProcessors = new HashMap<String, ArtifactObject>();
-        for (ArtifactObject bundle : m_artifactRepository.getResourceProcessors()) {
-            allProcessors.put(m_bundleHelper.getResourceProcessorPIDs(bundle), bundle);
-        }
+        Map<String, ArtifactObject> allProcessors = getAllProcessors();
 
         // Determine all resource processors we need
         for (String processor : artifacts.values()) {
@@ -609,6 +606,35 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         return result.toArray(new DeploymentArtifact[result.size()]);
     }
 
+    /**
+     * Returns a map of all resource processors that are available. If there are multiple versions
+     * of a specific processor, it will only return the latest version.
+     * 
+     * @return a map of all resource processors, indexed by processor ID
+     */
+    private Map<String, ArtifactObject> getAllProcessors() {
+        Map<String, ArtifactObject> allProcessors = new HashMap<String, ArtifactObject>();
+        for (ArtifactObject processorBundle : m_artifactRepository.getResourceProcessors()) {
+            String pid = m_bundleHelper.getResourceProcessorPIDs(processorBundle);
+            ArtifactObject existingProcessorBundle = allProcessors.get(pid);
+            if (existingProcessorBundle == null) {
+                allProcessors.put(pid, processorBundle);
+            }
+            else {
+                // if there are multiple versions of a resource processor, we explicitly want to always
+                // return the latest version of a resource processor...
+                String existingVersionString = existingProcessorBundle.getAttribute(BundleHelper.KEY_VERSION);
+                String newVersionString = processorBundle.getAttribute(BundleHelper.KEY_VERSION);
+                Version existingVersion = existingVersionString == null ? Version.emptyVersion : Version.parseVersion(existingVersionString);
+                Version newVersion = newVersionString == null ? Version.emptyVersion : Version.parseVersion(newVersionString);
+                if (existingVersion.compareTo(newVersion) < 0) {
+                    allProcessors.put(pid, processorBundle);
+                }
+            }
+        }
+        return allProcessors;
+    }
+
     private String getRepositoryPath(ArtifactObject artifact,
         Map<ArtifactObject, Map<FeatureObject, List<DistributionObject>>> path) {
         StringBuilder builder = new StringBuilder();
@@ -635,11 +661,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         List<ArtifactObject> result = new ArrayList<ArtifactObject>();
         TargetObject to = getTargetObject(targetID);
 
-        Map<String, ArtifactObject> allProcessors = new HashMap<String, ArtifactObject>();
-        for (ArtifactObject bundle : m_artifactRepository.getResourceProcessors()) {
-            allProcessors.put(m_bundleHelper.getResourceProcessorPIDs(bundle), bundle);
-        }
-
+        Map<String, ArtifactObject> allProcessors = getAllProcessors();
         if (to != null) {
             for (DistributionObject distribution : to.getDistributions()) {
                 for (FeatureObject feature : distribution.getFeatures()) {
