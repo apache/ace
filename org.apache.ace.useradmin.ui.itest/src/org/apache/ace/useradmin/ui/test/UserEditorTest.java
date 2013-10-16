@@ -18,10 +18,7 @@
  */
 package org.apache.ace.useradmin.ui.test;
 
-import java.io.ByteArrayInputStream;
-
 import org.apache.ace.it.IntegrationTestBase;
-import org.apache.ace.repository.Repository;
 import org.apache.ace.useradmin.ui.editor.GroupNotFoundException;
 import org.apache.ace.useradmin.ui.editor.UserAlreadyExistsException;
 import org.apache.ace.useradmin.ui.editor.UserDTO;
@@ -38,7 +35,6 @@ public class UserEditorTest extends IntegrationTestBase {
     private static final String TEST_GROUP = "TestGroup";
 
     private volatile UserEditor m_userEditor;
-    private volatile Repository m_userRepository;
     private volatile UserAdmin m_userAdmin;
 
     public void GetUserBroken() {
@@ -278,34 +274,15 @@ public class UserEditorTest extends IntegrationTestBase {
 
     @Override
     protected void configureAdditionalServices() throws Exception {
-        ByteArrayInputStream bis = new ByteArrayInputStream((
-            "<roles>" +
-                "    <group name=\"TestGroup\">" +
-                "        <properties>" +
-                "            <type>userGroup</type>" +
-                "        </properties>" +
-                "    </group>" +
-                "    <user name=\"TestUser\">" +
-                "        <properties>" +
-                "            <email>testUser@apache.org</email>" +
-                "        </properties>" +
-                "        <credentials>" +
-                "            <password type=\"String\">swordfish</password>" +
-                "            <certificate type=\"byte[]\">42</certificate>" +
-                "        </credentials>" +
-                "        <memberof>TestGroup</memberof>" +
-                "    </user>" +
-                "</roles>").getBytes());
+        Group group = (Group) m_userAdmin.createRole(TEST_GROUP, Role.GROUP);
+        group.getProperties().put("type", "userGroup");
 
-        assertTrue("Committing test user data failed.", m_userRepository.commit(bis, m_userRepository.getRange().getHigh()));
-        User user = (User) m_userAdmin.getRole("TestUser");
-        int count = 0;
-        while ((user == null) && (count < 60)) {
-            Thread.sleep(100);
-            user = (User) m_userAdmin.getRole("TestUser");
-            count++;
-        }
-        assertNotNull("Failed to load the user", user);
+        User user = (User) m_userAdmin.createRole("TestUser", Role.USER);
+        user.getProperties().put("email", "testUser@apache.org");
+        user.getCredentials().put("password", "swordfish");
+        user.getCredentials().put("certificate", "42".getBytes());
+
+        group.addMember(user);
     }
 
     @Override
@@ -345,9 +322,6 @@ public class UserEditorTest extends IntegrationTestBase {
                 .setService(UserAdmin.class)
                 .setRequired(true)
             )
-            .add(createServiceDependency()
-                .setService(Repository.class, "(&(name=users)(customer=apache))")
-                .setRequired(true))
         };
     }
 }
