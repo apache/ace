@@ -40,58 +40,65 @@ import org.osgi.framework.ServiceRegistration;
 public class AgentExtensionTest extends BaseAgentTest {
 
     public void testLifecycle() throws Exception {
-        AgentControl agentControl = getService(AgentControl.class);
-        assertNotNull(agentControl);
+        try {
+            AgentControl agentControl = getService(AgentControl.class);
+            assertNotNull(agentControl);
 
-        getAgentBundle().stop();
-        System.setProperty(AgentConstants.CONFIG_IDENTIFICATION_DISABLED, "true");
-        System.setProperty(AgentConstants.CONFIG_DISCOVERY_DISABLED, "true");
-        System.setProperty(AgentConstants.CONFIG_CONNECTION_DISABLED, "true");
-        getAgentBundle().start();
+            getAgentBundle().stop();
+            System.setProperty(AgentConstants.CONFIG_IDENTIFICATION_DISABLED, "true");
+            System.setProperty(AgentConstants.CONFIG_DISCOVERY_DISABLED, "true");
+            System.setProperty(AgentConstants.CONFIG_CONNECTION_DISABLED, "true");
+            getAgentBundle().start();
 
-        assertNull(locateService(AgentControl.class));
+            assertNull(locateService(AgentControl.class));
 
-        ServiceRegistration idreg1 = registerIdentification("TEST1", 1);
-        assertNull(locateService(AgentControl.class));
-        ServiceRegistration direg1 = registerDiscovery(new URL("http://test1"), 1);
-        assertNull(locateService(AgentControl.class));
-        ServiceRegistration coreg1 = registerConnectionHandler();
-        assertNotNull(locateService(AgentControl.class));
+            ServiceRegistration idreg1 = registerIdentification("TEST1", 1);
+            assertNull(locateService(AgentControl.class));
+            ServiceRegistration direg1 = registerDiscovery(new URL("http://test1"), 1);
+            assertNull(locateService(AgentControl.class));
+            ServiceRegistration coreg1 = registerConnectionHandler();
+            assertNotNull(locateService(AgentControl.class));
 
-        assertEquals("TEST1", locateService(AgentControl.class).getAgentId());
+            assertEquals("TEST1", locateService(AgentControl.class).getAgentId());
 
-        ServiceRegistration idreg2 = registerIdentification("TEST2", 2);
+            ServiceRegistration idreg2 = registerIdentification("TEST2", 2);
 
-        assertEquals("TEST2", locateService(AgentControl.class).getAgentId());
+            assertEquals("TEST2", locateService(AgentControl.class).getAgentId());
 
-        idreg2.unregister();
+            idreg2.unregister();
 
-        assertEquals("TEST1", locateService(AgentControl.class).getAgentId());
+            assertEquals("TEST1", locateService(AgentControl.class).getAgentId());
 
-        idreg1.unregister();
+            idreg1.unregister();
 
-        assertNull(locateService(AgentControl.class));
+            assertNull(locateService(AgentControl.class));
 
-        direg1.unregister();
-        coreg1.unregister();
+            direg1.unregister();
+            coreg1.unregister();
+        }
+        finally {
+            System.clearProperty(AgentConstants.CONFIG_IDENTIFICATION_DISABLED);
+            System.clearProperty(AgentConstants.CONFIG_DISCOVERY_DISABLED);
+            System.clearProperty(AgentConstants.CONFIG_CONNECTION_DISABLED);
+        }
     }
 
     private ServiceRegistration registerIdentification(final String id, final int rank) {
         return m_bundleContext.registerService(IdentificationHandler.class.getName(), new IdentificationHandler() {
-                @Override
-                public String getAgentId() {
-                    return id;
-                }
-                
-                @Override
-                public String toString() {
-                    return id;
-                }
-            }, new Properties() {
-                {
-                    put(Constants.SERVICE_RANKING, rank);
-                }
-            });
+            @Override
+            public String getAgentId() {
+                return id;
+            }
+
+            @Override
+            public String toString() {
+                return id;
+            }
+        }, new Properties() {
+            {
+                put(Constants.SERVICE_RANKING, rank);
+            }
+        });
 
     }
 
