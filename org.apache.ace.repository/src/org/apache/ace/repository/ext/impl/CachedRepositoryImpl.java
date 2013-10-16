@@ -105,11 +105,8 @@ public class CachedRepositoryImpl implements CachedRepository {
     public InputStream getLocal(boolean fail) throws IllegalArgumentException, IOException {
         // ACE-240: only fail in case there is no local version available; when mostRecentVersion 
         // equals to 0, it means that nothing has been committed locally...
-        if (m_mostRecentVersion <= 0) {
-        	if (fail) {
-        		throw new IOException("No local version available of " + m_local + ", remote " + m_remote);
-        	}
-        	return null;
+        if (m_mostRecentVersion <= 0 && (fail)) {
+    		throw new IOException("No local version available of " + m_local + ", remote " + m_remote);
         }
         return m_local.read();
     }
