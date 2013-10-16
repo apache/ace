@@ -125,6 +125,36 @@ public class IntegrationTestBase extends TestCase {
     protected Component m_loggingComponent;
 
     /**
+     * Overridden to ensure that our {@link #tearDown()} method is always called, even when {@link #setUp()} fails with
+     * an exception (by default, JUnit does not call this method when the set up fails).
+     * 
+     * @see junit.framework.TestCase#runBare()
+     */
+    @Override
+    public final void runBare() throws Throwable {
+        Throwable exception = null;
+        try {
+            setUp();
+
+            runTest();
+        }
+        catch (Throwable running) {
+            exception = running;
+        }
+        finally {
+            try {
+                tearDown();
+            }
+            catch (Throwable tearingDown) {
+                if (exception == null)
+                    exception = tearingDown;
+            }
+        }
+        if (exception != null)
+            throw exception;
+    }
+
+    /**
      * Write configuration for a single service. For example,
      * 
      * <pre>
