@@ -26,7 +26,6 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +38,7 @@ import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandle;
+import org.apache.ace.agent.DownloadHandle.DownloadProgressListener;
 import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.agent.FeedbackHandler;
@@ -51,7 +51,10 @@ import org.osgi.framework.Version;
 import org.osgi.service.http.HttpService;
 
 /**
- * Tests that we can create an agent with a completely custom controller.
+ * Tests that we can create an agent with a completely custom controller, see {@link CustomController} for more
+ * information about the actual implementation.
+ * 
+ * @see CustomController
  */
 public class CustomAgentControllerTest extends BaseAgentTest {
     /**
@@ -109,20 +112,28 @@ public class CustomAgentControllerTest extends BaseAgentTest {
     /**
      * The actual custom controller as {@link Runnable} task, that simply loops and executes its tasks until notified to
      * stop.
+     * 
+     * @see #run()
      */
-    class CustomController implements Runnable, DownloadHandle.DownloadProgressListener {
-        private final CountDownLatch m_latch;
+    class CustomController implements Runnable {
         private volatile boolean m_stop = false;
 
-        public CustomController(CountDownLatch latch) {
-            m_latch = latch;
-        }
-
-        @Override
-        public void progress(long bytesRead, long totalBytes) {
-            System.out.printf("Download progress: %d of %d bytes read...%n", bytesRead, totalBytes);
-        }
-
+        /**
+         * Main loop, will sleep for a little and once every 500 ms will do the following:
+         * <ol>
+         * <li>Synchronize all agent feedback with the server (see {@link #sendFeedbackToServer()});</li>
+         * <li>Check for agent updates (see {@link #checkForUpdate(UpdateType)});</li>
+         * <li>Check for deployment updates (see {@link #checkForUpdate(UpdateType)}).</li>
+         * </ol>
+         * <p>
+         * Note that this implementation does very little error checking and is rather stubborn when it comes across
+         * failures: it simply keeps retrying, which, for this use case, is acceptable.
+         * </p>
+         * 
+         * @see #stop()
+         * @see #checkForUpdate(UpdateType)
+         * @see #sendFeedbackToServer()
+         */
         @Override
         public void run() {
             while (!m_stop) {
@@ -134,74 +145,97 @@ public class CustomAgentControllerTest extends BaseAgentTest {
                     break;
                 }
 
-                try {
-                    // Send our feedback...
-                    sendFeedbackToServer();
-                }
-                catch (Exception exception) {
-                    System.out.printf("Feedback synchronization failed with %s.%n", exception.getMessage());
-                    exception.printStackTrace(System.out);
+                if (m_stop) {
+                    // Check once more whether we're not stopped while sleeping...
+                    break;
                 }
 
-                try {
-                    // Check for agent updates...
-                    checkForUpdate(UpdateType.AGENT);
-                }
-                catch (Exception exception) {
-                    System.out.printf("Agent update failed with %s.%n", exception.getMessage());
-                    exception.printStackTrace(System.out);
-                }
+                sendFeedbackToServer();
 
-                try {
-                    // Check for deployment updates...
-                    checkForUpdate(UpdateType.DEPLOYMENT);
-                }
-                catch (Exception exception) {
-                    System.out.printf("Deployment update failed with %s.%n", exception.getMessage());
-                    exception.printStackTrace(System.out);
-                }
+                checkForUpdate(UpdateType.AGENT);
+
+                checkForUpdate(UpdateType.DEPLOYMENT);
             }
         }
 
+        /**
+         * Stops the main loop and allows the {@link #run()} loop to terminate (after it has done all of its work).
+         */
         public void stop() {
             m_stop = true;
         }
 
-        private void checkForUpdate(UpdateType updateType) throws Exception {
-            UpdateHandler updateHandler = getUpdateHandler(updateType);
+        /**
+         * Does the actual check for either the agent or deployment updates, and if available:
+         * <ol>
+         * <li>asks the "user" whether it should download this update, and if so;</li>
+         * <li>downloads the update to a temporary location;</li>
+         * <li>if the download is complete, it asks the "user" whether it should proceed with installing it, and if so;</li>
+         * <li>installs the agent/deployment update.</li>
+         * </ol>
+         * <p>
+         * In case an exception occurs during this check, it is logged and the method returns (early). No exceptions are
+         * propagated. In production code, a little more sophisticated error checking should be performed.
+         * </p>
+         * 
+         * @param updateType
+         *            the type of update we're performing, cannot be <code>null</code>.
+         */
+        private void checkForUpdate(UpdateType updateType) {
+            try {
+                UpdateHandler updateHandler = getUpdateHandler(updateType);
 
-            Version installed = updateHandler.getInstalledVersion();
-            Version available = updateHandler.getHighestAvailableVersion();
-            if (installed != null && installed.compareTo(available) < 0) {
-                // Update available, update the agent...
-                if (!m_agentUser.downloadAvailableUpdate(updateType, getAgentId(), installed, available)) {
-                    // No, we may not download this update now...
-                    return;
+                Version installed = updateHandler.getInstalledVersion();
+                Version available = updateHandler.getHighestAvailableVersion();
+                if (installed != null && installed.compareTo(available) < 0) {
+                    // Update available, ask the user whether we should download it...
+                    if (!m_agentUser.downloadAvailableUpdate(updateType, getAgentId(), installed, available)) {
+                        // No, we may not download this update now...
+                        return;
+                    }
+
+                    System.out.printf("Downloading %s update (from v%s to v%s)...%n", updateType, installed, available);
+
+                    DownloadHandle downloadHandle = updateHandler.getDownloadHandle(available, false /* fixPackage */);
+
+                    Future<DownloadResult> future = downloadHandle.start(new DownloadProgressListener() {
+                        @Override
+                        public void progress(long bytesRead, long totalBytes) {
+                            System.out.printf("Download progress: %d of %d bytes read...%n", bytesRead, totalBytes);
+                        }
+                    });
+                    // Block until the download is complete...
+                    DownloadResult result = future.get();
+
+                    // Download is complete, ask the user once more if we're allowed to install the update...
+                    if (m_agentUser.installAvailableUpdate(updateType, getAgentId(), installed, available)) {
+                        System.out.printf("Installing %s update (from v%s to v%s)...%n", updateType, installed, available);
+
+                        // We've confirmation that we can install this update...
+                        updateHandler.install(result.getInputStream());
+                    }
                 }
-
-                System.out.printf("Downloading %s update (from v%s to v%s)...%n", updateType, installed, available);
-
-                DownloadHandle downloadHandle = updateHandler.getDownloadHandle(available, false /* fixPackage */);
-
-                Future<DownloadResult> future = downloadHandle.start(this);
-                // Block until the download is complete...
-                DownloadResult result = future.get();
-
-                if (m_agentUser.installAvailableUpdate(updateType, getAgentId(), installed, available)) {
-                    System.out.printf("Installing %s update (from v%s to v%s)...%n", updateType, installed, available);
-
-                    // We've confirmation that we can install this update...
-                    updateHandler.install(result.getInputStream());
-
-                    m_latch.countDown();
-                }
+            }
+            catch (Exception exception) {
+                System.out.printf("%s update failed with %s.%n", updateType, exception.getMessage());
+                exception.printStackTrace(System.out);
             }
         }
 
+        /**
+         * @return the identification of the current agent, as returned by the agent's API.
+         */
         private String getAgentId() {
             return m_control.getAgentId();
         }
 
+        /**
+         * Returns the update handler for the given {@link UpdateType}.
+         * 
+         * @param updateType
+         *            the type of update we want an update handler for, cannot be <code>null</code>.
+         * @return an {@link UpdateHandler} instance, never <code>null</code>.
+         */
         private UpdateHandler getUpdateHandler(UpdateType updateType) {
             UpdateHandler updateHandler;
             if (UpdateType.AGENT == updateType) {
@@ -213,28 +247,44 @@ public class CustomAgentControllerTest extends BaseAgentTest {
             return updateHandler;
         }
 
-        private void sendFeedbackToServer() throws IOException {
-            FeedbackHandler feedbackHandler = m_control.getFeedbackHandler();
-            Set<String> channelNames = feedbackHandler.getChannelNames();
-            for (String channelName : channelNames) {
-                FeedbackChannel channel = feedbackHandler.getChannel(channelName);
+        /**
+         * Synchronizes the agent's feedback with the server by retrieving all feedback channels and sending their
+         * feedback to the server in turn.
+         * <p>
+         * In case an exception occurs during this check, it is logged and the method returns (early). No exceptions are
+         * propagated. In production code, a little more sophisticated error checking should be performed.
+         * </p>
+         */
+        private void sendFeedbackToServer() {
+            try {
+                FeedbackHandler feedbackHandler = m_control.getFeedbackHandler();
+                Set<String> channelNames = feedbackHandler.getChannelNames();
+                for (String channelName : channelNames) {
+                    FeedbackChannel channel = feedbackHandler.getChannel(channelName);
 
-                System.out.printf("Synchronizing feedback of %s with server...%n", channelName);
+                    System.out.printf("Synchronizing feedback of %s with server...%n", channelName);
 
-                channel.sendFeedback();
-
-                m_latch.countDown();
+                    channel.sendFeedback();
+                }
+            }
+            catch (Exception exception) {
+                System.out.printf("Feedback synchronization failed with %s.%n", exception.getMessage());
+                exception.printStackTrace(System.out);
             }
         }
     }
 
-    static class TestDeploymentServlet extends HttpServlet {
+    /**
+     * Stub servlet that acts as an ACE server for our agent. Does only the bare minimum with respect to a complete
+     * server.
+     */
+    static class StubDeploymentServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
 
         private final Map<String, TestPackage> m_packages = new HashMap<String, TestPackage>();
         private final String m_agentId;
 
-        public TestDeploymentServlet(String agentId, TestPackage... testPackages) {
+        public StubDeploymentServlet(String agentId, TestPackage... testPackages) {
             m_agentId = agentId;
 
             for (TestPackage testPackage : testPackages) {
@@ -356,25 +406,26 @@ public class CustomAgentControllerTest extends BaseAgentTest {
     /**
      * Tests that we can provide a custom controller implementation based on the following use-case:
      * <p>
-     * ...
+     * The agent should check for updates, and if found, ask the user whether it should proceed to download this update.
+     * If confirmed, the download of the update is started, and when complete, the user is asked once more whether to
+     * proceed with the installation of the update.
      * </p>
+     * 
+     * @see CustomController
      */
     public void testCustomController() throws Exception {
-        CountDownLatch latch = new CountDownLatch(3);
-
-        CustomController controller = new CustomController(latch);
+        CustomController controller = new CustomController();
 
         Thread thread = new Thread(controller);
         thread.start();
 
-        boolean success = latch.await(30, TimeUnit.SECONDS);
-
-        waitForInstalledVersion(V1_0_0);
-
-        controller.stop();
-        thread.join();
-
-        assertTrue("Use case not completed!", success);
+        try {
+            waitForInstalledVersion(V1_0_0);
+        }
+        finally {
+            controller.stop();
+            thread.join();
+        }
     }
 
     @Override
@@ -384,7 +435,7 @@ public class CustomAgentControllerTest extends BaseAgentTest {
         TestBundle bundle1v1 = new TestBundle(TEST_BUNDLE_NAME_PREFIX.concat("1"), V1_0_0);
         TestPackage package1 = new TestPackage(AGENT_ID, V1_0_0, bundle1v1);
 
-        TestDeploymentServlet servlet = new TestDeploymentServlet(AGENT_ID, package1);
+        StubDeploymentServlet servlet = new StubDeploymentServlet(AGENT_ID, package1);
 
         String url = String.format("http://localhost:%d/", TestConstants.PORT);
         NetUtils.waitForURL(url, 404, 10000);
