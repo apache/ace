@@ -184,7 +184,7 @@ class RepositorySet {
 
     boolean readLocal() throws IOException {
         InputStream input = m_repository.getLocal(false /* fail */);
-        if (input.available() > 0) {
+        if (input != null && input.available() > 0) {
             read(input);
             return true;
         }

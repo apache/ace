@@ -109,7 +109,7 @@ class RepositorySerializer implements Converter {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-            if (in.available() > 0) {
+            if (in != null && in.available() > 0) {
                 in = new GZIPInputStream(in);
                 m_stream.fromXML(in, this);
             }
