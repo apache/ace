@@ -46,7 +46,6 @@ public class MiscCommands {
     public void shutdown(long delay) {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
-
             @Override
             public void run() {
                 try {

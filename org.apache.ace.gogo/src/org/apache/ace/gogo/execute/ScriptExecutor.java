@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.gogo;
+package org.apache.ace.gogo.execute;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,36 +31,59 @@ import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 
 public class ScriptExecutor {
-
-    private volatile DependencyManager m_dependencyManager;
-    private volatile Component m_component;
-    private volatile CommandProcessor m_processor;
-
-    private final String m_scriptPath;
+    private final ScriptTask m_task;
     private final long m_delay;
 
-    private Timer m_timer;
+    private volatile DependencyManager m_dm;
+    private volatile Component m_component;
+    private volatile Timer m_timer;
 
     public ScriptExecutor(String scriptPath, long delay) {
-        m_scriptPath = scriptPath;
+        m_task = new ScriptTask(scriptPath);
         m_delay = delay;
     }
 
-    public void start() throws Exception {
+    /**
+     * @return an array with all components that need to be injected with dependencies.
+     */
+    protected Object[] getInstances() {
+        return new Object[] { this, m_task };
+    }
+
+    /**
+     * Called by Felix DM.
+     */
+    protected void start() throws Exception {
         m_timer = new Timer();
-        m_timer.schedule(new ScriptTask(), m_delay);
+        m_timer.schedule(m_task, m_delay);
     }
 
-    public void complete() {
+    /**
+     * Called by Felix DM.
+     */
+    protected void stop() {
         m_timer.cancel();
-        m_dependencyManager.remove(m_component);
+        m_timer = null;
     }
 
-    class ScriptTask extends TimerTask {
+    /**
+     * Called when the script is executed and this service needs to be removed.
+     */
+    void complete() {
+        m_dm.remove(m_component);
+    }
+
+    final class ScriptTask extends TimerTask {
+        private final String m_scriptPath;
+        // Injected by Felix DM...
+        private volatile CommandProcessor m_processor;
+
+        public ScriptTask(String scriptPath) {
+            m_scriptPath = scriptPath;
+        }
 
         @Override
         public void run() {
-
             CommandSession session = null;
             BufferedReader reader = null;
             String line;
@@ -78,16 +101,19 @@ public class ScriptExecutor {
                 e.printStackTrace();
             }
             finally {
-                if (session != null)
+                if (session != null) {
                     session.close();
-                if (reader != null)
+                }
+                if (reader != null) {
                     try {
                         reader.close();
                     }
                     catch (IOException e) {
                         e.printStackTrace();
                     }
-                m_timer.cancel();
+                }
+
+                complete();
             }
         }
     }

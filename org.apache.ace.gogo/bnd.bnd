@@ -6,14 +6,16 @@
 	org.apache.felix.gogo.runtime,\
 	org.apache.ace.bnd.repository;version=latest
 
-Bundle-Name: Apache ACE OBR Gogo commands
-Bundle-Description: Provides Gogo commands for working with repositories	
+Bundle-Name: Apache ACE Gogo commands
+Bundle-Description: Provides Gogo commands for working with ACE	
 Bundle-Version: 1.0.0
 Bundle-Activator: org.apache.ace.gogo.Activator
 Private-Package: org.apache.ace.bnd.repository,\
 	org.apache.ace.gogo,\
+	org.apache.ace.gogo.execute,\
 	org.apache.ace.gogo.math,\
 	org.apache.ace.gogo.misc,\
+	org.apache.ace.gogo.queue,\
 	org.apache.ace.gogo.repo,\
 	aQute.lib.json;-split-package:=merge-last,\
 	aQute.libg.filelock;-split-package:=merge-last,\

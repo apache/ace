@@ -20,8 +20,11 @@ package org.apache.ace.gogo;
 
 import java.util.Properties;
 
+import org.apache.ace.gogo.execute.ExecuteCommands;
+import org.apache.ace.gogo.execute.ScriptExecutor;
 import org.apache.ace.gogo.math.MathCommands;
 import org.apache.ace.gogo.misc.MiscCommands;
+import org.apache.ace.gogo.queue.QueueCommands;
 import org.apache.ace.gogo.repo.RepoCommands;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
@@ -31,47 +34,52 @@ import org.osgi.framework.BundleContext;
 public class Activator extends DependencyActivatorBase {
 
     @Override
+    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
+        // Nop
+    }
+
+    @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-
-        Properties repoProps = new Properties();
-        repoProps.put(CommandProcessor.COMMAND_SCOPE, RepoCommands.SCOPE);
-        repoProps.put(CommandProcessor.COMMAND_FUNCTION, RepoCommands.FUNCTIONS);
         manager.add(createComponent()
-            .setInterface(Object.class.getName(), repoProps)
-            .setImplementation(RepoCommands.class)
-            );
+            .setInterface(Object.class.getName(), createProps(RepoCommands.SCOPE, RepoCommands.FUNCTIONS))
+            .setImplementation(RepoCommands.class));
 
-        Properties mathProps = new Properties();
-        mathProps.put(CommandProcessor.COMMAND_SCOPE, MathCommands.SCOPE);
-        mathProps.put(CommandProcessor.COMMAND_FUNCTION, MathCommands.FUNCTIONS);
         manager.add(createComponent()
-            .setInterface(Object.class.getName(), mathProps)
-            .setImplementation(MathCommands.class)
-            );
+            .setInterface(Object.class.getName(), createProps(MathCommands.SCOPE, MathCommands.FUNCTIONS))
+            .setImplementation(MathCommands.class));
 
-        Properties miscProps = new Properties();
-        miscProps.put(CommandProcessor.COMMAND_SCOPE, MiscCommands.SCOPE);
-        miscProps.put(CommandProcessor.COMMAND_FUNCTION, MiscCommands.FUNCTIONS);
         manager.add(createComponent()
-            .setInterface(Object.class.getName(), miscProps)
-            .setImplementation(MiscCommands.class)
-            );
+            .setInterface(Object.class.getName(), createProps(MiscCommands.SCOPE, MiscCommands.FUNCTIONS))
+            .setImplementation(MiscCommands.class));
 
-        if (System.getProperty("ace.gogo.script") != null) {
-            String script = System.getProperty("ace.gogo.script");
-            long delay = 300;
-            if (System.getProperty("ace.gogo.script.delay") != null) {
-                delay = Long.parseLong(System.getProperty("ace.gogo.script.delay"));
-            }
+        manager.add(createComponent()
+            .setInterface(Object.class.getName(), createProps(QueueCommands.SCOPE, QueueCommands.FUNCTIONS))
+            .setImplementation(QueueCommands.class));
+
+        manager.add(createComponent()
+            .setInterface(Object.class.getName(), createProps(ExecuteCommands.SCOPE, ExecuteCommands.FUNCTIONS))
+            .setImplementation(ExecuteCommands.class)
+            .add(createServiceDependency()
+                .setService(CommandProcessor.class)
+                .setRequired(true)));
+
+        String script = System.getProperty("ace.gogo.script");
+        if (script != null) {
+            long delay = Long.getLong("ace.gogo.script.delay", 300L);
+
             manager.add(createComponent()
                 .setImplementation(new ScriptExecutor(script, delay))
+                .setComposition("getInstances")
                 .add(createServiceDependency()
                     .setService(CommandProcessor.class)
                     .setRequired(true)));
         }
     }
 
-    @Override
-    public void destroy(BundleContext arg0, DependencyManager arg1) throws Exception {
+    private Properties createProps(String scope, String[] functions) {
+        Properties props = new Properties();
+        props.put(CommandProcessor.COMMAND_SCOPE, scope);
+        props.put(CommandProcessor.COMMAND_FUNCTION, functions);
+        return props;
     }
 }
