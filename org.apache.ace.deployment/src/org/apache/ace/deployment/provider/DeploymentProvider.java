@@ -33,9 +33,10 @@ public interface DeploymentProvider {
      *
      * @return a collection of bundledata. If there are no bundles in this version, return an empty list
      * @throws IllegalArgumentException if the target or version do not exist
+     * @throws OverloadedException if the provider is overloaded
      * @throws java.io.IOException If an IOException occurs.
      */
-    public List<ArtifactData> getBundleData(String targetId, String version) throws IllegalArgumentException, IOException;
+    public List<ArtifactData> getBundleData(String targetId, String version) throws OverloadedException, IllegalArgumentException, IOException;
 
     /**
      * This data can be used to generate a fix package. It gives the differences between the versionFrom and versionTo.
@@ -50,10 +51,11 @@ public interface DeploymentProvider {
      *
      * @return a list of bundles.
      * @throws IllegalArgumentException if the target, the versionFrom or versionTo do no exist
+     * @throws OverloadedException if the provider is overloaded
      * @throws java.io.IOException If an IOException occurs.
      */
 
-    public List<ArtifactData> getBundleData(String targetId, String versionFrom, String versionTo) throws IllegalArgumentException, IOException;
+    public List<ArtifactData> getBundleData(String targetId, String versionFrom, String versionTo) throws OverloadedException, IllegalArgumentException, IOException;
 
     /**
      * Returns a list of versions for a specific target. The list is sorted in
@@ -65,6 +67,7 @@ public interface DeploymentProvider {
      *         return an empty List.
      *         If the target doesn't exist, an IllegalArgumentException is thrown
      * @throws java.io.IOException If an IOException occurs.
+     * @throws OverloadedException if the provider is overloaded
      */
-    public List<String> getVersions(String targetId) throws IllegalArgumentException, IOException;
+    public List<String> getVersions(String targetId) throws OverloadedException, IllegalArgumentException, IOException;
 }

@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Semaphore;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.ace.range.SortedRangeSet;
@@ -31,10 +32,12 @@ public class MockDeploymentRepository implements Repository {
 
     private String m_range;
     private String m_xmlRepository;
+    private Semaphore m_semaphore;
 
-    public MockDeploymentRepository(String range, String xmlRepository) {
+    public MockDeploymentRepository(String range, String xmlRepository, Semaphore semaphore) {
         m_range = range;
         m_xmlRepository = xmlRepository;
+        m_semaphore = semaphore;
     }
 
     /* (non-Javadoc)
@@ -42,6 +45,15 @@ public class MockDeploymentRepository implements Repository {
      * @see org.apache.ace.repository.Repository#checkout(long)
      */
     public InputStream checkout(long version) throws IOException, IllegalArgumentException {
+        if (m_semaphore != null) {
+            m_semaphore.release();
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e) {
+                throw new IOException(e);
+            }
+        }
         if (version == 1) {
             //throw an IOException!
             throw new IOException("Checkout exception.");
@@ -57,11 +69,29 @@ public class MockDeploymentRepository implements Repository {
     }
 
     public boolean commit(InputStream data, long fromVersion) throws IOException, IllegalArgumentException {
+        if (m_semaphore != null) {
+            m_semaphore.release();
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e) {
+                throw new IOException(e);
+            }
+        }
         // Not used in test
         return false;
     }
 
     public SortedRangeSet getRange() throws IOException {
+        if (m_semaphore != null) {
+            m_semaphore.release();
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e) {
+                throw new IOException(e);
+            }
+        }
         return new SortedRangeSet(m_range);
     }
 }

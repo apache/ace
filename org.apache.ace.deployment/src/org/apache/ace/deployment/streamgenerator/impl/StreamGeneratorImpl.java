@@ -33,6 +33,7 @@ import java.util.zip.ZipEntry;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.DeploymentProvider;
+import org.apache.ace.deployment.provider.OverloadedException;
 import org.apache.ace.deployment.streamgenerator.StreamGenerator;
 
 /**
@@ -43,15 +44,8 @@ public class StreamGeneratorImpl implements StreamGenerator {
     private volatile DeploymentProvider m_provider;
     private volatile ConnectionFactory m_connectionFactory;
 
-    /**
-     * Returns an input stream with the requested deployment package.
-     *
-     * @param id the ID of the package
-     * @param version the version of the package
-     * @return an input stream
-     * @throws java.io.IOException when the stream could not be generated
-     */
-    public InputStream getDeploymentPackage(String id, String version) throws IOException {
+    @Override
+    public InputStream getDeploymentPackage(String id, String version) throws OverloadedException, IOException {
         List<ArtifactData> data = m_provider.getBundleData(id, version);
         Manifest manifest = new Manifest();
         Attributes main = manifest.getMainAttributes();
@@ -70,16 +64,8 @@ public class StreamGeneratorImpl implements StreamGenerator {
         return DeploymentPackageStream.createStreamForThread(m_connectionFactory, manifest, data.iterator(), false);
     }
 
-    /**
-     * Returns an input stream with the requested deployment fix package.
-     *
-     * @param id the ID of the package.
-     * @param fromVersion the version of the target.
-     * @param toVersion the version the target should be in after applying the package.
-     * @return an input stream.
-     * @throws java.io.IOException when the stream could not be generated.
-     */
-    public InputStream getDeploymentPackage(String id, String fromVersion, String toVersion) throws IOException {
+    @Override
+    public InputStream getDeploymentPackage(String id, String fromVersion, String toVersion) throws OverloadedException, IOException {
         //return execute(new WorkerFixPackage(id, fromVersion, toVersion));
         List<ArtifactData> data = m_provider.getBundleData(id, fromVersion, toVersion);
         Manifest manifest = new Manifest();

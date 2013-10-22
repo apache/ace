@@ -99,7 +99,7 @@ public class RepositoryBasedProviderPerformanceTest {
     public void setUp() throws Exception {
         // setup mock repository
         String range = "1-100000";
-        Repository mock = new MockDeploymentRepository(range, generateHugeTestXml());
+        Repository mock = new MockDeploymentRepository(range, generateHugeTestXml(), null);
         m_backend = new RepositoryBasedProvider();
         TestUtils.configureObject(m_backend, Repository.class, mock);
         TestUtils.configureObject(m_backend, LogService.class);

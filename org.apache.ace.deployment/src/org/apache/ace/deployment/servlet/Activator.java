@@ -18,6 +18,9 @@
  */
 package org.apache.ace.deployment.servlet;
 
+import java.util.Properties;
+
+import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
 import org.apache.ace.connectionfactory.ConnectionFactory;
@@ -50,6 +53,13 @@ public class Activator extends DependencyActivatorBase {
             .add(createConfigurationDependency().setPropagate(true).setPid(AGENT_PID))
             .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false))
+        );
+        
+        Properties props = new Properties();
+        props.put("pattern", "/*");
+        manager.add(createComponent()
+            .setInterface(Filter.class.getName(), null)
+            .setImplementation(OverloadedFilter.class)
         );
     }
 

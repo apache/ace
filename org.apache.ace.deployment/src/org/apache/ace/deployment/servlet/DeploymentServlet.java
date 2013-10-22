@@ -38,6 +38,7 @@ import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.deployment.processor.DeploymentProcessor;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.DeploymentProvider;
+import org.apache.ace.deployment.provider.OverloadedException;
 import org.apache.ace.deployment.streamgenerator.StreamGenerator;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
@@ -91,7 +92,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
      * <code>HttpServletResponse.SC_OK</code> - If all went fine
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         try {
             String[] pathElements = verifyAndGetPathElements(request.getPathInfo());
             String targetID = pathElements[1];
@@ -108,6 +109,9 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         catch (AceRestException e) {
             m_log.log(LogService.LOG_WARNING, e.getMessage(), e);
             e.handleAsHttpError(response);
+        }
+        catch (OverloadedException oe) {
+            throw new ServletException(oe);
         }
     }
 
@@ -155,6 +159,9 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         catch (AceRestException e) {
             m_log.log(LogService.LOG_WARNING, e.getMessage(), e);
             e.handleAsHttpError(response);
+        }
+        catch (OverloadedException oe) {
+            throw new ServletException(oe);
         }
     }
 
@@ -211,7 +218,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
      * @param response
      *            response object.
      */
-    private void handleVersionsRequest(String targetID, HttpServletResponse response) throws AceRestException {
+    private void handleVersionsRequest(String targetID, HttpServletResponse response) throws OverloadedException, AceRestException {
         ServletOutputStream output = null;
 
         List<String> versions = getVersions(targetID);
@@ -232,7 +239,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         }
     }
 
-    private void handlePackageDelivery(String targetID, String version, HttpServletRequest request, HttpServletResponse response) throws AceRestException {
+    private void handlePackageDelivery(String targetID, String version, HttpServletRequest request, HttpServletResponse response) throws OverloadedException, AceRestException {
         ServletOutputStream output = null;
 
         List<String> versions = getVersions(targetID);
@@ -284,7 +291,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         }
     }
 
-    private List<String> getVersions(String targetID) throws AceRestException {
+    private List<String> getVersions(String targetID) throws OverloadedException, AceRestException {
         try {
             return m_provider.getVersions(targetID);
         }

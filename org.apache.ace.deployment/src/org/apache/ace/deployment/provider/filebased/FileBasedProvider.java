@@ -34,12 +34,14 @@ import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.DeploymentProvider;
+import org.apache.ace.deployment.provider.OverloadedException;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
@@ -59,17 +61,160 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
     private static final String DIRECTORY_NAME = "BaseDirectoryName";
     /** Fallback directory for all targets that have no specific versions. Defaults to BaseDirectoryName if not specified. */
     private static final String DEFAULT_DIRECTORY_NAME = "DefaultDirectoryName";
+    /** Configuration key for the number of concurrent users */
+    private static final String MAXIMUM_NUMBER_OF_USERS = "MaximumNumberOfUsers";
     private static final int OSGI_R4_MANIFEST_VERSION = 2;
     private volatile File m_baseDirectory;
     private volatile File m_defaultDirectory;
     private volatile LogService m_log;
     private final Semaphore m_disk = new Semaphore(1, true);
+    
+    private final AtomicInteger m_usageCounter = new AtomicInteger();
+    /** Maximum number of concurrent users. Value 0 is used for unlimited users. */
+    private int m_maximumNumberOfUsers = 0;
+    /** The default backoff time for each new user over the limit */
+    private static final int BACKOFF_TIME_PER_USER = 5; 
 
     /**
      * Get the bundle data from the bundles in the &lt;data dir&gt;/&lt;target&gt;/&lt;version&gt; directory It reads the manifest from all the
      * .jar files in that directory. If the manifest cannot be found, This method can only parse OSGi R4 bundles
      */
-    public List<ArtifactData> getBundleData(String targetId, String version) throws IllegalArgumentException {
+    public List<ArtifactData> getBundleData(String targetId, String version) throws OverloadedException, IllegalArgumentException {
+        try {
+            int concurrentUsers = m_usageCounter.incrementAndGet();
+            if (m_maximumNumberOfUsers != 0  && m_maximumNumberOfUsers < concurrentUsers) {
+                throw new OverloadedException("Too many users, maximum allowed = " + m_maximumNumberOfUsers + ", current = " + concurrentUsers,  (concurrentUsers - m_maximumNumberOfUsers) * BACKOFF_TIME_PER_USER);
+            }
+            return internalGetBundleData(targetId, version);
+        } finally {
+            m_usageCounter.getAndDecrement();
+        }
+
+    }
+
+    /**
+     * Version folder and requested version do not always match (see implementation of getVersions, which uses Versions.parseVersion to allow different styles)
+     * like 1 instead of 1.0.0 and alike.
+     * So we need to do some crawling to map them.
+     *
+     * @param targetDirectory store directory
+     * @param version          that has been requested.
+     *
+     * @return the matching folder.
+     *
+     * @throws IllegalArgumentException if no matching folder has been found. If this happens something is weirdly wrong.
+     */
+    private File findMatchingVersionDirectory(File targetDirectory, String version) {
+        // first try the direct way:
+        File directTry = new File(targetDirectory, version);
+        if ((directTry != null) && directTry.isDirectory()) {
+            return directTry;
+        }
+        // otherwise try to find it:
+        Version requestedVersion;
+        try {
+            requestedVersion = Version.parseVersion(version);
+        }
+        catch (IllegalArgumentException iae) {
+            throw new IllegalArgumentException("Requested version " + version + " has no matching folder in store: " + targetDirectory.getAbsolutePath());
+        }
+
+        File[] files = targetDirectory.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File possibleVersionDirectory = files[i];
+            if (possibleVersionDirectory.isDirectory()) {
+                // ok, it is a directory. Now see if it is a version
+                try {
+                    Version foundVersion = Version.parseVersion(possibleVersionDirectory.getName());
+                    // no exception, but is could still be an empty version
+                    if ((requestedVersion != null) && requestedVersion.equals(foundVersion)) {
+                        return new File(targetDirectory, possibleVersionDirectory.getName());
+                    }
+                }
+                catch (IllegalArgumentException iae) {
+                    // dont' care at this point.
+                }
+            }
+        }
+        throw new IllegalArgumentException("Requested version " + version + " has no matching folder in store: " + targetDirectory.getAbsolutePath());
+    }
+
+    public List<ArtifactData> getBundleData(String targetId, String versionFrom, String versionTo) throws OverloadedException, IllegalArgumentException {
+        try {
+            int concurrentUsers = m_usageCounter.incrementAndGet();
+            if (m_maximumNumberOfUsers != 0  && m_maximumNumberOfUsers < concurrentUsers) {
+                throw new OverloadedException("Too many users, maximum allowed = " + m_maximumNumberOfUsers + ", current = " + concurrentUsers,  (concurrentUsers - m_maximumNumberOfUsers) * BACKOFF_TIME_PER_USER);
+            }
+            List<ArtifactData> dataVersionFrom = internalGetBundleData(targetId, versionFrom);
+            List<ArtifactData> dataVersionTo = internalGetBundleData(targetId, versionTo);
+    
+            Iterator<ArtifactData> it = dataVersionTo.iterator();
+            while (it.hasNext()) {
+                ArtifactDataImpl bundleDataVersionTo = (ArtifactDataImpl) it.next();
+                // see if there was previously a version of this bundle.
+                ArtifactData bundleDataVersionFrom = getBundleData(bundleDataVersionTo.getSymbolicName(), dataVersionFrom);
+                bundleDataVersionTo.setChanged(!bundleDataVersionTo.equals(bundleDataVersionFrom));
+            }
+            return dataVersionTo;
+        } finally {
+            m_usageCounter.getAndDecrement();
+        }
+    }
+
+    /**
+     * Check for the existence of bundledata in the collection for a bundle with the given symbolic name
+     *
+     * @param symbolicName
+     */
+    private ArtifactData getBundleData(String symbolicName, Collection<ArtifactData> data) {
+        Iterator<ArtifactData> it = data.iterator();
+        while (it.hasNext()) {
+            ArtifactData bundle = it.next();
+            if (bundle.getSymbolicName().equals(symbolicName)) {
+                return bundle;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Look in the baseDirectory for the specified target. If it exists, get the list of directories in there and check if they
+     * conform to the <code>org.osgi.framework.Version</code> format. If it does, it will be in the list of versions that are
+     * returned. If there are no valid versions, return an empty list. If the target cannot be found, an
+     * IllegalArgumentException is thrown. The list will be sorted on version.
+     */
+    @SuppressWarnings("unchecked")
+    public List<String> getVersions(String targetId) throws OverloadedException, IllegalArgumentException {
+        try {
+            int concurrentUsers = m_usageCounter.incrementAndGet();
+            if (m_maximumNumberOfUsers != 0  && m_maximumNumberOfUsers < concurrentUsers) {
+                throw new OverloadedException("Too many users, maximum allowed = " + m_maximumNumberOfUsers + ", current = " + concurrentUsers,  (concurrentUsers - m_maximumNumberOfUsers) * BACKOFF_TIME_PER_USER);
+            }
+            List<Version> versionList = new ArrayList<Version>();
+            File targetDirectory = new File(m_baseDirectory.getAbsolutePath(), targetId);
+            if (targetDirectory.isDirectory()) {
+                getVersions(targetId, versionList, targetDirectory);
+            }
+            else {
+                // try the default
+                getVersions(targetId, versionList, m_defaultDirectory);
+            }
+    
+            // now sort the list of versions and convert all values to strings.
+            Collections.sort(versionList);
+            List<String> stringVersionList = new ArrayList<String>();
+            Iterator<Version> it = versionList.iterator();
+            while (it.hasNext()) {
+                String version = (it.next()).toString();
+                stringVersionList.add(version);
+            }
+            return stringVersionList;
+        } finally {
+            m_usageCounter.getAndDecrement();
+        }
+    }
+
+    private List<ArtifactData> internalGetBundleData(String targetId, String version) throws OverloadedException, IllegalArgumentException {
         List<String> versions = getVersions(targetId);
         if (!versions.contains(version)) {
             throw new IllegalArgumentException("Unknown version " + version + " requested");
@@ -197,113 +342,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
 
         return bundleData;
     }
-
-    /**
-     * Version folder and requested version do not always match (see implementation of getVersions, which uses Versions.parseVersion to allow different styles)
-     * like 1 instead of 1.0.0 and alike.
-     * So we need to do some crawling to map them.
-     *
-     * @param targetDirectory store directory
-     * @param version          that has been requested.
-     *
-     * @return the matching folder.
-     *
-     * @throws IllegalArgumentException if no matching folder has been found. If this happens something is weirdly wrong.
-     */
-    private File findMatchingVersionDirectory(File targetDirectory, String version) {
-        // first try the direct way:
-        File directTry = new File(targetDirectory, version);
-        if ((directTry != null) && directTry.isDirectory()) {
-            return directTry;
-        }
-        // otherwise try to find it:
-        Version requestedVersion;
-        try {
-            requestedVersion = Version.parseVersion(version);
-        }
-        catch (IllegalArgumentException iae) {
-            throw new IllegalArgumentException("Requested version " + version + " has no matching folder in store: " + targetDirectory.getAbsolutePath());
-        }
-
-        File[] files = targetDirectory.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File possibleVersionDirectory = files[i];
-            if (possibleVersionDirectory.isDirectory()) {
-                // ok, it is a directory. Now see if it is a version
-                try {
-                    Version foundVersion = Version.parseVersion(possibleVersionDirectory.getName());
-                    // no exception, but is could still be an empty version
-                    if ((requestedVersion != null) && requestedVersion.equals(foundVersion)) {
-                        return new File(targetDirectory, possibleVersionDirectory.getName());
-                    }
-                }
-                catch (IllegalArgumentException iae) {
-                    // dont' care at this point.
-                }
-            }
-        }
-        throw new IllegalArgumentException("Requested version " + version + " has no matching folder in store: " + targetDirectory.getAbsolutePath());
-    }
-
-    public List<ArtifactData> getBundleData(String targetId, String versionFrom, String versionTo) throws IllegalArgumentException {
-        List<ArtifactData> dataVersionFrom = getBundleData(targetId, versionFrom);
-        List<ArtifactData> dataVersionTo = getBundleData(targetId, versionTo);
-
-        Iterator<ArtifactData> it = dataVersionTo.iterator();
-        while (it.hasNext()) {
-            ArtifactDataImpl bundleDataVersionTo = (ArtifactDataImpl) it.next();
-            // see if there was previously a version of this bundle.
-            ArtifactData bundleDataVersionFrom = getBundleData(bundleDataVersionTo.getSymbolicName(), dataVersionFrom);
-            bundleDataVersionTo.setChanged(!bundleDataVersionTo.equals(bundleDataVersionFrom));
-        }
-        return dataVersionTo;
-    }
-
-    /**
-     * Check for the existence of bundledata in the collection for a bundle with the given symbolic name
-     *
-     * @param symbolicName
-     */
-    private ArtifactData getBundleData(String symbolicName, Collection<ArtifactData> data) {
-        Iterator<ArtifactData> it = data.iterator();
-        while (it.hasNext()) {
-            ArtifactData bundle = it.next();
-            if (bundle.getSymbolicName().equals(symbolicName)) {
-                return bundle;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Look in the baseDirectory for the specified target. If it exists, get the list of directories in there and check if they
-     * conform to the <code>org.osgi.framework.Version</code> format. If it does, it will be in the list of versions that are
-     * returned. If there are no valid versions, return an empty list. If the target cannot be found, an
-     * IllegalArgumentException is thrown. The list will be sorted on version.
-     */
-    @SuppressWarnings("unchecked")
-    public List<String> getVersions(String targetId) throws IllegalArgumentException {
-        List<Version> versionList = new ArrayList<Version>();
-        File targetDirectory = new File(m_baseDirectory.getAbsolutePath(), targetId);
-        if (targetDirectory.isDirectory()) {
-            getVersions(targetId, versionList, targetDirectory);
-        }
-        else {
-            // try the default
-            getVersions(targetId, versionList, m_defaultDirectory);
-        }
-
-        // now sort the list of versions and convert all values to strings.
-        Collections.sort(versionList);
-        List<String> stringVersionList = new ArrayList<String>();
-        Iterator<Version> it = versionList.iterator();
-        while (it.hasNext()) {
-            String version = (it.next()).toString();
-            stringVersionList.add(version);
-        }
-        return stringVersionList;
-    }
-
+    
     /**
      *
      * @param targetId ID that requested versions
@@ -339,6 +378,11 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
      */
     public void updated(Dictionary settings) throws ConfigurationException {
         if (settings != null) {
+            String maximumNumberOfUsers = (String) settings.get(MAXIMUM_NUMBER_OF_USERS);
+            if (maximumNumberOfUsers != null) {
+                m_maximumNumberOfUsers = Integer.parseInt(maximumNumberOfUsers);
+            }
+            
             String baseDirectoryName = getNotNull(settings, DIRECTORY_NAME, "The base directory cannot be null");
             File baseDirectory = new File(baseDirectoryName);
             if (!baseDirectory.exists() || !baseDirectory.isDirectory()) {

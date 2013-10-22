@@ -21,6 +21,8 @@ package org.apache.ace.deployment.streamgenerator;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.ace.deployment.provider.OverloadedException;
+
 public interface StreamGenerator
 {
 
@@ -31,8 +33,9 @@ public interface StreamGenerator
      * @param version the version of the package
      * @return an input stream
      * @throws java.io.IOException when the stream could not be generated
+     * @throws OverloadedException if the streamgenerator is overloaded
      */
-    public InputStream getDeploymentPackage(String id, String version) throws IOException;
+    public InputStream getDeploymentPackage(String id, String version) throws OverloadedException, IOException;
 
     /**
      * Returns an input stream with the requested deployment fix package.
@@ -42,6 +45,7 @@ public interface StreamGenerator
      * @param toVersion the version the target should be in after applying the package.
      * @return an input stream.
      * @throws java.io.IOException when the stream could not be generated.
+     * @throws OverloadedException if the streamgenerator is overloaded
      */
-    public InputStream getDeploymentPackage(String id, String fromVersion, String toVersion) throws IOException;
+    public InputStream getDeploymentPackage(String id, String fromVersion, String toVersion) throws OverloadedException, IOException;
 }

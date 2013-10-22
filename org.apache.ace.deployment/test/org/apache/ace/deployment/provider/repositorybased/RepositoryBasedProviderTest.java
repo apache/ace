@@ -21,7 +21,6 @@ package org.apache.ace.deployment.provider.repositorybased;
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
@@ -146,7 +145,7 @@ public class RepositoryBasedProviderTest {
         String range = "1,2,3";
 
         // setup mock repository
-        Repository mock = new MockDeploymentRepository(range, deploymentRepositoryXml);
+        Repository mock = new MockDeploymentRepository(range, deploymentRepositoryXml, null);
         m_backend = new RepositoryBasedProvider();
         TestUtils.configureObject(m_backend, Repository.class, mock);
         TestUtils.configureObject(m_backend, LogService.class);
@@ -359,8 +358,8 @@ public class RepositoryBasedProviderTest {
      * @throws java.io.IOException
      */
     @Test(groups = { UNIT })
-    public void testEmptyRepository() throws IOException {
-        Repository mock = new MockDeploymentRepository("", null);
+    public void testEmptyRepository() throws Exception {
+        Repository mock = new MockDeploymentRepository("", null, null);
         TestUtils.configureObject(m_backend, Repository.class, mock);
 
         List<String> versions = m_backend.getVersions(TARGET);
@@ -372,7 +371,7 @@ public class RepositoryBasedProviderTest {
      * See if the getVersions() methods normal output works
      */
     @Test(groups = { UNIT })
-    public void testGetVersion() throws IOException {
+    public void testGetVersion() throws Exception {
         List<String> versions = m_backend.getVersions(TARGET);
         assert versions.size() == 1 : "Expected one version to be found, but found " + versions.size();
         assert versions.get(0).equals(VERSION1) : "Expected version " + VERSION1 + " but found " + versions.get(0);
@@ -382,7 +381,7 @@ public class RepositoryBasedProviderTest {
      * Test the getVersions method with an illegal version (not in org.osgi.framework.Version format)
      */
     @Test(groups = { UNIT })
-    public void testIllegalVersion() throws IOException {
+    public void testIllegalVersion() throws Exception {
         // an illegal version should be silently ignored
         List<String> versions = m_backend.getVersions(INVALIDVERSIONTARGET);
         assert versions.isEmpty() : "Expected no versions to be found, but found " + versions.size();
@@ -392,7 +391,7 @@ public class RepositoryBasedProviderTest {
      * Test with multiple versions. It expects all versions in an ascending order.
      */
     @Test(groups = { UNIT })
-    public void testMultipleVersions() throws IOException {
+    public void testMultipleVersions() throws Exception {
         List<String> versions = m_backend.getVersions(MULTIPLEVERSIONTARGET);
         assert versions.size() == 4 : "Expected three version to be found, but found " + versions.size();
         // all versions should be in ascending order
@@ -406,7 +405,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData for a single version, returning a single bundle
      */
     @Test(groups = { UNIT })
-    public void testSingleBundleSingleVersionBundleData() throws IOException {
+    public void testSingleBundleSingleVersionBundleData() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(TARGET, VERSION1);
         assert bundleData.size() == 1 : "Expected one bundle to be found, but found " + bundleData.size();
         assert bundleData.contains(BUNDLE1) : "Expected to find bundle " + BUNDLE1.getSymbolicName();
@@ -416,7 +415,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData for a single version, returning a multiple bundles
      */
     @Test(groups = { UNIT })
-    public void testMultipleBundleSingleVersionBundleData() throws IOException {
+    public void testMultipleBundleSingleVersionBundleData() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         assert bundleData.contains(BUNDLE3) : "Expected to find bundle " + BUNDLE3.getSymbolicName();
@@ -427,7 +426,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData with an illegal version (i.e. a version that doesn't exist)
      */
     @Test(groups = { UNIT })
-    public void testInvalidVersionBundleData() throws IOException {
+    public void testInvalidVersionBundleData() throws Exception {
         try {
             m_backend.getBundleData(TARGET, INVALIDVERSION);
             assert false : "Expected an error because version " + INVALIDVERSION + " doesn't exist for target: "
@@ -442,7 +441,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData with an illegal target (i.e. a target that doesn't exist)
      */
     @Test(groups = { UNIT })
-    public void testInvalidTargetBundleData() throws IOException {
+    public void testInvalidTargetBundleData() throws Exception {
         try {
             m_backend.getBundleData(INVALIDVERSIONTARGET, VERSION1);
             assert false : "Expected an error because version " + VERSION1 + " doesn't exist for target: "
@@ -457,7 +456,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData for a two versions, returning a single bundle that hasn't changed
      */
     @Test(groups = { UNIT })
-    public void testSingleUnchangedBundleMultipleVersions() throws IOException {
+    public void testSingleUnchangedBundleMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(TARGET, VERSION1, VERSION1);
         assert bundleData.size() == 1 : "Expect one bundle, got " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
@@ -472,7 +471,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData for a two versions, returning multiple bundles that haven't changed
      */
     @Test(groups = { UNIT })
-    public void testMultipleBundlesMultipleVersions() throws IOException {
+    public void testMultipleBundlesMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
@@ -486,7 +485,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData for a two versions, where in the second version a bundle is removed
      */
     @Test(groups = { UNIT })
-    public void testRemovedBundleMultipleVersions() throws IOException {
+    public void testRemovedBundleMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION3);
         assert bundleData.size() == 1 : "Expected one bundle to be found, but found " + bundleData.size();
     }
@@ -495,7 +494,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData for a two versions, where in the second version a bundle is added
      */
     @Test(groups = { UNIT })
-    public void testAddedBundleMultipleVersions() throws IOException {
+    public void testAddedBundleMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION3, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
@@ -514,7 +513,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData for a two versions, where in the second version one bundle has changed and another hasn't
      */
     @Test(groups = { UNIT })
-    public void testSingleChangedBundleMultipleVersions() throws IOException {
+    public void testSingleChangedBundleMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION4);
         assert bundleData.size() == 2 : "Expected two bundles to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
@@ -536,7 +535,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData for a two versions, where two bundles have changed
      */
     @Test(groups = { UNIT })
-    public void testMultipleChangedBundlesMultipleVersions() throws IOException {
+    public void testMultipleChangedBundlesMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION2);
         assert bundleData.size() == 2 : "Expected two bundles to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
@@ -558,7 +557,7 @@ public class RepositoryBasedProviderTest {
      * See if the getVersions() methods normal output works with literals ' and "
      */
     @Test(groups = { UNIT })
-    public void testGetLiteralTargetVersion() throws IOException {
+    public void testGetLiteralTargetVersion() throws Exception {
         List<String> versions = m_backend.getVersions("'");
         assert versions.size() == 1 : "Expected one version to be found, but found " + versions.size();
         assert versions.get(0).equals(VERSION1) : "Expected version " + VERSION1 + " but found " + versions.get(0);
@@ -580,7 +579,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData for an empty version (no bundle URLS are included)
      */
     @Test(groups = { UNIT })
-    public void testEmptyDeploymentVersion() throws IOException {
+    public void testEmptyDeploymentVersion() throws Exception {
         // get the version number
         List<String> versions = m_backend.getVersions(EMPTYVERSIONTARGET);
         assert versions.size() == 2 : "Expected two version to be found, but found " + versions.size();
@@ -602,7 +601,7 @@ public class RepositoryBasedProviderTest {
      * See if a version with a literal is parsed correct and ignored.
      */
     @Test(groups = { UNIT })
-    public void testGetLiteralTargetIllegalVersion() throws IOException {
+    public void testGetLiteralTargetIllegalVersion() throws Exception {
         List<String> versions = m_backend.getVersions("myTarget");
         assert versions.size() == 0 : "Expected no versions to be found, but found " + versions.size();
     }
@@ -611,7 +610,7 @@ public class RepositoryBasedProviderTest {
      * Test the getBundleData with some resources.
      */
     @Test(groups = { UNIT })
-    public void testBundleDataWithResources() throws IOException {
+    public void testBundleDataWithResources() throws Exception {
         List<String> versions = m_backend.getVersions(RESOURCETARGET);
         assert versions.size() == 1 : "Expected two version to be found, but found " + versions.size();
 
