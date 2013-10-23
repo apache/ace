@@ -18,6 +18,7 @@
  */
 package org.apache.ace.repository.impl;
 
+import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -167,27 +168,22 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
 
         long[] versions = getVersions();
         if (versions.length == 0) {
-            if (fromVersion == 0) {
-                put(data, 1);
-
-                return true;
+            if (fromVersion != 0) {
+                throw new IOException("Repository already changed, cannot commit initial version!");
             }
-            else {
-                return false;
-            }
+            return put(data, 1);
         }
 
         long lastVersion = versions[versions.length - 1];
-        if (lastVersion == fromVersion) {
-            put(data, fromVersion + 1);
-            // Make sure we do not exceed our max limit...
-            purgeOldFiles(getVersions(), m_limit);
+        if (lastVersion != fromVersion) {
+            throw new IOException("Repository already changed, cannot commit version" + fromVersion + "!");
+        }
 
-            return true;
-        }
-        else {
-            return false;
-        }
+        boolean result = put(data, fromVersion + 1);
+        // Make sure we do not exceed our max limit...
+        purgeOldFiles(getVersions(), m_limit);
+
+        return result;
     }
 
     public InputStream get(long version) throws IOException, IllegalArgumentException {
@@ -249,13 +245,14 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
             throw e;
         }
         finally {
-            if (fileStream != null) {
-                try {
-                    fileStream.close();
-                }
-                catch (IOException ioe) {
-                    // Not much we can do
-                }
+            closeQuietly(fileStream);
+        }
+
+        // ACE-421: check whether there's a change in data...
+        if (version > 1) {
+            File current = getFilename(version - 1);
+            if (current.exists() && contentsEqual(current, tempFile)) {
+                return false;
             }
         }
 
@@ -305,6 +302,55 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
         catch (IOException e) {
             // Ignored...
         }
+    }
+
+    /**
+     * Tests whether two given files are identical with respect to their length and content.
+     * 
+     * @param file1
+     *            the file to check against;
+     * @param file2
+     *            the file to check.
+     * @return <code>true</code> if both files are equal in length and content, <code>false</code> otherwise.
+     */
+    private boolean contentsEqual(File file1, File file2) {
+        // if lengths are not equal, we're certain that the contents won't be equal...
+        if (file1.length() != file2.length()) {
+            return false;
+        }
+        if (file1.getAbsolutePath().equals(file2.getAbsolutePath())) {
+            // they are one and the same file...
+            return true;
+        }
+
+        InputStream is1 = null;
+        InputStream is2 = null;
+
+        boolean result = true;
+
+        try {
+            is1 = new BufferedInputStream(new FileInputStream(file1));
+            is2 = new BufferedInputStream(new FileInputStream(file2));
+
+            int read;
+            while ((read = is1.read()) >= 0) {
+                int readData = is2.read();
+                if (readData != read) {
+                    result = false;
+                    break;
+                }
+            }
+        }
+        catch (IOException e) {
+            // Log and ignore...
+            m_log.log(LogService.LOG_DEBUG, "Failed to diff files?!", e);
+        }
+        finally {
+            closeQuietly(is1);
+            closeQuietly(is2);
+        }
+
+        return result;
     }
 
     private boolean delete(long version) throws IOException, IllegalArgumentException {

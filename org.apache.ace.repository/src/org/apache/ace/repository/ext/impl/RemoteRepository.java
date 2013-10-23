@@ -19,6 +19,7 @@
 package org.apache.ace.repository.ext.impl;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -82,16 +83,15 @@ public class RemoteRepository implements Repository {
 
         int rc = connection.getResponseCode();
         if (rc == HttpServletResponse.SC_NOT_FOUND) {
-            connection.disconnect();
+            closeQuietly(connection);
             throw new IllegalArgumentException("Requested version not found in remote repository. (" + connection.getResponseMessage() + ") for " + url.toExternalForm());
         }
         else if (rc != HttpServletResponse.SC_OK) {
-            connection.disconnect();
+            closeQuietly(connection);
             throw new IOException("Connection error: " + connection.getResponseMessage() + " for " + url.toExternalForm());
         }
 
         return connection.getInputStream();
-
     }
 
     public boolean commit(InputStream data, long fromVersion) throws IOException, IllegalArgumentException {
@@ -113,9 +113,8 @@ public class RemoteRepository implements Repository {
             return connection.getResponseCode() == HttpServletResponse.SC_OK;
         }
         finally {
-            out.flush();
-            out.close();
-            connection.disconnect();
+            closeQuietly(out);
+            closeQuietly(connection);
         }
     }
 
@@ -144,7 +143,7 @@ public class RemoteRepository implements Repository {
             throw new IOException("Connection error: " + connection.getResponseMessage() + " for " + url.toExternalForm());
         }
         finally {
-            connection.disconnect();
+            closeQuietly(connection);
         }
     }
 
@@ -217,5 +216,34 @@ public class RemoteRepository implements Repository {
     @Override
     public String toString() {
         return "RemoteRepository[" + m_url + "," + m_customer + "," + m_name + "]";
+    }
+
+    /**
+     * Safely closes a given HTTP URL connection.
+     * 
+     * @param resource
+     *            the resource to close, can be <code>null</code>.
+     */
+    private void closeQuietly(HttpURLConnection resource) {
+        if (resource != null) {
+            resource.disconnect();
+        }
+    }
+
+    /**
+     * Safely closes a given resource, ignoring any I/O exceptions that might occur by this.
+     * 
+     * @param resource
+     *            the resource to close, can be <code>null</code>.
+     */
+    private void closeQuietly(Closeable resource) {
+        try {
+            if (resource != null) {
+                resource.close();
+            }
+        }
+        catch (IOException e) {
+            // Ignored...
+        }
     }
 }
