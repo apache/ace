@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.ace.gogo.execute;
+
+import java.util.Map;
 
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
@@ -33,14 +34,28 @@ public class ExecuteCommands {
     // Injected by Felix DM...
     private volatile CommandProcessor m_processor;
 
-    @Descriptor("executes a given Gogo script")
-    public void execute(CommandSession session, String script) throws Exception {
-        CommandSession newSession = m_processor.createSession(session.getKeyboard(), session.getConsole(), System.err);
-        try {
-            newSession.execute(script);
+    @Descriptor("executes a script definition")
+    public void execute(CommandSession session, @Descriptor("the script definition(s) to execute, which consists of a map with at least a 'script' key") Map<String, String>... defs) throws Exception {
+        if (defs == null || defs.length == 0) {
+            throw new IllegalArgumentException("Need at least one script definition!");
         }
-        finally {
-            newSession.close();
+        // Check whether all definitions are valid...
+        for (Map<String, String> def : defs) {
+            String script = def.get("script");
+            if (script == null || "".equals(script.trim())) {
+                throw new IllegalArgumentException("Script definition *must* define at least a 'script' property!");
+            }
+        }
+
+        // Execute all scripts, in order...
+        for (Map<String, String> def : defs) {
+            CommandSession newSession = m_processor.createSession(session.getKeyboard(), session.getConsole(), System.err);
+            try {
+                newSession.execute(def.get("script"));
+            }
+            finally {
+                newSession.close();
+            }
         }
     }
 }
