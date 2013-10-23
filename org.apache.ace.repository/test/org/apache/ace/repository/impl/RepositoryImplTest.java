@@ -45,7 +45,7 @@ public class RepositoryImplTest {
      * Tests that if we do change something in an {@link InputStream} while committing data, that the version is bumped
      * for a repository.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testCheckoutAndCommitWithChangeDoesChangeVersion() throws Exception {
         SortedRangeSet range;
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
@@ -61,7 +61,7 @@ public class RepositoryImplTest {
 
         data = new ByteArrayInputStream("def".getBytes());
 
-        assertTrue(repo.commit(data, 1), "Commit should be ignored");
+        assertTrue(repo.commit(data, 1), "Commit should NOT be ignored");
 
         range = repo.getRange();
         assertEquals(2, range.getHigh());
@@ -71,7 +71,7 @@ public class RepositoryImplTest {
      * Tests that if we do not change anything in an {@link InputStream} while committing data, that the version is not
      * bumped for a repository.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testCheckoutAndCommitWithoutChangeDoesNotChangeVersion() throws Exception {
         SortedRangeSet range;
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
@@ -135,6 +135,25 @@ public class RepositoryImplTest {
         InputStream data = new ByteArrayInputStream("abc".getBytes());
 
         repo.commit(data, 1); // should fail, as we're at version 0!
+    }
+
+    /**
+     * Tests that if we do change something in an {@link InputStream} while committing data, that the version is bumped
+     * for a repository.
+     */
+    @Test(groups = { UNIT })
+    public void testCommitInitialVersionDoesChangeVersion() throws Exception {
+        SortedRangeSet range;
+        RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
+        InputStream data = new ByteArrayInputStream("abc".getBytes());
+
+        range = repo.getRange();
+        assertEquals(0, range.getHigh(), "Version 0 should be the most recent one");
+
+        assertTrue(repo.commit(data, 0), "Commit should NOT be ignored");
+
+        range = repo.getRange();
+        assertEquals(1, range.getHigh());
     }
 
     @Test(groups = { UNIT })
