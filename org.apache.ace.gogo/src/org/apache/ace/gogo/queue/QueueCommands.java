@@ -34,6 +34,40 @@ import org.osgi.framework.FrameworkUtil;
 
 /**
  * Provides the commands for putting and removing scripts from the queue.
+ * <p>
+ * The commands can be used in the following way:
+ * </p>
+ * <dl>
+ * <dt><tt>put [ propA=valueA script='echo A' propB=valueB ]</tt></dt>
+ * <dd>Puts a new script definition on the queue. The definition is a simple map containing at least a <tt>script</tt>
+ * key associated with the actual script to execute. A script contains one or more Gogo commands that should be
+ * separated by semicolons (<tt>;</tt>) or newlines;</dd>
+ * <dt><tt>get</tt></dt>
+ * <dd>Returns the first script definition (as java.util.Map) on the queue, or <code>null</code> if the queue is empty.
+ * The returned script definition is removed from the queue;</dd>
+ * <dt><tt>get '(propA=*)'</tt></dt>
+ * <dd>Returns an array with all script definitions matching a given OSGi/LDAP-filter. In case no script definitions
+ * matched the given filter, an empty array is returned. The returned script definitions are removed from the queue;</dd>
+ * <dt><tt>contains</tt></dt>
+ * <dd>Returns <code>true</code> when there is at least one script definition present on the queue, <code>false</code>
+ * otherwise;</dd>
+ * <dt><tt>contains '(propA=*)'</tt></dt>
+ * <dd>Returns <code>true</code> when there is at least one script definition present on the queue that matches the
+ * given OSGi/LDAP-filter, <code>false</code> otherwise.</dd>
+ * </dl>
+ * <p>
+ * Some examples:
+ * </p>
+ * <ul>
+ * <li><tt>put [ name=foo script='echo A' ] [ name=bar script='echo B' ] [ name=qux script='echo C' ]</tt> will put
+ * three script definitions onto the queue;</li>
+ * <li><tt>contains</tt> will return <code>true</code> as the queue has three entries;</li>
+ * <li><tt>get</tt> will return <tt>[ name=foo script='echo A' ]</tt> as this is the first entry on the queue;</li>
+ * <li><tt>get '(name=qux)'</tt> will return <tt>[ name=qux script='echo C' ]</tt>, which is the last entry on the
+ * queue;</li>
+ * <li><tt>contains '(name=qux)'</tt> will return <code>false</code> as this script definition is no longer queued;</li>
+ * <li><tt>contains '(name=bar)'</tt> will return <code>true</code> as this script definition is still queued.</li>
+ * </ul>
  */
 public class QueueCommands {
     public final static String SCOPE = "queue";
