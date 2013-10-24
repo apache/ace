@@ -109,30 +109,13 @@ public class DeploymentServletTest {
     }
 
     @Test(groups = { UNIT })
-    public void getFixPackageForExistingTargetWithNonExistingFromVersion() throws Exception {
+    public void getDowngradeFixPackageWithNonExistingToVersion() throws Exception {
         // try to request a version range with a non-existing from-version, should cause a complete (non-fix) package to
         // be returned...
-        m_requestPathInfo = "/existing/versions/2.0.0";
-        m_requestCurrentParameter = "1.0.0";
-        m_servlet.doGet(m_request, m_response);
-        assertResponseCode(HttpServletResponse.SC_OK);
-        assertResponseOutputSize(100);
-        assertGeneratorTargetId("existing");
-        assertGeneratorToVersion("2.0.0");
-        assertGeneratorFromVersion(null);
-    }
-
-    @Test(groups = { UNIT })
-    public void getFixPackageForExistingTargetWithExistingFromVersion() throws Exception {
-        // try to request a version range with an existing from-version, should cause a fix package to be returned...
-        m_requestPathInfo = "/existing/versions/2.0.0";
+        m_requestPathInfo = "/existing/versions/1.0.0";
         m_requestCurrentParameter = "2.0.0";
         m_servlet.doGet(m_request, m_response);
-        assertResponseCode(HttpServletResponse.SC_OK);
-        assertResponseOutputSize(100);
-        assertGeneratorTargetId("existing");
-        assertGeneratorToVersion("2.0.0");
-        assertGeneratorFromVersion("2.0.0");
+        assertResponseCode(HttpServletResponse.SC_NOT_FOUND);
     }
 
     @Test
@@ -238,6 +221,15 @@ public class DeploymentServletTest {
     }
 
     @Test
+    public void getSizeForExistingTargetWithUnknownSize() throws Exception {
+        m_artifactSize = -1;
+        m_requestPathInfo = "/existing/versions/2.0.0";
+        m_servlet.doHead(m_request, m_response);
+        assertResponseCode(HttpServletResponse.SC_OK);
+        assertResponseHeaderNotPresent("X-ACE-DPSize");
+    }
+
+    @Test
     public void getSizeForFixPackageExistingTargetWithKnownSize() throws Exception {
         m_artifactSize = 10;
         m_requestCurrentParameter = "2.0.0";
@@ -248,15 +240,6 @@ public class DeploymentServletTest {
     }
 
     @Test
-    public void getSizeForExistingTargetWithUnknownSize() throws Exception {
-        m_artifactSize = -1;
-        m_requestPathInfo = "/existing/versions/2.0.0";
-        m_servlet.doHead(m_request, m_response);
-        assertResponseCode(HttpServletResponse.SC_OK);
-        assertResponseHeaderNotPresent("X-ACE-DPSize");
-    }
-
-    @Test
     public void getSizeForNonExistingTarget() throws Exception {
         m_artifactSize = 10;
 
@@ -264,6 +247,67 @@ public class DeploymentServletTest {
         m_servlet.doHead(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_OK);
         assertResponseHeaderNotPresent("X-ACE-DPSize");
+    }
+
+    @Test(groups = { UNIT })
+    public void getUpgradeFixPackageWithExistingFromVersion() throws Exception {
+        // try to request a version range with an existing from-version, should cause a fix package to be returned...
+        m_requestPathInfo = "/existing/versions/2.0.0";
+        m_requestCurrentParameter = "2.0.0";
+        m_servlet.doGet(m_request, m_response);
+        assertResponseCode(HttpServletResponse.SC_OK);
+        assertResponseOutputSize(100);
+        assertGeneratorTargetId("existing");
+        assertGeneratorToVersion("2.0.0");
+        assertGeneratorFromVersion("2.0.0");
+    }
+
+    @Test(groups = { UNIT })
+    public void getUpgradeFixPackageWithNonExistingFromVersion() throws Exception {
+        // try to request a version range with a non-existing from-version, should cause a complete (non-fix) package to
+        // be returned...
+        m_requestPathInfo = "/existing/versions/2.0.0";
+        m_requestCurrentParameter = "1.0.0";
+        m_servlet.doGet(m_request, m_response);
+        assertResponseCode(HttpServletResponse.SC_OK);
+        assertResponseOutputSize(100);
+        assertGeneratorTargetId("existing");
+        assertGeneratorToVersion("2.0.0");
+        assertGeneratorFromVersion(null);
+    }
+
+    @Test(groups = { UNIT })
+    public void getUpgradeFixPackageWithNonExistingToVersion() throws Exception {
+        // try to request a version range with a non-existing from-version, should cause a complete (non-fix) package to
+        // be returned...
+        m_requestPathInfo = "/existing/versions/3.0.0";
+        m_requestCurrentParameter = "2.0.0";
+        m_servlet.doGet(m_request, m_response);
+        assertResponseCode(HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    @Test(groups = { UNIT })
+    public void getUpgradeWithExistingToVersion() throws Exception {
+        // try to request a version range with a non-existing from-version, should cause a complete (non-fix) package to
+        // be returned...
+        m_requestPathInfo = "/existing/versions/2.0.0";
+        m_requestCurrentParameter = null;
+        m_servlet.doGet(m_request, m_response);
+        assertResponseCode(HttpServletResponse.SC_OK);
+        assertResponseOutputSize(100);
+        assertGeneratorTargetId("existing");
+        assertGeneratorToVersion("2.0.0");
+        assertGeneratorFromVersion(null);
+    }
+
+    @Test(groups = { UNIT })
+    public void getUpgradeWithNonExistingToVersion() throws Exception {
+        // try to request a version range with a non-existing from-version, should cause a complete (non-fix) package to
+        // be returned...
+        m_requestPathInfo = "/existing/versions/3.0.0";
+        m_requestCurrentParameter = null;
+        m_servlet.doGet(m_request, m_response);
+        assertResponseCode(HttpServletResponse.SC_NOT_FOUND);
     }
 
     @Test
@@ -422,6 +466,7 @@ public class DeploymentServletTest {
 
         m_responseStatus = HttpServletResponse.SC_OK;
         m_responseHeaders = new HashMap<String, String>();
+        m_requestRangeHeader = null;
         m_responseOutputStream = new ByteArrayOutputStream();
     }
 

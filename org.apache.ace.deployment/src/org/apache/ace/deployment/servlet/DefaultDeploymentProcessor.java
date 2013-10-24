@@ -33,13 +33,14 @@ import org.apache.ace.deployment.processor.DeploymentProcessor;
  * client.
  */
 public class DefaultDeploymentProcessor implements DeploymentProcessor {
+    private static final int BUFFER_SIZE = 32 * 1024; // kB
 
     @Override
     public void process(InputStream inputStream, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        OutputStream output = response.getOutputStream();
+        byte[] buffer = new byte[BUFFER_SIZE];
 
+        OutputStream output = response.getOutputStream();
         try {
-            byte[] buffer = new byte[1024 * 32];
             for (int bytesRead = inputStream.read(buffer); bytesRead != -1; bytesRead = inputStream.read(buffer)) {
                 output.write(buffer, 0, bytesRead);
             }

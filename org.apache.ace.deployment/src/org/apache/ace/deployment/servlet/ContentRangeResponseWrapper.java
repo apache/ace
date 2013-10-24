@@ -18,13 +18,13 @@
  */
 package org.apache.ace.deployment.servlet;
 
-import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +44,7 @@ public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
      * Internal helper that Wraps a ServletOutputStream to add byte range support.
      */
     private static class ContentRangeOutputStreamWrapper extends ServletOutputStream {
+        private static final int BUFFER_SIZE = 32 * 1024; // kB
 
         private final HttpServletResponse m_response;
         private final long m_requestFirstBytePos;
@@ -52,7 +53,7 @@ public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
         private final FileOutputStream m_os;
         private final File m_file;
 
-        private long m_instanceLen = 0l;
+        private final AtomicLong m_instanceLen = new AtomicLong(0);
 
         public ContentRangeOutputStreamWrapper(HttpServletResponse response, long firstBytePos, long lastBytePos) throws IOException {
 
@@ -72,45 +73,42 @@ public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
 
         @Override
         public void write(int b) throws IOException {
-
             // We only need to buffer the relevant bytes since we keep track of the instance length in the counter.
-            if (m_instanceLen >= m_requestFirstBytePos
-                && m_instanceLen <= m_requestLastBytePos) {
+            long value = m_instanceLen.getAndIncrement();
+            if (value >= m_requestFirstBytePos && value <= m_requestLastBytePos) {
                 m_os.write(b);
             }
-            m_instanceLen++;
         }
 
         @Override
         public void close() throws IOException {
             closeQuietly(m_os);
 
-            long instanceLastBytePos = m_instanceLen - 1;
+            long instanceLength = m_instanceLen.get();
+            long instanceLastBytePos = instanceLength - 1L;
             InputStream is = null;
             ServletOutputStream os = null;
 
             try {
                 if (instanceLastBytePos < m_requestFirstBytePos) {
-
                     m_response.setStatus(SC_REQUESTED_RANGE_NOT_SATISFIABLE);
-                    m_response.setHeader("Content-Range", String.format("bytes */%d", m_instanceLen));
+                    m_response.setHeader("Content-Range", String.format("bytes */%d", instanceLength));
                 }
                 else {
-
                     long firstBytePos = m_requestFirstBytePos;
                     long lastBytePos = instanceLastBytePos < m_requestLastBytePos ? instanceLastBytePos : m_requestLastBytePos;
                     long contentLength = lastBytePos - firstBytePos + 1;
 
                     m_response.setStatus(SC_PARTIAL_CONTENT);
                     m_response.setHeader("Content-Length", String.valueOf(contentLength));
-                    m_response.setHeader("Content-Range", String.format("bytes %d-%d/%d", firstBytePos, lastBytePos, m_instanceLen));
+                    m_response.setHeader("Content-Range", String.format("bytes %d-%d/%d", firstBytePos, lastBytePos, instanceLength));
 
-                    is = new BufferedInputStream(new FileInputStream(m_file));
+                    byte[] buffer = new byte[BUFFER_SIZE];
+                    is = new FileInputStream(m_file);
                     os = m_response.getOutputStream();
 
-                    int b;
-                    while ((b = is.read()) != -1) {
-                        os.write(b);
+                    for (int bytesRead = is.read(buffer); bytesRead != -1; bytesRead = is.read(buffer)) {
+                        os.write(buffer, 0, bytesRead);
                     }
                 }
             }
@@ -173,7 +171,8 @@ public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
      * Extracts and validates the Range header from a request. If the header is found but is syntactically invalid it
      * will be ignored as required by specification.
      * 
-     * @param request the request to use
+     * @param request
+     *            the request to use
      * @return a long array with two elements (firstBytePos and lastBytePos), or <code>null</code> if no valid Range
      *         header was found.
      */
