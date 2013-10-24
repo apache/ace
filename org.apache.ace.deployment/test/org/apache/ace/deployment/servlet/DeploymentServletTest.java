@@ -24,6 +24,9 @@ import static org.apache.ace.test.utils.TestUtils.createMockObjectAdapter;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -53,7 +56,7 @@ public class DeploymentServletTest {
     private DeploymentServlet m_servlet;
 
     private long m_artifactSize;
-    
+
     // request state
     private HttpServletRequest m_request;
     private String m_requestCurrentParameter;
@@ -106,7 +109,9 @@ public class DeploymentServletTest {
     }
 
     @Test(groups = { UNIT })
-    public void getFixPackageForExistingTarget() throws Exception {
+    public void getFixPackageForExistingTargetWithNonExistingFromVersion() throws Exception {
+        // try to request a version range with a non-existing from-version, should cause a complete (non-fix) package to
+        // be returned...
         m_requestPathInfo = "/existing/versions/2.0.0";
         m_requestCurrentParameter = "1.0.0";
         m_servlet.doGet(m_request, m_response);
@@ -114,7 +119,20 @@ public class DeploymentServletTest {
         assertResponseOutputSize(100);
         assertGeneratorTargetId("existing");
         assertGeneratorToVersion("2.0.0");
-        assertGeneratorFromVersion("1.0.0");
+        assertGeneratorFromVersion(null);
+    }
+
+    @Test(groups = { UNIT })
+    public void getFixPackageForExistingTargetWithExistingFromVersion() throws Exception {
+        // try to request a version range with an existing from-version, should cause a fix package to be returned...
+        m_requestPathInfo = "/existing/versions/2.0.0";
+        m_requestCurrentParameter = "2.0.0";
+        m_servlet.doGet(m_request, m_response);
+        assertResponseCode(HttpServletResponse.SC_OK);
+        assertResponseOutputSize(100);
+        assertGeneratorTargetId("existing");
+        assertGeneratorToVersion("2.0.0");
+        assertGeneratorFromVersion("2.0.0");
     }
 
     @Test
@@ -253,7 +271,7 @@ public class DeploymentServletTest {
         m_requestPathInfo = "/existing/versions";
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_OK);
-        assert "2.0.0\n".equals(m_responseOutputStream.toString()) : "Expected to get version 2.0.0 in the response";
+        assertEquals(m_responseOutputStream.toString(), "2.0.0\n", "Expected to get version 2.0.0 in the response");
     }
 
     @Test
@@ -408,31 +426,31 @@ public class DeploymentServletTest {
     }
 
     private void assertGeneratorFromVersion(String version) {
-        assert m_generatorFromVersion.equals(version) : "Wrong version.";
+        assertEquals(m_generatorFromVersion, version, "Wrong from-version");
     }
 
     private void assertGeneratorTargetId(String id) {
-        assert m_generatorId.equals(id) : "Wrong target ID.";
+        assertEquals(m_generatorId, id, "Wrong target ID");
     }
 
     private void assertGeneratorToVersion(String version) {
-        assert m_generatorToVersion.equals(version) : "Wrong version.";
+        assertEquals(m_generatorToVersion, version, "Wrong to-version");
     }
 
     private void assertResponseCode(int value) throws Exception {
-        assert m_responseStatus == value : "We should have got response code " + value + " but got " + m_responseStatus;
+        assertEquals(m_responseStatus, value, "Incorrect response code from server");
     }
 
     private void assertResponseHeaderNotPresent(String name) throws Exception {
-        assert !m_responseHeaders.containsKey(name) : "Expected response " + name + " header to NOT be set";
+        assertFalse(m_responseHeaders.containsKey(name), "Expected response " + name + " header to NOT be set");
     }
 
     private void assertResponseHeaderValue(String name, String value) throws Exception {
-        assert m_responseHeaders.containsKey(name) : "Expected response " + name + " header to be set";
-        assert m_responseHeaders.get(name).equals(value) : "Expected " + name + " header with value '" + value + "' and got '" + m_responseHeaders.get(name) + "'";
+        assertTrue(m_responseHeaders.containsKey(name), "Expected response " + name + " header to be set");
+        assertEquals(m_responseHeaders.get(name), value, "Unexpected response header");
     }
 
     private void assertResponseOutputSize(long size) throws Exception {
-        assert m_responseOutputStream.size() == size : "We should have got a (dummy) deployment package of " + size + " bytes but got " + m_responseOutputStream.size();
+        assertEquals(m_responseOutputStream.size(), size, "We should have got a (dummy) deployment package of");
     }
 }

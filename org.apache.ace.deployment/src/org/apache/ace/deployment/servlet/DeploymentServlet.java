@@ -79,6 +79,46 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
 
     private volatile boolean m_useAuth = false;
 
+    public void addProcessor(ServiceReference ref, DeploymentProcessor processor) {
+        String key = (String) ref.getProperty(PROCESSOR);
+        if (key != null) {
+            m_processors.putIfAbsent(key, processor);
+        }
+        else {
+            m_log.log(LogService.LOG_WARNING, "Deployment processor ignored, required service property '" + PROCESSOR + "' is missing.");
+        }
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "Ace Deployment Servlet Endpoint";
+    }
+
+    public void removeProcessor(ServiceReference ref, DeploymentProcessor processor) {
+        String key = (String) ref.getProperty(PROCESSOR);
+        // we do not log this here again, we already did so in 'addProcessor'
+        if (key != null) {
+            m_processors.remove(key);
+        }
+    }
+
+    @Override
+    public void updated(Dictionary settings) throws ConfigurationException {
+        if (settings != null) {
+            String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
+            if (useAuthString == null
+                || !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
+                throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
+            }
+            boolean useAuth = Boolean.parseBoolean(useAuthString);
+
+            m_useAuth = useAuth;
+        }
+        else {
+            m_useAuth = false;
+        }
+    }
+
     /**
      * Responds to GET requests sent to this endpoint, the response depends on the requested path: <li>
      * http://host/endpoint/targetid/versions/ returns a list of versions available for the specified target <li>
@@ -128,31 +168,11 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
                 String targetID = pathElements[1];
                 String version = pathElements[3];
 
-                String current = request.getParameter(CURRENT);
-
-                List<ArtifactData> artifacts;
-                if (current != null) {
-                    artifacts = m_provider.getBundleData(targetID, current, version);
-                } else {
-                    artifacts = m_provider.getBundleData(targetID, version);
-                }
-                
-                long dpSize = 0L;
-                for (ArtifactData artifactData : artifacts) {
-                    long size = artifactData.getSize();
-                    if (size > 0L) {
-                        dpSize += size;
-                    }
-                    else {
-                        dpSize = -1L;
-                        break; // cannot determine the DP size...
-                    }
-                }
-
                 response.setContentType(DP_MIMETYPE);
 
+                long dpSize = estimateDeploymentPackageSize(request, targetID, version);
                 if (dpSize > 0) {
-                    response.addHeader(HEADER_DPSIZE, Long.toString((long) (DPSIZE_FACTOR * dpSize)));
+                    response.addHeader(HEADER_DPSIZE, Long.toString(dpSize));
                 }
             }
         }
@@ -209,6 +229,113 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         return true;
     }
 
+    private long estimateDeploymentPackageSize(HttpServletRequest request, String targetID, String version) throws IOException, OverloadedException, AceRestException {
+        List<String> versions = getVersions(targetID);
+        String current = request.getParameter(CURRENT);
+
+        List<ArtifactData> artifacts;
+        if (current != null && versions.contains(current)) {
+            artifacts = m_provider.getBundleData(targetID, current, version);
+        }
+        else {
+            artifacts = m_provider.getBundleData(targetID, version);
+        }
+
+        long dpSize = 0L;
+        for (ArtifactData artifactData : artifacts) {
+            long size = artifactData.getSize();
+            if (size > 0L) {
+                dpSize += size;
+            }
+            else {
+                // cannot determine the DP size...
+                return -1L;
+            }
+        }
+        return (long) (DPSIZE_FACTOR * dpSize);
+    }
+
+    private InputStream getDeploymentPackageStream(String targetID, String version, HttpServletRequest request, List<String> versions) throws IOException {
+        String current = request.getParameter(CURRENT);
+
+        // Determine whether we should return a fix-package, or a complete deployment package. Keep in consideration
+        // that due to ACE-330, the given current-version can already be purged from the repository...
+        if (current != null && versions.contains(current)) {
+            m_log.log(LogService.LOG_DEBUG, "Generating deployment fix-package for " + current + " => " + version);
+
+            return m_streamGenerator.getDeploymentPackage(targetID, current, version);
+        }
+
+        m_log.log(LogService.LOG_DEBUG, "Generating deployment package for " + version);
+
+        return m_streamGenerator.getDeploymentPackage(targetID, version);
+    }
+
+    /**
+     * @return the requested {@link DeploymentProcessor}, or <code>null</code> in case none is requested.
+     * @throws AceRestException
+     *             in case a non-existing deployment processor was requested.
+     */
+    private DeploymentProcessor getDeploymentProcessor(HttpServletRequest request) throws AceRestException {
+        String processor = request.getParameter(PROCESSOR);
+        if (processor != null) {
+            DeploymentProcessor deploymentProcessor = m_processors.get(processor);
+            if (deploymentProcessor == null) {
+                throw new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not find a deployment processor called: " + processor);
+            }
+
+            m_log.log(LogService.LOG_DEBUG, "Using deployment processor " + processor);
+
+            return deploymentProcessor;
+        }
+
+        m_log.log(LogService.LOG_DEBUG, "Using default deployment processor...");
+
+        return new DefaultDeploymentProcessor();
+    }
+
+    private List<String> getVersions(String targetID) throws OverloadedException, AceRestException {
+        try {
+            return m_provider.getVersions(targetID);
+        }
+        catch (IllegalArgumentException iae) {
+            throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown target (" + targetID + ")");
+        }
+        catch (IOException ioe) {
+            m_log.log(LogService.LOG_WARNING, "Error getting available versions.", ioe);
+            throw new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error getting available versions.");
+        }
+    }
+
+    private void handlePackageDelivery(String targetID, String version, HttpServletRequest request, HttpServletResponse response) throws OverloadedException, AceRestException {
+        List<String> versions = getVersions(targetID);
+        if (!versions.contains(version)) {
+            throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown version (" + version + ")");
+        }
+
+        try {
+            // Wrap response to add support for range requests
+            response = new ContentRangeResponseWrapper(request, response);
+            response.setContentType(DP_MIMETYPE);
+
+            // determine the deployment processor early, as to avoid having to create a complete deployment package in
+            // case of a missing/incorrect requested processor...
+            DeploymentProcessor deploymentProcessor = getDeploymentProcessor(request);
+
+            // get the input stream to the deployment package...
+            InputStream inputStream = getDeploymentPackageStream(targetID, version, request, versions);
+
+            // process and send back the results to the client...
+            deploymentProcessor.process(inputStream, request, response);
+        }
+        catch (IllegalArgumentException e) {
+            throw (AceRestException) new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid").initCause(e);
+        }
+        catch (IOException e) {
+            throw (AceRestException) new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not deliver package").initCause(e);
+        }
+    }
+
     /**
      * Serve the case where requested path is like: http://host/endpoint/targetid/versions/ returns a list of versions
      * available for the specified target
@@ -239,71 +366,6 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         }
     }
 
-    private void handlePackageDelivery(String targetID, String version, HttpServletRequest request, HttpServletResponse response) throws OverloadedException, AceRestException {
-        ServletOutputStream output = null;
-
-        List<String> versions = getVersions(targetID);
-        if (!versions.contains(version)) {
-            throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown version (" + version + ")");
-        }
-
-        try {
-            // Wrap response to add support for range requests
-            response = new ContentRangeResponseWrapper(request, response);
-            response.setContentType(DP_MIMETYPE);
-
-            String current = request.getParameter(CURRENT);
-            String processor = request.getParameter(PROCESSOR);
-
-            InputStream inputStream;
-            if (current != null) {
-                inputStream = m_streamGenerator.getDeploymentPackage(targetID, current, version);
-            }
-            else {
-                inputStream = m_streamGenerator.getDeploymentPackage(targetID, version);
-            }
-
-            if (processor != null) {
-                DeploymentProcessor deploymentProcessor = m_processors.get(processor);
-                if (deploymentProcessor != null) {
-                    deploymentProcessor.process(inputStream, request, response);
-                    return;
-                }
-                else {
-                    throw new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not find a deployment processor called: " + processor);
-                }
-            }
-
-            output = response.getOutputStream();
-            byte[] buffer = new byte[1024 * 32];
-            for (int bytesRead = inputStream.read(buffer); bytesRead != -1; bytesRead = inputStream.read(buffer)) {
-                output.write(buffer, 0, bytesRead);
-            }
-        }
-        catch (IllegalArgumentException e) {
-            throw (AceRestException) new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid").initCause(e);
-        }
-        catch (IOException e) {
-            throw (AceRestException) new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not deliver package").initCause(e);
-        }
-        finally {
-            tryClose(output);
-        }
-    }
-
-    private List<String> getVersions(String targetID) throws OverloadedException, AceRestException {
-        try {
-            return m_provider.getVersions(targetID);
-        }
-        catch (IllegalArgumentException iae) {
-            throw new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Unknown target (" + targetID + ")");
-        }
-        catch (IOException ioe) {
-            m_log.log(LogService.LOG_WARNING, "Error getting available versions.", ioe);
-            throw new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error getting available versions.");
-        }
-    }
-
     private void tryClose(OutputStream output) {
         try {
             if (output != null) {
@@ -311,8 +373,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
             }
         }
         catch (IOException e) {
-            m_log.log(LogService.LOG_WARNING, "Exception trying to close stream after request. ", e);
-            throw new RuntimeException(e);
+            m_log.log(LogService.LOG_WARNING, "Exception trying to close stream after request.", e);
         }
     }
 
@@ -338,45 +399,5 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
             throw new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid");
         }
         return elements;
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Ace Deployment Servlet Endpoint";
-    }
-
-    @Override
-    public void updated(Dictionary settings) throws ConfigurationException {
-        if (settings != null) {
-            String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
-            if (useAuthString == null
-                || !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
-                throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
-            }
-            boolean useAuth = Boolean.parseBoolean(useAuthString);
-
-            m_useAuth = useAuth;
-        }
-        else {
-            m_useAuth = false;
-        }
-    }
-
-    public void addProcessor(ServiceReference ref, DeploymentProcessor processor) {
-        String key = (String) ref.getProperty(PROCESSOR);
-        if (key == null) {
-            m_log.log(LogService.LOG_WARNING, "Deployment processor ignored, required service property '" + PROCESSOR + "' is missing.");
-            return;
-        }
-        m_processors.putIfAbsent(key, processor);
-    }
-
-    public void removeProcessor(ServiceReference ref, DeploymentProcessor processor) {
-        String key = (String) ref.getProperty(PROCESSOR);
-        if (key == null) {
-            // we do not log this here again, we already did so in 'addProcessor'
-            return;
-        }
-        m_processors.remove(key);
     }
 }
