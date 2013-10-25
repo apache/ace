@@ -20,7 +20,6 @@ package org.apache.ace.webui.vaadin.component;
 
 import java.util.List;
 
-import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.RepositoryObject.WorkingState;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
@@ -30,13 +29,11 @@ import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.ace.webui.vaadin.AssociationRemover;
-import org.apache.ace.webui.vaadin.Associations;
 
 import com.vaadin.data.Item;
 import com.vaadin.terminal.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Embedded;
-import com.vaadin.ui.HorizontalLayout;
 
 /**
  * Provides an object panel for displaying (stateful) targets.
@@ -50,10 +47,12 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
     /**
      * Creates a new {@link TargetsPanel} instance.
      * 
-     * @param associations the assocation-holder object;
-     * @param associationRemover the helper for removing associations.
+     * @param associations
+     *            the assocation-holder object;
+     * @param associationRemover
+     *            the helper for removing associations.
      */
-    public TargetsPanel(Associations associations, AssociationRemover associationRemover) {
+    public TargetsPanel(AssociationHelper associations, AssociationRemover associationRemover) {
         super(associations, associationRemover, "Target", UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET, true /* hasEdit */);
     }
 
@@ -65,20 +64,24 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
     }
 
     protected void defineTableColumns() {
-        addContainerProperty(WORKING_STATE_ICON, Embedded.class, null, "", null, ALIGN_CENTER);
-
+        addContainerProperty(ICON, Resource.class, null, "", null, ALIGN_CENTER);
         addContainerProperty(OBJECT_NAME, String.class, null);
-
         addContainerProperty(REGISTRATION_STATE_ICON, Embedded.class, null, "", null, ALIGN_CENTER);
         addContainerProperty(STORE_STATE_ICON, Embedded.class, null, "", null, ALIGN_CENTER);
         addContainerProperty(PROVISIONING_STATE_ICON, Embedded.class, null, "", null, ALIGN_CENTER);
+        addContainerProperty(ACTION_UNLINK, Button.class, null, "", null, ALIGN_CENTER);
+        addContainerProperty(ACTION_DELETE, Button.class, null, "", null, ALIGN_CENTER);
 
-        addContainerProperty(ACTIONS, HorizontalLayout.class, null);
-
-        setColumnWidth(WORKING_STATE_ICON, ICON_WIDTH);
+        setColumnWidth(ICON, FIXED_COLUMN_WIDTH);
+        setColumnWidth(ACTION_UNLINK, FIXED_COLUMN_WIDTH);
+        setColumnWidth(ACTION_DELETE, FIXED_COLUMN_WIDTH);
         setColumnWidth(REGISTRATION_STATE_ICON, ICON_WIDTH);
         setColumnWidth(STORE_STATE_ICON, ICON_WIDTH);
         setColumnWidth(PROVISIONING_STATE_ICON, ICON_WIDTH);
+        
+        setColumnCollapsible(ICON, false);
+        setColumnCollapsible(ACTION_UNLINK, false);
+        setColumnCollapsible(ACTION_DELETE, false);
     }
 
     @Override
@@ -91,6 +94,11 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
     }
 
     @Override
+    protected String getDisplayName(StatefulTargetObject object) {
+        return object.getID();
+    }
+
+    @Override
     protected WorkingState getWorkingState(RepositoryObject object) {
         final StatefulTargetObject statefulTarget = (StatefulTargetObject) object;
         if (statefulTarget.isRegistered()) {
@@ -99,6 +107,7 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         return WorkingState.Unchanged;
     }
 
+    @Override
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
         StatefulTargetObject statefulTarget = asStatefulTargetObject(entity);
         if (StatefulTargetObject.TOPIC_ADDED.equals(topic)) {
@@ -117,16 +126,13 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         return (entity instanceof StatefulTargetObject) || (entity instanceof TargetObject);
     }
 
-    protected void populateItem(StatefulTargetObject object, Item item) {
-        item.getItemProperty(WORKING_STATE_ICON).setValue(getWorkingStateIcon(object));
-
-        item.getItemProperty(OBJECT_NAME).setValue(object.getID());
-
-        item.getItemProperty(REGISTRATION_STATE_ICON).setValue(getRegistrationStateIcon(object));
-        item.getItemProperty(STORE_STATE_ICON).setValue(getStoreStateIcon(object));
-        item.getItemProperty(PROVISIONING_STATE_ICON).setValue(getProvisioningStateIcon(object));
-
-        item.getItemProperty(ACTIONS).setValue(createActionButtons(object));
+    protected void populateItem(StatefulTargetObject target, Item item) {
+        item.getItemProperty(OBJECT_NAME).setValue(target.getID());
+        item.getItemProperty(REGISTRATION_STATE_ICON).setValue(getRegistrationStateIcon(target));
+        item.getItemProperty(STORE_STATE_ICON).setValue(getStoreStateIcon(target));
+        item.getItemProperty(PROVISIONING_STATE_ICON).setValue(getProvisioningStateIcon(target));
+        item.getItemProperty(ACTION_UNLINK).setValue(createUnlinkButton(target));
+        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(target));
     }
 
     private Embedded getProvisioningStateIcon(StatefulTargetObject object) {

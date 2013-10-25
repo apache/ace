@@ -30,7 +30,6 @@ import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.ace.webui.vaadin.AssociationRemover;
-import org.apache.ace.webui.vaadin.Associations;
 
 import com.vaadin.data.Item;
 
@@ -42,10 +41,12 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
     /**
      * Creates a new {@link FeaturesPanel} instance.
      * 
-     * @param associations the assocation-holder object;
-     * @param associationRemover the helper for removing associations.
+     * @param associations
+     *            the assocation-holder object;
+     * @param associationRemover
+     *            the helper for removing associations.
      */
-    public FeaturesPanel(Associations associations, AssociationRemover associationRemover) {
+    public FeaturesPanel(AssociationHelper associations, AssociationRemover associationRemover) {
         super(associations, associationRemover, "Feature", UIExtensionFactory.EXTENSION_POINT_VALUE_FEATURE, true);
     }
 
@@ -57,7 +58,7 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
         }
         return true;
     }
-    
+
     @Override
     protected boolean doRemoveRightSideAssociation(FeatureObject object, RepositoryObject other) {
         List<Feature2DistributionAssociation> associations = object.getAssociationsWith((DistributionObject) other);
@@ -67,6 +68,12 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
         return true;
     }
     
+    @Override
+    protected String getDisplayName(FeatureObject object) {
+        return object.getName();
+    }
+
+    @Override
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
         FeatureObject feature = (FeatureObject) entity;
         if (FeatureObject.TOPIC_ADDED.equals(topic)) {
@@ -79,7 +86,7 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
             update(feature);
         }
     }
-    
+
     @Override
     protected boolean isSupportedEntity(RepositoryObject entity) {
         return entity instanceof FeatureObject;
@@ -87,10 +94,9 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
 
     @Override
     protected void populateItem(FeatureObject feature, Item item) {
-        item.getItemProperty(WORKING_STATE_ICON).setValue(getWorkingStateIcon(feature));
         item.getItemProperty(OBJECT_NAME).setValue(feature.getName());
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(feature.getDescription());
-        item.getItemProperty(ACTIONS).setValue(createActionButtons(feature));
+        item.getItemProperty(ACTION_UNLINK).setValue(createUnlinkButton(feature));
+        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(feature));
     }
 }
-

@@ -57,6 +57,7 @@ import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.ace.webui.vaadin.LoginWindow.LoginFunction;
 import org.apache.ace.webui.vaadin.component.ArtifactsPanel;
+import org.apache.ace.webui.vaadin.component.AssociationHelper;
 import org.apache.ace.webui.vaadin.component.DistributionsPanel;
 import org.apache.ace.webui.vaadin.component.FeaturesPanel;
 import org.apache.ace.webui.vaadin.component.MainActionToolbar;
@@ -71,7 +72,6 @@ import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-import com.sun.imageio.spi.RAFImageInputStreamSpi;
 import com.vaadin.event.Transferable;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
@@ -155,15 +155,15 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     private final boolean m_useAuth;
     private final String m_userName;
 
-    private final Associations m_associations = new Associations();
+    private final AssociationHelper m_associations = new AssociationHelper();
     private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
 
     private ProgressIndicator m_progress;
     private DependencyManager m_manager;
-	private Component m_component;
-	private final List<Component> m_eventHandlers = new ArrayList<Component>();
+    private Component m_component;
+    private final List<Component> m_eventHandlers = new ArrayList<Component>();
 
-	private GridLayout m_mainToolbar;
+    private GridLayout m_mainToolbar;
 
     // basic session ID generator
     private static long generateSessionID() {
@@ -172,14 +172,16 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     /**
      * Remove the given directory and all it's files and subdirectories
-     * @param directory the name of the directory to remove
+     * 
+     * @param directory
+     *            the name of the directory to remove
      */
     private static void removeDirectoryWithContent(File directory) {
         if ((directory == null) || !directory.exists()) {
             return;
         }
         File[] filesAndSubDirs = directory.listFiles();
-        for (int i=0; i < filesAndSubDirs.length; i++) {
+        for (int i = 0; i < filesAndSubDirs.length; i++) {
             File file = filesAndSubDirs[i];
             if (file.isDirectory()) {
                 removeDirectoryWithContent(file);
@@ -192,15 +194,20 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     /**
      * Creates a new {@link VaadinClient} instance.
-     * @param m_manager2 
      * 
-     * @param aceHost the hostname where the management service can be reached;
-     * @param obrUrl the URL of the OBR to use;
-     * @param useAuth <code>true</code> to use authentication, <code>false</code> to disable authentication;
-     * @param userName the hardcoded username to use when authentication is disabled.
+     * @param m_manager2
+     * 
+     * @param aceHost
+     *            the hostname where the management service can be reached;
+     * @param obrUrl
+     *            the URL of the OBR to use;
+     * @param useAuth
+     *            <code>true</code> to use authentication, <code>false</code> to disable authentication;
+     * @param userName
+     *            the hardcoded username to use when authentication is disabled.
      */
     public VaadinClient(DependencyManager manager, URL aceHost, URL obrUrl, String repositoryXML, boolean useAuth, String userName) {
-    	m_manager = manager;
+        m_manager = manager;
         try {
             m_repository = new URL(aceHost, endpoint);
         }
@@ -216,7 +223,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             throw new IllegalArgumentException("Need a valid user name when no authentication is used!");
         }
     }
-    
+
     @Override
     public void start(URL applicationUrl, Properties applicationProperties, ApplicationContext context) {
         m_component = m_manager.createComponent()
@@ -238,18 +245,18 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
                 .setService(LogService.class)
                 .setRequired(false)
             );
-		m_manager.add(m_component);
-    	super.start(applicationUrl, applicationProperties, context);
+        m_manager.add(m_component);
+        super.start(applicationUrl, applicationProperties, context);
     }
-    
+
     @Override
     public void close() {
-    	if (isRunning()) {
-	        m_admin.deleteLocal();
-	        cleanupListeners();
-	        m_manager.remove(m_component);
-	        super.close();
-    	}
+        if (isRunning()) {
+            m_admin.deleteLocal();
+            cleanupListeners();
+            m_manager.remove(m_component);
+            super.close();
+        }
     }
 
     public void setupDependencies(Component component) {
@@ -274,9 +281,22 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         m_dependenciesResolved.set(true);
     }
 
-    public void stop() {
+    public void stop() throws Exception {
         m_log.log(LogService.LOG_INFO, "Stopping session #" + m_sessionID);
-        m_dependenciesResolved.set(false);
+
+        try {
+            close();
+
+            try {
+                m_admin.logout(true /* force */);
+            }
+            catch (IllegalStateException exception) {
+                // Ignore, we're already logged out...
+            }
+        }
+        finally {
+            m_dependenciesResolved.set(false);
+        }
     }
 
     public void destroyDependencies() {
@@ -314,7 +334,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         // Authenticate the user either by showing a login window; or by another means...
         authenticate();
     }
-    
+
     /**
      * Shows the login window on the center of the main window.
      */
@@ -339,7 +359,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         m_grid.setSizeFull();
 
         m_mainToolbar = createToolbar(user);
-		m_grid.addComponent(m_mainToolbar, 0, 0, count - 1, 0);
+        m_grid.addComponent(m_mainToolbar, 0, 0, count - 1, 0);
 
         m_artifactsPanel = createArtifactsPanel(user);
 
@@ -570,22 +590,22 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         props.put(EventConstants.EVENT_TOPIC, topics);
         props.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
         Component component = m_manager.createComponent()
-		    .setInterface(EventHandler.class.getName(), props)
-		    .setImplementation(implementation);
+            .setInterface(EventHandler.class.getName(), props)
+            .setImplementation(implementation);
         synchronized (m_eventHandlers) {
-        	m_eventHandlers.add(component);
+            m_eventHandlers.add(component);
         }
-		m_manager.add(component);
+        m_manager.add(component);
     }
-    
+
     private void cleanupListeners() {
-    	Component[] components;
+        Component[] components;
         synchronized (m_eventHandlers) {
-			components = m_eventHandlers.toArray(new Component[m_eventHandlers.size()]);
-			m_eventHandlers.clear();
+            components = m_eventHandlers.toArray(new Component[m_eventHandlers.size()]);
+            m_eventHandlers.clear();
         }
         for (Component component : components) {
-        	m_manager.remove(component);
+            m_manager.remove(component);
         }
     }
 
@@ -831,9 +851,11 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
 
     /**
      * Create a button to show a pop window for adding new features.
-     * @param user 
      * 
-     * @param main Main Window
+     * @param user
+     * 
+     * @param main
+     *            Main Window
      * @return Button
      */
     private Button createAddArtifactButton(User user) {
@@ -847,9 +869,9 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     }
 
     /***
-     * Create a button to show popup window for adding a new feature. On success
-     * this calls the createFeature() method.
-     * @param user 
+     * Create a button to show popup window for adding a new feature. On success this calls the createFeature() method.
+     * 
+     * @param user
      * 
      * @return the add-feature button instance.
      */
@@ -875,9 +897,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     }
 
     /**
-     * Create a button to show a popup window for adding a new distribution. On
-     * success this calls the createDistribution() method.
-     * @param user 
+     * Create a button to show a popup window for adding a new distribution. On success this calls the
+     * createDistribution() method.
+     * 
+     * @param user
      * 
      * @return the add-distribution button instance.
      */
@@ -904,9 +927,9 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     }
 
     /**
-     * Create a button to show a popup window for adding a new target. On
-     * success this calls the createTarget() method
-     * @param user 
+     * Create a button to show a popup window for adding a new target. On success this calls the createTarget() method
+     * 
+     * @param user
      * 
      * @return the add-target button instance.
      */
@@ -942,8 +965,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     /**
      * Create a new feature in the feature repository.
      * 
-     * @param name the name of the new feature;
-     * @param description the description of the new feature.
+     * @param name
+     *            the name of the new feature;
+     * @param description
+     *            the description of the new feature.
      */
     private void createFeature(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
@@ -956,7 +981,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     /**
      * Create a new target in the stateful target repository.
      * 
-     * @param name the name of the new target;
+     * @param name
+     *            the name of the new target;
      */
     private void createTarget(String name) {
         Map<String, String> attributes = new HashMap<String, String>();
@@ -969,8 +995,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
     /**
      * Create a new distribution in the distribution repository
      * 
-     * @param name the name of the new distribution;
-     * @param description the description of the new distribution.
+     * @param name
+     *            the name of the new distribution;
+     * @param description
+     *            the description of the new distribution.
      */
     private void createDistribution(String name, String description) {
         Map<String, String> attributes = new HashMap<String, String>();
@@ -1002,7 +1030,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
             protected ArtifactRepository getArtifactRepository() {
                 return m_artifactRepository;
             }
-            
+
             @Override
             protected URLConnection openConnection(URL url) throws IOException {
                 return m_connectionFactory.createConnection(url);
@@ -1022,12 +1050,13 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
      * Authenticates the given user by creating all dependent services.
      * 
      * @param user
-     * @throws IOException in case of I/O problems.
+     * @throws IOException
+     *             in case of I/O problems.
      */
     private boolean login(final User user) {
         try {
             RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
-            
+
             // @formatter:off
             context
                 .add(context.createShopRepositoryContext()
@@ -1046,7 +1075,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationR
         }
         catch (Exception e) {
             m_log.log(LogService.LOG_WARNING, "Login failed! Destroying session...", e);
-            
+
             try {
                 // Avoid errors when the user tries to login again (due to the stale session)...
                 m_admin.logout(true /* force */);

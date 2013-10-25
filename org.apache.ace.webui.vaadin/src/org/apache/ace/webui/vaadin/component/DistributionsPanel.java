@@ -30,7 +30,6 @@ import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.DistributionRepository;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.ace.webui.vaadin.AssociationRemover;
-import org.apache.ace.webui.vaadin.Associations;
 
 import com.vaadin.data.Item;
 
@@ -42,10 +41,12 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
     /**
      * Creates a new {@link DistributionsPanel} instance.
      * 
-     * @param associations the assocation-holder object;
-     * @param associationRemover the helper for removing associations.
+     * @param associations
+     *            the assocation-holder object;
+     * @param associationRemover
+     *            the helper for removing associations.
      */
-    public DistributionsPanel(Associations associations, AssociationRemover associationRemover) {
+    public DistributionsPanel(AssociationHelper associations, AssociationRemover associationRemover) {
         super(associations, associationRemover, "Distribution", UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION,
             true /* hasEdit */);
     }
@@ -68,6 +69,12 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
         return true;
     }
 
+    @Override
+    protected String getDisplayName(DistributionObject object) {
+        return object.getName();
+    }
+
+    @Override
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
         DistributionObject distribution = (DistributionObject) entity;
         if (DistributionObject.TOPIC_ADDED.equals(topic)) {
@@ -88,9 +95,9 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
 
     @Override
     protected void populateItem(DistributionObject distribution, Item item) {
-        item.getItemProperty(WORKING_STATE_ICON).setValue(getWorkingStateIcon(distribution));
         item.getItemProperty(OBJECT_NAME).setValue(distribution.getName());
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
-        item.getItemProperty(ACTIONS).setValue(createActionButtons(distribution));
+        item.getItemProperty(ACTION_UNLINK).setValue(createUnlinkButton(distribution));
+        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(distribution));
     }
 }

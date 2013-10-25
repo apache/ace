@@ -30,8 +30,8 @@ import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.RepositoryObject.WorkingState;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.domain.NamedObjectFactory;
 import org.apache.ace.webui.vaadin.AssociationRemover;
-import org.apache.ace.webui.vaadin.Associations;
 import org.apache.ace.webui.vaadin.EditWindow;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
@@ -45,22 +45,24 @@ import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Embedded;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.Window.Notification;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Provides a custom table for displaying artifacts, features and so on.
  */
-abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends ObjectRepository<REPO_OBJ>> extends Table implements EventHandler {
+abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends ObjectRepository<REPO_OBJ>> extends TreeTable implements EventHandler {
 
     /**
      * Provides a generic remove item button.
      */
-    private static class RemoveItemButton extends Button {
-        public RemoveItemButton(final RepositoryObject object, final ObjectRepository repository) {
+    private class RemoveItemButton extends Button {
+        public RemoveItemButton(final REPO repository, final REPO_OBJ object) {
             super("x");
-            setStyleName("small");
+            setStyleName(Reindeer.BUTTON_SMALL);
+            setDescription("Delete " + getDisplayName(object));
 
             addListener(new Button.ClickListener() {
                 public void buttonClick(ClickEvent event) {
@@ -80,11 +82,14 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Provides a generic remove-link (or association) button.
      */
-    private class RemoveLinkButton<REPO_OBJECT extends RepositoryObject> extends Button {
-        public RemoveLinkButton(final REPO_OBJECT object, final Table toLeft, final Table toRight,
-            final BaseObjectPanel removeHandler) {
+    private class RemoveLinkButton extends Button {
+        public RemoveLinkButton(final REPO_OBJ object, final Table toLeft, final Table toRight) {
             super("-");
-            setStyleName("small");
+            setStyleName(Reindeer.BUTTON_SMALL);
+            setData(object.getDefinition());
+            setDescription("Unlink " + getDisplayName(object));
+            // Only enable this button when actually selected...
+            setEnabled(false);
 
             addListener(new Button.ClickListener() {
                 public void buttonClick(ClickEvent event) {
@@ -93,13 +98,13 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
                         if (m_associations.isActiveTable(toLeft)) {
                             for (Object item : selection) {
                                 RepositoryObject selected = m_associations.lookupInActiveSelection(item);
-                                removeHandler.removeLeftSideAssociation(object, selected);
+                                removeLeftSideAssociation(object, selected);
                             }
                         }
                         else if (m_associations.isActiveTable(toRight)) {
                             for (Object item : selection) {
                                 RepositoryObject selected = m_associations.lookupInActiveSelection(item);
-                                removeHandler.removeRightSideAssocation(object, selected);
+                                removeRightSideAssocation(object, selected);
                             }
                         }
                     }
@@ -164,22 +169,22 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         }
     }
 
-    protected static final String WORKING_STATE_ICON = "workStateIcon";
+    protected static final String ICON = "icon";
     protected static final String OBJECT_NAME = "name";
     protected static final String OBJECT_DESCRIPTION = "description";
-    protected static final String ACTIONS = "actions";
+    protected static final String ACTION_UNLINK = "unlink";
+    protected static final String ACTION_DELETE = "delete";
 
     protected static final int ICON_HEIGHT = 16;
     protected static final int ICON_WIDTH = 16;
+    /** Empirically determined (most common width appears to be 36px). */
+    protected static final int FIXED_COLUMN_WIDTH = 36;
 
-    private final Associations m_associations;
+    private final AssociationHelper m_associations;
     protected final AssociationRemover m_associationRemover;
 
     private final List<UIExtensionFactoryHolder> m_extensionFactories;
     private final String m_extensionPoint;
-
-    private Button m_removeLinkButton;
-    private Button m_deleteButton;
 
     private Table m_leftTable;
     private Table m_rightTable;
@@ -187,13 +192,19 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Creates a new {@link BaseObjectPanel} instance.
      * 
-     * @param associations the associations for this panel;
-     * @param associationRemover the association remove to use for removing associations;
-     * @param name the name of this panel;
-     * @param extensionPoint the extension point to listen for;
-     * @param hasEdit <code>true</code> if double clicking an row in this table should show an editor, <code>false</code> to disallow editing.
+     * @param associations
+     *            the associations for this panel;
+     * @param associationRemover
+     *            the association remove to use for removing associations;
+     * @param name
+     *            the name of this panel;
+     * @param extensionPoint
+     *            the extension point to listen for;
+     * @param hasEdit
+     *            <code>true</code> if double clicking an row in this table should show an editor, <code>false</code> to
+     *            disallow editing.
      */
-    public BaseObjectPanel(final Associations associations, final AssociationRemover associationRemover,
+    public BaseObjectPanel(final AssociationHelper associations, final AssociationRemover associationRemover,
         final String name, final String extensionPoint, final boolean hasEdit) {
         super(name + "s");
 
@@ -205,20 +216,26 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         defineTableColumns();
 
         setSizeFull();
-        setCellStyleGenerator(m_associations.createCellStyleGenerator());
+        setCellStyleGenerator(m_associations.createCellStyleGenerator(this));
         setSelectable(true);
         setMultiSelect(true);
         setImmediate(true);
         setDragMode(TableDragMode.MULTIROW);
+        setColumnCollapsingAllowed(true);
+
+        setItemIconPropertyId(ICON);
+        setHierarchyColumn(ICON);
 
         if (hasEdit) {
             addListener(new ItemClickListener() {
                 public void itemClick(ItemClickEvent event) {
                     if (event.isDoubleClick()) {
-                        String itemId = (String) event.getItemId();
-                        RepositoryObject object = getFromId(itemId);
-                        NamedObject namedObject = m_associations.getNamedObject(object);
-                        showEditWindow(namedObject);
+                        RepositoryObject object = getFromId((String) event.getItemId());
+
+                        NamedObject namedObject = NamedObjectFactory.getNamedObject(object);
+                        if (namedObject != null) {
+                            showEditWindow(namedObject);
+                        }
                     }
                 }
             });
@@ -228,8 +245,10 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Called by the dependency manager in case a new {@link UIExtensionFactory} is registered.
      * 
-     * @param ref the service reference of the new extension;
-     * @param factory the extension instance itself.
+     * @param ref
+     *            the service reference of the new extension;
+     * @param factory
+     *            the extension instance itself.
      */
     public final void addExtension(ServiceReference ref, UIExtensionFactory factory) {
         synchronized (m_extensionFactories) {
@@ -263,7 +282,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Called by the dependency manager upon initialization of this component.
      * 
-     * @param component the component representing this object.
+     * @param component
+     *            the component representing this object.
      */
     public void init(Component component) {
         populate();
@@ -289,8 +309,10 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Called by the dependency manager in case a {@link UIExtensionFactory} is unregistered.
      * 
-     * @param ref the service reference of the extension;
-     * @param factory the extension instance itself.
+     * @param ref
+     *            the service reference of the extension;
+     * @param factory
+     *            the extension instance itself.
      */
     public final void removeExtension(ServiceReference ref, UIExtensionFactory factory) {
         synchronized (m_extensionFactories) {
@@ -302,7 +324,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Sets the left-side table, that defines the left-hand side of the assocations of the entities.
      * 
-     * @param leftTable the table to set, can be <code>null</code>.
+     * @param leftTable
+     *            the table to set, can be <code>null</code>.
      */
     public final void setLeftTable(Table leftTable) {
         m_leftTable = leftTable;
@@ -311,7 +334,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Sets the right-side table, that defines the right-hand side of the assocations of the entities.
      * 
-     * @param rightTable the table to set, can be <code>null</code>.
+     * @param rightTable
+     *            the table to set, can be <code>null</code>.
      */
     public final void setRightTable(Table rightTable) {
         m_rightTable = rightTable;
@@ -320,8 +344,10 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Removes the left-hand side associations for a given repository object.
      * 
-     * @param object the repository object to remove the left-hand side associations;
-     * @param other the (left-hand side) repository object to remove the associations for.
+     * @param object
+     *            the repository object to remove the left-hand side associations;
+     * @param other
+     *            the (left-hand side) repository object to remove the associations for.
      */
     final void removeLeftSideAssociation(REPO_OBJ object, RepositoryObject other) {
         if (doRemoveLeftSideAssociation(object, other)) {
@@ -336,8 +362,10 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Removes the right-hand side associations for a given repository object.
      * 
-     * @param object the repository object to remove the right-hand side associations;
-     * @param other the (right-hand side) repository object to remove the associations for.
+     * @param object
+     *            the repository object to remove the right-hand side associations;
+     * @param other
+     *            the (right-hand side) repository object to remove the associations for.
      */
     final void removeRightSideAssocation(REPO_OBJ object, RepositoryObject other) {
         if (doRemoveRightSideAssociation(object, other)) {
@@ -352,42 +380,40 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Adds a given repository object to this table.
      * 
-     * @param object the repository object to add, cannot be <code>null</code>.
+     * @param object
+     *            the repository object to add, cannot be <code>null</code>.
      */
     protected void add(REPO_OBJ object) {
         Item item = addItem(object.getDefinition());
         if (item != null) {
+            setChildrenAllowed(object.getDefinition(), false);
+
             populateItem(object, item);
+            setItemIcon(object);
         }
     }
 
-    /**
-     * Creates the action buttons.
-     * 
-     * @param statefulTarget the target to create the action buttons for, cannot be <code>null</code>.
-     * @return a HorizontalLayout instance with action buttons.
-     */
-    protected HorizontalLayout createActionButtons(REPO_OBJ object) {
-        m_removeLinkButton = createRemoveLinkButton(object);
-        m_deleteButton = createRemoveItemButton(object);
-
-        HorizontalLayout buttons = new HorizontalLayout();
-        if (m_removeLinkButton != null) {
-            buttons.addComponent(m_removeLinkButton);
-        }
-        if (m_deleteButton != null) {
-            buttons.addComponent(m_deleteButton);
-        }
-        return buttons;
+    protected void updateItemIcon(Object itemId) {
+        REPO_OBJ obj = getFromId((String) itemId);
+        setItemIcon(obj);
     }
-    
+
+    protected void setItemIcon(REPO_OBJ object) {
+        if (object != null) {
+            Resource icon = getWorkingStateIcon(object);
+            setItemIcon(object.getDefinition(), icon);
+        }
+    }
+
     protected abstract EditWindow createEditor(NamedObject object, List<UIExtensionFactory> extensions);
 
     /**
      * Factory method to create an embeddable icon.
      * 
-     * @param name the name of the icon to use (is also used as tooltip text);
-     * @param res the resource denoting the actual icon.
+     * @param name
+     *            the name of the icon to use (is also used as tooltip text);
+     * @param res
+     *            the resource denoting the actual icon.
      * @return an embeddable icon, never <code>null</code>.
      */
     protected Embedded createIcon(String name, Resource res) {
@@ -402,50 +428,62 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Factory method to create an icon resource.
      * 
-     * @param iconName the base name of the icon to use, it will be appended with '.png'.
+     * @param iconName
+     *            the base name of the icon to use, it will be appended with '.png'.
      * @return a {@link Resource} denoting the icon.
      */
-    protected Resource createIconResource(String iconName) {
+    protected ThemeResource createIconResource(String iconName) {
         return new ThemeResource("icons/" + iconName.toLowerCase() + ".png");
     }
 
     /**
      * Factory method to create a remove-item button.
      * 
-     * @param object the repository object to create the remove-item button for, cannot be <code>null</code>.
+     * @param object
+     *            the repository object to create the remove-item button for, cannot be <code>null</code>.
      * @return a button, can be <code>null</code> if removal of this repository object is not supported.
      */
     protected Button createRemoveItemButton(REPO_OBJ object) {
-        return new RemoveItemButton(object, getRepository());
+        return new RemoveItemButton(getRepository(), object);
     }
 
     /**
      * Factory method to create a remove-link button.
      * 
-     * @param object the repository object to create the remove-link button for, cannot be <code>null</code>.
+     * @param object
+     *            the repository object to create the remove-link button for, cannot be <code>null</code>.
      * @return a button, can be <code>null</code> if remove-link is not supported.
      */
-    protected Button createRemoveLinkButton(REPO_OBJ object) {
-        return new RemoveLinkButton<REPO_OBJ>(object, m_leftTable, m_rightTable, this);
+    protected Button createUnlinkButton(REPO_OBJ object) {
+        return new RemoveLinkButton(object, m_leftTable, m_rightTable);
     }
 
     /**
      * Defines the table columns for this panel.
      */
     protected void defineTableColumns() {
-        addContainerProperty(WORKING_STATE_ICON, Embedded.class, null, "", null, ALIGN_CENTER);
+        addContainerProperty(ICON, Resource.class, null, "", null, ALIGN_CENTER);
         addContainerProperty(OBJECT_NAME, String.class, null);
         addContainerProperty(OBJECT_DESCRIPTION, String.class, null);
-        addContainerProperty(ACTIONS, HorizontalLayout.class, null);
+        addContainerProperty(ACTION_UNLINK, Button.class, null, "", null, ALIGN_CENTER);
+        addContainerProperty(ACTION_DELETE, Button.class, null, "", null, ALIGN_CENTER);
 
-        setColumnWidth(WORKING_STATE_ICON, ICON_WIDTH);
+        setColumnWidth(ACTION_UNLINK, FIXED_COLUMN_WIDTH);
+        setColumnWidth(ACTION_DELETE, FIXED_COLUMN_WIDTH);
+        setColumnWidth(ICON, FIXED_COLUMN_WIDTH);
+
+        setColumnCollapsible(ICON, false);
+        setColumnCollapsible(ACTION_UNLINK, false);
+        setColumnCollapsible(ACTION_DELETE, false);
     }
 
     /**
      * Does the actual removal of the left-hand side associations for a given repository object.
      * 
-     * @param object the repository object to remove the left-hand side associations;
-     * @param other the (left-hand side) repository object to remove the associations for.
+     * @param object
+     *            the repository object to remove the left-hand side associations;
+     * @param other
+     *            the (left-hand side) repository object to remove the associations for.
      * @return <code>true</code> if the associations were removed, <code>false</code> if not.
      */
     protected boolean doRemoveLeftSideAssociation(REPO_OBJ object, RepositoryObject other) {
@@ -455,8 +493,10 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Does the actual removal of the right-hand side associations for a given repository object.
      * 
-     * @param object the repository object to remove the right-hand side associations;
-     * @param other the (right-hand side) repository object to remove the associations for.
+     * @param object
+     *            the repository object to remove the right-hand side associations;
+     * @param other
+     *            the (right-hand side) repository object to remove the associations for.
      * @return <code>true</code> if the associations were removed, <code>false</code> if not.
      */
     protected boolean doRemoveRightSideAssociation(REPO_OBJ object, RepositoryObject other) {
@@ -464,10 +504,21 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     }
 
     /**
+     * Returns a user-friendly name for a given repository object.
+     * 
+     * @param object
+     *            the repository object to get the display name for, cannot be <code>null</code>.
+     * @return the display name, never <code>null</code>.
+     */
+    protected abstract String getDisplayName(REPO_OBJ object);
+
+    /**
      * Converts a table-id back to a concrete {@link RepositoryObject}.
      * 
-     * @param id the identifier of the {@link RepositoryObject}, cannot be <code>null</code>.
-     * @return a {@link RepositoryObject} instance for the given ID, can be <code>null</code> in case no such object is found.
+     * @param id
+     *            the identifier of the {@link RepositoryObject}, cannot be <code>null</code>.
+     * @return a {@link RepositoryObject} instance for the given ID, can be <code>null</code> in case no such object is
+     *         found.
      */
     protected final REPO_OBJ getFromId(String id) {
         return getRepository().get(id);
@@ -490,7 +541,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Determines the working state for the given repository object.
      * 
-     * @param object the repository object to determine the working state for, cannot be <code>null</code>.
+     * @param object
+     *            the repository object to determine the working state for, cannot be <code>null</code>.
      * @return the working state for the given repository object, never <code>null</code>.
      */
     protected WorkingState getWorkingState(RepositoryObject object) {
@@ -500,19 +552,22 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Helper method to return the working state icon for the given repository object.
      * 
-     * @param object the repository object to get the icon for, cannot be <code>null</code>.
+     * @param object
+     *            the repository object to get the icon for, cannot be <code>null</code>.
      * @return an icon representing the working state of the given repository object, never <code>null</code>.
      */
-    protected Embedded getWorkingStateIcon(RepositoryObject object) {
+    protected Resource getWorkingStateIcon(RepositoryObject object) {
         String name = getWorkingState(object).name();
-        Resource res = createIconResource("resource_workingstate_" + name);
-        return createIcon(name, res);
+        return createIconResource("resource_workingstate_" + name);
     }
 
     /**
-     * @param topic the topic of the event;
-     * @param entity the entity of the event;
-     * @param event the original event.
+     * @param topic
+     *            the topic of the event;
+     * @param entity
+     *            the entity of the event;
+     * @param event
+     *            the original event.
      * 
      * @see org.osgi.service.event.EventHandler#handleEvent(org.osgi.service.event.Event)
      */
@@ -521,7 +576,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Returns whether the given {@link RepositoryObject} can be handled by this panel.
      * 
-     * @param entity the entity to test, cannot be <code>null</code>.
+     * @param entity
+     *            the entity to test, cannot be <code>null</code>.
      * @return <code>true</code> if the entity is supported by this panel, <code>false</code> if not.
      */
     protected abstract boolean isSupportedEntity(RepositoryObject entity);
@@ -529,15 +585,18 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Populates the given table item with information from the given repository object.
      * 
-     * @param object the repository object to take the information from, cannot be <code>null</code>;
-     * @param item the table item to populate, cannot be <code>null</code>.
+     * @param object
+     *            the repository object to take the information from, cannot be <code>null</code>;
+     * @param item
+     *            the table item to populate, cannot be <code>null</code>.
      */
     protected abstract void populateItem(REPO_OBJ object, Item item);
 
     /**
      * Removes a given repository object from this table.
      * 
-     * @param object the repository object to remove, cannot be <code>null</code>.
+     * @param object
+     *            the repository object to remove, cannot be <code>null</code>.
      */
     protected void remove(REPO_OBJ object) {
         removeItem(object.getDefinition());
@@ -546,7 +605,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Updates a given repository object in this table.
      * 
-     * @param object the repository object to update, cannot be <code>null</code>.
+     * @param object
+     *            the repository object to update, cannot be <code>null</code>.
      */
     protected void update(REPO_OBJ object) {
         if (object != null) {
@@ -594,8 +654,10 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     /**
      * Shows an edit window for the given named object.
      * 
-     * @param object the named object to edit;
-     * @param main the main window to use.
+     * @param object
+     *            the named object to edit;
+     * @param main
+     *            the main window to use.
      */
     private void showEditWindow(NamedObject object) {
         List<UIExtensionFactory> extensions = getExtensionFactories();

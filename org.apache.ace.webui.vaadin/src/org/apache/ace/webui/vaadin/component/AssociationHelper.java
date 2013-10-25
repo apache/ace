@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.webui.vaadin;
+package org.apache.ace.webui.vaadin.component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,22 +24,15 @@ import java.util.Set;
 
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.object.ArtifactObject;
-import org.apache.ace.client.repository.object.TargetObject;
-import org.apache.ace.client.repository.object.FeatureObject;
-import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
-import org.apache.ace.webui.NamedObject;
-import org.apache.ace.webui.domain.NamedArtifactObject;
-import org.apache.ace.webui.domain.NamedDistributionObject;
-import org.apache.ace.webui.domain.NamedFeatureObject;
-import org.apache.ace.webui.domain.NamedTargetObject;
 
+import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.CellStyleGenerator;
 
-public class Associations {
+public class AssociationHelper {
     private List<RepositoryObject> m_associatedItems = new ArrayList<RepositoryObject>();
     private List<RepositoryObject> m_relatedItems = new ArrayList<RepositoryObject>();
     private Table m_activeTable;
@@ -64,20 +57,17 @@ public class Associations {
     }
 
     public RepositoryObject lookupInActiveSelection(Object item) {
+        if (m_activeSelectionListener == null) {
+            return null;
+        }
         return m_activeSelectionListener.lookup(item);
     }
 
-    public void addAssociatedItems(List items) {
-        m_associatedItems.addAll(items);
-    }
-
-    public void addRelatedItems(List items) {
-        m_relatedItems.addAll(items);
-    }
-
-    public CellStyleGenerator createCellStyleGenerator() {
+    public CellStyleGenerator createCellStyleGenerator(final BaseObjectPanel parent) {
         return new CellStyleGenerator() {
             public String getStyle(Object itemId, Object propertyId) {
+                Item item = parent.getItem(itemId);
+
                 if (propertyId == null) {
                     // no propertyId, styling row
                     for (RepositoryObject o : m_associatedItems) {
@@ -90,33 +80,37 @@ public class Associations {
                             return "related";
                         }
                     }
+
+                    parent.updateItemIcon(itemId);
+                }
+                else if (BaseObjectPanel.OBJECT_DESCRIPTION.equals(propertyId)) {
+                    return "description";
+                }
+                else if (BaseObjectPanel.ACTION_UNLINK.equals(propertyId)) {
+                    Button unlinkButton = (Button) item.getItemProperty(propertyId).getValue();
+
+                    boolean enabled = false;
+                    for (RepositoryObject o : m_associatedItems) {
+                        if (equals(itemId, o)) {
+                            enabled = true;
+                        }
+                    }
+
+                    if (unlinkButton != null) {
+                        unlinkButton.setEnabled(enabled);
+                    }
                 }
                 return null;
             }
 
-            public boolean equals(Object itemId, RepositoryObject object) {
-                return (getNamedObject(object).getDefinition().equals(itemId));
+            private boolean equals(Object itemId, RepositoryObject object) {
+                return object.getDefinition().equals(itemId);
             }
         };
     }
 
-    public NamedObject getNamedObject(RepositoryObject object) {
-        if (object instanceof ArtifactObject) {
-            return new NamedArtifactObject((ArtifactObject) object);
-        }
-        else if (object instanceof FeatureObject) {
-            return new NamedFeatureObject((FeatureObject) object);
-        }
-        else if (object instanceof DistributionObject) {
-            return new NamedDistributionObject((DistributionObject) object);
-        }
-        else if (object instanceof StatefulTargetObject) {
-            return new NamedTargetObject((StatefulTargetObject) object);
-        }
-        else if (object instanceof TargetObject) {
-            return new NamedTargetObject((TargetObject) object);
-        }
-        return null;
+    public SelectionListener createSelectionListener(Table table, ObjectRepository<? extends RepositoryObject> repository, Class[] left, Class[] right, Table[] tablesToRefresh) {
+        return new SelectionListener(table, repository, left, right, tablesToRefresh);
     }
 
     /**
@@ -129,7 +123,8 @@ public class Associations {
     }
 
     /**
-     * Helper method to find all related {@link RepositoryObject}s in a given 'direction', starting with a list of objects
+     * Helper method to find all related {@link RepositoryObject}s in a given 'direction', starting with a list of
+     * objects
      */
     private <FROM extends RepositoryObject, TO extends RepositoryObject> List<TO> getRelated(List<FROM> from,
         Class<TO> toClass) {
@@ -140,7 +135,7 @@ public class Associations {
         return result;
     }
 
-    public class SelectionListener implements Table.ValueChangeListener {
+    private class SelectionListener implements Table.ValueChangeListener {
         private final Table m_table;
         private final Table[] m_tablesToRefresh;
         private final ObjectRepository<? extends RepositoryObject> m_repository;
@@ -156,8 +151,8 @@ public class Associations {
             m_tablesToRefresh = tablesToRefresh;
         }
 
+        @SuppressWarnings("unchecked")
         public void valueChange(ValueChangeEvent event) {
-
             if (m_activeSelection != null && m_activeTable != null) {
                 if (!m_activeTable.equals(m_table)) {
                     for (Object val : m_activeSelection) {
@@ -181,6 +176,7 @@ public class Associations {
 
             if (value != null) {
                 clear();
+
                 for (Object val : value) {
                     RepositoryObject lo = lookup(val);
                     if (lo != null) {
@@ -232,11 +228,5 @@ public class Associations {
             return object;
         }
 
-    }
-
-    public SelectionListener createSelectionListener(final Table table,
-        final ObjectRepository<? extends RepositoryObject> repository, final Class[] left, final Class[] right,
-        final Table[] tablesToRefresh) {
-        return new SelectionListener(table, repository, left, right, tablesToRefresh);
     }
 }

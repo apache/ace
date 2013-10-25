@@ -29,7 +29,7 @@ import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.ace.webui.vaadin.AssociationRemover;
-import org.apache.ace.webui.vaadin.Associations;
+import org.osgi.framework.Constants;
 
 import com.vaadin.data.Item;
 
@@ -41,11 +41,41 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
     /**
      * Creates a new {@link ArtifactsPanel} instance.
      * 
-     * @param associations the assocation-holder object;
-     * @param associationRemover the helper for removing associations.
+     * @param associations
+     *            the assocation-holder object;
+     * @param associationRemover
+     *            the helper for removing associations.
      */
-    public ArtifactsPanel(Associations associations, AssociationRemover associationRemover) {
+    public ArtifactsPanel(AssociationHelper associations, AssociationRemover associationRemover) {
         super(associations, associationRemover, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, true);
+    }
+
+    @Override
+    protected void add(ArtifactObject artifact) {
+        String itemId = artifact.getDefinition();
+        String parentId = getParentId(artifact);
+
+        if (parentId != null && !containsId(parentId)) {
+            Item item = addItem(parentId);
+            item.getItemProperty(OBJECT_NAME).setValue(getParentDisplayName(artifact));
+            item.getItemProperty(OBJECT_DESCRIPTION).setValue("");
+            // we *must* set a non-null icon for the parent as well to ensure that the tree-table open/collapse icon is
+            // rendered properly...
+            setItemIcon(parentId, createIconResource("resource_workingstate_unchanged"));
+        }
+
+        Item item = addItem(itemId);
+        if (item != null) {
+            populateItem(artifact, item);
+        }
+
+        if (parentId != null) {
+            setParent(itemId, parentId);
+            setCollapsed(parentId, false);
+            setItemIcon(artifact);
+        }
+
+        setChildrenAllowed(itemId, false);
     }
 
     @Override
@@ -77,16 +107,53 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
 
     @Override
     protected void populateItem(ArtifactObject artifact, Item item) {
-        item.getItemProperty(WORKING_STATE_ICON).setValue(getWorkingStateIcon(artifact));
-        item.getItemProperty(OBJECT_NAME).setValue(artifact.getName());
+        item.getItemProperty(OBJECT_NAME).setValue(getDisplayName(artifact));
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
-        item.getItemProperty(ACTIONS).setValue(createActionButtons(artifact));
+        item.getItemProperty(ACTION_UNLINK).setValue(createUnlinkButton(artifact));
+        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(artifact));
+    }
+
+    protected String getDisplayName(ArtifactObject artifact) {
+        String bv = artifact.getAttribute(Constants.BUNDLE_VERSION);
+        if (bv != null) {
+            return bv;
+        }
+        return artifact.getName();
+    }
+
+    private String getParentDisplayName(ArtifactObject artifact) {
+        String bn = artifact.getAttribute(Constants.BUNDLE_NAME);
+        if (bn != null) {
+            return bn;
+        }
+        String name = artifact.getName();
+        int idx = name.lastIndexOf('-');
+        if (idx > 0) {
+            name = name.substring(0, idx);
+        }
+        else {
+            idx = name.lastIndexOf('.');
+            if (idx > 0) {
+                name = name.substring(0, idx);
+            }
+        }
+        return name;
+    }
+
+    private String getParentId(ArtifactObject artifact) {
+        String bsn = artifact.getAttribute(Constants.BUNDLE_SYMBOLICNAME);
+        if (bsn != null) {
+            return bsn;
+        }
+        // return getParentDisplayName(artifact);
+        return null;
     }
 
     /**
      * Returns whether or not the given artifact is actually a resource processor.
      * 
-     * @param artifact the artifact to test, cannot be <code>null</code>.
+     * @param artifact
+     *            the artifact to test, cannot be <code>null</code>.
      * @return <code>true</code> if the given artifact is a resource processor, <code>false</code> otherwise.
      */
     private boolean isResourceProcessor(ArtifactObject artifact) {

@@ -1,5 +1,5 @@
-.v-theme-version:after {content:"6_8_4";}
-.v-theme-version-6_8_4 {display: none;}
+.v-theme-version:after {content:"6_8_13";}
+.v-theme-version-6_8_13 {display: none;}
 /* Automatically compiled css file from subdirectories. */
 
 .v-absolutelayout-wrapper {
@@ -51,11 +51,13 @@
 	padding: .2em 1em;
 	color: inherit;
 	font: inherit;
-	line-height: normal;
+	line-height: normal;		
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
 	-khtml-user-select: none;
 	-moz-user-select: none;
-	-ie-user-select: none;
-	user-select: none;
+	-ms-user-select: none;
+	user-select: none;	
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	-ms-box-sizing: border-box;
@@ -495,10 +497,13 @@ div.v-app-loading {
 .v-scrollable {
 	overflow: auto;
 }
-/* Enable kinetic scrolling on Mobile Safari 6 */ 
-.v-ios.v-sa6 .v-scrollable { 
-        -webkit-overflow-scrolling: touch; 
+.v-ios.v-webkit & .v-scrollable {
+    -webkit-overflow-scrolling: touch; 
 } 
+/* Disable native scrolling on iOS 5 due to #8792 */ 
+.v-ios5.v-webkit & .v-scrollable {
+    -webkit-overflow-scrolling: none; 
+}    
 
 .v-csslayout {
 	overflow: hidden;
@@ -2275,7 +2280,7 @@ div.v-tree-node-leaf {
     background: transparent;
     height: 10px;
     /* defines the amount of indent per level */
-    width: 18px;
+    width: 10px;
     position: absolute;
     left: 0;
     top: 5px;
@@ -4070,6 +4075,10 @@ div.v-table-full-height-fields .v-datefield-popupcalendar input.v-datefield-text
 .v-panel-content > div {
 	background: #fff;
 	min-height: 100%;
+}
+.v-panel-content > .v-ddwrapper {
+	/* A hack to make the padding in .v-ddwrapper work correctly */
+	min-height: 0;
 }
 .v-ie6 .v-panel-content {
 	background: #fff;
@@ -5986,14 +5995,27 @@ textarea.v-textarea-readonly,
 
 /* extra ace styles */
 .v-table-row-associated {
-    background: #88aacc;
+    background: #8ac;
 }
 .v-table-row-odd.v-table-row-associated {
-    background: #7799bb;
+    background: #79b;
 }
 .v-table-row-related {
-    background: #99aabb;
+    background: #9ab;
 }
 .v-table-row-odd.v-table-row-related {
-    background: #8899aa;
+    background: #89a;
+}
+/* makes the description less prominent */
+.v-table-cell-content-description {
+	color: #9ab;
+}
+.v-table-row-odd.vtable-cell-content-description {
+	color: #89a;
+}
+.v-selected .v-table-cell-content-description {
+	color: white;
+}
+.v-selected .v-table-row-odd.vtable-cell-content-description {
+	color: white;
 }
