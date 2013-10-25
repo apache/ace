@@ -28,6 +28,7 @@ import org.apache.ace.useradmin.ui.editor.UserEditor;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.User;
 
+import com.vaadin.Application;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.ItemClickEvent;
@@ -83,7 +84,8 @@ public class UserAdminWindow extends Window {
         setCaption("Manage users");
         if (m_userUtil.hasRole(m_currentUser, "editUsers")) {
             adminMode = true;
-            getLayout().setSizeFull();
+
+            setSizeFull();
             addComponent(createAdminWindowLayout());
             populateUserTableAndSelect();
         }
@@ -100,14 +102,20 @@ public class UserAdminWindow extends Window {
      * Will be called when a dependency isn't available
      */
     public void destroy() {
-        if (adminMode) {
-            getApplication().getMainWindow().showNotification("Oops", "Manage Users function has been disabled", Notification.TYPE_ERROR_MESSAGE);
-        }
-        else {
-            getApplication().getMainWindow().showNotification("Oops", "My info function has been disabled", Notification.TYPE_ERROR_MESSAGE);
-        }
         close();
-        getApplication().removeWindow(this);
+
+        Application application = getApplication();
+        if (application != null) {
+            Window mainWindow = application.getMainWindow();
+            if (mainWindow != null) {
+                if (adminMode) {
+                    mainWindow.showNotification("Oops", "Manage Users function has been disabled", Notification.TYPE_ERROR_MESSAGE);
+                }
+                else {
+                    mainWindow.showNotification("Oops", "My info function has been disabled", Notification.TYPE_ERROR_MESSAGE);
+                }
+            }
+        }
     }
 
     private void initializeUserDTO() {
