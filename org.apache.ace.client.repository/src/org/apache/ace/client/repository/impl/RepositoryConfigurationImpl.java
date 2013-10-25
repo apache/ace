@@ -234,7 +234,9 @@ final class RepositoryConfigurationImpl implements RepositoryConfiguration {
         }
         else if (value instanceof String) {
             try {
-                return new URL((String) value);
+                String url = (String) value;
+                // ensure OBR-url always ends with a single forward slash...
+                return new URL(url.replaceAll("/*$", "/"));
             }
             catch (MalformedURLException exception) {
                 // Ignore, use default value...
