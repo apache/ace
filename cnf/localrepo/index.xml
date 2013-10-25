@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<repository increment='1380872364930' name='Local' xmlns='http://www.osgi.org/xmlns/repository/v1.0.0'>
+<repository increment='1382631015927' name='Local' xmlns='http://www.osgi.org/xmlns/repository/v1.0.0'>
   <resource>
     <capability namespace='osgi.identity'>
       <attribute name='osgi.identity' value='slf4j.api'/>
@@ -1297,6 +1297,48 @@
   </resource>
   <resource>
     <capability namespace='osgi.identity'>
+      <attribute name='osgi.identity' value='org.osgi.impl.bundle.bindex'/>
+      <attribute name='type' value='osgi.bundle'/>
+      <attribute name='version' type='Version' value='2.2.0'/>
+    </capability>
+    <capability namespace='osgi.content'>
+      <attribute name='osgi.content' value='8d93c6f99983c16688e0773be5862470b53008a6a49c95a10afce496cbd3658b'/>
+      <attribute name='url' value='org.osgi.impl.bundle.bindex/org.osgi.impl.bundle.bindex-2.2.0.jar'/>
+      <attribute name='size' type='Long' value='154617'/>
+      <attribute name='mime' value='application/vnd.osgi.bundle'/>
+    </capability>
+    <capability namespace='osgi.wiring.bundle'>
+      <attribute name='osgi.wiring.bundle' value='org.osgi.impl.bundle.bindex'/>
+      <attribute name='bundle-version' type='Version' value='2.2.0'/>
+    </capability>
+    <capability namespace='osgi.wiring.host'>
+      <attribute name='osgi.wiring.host' value='org.osgi.impl.bundle.bindex'/>
+      <attribute name='bundle-version' type='Version' value='2.2.0'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='org.osgi.service.bindex'/>
+      <attribute name='version' type='Version' value='1.0.0'/>
+      <attribute name='bundle-symbolic-name' value='org.osgi.impl.bundle.bindex'/>
+      <attribute name='bundle-version' type='Version' value='2.2.0'/>
+    </capability>
+    <requirement namespace='osgi.wiring.package'>
+      <directive name='filter' value='(osgi.wiring.package=org.apache.tools.ant)'/>
+      <directive name='resolution' value='optional'/>
+    </requirement>
+    <requirement namespace='osgi.wiring.package'>
+      <directive name='filter' value='(osgi.wiring.package=org.apache.tools.ant.types)'/>
+      <directive name='resolution' value='optional'/>
+    </requirement>
+    <requirement namespace='osgi.wiring.package'>
+      <directive name='filter' value='(&amp;(osgi.wiring.package=org.osgi.service.bindex)(version&gt;=1.0.0)(!(version&gt;=2.0.0)))'/>
+    </requirement>
+    <requirement namespace='osgi.extender'>
+      <directive name='filter' value='(&amp;(osgi.extender=osgi.ds)(version&gt;=1.0.0)(!(version&gt;=2.0.0)))'/>
+      <directive name='effective' value='active'/>
+    </requirement>
+  </resource>
+  <resource>
+    <capability namespace='osgi.identity'>
       <attribute name='osgi.identity' value='org.apache.felix.gogo.runtime'/>
       <attribute name='type' value='osgi.bundle'/>
       <attribute name='version' type='Version' value='0.10.0'/>
@@ -1358,48 +1400,6 @@
     </requirement>
     <requirement namespace='osgi.wiring.package'>
       <directive name='filter' value='(osgi.wiring.package=org.osgi.util.tracker)'/>
-    </requirement>
-  </resource>
-  <resource>
-    <capability namespace='osgi.identity'>
-      <attribute name='osgi.identity' value='org.osgi.impl.bundle.bindex'/>
-      <attribute name='type' value='osgi.bundle'/>
-      <attribute name='version' type='Version' value='2.2.0'/>
-    </capability>
-    <capability namespace='osgi.content'>
-      <attribute name='osgi.content' value='8d93c6f99983c16688e0773be5862470b53008a6a49c95a10afce496cbd3658b'/>
-      <attribute name='url' value='org.osgi.impl.bundle.bindex/org.osgi.impl.bundle.bindex-2.2.0.jar'/>
-      <attribute name='size' type='Long' value='154617'/>
-      <attribute name='mime' value='application/vnd.osgi.bundle'/>
-    </capability>
-    <capability namespace='osgi.wiring.bundle'>
-      <attribute name='osgi.wiring.bundle' value='org.osgi.impl.bundle.bindex'/>
-      <attribute name='bundle-version' type='Version' value='2.2.0'/>
-    </capability>
-    <capability namespace='osgi.wiring.host'>
-      <attribute name='osgi.wiring.host' value='org.osgi.impl.bundle.bindex'/>
-      <attribute name='bundle-version' type='Version' value='2.2.0'/>
-    </capability>
-    <capability namespace='osgi.wiring.package'>
-      <attribute name='osgi.wiring.package' value='org.osgi.service.bindex'/>
-      <attribute name='version' type='Version' value='1.0.0'/>
-      <attribute name='bundle-symbolic-name' value='org.osgi.impl.bundle.bindex'/>
-      <attribute name='bundle-version' type='Version' value='2.2.0'/>
-    </capability>
-    <requirement namespace='osgi.wiring.package'>
-      <directive name='filter' value='(osgi.wiring.package=org.apache.tools.ant)'/>
-      <directive name='resolution' value='optional'/>
-    </requirement>
-    <requirement namespace='osgi.wiring.package'>
-      <directive name='filter' value='(osgi.wiring.package=org.apache.tools.ant.types)'/>
-      <directive name='resolution' value='optional'/>
-    </requirement>
-    <requirement namespace='osgi.wiring.package'>
-      <directive name='filter' value='(&amp;(osgi.wiring.package=org.osgi.service.bindex)(version&gt;=1.0.0)(!(version&gt;=2.0.0)))'/>
-    </requirement>
-    <requirement namespace='osgi.extender'>
-      <directive name='filter' value='(&amp;(osgi.extender=osgi.ds)(version&gt;=1.0.0)(!(version&gt;=2.0.0)))'/>
-      <directive name='effective' value='active'/>
     </requirement>
   </resource>
   <resource>
@@ -8468,6 +8468,1320 @@
     </requirement>
     <requirement namespace='osgi.wiring.package'>
       <directive name='filter' value='(&amp;(osgi.wiring.package=org.ops4j.store.intern)(version&gt;=1.2.2))'/>
+    </requirement>
+  </resource>
+  <resource>
+    <capability namespace='osgi.identity'>
+      <attribute name='osgi.identity' value='com.vaadin'/>
+      <attribute name='type' value='osgi.bundle'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.content'>
+      <attribute name='osgi.content' value='095ad2e97b2866fd74b842c1e1b72a821f6cbe016f6e9f6caa2172b866f9b4b8'/>
+      <attribute name='url' value='com.vaadin/com.vaadin-6.8.13.jar'/>
+      <attribute name='size' type='Long' value='5088240'/>
+      <attribute name='mime' value='application/vnd.osgi.bundle'/>
+    </capability>
+    <capability namespace='osgi.wiring.bundle'>
+      <attribute name='osgi.wiring.bundle' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.host'>
+      <attribute name='osgi.wiring.host' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.absolutelayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.accordion'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.button'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.caption'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.common'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.common.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.csslayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.customcomponent'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.customlayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.datefield'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.dragwrapper'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.embedded'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.formlayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.gridlayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.link'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.loginform'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.menubar'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.menubar.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.notification'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.orderedlayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.panel'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.popupview'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.progressindicator'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.select'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.shadow'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.shadow.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.slider'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.splitpanel'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.table'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.tabsheet'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.textfield'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.textfield.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.tree'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.tree.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.treetable'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.treetable.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.upload'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.window'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.window.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.base.window.img.shadow'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.common'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.accordion'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.button'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.datefield'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.label'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.menubar'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.notification'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.panel'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.popupview'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.progressindicator'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.selects'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.slider'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.splitpanel'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.table'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.tabsheet'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.textfield'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.tree'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.components.window'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.compound'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.compound.segment'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.compound.sidebar-menu'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.compound.toolbar'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.icons'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.chameleon.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.accordion'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.button'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.common'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.contextmenu'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.datefield'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.formlayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.menubar'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.notification'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.panel'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.popupview'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.progressindicator'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.select'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.slider'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.splitpanel'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.table'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.tabsheet'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.textfield'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.tree'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.liferay.window'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.a-sprite-definitions'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.accordion'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.button'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.button.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.button.img.black'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.common'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.common.icons'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.common.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.datefield'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.datefield.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.formlayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.label'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.layouts'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.layouts.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.link'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.menubar'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.menubar.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.notification'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.notification.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.panel'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.popupview'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.progressindicator'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.progressindicator.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.select'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.select.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.select.img.black'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.slider'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.slider.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.splitpanel'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.splitpanel.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.table'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.table.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.tabsheet'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.tabsheet.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.tabsheet.img.bar'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.tabsheet.img.framed'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.textfield'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.textfield.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.tree'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.tree.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.window'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.window.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.reindeer.window.img.black'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.absolutelayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.accordion'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.accordion.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.button'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.button.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.caption'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.common'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.common.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.datefield'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.datefield.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.formlayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.gridlayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.icons'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.icons.16'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.icons.32'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.icons.64'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.label'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.link'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.menubar'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.notification'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.notification.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.orderedlayout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.panel'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.panel.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.popupview'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.progressindicator'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.progressindicator.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.select'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.select.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.shadow'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.shadow.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.slider'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.slider.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.splitpanel'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.splitpanel.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.table'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.table.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.tabsheet'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.tabsheet.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.textfield'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.textfield.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.tree'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.tree.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.tree.img.connectors'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.window'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.window.img'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.window.img.dialog'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.themes.runo.window.img.shadow'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.widgetsets'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.widgetsets.com.vaadin.terminal.gwt.DefaultWidgetSet'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='VAADIN.widgetsets.com.vaadin.terminal.gwt.DefaultWidgetSet.ie6pngfix'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.google.gwt.dom.client'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.annotations'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.data'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.data.util'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.data.util.filter'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.data.util.sqlcontainer'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.data.util.sqlcontainer.connection'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.data.util.sqlcontainer.query'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.data.util.sqlcontainer.query.generator'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.data.util.sqlcontainer.query.generator.filter'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.data.validator'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.event'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.event.dd'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.event.dd.acceptcriteria'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.service'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.terminal'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.terminal.gwt.client'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.terminal.gwt.client.ui'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.terminal.gwt.client.ui.dd'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.terminal.gwt.client.ui.layout'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.terminal.gwt.client.ui.richtextarea'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.terminal.gwt.server'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.terminal.gwt.widgetsetutils'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.tools'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.ui'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.ui.themes'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.ui.treetable'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <capability namespace='osgi.wiring.package'>
+      <attribute name='osgi.wiring.package' value='com.vaadin.util'/>
+      <attribute name='version' type='Version' value='6.8.13'/>
+      <attribute name='bundle-symbolic-name' value='com.vaadin'/>
+      <attribute name='bundle-version' type='Version' value='6.8.13'/>
+    </capability>
+    <requirement namespace='osgi.wiring.package'>
+      <directive name='filter' value='(&amp;(osgi.wiring.package=javax.servlet)(version&gt;=2.3.0))'/>
+    </requirement>
+    <requirement namespace='osgi.wiring.package'>
+      <directive name='filter' value='(&amp;(osgi.wiring.package=javax.servlet.http)(version&gt;=2.3.0))'/>
+    </requirement>
+    <requirement namespace='osgi.ee'>
+      <directive name='filter' value='(&amp;(osgi.ee=JavaSE)(version=1.5))'/>
     </requirement>
   </resource>
   <resource>
