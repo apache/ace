@@ -176,7 +176,7 @@ public class RepositoryImpl implements RepositoryReplication, Repository {
 
         long lastVersion = versions[versions.length - 1];
         if (lastVersion != fromVersion) {
-            throw new IOException("Repository already changed, cannot commit version" + fromVersion + "!");
+            throw new IOException("Repository already changed, cannot commit version " + fromVersion + "!");
         }
 
         boolean result = put(data, fromVersion + 1);
