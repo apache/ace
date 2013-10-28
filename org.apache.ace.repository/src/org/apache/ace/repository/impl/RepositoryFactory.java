@@ -213,7 +213,10 @@ public class RepositoryFactory implements ManagedServiceFactory {
         RepositoryImpl store = new RepositoryImpl(dir, m_tempDir, fileExtension, isMaster, limitValue);
         if ((initialContents != null) && isMaster) {
             try {
-                store.commit(new ByteArrayInputStream(initialContents.getBytes()), 0);
+                // Do not even try to commit initial contents for existing repositories...
+                if (store.getRange().getHigh() == 0L) {
+                    store.commit(new ByteArrayInputStream(initialContents.getBytes()), 0L);
+                }
             }
             catch (IOException e) {
                 m_log.log(LogService.LOG_ERROR, "Unable to set initial contents of the repository.", e);
