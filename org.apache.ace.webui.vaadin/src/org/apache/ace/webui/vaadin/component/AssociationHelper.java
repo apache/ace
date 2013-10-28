@@ -39,6 +39,10 @@ public class AssociationHelper {
     private Set<?> m_activeSelection;
     private SelectionListener m_activeSelectionListener;
 
+    public void addAssociatedItem(RepositoryObject item) {
+        m_associatedItems.add(item);
+    }
+    
     public void removeAssociatedItem(RepositoryObject item) {
         m_associatedItems.remove(item);
     }

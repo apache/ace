@@ -18,13 +18,8 @@
  */
 package org.apache.ace.webui.vaadin;
 
-import java.io.Closeable;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -33,258 +28,42 @@ import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
-import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.webui.domain.OBREntry;
+import org.apache.ace.webui.vaadin.UploadHelper.ArtifactDropHandler;
+import org.apache.ace.webui.vaadin.UploadHelper.GenericUploadHandler;
+import org.apache.ace.webui.vaadin.UploadHelper.UploadHandle;
 import org.osgi.service.log.LogService;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.event.dd.DragAndDropEvent;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.event.dd.acceptcriteria.AcceptAll;
-import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.terminal.StreamVariable;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.DragAndDropWrapper;
-import com.vaadin.ui.DragAndDropWrapper.WrapperTransferable;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Html5File;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.FailedEvent;
-import com.vaadin.ui.Upload.FailedListener;
-import com.vaadin.ui.Upload.SucceededEvent;
-import com.vaadin.ui.Upload.SucceededListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Provides a dialog for uploading new artifacts to ACE, or selecting existing artifacts from the repository.
  */
 abstract class AddArtifactWindow extends Window {
+    private static final String PROPERTY_SYMBOLIC_NAME = "symbolic name";
+    private static final String PROPERTY_VERSION = "version";
+    private static final String PROPERTY_PURGE = "purge";
 
-    /**
-     * Provides a {@link DropHandler} implementation for handling dropped artifacts.
-     */
-    private static final class ArtifactDropHandler implements DropHandler {
-        private final StreamVariable m_html5uploadStreamVariable;
-
-        private ArtifactDropHandler(StreamVariable html5uploadStreamVariable) {
-            m_html5uploadStreamVariable = html5uploadStreamVariable;
-        }
-
-        /*
-         * @see com.vaadin.event.dd.DropHandler#drop(com.vaadin.event.dd.DragAndDropEvent)
-         */
-        public void drop(DragAndDropEvent dropEvent) {
-            // expecting this to be an html5 drag
-            WrapperTransferable tr = (WrapperTransferable) dropEvent.getTransferable();
-            Html5File[] files = tr.getFiles();
-            if (files != null) {
-                for (final Html5File html5File : files) {
-                    html5File.setStreamVariable(m_html5uploadStreamVariable);
-                }
-            }
-        }
-
-        /*
-         * @see com.vaadin.event.dd.DropHandler#getAcceptCriterion()
-         */
-        public AcceptCriterion getAcceptCriterion() {
-            // TODO only accept .jar files ?
-            return AcceptAll.get();
-        }
-    }
-
-    /**
-     * Provides a upload handler capable of handling "old school" uploads, and new HTML5-style uploads.
-     */
-    private static abstract class GenericUploadHandler implements StreamVariable, Upload.SucceededListener,
-        Upload.FailedListener, Upload.Receiver {
-        private final File m_sessionDir;
-
-        private FileOutputStream m_fos = null;
-        private File m_file;
-
-        /**
-         * @param sessionDir the session directory to temporarily store uploaded artifacts in, cannot be <code>null</code>.
-         */
-        private GenericUploadHandler(File sessionDir) {
-            m_sessionDir = sessionDir;
-        }
-
-        /*
-         * @see com.vaadin.terminal.StreamVariable#getOutputStream()
-         */
-        public final OutputStream getOutputStream() {
-            return m_fos;
-        }
-
-        /*
-         * @see com.vaadin.terminal.StreamVariable#isInterrupted()
-         */
-        public final boolean isInterrupted() {
-            return (m_fos == null);
-        }
-
-        /*
-         * @see com.vaadin.terminal.StreamVariable#listenProgress()
-         */
-        public final boolean listenProgress() {
-            return false;
-        }
-
-        /*
-         * @see com.vaadin.terminal.StreamVariable#onProgress(com.vaadin.terminal.StreamVariable.StreamingProgressEvent)
-         */
-        public final void onProgress(StreamingProgressEvent event) {
-            // Do nothing, no progress indicator (yet ?)
-        }
-
-        /*
-         * @see com.vaadin.ui.Upload.Receiver#receiveUpload(java.lang.String, java.lang.String)
-         */
-        public final OutputStream receiveUpload(String filename, String MIMEType) {
-            return prepareUpload(filename);
-        }
-
-        /*
-         * @see com.vaadin.terminal.StreamVariable#streamingFailed(com.vaadin.terminal.StreamVariable.StreamingErrorEvent)
-         */
-        public final void streamingFailed(StreamingErrorEvent event) {
-            handleUploadFailure(event.getFileName(), event.getException());
-        }
-
-        /*
-         * @see com.vaadin.terminal.StreamVariable#streamingFinished(com.vaadin.terminal.StreamVariable.StreamingEndEvent)
-         */
-        public final void streamingFinished(StreamingEndEvent event) {
-            finishUpload();
-        }
-
-        /*
-         * @see com.vaadin.terminal.StreamVariable#streamingStarted(com.vaadin.terminal.StreamVariable.StreamingStartEvent)
-         */
-        public final void streamingStarted(StreamingStartEvent event) {
-            prepareUpload(event.getFileName());
-        }
-
-        /*
-         * @see com.vaadin.ui.Upload.FailedListener#uploadFailed(com.vaadin.ui.Upload.FailedEvent)
-         */
-        public final void uploadFailed(FailedEvent event) {
-            handleUploadFailure(event.getFilename(), event.getReason());
-        }
-
-        /*
-         * @see com.vaadin.ui.Upload.SucceededListener#uploadSucceeded(com.vaadin.ui.Upload.SucceededEvent)
-         */
-        public final void uploadSucceeded(SucceededEvent event) {
-            finishUpload();
-        }
-
-        /**
-         * Called when the upload was successful.
-         * 
-         * @param uploadedArtifact the uploaded file to process, never <code>null</code>.
-         */
-        protected abstract void artifactUploaded(File uploadedArtifact);
-
-        /**
-         * Called when the upload failed.
-         * 
-         * @param uploadedArtifact the name of the artifact whose upload failed;
-         * @param throwable the (optional) exception that caused the upload to fail.
-         */
-        protected abstract void uploadFailed(String uploadedArtifact, Throwable throwable);
-
-        /**
-         * Called after successfully uploading the artifact. Calls the {@link #artifactUploaded(File)} method.
-         */
-        private void finishUpload() {
-            // Make sure the output stream is properly closed...
-            silentlyClose(m_fos);
-
-            try {
-                artifactUploaded(m_file);
-            }
-            finally {
-                m_fos = null;
-            }
-        }
-
-        /**
-         * Handles any failures during the upload by closing all streams and cleaning up all resources. Calls the {@link #uploadFailed(String, Throwable)}
-         * 
-         * @param fileName the name of the uploaded artifact that failed;
-         * @param throwable the (optional) exception, can be <code>null</code>.
-         */
-        private void handleUploadFailure(String fileName, Throwable throwable) {
-            silentlyClose(m_fos);
-            m_fos = null;
-            m_file.delete();
-
-            uploadFailed(fileName, throwable);
-        }
-
-        /**
-         * Prepares the actual upload by creating a proper {@link FileOutputStream} to (temporarily) store the artifact to.
-         * 
-         * @param fileName the name of the uploaded artifact, cannot be <code>null</code>.
-         */
-        private OutputStream prepareUpload(String fileName) {
-            try {
-                m_file = new File(m_sessionDir, fileName);
-
-                if (m_file.exists()) {
-                    throw new IOException("Uploaded file already exists: " + fileName);
-                }
-                m_fos = new FileOutputStream(m_file);
-            }
-            catch (final IOException e) {
-                uploadFailed(fileName, e);
-                m_fos = null;
-            }
-            return m_fos;
-        }
-
-        /**
-         * Silently closes the given {@link Closeable} implementation, ignoring any errors that come out of the {@link Closeable#close()} method.
-         * 
-         * @param closable the closeable to close, can be <code>null</code>.
-         */
-        private void silentlyClose(Closeable closable) {
-            if (closable != null) {
-                try {
-                    closable.close();
-                }
-                catch (IOException e) {
-                    // Best effort; nothing we can (or want) do about this...
-                }
-            }
-        }
-    }
-
-    private static final String XPATH_QUERY = "/repository/resource[@uri]";
-
+    private final String m_repositoryXML;
     private final File m_sessionDir;
     private final URL m_obrUrl;
-    private final String m_repositoryXML;
 
     private final List<File> m_uploadedArtifacts = new ArrayList<File>();
     private final Button m_searchButton;
@@ -294,8 +73,10 @@ abstract class AddArtifactWindow extends Window {
     /**
      * Creates a new {@link AddArtifactWindow} instance.
      * 
-     * @param sessionDir the session directory to temporary place artifacts in;
-     * @param obrUrl the URL of the OBR to use.
+     * @param sessionDir
+     *            the session directory to temporary place artifacts in;
+     * @param obrUrl
+     *            the URL of the OBR to use.
      */
     public AddArtifactWindow(File sessionDir, URL obrUrl, String repositoryXML) {
         super("Add artifact");
@@ -307,10 +88,15 @@ abstract class AddArtifactWindow extends Window {
         setModal(true);
         setWidth("50em");
 
-        m_artifactsTable = new ResourceTable();
-        m_artifactsTable.setCaption("Artifacts in repository");
-
-        final IndexedContainer dataSource = (IndexedContainer) m_artifactsTable.getContainerDataSource();
+        m_artifactsTable = new Table("Artifacts in repository");
+        m_artifactsTable.addContainerProperty(PROPERTY_SYMBOLIC_NAME, String.class, null);
+        m_artifactsTable.addContainerProperty(PROPERTY_VERSION, String.class, null);
+        m_artifactsTable.addContainerProperty(PROPERTY_PURGE, Button.class, null);
+        m_artifactsTable.setSizeFull();
+        m_artifactsTable.setSelectable(true);
+        m_artifactsTable.setMultiSelect(true);
+        m_artifactsTable.setImmediate(true);
+        m_artifactsTable.setHeight("15em");
 
         final Table uploadedArtifacts = new ArtifactTable();
         uploadedArtifacts.setCaption("Uploaded artifacts");
@@ -318,37 +104,33 @@ abstract class AddArtifactWindow extends Window {
 
         final GenericUploadHandler uploadHandler = new GenericUploadHandler(m_sessionDir) {
             @Override
-            protected void artifactUploaded(File uploadedArtifact) {
-                try {
-                    URL artifact = uploadedArtifact.toURI().toURL();
-
-                    Item item = uploadedArtifacts.addItem(artifact);
-                    item.getItemProperty(ArtifactTable.PROPERTY_SYMBOLIC_NAME).setValue(uploadedArtifact.getName());
-                    item.getItemProperty(ArtifactTable.PROPERTY_VERSION).setValue("");
-
-                    m_uploadedArtifacts.add(uploadedArtifact);
-                }
-                catch (MalformedURLException e) {
-                    showErrorNotification("Upload artifact processing failed", "<br />Reason: " + e.getMessage());
-                    logError("Processing of " + uploadedArtifact + " failed.", e);
-                }
+            public void updateProgress(long readBytes, long contentLength) {
+                // TODO Auto-generated method stub
             }
 
             @Override
-            protected void uploadFailed(String uploadedArtifact, Throwable throwable) {
-                showErrorNotification("Upload artifact failed", "File "
-                    + uploadedArtifact
-                    + "<br />could not be accepted on the server.<br />"
-                    + "Reason: " + throwable);
+            protected void artifactsUploaded(List<UploadHandle> uploads) {
+                for (UploadHandle handle : uploads) {
+                    try {
+                        URL artifact = handle.getFile().toURI().toURL();
 
-                logError("Upload of " + uploadedArtifact + " failed.");
+                        Item item = uploadedArtifacts.addItem(artifact);
+                        item.getItemProperty(ArtifactTable.PROPERTY_SYMBOLIC_NAME).setValue(handle.getFilename());
+                        item.getItemProperty(ArtifactTable.PROPERTY_VERSION).setValue("");
+
+                        m_uploadedArtifacts.add(handle.getFile());
+                    }
+                    catch (MalformedURLException e) {
+                        showErrorNotification("Upload artifact processing failed", "<br />Reason: " + e.getMessage());
+                        logError("Processing of " + handle.getFilename() + " failed.", e);
+                    }
+                }
             }
         };
 
-        final Upload uploadArtifact = new Upload("Upload Artifact", uploadHandler);
-        uploadArtifact.addListener((SucceededListener) uploadHandler);
-        uploadArtifact.addListener((FailedListener) uploadHandler);
-        uploadArtifact.setImmediate(true);
+        final Upload uploadArtifact = new Upload();
+        uploadArtifact.setCaption("Upload Artifact");
+        uploadHandler.install(uploadArtifact);
 
         final DragAndDropWrapper finalUploadedArtifacts = new DragAndDropWrapper(uploadedArtifacts);
         finalUploadedArtifacts.setDropHandler(new ArtifactDropHandler(uploadHandler));
@@ -368,6 +150,8 @@ abstract class AddArtifactWindow extends Window {
         final TextField searchField = new TextField();
         searchField.setImmediate(true);
         searchField.setValue("");
+
+        final IndexedContainer dataSource = (IndexedContainer) m_artifactsTable.getContainerDataSource();
 
         m_searchButton = new Button("Search", new ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -421,32 +205,16 @@ abstract class AddArtifactWindow extends Window {
     }
 
     /**
-     * Gets the actual text from a named item contained in the given node map.
-     * 
-     * @param map the node map to get the named item from;
-     * @param name the name of the item to get.
-     * @return the text of the named item, can be <code>null</code> in case the named item does not exist, or has no text.
-     */
-    private static String getNamedItemText(NamedNodeMap map, String name) {
-        Node namedItem = map.getNamedItem(name);
-        if (namedItem == null) {
-            return null;
-        }
-        else {
-            return namedItem.getTextContent();
-        }
-    }
-    
-    /**
      * Shows this dialog on the parent window.
      * 
-     * @param parent the parent for this window, cannot be <code>null</code>.
+     * @param parent
+     *            the parent for this window, cannot be <code>null</code>.
      */
     public final void showWindow(Window parent) {
         try {
             // Fill the artifacts table with the data from the OBR...
-            getBundles(m_artifactsTable);
-            
+            populateArtifactTable(m_artifactsTable, m_obrUrl);
+
             parent.addWindow(this);
         }
         catch (Exception e) {
@@ -467,17 +235,18 @@ abstract class AddArtifactWindow extends Window {
     /**
      * Imports all local, i.e., that are already in our local OBR, bundles.
      * 
-     * @param artifacts the UI-table with artifacts to install, cannot be <code>null</code>.
+     * @param artifacts
+     *            the UI-table with artifacts to install, cannot be <code>null</code>.
      * @return the imported artifacts, never <code>null</code>.
      */
     final List<ArtifactObject> importLocalBundles(final Table artifacts) {
         final List<ArtifactObject> added = new ArrayList<ArtifactObject>();
 
-        Set<String> selectedItems = (Set<String>) artifacts.getValue();
+        Set<?> selectedItems = (Set<?>) artifacts.getValue();
         if (selectedItems != null && !selectedItems.isEmpty()) {
-            for (String itemID : selectedItems) {
+            for (Object itemID : selectedItems) {
                 try {
-                    added.add(importLocalBundle(new URL(m_obrUrl, itemID)));
+                    added.add(UploadHelper.importLocalBundle(getArtifactRepository(), createOBRUrl(itemID)));
                 }
                 catch (Exception exception) {
                     Item item = artifacts.getItem(itemID);
@@ -499,21 +268,22 @@ abstract class AddArtifactWindow extends Window {
     /**
      * Import remote bundles.
      * 
-     * @param uploadedArtifacts the list with uploaded artifacts, never <code>null</code>.
+     * @param uploadedArtifacts
+     *            the list with uploaded artifacts, never <code>null</code>.
      * @return the list of imported bundles.
      */
     final List<ArtifactObject> importRemoteBundles(List<File> uploadedArtifacts) {
         List<ArtifactObject> added = new ArrayList<ArtifactObject>();
-        
+
         StringBuffer errors = new StringBuffer();
         int failedImports = 0;
         for (File artifact : uploadedArtifacts) {
             try {
-                added.add(importRemoteBundle(artifact.toURI().toURL()));
+                added.add(UploadHelper.importRemoteBundle(getArtifactRepository(), artifact));
             }
             catch (Exception exception) {
-            	failedImports++;
-            	errors.append("<br />" + exception.getMessage());
+                failedImports++;
+                errors.append("<br />" + exception.getMessage());
                 logError("Import of " + artifact.getAbsolutePath() + " failed.", exception);
             }
             finally {
@@ -521,50 +291,26 @@ abstract class AddArtifactWindow extends Window {
             }
         }
         if (failedImports > 0) {
-        	if (failedImports == uploadedArtifacts.size()) {
-        		showErrorNotification("All " + failedImports + " artifacts failed", (failedImports > 30 ? "See the server log for a full list of failures." : errors.toString()));
-        	}
-        	else {
-        		showWarningNotification("" + failedImports + "/" + uploadedArtifacts.size() + " artifacts failed", (failedImports > 30 ? "See the server log for a full list of failures." : errors.toString()));
-        	}
+            if (failedImports == uploadedArtifacts.size()) {
+                showErrorNotification("All " + failedImports + " artifacts failed", (failedImports > 30 ? "See the server log for a full list of failures." : errors.toString()));
+            }
+            else {
+                showWarningNotification("" + failedImports + "/" + uploadedArtifacts.size() + " artifacts failed", (failedImports > 30 ? "See the server log for a full list of failures." : errors.toString()));
+            }
         }
         return added;
     }
 
     /**
-     * Shows an error message on screen.
-     * 
-     * @param aTitle the title of the error message;
-     * @param aMessage the error message itself.
-     */
-    final void showErrorNotification(final String aTitle, final String aMessage) {
-        getParent().showNotification(aTitle, aMessage, Notification.TYPE_ERROR_MESSAGE);
-    }
-    
-    /** Shows a warning messsage on screen. */
-    final void showWarningNotification(final String aTitle, final String aMessage) {
-        getParent().showNotification(aTitle, aMessage, Notification.TYPE_WARNING_MESSAGE);
-    }
-
-    /**
-     * Logs a given message at the error level.
-     * <p>If there's no log service present, this method will silently ignore the log statement.</p>
-     * 
-     * @param aMessage the message to log.
-     */
-    final void logError(String aMessage) {
-        LogService logger = getLogger();
-        if (logger != null) {
-            logger.log(LogService.LOG_ERROR, aMessage);
-        }
-    }
-
-    /**
      * Logs a given message + exception at the error level.
-     * <p>If there's no log service present, this method will silently ignore the log statement.</p>
+     * <p>
+     * If there's no log service present, this method will silently ignore the log statement.
+     * </p>
      * 
-     * @param aMessage the message to log;
-     * @param aException the exception to log.
+     * @param aMessage
+     *            the message to log;
+     * @param aException
+     *            the exception to log.
      */
     final void logError(String aMessage, Throwable aException) {
         LogService logger = getLogger();
@@ -574,257 +320,34 @@ abstract class AddArtifactWindow extends Window {
     }
 
     /**
+     * Shows an error message on screen.
+     * 
+     * @param aTitle
+     *            the title of the error message;
+     * @param aMessage
+     *            the error message itself.
+     */
+    final void showErrorNotification(final String aTitle, final String aMessage) {
+        getParent().showNotification(aTitle, aMessage, Notification.TYPE_ERROR_MESSAGE);
+    }
+
+    /**
      * @return the artifact repository.
      */
     protected abstract ArtifactRepository getArtifactRepository();
 
     /**
+     * @param url
+     *            the URL to connect to, cannot be <code>null</code>.
+     * @return a valid {@link URLConnection} instance, never <code>null</code>.
+     */
+    protected abstract ConnectionFactory getConnectionFactory();
+
+    /**
      * @return the log service.
      */
     protected abstract LogService getLogger();
-    
-    /**
-     * @param url the URL to connect to, cannot be <code>null</code>.
-     * @return a valid {@link URLConnection} instance, never <code>null</code>.
-     */
-    protected abstract URLConnection openConnection(URL url) throws IOException;
 
-    /**
-     * Converts a given artifact object to an OBR entry.
-     * 
-     * @param artifactObject the artifact object to convert;
-     * @param obrBase the obr base url.
-     * @return an OBR entry instance, never <code>null</code>.
-     */
-    private OBREntry convertToOBREntry(ArtifactObject artifactObject, String obrBase) {
-        String name = artifactObject.getName();
-        String symbolicName = artifactObject.getAttribute(BundleHelper.KEY_SYMBOLICNAME);
-        String version = artifactObject.getAttribute(BundleHelper.KEY_VERSION);
-        String relativeURL = artifactObject.getURL().substring(obrBase.length());
-        return new OBREntry(name, symbolicName, version, relativeURL);
-    }
-
-    /**
-     * Gets the bundles.
-     * 
-     * @param table the table
-     * @return the bundles
-     * @throws Exception the exception
-     */
-    private void getBundles(Table table) throws Exception {
-        getBundles(table, m_obrUrl);
-    }
-
-    /**
-     * Gets the bundles.
-     * 
-     * @param dataSource the datasource to fill;
-     * @param obrBaseUrl the obr base url
-     * @return the bundles
-     * @throws Exception the exception
-     */
-    private void getBundles(Table dataSource, URL obrBaseUrl) throws Exception {
-        // retrieve the repository.xml as a stream
-        List<OBREntry> obrList = parseOBRRepository(obrBaseUrl);
-
-        // Create a list of filenames from the ArtifactRepository
-        // remove those from the OBR entries we already know
-        obrList.removeAll(getUsedOBRArtifacts(obrBaseUrl));
-
-        if (obrList.isEmpty()) {
-            logError("No new data in OBR.");
-            return;
-        }
-
-        // Create a list of all bundle names
-        for (final OBREntry entry : obrList) {
-            
-            String uri = entry.getUri();
-            String name = entry.getName();
-            String version = entry.getVersion();
-
-            Item item = dataSource.addItem(uri);
-            item.getItemProperty(ResourceTable.PROPERTY_SYMBOLIC_NAME).setValue(name);
-            item.getItemProperty(ResourceTable.PROPERTY_VERSION).setValue(version);
-            item.getItemProperty(ResourceTable.PROPERTY_PURGE).setValue(createDeleteOBREntryButton(entry));
-        }
-    }
-    
-    /**
-     * Builds a list of all OBR artifacts currently in use.
-     * 
-     * @param obrBaseUrl the base URL of the OBR, cannot be <code>null</code>.
-     * @return a list of used OBR entries, never <code>null</code>.
-     * @throws IOException in case an artifact repository is not present.
-     */
-    private List<OBREntry> getUsedOBRArtifacts(URL obrBaseUrl) throws IOException {
-        ArtifactRepository artifactRepository = getArtifactRepository();
-        if (artifactRepository == null) {
-            throw new IOException("No artifact repository present!");
-        }
-
-        final String baseURL = obrBaseUrl.toExternalForm();
-
-        List<OBREntry> fromRepository = new ArrayList<OBREntry>();
-
-        List<ArtifactObject> artifactObjects = artifactRepository.get();
-        artifactObjects.addAll(artifactRepository.getResourceProcessors());
-
-        for (ArtifactObject ao : artifactObjects) {
-            String artifactURL = ao.getURL();
-            if (artifactURL != null && artifactURL.startsWith(baseURL)) {
-                // we now know this artifact comes from the OBR we are querying,
-                // so we are interested.
-                fromRepository.add(convertToOBREntry(ao, baseURL));
-            }
-        }
-        return fromRepository;
-    }
-
-    /**
-     * Imports a local bundle (already contained in the OBR) bundle.
-     * 
-     * @param artifactURL the URL of the artifact to import, cannot be <code>null</code>.
-     * @return the imported artifact object, never <code>null</code>.
-     * @throws IOException in case an I/O exception has occurred.
-     */
-    private ArtifactObject importLocalBundle(URL artifactURL) throws IOException {
-        ArtifactRepository artifactRepository = getArtifactRepository();
-        if (artifactRepository == null) {
-            throw new IOException("No artifact repository present!");
-        }
-        return artifactRepository.importArtifact(artifactURL, false /* upload */);
-    }
-
-    /**
-     * Imports a remote bundle by uploading it to the OBR.
-     * 
-     * @param artifactURL the URL of the artifact to import, cannot be <code>null</code>.
-     * @return the imported artifact object, never <code>null</code>.
-     * @throws IOException in case an I/O exception has occurred.
-     */
-    private ArtifactObject importRemoteBundle(URL artifactURL) throws IOException {
-        ArtifactRepository artifactRepository = getArtifactRepository();
-        if (artifactRepository == null) {
-            throw new IOException("No artifact repository present!");
-        }
-        return artifactRepository.importArtifact(artifactURL, true /* upload */);
-    }
-
-    /**
-     * Parses the 'repository.xml' from OBR.
-     * 
-     * @param obrBaseUrl the base URL to access the OBR, cannot be <code>null</code>.
-     * @return a list of parsed OBR entries, never <code>null</code>.
-     * @throws XPathExpressionException in case OBR repository is invalid, or incorrect;
-     * @throws IOException in case of problems accessing the 'repository.xml' file.
-     */
-    private List<OBREntry> parseOBRRepository(URL obrBaseUrl) throws XPathExpressionException, IOException {
-        URL url = null;
-        try {
-            url = new URL(obrBaseUrl, m_repositoryXML);
-        }
-        catch (MalformedURLException e) {
-            logError("Error retrieving repository.xml from " + obrBaseUrl);
-            throw e;
-        }
-
-        InputStream input = null;
-        NodeList resources = null;
-        try {
-            URLConnection connection = openConnection(url);
-            // We always want the newest repository.xml file.
-            connection.setUseCaches(false);
-
-            input = connection.getInputStream();
-
-            try {
-                XPath xpath = XPathFactory.newInstance().newXPath();
-                // this XPath expressing will find all 'resource' elements which
-                // have an attribute 'uri'.
-                resources = (NodeList) xpath.evaluate(XPATH_QUERY, new InputSource(input), XPathConstants.NODESET);
-            }
-            catch (XPathExpressionException e) {
-                logError("Error evaluating XPath expression.", e);
-                throw e;
-            }
-        }
-        catch (IOException e) {
-            logError("Error reading repository metadata.", e);
-            throw e;
-        }
-        finally {
-            if (input != null) {
-                try {
-                    input.close();
-                }
-                catch (IOException e) {
-                    // too bad, no worries.
-                }
-            }
-        }
-
-        List<OBREntry> obrList = new ArrayList<OBREntry>();
-        for (int nResource = 0; nResource < resources.getLength(); nResource++) {
-            Node resource = resources.item(nResource);
-            NamedNodeMap attr = resource.getAttributes();
-
-            String uri = getNamedItemText(attr, "uri");
-            if (uri == null || uri.equals("")) {
-                logError("Skipping resource without uri from repository " + obrBaseUrl);
-                continue;
-            }
-
-            String name = getNamedItemText(attr, "presentationname");
-            String symbolicname = getNamedItemText(attr, "symbolicname");
-            String version = getNamedItemText(attr, "version");
-
-            if (name == null || name.equals("")) {
-                if (symbolicname != null && !symbolicname.equals("")) {
-                    name = symbolicname;
-                }
-                else {
-                    name = new File(uri).getName();
-                }
-            }
-
-            obrList.add(new OBREntry(name, symbolicname, version, uri));
-        }
-
-        return obrList;
-    }
-    
-    /**
-     * Delete an entry from the OBR.
-     * 
-     * @param entry
-     *            The OBREntry
-     * @param obrBaseUrl
-     *            The OBR base url
-     * @return The HTTP response code
-     * @throws IOException
-     *             If the HTTP operation fails
-     */
-    private int deleteOBREntry(OBREntry entry, URL obrBaseUrl) throws IOException {
-
-        HttpURLConnection connection = null;
-        try {
-            URL endpointUrl = new URL(obrBaseUrl, entry.getUri());
-            connection = (HttpURLConnection) openConnection(endpointUrl);
-            connection.setDoInput(true);
-            connection.setDoOutput(false);
-            connection.setInstanceFollowRedirects(false);
-            connection.setRequestMethod("DELETE");
-            connection.connect();
-            return connection.getResponseCode();
-        }
-        finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-    }
-    
     /**
      * Create a new button that delete an OBREntry on-click.
      * 
@@ -833,31 +356,84 @@ abstract class AddArtifactWindow extends Window {
      * @return The button
      */
     private Button createDeleteOBREntryButton(final OBREntry entry) {
+        Button button = new Button("x");
+        button.setStyleName(Reindeer.BUTTON_SMALL);
+        button.setDescription("Delete " + entry.getName());
 
-        return new Button("X", new ClickListener() {
-
+        button.addListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
+                event.getButton().setEnabled(false);
 
                 try {
-                    int code = deleteOBREntry(entry, m_obrUrl);
+                    int code = OBRUtil.deleteOBREntry(getConnectionFactory(), entry, m_obrUrl);
                     if (code == HttpServletResponse.SC_OK) {
                         m_artifactsTable.removeItem(entry.getUri());
-                        m_artifactsTable.refreshRowCache();
                     }
                     else {
-                        getWindow().showNotification("The OBR returned an unexpected response code: " + code,
-                            Notification.TYPE_ERROR_MESSAGE);
-
+                        showErrorNotification("Failed to delete resource", "The OBR returned an unexpected response code: " + code);
                     }
                 }
                 catch (IOException e) {
-                    getWindow().showNotification("Failed to delete resource!", "<br/>Reason: " + e.getMessage(),
-                        Notification.TYPE_ERROR_MESSAGE);
-                    e.printStackTrace();
+                    showErrorNotification("Failed to delete resource", "Reason: " + e.getMessage());
                 }
 
             }
         });
+
+        return button;
+    }
+
+    private URL createOBRUrl(Object itemID) throws MalformedURLException {
+        return new URL(m_obrUrl, String.valueOf(itemID));
+    }
+
+    /**
+     * Gets the bundles.
+     * 
+     * @param dataSource
+     *            the datasource to fill;
+     * @param obrBaseUrl
+     *            the obr base url
+     * @return the bundles
+     * @throws Exception
+     *             the exception
+     */
+    private void populateArtifactTable(Table dataSource, URL obrBaseUrl) throws Exception {
+        // retrieve the repository.xml as a stream
+        List<OBREntry> obrList = OBRUtil.getAvailableOBREntries(getConnectionFactory(), getArtifactRepository(), obrBaseUrl, m_repositoryXML);
+        if (obrList.isEmpty()) {
+            logError("No new data in OBR.");
+            return;
+        }
+
+        // Create a list of all bundle names
+        for (OBREntry entry : obrList) {
+            Item item = dataSource.addItem(entry.getUri());
+            item.getItemProperty(PROPERTY_SYMBOLIC_NAME).setValue(entry.getName());
+            item.getItemProperty(PROPERTY_VERSION).setValue(entry.getVersion());
+            item.getItemProperty(PROPERTY_PURGE).setValue(createDeleteOBREntryButton(entry));
+        }
+    }
+
+    /**
+     * Logs a given message at the error level.
+     * <p>
+     * If there's no log service present, this method will silently ignore the log statement.
+     * </p>
+     * 
+     * @param aMessage
+     *            the message to log.
+     */
+    private void logError(String aMessage) {
+        LogService logger = getLogger();
+        if (logger != null) {
+            logger.log(LogService.LOG_ERROR, aMessage);
+        }
+    }
+
+    /** Shows a warning messsage on screen. */
+    private void showWarningNotification(final String aTitle, final String aMessage) {
+        getParent().showNotification(aTitle, aMessage, Notification.TYPE_WARNING_MESSAGE);
     }
 }

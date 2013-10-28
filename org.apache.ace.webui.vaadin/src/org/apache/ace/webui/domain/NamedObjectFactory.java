@@ -18,6 +18,7 @@
  */
 package org.apache.ace.webui.domain;
 
+import org.apache.ace.client.repository.Association;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DistributionObject;
@@ -46,6 +47,9 @@ public final class NamedObjectFactory {
         }
         else if (object instanceof TargetObject) {
             return new NamedTargetObject((TargetObject) object);
+        }
+        else if (object instanceof Association) {
+            return new NamedAssociationObject((Association<?, ?>) object);
         }
         return null;
     }

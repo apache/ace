@@ -29,14 +29,14 @@ import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
 import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.webui.UIExtensionFactory;
-import org.apache.ace.webui.vaadin.AssociationRemover;
+import org.apache.ace.webui.vaadin.AssociationManager;
 
 import com.vaadin.data.Item;
 
 /**
  * Provides an object panel for displaying features.
  */
-public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, FeatureRepository> {
+public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, FeatureRepository, ArtifactObject, DistributionObject> {
 
     /**
      * Creates a new {@link FeaturesPanel} instance.
@@ -46,28 +46,40 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
      * @param associationRemover
      *            the helper for removing associations.
      */
-    public FeaturesPanel(AssociationHelper associations, AssociationRemover associationRemover) {
+    public FeaturesPanel(AssociationHelper associations, AssociationManager associationRemover) {
         super(associations, associationRemover, "Feature", UIExtensionFactory.EXTENSION_POINT_VALUE_FEATURE, true);
     }
 
     @Override
-    protected boolean doRemoveLeftSideAssociation(FeatureObject object, RepositoryObject other) {
-        List<Artifact2FeatureAssociation> associations = object.getAssociationsWith((ArtifactObject) other);
+    protected boolean doCreateLeftSideAssociation(ArtifactObject artifact, FeatureObject feature) {
+        m_associationManager.createArtifact2FeatureAssociation(artifact, feature);
+        return true;
+    }
+
+    @Override
+    protected boolean doCreateRightSideAssociation(FeatureObject feature, DistributionObject distribution) {
+        m_associationManager.createFeature2DistributionAssociation(feature, distribution);
+        return true;
+    }
+
+    @Override
+    protected boolean doRemoveLeftSideAssociation(ArtifactObject artifact, FeatureObject feature) {
+        List<Artifact2FeatureAssociation> associations = feature.getAssociationsWith(artifact);
         for (Artifact2FeatureAssociation association : associations) {
-            m_associationRemover.removeAssociation(association);
+            m_associationManager.removeAssociation(association);
         }
         return true;
     }
 
     @Override
-    protected boolean doRemoveRightSideAssociation(FeatureObject object, RepositoryObject other) {
-        List<Feature2DistributionAssociation> associations = object.getAssociationsWith((DistributionObject) other);
+    protected boolean doRemoveRightSideAssociation(FeatureObject feature, DistributionObject distribution) {
+        List<Feature2DistributionAssociation> associations = feature.getAssociationsWith(distribution);
         for (Feature2DistributionAssociation association : associations) {
-            m_associationRemover.removeAssociation(association);
+            m_associationManager.removeAssociation(association);
         }
         return true;
     }
-    
+
     @Override
     protected String getDisplayName(FeatureObject object) {
         return object.getName();
@@ -96,7 +108,7 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
     protected void populateItem(FeatureObject feature, Item item) {
         item.getItemProperty(OBJECT_NAME).setValue(feature.getName());
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(feature.getDescription());
-        item.getItemProperty(ACTION_UNLINK).setValue(createUnlinkButton(feature));
-        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(feature));
+        item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(feature));
+        item.getItemProperty(ACTION_DELETE).setValue(new RemoveItemButton(feature));
     }
 }

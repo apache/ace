@@ -87,7 +87,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         }
 
         /**
-         * @param e the exception to handle.
+         * @param e
+         *            the exception to handle.
          */
         private void handleIOException(IOException e) {
             getWindow().showNotification("Warning",
@@ -98,7 +99,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         /**
          * Does the actual logout of the user.
          * 
-         * @throws IOException in case of I/O problems during the logout.
+         * @throws IOException
+         *             in case of I/O problems during the logout.
          */
         private void logout() throws IOException {
             getRepositoryAdmin().logout(true /* force */);
@@ -147,7 +149,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         }
 
         /**
-         * @param e the exception to handle.
+         * @param e
+         *            the exception to handle.
          */
         private void handleIOException(IOException e) {
             getWindow().showNotification("Retrieve failed",
@@ -158,7 +161,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         /**
          * Does the actual retrieval of the latest version.
          * 
-         * @throws IOException in case of I/O problems during the retrieve.
+         * @throws IOException
+         *             in case of I/O problems during the retrieve.
          */
         private void retrieveData() throws IOException {
             getRepositoryAdmin().checkout();
@@ -208,7 +212,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         }
 
         /**
-         * @param e the exception to handle.
+         * @param e
+         *            the exception to handle.
          */
         private void handleIOException(IOException e) {
             getWindow().showNotification("Revert failed",
@@ -218,7 +223,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         /**
          * Does the actual revert of changes.
          * 
-         * @throws IOException in case of problems during I/O exception.
+         * @throws IOException
+         *             in case of problems during I/O exception.
          */
         private void revertChanges() throws IOException {
             getRepositoryAdmin().revert();
@@ -263,7 +269,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         /**
          * Does the actual commit of changes.
          * 
-         * @throws IOException in case of I/O problems during the commit.
+         * @throws IOException
+         *             in case of I/O problems during the commit.
          */
         private void commitChanges() throws IOException {
             getRepositoryAdmin().commit();
@@ -278,81 +285,64 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
     private Button m_revertButton;
     private Button m_logoutButton;
 
-    private final DependencyManager m_manager;
     private final ConcurrentHashMap<ServiceReference, UIExtensionFactory> m_extensions = new ConcurrentHashMap<ServiceReference, UIExtensionFactory>();
 
     private final User m_user;
 
-	private HorizontalLayout m_extraComponentBar;
+    private HorizontalLayout m_extraComponentBar;
 
     /**
      * Creates a new {@link MainActionToolbar} instance.
-     * @param user 
-     * @param manager 
      * 
-     * @param showLogoutButton <code>true</code> if a logout button should be shown, <code>false</code> if it should not.
+     * @param user
+     * @param manager
+     * 
+     * @param showLogoutButton
+     *            <code>true</code> if a logout button should be shown, <code>false</code> if it should not.
      */
     public MainActionToolbar(User user, DependencyManager manager, boolean showLogoutButton) {
         super(5, 1);
-        m_user = user;
-        m_manager = manager;
 
+        m_user = user;
         m_showLogoutButton = showLogoutButton;
 
         setWidth("100%");
         setSpacing(true);
-        
+
         initComponent();
-    }
-
-    public void init(org.apache.felix.dm.Component component) {
-    	DependencyManager dm = component.getDependencyManager();
-    	component.add(dm.createServiceDependency()
-            .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_MENU + ")")
-            .setCallbacks("add", "remove")
-            .setRequired(false)
-            .setInstanceBound(true)
-        );
-    }
-    
-    public void add(ServiceReference ref, UIExtensionFactory factory) {
-        m_extensions.put(ref, factory);
-        setExtraComponents();
-    }
-
-	private void setExtraComponents() {
-		m_extraComponentBar.removeAllComponents();
-		for (Component c : getExtraComponents()) {
-			m_extraComponentBar.addComponent(c);
-		}
-	}
-    
-    public void remove(ServiceReference ref,  UIExtensionFactory factory) {
-        m_extensions.remove(ref);
-        setExtraComponents();
     }
 
     /**
      * {@inheritDoc}
      */
     public void handleEvent(org.osgi.service.event.Event event) {
-        String topic = event.getTopic();
-        if (RepositoryAdmin.TOPIC_STATUSCHANGED.equals(topic) || RepositoryAdmin.TOPIC_REFRESH.equals(topic)
-            || RepositoryAdmin.TOPIC_LOGIN.equals(topic)) {
-
-            boolean modified = false;
-            try {
-                modified = getRepositoryAdmin().isModified();
-            }
-            catch (IOException e) {
-                getWindow().showNotification("Communication failed!",
-                    "Failed to communicate with the server.<br />Reason: " + e.getMessage(),
-                    Notification.TYPE_ERROR_MESSAGE);
-            }
-
-            m_storeButton.setEnabled(modified);
-            m_revertButton.setEnabled(modified);
+        boolean modified = false;
+        try {
+            modified = getRepositoryAdmin().isModified();
         }
+        catch (IOException e) {
+            getWindow().showNotification("Communication failed!",
+                "Failed to communicate with the server.<br />Reason: " + e.getMessage(),
+                Notification.TYPE_ERROR_MESSAGE);
+        }
+
+        m_storeButton.setEnabled(modified);
+        m_revertButton.setEnabled(modified);
+    }
+
+    public void init(org.apache.felix.dm.Component component) {
+        DependencyManager dm = component.getDependencyManager();
+        component.add(dm.createServiceDependency()
+            .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_MENU + ")")
+            .setCallbacks("add", "remove")
+            .setRequired(false)
+            .setInstanceBound(true)
+            );
+    }
+
+    protected final void add(ServiceReference ref, UIExtensionFactory factory) {
+        m_extensions.put(ref, factory);
+        setExtraComponents();
     }
 
     /**
@@ -383,10 +373,25 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      */
     protected abstract void doAfterRevert() throws IOException;
 
+    protected final List<Component> getExtraComponents() {
+        List<Component> result = new ArrayList<Component>();
+        for (UIExtensionFactory f : m_extensions.values()) {
+            Map<String, Object> context = new HashMap<String, Object>();
+            context.put("user", m_user);
+            result.add(f.create(context));
+        }
+        return result;
+    }
+
     /**
      * @return a repository admin instance, never <code>null</code>.
      */
     protected abstract RepositoryAdmin getRepositoryAdmin();
+
+    protected final void remove(ServiceReference ref, UIExtensionFactory factory) {
+        m_extensions.remove(ref);
+        setExtraComponents();
+    }
 
     /**
      * Initializes this component.
@@ -420,14 +425,11 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         // button to appear at the right side of the screen....
         setColumnExpandRatio(3, 5);
     }
-    
-    protected List<Component> getExtraComponents() {
-        List<Component> result = new ArrayList<Component>();
-        for (UIExtensionFactory f : m_extensions.values()) {
-            Map<String, Object> context = new HashMap<String, Object>();
-            context.put("user", m_user);
-            result.add(f.create(context));
+
+    private void setExtraComponents() {
+        m_extraComponentBar.removeAllComponents();
+        for (Component c : getExtraComponents()) {
+            m_extraComponentBar.addComponent(c);
         }
-        return result;
     }
 }

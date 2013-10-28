@@ -28,7 +28,7 @@ import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.webui.UIExtensionFactory;
-import org.apache.ace.webui.vaadin.AssociationRemover;
+import org.apache.ace.webui.vaadin.AssociationManager;
 
 import com.vaadin.data.Item;
 import com.vaadin.terminal.Resource;
@@ -38,7 +38,7 @@ import com.vaadin.ui.Embedded;
 /**
  * Provides an object panel for displaying (stateful) targets.
  */
-public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject, StatefulTargetRepository> {
+public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject, StatefulTargetRepository, DistributionObject, RepositoryObject> {
 
     private static final String REGISTRATION_STATE_ICON = "regStateIcon";
     private static final String PROVISIONING_STATE_ICON = "provStateIcon";
@@ -52,15 +52,8 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
      * @param associationRemover
      *            the helper for removing associations.
      */
-    public TargetsPanel(AssociationHelper associations, AssociationRemover associationRemover) {
+    public TargetsPanel(AssociationHelper associations, AssociationManager associationRemover) {
         super(associations, associationRemover, "Target", UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET, true /* hasEdit */);
-    }
-
-    @Override
-    protected Button createRemoveItemButton(StatefulTargetObject object) {
-        Button b = super.createRemoveItemButton(object);
-        b.setEnabled(object.isRegistered());
-        return b;
     }
 
     protected void defineTableColumns() {
@@ -78,17 +71,23 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         setColumnWidth(REGISTRATION_STATE_ICON, ICON_WIDTH);
         setColumnWidth(STORE_STATE_ICON, ICON_WIDTH);
         setColumnWidth(PROVISIONING_STATE_ICON, ICON_WIDTH);
-        
+
         setColumnCollapsible(ICON, false);
         setColumnCollapsible(ACTION_UNLINK, false);
         setColumnCollapsible(ACTION_DELETE, false);
     }
 
     @Override
-    protected boolean doRemoveLeftSideAssociation(StatefulTargetObject object, RepositoryObject other) {
-        List<Distribution2TargetAssociation> associations = object.getAssociationsWith((DistributionObject) other);
+    protected boolean doCreateLeftSideAssociation(DistributionObject distribution, StatefulTargetObject target) {
+        m_associationManager.createDistribution2TargetAssociation(distribution, target);
+        return true;
+    }
+
+    @Override
+    protected boolean doRemoveLeftSideAssociation(DistributionObject distribution, StatefulTargetObject target) {
+        List<Distribution2TargetAssociation> associations = target.getAssociationsWith(distribution);
         for (Distribution2TargetAssociation association : associations) {
-            m_associationRemover.removeAssociation(association);
+            m_associationManager.removeAssociation(association);
         }
         return true;
     }
@@ -131,8 +130,26 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         item.getItemProperty(REGISTRATION_STATE_ICON).setValue(getRegistrationStateIcon(target));
         item.getItemProperty(STORE_STATE_ICON).setValue(getStoreStateIcon(target));
         item.getItemProperty(PROVISIONING_STATE_ICON).setValue(getProvisioningStateIcon(target));
-        item.getItemProperty(ACTION_UNLINK).setValue(createUnlinkButton(target));
+        item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(target));
         item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(target));
+    }
+
+    /**
+     * 
+     * @param entity
+     * @return
+     */
+    private StatefulTargetObject asStatefulTargetObject(RepositoryObject entity) {
+        if (entity instanceof StatefulTargetObject) {
+            return (StatefulTargetObject) entity;
+        }
+        return getFromId(((TargetObject) entity).getDefinition());
+    }
+
+    private RemoveItemButton createRemoveItemButton(StatefulTargetObject object) {
+        RemoveItemButton b = new RemoveItemButton(object);
+        b.setEnabled(object.isRegistered());
+        return b;
     }
 
     private Embedded getProvisioningStateIcon(StatefulTargetObject object) {
@@ -159,17 +176,5 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         String name = object.getStoreState().name();
         Resource res = createIconResource("target_store_" + name);
         return createIcon(name, res);
-    }
-
-    /**
-     * 
-     * @param entity
-     * @return
-     */
-    private StatefulTargetObject asStatefulTargetObject(RepositoryObject entity) {
-        if (entity instanceof StatefulTargetObject) {
-            return (StatefulTargetObject) entity;
-        }
-        return getFromId(((TargetObject) entity).getDefinition());
     }
 }

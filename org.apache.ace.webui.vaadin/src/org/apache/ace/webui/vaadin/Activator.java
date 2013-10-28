@@ -32,7 +32,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.http.HttpService;
 
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -68,8 +67,7 @@ public class Activator extends DependencyActivatorBase {
                     vl.setCaption("Info");
                     final NamedObject namedObject = (NamedObject) context.get("object");
                     final StatefulTargetObject target = (StatefulTargetObject) namedObject.getObject();
-                    Label info = new Label(
-                        "Target ID          : " + namedObject.getName() + "\n" +
+                    Label info = new Label("Target ID          : " + namedObject.getName() + "\n" +
                         "Installed version  : " + (target.getLastInstallVersion() == null ? "(none)" : target.getLastInstallVersion()) + "\n" +
                         "Available version  : " + target.getCurrentVersion() + "\n" +
                         "Approval state     : " + target.getApprovalState() + "\n" +
@@ -81,7 +79,7 @@ public class Activator extends DependencyActivatorBase {
                     return vl;
                 }
             })
-        );
+            );
     }
 
     @Override

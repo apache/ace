@@ -26,17 +26,17 @@ import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
 import org.apache.ace.client.repository.object.FeatureObject;
-import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.DistributionRepository;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.webui.UIExtensionFactory;
-import org.apache.ace.webui.vaadin.AssociationRemover;
+import org.apache.ace.webui.vaadin.AssociationManager;
 
 import com.vaadin.data.Item;
 
 /**
  * Provides an object panel for displaying distributions.
  */
-public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObject, DistributionRepository> {
+public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObject, DistributionRepository, FeatureObject, StatefulTargetObject> {
 
     /**
      * Creates a new {@link DistributionsPanel} instance.
@@ -46,25 +46,37 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
      * @param associationRemover
      *            the helper for removing associations.
      */
-    public DistributionsPanel(AssociationHelper associations, AssociationRemover associationRemover) {
+    public DistributionsPanel(AssociationHelper associations, AssociationManager associationRemover) {
         super(associations, associationRemover, "Distribution", UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION,
             true /* hasEdit */);
     }
 
     @Override
-    protected boolean doRemoveLeftSideAssociation(DistributionObject object, RepositoryObject other) {
-        List<Feature2DistributionAssociation> associations = object.getAssociationsWith((FeatureObject) other);
+    protected boolean doCreateLeftSideAssociation(FeatureObject feature, DistributionObject distribution) {
+        m_associationManager.createFeature2DistributionAssociation(feature, distribution);
+        return true;
+    }
+
+    @Override
+    protected boolean doCreateRightSideAssociation(DistributionObject distribution, StatefulTargetObject target) {
+        m_associationManager.createDistribution2TargetAssociation(distribution, target);
+        return true;
+    }
+
+    @Override
+    protected boolean doRemoveLeftSideAssociation(FeatureObject feature, DistributionObject object) {
+        List<Feature2DistributionAssociation> associations = object.getAssociationsWith(feature);
         for (Feature2DistributionAssociation association : associations) {
-            m_associationRemover.removeAssociation(association);
+            m_associationManager.removeAssociation(association);
         }
         return true;
     }
 
     @Override
-    protected boolean doRemoveRightSideAssociation(DistributionObject object, RepositoryObject other) {
-        List<Distribution2TargetAssociation> associations = object.getAssociationsWith((TargetObject) other);
+    protected boolean doRemoveRightSideAssociation(DistributionObject object, StatefulTargetObject target) {
+        List<Distribution2TargetAssociation> associations = object.getAssociationsWith(target.getTargetObject());
         for (Distribution2TargetAssociation association : associations) {
-            m_associationRemover.removeAssociation(association);
+            m_associationManager.removeAssociation(association);
         }
         return true;
     }
@@ -97,7 +109,7 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
     protected void populateItem(DistributionObject distribution, Item item) {
         item.getItemProperty(OBJECT_NAME).setValue(distribution.getName());
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
-        item.getItemProperty(ACTION_UNLINK).setValue(createUnlinkButton(distribution));
-        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(distribution));
+        item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(distribution));
+        item.getItemProperty(ACTION_DELETE).setValue(new RemoveItemButton(distribution));
     }
 }

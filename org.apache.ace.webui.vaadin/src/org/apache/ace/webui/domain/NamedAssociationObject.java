@@ -18,42 +18,45 @@
  */
 package org.apache.ace.webui.domain;
 
-public class OBREntry {
-    private final String m_name;
-    private final String m_symbolicName;
-    private final String m_version;
-    private final String m_uri;
+import org.apache.ace.client.repository.Association;
+import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.webui.NamedObject;
 
-    public OBREntry(String name, String symbolicName, String version, String uri) {
-        m_name = name;
-        m_symbolicName = symbolicName;
-        m_version = version;
-        m_uri = uri;
+/**
+ * 
+ */
+public class NamedAssociationObject implements NamedObject {
+    private final Association<?, ?> m_association;
+    
+    /**
+     * Creates a new {@link NamedAssociationObject} instance.
+     */
+    public NamedAssociationObject(Association<?, ?> association) {
+        m_association = association;
     }
 
+    @Override
+    public String getDefinition() {
+        return m_association.getDefinition();
+    }
+
+    @Override
+    public String getDescription() {
+        return null;
+    }
+
+    @Override
     public String getName() {
-        return m_name;
-    }
-
-    public String getVersion() {
-        return m_version;
-    }
-
-    public String getSymbolicName() {
-        return m_symbolicName;
-    }
-
-    public String getUri() {
-        return m_uri;
+        return null;
     }
 
     @Override
-    public int hashCode() {
-        return m_uri.hashCode();
+    public RepositoryObject getObject() {
+        return m_association;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return m_uri.equals(((OBREntry) obj).m_uri);
+    public void setDescription(String description) {
+        // Ignore...
     }
 }

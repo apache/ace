@@ -28,7 +28,7 @@ import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.webui.UIExtensionFactory;
-import org.apache.ace.webui.vaadin.AssociationRemover;
+import org.apache.ace.webui.vaadin.AssociationManager;
 import org.osgi.framework.Constants;
 
 import com.vaadin.data.Item;
@@ -36,55 +36,72 @@ import com.vaadin.data.Item;
 /**
  * Provides an object panel for displaying artifacts.
  */
-public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, ArtifactRepository> {
+public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, ArtifactRepository, RepositoryObject, FeatureObject> {
 
     /**
      * Creates a new {@link ArtifactsPanel} instance.
      * 
      * @param associations
      *            the assocation-holder object;
-     * @param associationRemover
-     *            the helper for removing associations.
+     * @param associationMgr
+     *            the helper for creating/removing associations.
      */
-    public ArtifactsPanel(AssociationHelper associations, AssociationRemover associationRemover) {
-        super(associations, associationRemover, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, true);
+    public ArtifactsPanel(AssociationHelper associations, AssociationManager associationMgr) {
+        super(associations, associationMgr, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, true);
     }
 
     @Override
-    protected void add(ArtifactObject artifact) {
-        String itemId = artifact.getDefinition();
-        String parentId = getParentId(artifact);
-
-        if (parentId != null && !containsId(parentId)) {
-            Item item = addItem(parentId);
-            item.getItemProperty(OBJECT_NAME).setValue(getParentDisplayName(artifact));
-            item.getItemProperty(OBJECT_DESCRIPTION).setValue("");
-            // we *must* set a non-null icon for the parent as well to ensure that the tree-table open/collapse icon is
-            // rendered properly...
-            setItemIcon(parentId, createIconResource("resource_workingstate_unchanged"));
-        }
-
-        Item item = addItem(itemId);
-        if (item != null) {
-            populateItem(artifact, item);
-        }
-
-        if (parentId != null) {
-            setParent(itemId, parentId);
-            setCollapsed(parentId, false);
-            setItemIcon(artifact);
-        }
-
-        setChildrenAllowed(itemId, false);
+    protected boolean doCreateRightSideAssociation(ArtifactObject artifact, FeatureObject feature) {
+        m_associationManager.createArtifact2FeatureAssociation(artifact, feature);
+        return true;
     }
 
     @Override
-    protected boolean doRemoveRightSideAssociation(ArtifactObject object, RepositoryObject other) {
-        List<Artifact2FeatureAssociation> associations = object.getAssociationsWith((FeatureObject) other);
+    protected boolean doRemoveRightSideAssociation(ArtifactObject object, FeatureObject other) {
+        List<Artifact2FeatureAssociation> associations = object.getAssociationsWith(other);
         for (Artifact2FeatureAssociation association : associations) {
-            m_associationRemover.removeAssociation(association);
+            m_associationManager.removeAssociation(association);
         }
         return true;
+    }
+
+    @Override
+    protected String getDisplayName(ArtifactObject artifact) {
+        String bv = artifact.getAttribute(Constants.BUNDLE_VERSION);
+        if (bv != null) {
+            return bv;
+        }
+        return artifact.getName();
+    }
+
+    @Override
+    protected String getParentDisplayName(ArtifactObject artifact) {
+        String bn = artifact.getAttribute(Constants.BUNDLE_NAME);
+        if (bn != null) {
+            return bn;
+        }
+        String name = artifact.getName();
+        int idx = name.lastIndexOf('-');
+        if (idx > 0) {
+            name = name.substring(0, idx);
+        }
+        else {
+            idx = name.lastIndexOf('.');
+            if (idx > 0) {
+                name = name.substring(0, idx);
+            }
+        }
+        return name;
+    }
+
+    @Override
+    protected String getParentId(ArtifactObject artifact) {
+        String bsn = artifact.getAttribute(Constants.BUNDLE_SYMBOLICNAME);
+        if (bsn != null) {
+            return bsn;
+        }
+        // return getParentDisplayName(artifact);
+        return null;
     }
 
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
@@ -109,44 +126,8 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
     protected void populateItem(ArtifactObject artifact, Item item) {
         item.getItemProperty(OBJECT_NAME).setValue(getDisplayName(artifact));
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
-        item.getItemProperty(ACTION_UNLINK).setValue(createUnlinkButton(artifact));
-        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(artifact));
-    }
-
-    protected String getDisplayName(ArtifactObject artifact) {
-        String bv = artifact.getAttribute(Constants.BUNDLE_VERSION);
-        if (bv != null) {
-            return bv;
-        }
-        return artifact.getName();
-    }
-
-    private String getParentDisplayName(ArtifactObject artifact) {
-        String bn = artifact.getAttribute(Constants.BUNDLE_NAME);
-        if (bn != null) {
-            return bn;
-        }
-        String name = artifact.getName();
-        int idx = name.lastIndexOf('-');
-        if (idx > 0) {
-            name = name.substring(0, idx);
-        }
-        else {
-            idx = name.lastIndexOf('.');
-            if (idx > 0) {
-                name = name.substring(0, idx);
-            }
-        }
-        return name;
-    }
-
-    private String getParentId(ArtifactObject artifact) {
-        String bsn = artifact.getAttribute(Constants.BUNDLE_SYMBOLICNAME);
-        if (bsn != null) {
-            return bsn;
-        }
-        // return getParentDisplayName(artifact);
-        return null;
+        item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(artifact));
+        item.getItemProperty(ACTION_DELETE).setValue(new RemoveItemButton(artifact));
     }
 
     /**

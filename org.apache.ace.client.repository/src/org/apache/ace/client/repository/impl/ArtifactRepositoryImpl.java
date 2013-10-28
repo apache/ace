@@ -282,54 +282,34 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
     }
 
     public ArtifactObject importArtifact(URL artifact, boolean upload) throws IllegalArgumentException, IOException {
-        try {
-            if ((artifact == null) || (artifact.toString().length() == 0)) {
-                throw new IllegalArgumentException("The URL to import cannot be null or empty.");
-            }
-            checkURL(artifact);
-
-            Map<Class<?>, Object> fromArtifact = findRecognizerAndHelper(artifact);
-            ArtifactRecognizer recognizer = (ArtifactRecognizer) fromArtifact.get(ArtifactRecognizer.class);
-            ArtifactHelper helper = (ArtifactHelper) fromArtifact.get(ArtifactHelper.class);
-            String mimetype = (String) fromArtifact.get(String.class);
-
-            return importArtifact(artifact, recognizer, helper, mimetype, false, upload);
+        if ((artifact == null) || (artifact.toString().length() == 0)) {
+            throw new IllegalArgumentException("The URL to import cannot be null or empty.");
         }
-        catch (IllegalArgumentException iae) {
-            m_log.log(LogService.LOG_WARNING, "Error importing artifact: " + iae.getMessage(), iae);
-            throw iae;
-        }
-        catch (IOException ioe) {
-            m_log.log(LogService.LOG_WARNING, "Error storing artifact: " + ioe.getMessage(), ioe);
-            throw ioe;
-        }
+        checkURL(artifact);
+        
+        Map<Class<?>, Object> fromArtifact = findRecognizerAndHelper(artifact);
+        ArtifactRecognizer recognizer = (ArtifactRecognizer) fromArtifact.get(ArtifactRecognizer.class);
+        ArtifactHelper helper = (ArtifactHelper) fromArtifact.get(ArtifactHelper.class);
+        String mimetype = (String) fromArtifact.get(String.class);
+        
+        return importArtifact(artifact, recognizer, helper, mimetype, false, upload);
     }
 
     public ArtifactObject importArtifact(URL artifact, String mimetype, boolean upload) throws IllegalArgumentException, IOException {
-        try {
-            if ((artifact == null) || (artifact.toString().length() == 0)) {
-                throw new IllegalArgumentException("The URL to import cannot be null or empty.");
-            }
-            if ((mimetype == null) || (mimetype.length() == 0)) {
-                throw new IllegalArgumentException("The mimetype of the artifact to import cannot be null or empty.");
-            }
-
-            checkURL(artifact);
-
-            Map<Class<?>, Object> fromMimetype = findRecognizerAndHelper(mimetype);
-            ArtifactRecognizer recognizer = (ArtifactRecognizer) fromMimetype.get(ArtifactRecognizer.class);
-            ArtifactHelper helper = (ArtifactHelper) fromMimetype.get(ArtifactHelper.class);
-
-            return importArtifact(artifact, recognizer, helper, mimetype, true, upload);
+        if ((artifact == null) || (artifact.toString().length() == 0)) {
+            throw new IllegalArgumentException("The URL to import cannot be null or empty.");
         }
-        catch (IllegalArgumentException iae) {
-            m_log.log(LogService.LOG_WARNING, "Error importing artifact: " + iae.getMessage(), iae);
-            throw iae;
+        if ((mimetype == null) || (mimetype.length() == 0)) {
+            throw new IllegalArgumentException("The mimetype of the artifact to import cannot be null or empty.");
         }
-        catch (IOException ioe) {
-            m_log.log(LogService.LOG_WARNING, "Error storing artifact: " + ioe.getMessage(), ioe);
-            throw ioe;
-        }
+        
+        checkURL(artifact);
+        
+        Map<Class<?>, Object> fromMimetype = findRecognizerAndHelper(mimetype);
+        ArtifactRecognizer recognizer = (ArtifactRecognizer) fromMimetype.get(ArtifactRecognizer.class);
+        ArtifactHelper helper = (ArtifactHelper) fromMimetype.get(ArtifactHelper.class);
+        
+        return importArtifact(artifact, recognizer, helper, mimetype, true, upload);
     }
 
     private ArtifactObject importArtifact(URL artifact, ArtifactRecognizer recognizer, ArtifactHelper helper, String mimetype, boolean overwrite, boolean upload) throws IOException {
@@ -349,14 +329,10 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         attributes.put(ArtifactObject.KEY_URL, artifactURL);
 
         if (upload) {
-            try {
-                String location = upload(artifact, attributes.get("filename"), mimetype);
-                attributes.put(ArtifactObject.KEY_URL, location);
-            }
-            catch (IOException ex) {
-                throw ex;
-            }
+            String location = upload(artifact, attributes.get("filename"), mimetype);
+            attributes.put(ArtifactObject.KEY_URL, location);
         }
+
         ArtifactObject result = create(attributes, tags);
         return result;
     }
@@ -469,16 +445,13 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
                         location = outputConn.getHeaderField("Location");
                         break;
                     case HttpURLConnection.HTTP_CONFLICT:
-                        throw new IOException("Artifact already exists in storage.");
+                        throw new ArtifactAlreadyExistsException(artifact, filename);
                     case HttpURLConnection.HTTP_INTERNAL_ERROR:
                         throw new IOException("The storage server returned an internal server error.");
                     default:
                         throw new IOException("The storage server returned code " + responseCode + " writing to " + url.toString());
                 }
             }
-        }
-        catch (IOException ioe) {
-            throw new IOException("Error importing artifact " + artifact.toString() + ": " + ioe.getMessage(), ioe);
         }
         finally {
             if (input != null) {
