@@ -39,7 +39,7 @@ public class SortedRangeSet {
         }
     };
 
-    private List m_ranges = new ArrayList();
+    private List<Range> m_ranges = new ArrayList<Range>();
 
     /**
      * Creates a new instance from a string representation.
@@ -95,9 +95,9 @@ public class SortedRangeSet {
      */
     public String toRepresentation() {
         StringBuffer result = new StringBuffer();
-        Iterator i = m_ranges.iterator();
+        Iterator<Range> i = m_ranges.iterator();
         while (i.hasNext()) {
-            Range r = (Range) i.next();
+            Range r = i.next();
             if (result.length() > 0) {
                 result.append(',');
             }
@@ -134,9 +134,9 @@ public class SortedRangeSet {
      * @return <code>true</code> if the number was inside any range in this set
      */
     public boolean contains(long number) {
-        Iterator i = m_ranges.iterator();
+        Iterator<Range> i = m_ranges.iterator();
         while (i.hasNext()) {
-            Range r = (Range) i.next();
+            Range r = i.next();
             if (r.contains(number)) {
                 return true;
             }
@@ -150,10 +150,10 @@ public class SortedRangeSet {
      * @param number the number to add
      */
     private void add(long number) {
-        ListIterator i = m_ranges.listIterator();
+        ListIterator<Range> i = m_ranges.listIterator();
         while (i.hasNext()) {
             int index = i.nextIndex();
-            Range r = (Range) i.next();
+            Range r = i.next();
             if (r.contains(number)) {
                 return;
             }
@@ -222,7 +222,7 @@ public class SortedRangeSet {
     public long getHigh() {
         int size = m_ranges.size();
         if (size > 0) {
-            Range range = (Range) m_ranges.get(size - 1);
+            Range range = m_ranges.get(size - 1);
             return range.getHigh();
         }
         else {
