@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.client.repository.RepositoryAdmin;
@@ -98,7 +99,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     private static final long serialVersionUID = 1L;
 
-    private static long SESSION_ID = 1;
+    private static final AtomicLong SESSION_ID = new AtomicLong(1L);
+
     private static final String targetRepo = "target";
     private static final String shopRepo = "shop";
     private static final String deployRepo = "deployment";
@@ -108,7 +110,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     // basic session ID generator
     private static long generateSessionID() {
-        return SESSION_ID++;
+        return SESSION_ID.getAndIncrement();
     }
 
     /**
@@ -197,7 +199,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      * @param userName
      *            the hardcoded username to use when authentication is disabled.
      */
-    public VaadinClient(DependencyManager manager, URL aceHost, URL obrUrl, String repositoryXML, boolean useAuth, String userName) {
+    public VaadinClient(DependencyManager manager, URL aceHost, URL obrUrl, String repositoryXML, boolean useAuth, String userName, String password) {
         m_manager = manager;
         try {
             m_repository = new URL(aceHost, endpoint);
@@ -1073,8 +1075,6 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
     private void showLoginWindow() {
         LoginWindow loginWindow = new LoginWindow(m_log, this);
 
-        m_mainWindow.addWindow(loginWindow);
-
-        loginWindow.center();
+        loginWindow.openWindow(getMainWindow());
     }
 }

@@ -18,34 +18,48 @@
  */
 package org.apache.ace.webui.vaadin;
 
+import java.util.Map;
+
 import org.osgi.service.log.LogService;
 
+import com.vaadin.event.FieldEvents;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Provides a simple login dialog.
  */
 public class LoginWindow extends Window {
-
-    public interface LoginFunction {
+    /**
+     *  
+     */
+    public static interface LoginFunction {
         boolean login(String name, String password);
     }
 
-    private volatile LogService m_log;
+    private final LogService m_log;
+    private final LoginFunction m_loginFunction;
 
-    private TextField m_name;
-    private PasswordField m_password;
-    private Button m_loginButton;
-    private LoginFunction m_loginFunction;
+    private final Label m_additionalInfo;
 
-    public LoginWindow(final LogService log, final LoginFunction loginFunction) {
+    /**
+     * Creates a new {@link LoginWindow} instance.
+     * 
+     * @param log
+     *            the log service to use;
+     * @param loginFunction
+     *            the login callback to use.
+     */
+    public LoginWindow(LogService log, LoginFunction loginFunction) {
         super("Apache ACE Login");
 
         m_log = log;
@@ -54,29 +68,45 @@ public class LoginWindow extends Window {
         setResizable(false);
         setClosable(false);
         setModal(true);
-        setWidth("15em");
+        setWidth("20em");
 
-        m_name = new TextField("Name", "");
-        m_name.setImmediate(true);
+        m_additionalInfo = new Label("");
+        m_additionalInfo.setImmediate(true);
+        m_additionalInfo.setStyleName("alert");
+        m_additionalInfo.setHeight("1.2em");
+        // Ensures the information message disappears when starting typing...
+        FieldEvents.TextChangeListener changeListener = new FieldEvents.TextChangeListener() {
+            @Override
+            public void textChange(TextChangeEvent event) {
+                m_additionalInfo.setValue("");
+            }
+        };
 
-        m_password = new PasswordField("Password", "");
-        m_password.setImmediate(true);
+        final TextField nameField = new TextField("Name", "");
+        nameField.addListener(changeListener);
+        nameField.setImmediate(true);
+        nameField.setWidth("100%");
 
-        m_loginButton = new Button("Login");
-        m_loginButton.setImmediate(true);
+        final PasswordField passwordField = new PasswordField("Password", "");
+        passwordField.addListener(changeListener);
+        passwordField.setImmediate(true);
+        passwordField.setWidth("100%");
+
+        Button loginButton = new Button("Login");
+        loginButton.setImmediate(true);
         // Allow enter to be used to login directly...
-        m_loginButton.setClickShortcut(KeyCode.ENTER);
+        loginButton.setClickShortcut(KeyCode.ENTER);
         // Highlight this button as the default one...
-        m_loginButton.addStyleName("primary");
+        loginButton.addStyleName(Reindeer.BUTTON_DEFAULT);
 
-        m_loginButton.addListener(new Button.ClickListener() {
+        loginButton.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                final Button button = event.getButton();
+                Button button = event.getButton();
                 button.setEnabled(false);
 
                 try {
-                    String username = (String) m_name.getValue();
-                    String password = (String) m_password.getValue();
+                    String username = (String) nameField.getValue();
+                    String password = (String) passwordField.getValue();
 
                     if (m_loginFunction.login(username, password)) {
                         m_log.log(LogService.LOG_INFO, "Apache Ace WebUI succesfull login by user: " + username);
@@ -86,8 +116,10 @@ public class LoginWindow extends Window {
                     else {
                         m_log.log(LogService.LOG_WARNING, "Apache Ace WebUI invalid username or password entered.");
 
-                        getParent().showNotification("Invalid username or password!");
-                        setRelevantFocus();
+                        m_additionalInfo.setValue("Invalid username or password!");
+
+                        nameField.focus();
+                        nameField.selectAll();
                     }
                 }
                 finally {
@@ -101,27 +133,42 @@ public class LoginWindow extends Window {
         content.setMargin(true);
         content.setSizeFull();
 
-        content.addComponent(m_name);
-        content.addComponent(m_password);
-        content.addComponent(m_loginButton);
+        content.addComponent(nameField);
+        content.addComponent(passwordField);
+        content.addComponent(m_additionalInfo);
+        content.addComponent(loginButton);
 
-        content.setComponentAlignment(m_loginButton, Alignment.BOTTOM_CENTER);
+        content.setComponentAlignment(loginButton, Alignment.BOTTOM_CENTER);
 
-        setRelevantFocus();
+        nameField.focus();
     }
 
     /**
-     * Gives the username field the current focus.
+     * Shows this login window on screen.
+     * 
+     * @param parent
+     *            the parent window, cannot be <code>null</code>.
      */
-    void setRelevantFocus() {
-        m_name.focus();
-        m_name.selectAll();
+    public void openWindow(Window parent) {
+        parent.addParameterHandler(this);
+        parent.addWindow(this);
+
+        center();
     }
 
     /**
      * Closes this login window.
      */
     public void closeWindow() {
+        getParent().removeParameterHandler(this);
         getParent().removeWindow(this);
+    }
+
+    @Override
+    public void handleParameters(Map<String, String[]> parameters) {
+        if (parameters.containsKey("sessionTimedOut")) {
+            m_additionalInfo.setValue("Session timed out!");
+        }
+        super.handleParameters(parameters);
     }
 }

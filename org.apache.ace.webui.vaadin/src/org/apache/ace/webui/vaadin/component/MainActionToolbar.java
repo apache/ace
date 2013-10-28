@@ -326,6 +326,9 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
                 Notification.TYPE_ERROR_MESSAGE);
         }
 
+        // always enabled...
+        m_retrieveButton.setEnabled(true);
+        // only enabled when an actual change has been made...
         m_storeButton.setEnabled(modified);
         m_revertButton.setEnabled(modified);
     }
@@ -398,14 +401,17 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      */
     private void initComponent() {
         m_retrieveButton = new Button("Retrieve");
+        m_retrieveButton.setEnabled(false);
         m_retrieveButton.addListener(new RetrieveButtonListener());
         addComponent(m_retrieveButton, 0, 0);
 
         m_storeButton = new Button("Store");
+        m_storeButton.setEnabled(false);
         m_storeButton.addListener(new StoreButtonListener());
         addComponent(m_storeButton, 1, 0);
 
         m_revertButton = new Button("Revert");
+        m_revertButton.setEnabled(false);
         m_revertButton.addListener(new RevertButtonListener());
         addComponent(m_revertButton, 2, 0);
 

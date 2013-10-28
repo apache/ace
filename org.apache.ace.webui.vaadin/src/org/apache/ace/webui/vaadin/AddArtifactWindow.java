@@ -93,14 +93,19 @@ abstract class AddArtifactWindow extends Window {
         m_artifactsTable.addContainerProperty(PROPERTY_VERSION, String.class, null);
         m_artifactsTable.addContainerProperty(PROPERTY_PURGE, Button.class, null);
         m_artifactsTable.setSizeFull();
-        m_artifactsTable.setSelectable(true);
-        m_artifactsTable.setMultiSelect(true);
+        m_artifactsTable.setSelectable(false);
+        m_artifactsTable.setMultiSelect(false);
         m_artifactsTable.setImmediate(true);
         m_artifactsTable.setHeight("15em");
 
-        final Table uploadedArtifacts = new ArtifactTable();
-        uploadedArtifacts.setCaption("Uploaded artifacts");
+        final Table uploadedArtifacts = new Table("Uploaded artifacts");
+        uploadedArtifacts.addContainerProperty(PROPERTY_SYMBOLIC_NAME, String.class, null);
+        uploadedArtifacts.addContainerProperty(PROPERTY_VERSION, String.class, null);
+        uploadedArtifacts.setSizeFull();
         uploadedArtifacts.setSelectable(false);
+        uploadedArtifacts.setMultiSelect(false);
+        uploadedArtifacts.setImmediate(true);
+        uploadedArtifacts.setHeight("15em");
 
         final GenericUploadHandler uploadHandler = new GenericUploadHandler(m_sessionDir) {
             @Override
@@ -115,8 +120,8 @@ abstract class AddArtifactWindow extends Window {
                         URL artifact = handle.getFile().toURI().toURL();
 
                         Item item = uploadedArtifacts.addItem(artifact);
-                        item.getItemProperty(ArtifactTable.PROPERTY_SYMBOLIC_NAME).setValue(handle.getFilename());
-                        item.getItemProperty(ArtifactTable.PROPERTY_VERSION).setValue("");
+                        item.getItemProperty(PROPERTY_SYMBOLIC_NAME).setValue(handle.getFilename());
+                        item.getItemProperty(PROPERTY_VERSION).setValue("");
 
                         m_uploadedArtifacts.add(handle.getFile());
                     }
@@ -160,7 +165,7 @@ abstract class AddArtifactWindow extends Window {
                 dataSource.removeAllContainerFilters();
 
                 if (searchValue != null && searchValue.trim().length() > 0) {
-                    dataSource.addContainerFilter(ArtifactTable.PROPERTY_SYMBOLIC_NAME, searchValue,
+                    dataSource.addContainerFilter(PROPERTY_SYMBOLIC_NAME, searchValue,
                         true /* ignoreCase */, false /* onlyMatchPrefix */);
                 }
             }
@@ -251,8 +256,8 @@ abstract class AddArtifactWindow extends Window {
                 catch (Exception exception) {
                     Item item = artifacts.getItem(itemID);
 
-                    Object symbolicName = item.getItemProperty(ArtifactTable.PROPERTY_SYMBOLIC_NAME).getValue();
-                    Object version = item.getItemProperty(ArtifactTable.PROPERTY_VERSION).getValue();
+                    Object symbolicName = item.getItemProperty(PROPERTY_SYMBOLIC_NAME).getValue();
+                    Object version = item.getItemProperty(PROPERTY_VERSION).getValue();
 
                     showErrorNotification("Import artifact failed", "Artifact " + symbolicName + " " + version
                         + "<br />could not be imported into the repository."

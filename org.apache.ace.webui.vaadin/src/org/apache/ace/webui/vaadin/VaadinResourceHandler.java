@@ -32,8 +32,8 @@ import org.osgi.service.http.NamespaceException;
 public class VaadinResourceHandler {
     private volatile HttpService m_http;
     private HttpContext m_context;
-	private BundleContext m_bundleContext;
-    
+    private BundleContext m_bundleContext;
+
     public void start() {
         m_context = m_http.createDefaultHttpContext();
         try {
@@ -43,14 +43,13 @@ public class VaadinResourceHandler {
                 }
 
                 /**
-                 * ACE uses a slightly modified version of the 'reindeer' theme. To avoid having
-                 * to copy all resources in the Vaadin jar, we only override the files we changed
-                 * and do replace the theme name 'ace' with 'reindeer' before we go looking for the
-                 * original files.
+                 * ACE uses a slightly modified version of the 'reindeer' theme. To avoid having to copy all resources
+                 * in the Vaadin jar, we only override the files we changed and do replace the theme name 'ace' with
+                 * 'reindeer' before we go looking for the original files.
                  * 
-                 * When updating to a new Vaadin version, usually you need to copy the styles.css
-                 * file from the original archive again and append the ACE changes to the end, as this
-                 * file tends to change considerably between versions.
+                 * When updating to a new Vaadin version, usually you need to copy the styles.css file from the original
+                 * archive again and append the ACE changes to the end, as this file tends to change considerably
+                 * between versions.
                  */
                 public URL getResource(String name) {
                     URL resource = null;
@@ -59,8 +58,8 @@ public class VaadinResourceHandler {
                     if (!name.startsWith("/")) {
                         name = "/" + name;
                     }
-					if (name.startsWith(prefix)) {
-                    	String originalName = name.replace("/ace/", "/reindeer/");
+                    if (name.startsWith(prefix)) {
+                        String originalName = name.replace("/ace/", "/reindeer/");
                         resource = m_bundleContext.getBundle().getEntry(originalName);
                         if (resource == null) {
                             // try to find the resource in the Vaadin bundle instead
@@ -72,7 +71,8 @@ public class VaadinResourceHandler {
 
                 public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
                     return m_context.handleSecurity(request, response);
-                }});
+                }
+            });
         }
         catch (NamespaceException e) {
             e.printStackTrace();

@@ -6019,3 +6019,7 @@ textarea.v-textarea-readonly,
 .v-selected .v-table-row-odd.vtable-cell-content-description {
 	color: white;
 }
+.v-label-alert {
+	font-weight: bold;
+	color: red;
+}

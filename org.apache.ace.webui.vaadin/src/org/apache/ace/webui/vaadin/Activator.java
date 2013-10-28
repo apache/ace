@@ -37,6 +37,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 public class Activator extends DependencyActivatorBase {
+    private static final String PID = "org.apache.ace.webui.vaadin";
+
+    @Override
+    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
+    }
+
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         manager.add(createComponent()
@@ -51,7 +57,7 @@ public class Activator extends DependencyActivatorBase {
             .setInterface(Servlet.class.getName(), null)
             .setImplementation(VaadinServlet.class)
             .add(createConfigurationDependency()
-                .setPid(VaadinServlet.PID).setPropagate(true))
+                .setPid(PID).setPropagate(true))
             );
 
         Properties props = new Properties();
@@ -80,9 +86,5 @@ public class Activator extends DependencyActivatorBase {
                 }
             })
             );
-    }
-
-    @Override
-    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
     }
 }
