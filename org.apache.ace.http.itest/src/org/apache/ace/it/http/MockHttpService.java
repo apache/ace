@@ -39,7 +39,6 @@ public class MockHttpService implements HttpService {
     public void registerResources(String arg0, String arg1, HttpContext arg2) throws NamespaceException {
     }
 
-    @SuppressWarnings("unchecked")
     public void registerServlet(String arg0, Servlet arg1, Dictionary arg2, HttpContext arg3) throws ServletException, NamespaceException {
         m_registerCalled = true;
     }

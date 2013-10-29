@@ -149,7 +149,7 @@ public class VerifierResolverState implements Resolver.ResolverState {
 	}
 
 	synchronized Set<BundleRevision> getFragments() {
-		return new HashSet(m_fragments);
+		return new HashSet<BundleRevision>(m_fragments);
 	}
 
 	/**

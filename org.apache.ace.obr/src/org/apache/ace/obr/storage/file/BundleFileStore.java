@@ -139,7 +139,6 @@ public class BundleFileStore implements BundleStore, ManagedService {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     public void updated(Dictionary dict) throws ConfigurationException {
         if (dict != null) {
             String path = (String) dict.get(OBRFileStoreConstants.FILE_LOCATION_KEY);

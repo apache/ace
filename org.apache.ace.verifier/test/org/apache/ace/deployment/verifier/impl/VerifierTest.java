@@ -1,9 +1,6 @@
 package org.apache.ace.deployment.verifier.impl;
 
-import org.testng.annotations.Test;
-import org.testng.AssertJUnit;
 import static org.apache.ace.test.utils.TestUtils.UNIT;
-import static org.testng.Assert.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,7 +16,10 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.service.log.LogEntry;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
+@SuppressWarnings({"deprecation"})
 public class VerifierTest {
     @Test(groups = { UNIT })
 	public void testResolve() throws BundleException {

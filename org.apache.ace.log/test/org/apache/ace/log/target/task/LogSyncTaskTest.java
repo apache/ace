@@ -107,7 +107,6 @@ public class LogSyncTaskTest {
             }
             public List<?> get(long logID) throws IOException { return null; }
             public long[] getLogIDs() throws IOException { return null; }
-            @SuppressWarnings("unchecked")
             public Event put(int type, Dictionary props) throws IOException { return null; }
         });
         MockConnection connection = new MockConnection(new URL("http://mock"));

@@ -60,7 +60,6 @@ public class MockBundleStore implements BundleStore {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     public void updated(Dictionary arg0) throws ConfigurationException {
         // TODO does nothing yet
     }

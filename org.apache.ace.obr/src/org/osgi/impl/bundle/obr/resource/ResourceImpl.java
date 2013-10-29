@@ -25,6 +25,7 @@ import org.osgi.framework.Version;
 import org.osgi.service.obr.*;
 import org.xmlpull.v1.XmlPullParser;
 
+@SuppressWarnings({"unchecked"})
 public class ResourceImpl implements Resource {
     List capabilities = new ArrayList();
     List requirements = new ArrayList();

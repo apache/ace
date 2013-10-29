@@ -63,7 +63,7 @@ public class GatewayLogStoreTest {
         m_logStore = null;
     }
 
-    @SuppressWarnings({ "serial", "unchecked" })
+    @SuppressWarnings({ "serial" })
     @Test(groups = {UNIT})
     public void testLog() throws IOException {
         long[] ids = m_logStore.getLogIDs();

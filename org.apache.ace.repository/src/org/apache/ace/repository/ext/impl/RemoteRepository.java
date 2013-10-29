@@ -108,12 +108,15 @@ public class RemoteRepository implements Repository {
         OutputStream out = connection.getOutputStream();
         try {
             copy(data, out);
-
+        }
+        finally {
+            closeQuietly(out);
+        }
+        try {
             // causes the stream the be flushed and the server response to be obtained...
             return connection.getResponseCode() == HttpServletResponse.SC_OK;
         }
         finally {
-            closeQuietly(out);
             closeQuietly(connection);
         }
     }

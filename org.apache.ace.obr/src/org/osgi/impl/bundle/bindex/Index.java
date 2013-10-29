@@ -79,9 +79,9 @@ public class Index
         System.err.println("Bundle Indexer | v2.2");
         System.err.println("(c) 2007 OSGi, All Rights Reserved");
 
-        Set resources = new HashSet();
-        root = rootFile.toURL().toString();
-        repository = new RepositoryImpl(rootFile.toURL());
+        Set<ResourceImpl> resources = new HashSet<ResourceImpl>();
+        root = rootFile.toURI().toURL().toString();
+        repository = new RepositoryImpl(rootFile.toURI().toURL());
 
         for (int i = 0; i < args.length; i++) {
             try {
@@ -91,7 +91,7 @@ public class Index
                 else if (args[i].startsWith("-r")) {
                     repositoryFileName = args[++i];
                     repository = new RepositoryImpl(new File(
-                        repositoryFileName).getAbsoluteFile().toURL());
+                        repositoryFileName).getAbsoluteFile().toURI().toURL());
                 }
                 else if (args[i].startsWith("-q")) {
                     quiet = true;
@@ -100,7 +100,7 @@ public class Index
                     urlTemplate = args[++i];
                 }
                 else if (args[i].startsWith("-l")) {
-                    licenseURL = new URL(new File("").toURL(),
+                    licenseURL = new URL(new File("").toURI().toURL(),
                         args[++i]);
                 }
                 else if (args[i].startsWith("-help")) {
@@ -121,11 +121,11 @@ public class Index
             }
         }
 
-        List sorted = new ArrayList(resources);
-        Collections.sort(sorted, new Comparator() {
-            public int compare(Object r1, Object r2) {
-                String s1 = getName((ResourceImpl) r1);
-                String s2 = getName((ResourceImpl) r2);
+        List<ResourceImpl> sorted = new ArrayList<ResourceImpl>(resources);
+        Collections.sort(sorted, new Comparator<ResourceImpl>() {
+            public int compare(ResourceImpl r1, ResourceImpl r2) {
+                String s1 = getName(r1);
+                String s2 = getName(r2);
                 return s1.compareTo(s2);
             }
         });
@@ -184,7 +184,7 @@ public class Index
         }
     }
 
-    static void recurse(Set resources, File path) throws Exception {
+    static void recurse(Set<ResourceImpl> resources, File path) throws Exception {
         if (path.isDirectory()) {
             String list[] = path.list();
             for (int i = 0; i < list.length; i++) {
@@ -203,7 +203,7 @@ public class Index
                     doTemplate(path, resource);
                 }
                 else {
-                    resource.setURL(path.toURL());
+                    resource.setURL(path.toURI().toURL());
                 }
 
                 resources.add(resource);
@@ -213,7 +213,7 @@ public class Index
                 if (all) {
                     ResourceMetaData metadata = ResourceMetaData.getArtifactMetaData(path.getName());
                     ResourceImpl impl = new ResourceImpl(repository, metadata.getSymbolicName(), new VersionRange(metadata.getVersion()));
-                    impl.setURL(path.toURL());
+                    impl.setURL(path.toURI().toURL());
                     resources.add(impl);
                 }
             }
@@ -222,7 +222,7 @@ public class Index
 
     static void doTemplate(File path, ResourceImpl resource)
         throws MalformedURLException {
-        String dir = path.getAbsoluteFile().getParentFile().getAbsoluteFile()
+        String dir = path.getAbsoluteFile().getParentFile().getAbsoluteFile().toURI()
             .toURL().toString();
         if (dir.endsWith("/")) {
             dir = dir.substring(0, dir.length() - 1);

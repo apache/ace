@@ -123,6 +123,7 @@ public class BundleFileStoreTest {
         FileInputStream orgInputStream = new FileInputStream(m_bundleRepositoryFile);
         byte[] newContentBuffer = new byte[1000];
         orgInputStream.read(newContentBuffer);
+        orgInputStream.close();
 
         assert Arrays.equals(orgContentBuffer, newContentBuffer) : "The original repository.xml content should equal the newly retrieved content.";
     }
@@ -183,6 +184,7 @@ public class BundleFileStoreTest {
         FileInputStream inputStream = new FileInputStream(m_bundleSubstitute1);
         byte[] buffer = new byte[1000];
         inputStream.read(buffer);
+        inputStream.close();
         m_bundleSubstitute1.delete();
 
         File newFile = new File(m_directory, "bundleSub1.jar");
@@ -258,6 +260,7 @@ public class BundleFileStoreTest {
     public void putBundleDuplicate() throws Exception {
         File bundle = createTmpResource("foo.bar", "1.0.0");
         String filePath = m_bundleStore.put(new FileInputStream(bundle), null);
+        assert filePath != null;
         String filePath2 = m_bundleStore.put(new FileInputStream(bundle), null);
         assert filePath2 == null;
     }

@@ -20,6 +20,7 @@ package org.apache.felix.framework;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import org.osgi.framework.*;
 
 /**
@@ -214,6 +215,7 @@ public class Logger implements ServiceListener
      * there will never be a log service present since the system bundle is
      * started before every other bundle.
     **/
+    @SuppressWarnings({ "unchecked", "unused" })
     private synchronized void startListeningForLogService()
     {
         // Add a service listener for log services.
@@ -243,6 +245,7 @@ public class Logger implements ServiceListener
      * If a higher ranking log service is registered, then this will switch
      * to the higher ranking log service.
     **/
+    @SuppressWarnings("unchecked")
     public final synchronized void serviceChanged(ServiceEvent event)
     {
         // If no logger is in use, then grab this one.

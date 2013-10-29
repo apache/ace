@@ -72,7 +72,6 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         return "Log Servlet Factory";
     }
 
-    @SuppressWarnings("unchecked")
     public void updated(String pid, Dictionary dict) throws ConfigurationException {
         String name = (String) dict.get(KEY_LOG_NAME);
         if ((name == null) || "".equals(name)) {

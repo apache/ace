@@ -20,7 +20,6 @@ package org.apache.ace.ant.deploymentpackage;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 

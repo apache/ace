@@ -40,7 +40,6 @@ public class LogEventTest {
         assert e.toRepresentation().equals("gwid$kgwid$n$r$$,1,2,3," + AuditEvent.FRAMEWORK_STARTED);
     }
 
-    @SuppressWarnings("unchecked")
     @Test(groups = { UNIT })
     public void deserializeLogEvent() {
         Event e = new Event("gwid$kgwid$n$r$$,1,2,3," + AuditEvent.FRAMEWORK_STARTED + ",a,1,b,2,c,3");

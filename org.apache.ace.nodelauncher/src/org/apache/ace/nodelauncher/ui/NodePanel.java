@@ -65,7 +65,7 @@ public class NodePanel extends Panel {
     public NodePanel(NodeLauncherPanelFactory factory, String target) {
         m_factory = factory;
         m_targetId = target;
-        config = (JcloudsNodeLauncherConfig)m_factory.getCloudService().getDefaultConfig();
+        config = (JcloudsNodeLauncherConfig) m_factory.getCloudService().getDefaultConfig();
         setContent();
         setCaption(m_targetId);
     }
@@ -85,7 +85,6 @@ public class NodePanel extends Panel {
         buttonPanel.addComponent(startButton);
         buttonPanel.addComponent(stopButton);
         buttonPanel.setSpacing(true);
-        
 
         Table propertiesTable = new PropertiesTable(m_handler);
         propertiesTable.setWidth("100%");
@@ -118,7 +117,6 @@ public class NodePanel extends Panel {
                 createImageItems();
             }
         });
-
 
         m_keyPairInput = new TextField("Keypair", config.getKeyPair());
         panel.addComponent(m_keyPairInput);
@@ -170,7 +168,7 @@ public class NodePanel extends Panel {
         for (Hardware hardware : hardwares) {
             m_hardwareIdSelect.addItem(hardware.getId());
             m_hardwareIdSelect.setItemCaption(hardware.getId(), hardware.getName());
-            if(hardware.getId().equals(config.getHardwareId())) {
+            if (hardware.getId().equals(config.getHardwareId())) {
                 m_hardwareIdSelect.select(hardware.getId());
             }
         }
@@ -181,13 +179,13 @@ public class NodePanel extends Panel {
         for (Image image : images) {
             m_ImageIdSelect.addItem(image.getId());
             m_ImageIdSelect.setItemCaption(image.getId(), image.getName());
-            if(image.getId().endsWith(config.getImageId())) {
+            if (image.getId().endsWith(config.getImageId())) {
                 m_ImageIdSelect.select(image.getId());
             }
         }
     }
 
-    @SuppressWarnings("serial")
+    @SuppressWarnings({ "serial", "unchecked" })
     private class ActionButton extends Button implements NodeStatusHandler.NodeStatusListener, ClickListener {
         private final Action m_action;
 
@@ -211,7 +209,7 @@ public class NodePanel extends Panel {
         }
     }
 
-    @SuppressWarnings("serial")
+    @SuppressWarnings({ "serial", "unchecked" })
     private static class NodeLabel extends Label implements NodeStatusHandler.NodeStatusListener {
         public NodeLabel(NodeStatusHandler handler) {
             handler.addListener(this);
@@ -240,7 +238,7 @@ public class NodePanel extends Panel {
                 Enumeration<Object> keys = info.keys();
                 while (keys.hasMoreElements()) {
                     Object key = keys.nextElement();
-                    addItem(new Object[] {key.toString(), info.get(key).toString()}, index++);
+                    addItem(new Object[] { key.toString(), info.get(key).toString() }, index++);
                 }
             }
         }
@@ -260,7 +258,7 @@ public class NodePanel extends Panel {
             catch (Exception e) {
                 m_handler.setStatus(NodeStatus.UNKNOWN);
                 m_factory.getLogService().log(LogService.LOG_ERROR,
-                        "Error getting status for node with ID " + m_targetId ,e);
+                    "Error getting status for node with ID " + m_targetId, e);
             }
         }
     }
@@ -278,21 +276,21 @@ public class NodePanel extends Panel {
                 String imageId = (String) m_ImageIdSelect.getValue();
                 String keyPair = (String) m_keyPairInput.getValue();
                 String tagPrefix = (String) m_tagPrefixInput.getValue();
-                String[] extraPorts = ((String)m_extraPortsInput.getValue()).split(",");
+                String[] extraPorts = ((String) m_extraPortsInput.getValue()).split(",");
                 boolean runAsRoot = m_runAsRootCheckbox.booleanValue();
-                String privateKeyFile = (String)m_privateKeyFileInput.getValue();
-                String vmOptions = (String)m_vmOptionsInput.getValue();
-                String laucherArgs = (String)m_launcherArgumentsInput.getValue();
-                String nodeBootStrap = (String)m_nodeBootstrapInput.getValue();
-                String aceLauncher = (String)m_aceLauncherInput.getValue();
-                String additionalObrDownloads = (String)m_additionalObrDownloadsInput.getValue();
-                String externalDownloads = (String)m_externalDownloadsInput.getValue();
+                String privateKeyFile = (String) m_privateKeyFileInput.getValue();
+                String vmOptions = (String) m_vmOptionsInput.getValue();
+                String laucherArgs = (String) m_launcherArgumentsInput.getValue();
+                String nodeBootStrap = (String) m_nodeBootstrapInput.getValue();
+                String aceLauncher = (String) m_aceLauncherInput.getValue();
+                String additionalObrDownloads = (String) m_additionalObrDownloadsInput.getValue();
+                String externalDownloads = (String) m_externalDownloadsInput.getValue();
 
                 config.setSshUser(sshUser);
                 config.setLocation(location);
                 config.setHardwareId(hardwareId);
 
-                if(imageOwnerId.length() > 0) {
+                if (imageOwnerId.length() > 0) {
                     config.setImageOwnerId(imageOwnerId);
                 }
 
@@ -354,7 +352,7 @@ public class NodePanel extends Panel {
             m_factory.submit(m_statusGetter);
         }
     }
-    
+
     private abstract class LockedRunner implements Runnable {
         public final void run() {
             if (m_targetLock.tryLock()) {
@@ -366,10 +364,10 @@ public class NodePanel extends Panel {
                 }
             }
         }
-        
+
         protected abstract void doRun();
     }
-    
+
     private static class NodeStatusHandler {
         private final List<NodeStatusListener> m_listeners = new CopyOnWriteArrayList<NodeStatusListener>();
 
@@ -412,7 +410,7 @@ public class NodePanel extends Panel {
         public String toString() {
             return m_label;
         }
-        
+
         public Action getNextAction() {
             return m_nextAction;
         }

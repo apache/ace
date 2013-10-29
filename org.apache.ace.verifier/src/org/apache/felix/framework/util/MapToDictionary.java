@@ -25,6 +25,7 @@ import java.util.*;
  * This is a simple class that implements a <tt>Dictionary</tt>
  * from a <tt>Map</tt>. The resulting dictionary is immutable.
 **/
+@SuppressWarnings("unchecked")
 public class MapToDictionary extends Dictionary
 {
     /**

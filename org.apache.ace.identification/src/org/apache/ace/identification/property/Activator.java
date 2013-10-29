@@ -37,13 +37,10 @@ import org.osgi.service.log.LogService;
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
     private static final String MA_NAME = "ma";
     private DependencyManager m_manager;
-    private BundleContext m_context;
-    private final Map /*<String, Component>*/ m_instances = new HashMap();
-    private volatile LogService m_log;
+    private final Map<String, Component> m_instances = new HashMap<String, Component>();
     
     public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
         m_manager = manager;
-        m_context = context;
         manager.add(createComponent()
             .setInterface(new String[] {Identification.class.getName()}, null)
             .setImplementation(PropertyBasedIdentification.class)

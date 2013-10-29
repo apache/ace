@@ -29,15 +29,14 @@ import java.util.Date;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.bouncycastle.x509.X509V1CertificateGenerator;
-
 /**
  * Provides a memory-only certificate keystore.
  */
+@SuppressWarnings("deprecation")
 final class MemoryKeyStore {
     private static final String SIGNATURE_ALGORITHM = "SHA1withRSA";
 
-    private final X509V1CertificateGenerator m_certGen = new X509V1CertificateGenerator();
+    private final org.bouncycastle.x509.X509V1CertificateGenerator m_certGen = new org.bouncycastle.x509.X509V1CertificateGenerator();
     private final KeyPair m_caKey;
     private final X509Certificate m_rootCert;
     private int m_serial = 0;

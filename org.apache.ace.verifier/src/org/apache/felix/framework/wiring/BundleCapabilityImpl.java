@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.List;
 import java.util.StringTokenizer;
+
 import org.apache.felix.framework.capabilityset.SimpleFilter;
 import org.apache.felix.framework.util.Util;
 import org.apache.felix.framework.util.manifestparser.ManifestParser;
@@ -32,6 +33,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 
+@SuppressWarnings("unchecked")
 public class BundleCapabilityImpl implements BundleCapability
 {
     public static final String SINGLETON_NAMESPACE = "singleton";

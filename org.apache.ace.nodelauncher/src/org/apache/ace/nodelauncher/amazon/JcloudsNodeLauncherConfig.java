@@ -18,22 +18,21 @@
  */
 package org.apache.ace.nodelauncher.amazon;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.Module;
+import java.net.URL;
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.ace.nodelauncher.NodeLauncherConfig;
-import org.jclouds.Context;
 import org.jclouds.ContextBuilder;
 import org.jclouds.aws.ec2.reference.AWSEC2Constants;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
-import org.jclouds.compute.ComputeServiceContextFactory;
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.Image;
 import org.jclouds.sshj.config.SshjSshClientModule;
 
-import java.net.URL;
-import java.util.Properties;
-import java.util.Set;
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.Module;
 
 public class JcloudsNodeLauncherConfig implements NodeLauncherConfig {
     private ComputeServiceContext m_computeServiceContext;

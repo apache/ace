@@ -58,11 +58,11 @@ public class ProvisioningDevice extends HttpServlet implements UPnPDevice {
 	    return new Object[]{this, m_wrapper};
 	}
 
-	private void start() throws Exception {
+	protected void start() throws Exception {
 		m_http.registerServlet(BASE_URL, this, null, null);
 	}
 
-	private void stop() {
+	protected void stop() {
 		m_http.unregister(BASE_URL);
 	}
 

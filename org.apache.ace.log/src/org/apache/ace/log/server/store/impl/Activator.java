@@ -80,7 +80,6 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         return "Log Store Factory";
     }
 
-    @SuppressWarnings("unchecked")
     public synchronized void updated(String pid, Dictionary dict) throws ConfigurationException {
         String name = (String) dict.get(LOG_NAME);
         if ((name == null) || "".equals(name)) {

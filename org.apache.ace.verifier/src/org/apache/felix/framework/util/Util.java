@@ -20,18 +20,17 @@ package org.apache.felix.framework.util;
 
 import java.io.*;
 import java.net.URL;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import org.apache.felix.framework.Logger;
 import org.apache.felix.framework.capabilityset.CapabilitySet;
 import org.apache.felix.framework.wiring.BundleCapabilityImpl;
 import org.apache.felix.framework.wiring.BundleRequirementImpl;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -313,7 +312,7 @@ public class Util
     public static List<BundleCapability> getCapabilityByNamespace(
         BundleRevision br, String namespace)
     {
-        final List<BundleCapability> matching = new ArrayList();
+        final List<BundleCapability> matching = new ArrayList<BundleCapability>();
         final List<BundleCapability> caps = (br.getWiring() != null)
             ? br.getWiring().getCapabilities(null)
             : br.getDeclaredCapabilities(null);
@@ -377,6 +376,7 @@ public class Util
         0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x30, 0x31,
         0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x2b, 0x2f };
 
+    @SuppressWarnings("unused")
     private static final byte decTab[] = { -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1,
@@ -508,14 +508,14 @@ public class Util
      *         property placeholder syntax or a recursive variable reference.
     **/
     public static String substVars(String val, String currentKey,
-        Map cycleMap, Properties configProps)
+        Map<String, String> cycleMap, Properties configProps)
         throws IllegalArgumentException
     {
         // If there is currently no cycle map, then create
         // one for detecting cycles for this invocation.
         if (cycleMap == null)
         {
-            cycleMap = new HashMap();
+            cycleMap = new HashMap<String, String>();
         }
 
         // Put the current key in the cycle map.

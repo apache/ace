@@ -38,14 +38,14 @@ import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
     private static final String MA_NAME = "ma";
+    
+    private final Map<String, Component> m_instances = new HashMap<String, Component>();
     private DependencyManager m_manager;
-    private BundleContext m_context;
-    private final Map /*<String, Component>*/ m_instances = new HashMap();
-    private volatile LogService m_log;
 
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        Dictionary properties = new Hashtable();
+        Dictionary<Object, Object> properties = new Hashtable<Object, Object>();
         properties.put(Constants.SERVICE_PID, DiscoveryConstants.DISCOVERY_PID);
+        
         manager.add(createComponent()
             .setInterface(new String[] {Discovery.class.getName()}, properties)
             .setImplementation(PropertyBasedDiscovery.class)

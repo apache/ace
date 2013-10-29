@@ -33,6 +33,7 @@ import org.xmlpull.v1.*;
  * 
  * @version $Revision: 44 $
  */
+@SuppressWarnings({"unchecked"})
 public class RepositoryImpl implements Repository {
 	transient Set			resources		= new HashSet();
 	URL						url;
@@ -319,6 +320,7 @@ public class RepositoryImpl implements Repository {
 						}
 						entry = zin.getNextEntry();
 					}
+					zin.close();
 				} else {
 					in = url.openStream();
 				}

@@ -25,6 +25,7 @@ import org.apache.felix.framework.util.FelixConstants;
 import org.apache.felix.framework.util.VersionRange;
 import org.osgi.framework.*;
 
+@SuppressWarnings({ "unchecked" })
 public class R4LibraryClause
 {
     private final String[] m_libraryEntries;
@@ -136,14 +137,14 @@ public class R4LibraryClause
     {
         boolean win32 = currentOSName.startsWith("win") &&
             (currentOSName.equals("windows95")
-            || currentOSName.equals("windows98")
-            || currentOSName.equals("windowsnt")
-            || currentOSName.equals("windows2000")
-            || currentOSName.equals("windows2003")
-            || currentOSName.equals("windowsxp")
-            || currentOSName.equals("windowsce")
-            || currentOSName.equals("windowsvista")
-            || currentOSName.equals("windows7"));
+                || currentOSName.equals("windows98")
+                || currentOSName.equals("windowsnt")
+                || currentOSName.equals("windows2000")
+                || currentOSName.equals("windows2003")
+                || currentOSName.equals("windowsxp")
+                || currentOSName.equals("windowsce")
+                || currentOSName.equals("windowsvista")
+                || currentOSName.equals("windows7"));
 
         for (int i = 0; (osnames != null) && (i < osnames.length); i++)
         {
@@ -207,7 +208,7 @@ public class R4LibraryClause
     {
         // Get all framework properties
         Dictionary dict = new Hashtable();
-        for (Iterator i = configMap.keySet().iterator(); i.hasNext(); )
+        for (Iterator i = configMap.keySet().iterator(); i.hasNext();)
         {
             Object key = i.next();
             dict.put(key, configMap.get(key));
@@ -317,7 +318,7 @@ public class R4LibraryClause
                     }
                     else if (property.equals(Constants.SELECTION_FILTER_ATTRIBUTE))
                     {
-// TODO: NATIVE - I believe we can have multiple selection filters too.
+                        // TODO: NATIVE - I believe we can have multiple selection filters too.
                         selectionFilter = value;
                     }
                 }
@@ -460,7 +461,7 @@ public class R4LibraryClause
     {
         value = value.toLowerCase();
 
-        if (value.startsWith("x86-64") || value.startsWith("amd64") || 
+        if (value.startsWith("x86-64") || value.startsWith("amd64") ||
             value.startsWith("em64") || value.startsWith("x86_64"))
         {
             return "x86-64";

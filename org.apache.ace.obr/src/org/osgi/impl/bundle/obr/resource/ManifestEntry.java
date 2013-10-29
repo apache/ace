@@ -20,6 +20,7 @@ package org.osgi.impl.bundle.obr.resource;
 import java.util.*;
 
 
+@SuppressWarnings({"unchecked"})
 public class ManifestEntry implements Comparable {
 	String		name;
 	VersionRange	version;

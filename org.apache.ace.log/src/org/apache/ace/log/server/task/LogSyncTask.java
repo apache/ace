@@ -49,6 +49,7 @@ public class LogSyncTask implements Runnable, LogSync {
     private static final String COMMAND_RECEIVE = "receive";
 
     private static final String TARGETID_KEY = "tid";
+    @SuppressWarnings("unused")
     private static final String FILTER_KEY = "filter";
     private static final String LOGID_KEY = "logid";
     private static final String RANGE_KEY = "range";

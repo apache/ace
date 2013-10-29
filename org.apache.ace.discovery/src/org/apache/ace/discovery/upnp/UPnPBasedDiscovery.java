@@ -42,15 +42,15 @@ public class UPnPBasedDiscovery implements Discovery {
     final static String ACTION_GET_LOAD = "GetServerLoad";
 
     public volatile LogService m_log; /* will be injected by dependencymanager */
-    private List m_devices;
+    private List<UPnPDevice> m_devices;
 
     public void start() {
-        m_devices = new ArrayList();
+        m_devices = new ArrayList<UPnPDevice>();
     }
 
     public void added(ServiceReference ref, Object device) {
         if (device instanceof UPnPDevice) {
-            m_devices.add(device);
+            m_devices.add((UPnPDevice) device);
         }
     }
 
@@ -80,6 +80,7 @@ public class UPnPBasedDiscovery implements Discovery {
         return null;
     }
 
+    @SuppressWarnings("unused")
     private String getType() {
         UPnPAction action = getAction(ACTION_GET_TYPE);
         try {
@@ -90,6 +91,7 @@ public class UPnPBasedDiscovery implements Discovery {
         return "Unknown";
     }
 
+    @SuppressWarnings("unused")
     private int getLoad() {
         UPnPAction action = getAction(ACTION_GET_LOAD);
         try {

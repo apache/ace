@@ -30,7 +30,8 @@ import org.osgi.service.upnp.UPnPStateVariable;
 
 public class Inspector
 {
-	private static UPnPService createService(Class iface, Object target) throws Exception {
+	@SuppressWarnings("unused")
+    private static UPnPService createService(Class iface, Object target) throws Exception {
 		Method[] methods = iface.getMethods();
 
 		List<UPnPAction> list = new ArrayList<UPnPAction>();
@@ -65,10 +66,8 @@ public class Inspector
 				inputArgs[0] = inputArgTypes[0].getSimpleName();
 			}
 			else {
-				int i = 0;
-				for (Class inputType : inputArgTypes) {
+				for (int i = 0; i < inputArgTypes.length; i++) {
 					inputArgs[i] = inputArgTypes[i].getSimpleName() + i;
-					i++;
 				}
 			}
 			return inputArgs;

@@ -21,6 +21,7 @@ import java.io.*;
 import java.util.*;
 
 
+@SuppressWarnings({"unchecked"})
 public class Manifest extends Hashtable {
 	static final long	serialVersionUID	= 1L;
 	List				imports;

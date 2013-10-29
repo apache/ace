@@ -25,7 +25,6 @@ import org.osgi.service.cm.Configuration;
 
 public class MockConfiguration implements Configuration {
 
-    @SuppressWarnings("unchecked")
     private Dictionary m_properties = null;
     private boolean m_isDeleted = false;
 
@@ -48,7 +47,6 @@ public class MockConfiguration implements Configuration {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public synchronized Dictionary getProperties() {
         return m_properties;
     }
@@ -63,9 +61,8 @@ public class MockConfiguration implements Configuration {
 
     }
 
-    @SuppressWarnings("unchecked")
     public synchronized void update(Dictionary newConfiguration) throws IOException {
-            m_properties = newConfiguration;
+        m_properties = newConfiguration;
     }
 
     public boolean isDeleted() {

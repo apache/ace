@@ -141,7 +141,6 @@ public class ConfiguratorTest {
     }
 
     // add a configuration
-    @SuppressWarnings("unchecked")
     @Test(groups = { UNIT })
     public void testAddConfiguration() {
         Properties initialConfiguration = createProperties();
@@ -152,7 +151,6 @@ public class ConfiguratorTest {
         assert configuration.equals(createProperties()) : "Configuration content is unexpected";
     }
 
-    @SuppressWarnings("unchecked")
     @Test(groups = { UNIT })
     public void testAddFactoryConfiguration() {
         Properties props = createProperties();
@@ -192,7 +190,6 @@ public class ConfiguratorTest {
         assert isDeleted : "The configuration is not removed as expected";
     }
 
-    @SuppressWarnings("unchecked")
     @Test(groups = { UNIT })
     public void testPropertySubstitution( ) {
         Properties initialConfiguration = createProperties();
@@ -205,7 +202,6 @@ public class ConfiguratorTest {
         assert configuration.get("subst").equals(configuration.get("var")) : "Substitution failed";
     }
 
-    @SuppressWarnings("unchecked")
     @Test(groups = { UNIT })
     public void testPropertySubstitutionFromContext() {
         Properties initialConfiguration = createProperties();
@@ -218,7 +214,6 @@ public class ConfiguratorTest {
     }
 
     // update a configuration, only adding a key (this is allowed in all cases)
-    @SuppressWarnings("unchecked")
     @Test(groups = { UNIT })
     public void testChangeConfigurationUsingNewKey() {
         Properties initialConfiguration = createProperties();
@@ -238,7 +233,6 @@ public class ConfiguratorTest {
     }
 
     // update a configuration, changing an already existing key, not using reconfiguration
-    @SuppressWarnings("unchecked")
     @Test(groups = { UNIT })
     public void testChangeConfigurationUsingSameKeyNoReconfigure() {
         Properties configurationValues = createProperties();
@@ -260,7 +254,6 @@ public class ConfiguratorTest {
     }
 
     // update a configuration, changing an already existing key, using reconfiguration
-    @SuppressWarnings("unchecked")
     @Test(groups = { UNIT })
     public void testChangeConfigurationUsingSameKeyWithReconfigure() throws Exception {
         setUp(true); // Instruct the configurator to reconfigure
@@ -281,7 +274,6 @@ public class ConfiguratorTest {
     }
 
     // remove a configuration
-    @SuppressWarnings("unchecked")
     @Test(groups = { UNIT })
     public void testRemoveConfiguration() {
         Properties initialConfiguration = createProperties();
@@ -319,7 +311,6 @@ public class ConfiguratorTest {
      * If there is still no configuration after the wait time,
      * null is returned.
      */
-    @SuppressWarnings("unchecked")
     public Dictionary getAndWaitForConfiguration(Dictionary expectedConfiguration) {
         long startTimeMillis = System.currentTimeMillis();
         // make sure we iterate at least once

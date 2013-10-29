@@ -20,8 +20,8 @@ package org.apache.felix.framework.resolver;
 
 import java.util.List;
 import java.util.Map;
+
 import org.apache.felix.framework.wiring.BundleCapabilityImpl;
-import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 
 public class HostedCapability extends BundleCapabilityImpl

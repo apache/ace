@@ -36,16 +36,14 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
-
     private static final String LOG_NAME = "name";
+
     private DependencyManager m_manager;
     private final Map<String, Component> m_instances = new HashMap<String, Component>();
-    private BundleContext m_context;
     private volatile LogService m_log;
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        m_context = context;
         m_manager = manager;
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, "org.apache.ace.log.server.store.factory");

@@ -27,6 +27,7 @@ import java.util.*;
  * and get its constituents. The content of a Tag is a list that contains String
  * objects or other Tag objects.
  */
+@SuppressWarnings({"unchecked"})
 public class Tag {
 	Tag						parent;
 	String					name;

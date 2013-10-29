@@ -24,11 +24,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -37,7 +36,6 @@ import org.apache.ace.discovery.Discovery;
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.RepositoryReplication;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
@@ -48,7 +46,6 @@ import org.osgi.service.log.LogService;
  * stuff out.
  */
 public class RepositoryReplicationTask implements Runnable {
-    private volatile BundleContext m_context;
     private volatile Discovery m_discovery;
     private volatile ConnectionFactory m_connectionFactory;
     private volatile LogService m_log;

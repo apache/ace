@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for {@link RepositoryAdminLoginContextImpl}.
  */
+@SuppressWarnings("unchecked")
 public class RepositoryAdminLoginContextImplTest {
 
     private static final String CUSTOMER = "apache";

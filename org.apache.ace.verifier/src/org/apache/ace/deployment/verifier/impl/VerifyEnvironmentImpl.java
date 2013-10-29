@@ -106,6 +106,7 @@ public class VerifyEnvironmentImpl implements VerifierService.VerifyEnvironment 
             return null;
         }
 
+        @SuppressWarnings("unchecked")
         public Dictionary<String, String> getHeaders() {
             return new MapToDictionary(m_manifest);
         }

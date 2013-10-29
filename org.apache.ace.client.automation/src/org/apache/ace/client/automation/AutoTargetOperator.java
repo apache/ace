@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Properties;
+
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.object.TargetObject;
@@ -52,7 +53,6 @@ public class AutoTargetOperator implements ManagedService {
     private volatile UserAdmin m_userAdmin;
     private volatile BundleContext m_bundleContext;
     private volatile LogService m_log;
-    @SuppressWarnings("unchecked")
     private volatile Dictionary m_settings;
 
     private static String username = "serverUser";
@@ -197,7 +197,6 @@ public class AutoTargetOperator implements ManagedService {
         return changed;
     }
 
-    @SuppressWarnings("unchecked")
     public void updated(Dictionary settings) throws ConfigurationException {
         if (settings != null) {
             for (ConfigItem item : ConfigItem.values()) {
@@ -255,6 +254,7 @@ public class AutoTargetOperator implements ManagedService {
             return m_errorText;
         }
 
+        @SuppressWarnings("unused")
         public boolean isFilter() {
             return m_isFilter;
         }

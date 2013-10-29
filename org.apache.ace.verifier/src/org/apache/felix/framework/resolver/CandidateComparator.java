@@ -19,12 +19,14 @@
 package org.apache.felix.framework.resolver;
 
 import java.util.Comparator;
+
 import org.apache.felix.framework.wiring.BundleCapabilityImpl;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 
+@SuppressWarnings("unchecked")
 public class CandidateComparator implements Comparator<BundleCapability>
 {
     public int compare(BundleCapability cap1, BundleCapability cap2)

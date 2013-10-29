@@ -144,7 +144,6 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
     /**
      * Updates the currently present UserAdmin with the data in m_toInstall and m_toRemove.
      */
-    @SuppressWarnings("unchecked")
     private void updateUserAdmin() {
         synchronized(m_installListLock) {
             synchronized (m_userAdminLock) {
@@ -197,7 +196,6 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
      * Updates a role with new parameter, but reuses the UserAdmin's role object
      * for this (if available).
      */
-    @SuppressWarnings("unchecked")
     private void updateRole(ProcessRole role) {
         m_installedUsers.add(role.getName());
         

@@ -24,6 +24,7 @@ import org.xmlpull.v1.XmlPullParser;
 
 
 
+@SuppressWarnings({"unchecked"})
 public class CapabilityImpl implements Capability {
 	String				name;
 	Map	properties	= new TreeMap();

@@ -146,7 +146,7 @@ public class ProcessLauncherServiceImpl implements ManagedServiceFactory, Proces
      * @see org.osgi.service.cm.ManagedServiceFactory#updated(java.lang.String,
      *      java.util.Dictionary)
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({ "rawtypes" })
     public final void updated(final String pid, final Dictionary config) throws ConfigurationException {
         LaunchConfiguration oldLaunchConfig = null;
         LaunchConfiguration newLaunchConfig = null;

@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
 // import org.apache.felix.framework.BundleRevisionImpl;
 import org.apache.felix.framework.resolver.Resolver.ResolverState;
 import org.apache.felix.framework.util.FelixConstants;
@@ -44,6 +45,7 @@ import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 
+@SuppressWarnings("unchecked")
 class Candidates
 {
     public static final int MANDATORY = 0;

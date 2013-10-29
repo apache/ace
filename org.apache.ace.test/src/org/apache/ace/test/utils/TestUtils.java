@@ -92,7 +92,6 @@ public class TestUtils {
      * @param iface the service interface
      * @param instance the implementation
      */
-    @SuppressWarnings("unchecked")
     public static void configureObject(Object object, Class iface, Object instance) {
         Class serviceClazz = object.getClass();
 
@@ -134,7 +133,6 @@ public class TestUtils {
         /**
          * Invokes a method on this null object. The method will return a default value without doing anything.
          */
-        @SuppressWarnings("unchecked")
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             Class returnType = method.getReturnType();
             if (returnType.equals(Boolean.class) || returnType.equals(Boolean.TYPE)) {

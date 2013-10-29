@@ -21,6 +21,7 @@ package org.osgi.impl.bundle.obr.resource;
 
 import java.util.*;
 
+@SuppressWarnings({"unchecked"})
 public class StringSet extends HashSet {
 	static final long	serialVersionUID	= 1L;
 

@@ -27,7 +27,6 @@ import org.apache.ace.log.Log;
 
 public class MockLog implements Log {
 
-    @SuppressWarnings("unchecked")
     private List m_logEntries;
 
     @SuppressWarnings("unchecked")
@@ -51,9 +50,8 @@ public class MockLog implements Log {
 
     public class LogEntry {
         private int m_type;
-        @SuppressWarnings("unchecked")
         private Dictionary m_properties;
-        @SuppressWarnings("unchecked")
+
         public LogEntry(int type, Dictionary properties) {
             m_type = type;
             m_properties = properties;
@@ -63,7 +61,6 @@ public class MockLog implements Log {
             return m_type;
         }
 
-        @SuppressWarnings("unchecked")
         public Dictionary getProperties() {
             return m_properties;
         }

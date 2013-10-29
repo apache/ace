@@ -19,7 +19,6 @@
 package org.apache.felix.framework.util.manifestparser;
 
 import java.util.*;
-import java.util.ArrayList;
 import java.util.Map.Entry;
 
 import org.apache.felix.framework.Logger;
@@ -35,6 +34,7 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 
+@SuppressWarnings({"unchecked", "deprecation"})
 public class ManifestParser
 {
     private final Logger m_logger;

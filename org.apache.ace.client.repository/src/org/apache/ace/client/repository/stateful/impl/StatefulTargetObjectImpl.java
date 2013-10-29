@@ -619,7 +619,6 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends Associatable> void add(Association association, Class<T> clazz) {
         synchronized (m_lock) {
             ensureTargetPresent();
@@ -634,7 +633,6 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends Associatable, A extends Association> List<A> getAssociationsWith(Associatable other, Class<T> clazz, Class<A> associationType) {
         synchronized (m_lock) {
             ensureTargetPresent();
@@ -649,7 +647,6 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends Associatable> void remove(Association association, Class<T> clazz) {
         synchronized (m_lock) {
             ensureTargetPresent();

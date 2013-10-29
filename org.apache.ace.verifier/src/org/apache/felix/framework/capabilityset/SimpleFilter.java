@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import org.apache.felix.framework.util.VersionRange;
 
+@SuppressWarnings("unchecked")
 public class SimpleFilter
 {
     public static final int MATCH_ALL = 0;

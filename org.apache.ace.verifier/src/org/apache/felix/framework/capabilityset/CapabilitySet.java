@@ -30,11 +30,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+
 import org.apache.felix.framework.util.SecureAction;
 import org.apache.felix.framework.util.StringComparator;
 import org.apache.felix.framework.wiring.BundleCapabilityImpl;
 import org.osgi.framework.wiring.BundleCapability;
 
+@SuppressWarnings("unchecked")
 public class CapabilitySet
 {
     private final Map<String, Map<Object, Set<BundleCapability>>> m_indices;

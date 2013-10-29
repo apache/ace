@@ -18,13 +18,21 @@
  */
 package org.apache.ace.nodelauncher.amazon;
 
-import com.google.common.io.Files;
+import static org.jclouds.compute.predicates.NodePredicates.runningInGroup;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.Dictionary;
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.ace.nodelauncher.NodeLauncher;
 import org.apache.ace.nodelauncher.NodeLauncherConfig;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.domain.NodeState;
 import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.compute.options.TemplateOptions;
@@ -35,15 +43,7 @@ import org.jclouds.scriptbuilder.domain.Statements;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.Dictionary;
-import java.util.Properties;
-import java.util.Set;
-
-import static org.jclouds.compute.predicates.NodePredicates.runningInGroup;
+import com.google.common.io.Files;
 /**
  * Simple NodeLauncher implementation that launches nodes based on a given AMI in Amazon EC2.
  * We expect the AMI we launch to have a java on its path, at least after bootstrap.<br><br>
@@ -317,7 +317,7 @@ public class AmazonNodeLauncher implements NodeLauncher, ManagedService {
 
         for (ComputeMetadata node : config.getComputeService().listNodes()) {
             NodeMetadata candidate = config.getComputeService().getNodeMetadata(node.getId());
-            if (tag.equals(candidate.getGroup()) && candidate.getState().equals(NodeState.RUNNING)) {
+            if (tag.equals(candidate.getGroup()) && candidate.getStatus().equals(NodeMetadata.Status.RUNNING)) {
                 return candidate;
             }
         }

@@ -18,40 +18,44 @@
  */
 package org.apache.felix.framework.util;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.net.*;
-import java.security.*;
-import java.util.Collection;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.Policy;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.zip.ZipFile;
-import org.osgi.framework.Bundle;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.hooks.resolver.ResolverHook;
-import org.osgi.framework.hooks.service.ListenerHook;
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRequirement;
-import org.osgi.framework.wiring.BundleRevision;
 
 /**
  * <p>
- * This is a utility class to centralize all action that should be performed
- * in a <tt>doPrivileged()</tt> block. To perform a secure action, simply
- * create an instance of this class and use the specific method to perform
- * the desired action. When an instance is created, this class will capture
- * the security context and will then use that context when checking for
- * permission to perform the action. Instances of this class should not be
- * passed around since they may grant the receiver a capability to perform
- * privileged actions.
+ * This is a utility class to centralize all action that should be performed in a <tt>doPrivileged()</tt> block. To
+ * perform a secure action, simply create an instance of this class and use the specific method to perform the desired
+ * action. When an instance is created, this class will capture the security context and will then use that context when
+ * checking for permission to perform the action. Instances of this class should not be passed around since they may
+ * grant the receiver a capability to perform privileged actions.
  * </p>
-**/
+ **/
+@SuppressWarnings({ "unused", "unchecked" })
 public class SecureAction
 {
     private static final ThreadLocal m_actions = new ThreadLocal()
@@ -704,9 +708,9 @@ public class SecureAction
         {
             Method addURL =
                 URLClassLoader.class.getDeclaredMethod("addURL",
-                new Class[] {URL.class});
+                    new Class[] { URL.class });
             addURL.setAccessible(true);
-            addURL.invoke(loader, new Object[]{extension});
+            addURL.invoke(loader, new Object[] { extension });
         }
     }
 
@@ -1052,323 +1056,86 @@ public class SecureAction
         }
     }
 
-   /* public void invokeBundleFindHook(
-        org.osgi.framework.hooks.bundle.FindHook fh,
-        BundleContext bc, Collection<Bundle> bundles)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_BUNDLE_FIND_HOOK, fh, bc, bundles);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            fh.find(bc, bundles);
-        }
-    }
-
-    public void invokeBundleEventHook(
-        org.osgi.framework.hooks.bundle.EventHook eh,
-        BundleEvent event, Collection<BundleContext> contexts)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_BUNDLE_EVENT_HOOK, eh, contexts);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            eh.event(event, contexts);
-        }
-    }
-
-    public void invokeWeavingHook(
-        org.osgi.framework.hooks.weaving.WeavingHook wh,
-        org.osgi.framework.hooks.weaving.WovenClass wc)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_WEAVING_HOOK, wh, wc);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            wh.weave(wc);
-        }
-    }
-
-    public void invokeServiceEventHook(
-        org.osgi.framework.hooks.service.EventHook eh,
-        ServiceEvent event, Collection<BundleContext> contexts)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_SERVICE_EVENT_HOOK, eh, contexts);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            eh.event(event, contexts);
-        }
-    }
-
-    public void invokeServiceFindHook(
-        org.osgi.framework.hooks.service.FindHook fh,
-        BundleContext context, String name, String filter,
-        boolean allServices, Collection<ServiceReference<?>> references)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(
-                Actions.INVOKE_SERVICE_EVENT_HOOK, fh, context, name, filter,
-                (allServices) ? Boolean.TRUE : Boolean.FALSE, references);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            fh.find(context, name, filter, allServices, references);
-        }
-    }
-
-    public void invokeServiceListenerHookAdded(
-        org.osgi.framework.hooks.service.ListenerHook lh,
-        Collection<ListenerHook.ListenerInfo> listeners)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_SERVICE_LISTENER_HOOK_ADDED, lh, listeners);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            lh.added(listeners);
-        }
-    }
-
-    public void invokeServiceListenerHookRemoved(
-        org.osgi.framework.hooks.service.ListenerHook lh,
-        Collection<ListenerHook.ListenerInfo> listeners)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_SERVICE_LISTENER_HOOK_REMOVED, lh, listeners);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            lh.removed(listeners);
-        }
-    }
-
-    public void invokeServiceEventListenerHook(
-        org.osgi.framework.hooks.service.EventListenerHook elh,
-        ServiceEvent event,
-        Map<BundleContext, Collection<ListenerHook.ListenerInfo>> listeners)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_SERVICE_EVENT_LISTENER_HOOK, elh, listeners);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            elh.event(event, listeners);
-        }
-    }
-
-    public ResolverHook invokeResolverHookFactory(
-        org.osgi.framework.hooks.resolver.ResolverHookFactory rhf,
-        Collection<BundleRevision> triggers)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_RESOLVER_HOOK_FACTORY, rhf, triggers);
-            try
-            {
-                return (ResolverHook) AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            return rhf.begin(triggers);
-        }
-    }
-
-    public void invokeResolverHookResolvable(
-        org.osgi.framework.hooks.resolver.ResolverHook rh,
-        Collection<BundleRevision> candidates)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_RESOLVER_HOOK_RESOLVABLE, rh, candidates);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            rh.filterResolvable(candidates);
-        }
-    }
-
-    public void invokeResolverHookSingleton(
-        org.osgi.framework.hooks.resolver.ResolverHook rh,
-        BundleCapability singleton,
-        Collection<BundleCapability> collisions)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_RESOLVER_HOOK_SINGLETON, rh, singleton, collisions);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            rh.filterSingletonCollisions(singleton, collisions);
-        }
-    }
-
-    public void invokeResolverHookMatches(
-        org.osgi.framework.hooks.resolver.ResolverHook rh,
-        BundleRequirement req,
-        Collection<BundleCapability> candidates)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_RESOLVER_HOOK_MATCHES, rh, req, candidates);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            rh.filterMatches(req, candidates);
-        }
-    }
-
-    public void invokeResolverHookEnd(
-        org.osgi.framework.hooks.resolver.ResolverHook rh)
-        throws Exception
-    {
-        if (System.getSecurityManager() != null)
-        {
-            Actions actions = (Actions) m_actions.get();
-            actions.set(Actions.INVOKE_RESOLVER_HOOK_END, rh);
-            try
-            {
-                AccessController.doPrivileged(actions, m_acc);
-            }
-            catch (PrivilegedActionException e)
-            {
-                throw e.getException();
-            }
-        }
-        else
-        {
-            rh.end();
-        }
-    }
-*/
+    /*
+     * public void invokeBundleFindHook( org.osgi.framework.hooks.bundle.FindHook fh, BundleContext bc,
+     * Collection<Bundle> bundles) throws Exception { if (System.getSecurityManager() != null) { Actions actions =
+     * (Actions) m_actions.get(); actions.set(Actions.INVOKE_BUNDLE_FIND_HOOK, fh, bc, bundles); try {
+     * AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) { throw e.getException(); }
+     * } else { fh.find(bc, bundles); } }
+     * 
+     * public void invokeBundleEventHook( org.osgi.framework.hooks.bundle.EventHook eh, BundleEvent event,
+     * Collection<BundleContext> contexts) throws Exception { if (System.getSecurityManager() != null) { Actions actions
+     * = (Actions) m_actions.get(); actions.set(Actions.INVOKE_BUNDLE_EVENT_HOOK, eh, contexts); try {
+     * AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) { throw e.getException(); }
+     * } else { eh.event(event, contexts); } }
+     * 
+     * public void invokeWeavingHook( org.osgi.framework.hooks.weaving.WeavingHook wh,
+     * org.osgi.framework.hooks.weaving.WovenClass wc) throws Exception { if (System.getSecurityManager() != null) {
+     * Actions actions = (Actions) m_actions.get(); actions.set(Actions.INVOKE_WEAVING_HOOK, wh, wc); try {
+     * AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) { throw e.getException(); }
+     * } else { wh.weave(wc); } }
+     * 
+     * public void invokeServiceEventHook( org.osgi.framework.hooks.service.EventHook eh, ServiceEvent event,
+     * Collection<BundleContext> contexts) throws Exception { if (System.getSecurityManager() != null) { Actions actions
+     * = (Actions) m_actions.get(); actions.set(Actions.INVOKE_SERVICE_EVENT_HOOK, eh, contexts); try {
+     * AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) { throw e.getException(); }
+     * } else { eh.event(event, contexts); } }
+     * 
+     * public void invokeServiceFindHook( org.osgi.framework.hooks.service.FindHook fh, BundleContext context, String
+     * name, String filter, boolean allServices, Collection<ServiceReference<?>> references) throws Exception { if
+     * (System.getSecurityManager() != null) { Actions actions = (Actions) m_actions.get(); actions.set(
+     * Actions.INVOKE_SERVICE_EVENT_HOOK, fh, context, name, filter, (allServices) ? Boolean.TRUE : Boolean.FALSE,
+     * references); try { AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) { throw
+     * e.getException(); } } else { fh.find(context, name, filter, allServices, references); } }
+     * 
+     * public void invokeServiceListenerHookAdded( org.osgi.framework.hooks.service.ListenerHook lh,
+     * Collection<ListenerHook.ListenerInfo> listeners) throws Exception { if (System.getSecurityManager() != null) {
+     * Actions actions = (Actions) m_actions.get(); actions.set(Actions.INVOKE_SERVICE_LISTENER_HOOK_ADDED, lh,
+     * listeners); try { AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) { throw
+     * e.getException(); } } else { lh.added(listeners); } }
+     * 
+     * public void invokeServiceListenerHookRemoved( org.osgi.framework.hooks.service.ListenerHook lh,
+     * Collection<ListenerHook.ListenerInfo> listeners) throws Exception { if (System.getSecurityManager() != null) {
+     * Actions actions = (Actions) m_actions.get(); actions.set(Actions.INVOKE_SERVICE_LISTENER_HOOK_REMOVED, lh,
+     * listeners); try { AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) { throw
+     * e.getException(); } } else { lh.removed(listeners); } }
+     * 
+     * public void invokeServiceEventListenerHook( org.osgi.framework.hooks.service.EventListenerHook elh, ServiceEvent
+     * event, Map<BundleContext, Collection<ListenerHook.ListenerInfo>> listeners) throws Exception { if
+     * (System.getSecurityManager() != null) { Actions actions = (Actions) m_actions.get();
+     * actions.set(Actions.INVOKE_SERVICE_EVENT_LISTENER_HOOK, elh, listeners); try {
+     * AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) { throw e.getException(); }
+     * } else { elh.event(event, listeners); } }
+     * 
+     * public ResolverHook invokeResolverHookFactory( org.osgi.framework.hooks.resolver.ResolverHookFactory rhf,
+     * Collection<BundleRevision> triggers) throws Exception { if (System.getSecurityManager() != null) { Actions
+     * actions = (Actions) m_actions.get(); actions.set(Actions.INVOKE_RESOLVER_HOOK_FACTORY, rhf, triggers); try {
+     * return (ResolverHook) AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) {
+     * throw e.getException(); } } else { return rhf.begin(triggers); } }
+     * 
+     * public void invokeResolverHookResolvable( org.osgi.framework.hooks.resolver.ResolverHook rh,
+     * Collection<BundleRevision> candidates) throws Exception { if (System.getSecurityManager() != null) { Actions
+     * actions = (Actions) m_actions.get(); actions.set(Actions.INVOKE_RESOLVER_HOOK_RESOLVABLE, rh, candidates); try {
+     * AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) { throw e.getException(); }
+     * } else { rh.filterResolvable(candidates); } }
+     * 
+     * public void invokeResolverHookSingleton( org.osgi.framework.hooks.resolver.ResolverHook rh, BundleCapability
+     * singleton, Collection<BundleCapability> collisions) throws Exception { if (System.getSecurityManager() != null) {
+     * Actions actions = (Actions) m_actions.get(); actions.set(Actions.INVOKE_RESOLVER_HOOK_SINGLETON, rh, singleton,
+     * collisions); try { AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) { throw
+     * e.getException(); } } else { rh.filterSingletonCollisions(singleton, collisions); } }
+     * 
+     * public void invokeResolverHookMatches( org.osgi.framework.hooks.resolver.ResolverHook rh, BundleRequirement req,
+     * Collection<BundleCapability> candidates) throws Exception { if (System.getSecurityManager() != null) { Actions
+     * actions = (Actions) m_actions.get(); actions.set(Actions.INVOKE_RESOLVER_HOOK_MATCHES, rh, req, candidates); try
+     * { AccessController.doPrivileged(actions, m_acc); } catch (PrivilegedActionException e) { throw e.getException();
+     * } } else { rh.filterMatches(req, candidates); } }
+     * 
+     * public void invokeResolverHookEnd( org.osgi.framework.hooks.resolver.ResolverHook rh) throws Exception { if
+     * (System.getSecurityManager() != null) { Actions actions = (Actions) m_actions.get();
+     * actions.set(Actions.INVOKE_RESOLVER_HOOK_END, rh); try { AccessController.doPrivileged(actions, m_acc); } catch
+     * (PrivilegedActionException e) { throw e.getException(); } } else { rh.end(); } }
+     */
     private static class Actions implements PrivilegedExceptionAction
     {
         public static final int INITIALIZE_CONTEXT_ACTION = 0;
@@ -1505,7 +1272,7 @@ public class SecureAction
 
         public Object run() throws Exception
         {
-            int action =  m_action;
+            int action = m_action;
             Object arg1 = m_arg1;
             Object arg2 = m_arg2;
             Object arg3 = m_arg3;
@@ -1522,9 +1289,9 @@ public class SecureAction
                 case ADD_EXTENSION_URL_ACTION:
                     Method addURL =
                         URLClassLoader.class.getDeclaredMethod("addURL",
-                        new Class[] {URL.class});
+                            new Class[] { URL.class });
                     addURL.setAccessible(true);
-                    addURL.invoke(arg2, new Object[]{arg1});
+                    addURL.invoke(arg2, new Object[] { arg1 });
                     return null;
                 case CREATE_TMPFILE_ACTION:
                     return File.createTempFile((String) arg1, (String) arg2, (File) arg3);
@@ -1612,62 +1379,35 @@ public class SecureAction
                     return null;
                 case GET_CLASS_LOADER_ACTION:
                     return ((Class) arg1).getClassLoader();
-               /* case INVOKE_BUNDLE_FIND_HOOK:
-                    ((org.osgi.framework.hooks.bundle.FindHook) arg1).find(
-                        (BundleContext) arg2, (Collection<Bundle>) arg3);
-                    return null;
-                case INVOKE_BUNDLE_EVENT_HOOK:
-                    ((org.osgi.framework.hooks.bundle.EventHook) arg1).event(
-                        (BundleEvent) arg2, (Collection<BundleContext>) arg3);
-                    return null;
-                case INVOKE_WEAVING_HOOK:
-                    ((org.osgi.framework.hooks.weaving.WeavingHook) arg1).weave(
-                        (org.osgi.framework.hooks.weaving.WovenClass) arg2);
-                    return null;
-                case INVOKE_SERVICE_EVENT_HOOK:
-                    ((org.osgi.framework.hooks.service.EventHook) arg1).event(
-                        (ServiceEvent) arg2, (Collection<BundleContext>) arg3);
-                    return null;
-                case INVOKE_SERVICE_FIND_HOOK:
-                    ((org.osgi.framework.hooks.service.FindHook) arg1).find(
-                        (BundleContext) arg2, (String) arg3, (String) arg4,
-                        ((Boolean) arg5).booleanValue(),
-                        (Collection<ServiceReference<?>>) arg6);
-                    return null;
-                case INVOKE_SERVICE_LISTENER_HOOK_ADDED:
-                    ((org.osgi.framework.hooks.service.ListenerHook) arg1).added(
-                        (Collection<ListenerHook.ListenerInfo>) arg2);
-                    return null;
-                case INVOKE_SERVICE_LISTENER_HOOK_REMOVED:
-                    ((org.osgi.framework.hooks.service.ListenerHook) arg1).removed(
-                        (Collection<ListenerHook.ListenerInfo>) arg2);
-                    return null;
-                case INVOKE_SERVICE_EVENT_LISTENER_HOOK:
-                    ((org.osgi.framework.hooks.service.EventListenerHook) arg1).event(
-                        (ServiceEvent) arg2,
-                        (Map<BundleContext, Collection<ListenerHook.ListenerInfo>>) arg3);
-                    return null;
-                case INVOKE_RESOLVER_HOOK_FACTORY:
-                    return ((org.osgi.framework.hooks.resolver.ResolverHookFactory) arg1).begin(
-                        (Collection<BundleRevision>) arg2);
-                case INVOKE_RESOLVER_HOOK_RESOLVABLE:
-                    ((org.osgi.framework.hooks.resolver.ResolverHook) arg1).filterResolvable(
-                        (Collection<BundleRevision>) arg2);
-                    return null;
-                case INVOKE_RESOLVER_HOOK_SINGLETON:
-                    ((org.osgi.framework.hooks.resolver.ResolverHook) arg1)
-                        .filterSingletonCollisions(
-                            (BundleCapability) arg2,
-                            (Collection<BundleCapability>) arg3);
-                    return null;
-                case INVOKE_RESOLVER_HOOK_MATCHES:
-                    ((org.osgi.framework.hooks.resolver.ResolverHook) arg1).filterMatches(
-                        (BundleRequirement) arg2,
-                        (Collection<BundleCapability>) arg3);
-                    return null;
-                case INVOKE_RESOLVER_HOOK_END:
-                    ((org.osgi.framework.hooks.resolver.ResolverHook) arg1).end();
-                    return null;*/
+                    /*
+                     * case INVOKE_BUNDLE_FIND_HOOK: ((org.osgi.framework.hooks.bundle.FindHook) arg1).find(
+                     * (BundleContext) arg2, (Collection<Bundle>) arg3); return null; case INVOKE_BUNDLE_EVENT_HOOK:
+                     * ((org.osgi.framework.hooks.bundle.EventHook) arg1).event( (BundleEvent) arg2,
+                     * (Collection<BundleContext>) arg3); return null; case INVOKE_WEAVING_HOOK:
+                     * ((org.osgi.framework.hooks.weaving.WeavingHook) arg1).weave(
+                     * (org.osgi.framework.hooks.weaving.WovenClass) arg2); return null; case INVOKE_SERVICE_EVENT_HOOK:
+                     * ((org.osgi.framework.hooks.service.EventHook) arg1).event( (ServiceEvent) arg2,
+                     * (Collection<BundleContext>) arg3); return null; case INVOKE_SERVICE_FIND_HOOK:
+                     * ((org.osgi.framework.hooks.service.FindHook) arg1).find( (BundleContext) arg2, (String) arg3,
+                     * (String) arg4, ((Boolean) arg5).booleanValue(), (Collection<ServiceReference<?>>) arg6); return
+                     * null; case INVOKE_SERVICE_LISTENER_HOOK_ADDED: ((org.osgi.framework.hooks.service.ListenerHook)
+                     * arg1).added( (Collection<ListenerHook.ListenerInfo>) arg2); return null; case
+                     * INVOKE_SERVICE_LISTENER_HOOK_REMOVED: ((org.osgi.framework.hooks.service.ListenerHook)
+                     * arg1).removed( (Collection<ListenerHook.ListenerInfo>) arg2); return null; case
+                     * INVOKE_SERVICE_EVENT_LISTENER_HOOK: ((org.osgi.framework.hooks.service.EventListenerHook)
+                     * arg1).event( (ServiceEvent) arg2, (Map<BundleContext, Collection<ListenerHook.ListenerInfo>>)
+                     * arg3); return null; case INVOKE_RESOLVER_HOOK_FACTORY: return
+                     * ((org.osgi.framework.hooks.resolver.ResolverHookFactory) arg1).begin(
+                     * (Collection<BundleRevision>) arg2); case INVOKE_RESOLVER_HOOK_RESOLVABLE:
+                     * ((org.osgi.framework.hooks.resolver.ResolverHook) arg1).filterResolvable(
+                     * (Collection<BundleRevision>) arg2); return null; case INVOKE_RESOLVER_HOOK_SINGLETON:
+                     * ((org.osgi.framework.hooks.resolver.ResolverHook) arg1) .filterSingletonCollisions(
+                     * (BundleCapability) arg2, (Collection<BundleCapability>) arg3); return null; case
+                     * INVOKE_RESOLVER_HOOK_MATCHES: ((org.osgi.framework.hooks.resolver.ResolverHook)
+                     * arg1).filterMatches( (BundleRequirement) arg2, (Collection<BundleCapability>) arg3); return null;
+                     * case INVOKE_RESOLVER_HOOK_END: ((org.osgi.framework.hooks.resolver.ResolverHook) arg1).end();
+                     * return null;
+                     */
             }
 
             return null;

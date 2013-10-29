@@ -81,8 +81,8 @@ public class BundleInfo {
 		try {
 
 			// Calculate the location URL of the JAR
-			URL location = new URL("jar:" + bundleJar.toURL().toString() + "!/");
-			resource.setURL(bundleJar.toURL());
+			URL location = new URL("jar:" + bundleJar.toURI().toURL().toString() + "!/");
+			resource.setURL(bundleJar.toURI().toURL());
 			resource.setFile(bundleJar);
 
 			doReferences(resource, location);
@@ -311,7 +311,7 @@ public class BundleInfo {
 	}
 
 	void doImports(ResourceImpl resource) {
-		List requirements = new ArrayList();
+		List<RequirementImpl> requirements = new ArrayList<RequirementImpl>();
 		List packages = manifest.getImports();
 		if (packages == null)
 			return;
@@ -384,7 +384,7 @@ public class BundleInfo {
 
 	Set doImportPackageAttributes(RequirementImpl req, StringBuffer filter,
 			Map attributes) {
-		HashSet set = new HashSet();
+		HashSet<String> set = new HashSet<String>();
 
 		if (attributes != null)
 			for (Iterator i = attributes.keySet().iterator(); i.hasNext();) {
@@ -435,7 +435,7 @@ public class BundleInfo {
 	}
 
 	void doExports(ResourceImpl resource) {
-		List capabilities = new ArrayList();
+		List<CapabilityImpl> capabilities = new ArrayList<CapabilityImpl>();
 		List packages = manifest.getExports();
 		if (packages != null) {
 			for (Iterator i = packages.iterator(); i.hasNext();) {
