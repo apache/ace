@@ -108,7 +108,13 @@ public class AssociationHelper {
             }
 
             private boolean equals(Object itemId, RepositoryObject object) {
-                return object.getDefinition().equals(itemId);
+                if (object == null) {
+                    return false;
+                }
+                else {
+                    String definition = object.getDefinition();
+                    return definition == null ? false : definition.equals(itemId);
+                }
             }
         };
     }
