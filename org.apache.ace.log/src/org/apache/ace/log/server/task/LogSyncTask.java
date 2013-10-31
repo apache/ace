@@ -154,42 +154,50 @@ public class LogSyncTask implements Runnable, LogSync {
         List<Descriptor> delta = calculateDelta(remoteRanges, localRanges);
 
         boolean result = !delta.isEmpty();
-        for (Descriptor descriptor : delta) {
-            InputStream receiveInput = null;
-            URLConnection receiveConnection = null;
-            try {
-                /*
-                 * The request currently contains a range. This is not yet supported by the servlet, but it will simply
-                 * be ignored.
-                 */
-                URL url = createReceiveURL(host, descriptor);
-
-                receiveConnection = createConnection(url);
-                receiveInput = receiveConnection.getInputStream();
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(receiveInput));
+        if (result) {
+            for (Descriptor descriptor : delta) {
+                InputStream receiveInput = null;
+                HttpURLConnection receiveConnection = null;
                 try {
-                    readLogs(reader);
+                    /*
+                     * The request currently contains a range. This is not yet supported by the servlet, but it will
+                     * simply be ignored.
+                     */
+                    URL url = createReceiveURL(host, descriptor);
+
+                    receiveConnection = createConnection(url);
+                    receiveInput = receiveConnection.getInputStream();
+
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(receiveInput));
+                    try {
+                        readLogs(reader);
+                    }
+                    finally {
+                        reader.close();
+                    }
+
+                    int rc = receiveConnection.getResponseCode();
+                    result = (rc == HttpServletResponse.SC_OK);
+
+                    if (!result) {
+                        String msg = receiveConnection.getResponseMessage();
+                        m_log.log(LogService.LOG_WARNING, String.format("Could not pull log '%s'. Server response: %s (%d)", m_name, msg, rc));
+                    }
+                }
+                catch (IOException e) {
+                    m_log.log(LogService.LOG_ERROR, "Unable to connect to retrieve log events.", e);
                 }
                 finally {
-                    reader.close();
+                    closeSilently(receiveInput);
+                    closeSilently(receiveConnection);
                 }
-
-                if (receiveConnection instanceof HttpURLConnection) {
-                    // Will cause a flush and reads the response from the server...
-                    result = ((HttpURLConnection) receiveConnection).getResponseCode() == HttpServletResponse.SC_OK;
-                }
-
-                m_log.log(LogService.LOG_DEBUG, "Pulled log (" + m_name + ") successfully from remote...");
-            }
-            catch (IOException e) {
-                m_log.log(LogService.LOG_ERROR, "Unable to connect to retrieve log events.", e);
-            }
-            finally {
-                closeSilently(receiveInput);
-                closeSilently(receiveConnection);
             }
         }
+
+        if (result) {
+            m_log.log(LogService.LOG_DEBUG, "Pulled log (" + m_name + ") successfully from remote...");
+        }
+
         return result;
     }
 
@@ -198,42 +206,49 @@ public class LogSyncTask implements Runnable, LogSync {
         boolean result = !delta.isEmpty();
 
         OutputStream sendOutput = null;
-        URLConnection sendConnection = null;
+        HttpURLConnection sendConnection = null;
 
-        try {
-            sendConnection = createConnection(createURL(host, COMMAND_SEND));
-            if (sendConnection instanceof HttpURLConnection) {
+        if (result) {
+            try {
+                sendConnection = createConnection(createURL(host, COMMAND_SEND));
                 // ACE-294: enable streaming mode causing only small amounts of memory to be
                 // used for this commit. Otherwise, the entire input stream is cached into
                 // memory prior to sending it to the server...
-                ((HttpURLConnection) sendConnection).setChunkedStreamingMode(8192);
+                sendConnection.setChunkedStreamingMode(8192);
+                sendConnection.setDoOutput(true);
+
+                sendOutput = sendConnection.getOutputStream();
+
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sendOutput));
+                try {
+                    writeDelta(delta, writer);
+                }
+                finally {
+                    writer.close();
+                }
+
+                // Will cause a flush and reads the response from the server...
+                int rc = sendConnection.getResponseCode();
+                result = (rc == HttpServletResponse.SC_OK);
+
+                if (!result) {
+                    String msg = sendConnection.getResponseMessage();
+                    m_log.log(LogService.LOG_WARNING, String.format("Could not push log '%s'. Server response: %s (%d)", m_name, msg, rc));
+                }
             }
-            sendConnection.setDoOutput(true);
-
-            sendOutput = sendConnection.getOutputStream();
-
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sendOutput));
-            try {
-                writeDelta(delta, writer);
+            catch (IOException e) {
+                m_log.log(LogService.LOG_ERROR, "Unable to (fully) synchronize log with remote", e);
             }
             finally {
-                writer.close();
+                closeSilently(sendOutput);
+                closeSilently(sendConnection);
             }
+        }
 
-            if (sendConnection instanceof HttpURLConnection) {
-                // Will cause a flush and reads the response from the server...
-                result = ((HttpURLConnection) sendConnection).getResponseCode() == HttpServletResponse.SC_OK;
-            }
-
+        if (result) {
             m_log.log(LogService.LOG_DEBUG, "Pushed log (" + m_name + ") successfully to remote...");
         }
-        catch (IOException e) {
-            m_log.log(LogService.LOG_ERROR, "Unable to (fully) synchronize log with remote", e);
-        }
-        finally {
-            closeSilently(sendOutput);
-            closeSilently(sendConnection);
-        }
+
         return result;
     }
 
@@ -339,8 +354,8 @@ public class LogSyncTask implements Runnable, LogSync {
         }
     }
 
-    private URLConnection createConnection(URL url) throws IOException {
-        return m_connectionFactory.createConnection(url);
+    private HttpURLConnection createConnection(URL url) throws IOException {
+        return (HttpURLConnection) m_connectionFactory.createConnection(url);
     }
 
     private URL createReceiveURL(URL host, Descriptor l) throws MalformedURLException {
