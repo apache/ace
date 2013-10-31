@@ -77,6 +77,8 @@ public class LogIntegrationTest extends IntegrationTestBase {
         configure("org.apache.ace.deployment.servlet",
                 HttpConstants.ENDPOINT, DEPLOYMENT, "authentication.enabled", "false");
 
+        configure("org.apache.ace.log.server.store.filebased", "MaxEvents", "0");
+        
         configureFactory("org.apache.ace.log.server.servlet.factory",
                 "name", "auditlog",
                 HttpConstants.ENDPOINT, AUDITLOG, "authentication.enabled", "false");

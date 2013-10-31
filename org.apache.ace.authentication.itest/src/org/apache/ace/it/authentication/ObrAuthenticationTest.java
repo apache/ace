@@ -97,6 +97,8 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
             RepositoryConstants.REPOSITORY_MASTER, "true");
 
+        configure("org.apache.ace.log.server.store.filebased", "MaxEvents", "0");
+
         configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
             "repositoryName", "users",
             "repositoryCustomer", "apache");

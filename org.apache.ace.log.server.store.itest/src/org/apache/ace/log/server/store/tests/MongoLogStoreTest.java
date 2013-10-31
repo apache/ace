@@ -165,6 +165,8 @@ public class MongoLogStoreTest extends IntegrationTestBase {
 
     @Override
     protected void configureProvisionedServices() throws Exception {
+        configure("org.apache.ace.log.server.store.mongo", "MaxEvents", "0");
+
         configureFactory("org.amdatu.mongo", "dbName", "ace");
         configureFactory("org.apache.ace.log.server.store.factory", "name", "serverlog");
     }

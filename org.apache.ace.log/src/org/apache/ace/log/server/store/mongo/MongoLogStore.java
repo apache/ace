@@ -2,6 +2,7 @@ package org.apache.ace.log.server.store.mongo;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,6 +16,8 @@ import org.apache.ace.feedback.Event;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.Range;
 import org.apache.ace.range.SortedRangeSet;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -23,9 +26,12 @@ import com.mongodb.DBObject;
 import com.mongodb.MapReduceCommand.OutputType;
 import com.mongodb.MapReduceOutput;
 
-public class MongoLogStore implements LogStore {
+public class MongoLogStore implements LogStore, ManagedService {
+    private static final String MAXIMUM_NUMBER_OF_EVENTS = "MaxEvents";
+
     private final String m_logname;
     private volatile MongoDBService m_mongoDBService;
+    private int m_maxEvents = 0;
 
     public MongoLogStore(String logname) {
         this.m_logname = logname;
@@ -91,6 +97,7 @@ public class MongoLogStore implements LogStore {
 
     @Override
     public void put(List<Event> events) throws IOException {
+        // TODO : if m_max_events > 0 then make sure there are no more than m_maxEvents
         DBCollection collection = m_mongoDBService.getDB().getCollection(m_logname);
 
         for (Event event : events) {
@@ -142,5 +149,24 @@ public class MongoLogStore implements LogStore {
     public List<Descriptor> getDescriptors() throws IOException {
         return getDescriptors(null);
     }
+    
+    @SuppressWarnings("rawtypes")
+    @Override
+    public void updated(Dictionary settings) throws ConfigurationException {
+        if (settings != null) {
+            String maximumNumberOfEvents = (String) settings.get(MAXIMUM_NUMBER_OF_EVENTS);
+            if (maximumNumberOfEvents != null) {
+                try {
+                    m_maxEvents = Integer.parseInt(maximumNumberOfEvents);
+                } catch (NumberFormatException nfe) {
+                    throw new ConfigurationException(MAXIMUM_NUMBER_OF_EVENTS, "is not a number");
+                }
+            }
+        }
+    }
 
+    @Override
+    public void clean() throws IOException {
+        // TODO : if m_max_events > 0 then remove all events from the mongo store where there are more than m_maxEvents
+    }
 }

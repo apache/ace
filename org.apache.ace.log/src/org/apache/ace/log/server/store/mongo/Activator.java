@@ -36,6 +36,8 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
+    public static final String PID = "org.apache.ace.log.server.store.mongo";
+
     private static final String LOG_NAME = "name";
 
     private DependencyManager m_manager;
@@ -83,7 +85,8 @@ public class Activator extends DependencyActivatorBase implements ManagedService
                 .setInterface(LogStore.class.getName(), props)
                 .setImplementation(new MongoLogStore(name))
                 .add(createServiceDependency().setService(EventAdmin.class).setRequired(false))
-                .add(createServiceDependency().setService(MongoDBService.class).setRequired(true));
+                .add(createServiceDependency().setService(MongoDBService.class).setRequired(true))
+                .add(createConfigurationDependency().setPid(PID));
             m_instances.put(pid, service);
             m_manager.add(service);
         } else {

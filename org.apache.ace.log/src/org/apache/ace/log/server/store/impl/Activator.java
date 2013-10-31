@@ -36,6 +36,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
+    public static final String PID = "org.apache.ace.log.server.store.filebased";
 
     private static final String LOG_NAME = "name";
     private DependencyManager m_manager;
@@ -94,7 +95,8 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             service = m_manager.createComponent()
                 .setInterface(LogStore.class.getName(), props)
                 .setImplementation(new LogStoreImpl(baseDir, name))
-                .add(createServiceDependency().setService(EventAdmin.class).setRequired(false));
+                .add(createServiceDependency().setService(EventAdmin.class).setRequired(false))
+                .add(createConfigurationDependency().setPid(PID));
             m_instances.put(pid, service);
             m_manager.add(service);
         } else {

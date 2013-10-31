@@ -129,6 +129,9 @@ public class LogServletTest {
         public void put(List<Event> events) throws IOException {
             m_events = events;
         }
+        public void clean() throws IOException {
+            throw new UnsupportedOperationException("not implemented");
+        }
     }
 
     private class MockServletOutputStream extends ServletOutputStream {

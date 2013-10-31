@@ -90,4 +90,12 @@ public interface LogStore
      * @throws java.io.IOException in case of any error.
      */
     public List<Descriptor> getDescriptors() throws IOException;
+    
+    /**
+     * Cleanup the events in the store. This method will check each target and log in this store and remove all
+     * events exceeding the maximum number of events that can be configured for this store.
+     * 
+     * @throws IOException in case of any error
+     */
+    public void clean() throws IOException;
 }

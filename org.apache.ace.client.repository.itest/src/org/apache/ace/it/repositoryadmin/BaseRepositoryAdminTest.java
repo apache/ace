@@ -179,6 +179,8 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
 
         getService(SessionFactory.class).createSession("test-session-ID", null);
 
+        configure("org.apache.ace.log.server.store.filebased", "MaxEvents", "0");
+
         configureFactory("org.apache.ace.log.server.store.factory",
             "name", "auditlog", "authentication.enabled", "false");
     }

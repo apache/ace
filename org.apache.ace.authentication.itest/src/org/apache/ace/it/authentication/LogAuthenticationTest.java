@@ -129,6 +129,8 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
         configure("org.apache.ace.scheduler",
             "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
 
+        configure("org.apache.ace.log.server.store.filebased", "MaxEvents", "0");
+
         configure(DiscoveryConstants.DISCOVERY_PID,
             DiscoveryConstants.DISCOVERY_URL_KEY, baseURL);
         configure(IdentificationConstants.IDENTIFICATION_PID,

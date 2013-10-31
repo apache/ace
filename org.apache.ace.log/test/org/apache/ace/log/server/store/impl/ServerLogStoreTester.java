@@ -23,10 +23,12 @@ import static org.apache.ace.test.utils.TestUtils.UNIT;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.ace.feedback.AuditEvent;
@@ -39,6 +41,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class ServerLogStoreTester {
+    private static final String MAXIMUM_NUMBER_OF_EVENTS = "MaxEvents";
+
     private LogStoreImpl m_logStore;
     private File m_dir;
 
@@ -104,6 +108,92 @@ public class ServerLogStoreTester {
         assert m_logStore.getDescriptors(targetID).size() == 1 : "We expect to find a single event: expected 1, found " + m_logStore.getDescriptors(targetID).size();
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Test(groups = { TestUtils.UNIT })
+    public void testMaximumNumberOfEvents() throws Exception {
+        Dictionary settings = new Properties();
+        settings.put(MAXIMUM_NUMBER_OF_EVENTS, "1");
+        m_logStore.updated(settings);
+        
+        List<Event> events = new ArrayList<Event>();
+        for (String target : new String[] { "target"}) {
+            for (long log : new long[] { 1 }) {
+                for (long id : new long[] { 1, 2 }) {
+                    events.add(new Event(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new HashMap<String, String>()));
+                }
+            }
+        }
+
+        m_logStore.put(events);
+
+        List<Descriptor> allDescriptors = m_logStore.getDescriptors();
+        assert allDescriptors.size() == 1 : "Expected only one descriptor, found: " + allDescriptors.size();
+        for (Descriptor range : allDescriptors) {
+            List<Descriptor> allLogsForTarget = m_logStore.getDescriptors(range.getTargetID());
+            for (Descriptor range2 : allLogsForTarget) {
+                List<Event> getEvents = m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getStoreID()));
+                assert getEvents.size() == 1 : "Only one event expected, found " + getEvents.size();
+            }
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Test(groups = { TestUtils.UNIT })
+    public void testMaximumNumberOfEventsMultipleLogs() throws Exception {
+        Dictionary settings = new Properties();
+        settings.put(MAXIMUM_NUMBER_OF_EVENTS, "1");
+        m_logStore.updated(settings);
+        
+        List<Event> events = new ArrayList<Event>();
+        for (String target : new String[] { "target"}) {
+            for (long log : new long[] { 1,2 }) {
+                for (long id : new long[] { 1, 2 }) {
+                    events.add(new Event(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new HashMap<String, String>()));
+                }
+            }
+        }
+        
+        m_logStore.put(events);
+        List<Descriptor> allDescriptors = m_logStore.getDescriptors();
+        assert allDescriptors.size() == 2 : "Expected two descriptor, found: " + allDescriptors.size();
+        for (Descriptor range : allDescriptors) {
+            List<Descriptor> allLogsForTarget = m_logStore.getDescriptors(range.getTargetID());
+            for (Descriptor range2 : allLogsForTarget) {
+                List<Event> getEvents = m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getStoreID()));
+                assert getEvents.size() == 1 : "Only one event expected, found " + getEvents.size();
+            }
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Test(groups = { TestUtils.UNIT })
+    public void testClean() throws Exception {
+        List<Event> events = new ArrayList<Event>();
+        for (String target : new String[] { "target"}) {
+            for (long log : new long[] { 1,2 }) {
+                for (long id : new long[] { 1, 2 }) {
+                    events.add(new Event(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new HashMap<String, String>()));
+                }
+            }
+        }
+        m_logStore.put(events);
+
+        Dictionary settings = new Properties();
+        settings.put(MAXIMUM_NUMBER_OF_EVENTS, "1");
+        m_logStore.updated(settings);
+        
+        m_logStore.clean();
+        List<Descriptor> allDescriptors = m_logStore.getDescriptors();
+        assert allDescriptors.size() == 2 : "Expected two descriptor, found: " + allDescriptors.size();
+        for (Descriptor range : allDescriptors) {
+            List<Descriptor> allLogsForTarget = m_logStore.getDescriptors(range.getTargetID());
+            for (Descriptor range2 : allLogsForTarget) {
+                List<Event> getEvents = m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getStoreID()));
+                assert getEvents.size() == 1 : "Only one event expected, found " + getEvents.size();
+            }
+        }
+    }
+    
     private void delete(File root) {
         if (root.isDirectory()) {
             for (File child : root.listFiles()) {

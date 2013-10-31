@@ -22,10 +22,12 @@ import java.util.Properties;
 
 import org.apache.ace.gogo.execute.ExecuteCommands;
 import org.apache.ace.gogo.execute.ScriptExecutor;
+import org.apache.ace.gogo.log.LogCommands;
 import org.apache.ace.gogo.math.MathCommands;
 import org.apache.ace.gogo.misc.MiscCommands;
 import org.apache.ace.gogo.queue.QueueCommands;
 import org.apache.ace.gogo.repo.RepoCommands;
+import org.apache.ace.log.server.store.LogStore;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.service.command.CommandProcessor;
@@ -61,6 +63,13 @@ public class Activator extends DependencyActivatorBase {
             .setImplementation(ExecuteCommands.class)
             .add(createServiceDependency()
                 .setService(CommandProcessor.class)
+                .setRequired(true)));
+
+        manager.add(createComponent()
+            .setInterface(Object.class.getName(), createProps(LogCommands.SCOPE, LogCommands.FUNCTIONS))
+            .setImplementation(LogCommands.class)
+            .add(createServiceDependency()
+                .setService(LogStore.class)
                 .setRequired(true)));
 
         String script = System.getProperty("ace.gogo.script");

@@ -4,7 +4,8 @@
 	org.osgi.impl.bundle.repoindex.lib,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.gogo.runtime,\
-	org.apache.ace.bnd.repository;version=latest
+	org.apache.ace.bnd.repository;version=latest,\
+	org.apache.ace.log.server.store.api;version=latest
 
 Bundle-Name: Apache ACE Gogo commands
 Bundle-Description: Provides Gogo commands for working with ACE	
@@ -75,5 +76,6 @@ Private-Package: org.apache.ace.bnd.repository,\
 	org.osgi.impl.bundle.bindex.*;-split-package:=merge-last,\
 	org.osgi.impl.bundle.obr.*;-split-package:=merge-last,\
 	org.xmlpull.v1;-split-package:=first,\
-	org.kxml2.io;-split-package:=first
+	org.kxml2.io;-split-package:=first,\
+	org.apache.ace.gogo.log
 	
