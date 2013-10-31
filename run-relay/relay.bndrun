@@ -34,7 +34,7 @@
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlet;version=latest,\
-	org.apache.ace.resourceprocessor.useradmin;version=latest,\
+	org.apache.ace.repository.task;version=latest,\
 	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.log.server.store.file;version=latest,\
