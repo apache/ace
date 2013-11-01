@@ -26,6 +26,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.Reindeer;
 
 public abstract class GenericAddWindow extends Window {
 
@@ -64,14 +65,6 @@ public abstract class GenericAddWindow extends Window {
     }
 
     /**
-     * Closes this dialog by removing it from the parent window.
-     */
-    protected void closeDialog() {
-        // close the window by removing it from the parent window
-        getParent().removeWindow(this);
-    }
-
-    /**
      * Called when the {@link #onOk(String, String)} method failed with an exception.
      * 
      * @param e the exception to handle, never <code>null</code>.
@@ -91,7 +84,7 @@ public abstract class GenericAddWindow extends Window {
             public void buttonClick(ClickEvent event) {
                 try {
                     onOk((String) m_name.getValue(), (String) m_description.getValue());
-                    closeDialog();
+                    close();
                 }
                 catch (Exception e) {
                     handleError(e);
@@ -100,13 +93,14 @@ public abstract class GenericAddWindow extends Window {
         });
         // Allow enter to be used to close this dialog with enter directly...
         okButton.setClickShortcut(KeyCode.ENTER);
-        okButton.addStyleName("primary");
+        okButton.addStyleName(Reindeer.BUTTON_DEFAULT);
 
         Button cancelButton = new Button("Cancel", new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                closeDialog();
+                close();
             }
         });
+        cancelButton.setClickShortcut(KeyCode.ESCAPE);
 
         HorizontalLayout buttonBar = new HorizontalLayout();
         buttonBar.setSpacing(true);
@@ -122,6 +116,9 @@ public abstract class GenericAddWindow extends Window {
         // The components added to the window are actually added to the window's
         // layout; you can use either. Alignments are set using the layout
         layout.setComponentAlignment(buttonBar, Alignment.BOTTOM_RIGHT);
+        
+        // Allow direct typing...
+        m_name.focus();
     }
 
     /**

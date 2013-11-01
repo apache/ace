@@ -161,7 +161,7 @@ public class LoginWindow extends Window {
      */
     public void closeWindow() {
         getParent().removeParameterHandler(this);
-        getParent().removeWindow(this);
+        close();
     }
 
     @Override

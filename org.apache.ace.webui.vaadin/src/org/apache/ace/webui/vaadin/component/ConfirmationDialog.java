@@ -18,6 +18,7 @@
  */
 package org.apache.ace.webui.vaadin.component;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -26,9 +27,11 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
- * Provides a confirmation dialog, based on code found on <a href="https://vaadin.com/forum/-/message_boards/view_message/17883">this forum posting</a>.
+ * Provides a confirmation dialog, based on code found on <a
+ * href="https://vaadin.com/forum/-/message_boards/view_message/17883">this forum posting</a>.
  */
 public class ConfirmationDialog extends Window implements ClickListener {
 
@@ -39,7 +42,8 @@ public class ConfirmationDialog extends Window implements ClickListener {
         /**
          * Called upon pressing a button.
          * 
-         * @param buttonName the name of the button that was clicked, never <code>null</code>.
+         * @param buttonName
+         *            the name of the button that was clicked, never <code>null</code>.
          */
         void onDialogResult(String buttonName);
     }
@@ -53,23 +57,30 @@ public class ConfirmationDialog extends Window implements ClickListener {
     /**
      * Provides a Yes/No confirmation dialog.
      * 
-     * @param caption the caption of this dialog, cannot be <code>null</code>;
-     * @param message the message to display, may be <code>null</code> to omit the message;
-     * @param callback the callback to call for each pressed button.
+     * @param caption
+     *            the caption of this dialog, cannot be <code>null</code>;
+     * @param message
+     *            the message to display, may be <code>null</code> to omit the message;
+     * @param callback
+     *            the callback to call for each pressed button.
      */
     public ConfirmationDialog(String caption, String message, Callback callback) {
-        this(caption, message, callback, YES, NO);
+        this(caption, message, callback, YES, YES, NO);
     }
 
     /**
      * Provides a confirmation dialog with a custom set of buttons.
      * 
-     * @param caption the caption of this dialog, cannot be <code>null</code>;
-     * @param message the message to display, may be <code>null</code> to omit the message;
-     * @param callback the callback to call for each pressed button;
-     * @param buttonNames the names of the buttons to display.
+     * @param caption
+     *            the caption of this dialog, cannot be <code>null</code>;
+     * @param message
+     *            the message to display, may be <code>null</code> to omit the message;
+     * @param callback
+     *            the callback to call for each pressed button;
+     * @param buttonNames
+     *            the names of the buttons to display.
      */
-    public ConfirmationDialog(String caption, String message, Callback callback, String... buttonNames) {
+    public ConfirmationDialog(String caption, String message, Callback callback, String defaultButton, String... buttonNames) {
         super(caption);
 
         if (buttonNames == null || buttonNames.length <= 1) {
@@ -88,7 +99,7 @@ public class ConfirmationDialog extends Window implements ClickListener {
         layout.setMargin(true);
         layout.setSpacing(true);
 
-        addComponents(message, buttonNames);
+        addComponents(message, defaultButton, buttonNames);
     }
 
     /**
@@ -98,6 +109,7 @@ public class ConfirmationDialog extends Window implements ClickListener {
         Window parent = getParent();
         if (parent != null) {
             parent.removeWindow(this);
+            parent.focus();
         }
 
         AbstractComponent comp = (AbstractComponent) event.getComponent();
@@ -107,10 +119,12 @@ public class ConfirmationDialog extends Window implements ClickListener {
     /**
      * Adds all components to this dialog.
      * 
-     * @param message the optional message to display, can be <code>null</code>;
-     * @param buttonNames the names of the buttons to add, never <code>null</code> or empty.
+     * @param message
+     *            the optional message to display, can be <code>null</code>;
+     * @param buttonNames
+     *            the names of the buttons to add, never <code>null</code> or empty.
      */
-    protected void addComponents(String message, String... buttonNames) {
+    protected void addComponents(String message, String defaultButton, String... buttonNames) {
         if (message != null) {
             addComponent(new Label(message));
         }
@@ -125,6 +139,12 @@ public class ConfirmationDialog extends Window implements ClickListener {
         for (String buttonName : buttonNames) {
             Button button = new Button(buttonName, this);
             button.setData(buttonName);
+            if (defaultButton != null && defaultButton.equals(buttonName)) {
+                button.setStyleName(Reindeer.BUTTON_DEFAULT);
+                button.setClickShortcut(KeyCode.ENTER);
+                // Request focus in this window...
+                button.focus();
+            }
             gl.addComponent(button);
         }
 

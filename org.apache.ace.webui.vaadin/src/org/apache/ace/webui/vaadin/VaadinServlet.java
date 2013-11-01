@@ -159,6 +159,15 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     @Override
     protected SystemMessages getSystemMessages() {
         CustomizedSystemMessages msgs = new CustomizedSystemMessages();
+        msgs.setAuthenticationErrorNotificationEnabled(false);
+        msgs.setAuthenticationErrorURL(m_servletEndpoint.concat("/?authenticationError"));
+        msgs.setCommunicationErrorNotificationEnabled(false);
+        msgs.setCommunicationErrorURL(m_servletEndpoint.concat("/?communicationError"));
+        msgs.setCookiesDisabledNotificationEnabled(false);
+        msgs.setCookiesDisabledURL(m_servletEndpoint.concat("/?cookiesDisabled"));
+        msgs.setInternalErrorNotificationEnabled(false);
+        msgs.setInternalErrorURL(m_servletEndpoint.concat("/?internalError"));
+        msgs.setOutOfSyncNotificationEnabled(false);
         msgs.setSessionExpiredNotificationEnabled(false);
         msgs.setSessionExpiredURL(m_servletEndpoint.concat("/?sessionTimedOut"));
         return msgs;

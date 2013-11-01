@@ -28,10 +28,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.vaadin.ShortcutHelper;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventHandler;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.terminal.gwt.server.WebBrowser;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
@@ -51,6 +54,9 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
     private class LogoutButtonListener implements Button.ClickListener, ConfirmationDialog.Callback {
 
         public void buttonClick(ClickEvent event) {
+            // Avoid double-clicks...
+            event.getButton().setEnabled(false);
+
             final RepositoryAdmin repoAdmin = getRepositoryAdmin();
             try {
                 if (repoAdmin.isModified() && repoAdmin.isCurrent()) {
@@ -96,6 +102,9 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
     private final class RetrieveButtonListener implements Button.ClickListener, ConfirmationDialog.Callback {
 
         public void buttonClick(ClickEvent event) {
+            // Avoid double-clicks...
+            event.getButton().setEnabled(false);
+
             final RepositoryAdmin repoAdmin = getRepositoryAdmin();
             try {
                 if (repoAdmin.isModified()) {
@@ -146,6 +155,9 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
     private final class RevertButtonListener implements Button.ClickListener, ConfirmationDialog.Callback {
 
         public void buttonClick(ClickEvent event) {
+            // Avoid double-clicks...
+            event.getButton().setEnabled(false);
+
             try {
                 if (getRepositoryAdmin().isModified()) {
                     // Revert all changes...
@@ -195,10 +207,10 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      */
     private final class StoreButtonListener implements Button.ClickListener {
 
-        /**
-         * {@inheritDoc}
-         */
         public void buttonClick(ClickEvent event) {
+            // Avoid double-clicks...
+            event.getButton().setEnabled(false);
+
             final RepositoryAdmin repoAdmin = getRepositoryAdmin();
             try {
                 if (repoAdmin.isModified()) {
@@ -260,6 +272,22 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         setSpacing(true);
 
         initComponent();
+    }
+
+    @Override
+    public void attach() {
+        try {
+            addCrossPlatformShortcut(m_retrieveButton, KeyCode.G, "Retrieves the latest changes from the server");
+            addCrossPlatformShortcut(m_storeButton, KeyCode.S, "Stores all local changes");
+            addCrossPlatformShortcut(m_revertButton, KeyCode.U, "Reverts all local changes");
+
+            if (m_showLogoutButton) {
+                addCrossPlatformShortcut(m_logoutButton, KeyCode.L, "Log out");
+            }
+        }
+        finally {
+            super.attach();
+        }
     }
 
     /**
@@ -375,6 +403,10 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         getWindow().showNotification(title, String.format("<br/>%s", message), Notification.TYPE_WARNING_MESSAGE);
     }
 
+    private void addCrossPlatformShortcut(Button button, int key, String description) {
+        ShortcutHelper.addCrossPlatformShortcut((WebBrowser) getWindow().getTerminal(), button, description, key);
+    }
+
     /**
      * Initializes this component.
      */
@@ -405,9 +437,9 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
 
         m_logoutButton = new Button("Logout");
         m_logoutButton.addListener(new LogoutButtonListener());
-        if (m_showLogoutButton) {
-            addComponent(m_logoutButton, 5, 0);
-        }
+        m_logoutButton.setVisible(m_showLogoutButton);
+
+        addComponent(m_logoutButton, 5, 0);
 
         // Ensure the spacer gets all the excessive room, causing the logout
         // button to appear at the right side of the screen....

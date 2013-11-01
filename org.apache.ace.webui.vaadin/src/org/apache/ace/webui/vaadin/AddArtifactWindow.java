@@ -40,6 +40,7 @@ import org.osgi.service.log.LogService;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -67,7 +68,7 @@ abstract class AddArtifactWindow extends Window {
 
     private final List<File> m_uploadedArtifacts = new ArrayList<File>();
     private final Button m_searchButton;
-    private final Button m_closeButton;
+    private final Button m_addButton;
     private final Table m_artifactsTable;
 
     /**
@@ -87,6 +88,7 @@ abstract class AddArtifactWindow extends Window {
 
         setModal(true);
         setWidth("50em");
+        setCloseShortcut(KeyCode.ESCAPE);
 
         m_artifactsTable = new Table("Artifacts in repository");
         m_artifactsTable.addContainerProperty(PROPERTY_SYMBOLIC_NAME, String.class, null);
@@ -175,23 +177,19 @@ abstract class AddArtifactWindow extends Window {
         searchBar.addComponent(searchField);
         searchBar.addComponent(m_searchButton);
 
-        m_closeButton = new Button("Add", new ClickListener() {
+        m_addButton = new Button("Add", new ClickListener() {
             public void buttonClick(ClickEvent event) {
                 // Import all "local" (existing) bundles...
                 importLocalBundles(m_artifactsTable);
                 // Import all "remote" (non existing) bundles...
                 importRemoteBundles(m_uploadedArtifacts);
 
-                closeWindow();
-
-                // TODO: make a decision here so now we have enough information
-                // to show a list of imported artifacts (added) but do we want
-                // to show this list or do we just assume the user will see the
-                // new artifacts in the left most column? do we also report
-                // failures? or only report if there were failures?
+                close();
             }
         });
-        m_closeButton.setImmediate(true);
+        m_addButton.setImmediate(true);
+        m_addButton.setStyleName(Reindeer.BUTTON_DEFAULT);
+        m_addButton.setClickShortcut(KeyCode.ENTER);
 
         VerticalLayout layout = (VerticalLayout) getContent();
         layout.setMargin(true);
@@ -203,8 +201,8 @@ abstract class AddArtifactWindow extends Window {
         layout.addComponent(finalUploadedArtifacts);
         // The components added to the window are actually added to the window's
         // layout; you can use either. Alignments are set using the layout
-        layout.addComponent(m_closeButton);
-        layout.setComponentAlignment(m_closeButton, Alignment.MIDDLE_RIGHT);
+        layout.addComponent(m_addButton);
+        layout.setComponentAlignment(m_addButton, Alignment.MIDDLE_RIGHT);
 
         searchField.focus();
     }
@@ -227,14 +225,6 @@ abstract class AddArtifactWindow extends Window {
             parent.showNotification("Failed to retrieve OBR repository!", "Reason: <br/>" + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
             logError("Failed to retrieve OBR repository!", e);
         }
-    }
-
-    /**
-     * Closes this window.
-     */
-    final void closeWindow() {
-        // close the window by removing it from the parent window
-        getParent().removeWindow(this);
     }
 
     /**

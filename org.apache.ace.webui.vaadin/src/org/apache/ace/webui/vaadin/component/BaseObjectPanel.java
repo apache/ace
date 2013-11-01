@@ -465,6 +465,9 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         Association<LEFT_ASSOC_REPO_OBJ, REPO_OBJ> association = doCreateLeftSideAssociation(String.valueOf(leftObjectId), String.valueOf(rightObjectId));
         if (association != null) {
             m_leftTable.recalculateRelations(Direction.RIGHT);
+            
+            // Request the focus again...
+            focus();
         }
     }
 
@@ -480,6 +483,9 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         Association<REPO_OBJ, RIGHT_ASSOC_REPO_OBJ> association = doCreateRightSideAssociation(String.valueOf(leftObjectId), String.valueOf(rightObjectId));
         if (association != null) {
             m_rightTable.recalculateRelations(Direction.LEFT);
+            
+            // Request the focus again...
+            focus();
         }
     }
 
@@ -490,6 +496,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         m_associations.clear();
         m_associations.updateActiveTable(this);
         recalculateRelations(Direction.BOTH);
+        // request the focus...
+        focus();
     }
 
     /**
@@ -518,6 +526,9 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
             m_associations.clear();
 
             m_leftTable.recalculateRelations(Direction.RIGHT);
+            
+            // Request the focus again...
+            focus();
         }
     }
 
@@ -534,6 +545,9 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
             m_associations.clear();
 
             m_rightTable.recalculateRelations(Direction.LEFT);
+            
+            // Request the focus again...
+            focus();
         }
     }
 
@@ -566,6 +580,9 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         }
 
         setChildrenAllowed(itemId, false);
+        
+        // Request the focus again...
+        focus();
     }
 
     /**
@@ -853,6 +870,9 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
                 removeItem(parentID);
             }
         }
+        
+        // Request the focus again...
+        focus();
     }
 
     protected final void setItemIcon(REPO_OBJ object) {

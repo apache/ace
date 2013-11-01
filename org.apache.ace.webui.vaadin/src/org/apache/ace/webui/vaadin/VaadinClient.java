@@ -85,7 +85,10 @@ import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.event.ShortcutAction.ModifierKey;
 import com.vaadin.service.ApplicationContext;
+import com.vaadin.terminal.gwt.server.WebBrowser;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.DragAndDropWrapper;
@@ -319,6 +322,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
         m_mainWindow = new Window("Apache ACE");
         m_mainWindow.getContent().setSizeFull();
+        m_mainWindow.setBorder(Window.BORDER_NONE);
 
         setMainWindow(m_mainWindow);
 
@@ -467,6 +471,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         return m_statefulTargetRepository.preregister(attributes, tags);
     }
 
+    private void addCrossPlatformAddShortcut(Button button, int keycode, String description) {
+        ShortcutHelper.addCrossPlatformShortcut((WebBrowser) getMainWindow().getTerminal(), button, description, keycode, ModifierKey.SHIFT);
+    }
+
     private void addDependency(Component component, Class service) {
         component.add(m_manager.createServiceDependency()
             .setService(service)
@@ -529,6 +537,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      */
     private Button createAddArtifactButton() {
         Button button = new Button("Add artifact...");
+        addCrossPlatformAddShortcut(button, KeyCode.A, "Add a new artifact");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
                 showAddArtifactDialog();
@@ -547,6 +556,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      */
     private Button createAddDistributionButton() {
         Button button = new Button("Add Distribution...");
+        addCrossPlatformAddShortcut(button, KeyCode.D, "Add a new distribution");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
                 GenericAddWindow window = new GenericAddWindow("Add Distribution") {
@@ -576,6 +586,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      */
     private Button createAddFeatureButton() {
         Button button = new Button("Add Feature...");
+        addCrossPlatformAddShortcut(button, KeyCode.F, "Add a new feature");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
                 GenericAddWindow window = new GenericAddWindow("Add Feature") {
@@ -604,6 +615,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      */
     private Button createAddTargetButton() {
         Button button = new Button("Add target...");
+        addCrossPlatformAddShortcut(button, KeyCode.G, "Add a new target");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
                 GenericAddWindow window = new GenericAddWindow("Add Target") {
@@ -815,6 +827,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
                 m_featuresPanel.populate();
                 m_distributionsPanel.populate();
                 m_targetsPanel.populate();
+
+                m_mainWindow.focus();
             }
         };
     }
@@ -1064,6 +1078,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         addListener(m_targetsPanel, StatefulTargetObject.TOPIC_ALL, TargetObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_LOGIN, RepositoryAdmin.TOPIC_REFRESH);
 
         m_mainWindow.addComponent(m_grid);
+        // Ensure the focus is properly defined (for the shortcut keys to work)...
+        m_mainWindow.focus();
     }
 
     /**

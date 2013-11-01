@@ -79,14 +79,6 @@ public abstract class EditWindow extends Window {
     }
 
     /**
-     * Closes this dialog by removing it from the parent window.
-     */
-    protected void closeDialog() {
-        // close the window by removing it from the parent window
-        getParent().removeWindow(this);
-    }
-
-    /**
      * Called when the {@link #onOk(String, String)} method failed with an exception.
      * 
      * @param e the exception to handle, never <code>null</code>.
@@ -127,7 +119,7 @@ public abstract class EditWindow extends Window {
             public void buttonClick(ClickEvent event) {
                 try {
                     onOk((String) m_name.getValue(), (String) m_description.getValue());
-                    closeDialog();
+                    close();
                 }
                 catch (Exception e) {
                     handleError(e);
@@ -140,9 +132,10 @@ public abstract class EditWindow extends Window {
 
         Button cancelButton = new Button("Cancel", new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-                closeDialog();
+                close();
             }
         });
+        cancelButton.setClickShortcut(KeyCode.ESCAPE);
 
         HorizontalLayout buttonBar = new HorizontalLayout();
         buttonBar.setSpacing(true);
@@ -159,6 +152,8 @@ public abstract class EditWindow extends Window {
         // The components added to the window are actually added to the window's
         // layout; you can use either. Alignments are set using the layout
         layout.setComponentAlignment(buttonBar, Alignment.BOTTOM_RIGHT);
+        
+        m_name.focus();
     }
     
     protected Map<String, Object> populateContext(Map<String, Object> context) {
