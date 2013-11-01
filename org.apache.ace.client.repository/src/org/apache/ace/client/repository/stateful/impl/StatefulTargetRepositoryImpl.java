@@ -557,7 +557,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                 ArtifactObject bundle = allProcessors.get(processor);
                 if (bundle == null) {
                     m_log.log(LogService.LOG_ERROR, "Unable to create deployment version: there is no resource processing bundle available that publishes " + processor);
-                    throw new IllegalStateException("Unable to create deployment version: there is no resource processing bundle available that publishes " + processor);
+                    throw new IOException("Unable to create deployment version: there is no resource processing bundle available that publishes " + processor);
                 }
                 bundles.put(bundle, processor);
             }
@@ -670,13 +670,13 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                         if (!m_bundleHelper.canUse(artifact)) {
                             String processorPID = artifact.getProcessorPID();
                             if (processorPID == null) {
-                                m_log.log(LogService.LOG_ERROR, "Cannot gather necessary artifacts: no processor PID defined for " + artifact.getName());
+                                m_log.log(LogService.LOG_WARNING, "Cannot gather necessary artifacts: no processor PID defined for " + artifact.getName());
                                 return null;
                             }
                             ArtifactObject processor = allProcessors.get(processorPID);
                             if (processor == null) {
                                 // this means we cannot create a useful version; return null.
-                                m_log.log(LogService.LOG_ERROR, "Cannot gather necessary artifacts: failed to find resource processor named '" + artifact.getProcessorPID() + "' for artifact '" + artifact.getName() + "'!");
+                                m_log.log(LogService.LOG_WARNING, "Cannot gather necessary artifacts: failed to find resource processor named '" + artifact.getProcessorPID() + "' for artifact '" + artifact.getName() + "'!");
                                 return null;
                             }
                             result.add(processor);
