@@ -38,11 +38,10 @@ import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
 import org.apache.ace.client.repository.repository.DeploymentVersionRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.verifier.VerifierService;
 import org.apache.ace.deployment.verifier.VerifierService.VerifyEnvironment;
 import org.apache.ace.deployment.verifier.VerifierService.VerifyReporter;
-import org.apache.ace.connectionfactory.ConnectionFactory;
-import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.osgi.framework.Constants;
 import org.osgi.framework.wiring.BundleCapability;
@@ -149,14 +148,11 @@ public class ACEVerifierExtension implements UIExtensionFactory {
      * {@inheritDoc}
      */
     public Component create(Map<String, Object> context) {
-        RepositoryObject object = getRepositoryObjectFromContext(context);
+        StatefulTargetObject target = getRepositoryObjectFromContext(context);
 
         Component content = new Label("This target is not yet registered, so it can not verify anything.");
-        if (object instanceof StatefulTargetObject) {
-            StatefulTargetObject statefulTarget = (StatefulTargetObject) object;
-            if (statefulTarget.isRegistered()) {
-                content = new ManifestArea(statefulTarget.getID(), getManifest(statefulTarget), statefulTarget);
-            }
+        if (target.isRegistered()) {
+            content = new ManifestArea(target.getID(), getManifest(target), target);
         }
 
         VerticalLayout result = new VerticalLayout();
@@ -215,7 +211,8 @@ public class ACEVerifierExtension implements UIExtensionFactory {
     /**
      * Quietly closes a given {@link Closeable}.
      * 
-     * @param closeable the closeable to close, can be <code>null</code>.
+     * @param closeable
+     *            the closeable to close, can be <code>null</code>.
      */
     private void closeQuietly(Closeable closeable) {
         if (closeable != null) {
@@ -231,8 +228,10 @@ public class ACEVerifierExtension implements UIExtensionFactory {
     /**
      * Factory method to create a suitable {@link VerifyEnvironment} instance.
      * 
-     * @param manifest the manifest to use;
-     * @param verifyResult the verification result to use.
+     * @param manifest
+     *            the manifest to use;
+     * @param verifyResult
+     *            the verification result to use.
      * @return a new {@link VerifyEnvironment} instance, never <code>null</code>.
      */
     @SuppressWarnings("deprecation")
@@ -286,9 +285,12 @@ public class ACEVerifierExtension implements UIExtensionFactory {
 
     /**
      * Returns the manifest for a given repository object.
-     * <p>In case the given repository object does not provide a manifest, this method will return a hard-coded manifest.</p>
+     * <p>
+     * In case the given repository object does not provide a manifest, this method will return a hard-coded manifest.
+     * </p>
      * 
-     * @param object the repository object to get the manifest for, cannot be <code>null</code>.
+     * @param object
+     *            the repository object to get the manifest for, cannot be <code>null</code>.
      * @return a manifest, never <code>null</code>.
      */
     private String getManifest(RepositoryObject object) {
@@ -302,7 +304,8 @@ public class ACEVerifierExtension implements UIExtensionFactory {
     /**
      * Converts a given {@link Attributes} into a map.
      * 
-     * @param attributes the attributes to convert, cannot be <code>null</code>.
+     * @param attributes
+     *            the attributes to convert, cannot be <code>null</code>.
      * @return a manifest map, never <code>null</code>.
      */
     private Map<String, String> getManifestEntries(final Manifest manifest) {
@@ -333,22 +336,24 @@ public class ACEVerifierExtension implements UIExtensionFactory {
      * @param context
      * @return
      */
-    private RepositoryObject getRepositoryObjectFromContext(Map<String, Object> context) {
-        Object contextObject = context.get("object");
+    private StatefulTargetObject getRepositoryObjectFromContext(Map<String, Object> context) {
+        Object contextObject = context.get("statefulTarget");
         if (contextObject == null) {
             throw new IllegalStateException("No context object found");
         }
 
-        return ((RepositoryObject) (contextObject instanceof NamedObject ? ((NamedObject) contextObject).getObject()
-            : contextObject));
+        return (StatefulTargetObject) contextObject;
     }
 
     /**
      * Processes all artifacts.
      * 
-     * @param artifacts the artifacts to process.
-     * @param env the environment to use;
-     * @param verifyResult the verification result, cannot be <code>null</code>.
+     * @param artifacts
+     *            the artifacts to process.
+     * @param env
+     *            the environment to use;
+     * @param verifyResult
+     *            the verification result, cannot be <code>null</code>.
      */
     private void processArtifacts(DeploymentArtifact[] artifacts, VerifyEnvironment env, VerificationResult verifyResult) {
         String dir;
@@ -365,9 +370,12 @@ public class ACEVerifierExtension implements UIExtensionFactory {
     /**
      * Processes a single bundle.
      * 
-     * @param bundle the bundle to process;
-     * @param env the environment to use;
-     * @param verifyResult the verification result, cannot be <code>null</code>.
+     * @param bundle
+     *            the bundle to process;
+     * @param env
+     *            the environment to use;
+     * @param verifyResult
+     *            the verification result, cannot be <code>null</code>.
      */
     private void processBundle(DeploymentArtifact bundle, VerifyEnvironment env, VerificationResult verifyResult) {
         InputStream is = null;
@@ -401,9 +409,11 @@ public class ACEVerifierExtension implements UIExtensionFactory {
     }
 
     /**
-     * @param url the remote URL to connect to, cannot be <code>null</code>.
+     * @param url
+     *            the remote URL to connect to, cannot be <code>null</code>.
      * @return an {@link InputStream} to the remote URL, never <code>null</code>.
-     * @throws IOException in case of I/O problems opening the remote connection.
+     * @throws IOException
+     *             in case of I/O problems opening the remote connection.
      */
     private InputStream getBundleContents(String url) throws IOException {
         URLConnection conn = m_connectionFactory.createConnection(new URL(url));

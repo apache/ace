@@ -26,8 +26,8 @@ import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
 import org.apache.ace.client.repository.object.FeatureObject;
+import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.DistributionRepository;
-import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.ace.webui.vaadin.AssociationManager;
 
@@ -36,7 +36,7 @@ import com.vaadin.data.Item;
 /**
  * Provides an object panel for displaying distributions.
  */
-public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObject, DistributionRepository, FeatureObject, StatefulTargetObject> {
+public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObject, DistributionRepository, FeatureObject, TargetObject> {
 
     /**
      * Creates a new {@link DistributionsPanel} instance.
@@ -47,20 +47,17 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
      *            the helper for removing associations.
      */
     public DistributionsPanel(AssociationHelper associations, AssociationManager associationRemover) {
-        super(associations, associationRemover, "Distribution", UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION,
-            true /* hasEdit */);
+        super(associations, associationRemover, "Distribution", UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION, true, DistributionObject.class);
     }
 
     @Override
-    protected boolean doCreateLeftSideAssociation(FeatureObject feature, DistributionObject distribution) {
-        m_associationManager.createFeature2DistributionAssociation(feature, distribution);
-        return true;
+    protected Feature2DistributionAssociation doCreateLeftSideAssociation(String featureId, String distributionId) {
+        return m_associationManager.createFeature2DistributionAssociation(featureId, distributionId);
     }
 
     @Override
-    protected boolean doCreateRightSideAssociation(DistributionObject distribution, StatefulTargetObject target) {
-        m_associationManager.createDistribution2TargetAssociation(distribution, target);
-        return true;
+    protected Distribution2TargetAssociation doCreateRightSideAssociation(String distribution, String target) {
+        return m_associationManager.createDistribution2TargetAssociation(distribution, target);
     }
 
     @Override
@@ -73,8 +70,8 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
     }
 
     @Override
-    protected boolean doRemoveRightSideAssociation(DistributionObject object, StatefulTargetObject target) {
-        List<Distribution2TargetAssociation> associations = object.getAssociationsWith(target.getTargetObject());
+    protected boolean doRemoveRightSideAssociation(DistributionObject object, TargetObject target) {
+        List<Distribution2TargetAssociation> associations = object.getAssociationsWith(target);
         for (Distribution2TargetAssociation association : associations) {
             m_associationManager.removeAssociation(association);
         }

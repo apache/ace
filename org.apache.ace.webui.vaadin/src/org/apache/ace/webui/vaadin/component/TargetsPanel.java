@@ -25,6 +25,7 @@ import org.apache.ace.client.repository.RepositoryObject.WorkingState;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.object.TargetObject;
+import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.webui.UIExtensionFactory;
@@ -38,7 +39,7 @@ import com.vaadin.ui.Embedded;
 /**
  * Provides an object panel for displaying (stateful) targets.
  */
-public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject, StatefulTargetRepository, DistributionObject, RepositoryObject> {
+public abstract class TargetsPanel extends BaseObjectPanel<TargetObject, TargetRepository, DistributionObject, RepositoryObject> {
 
     private static final String REGISTRATION_STATE_ICON = "regStateIcon";
     private static final String PROVISIONING_STATE_ICON = "provStateIcon";
@@ -53,7 +54,7 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
      *            the helper for removing associations.
      */
     public TargetsPanel(AssociationHelper associations, AssociationManager associationRemover) {
-        super(associations, associationRemover, "Target", UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET, true /* hasEdit */);
+        super(associations, associationRemover, "Target", UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET, true, TargetObject.class);
     }
 
     protected void defineTableColumns() {
@@ -65,7 +66,7 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         addContainerProperty(ACTION_UNLINK, Button.class, null, "", null, ALIGN_CENTER);
         addContainerProperty(ACTION_DELETE, Button.class, null, "", null, ALIGN_CENTER);
 
-        setColumnWidth(ICON, FIXED_COLUMN_WIDTH);
+        setColumnWidth(ICON, ICON_WIDTH);
         setColumnWidth(ACTION_UNLINK, FIXED_COLUMN_WIDTH);
         setColumnWidth(ACTION_DELETE, FIXED_COLUMN_WIDTH);
         setColumnWidth(REGISTRATION_STATE_ICON, ICON_WIDTH);
@@ -78,13 +79,12 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
     }
 
     @Override
-    protected boolean doCreateLeftSideAssociation(DistributionObject distribution, StatefulTargetObject target) {
-        m_associationManager.createDistribution2TargetAssociation(distribution, target);
-        return true;
+    protected Distribution2TargetAssociation doCreateLeftSideAssociation(String distributionId, String targetId) {
+        return m_associationManager.createDistribution2TargetAssociation(distributionId, targetId);
     }
 
     @Override
-    protected boolean doRemoveLeftSideAssociation(DistributionObject distribution, StatefulTargetObject target) {
+    protected boolean doRemoveLeftSideAssociation(DistributionObject distribution, TargetObject target) {
         List<Distribution2TargetAssociation> associations = target.getAssociationsWith(distribution);
         for (Distribution2TargetAssociation association : associations) {
             m_associationManager.removeAssociation(association);
@@ -93,13 +93,15 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
     }
 
     @Override
-    protected String getDisplayName(StatefulTargetObject object) {
+    protected String getDisplayName(TargetObject object) {
         return object.getID();
     }
 
+    protected abstract StatefulTargetRepository getStatefulTargetRepository();
+
     @Override
     protected WorkingState getWorkingState(RepositoryObject object) {
-        final StatefulTargetObject statefulTarget = (StatefulTargetObject) object;
+        final StatefulTargetObject statefulTarget = asStatefulTargetObject(object);
         if (statefulTarget.isRegistered()) {
             return super.getWorkingState(statefulTarget.getTargetObject());
         }
@@ -108,15 +110,15 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
 
     @Override
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
-        StatefulTargetObject statefulTarget = asStatefulTargetObject(entity);
-        if (StatefulTargetObject.TOPIC_ADDED.equals(topic)) {
-            add(statefulTarget);
+        TargetObject target = asTargetObject(entity);
+        if (TargetObject.TOPIC_ADDED.equals(topic)) {
+            add(target);
         }
-        if (StatefulTargetObject.TOPIC_REMOVED.equals(topic)) {
-            remove(statefulTarget);
+        if (TargetObject.TOPIC_REMOVED.equals(topic)) {
+            remove(target);
         }
         if (topic.endsWith("CHANGED")) {
-            update(statefulTarget);
+            update(target);
         }
     }
 
@@ -125,29 +127,33 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         return (entity instanceof StatefulTargetObject) || (entity instanceof TargetObject);
     }
 
-    protected void populateItem(StatefulTargetObject target, Item item) {
+    protected void populateItem(TargetObject target, Item item) {
+        StatefulTargetObject statefulTarget = asStatefulTargetObject(target);
+
         item.getItemProperty(OBJECT_NAME).setValue(target.getID());
-        item.getItemProperty(REGISTRATION_STATE_ICON).setValue(getRegistrationStateIcon(target));
-        item.getItemProperty(STORE_STATE_ICON).setValue(getStoreStateIcon(target));
-        item.getItemProperty(PROVISIONING_STATE_ICON).setValue(getProvisioningStateIcon(target));
+        item.getItemProperty(REGISTRATION_STATE_ICON).setValue(getRegistrationStateIcon(statefulTarget));
+        item.getItemProperty(STORE_STATE_ICON).setValue(getStoreStateIcon(statefulTarget));
+        item.getItemProperty(PROVISIONING_STATE_ICON).setValue(getProvisioningStateIcon(statefulTarget));
         item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(target));
-        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(target));
+        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(statefulTarget));
     }
 
-    /**
-     * 
-     * @param entity
-     * @return
-     */
     private StatefulTargetObject asStatefulTargetObject(RepositoryObject entity) {
         if (entity instanceof StatefulTargetObject) {
             return (StatefulTargetObject) entity;
         }
-        return getFromId(((TargetObject) entity).getDefinition());
+        return getStatefulTargetRepository().get(((TargetObject) entity).getDefinition());
+    }
+
+    private TargetObject asTargetObject(RepositoryObject entity) {
+        if (entity instanceof TargetObject) {
+            return (TargetObject) entity;
+        }
+        return ((StatefulTargetObject) entity).getTargetObject();
     }
 
     private RemoveItemButton createRemoveItemButton(StatefulTargetObject object) {
-        RemoveItemButton b = new RemoveItemButton(object);
+        RemoveItemButton b = new RemoveItemButton(object.getTargetObject());
         b.setEnabled(object.isRegistered());
         return b;
     }
@@ -158,20 +164,12 @@ public abstract class TargetsPanel extends BaseObjectPanel<StatefulTargetObject,
         return createIcon(name, res);
     }
 
-    /**
-     * @param object
-     * @return
-     */
     private Embedded getRegistrationStateIcon(StatefulTargetObject object) {
         String name = object.getRegistrationState().name();
         Resource res = createIconResource("target_" + name);
         return createIcon(name, res);
     }
 
-    /**
-     * @param object
-     * @return
-     */
     private Embedded getStoreStateIcon(StatefulTargetObject object) {
         String name = object.getStoreState().name();
         Resource res = createIconResource("target_store_" + name);

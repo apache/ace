@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,11 +53,14 @@ import org.apache.ace.client.repository.repository.Distribution2TargetAssociatio
 import org.apache.ace.client.repository.repository.DistributionRepository;
 import org.apache.ace.client.repository.repository.Feature2DistributionAssociationRepository;
 import org.apache.ace.client.repository.repository.FeatureRepository;
+import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.domain.NamedStatefulTargetObject;
+import org.apache.ace.webui.domain.NamedTargetObject;
 import org.apache.ace.webui.vaadin.LoginWindow.LoginFunction;
 import org.apache.ace.webui.vaadin.UploadHelper.ArtifactDropHandler;
 import org.apache.ace.webui.vaadin.UploadHelper.GenericUploadHandler;
@@ -71,6 +75,9 @@ import org.apache.ace.webui.vaadin.component.TargetsPanel;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
@@ -81,13 +88,10 @@ import org.osgi.service.useradmin.UserAdmin;
 import com.vaadin.service.ApplicationContext;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.DragAndDropWrapper;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressIndicator;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 
@@ -143,6 +147,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
     private volatile FeatureRepository m_featureRepository;
     private volatile DistributionRepository m_distributionRepository;
     private volatile StatefulTargetRepository m_statefulTargetRepository;
+    private volatile TargetRepository m_targetRepository;
     private volatile Artifact2FeatureAssociationRepository m_artifact2featureAssociationRepository;
     private volatile Feature2DistributionAssociationRepository m_feature2distributionAssociationRepository;
     private volatile Distribution2TargetAssociationRepository m_distribution2targetAssociationRepository;
@@ -159,9 +164,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
     private TargetsPanel m_targetsPanel;
     private GridLayout m_grid;
     private StatusLine m_statusLine;
-    private boolean m_dynamicRelations = true;
     private File m_sessionDir; // private folder for session info
-    private HorizontalLayout m_artifactToolbar;
+    private Button m_artifactToolbar;
     private Button m_featureToolbar;
     private Button m_distributionToolbar;
     private Button m_targetToolbar;
@@ -228,34 +232,64 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
     }
 
     @Override
-    public void createArtifact2FeatureAssociation(ArtifactObject artifact, FeatureObject feature) {
-        // if you drop on a resource processor, and try to get it, you
-        // will get null because you cannot associate anything with a
-        // resource processor so we check for null here
-        if (artifact != null) {
-            if (m_dynamicRelations) {
-                Map<String, String> properties = new HashMap<String, String>();
-                properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
-                m_artifact2featureAssociationRepository.create(artifact, properties, feature, null);
+    public Artifact2FeatureAssociation createArtifact2FeatureAssociation(String artifactId, String featureId) {
+        boolean dynamicRelation = false;
+
+        FeatureObject feature = m_featureRepository.get(featureId);
+        ArtifactObject artifact = m_artifactRepository.get(artifactId);
+        if (artifact == null) {
+            // Maybe a BSN?
+            try {
+                List<ArtifactObject> artifacts = m_artifactRepository.get(FrameworkUtil.createFilter(String.format("(%s=%s)", Constants.BUNDLE_SYMBOLICNAME, artifactId)));
+                if (artifacts != null && artifacts.size() > 0) {
+                    dynamicRelation = true;
+                    // we only need this artifact for creating the association, so it does not matter which one we
+                    // take...
+                    artifact = artifacts.get(0);
+                }
             }
-            else {
-                m_artifact2featureAssociationRepository.create(artifact, feature);
+            catch (InvalidSyntaxException exception) {
+                m_log.log(LogService.LOG_ERROR, "Invalid filter syntax?!", exception);
             }
         }
+
+        // Make sure we didn't drop on a resource processor bundle...
+        if (artifact != null && artifact.getAttribute(BundleHelper.KEY_RESOURCE_PROCESSOR_PID) != null) {
+            // if you drop on a resource processor, and try to get it, you
+            // will get null because you cannot associate anything with a
+            // resource processor so we check for null here
+            return null;
+        }
+
+        Artifact2FeatureAssociation result = null;
+        if (artifact != null) {
+            if (dynamicRelation) {
+                Map<String, String> properties = Collections.singletonMap(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
+                result = m_artifact2featureAssociationRepository.create(artifact, properties, feature, null);
+            }
+            else {
+                result = m_artifact2featureAssociationRepository.create(artifact, feature);
+            }
+        }
+        return result;
     }
 
     @Override
-    public void createDistribution2TargetAssociation(DistributionObject distribution, StatefulTargetObject target) {
+    public Distribution2TargetAssociation createDistribution2TargetAssociation(String distributionId, String targetId) {
+        DistributionObject distribution = m_distributionRepository.get(distributionId);
+        StatefulTargetObject target = m_statefulTargetRepository.get(targetId);
         if (!target.isRegistered()) {
             target.register();
             target.setAutoApprove(true);
         }
-        m_distribution2targetAssociationRepository.create(distribution, target.getTargetObject());
+        return m_distribution2targetAssociationRepository.create(distribution, target.getTargetObject());
     }
 
     @Override
-    public void createFeature2DistributionAssociation(FeatureObject feature, DistributionObject distribution) {
-        m_feature2distributionAssociationRepository.create(feature, distribution);
+    public Feature2DistributionAssociation createFeature2DistributionAssociation(String featureId, String distributionId) {
+        FeatureObject feature = m_featureRepository.get(featureId);
+        DistributionObject distribution = m_distributionRepository.get(distributionId);
+        return m_feature2distributionAssociationRepository.create(feature, distribution);
     }
 
     public void destroyDependencies() {
@@ -296,9 +330,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      * {@inheritDoc}
      */
     public boolean login(String username, String password) {
-        User user = m_authenticationService.authenticate(username, password);
-        setUser(user);
-        return login(user);
+        setUser(m_authenticationService.authenticate(username, password));
+        return doLogin();
     }
 
     /**
@@ -335,6 +368,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         addSessionDependency(component, Artifact2FeatureAssociationRepository.class);
         addSessionDependency(component, Feature2DistributionAssociationRepository.class);
         addSessionDependency(component, Distribution2TargetAssociationRepository.class);
+        addSessionDependency(component, TargetRepository.class);
         addSessionDependency(component, StatefulTargetRepository.class);
         addDependency(component, ConnectionFactory.class);
     }
@@ -493,7 +527,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      *            Main Window
      * @return Button
      */
-    private Button createAddArtifactButton(User user) {
+    private Button createAddArtifactButton() {
         Button button = new Button("Add artifact...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -511,7 +545,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      * 
      * @return the add-distribution button instance.
      */
-    private Button createAddDistributionButton(User user) {
+    private Button createAddDistributionButton() {
         Button button = new Button("Add Distribution...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -540,7 +574,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      * 
      * @return the add-feature button instance.
      */
-    private Button createAddFeatureButton(User user) {
+    private Button createAddFeatureButton() {
         Button button = new Button("Add Feature...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -568,7 +602,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      * 
      * @return the add-target button instance.
      */
-    private Button createAddTargetButton(User user) {
+    private Button createAddTargetButton() {
         Button button = new Button("Add target...");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -597,7 +631,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         return button;
     }
 
-    private ArtifactsPanel createArtifactsPanel(User user) {
+    private ArtifactsPanel createArtifactsPanel() {
         return new ArtifactsPanel(m_associations, this) {
             @Override
             protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
@@ -627,7 +661,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         };
     }
 
-    private DistributionsPanel createDistributionsPanel(User user) {
+    private DistributionsPanel createDistributionsPanel() {
         return new DistributionsPanel(m_associations, this) {
             @Override
             protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
@@ -657,7 +691,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         };
     }
 
-    private FeaturesPanel createFeaturesPanel(User user) {
+    private FeaturesPanel createFeaturesPanel() {
         return new FeaturesPanel(m_associations, this) {
             @Override
             protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
@@ -687,7 +721,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         };
     }
 
-    private TargetsPanel createTargetsPanel(User user) {
+    private TargetsPanel createTargetsPanel() {
         return new TargetsPanel(m_associations, this) {
             @Override
             protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
@@ -711,25 +745,39 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
                     protected void onOk(String name, String description) throws Exception {
                         // Nothing to edit!
                     }
+
+                    @Override
+                    protected Map<String, Object> populateContext(Map<String, Object> context) {
+                        if (object instanceof NamedTargetObject) {
+                            context.put("statefulTarget", m_statefulTargetRepository.get(object.getDefinition()));
+                        }
+                        else if (object instanceof NamedStatefulTargetObject) {
+                            context.put("statefulTarget", object.getObject());
+                        }
+                        return context;
+                    }
                 };
             }
 
             @Override
-            protected StatefulTargetRepository getRepository() {
-                return m_statefulTargetRepository;
+            protected TargetRepository getRepository() {
+                return m_targetRepository;
             }
 
             @Override
             protected RepositoryAdmin getRepositoryAdmin() {
                 return m_admin;
             }
+
+            @Override
+            protected StatefulTargetRepository getStatefulTargetRepository() {
+                return m_statefulTargetRepository;
+            }
         };
     }
 
-    private GridLayout createToolbar(User user) {
-        final boolean showLogoutButton = m_useAuth;
-        final DependencyManager manager = m_manager;
-        MainActionToolbar mainActionToolbar = new MainActionToolbar(user, manager, showLogoutButton) {
+    private GridLayout createToolbar() {
+        return new MainActionToolbar(m_useAuth) {
             @Override
             protected void doAfterCommit() throws IOException {
                 updateTableData();
@@ -769,10 +817,55 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
                 m_targetsPanel.populate();
             }
         };
-        return mainActionToolbar;
     }
 
-    private void initGrid(User user) {
+    /**
+     * Authenticates the given user by creating all dependent services.
+     * 
+     * @param user
+     * @throws IOException
+     *             in case of I/O problems.
+     */
+    private boolean doLogin() {
+        try {
+            RepositoryAdminLoginContext context = m_admin.createLoginContext((User) getUser());
+
+            // @formatter:off
+            context
+                .add(context.createShopRepositoryContext()
+                    .setLocation(m_repository).setCustomer(customerName).setName(shopRepo).setWriteable())
+                .add(context.createTargetRepositoryContext()
+                    .setLocation(m_repository).setCustomer(customerName).setName(targetRepo).setWriteable())
+                .add(context.createDeploymentRepositoryContext()
+                    .setLocation(m_repository).setCustomer(customerName).setName(deployRepo).setWriteable());
+            // @formatter:on
+
+            m_admin.login(context);
+            initGrid();
+            m_admin.checkout();
+
+            return true;
+        }
+        catch (Exception e) {
+            m_log.log(LogService.LOG_WARNING, "Login failed! Destroying session...", e);
+
+            try {
+                // Avoid errors when the user tries to login again (due to the stale session)...
+                m_admin.logout(true /* force */);
+            }
+            catch (IllegalStateException inner) {
+                // Ignore; probably we're not logged...
+            }
+            catch (IOException inner) {
+                m_log.log(LogService.LOG_WARNING, "Logout failed! Session possibly not destroyed...", inner);
+            }
+
+            return false;
+        }
+    }
+
+    private void initGrid() {
+        User user = (User) getUser();
         Authorization auth = m_userAdmin.getAuthorization(user);
         int count = 0;
         for (String role : new String[] { "viewArtifact", "viewFeature", "viewDistribution", "viewTarget" }) {
@@ -780,14 +873,6 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
                 count++;
             }
         }
-        m_grid = new GridLayout(count, 4);
-        m_grid.setSpacing(true);
-        m_grid.setSizeFull();
-
-        m_mainToolbar = createToolbar(user);
-        m_grid.addComponent(m_mainToolbar, 0, 0, count - 1, 0);
-
-        m_artifactsPanel = createArtifactsPanel(user);
 
         final GenericUploadHandler uploadHandler = new GenericUploadHandler(m_sessionDir) {
             @Override
@@ -899,33 +984,30 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
             }
         };
 
-        final DragAndDropWrapper finalUploadedArtifacts = new DragAndDropWrapper(m_artifactsPanel);
-        finalUploadedArtifacts.setCaption(m_artifactsPanel.getCaption());
-        finalUploadedArtifacts.setSizeFull();
-        finalUploadedArtifacts.setDropHandler(new ArtifactDropHandler(uploadHandler));
+        m_grid = new GridLayout(count, 4);
+        m_grid.setSpacing(true);
+        m_grid.setSizeFull();
 
-        m_artifactToolbar = new HorizontalLayout();
-        m_artifactToolbar.addComponent(createAddArtifactButton(user));
+        m_mainToolbar = createToolbar();
+        m_grid.addComponent(m_mainToolbar, 0, 0, count - 1, 0);
 
-        CheckBox dynamicCheckBox = new CheckBox("Dynamic Links");
-        dynamicCheckBox.setImmediate(true);
-        dynamicCheckBox.setValue(Boolean.TRUE);
-        dynamicCheckBox.addListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                m_dynamicRelations = event.getButton().booleanValue();
-            }
-        });
-        m_artifactToolbar.addComponent(dynamicCheckBox);
+        m_artifactsPanel = createArtifactsPanel();
+        m_artifactToolbar = createAddArtifactButton();
+
+        final DragAndDropWrapper artifactsPanelWrapper = new DragAndDropWrapper(m_artifactsPanel);
+        artifactsPanelWrapper.setDropHandler(new ArtifactDropHandler(uploadHandler));
+        artifactsPanelWrapper.setCaption(m_artifactsPanel.getCaption());
+        artifactsPanelWrapper.setSizeFull();
 
         count = 0;
         if (auth.hasRole("viewArtifact")) {
-            m_grid.addComponent(finalUploadedArtifacts, count, 2);
+            m_grid.addComponent(artifactsPanelWrapper, count, 2);
             m_grid.addComponent(m_artifactToolbar, count, 1);
             count++;
         }
 
-        m_featuresPanel = createFeaturesPanel(user);
-        m_featureToolbar = createAddFeatureButton(user);
+        m_featuresPanel = createFeaturesPanel();
+        m_featureToolbar = createAddFeatureButton();
 
         if (auth.hasRole("viewFeature")) {
             m_grid.addComponent(m_featuresPanel, count, 2);
@@ -933,8 +1015,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
             count++;
         }
 
-        m_distributionsPanel = createDistributionsPanel(user);
-        m_distributionToolbar = createAddDistributionButton(user);
+        m_distributionsPanel = createDistributionsPanel();
+        m_distributionToolbar = createAddDistributionButton();
 
         if (auth.hasRole("viewDistribution")) {
             m_grid.addComponent(m_distributionsPanel, count, 2);
@@ -942,21 +1024,13 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
             count++;
         }
 
-        m_targetsPanel = createTargetsPanel(user);
-        m_targetToolbar = createAddTargetButton(user);
+        m_targetsPanel = createTargetsPanel();
+        m_targetToolbar = createAddTargetButton();
 
         if (auth.hasRole("viewTarget")) {
             m_grid.addComponent(m_targetsPanel, count, 2);
             m_grid.addComponent(m_targetToolbar, count, 1);
         }
-
-        // Wire up all panels so they have the correct associations...
-        m_artifactsPanel.setAssociatedTables(null, m_featuresPanel);
-        m_featuresPanel.setAssociatedTables(m_artifactsPanel, m_distributionsPanel);
-        m_distributionsPanel.setAssociatedTables(m_featuresPanel, m_targetsPanel);
-        m_targetsPanel.setAssociatedTables(m_distributionsPanel, null);
-
-        m_grid.setRowExpandRatio(2, 1.0f);
 
         m_statusLine = new StatusLine();
 
@@ -969,19 +1043,18 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
         m_grid.addComponent(m_progress, 3, 3);
 
-        m_artifactsPanel.addListener(m_associations.createSelectionListener(m_artifactsPanel, m_artifactRepository,
-            new Class[] {}, new Class[] { FeatureObject.class, DistributionObject.class, TargetObject.class },
-            new Table[] { m_featuresPanel, m_distributionsPanel, m_targetsPanel }));
-        m_featuresPanel.addListener(m_associations.createSelectionListener(m_featuresPanel, m_featureRepository,
-            new Class[] { ArtifactObject.class }, new Class[] { DistributionObject.class, TargetObject.class },
-            new Table[] { m_artifactsPanel, m_distributionsPanel, m_targetsPanel }));
-        m_distributionsPanel.addListener(m_associations.createSelectionListener(m_distributionsPanel,
-            m_distributionRepository,
-            new Class[] { FeatureObject.class, ArtifactObject.class }, new Class[] { TargetObject.class },
-            new Table[] { m_artifactsPanel, m_featuresPanel, m_targetsPanel }));
-        m_targetsPanel.addListener(m_associations.createSelectionListener(m_targetsPanel, m_statefulTargetRepository,
-            new Class[] { DistributionObject.class, FeatureObject.class, ArtifactObject.class }, new Class[] {},
-            new Table[] { m_artifactsPanel, m_featuresPanel, m_distributionsPanel }));
+        m_grid.setRowExpandRatio(2, 1.0f);
+
+        m_grid.setColumnExpandRatio(0, 0.31f);
+        m_grid.setColumnExpandRatio(1, 0.23f);
+        m_grid.setColumnExpandRatio(2, 0.23f);
+        m_grid.setColumnExpandRatio(3, 0.23f);
+
+        // Wire up all panels so they have the correct associations...
+        m_artifactsPanel.setAssociatedTables(null, m_featuresPanel);
+        m_featuresPanel.setAssociatedTables(m_artifactsPanel, m_distributionsPanel);
+        m_distributionsPanel.setAssociatedTables(m_featuresPanel, m_targetsPanel);
+        m_targetsPanel.setAssociatedTables(m_distributionsPanel, null);
 
         addListener(m_statusLine, RepositoryObject.PUBLIC_TOPIC_ROOT.concat(RepositoryObject.TOPIC_ALL_SUFFIX));
         addListener(m_mainToolbar, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_LOGIN, RepositoryAdmin.TOPIC_REFRESH);
@@ -994,57 +1067,11 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
     }
 
     /**
-     * Authenticates the given user by creating all dependent services.
-     * 
-     * @param user
-     * @throws IOException
-     *             in case of I/O problems.
-     */
-    private boolean login(final User user) {
-        try {
-            RepositoryAdminLoginContext context = m_admin.createLoginContext(user);
-
-            // @formatter:off
-            context
-                .add(context.createShopRepositoryContext()
-                    .setLocation(m_repository).setCustomer(customerName).setName(shopRepo).setWriteable())
-                .add(context.createTargetRepositoryContext()
-                    .setLocation(m_repository).setCustomer(customerName).setName(targetRepo).setWriteable())
-                .add(context.createDeploymentRepositoryContext()
-                    .setLocation(m_repository).setCustomer(customerName).setName(deployRepo).setWriteable());
-            // @formatter:on
-
-            m_admin.login(context);
-            initGrid(user);
-            m_admin.checkout();
-
-            return true;
-        }
-        catch (Exception e) {
-            m_log.log(LogService.LOG_WARNING, "Login failed! Destroying session...", e);
-
-            try {
-                // Avoid errors when the user tries to login again (due to the stale session)...
-                m_admin.logout(true /* force */);
-            }
-            catch (IllegalStateException inner) {
-                // Ignore; probably we're not logged...
-            }
-            catch (IOException inner) {
-                m_log.log(LogService.LOG_WARNING, "Logout failed! Session possibly not destroyed...", inner);
-            }
-
-            return false;
-        }
-    }
-
-    /**
      * @return <code>true</code> if the login succeeded, <code>false</code> otherwise.
      */
     private boolean loginAutomatically() {
-        User user = m_userAdmin.getUser("username", m_userName);
-        setUser(user);
-        return login(user);
+        setUser(m_userAdmin.getUser("username", m_userName));
+        return doLogin();
     }
 
     private void showAddArtifactDialog() {

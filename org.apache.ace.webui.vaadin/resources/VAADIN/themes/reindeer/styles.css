@@ -6000,6 +6000,12 @@ textarea.v-textarea-readonly,
 .v-table-row-odd.v-table-row-associated {
     background: #79b;
 }
+.v-table-row-broken-association {
+    background: #bac;
+}
+.v-table-row-odd.v-table-row-broken-association {
+    background: #a9b;
+}
 .v-table-row-related {
     background: #9ab;
 }
@@ -6022,4 +6028,13 @@ textarea.v-textarea-readonly,
 .v-label-alert {
 	font-weight: bold;
 	color: red;
+}
+.v-button-tiny .v-button-caption {
+	text-decoration: none;
+}
+.v-button-tiny .v-button-wrap,
+.v-disabled.v-button-tiny .v-button-wrap {
+  background-position: right -412px;
+	height: 20px;
+	padding: 1px 4px 0px 0px;
 }

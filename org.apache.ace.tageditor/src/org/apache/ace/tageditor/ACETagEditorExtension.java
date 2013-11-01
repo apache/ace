@@ -74,7 +74,8 @@ public class ACETagEditorExtension implements UIExtensionFactory {
     /**
      * Creates a tag editor component for the given repository object.
      * 
-     * @param object the repository object to create the tag editor for, cannot be <code>null</code>.
+     * @param object
+     *            the repository object to create the tag editor for, cannot be <code>null</code>.
      * @return a tag editor component, never <code>null</code>.
      */
     private Component createTagEditor(final RepositoryObject object) {
@@ -85,11 +86,11 @@ public class ACETagEditorExtension implements UIExtensionFactory {
         table.addContainerProperty("Value", TextField.class, null);
         table.addContainerProperty("Remove", Button.class, null, "", null, Table.ALIGN_CENTER);
         table.setEditable(false);
-        
+
         table.setColumnExpandRatio("Tag", 1.0f);
         table.setColumnExpandRatio("Value", 1.0f);
         table.setColumnExpandRatio("Remove", 0.2f);
-        
+
         final Map<Object, TagTableEntry> idToKey = new HashMap<Object, TagTableEntry>();
         Enumeration<String> keys = object.getTagKeys();
         while (keys.hasMoreElements()) {
@@ -100,10 +101,10 @@ public class ACETagEditorExtension implements UIExtensionFactory {
                 idToKey.put(tte.addTo(table), tte);
             }
         }
-        
+
         final TagTableEntry tte = new TagTableEntry(object);
         idToKey.put(tte.addTo(table), tte);
-        
+
         tte.setListener(new TagTableEntry.ChangeListener() {
             private volatile TagTableEntry m_lastEntry = tte;
 
@@ -115,7 +116,7 @@ public class ACETagEditorExtension implements UIExtensionFactory {
                 ntte.setListener(this);
             }
         });
-        
+
         table.addActionHandler(new Action.Handler() {
             final Action[] delete = new Action[] { new Action("delete") };
 
@@ -132,12 +133,14 @@ public class ACETagEditorExtension implements UIExtensionFactory {
     }
 
     private RepositoryObject getRepositoryObjectFromContext(Map<String, Object> context) {
-        Object contextObject = context.get("object");
+        Object contextObject = context.get("statefulTarget");
         if (contextObject == null) {
-            throw new IllegalStateException("No context object found");
+            contextObject = context.get("object");
+            if (contextObject == null) {
+                throw new IllegalStateException("No context object found");
+            }
         }
 
-        return (contextObject instanceof NamedObject ? ((NamedObject) contextObject).getObject()
-            : (RepositoryObject) contextObject);
+        return (contextObject instanceof NamedObject ? ((NamedObject) contextObject).getObject() : (RepositoryObject) contextObject);
     }
 }

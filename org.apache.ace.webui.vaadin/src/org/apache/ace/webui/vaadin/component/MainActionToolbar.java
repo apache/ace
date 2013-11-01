@@ -20,6 +20,7 @@ package org.apache.ace.webui.vaadin.component;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,6 @@ import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventHandler;
-import org.osgi.service.useradmin.User;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -50,9 +50,6 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      */
     private class LogoutButtonListener implements Button.ClickListener, ConfirmationDialog.Callback {
 
-        /**
-         * {@inheritDoc}
-         */
         public void buttonClick(ClickEvent event) {
             final RepositoryAdmin repoAdmin = getRepositoryAdmin();
             try {
@@ -66,34 +63,19 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
                 }
             }
             catch (IOException e) {
-                getWindow().showNotification("Changes not stored",
-                    "Failed to store the changes to the server.<br />Reason: " + e.getMessage(),
-                    Notification.TYPE_ERROR_MESSAGE);
+                showError("Changes not stored", "Failed to store the changes to the server.", e);
             }
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public void onDialogResult(String buttonName) {
             if (ConfirmationDialog.YES.equals(buttonName)) {
                 try {
                     logout();
                 }
                 catch (IOException e) {
-                    handleIOException(e);
+                    showError("Warning", "There were errors during the logout procedure.", e);
                 }
             }
-        }
-
-        /**
-         * @param e
-         *            the exception to handle.
-         */
-        private void handleIOException(IOException e) {
-            getWindow().showNotification("Warning",
-                "There were errors during the logout procedure.<br />Reason: " + e.getMessage(),
-                Notification.TYPE_ERROR_MESSAGE);
         }
 
         /**
@@ -113,9 +95,6 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      */
     private final class RetrieveButtonListener implements Button.ClickListener, ConfirmationDialog.Callback {
 
-        /**
-         * {@inheritDoc}
-         */
         public void buttonClick(ClickEvent event) {
             final RepositoryAdmin repoAdmin = getRepositoryAdmin();
             try {
@@ -134,9 +113,6 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
             }
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public void onDialogResult(String buttonName) {
             if (ConfirmationDialog.YES.equals(buttonName)) {
                 try {
@@ -148,14 +124,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
             }
         }
 
-        /**
-         * @param e
-         *            the exception to handle.
-         */
         private void handleIOException(IOException e) {
-            getWindow().showNotification("Retrieve failed",
-                "Failed to retrieve the data from the server.<br />Reason: " + e.getMessage(),
-                Notification.TYPE_ERROR_MESSAGE);
+            showError("Retrieve failed", "Failed to retrieve the data from the server.", e);
         }
 
         /**
@@ -175,9 +145,6 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      */
     private final class RevertButtonListener implements Button.ClickListener, ConfirmationDialog.Callback {
 
-        /**
-         * {@inheritDoc}
-         */
         public void buttonClick(ClickEvent event) {
             try {
                 if (getRepositoryAdmin().isModified()) {
@@ -188,8 +155,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
                 }
                 else {
                     // Nothing to revert...
-                    getWindow().showNotification("Nothing to revert",
-                        "There are no local changes that need to be reverted.", Notification.TYPE_WARNING_MESSAGE);
+                    showWarning("Nothing to revert", "There are no local changes that need to be reverted.");
                 }
             }
             catch (IOException e) {
@@ -197,9 +163,6 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
             }
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public void onDialogResult(String buttonName) {
             if (ConfirmationDialog.YES.equals(buttonName)) {
                 try {
@@ -211,13 +174,8 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
             }
         }
 
-        /**
-         * @param e
-         *            the exception to handle.
-         */
         private void handleIOException(IOException e) {
-            getWindow().showNotification("Revert failed",
-                "Failed to revert your changes.<br />Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError("Revert failed", "Failed to revert your changes.", e);
         }
 
         /**
@@ -253,16 +211,11 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
                     }
                 }
                 else {
-                    getWindow()
-                        .showNotification("Nothing to store",
-                            "There are no changes that can be stored to the repository.",
-                            Notification.TYPE_WARNING_MESSAGE);
+                    showWarning("Nothing to store", "There are no changes that can be stored to the repository.");
                 }
             }
             catch (IOException e) {
-                getWindow().showNotification("Changes not stored",
-                    "Failed to store the changes to the server.<br />Reason: " + e.getMessage(),
-                    Notification.TYPE_ERROR_MESSAGE);
+                showError("Changes not stored", "Failed to store the changes to the server.", e);
             }
         }
 
@@ -278,16 +231,13 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         }
     }
 
+    private final ConcurrentHashMap<ServiceReference, UIExtensionFactory> m_extensions;
     private final boolean m_showLogoutButton;
 
     private Button m_retrieveButton;
     private Button m_storeButton;
     private Button m_revertButton;
     private Button m_logoutButton;
-
-    private final ConcurrentHashMap<ServiceReference, UIExtensionFactory> m_extensions = new ConcurrentHashMap<ServiceReference, UIExtensionFactory>();
-
-    private final User m_user;
 
     private HorizontalLayout m_extraComponentBar;
 
@@ -300,10 +250,10 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      * @param showLogoutButton
      *            <code>true</code> if a logout button should be shown, <code>false</code> if it should not.
      */
-    public MainActionToolbar(User user, DependencyManager manager, boolean showLogoutButton) {
-        super(5, 1);
+    public MainActionToolbar(boolean showLogoutButton) {
+        super(6, 1);
 
-        m_user = user;
+        m_extensions = new ConcurrentHashMap<ServiceReference, UIExtensionFactory>();
         m_showLogoutButton = showLogoutButton;
 
         setWidth("100%");
@@ -331,16 +281,6 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         // only enabled when an actual change has been made...
         m_storeButton.setEnabled(modified);
         m_revertButton.setEnabled(modified);
-    }
-
-    public void init(org.apache.felix.dm.Component component) {
-        DependencyManager dm = component.getDependencyManager();
-        component.add(dm.createServiceDependency()
-            .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_MENU + ")")
-            .setCallbacks("add", "remove")
-            .setRequired(false)
-            .setInstanceBound(true)
-            );
     }
 
     protected final void add(ServiceReference ref, UIExtensionFactory factory) {
@@ -376,12 +316,22 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      */
     protected abstract void doAfterRevert() throws IOException;
 
+    @SuppressWarnings("unchecked")
     protected final List<Component> getExtraComponents() {
+        // create a shapshot of the current extensions...
+        Map<ServiceReference, UIExtensionFactory> extensions = new HashMap<ServiceReference, UIExtensionFactory>(m_extensions);
+
+        // Make sure we've got a predictable order of the components...
+        List<ServiceReference> refs = new ArrayList<ServiceReference>(extensions.keySet());
+        Collections.sort(refs);
+
+        Map<String, Object> context = new HashMap<String, Object>();
+
         List<Component> result = new ArrayList<Component>();
-        for (UIExtensionFactory f : m_extensions.values()) {
-            Map<String, Object> context = new HashMap<String, Object>();
-            context.put("user", m_user);
-            result.add(f.create(context));
+        for (ServiceReference ref : refs) {
+            UIExtensionFactory factory = extensions.get(ref);
+
+            result.add(factory.create(context));
         }
         return result;
     }
@@ -391,9 +341,38 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      */
     protected abstract RepositoryAdmin getRepositoryAdmin();
 
+    /**
+     * Called by Felix DM when initializing this component.
+     */
+    protected void init(org.apache.felix.dm.Component component) {
+        DependencyManager dm = component.getDependencyManager();
+        component.add(dm.createServiceDependency()
+            .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_MENU + ")")
+            .setCallbacks("add", "remove")
+            .setRequired(false)
+            .setInstanceBound(true)
+            );
+    }
+
     protected final void remove(ServiceReference ref, UIExtensionFactory factory) {
         m_extensions.remove(ref);
         setExtraComponents();
+    }
+
+    protected void showError(String title, String message, Exception e) {
+        StringBuilder sb = new StringBuilder("<br/>");
+        sb.append(message);
+        if (e.getMessage() != null) {
+            sb.append("<br/>").append(e.getMessage());
+        }
+        else {
+            sb.append("<br/>unknown error!");
+        }
+        getWindow().showNotification(title, sb.toString(), Notification.TYPE_ERROR_MESSAGE);
+    }
+
+    protected void showWarning(String title, String message) {
+        getWindow().showNotification(title, String.format("<br/>%s", message), Notification.TYPE_WARNING_MESSAGE);
     }
 
     /**
@@ -415,16 +394,19 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         m_revertButton.addListener(new RevertButtonListener());
         addComponent(m_revertButton, 2, 0);
 
-        m_extraComponentBar = new HorizontalLayout();
         Label spacer = new Label("");
         spacer.setWidth("2em");
-        m_extraComponentBar.addComponent(spacer);
-        addComponent(m_extraComponentBar, 3, 0);
+        addComponent(spacer, 3, 0);
+
+        m_extraComponentBar = new HorizontalLayout();
+        m_extraComponentBar.setSpacing(true);
+
+        addComponent(m_extraComponentBar, 4, 0);
 
         m_logoutButton = new Button("Logout");
         m_logoutButton.addListener(new LogoutButtonListener());
         if (m_showLogoutButton) {
-            addComponent(m_logoutButton, 4, 0);
+            addComponent(m_logoutButton, 5, 0);
         }
 
         // Ensure the spacer gets all the excessive room, causing the logout

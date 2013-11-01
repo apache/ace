@@ -110,6 +110,7 @@ public abstract class EditWindow extends Window {
 
         Map<String, Object> context = new HashMap<String, Object>();
         context.put("object", object);
+        populateContext(context);
 
         for (UIExtensionFactory factory : factories) {
             try {
@@ -158,6 +159,10 @@ public abstract class EditWindow extends Window {
         // The components added to the window are actually added to the window's
         // layout; you can use either. Alignments are set using the layout
         layout.setComponentAlignment(buttonBar, Alignment.BOTTOM_RIGHT);
+    }
+    
+    protected Map<String, Object> populateContext(Map<String, Object> context) {
+        return context;
     }
 
     /**

@@ -20,23 +20,31 @@
 package org.apache.ace.webui.vaadin;
 
 import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
-import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
-import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
-import org.apache.ace.client.repository.object.FeatureObject;
-import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 
 /**
  * Defines methods for removing associations.
  */
 public interface AssociationManager {
 
-    void createArtifact2FeatureAssociation(ArtifactObject artifact, FeatureObject feature);
+    /**
+     * @param artifactId
+     * @param featureId
+     */
+    Artifact2FeatureAssociation createArtifact2FeatureAssociation(String artifactId, String featureId);
 
-    void createDistribution2TargetAssociation(DistributionObject distribution, StatefulTargetObject target);
+    /**
+     * @param distributionId
+     * @param targetId
+     */
+    Distribution2TargetAssociation createDistribution2TargetAssociation(String distributionId, String targetId);
 
-    void createFeature2DistributionAssociation(FeatureObject feature, DistributionObject distribution);
+    /**
+     * @param featureId
+     * @param distributionId
+     */
+    Feature2DistributionAssociation createFeature2DistributionAssociation(String featureId, String distributionId);
 
     /**
      * @param association

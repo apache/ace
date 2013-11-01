@@ -35,7 +35,6 @@ import org.apache.ace.feedback.AuditEvent;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
 import org.apache.ace.log.server.store.LogStore;
-import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.osgi.service.log.LogService;
 
@@ -80,13 +79,11 @@ public class LogViewerExtension implements UIExtensionFactory {
      * {@inheritDoc}
      */
     public Component create(Map<String, Object> context) {
-        RepositoryObject object = getRepositoryObjectFromContext(context);
-        if (object instanceof StatefulTargetObject
-            && !((StatefulTargetObject) object).isRegistered()) {
+        StatefulTargetObject target = getRepositoryObjectFromContext(context);
+        if (!target.isRegistered()) {
             VerticalLayout result = new VerticalLayout();
             result.setCaption(CAPTION);
-            result.addComponent(new Label(
-                "This target is not yet registered, so it has no log."));
+            result.addComponent(new Label("This target is not yet registered, so it has no log."));
             return result;
         }
 
@@ -112,7 +109,7 @@ public class LogViewerExtension implements UIExtensionFactory {
         m_table.setColumnCollapsingAllowed(true);
 
         try {
-            fillTable(object, m_table);
+            fillTable(target, m_table);
             // Sort on time in descending order...
             m_table.setSortAscending(false);
             m_table.setSortContainerPropertyId(COL_TIME);
@@ -239,18 +236,12 @@ public class LogViewerExtension implements UIExtensionFactory {
         }
     }
 
-    private RepositoryObject getRepositoryObjectFromContext(
-        Map<String, Object> context) {
-        Object contextObject = context.get("object");
+    private StatefulTargetObject getRepositoryObjectFromContext(Map<String, Object> context) {
+        Object contextObject = context.get("statefulTarget");
         if (contextObject == null) {
             throw new IllegalStateException("No context object found");
         }
-        // It looks like there is some bug (or some other reason that escapes
-        // me) why ace is using either the object directly or wraps it in a
-        // NamedObject first.
-        // Its unclear when it does which so for now we cater for both.
-        return (contextObject instanceof NamedObject ? ((NamedObject) contextObject)
-            .getObject() : (RepositoryObject) contextObject);
+        return (StatefulTargetObject) contextObject;
     }
 
     private TextField makeTextField(final String colType) {
@@ -275,7 +266,7 @@ public class LogViewerExtension implements UIExtensionFactory {
 
         return t;
     }
-    
+
     private String normalize(String input) {
         return input.toLowerCase().replaceAll("_", " ");
     }

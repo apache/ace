@@ -19,13 +19,13 @@
 package org.apache.ace.webui.domain;
 
 import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.object.TargetObject;
+import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.webui.NamedObject;
 
-public class NamedTargetObject implements NamedObject {
-    private final TargetObject m_target;
+public class NamedStatefulTargetObject implements NamedObject {
+    private final StatefulTargetObject m_target;
 
-    public NamedTargetObject(TargetObject target) {
+    public NamedStatefulTargetObject(StatefulTargetObject target) {
         m_target = target;
     }
 

@@ -47,19 +47,17 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
      *            the helper for removing associations.
      */
     public FeaturesPanel(AssociationHelper associations, AssociationManager associationRemover) {
-        super(associations, associationRemover, "Feature", UIExtensionFactory.EXTENSION_POINT_VALUE_FEATURE, true);
+        super(associations, associationRemover, "Feature", UIExtensionFactory.EXTENSION_POINT_VALUE_FEATURE, true, FeatureObject.class);
     }
 
     @Override
-    protected boolean doCreateLeftSideAssociation(ArtifactObject artifact, FeatureObject feature) {
-        m_associationManager.createArtifact2FeatureAssociation(artifact, feature);
-        return true;
+    protected Artifact2FeatureAssociation doCreateLeftSideAssociation(String artifactId, String featureId) {
+        return m_associationManager.createArtifact2FeatureAssociation(artifactId, featureId);
     }
 
     @Override
-    protected boolean doCreateRightSideAssociation(FeatureObject feature, DistributionObject distribution) {
-        m_associationManager.createFeature2DistributionAssociation(feature, distribution);
-        return true;
+    protected Feature2DistributionAssociation doCreateRightSideAssociation(String featureId, String distributionId) {
+        return m_associationManager.createFeature2DistributionAssociation(featureId, distributionId);
     }
 
     @Override

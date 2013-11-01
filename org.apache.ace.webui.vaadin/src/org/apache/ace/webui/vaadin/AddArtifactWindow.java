@@ -93,8 +93,8 @@ abstract class AddArtifactWindow extends Window {
         m_artifactsTable.addContainerProperty(PROPERTY_VERSION, String.class, null);
         m_artifactsTable.addContainerProperty(PROPERTY_PURGE, Button.class, null);
         m_artifactsTable.setSizeFull();
-        m_artifactsTable.setSelectable(false);
-        m_artifactsTable.setMultiSelect(false);
+        m_artifactsTable.setSelectable(true);
+        m_artifactsTable.setMultiSelect(true);
         m_artifactsTable.setImmediate(true);
         m_artifactsTable.setHeight("15em");
 

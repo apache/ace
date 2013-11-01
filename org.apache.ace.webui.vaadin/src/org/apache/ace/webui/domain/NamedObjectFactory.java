@@ -42,11 +42,11 @@ public final class NamedObjectFactory {
         else if (object instanceof DistributionObject) {
             return new NamedDistributionObject((DistributionObject) object);
         }
-        else if (object instanceof StatefulTargetObject) {
-            return new NamedTargetObject((StatefulTargetObject) object);
-        }
         else if (object instanceof TargetObject) {
             return new NamedTargetObject((TargetObject) object);
+        }
+        else if (object instanceof StatefulTargetObject) {
+            return new NamedStatefulTargetObject((StatefulTargetObject) object);
         }
         else if (object instanceof Association) {
             return new NamedAssociationObject((Association<?, ?>) object);

@@ -37,7 +37,6 @@ import com.vaadin.data.Item;
  * Provides an object panel for displaying artifacts.
  */
 public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, ArtifactRepository, RepositoryObject, FeatureObject> {
-
     /**
      * Creates a new {@link ArtifactsPanel} instance.
      * 
@@ -47,13 +46,19 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
      *            the helper for creating/removing associations.
      */
     public ArtifactsPanel(AssociationHelper associations, AssociationManager associationMgr) {
-        super(associations, associationMgr, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, true);
+        super(associations, associationMgr, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, true, ArtifactObject.class);
     }
 
     @Override
-    protected boolean doCreateRightSideAssociation(ArtifactObject artifact, FeatureObject feature) {
-        m_associationManager.createArtifact2FeatureAssociation(artifact, feature);
-        return true;
+    protected void defineTableColumns() {
+        super.defineTableColumns();
+        
+        setColumnCollapsed(OBJECT_DESCRIPTION, true);
+    }
+
+    @Override
+    protected Artifact2FeatureAssociation doCreateRightSideAssociation(String artifactId, String featureId) {
+        return m_associationManager.createArtifact2FeatureAssociation(artifactId, featureId);
     }
 
     @Override
@@ -67,31 +72,20 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
 
     @Override
     protected String getDisplayName(ArtifactObject artifact) {
-        String bv = artifact.getAttribute(Constants.BUNDLE_VERSION);
-        if (bv != null) {
-            return bv;
+        String bsn = artifact.getAttribute(Constants.BUNDLE_SYMBOLICNAME);
+        if (bsn != null) {
+            return getVersion(artifact);
         }
         return artifact.getName();
     }
 
     @Override
     protected String getParentDisplayName(ArtifactObject artifact) {
-        String bn = artifact.getAttribute(Constants.BUNDLE_NAME);
-        if (bn != null) {
-            return bn;
+        String bsn = artifact.getAttribute(Constants.BUNDLE_SYMBOLICNAME);
+        if (bsn != null) {
+            return bsn;
         }
-        String name = artifact.getName();
-        int idx = name.lastIndexOf('-');
-        if (idx > 0) {
-            name = name.substring(0, idx);
-        }
-        else {
-            idx = name.lastIndexOf('.');
-            if (idx > 0) {
-                name = name.substring(0, idx);
-            }
-        }
-        return name;
+        return artifact.getName();
     }
 
     @Override
@@ -100,7 +94,6 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
         if (bsn != null) {
             return bsn;
         }
-        // return getParentDisplayName(artifact);
         return null;
     }
 
@@ -128,6 +121,14 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
         item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(artifact));
         item.getItemProperty(ACTION_DELETE).setValue(new RemoveItemButton(artifact));
+    }
+
+    private String getVersion(ArtifactObject artifact) {
+        String bv = artifact.getAttribute(Constants.BUNDLE_VERSION);
+        if (bv != null) {
+            return bv;
+        }
+        return "";
     }
 
     /**

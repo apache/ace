@@ -25,7 +25,6 @@ import java.util.concurrent.Future;
 
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.nodelauncher.NodeLauncher;
-import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 import org.osgi.service.log.LogService;
 
@@ -38,8 +37,7 @@ public class NodeLauncherPanelFactory implements UIExtensionFactory {
     private final ExecutorService m_executor = Executors.newCachedThreadPool();
     
     public Panel create(Map<String, Object> context) {
-        NamedObject namedObject = (NamedObject) context.get("object");
-        StatefulTargetObject target = (StatefulTargetObject) namedObject.getObject();
+        StatefulTargetObject target = (StatefulTargetObject) context.get("statefulTarget");
         return new NodePanel(this, target.getID());
     }
     
