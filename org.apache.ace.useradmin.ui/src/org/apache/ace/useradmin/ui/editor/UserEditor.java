@@ -46,7 +46,7 @@ public interface UserEditor {
      * @throws GroupNotFoundException Will be thrown when the new group can't be found
      * @throws UserAlreadyExistsException Will be thrown when a user with the username already exist
      */
-    void storeUserDTO(UserDTO userDTO) throws UserNotFoundException, GroupNotFoundException, UserAlreadyExistsException;
+    void updateUser(UserDTO userDTO) throws UserNotFoundException, GroupNotFoundException, UserAlreadyExistsException;
 
     /**
      * editUser can be called to edit the username of an user. It will add a new Role with the information of the old

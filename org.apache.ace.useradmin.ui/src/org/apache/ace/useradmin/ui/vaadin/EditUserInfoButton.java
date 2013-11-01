@@ -18,22 +18,18 @@
  */
 package org.apache.ace.useradmin.ui.vaadin;
 
-import org.apache.ace.useradmin.ui.editor.UserEditor;
 import org.apache.felix.dm.Component;
-import org.osgi.service.useradmin.User;
 
 import com.vaadin.ui.Button;
 
-public class UserAdminButton extends Button {
-    private final UserAdminWindow m_window;
+public class EditUserInfoButton extends Button {
+    private final EditUserInfoWindow m_window;
 
-    private volatile UserEditor m_userUtil;
+    public EditUserInfoButton() {
+        m_window = new EditUserInfoWindow();
 
-    public UserAdminButton() {
-        setCaption("Manage Users");
+        setCaption("My Info");
         setEnabled(false);
-
-        m_window = new UserAdminWindow();
 
         addListener(new ClickListener() {
             @Override
@@ -43,22 +39,12 @@ public class UserAdminButton extends Button {
         });
     }
 
-    @Override
-    public void attach() {
-        User user = (User) getApplication().getUser();
-        if (m_userUtil.hasRole(user, "editUsers")) {
-            setEnabled(true);
-        }
-        else {
-            // no edit user karma, so no use to show this button at all...
-            setVisible(false);
-        }
-
-        super.attach();
-    }
-
     protected Object[] getComposition() {
         return new Object[] { this, m_window };
+    }
+
+    protected void start(Component component) {
+        setEnabled(true);
     }
 
     protected void stop(Component component) {
