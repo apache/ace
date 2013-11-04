@@ -74,7 +74,7 @@ public class Activator implements BundleActivator, LifecycleCallback {
         addPackageAdminDependency(m_dependencyTracker);
 
         if (Boolean.getBoolean(AgentConstants.CONFIG_IDENTIFICATION_DISABLED)) {
-            addIdenticationHandlerDependency(m_dependencyTracker);
+            addIdentificationHandlerDependency(m_dependencyTracker);
         }
 
         if (Boolean.getBoolean(AgentConstants.CONFIG_DISCOVERY_DISABLED)) {
@@ -175,7 +175,7 @@ public class Activator implements BundleActivator, LifecycleCallback {
         });
     }
 
-    private void addIdenticationHandlerDependency(DependencyTrackerImpl tracker) throws Exception {
+    private void addIdentificationHandlerDependency(DependencyTrackerImpl tracker) throws Exception {
         tracker.addDependency(IdentificationHandler.class, null, new DependencyCallback() {
             @Override
             public void updated(Object service) {
