@@ -350,6 +350,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         Item item = getItem(itemId);
 
         if (propertyId == null) {
+            updateItemIcon(itemId);
+
             // no propertyId, styling row
             if (m_associations.isAssociated(itemId)) {
                 return "associated";
@@ -358,11 +360,25 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
                 return "related";
             }
 
-            updateItemIcon(itemId);
-        }
-        else if (OBJECT_NAME.equals(propertyId)) {
-            if (getParent(itemId) != null) {
-                return "name-pad-left";
+            // Try to highlight the parent of any dynamic link...
+            Collection<?> children = getChildren(itemId);
+            if (children != null && !children.isEmpty()) {
+                Set<?> activeSelection = m_associations.getActiveSelection();
+                if (Collections.disjoint(children, activeSelection)) {
+                    // Not in the active selection, check whether we've got an associated or related child...
+                    for (Object child : children) {
+                        if (m_associations.isAssociated(child)) {
+                            return "associated-parent";
+                        }
+                        if (m_associations.isRelated(child)) {
+                            return "related-parent";
+                        }
+                    }
+                }
+                else {
+                    // one of the children is selected...
+                    return "associated-parent";
+                }
             }
         }
         else if (OBJECT_DESCRIPTION.equals(propertyId)) {
@@ -465,7 +481,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         Association<LEFT_ASSOC_REPO_OBJ, REPO_OBJ> association = doCreateLeftSideAssociation(String.valueOf(leftObjectId), String.valueOf(rightObjectId));
         if (association != null) {
             m_leftTable.recalculateRelations(Direction.RIGHT);
-            
+
             // Request the focus again...
             focus();
         }
@@ -483,7 +499,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         Association<REPO_OBJ, RIGHT_ASSOC_REPO_OBJ> association = doCreateRightSideAssociation(String.valueOf(leftObjectId), String.valueOf(rightObjectId));
         if (association != null) {
             m_rightTable.recalculateRelations(Direction.LEFT);
-            
+
             // Request the focus again...
             focus();
         }
@@ -526,7 +542,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
             m_associations.clear();
 
             m_leftTable.recalculateRelations(Direction.RIGHT);
-            
+
             // Request the focus again...
             focus();
         }
@@ -545,7 +561,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
             m_associations.clear();
 
             m_rightTable.recalculateRelations(Direction.LEFT);
-            
+
             // Request the focus again...
             focus();
         }
@@ -575,12 +591,12 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
 
         if (parentId != null) {
             setParent(itemId, parentId);
-            setCollapsed(parentId, false);
+            setCollapsed(parentId, true);
             setItemIcon(object);
         }
 
         setChildrenAllowed(itemId, false);
-        
+
         // Request the focus again...
         focus();
     }
@@ -832,7 +848,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         item.getItemProperty(OBJECT_NAME).setValue(getParentDisplayName(object));
         item.getItemProperty(OBJECT_DESCRIPTION).setValue("");
         // XXX add unlink button when we can correctly determine dynamic links...
-//        item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(object));
+        // item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(object));
         // we *must* set a non-null icon for the parent as well to ensure that the tree-table open/collapse icon is
         // rendered properly...
         setItemIcon(parentId, createIconResource("resource_workingstate_unchanged"));
@@ -870,7 +886,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
                 removeItem(parentID);
             }
         }
-        
+
         // Request the focus again...
         focus();
     }

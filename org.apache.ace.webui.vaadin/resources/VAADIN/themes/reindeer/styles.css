@@ -6006,11 +6006,23 @@ textarea.v-textarea-readonly,
 .v-table-row-odd.v-table-row-broken-association {
     background: #a9b;
 }
+.v-table-row-associated-parent {
+    background: #ace;
+}
+.v-table-row-odd.v-table-row-associated-parent {
+    background: #9bd;
+}
 .v-table-row-related {
     background: #9ab;
 }
 .v-table-row-odd.v-table-row-related {
     background: #89a;
+}
+.v-table-row-related-parent {
+    background: #bcd;
+}
+.v-table-row-odd.v-table-row-related-parent {
+    background: #abc;
 }
 /* makes the description less prominent */
 .v-table-cell-content-description {
