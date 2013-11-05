@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.Dictionary;
 import java.util.Properties;
 
@@ -39,12 +40,11 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 
 /**
- * UpdateUserAdminTask processes the contents of a repository containing
- * an XML description of the users that should be present in this system's
- * user admin.<br>
+ * UpdateUserAdminTask processes the contents of a repository containing an XML description of the users that should be
+ * present in this system's user admin.<br>
  * <br>
- * From the first run on, this task will keep a local copy of the user repository,
- * so login can happen when the server is offline.
+ * From the first run on, this task will keep a local copy of the user repository, so login can happen when the server
+ * is offline.
  */
 public class UpdateUserAdminTask implements Runnable, ManagedService {
     /**
@@ -68,14 +68,15 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
     private BackupRepository m_backup;
     private String m_repoFilter;
     private File m_properties;
-    
+
     /**
      * Called by Dependency Manager upon initialization of this component.
      * <p>
      * Due to the dependency on the configuration; the {@link #updated(Dictionary)} method is already called!
      * </p>
      * 
-     * @param comp this component, cannot be <code>null</code>.
+     * @param comp
+     *            this component, cannot be <code>null</code>.
      */
     public void init(Component comp) {
         final DependencyManager dm = comp.getDependencyManager();
@@ -89,7 +90,8 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
     }
 
     /**
-     * Checks whether there are updates to the remote repository, and if so, updates the users' backend with its contents.
+     * Checks whether there are updates to the remote repository, and if so, updates the users' backend with its
+     * contents.
      * 
      * @see java.lang.Runnable#run()
      */
@@ -101,22 +103,31 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
                 saveVersion(m_properties, m_repo.getMostRecentVersion());
             }
         }
+        catch (ConnectException e) {
+            // ACE-199: log only a single line, instead of a complete stack trace...
+            m_log.log(LogService.LOG_WARNING, "Failed to update UserAdmin repository. Connection refused (is the server down?!)");
+        }
         catch (IOException e) {
             // If anything went wrong, this means the remote repository is not available;
             // this also means the UserAdmin is left undisturbed.
-        	m_log.log(LogService.LOG_WARNING, "Error running update UserAdmin task.", e);
+            m_log.log(LogService.LOG_WARNING, "Failed to update UserAdmin repository.", e);
         }
     }
 
     /**
      * Called by Dependency Manager upon starting of this component.
      * 
-     * @param comp this component, cannot be <code>null</code>.
+     * @param comp
+     *            this component, cannot be <code>null</code>.
      */
     public void start(Component comp) {
         try {
             // Try to read the server data
             m_configurator.setUsers(m_repo.checkout(true));
+        }
+        catch (ConnectException e) {
+            // ACE-199: log only a single line, instead of a complete stack trace...
+            m_log.log(LogService.LOG_WARNING, "Failed to update UserAdmin repository. Connection refused (is the server down?!)");
         }
         catch (IOException e) {
             try {
@@ -147,9 +158,9 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
             File local = getFile(fileRoot + "local");
             File backup = getFile(fileRoot + "backup");
             m_backup = new FilebasedBackupRepository(local, backup);
-            
+
             m_properties = getFile(fileRoot + "properties");
-            
+
             m_repoFilter = "(&(customer=" + customer + ")(name=" + name + "))";
         }
     }
@@ -157,7 +168,8 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
     /**
      * Creates the cached repository when given a remote repository.
      * 
-     * @param remoteRepo the remote repository to add, cannot be <code>null</code>.
+     * @param remoteRepo
+     *            the remote repository to add, cannot be <code>null</code>.
      */
     final void addRepo(Repository remoteRepo) {
         m_repo = new CachedRepositoryImpl(remoteRepo, m_backup, loadVersion(m_properties));
@@ -166,7 +178,8 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
     /**
      * Removes the cached repository when given a remote repository.
      * 
-     * @param remoteRepo the remote repository to remove, cannot be <code>null</code>.
+     * @param remoteRepo
+     *            the remote repository to remove, cannot be <code>null</code>.
      */
     final void removeRepo(Repository remoteRepo) {
         m_repo = null;
