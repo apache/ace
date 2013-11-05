@@ -363,9 +363,10 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         try {
             assertTrue(startLatch.await(1500, TimeUnit.MILLISECONDS));
 
-            T result;
+            T result = null;
             // XXX this is dodgy, I know, but currently a workaround for some spurious failing itests...
-            while (true) {
+            int tries = 10;
+            while (tries-- > 0) {
                 try {
                     result = callable.call();
                     break;
@@ -373,6 +374,9 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
                 catch (Exception exception) {
                     if (exception instanceof ConnectException) {
                         // Restart it...
+                        if (tries == 0) {
+                            throw exception;
+                        }
                     }
                     else {
                         // Rethrow it...

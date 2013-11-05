@@ -72,7 +72,7 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
         if (object == null) {
             return false;
         }
-        return (object.getMimetype().equals(MIMETYPE));
+        return (MIMETYPE.equals(object.getMimetype()));
     }
 
     public <TYPE extends ArtifactObject> String getAssociationFilter(TYPE obj, Map<String, String> properties) {
@@ -80,6 +80,8 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
          * Creates an endpoint filter for an association. If there is a KEY_ASSOCIATION_VERSIONSTATEMENT, a filter will
          * be created that matches exactly the given range.
          */
+
+        String symbolicName = RepositoryUtil.escapeFilterValue(removeParameters(obj.getAttribute(KEY_SYMBOLICNAME)));
         if ((properties != null) && properties.containsKey(KEY_ASSOCIATION_VERSIONSTATEMENT)) {
             String versions = properties.get(KEY_ASSOCIATION_VERSIONSTATEMENT);
             VersionRange versionRange = null;
@@ -90,7 +92,7 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
                 throw new IllegalArgumentException("version " + ((versions != null) ? versions + " " : "(null) ") + "cannot be parsed into a valid version range statement.");
             }
 
-            StringBuilder bundleStatement = new StringBuilder("(&(" + KEY_SYMBOLICNAME + "=" + RepositoryUtil.escapeFilterValue(obj.getAttribute(KEY_SYMBOLICNAME)) + ")");
+            StringBuilder bundleStatement = new StringBuilder("(&(" + KEY_SYMBOLICNAME + "=" + symbolicName + ")");
 
             bundleStatement.append("(" + KEY_VERSION + ">=" + versionRange.getLow() + ")");
             if (!versionRange.isLowInclusive()) {
@@ -110,11 +112,12 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
         }
         else
         {
-            if (obj.getAttribute(KEY_VERSION) != null) {
-                return "(&(" + KEY_SYMBOLICNAME + "=" + RepositoryUtil.escapeFilterValue(obj.getAttribute(KEY_SYMBOLICNAME)) + ")(" + KEY_VERSION + "=" + RepositoryUtil.escapeFilterValue(obj.getAttribute(KEY_VERSION)) + "))";
+            String version = obj.getAttribute(KEY_VERSION);
+            if (version != null) {
+                return "(&(" + KEY_SYMBOLICNAME + "=" + symbolicName + ")(" + KEY_VERSION + "=" + RepositoryUtil.escapeFilterValue(version) + "))";
             }
             else {
-                return "(&(" + KEY_SYMBOLICNAME + "=" + RepositoryUtil.escapeFilterValue(obj.getAttribute(KEY_SYMBOLICNAME)) + ")(!(" + KEY_VERSION + "=*)))";
+                return "(&(" + KEY_SYMBOLICNAME + "=" + symbolicName + ")(!(" + KEY_VERSION + "=*)))";
             }
         }
     }
@@ -158,6 +161,22 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
         return input;
     }
 
+    /**
+     * Some headers in OSGi allow for optional parameters, that are appended after the main value and always start with
+     * a semicolon.
+     * 
+     * @param name
+     *            the name to remove the (optional) parameters from, cannot be <code>null</code>.
+     * @return the cleaned name, never <code>null</code>.
+     */
+    private static String removeParameters(String name) {
+        int idx = name.indexOf(';');
+        if (idx > 0) {
+            return name.substring(0, idx);
+        }
+        return name;
+    }
+
     /*
      * From BundleHelper
      */
@@ -176,7 +195,7 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
 
     public String getSymbolicName(ArtifactObject object) {
         ensureBundle(object);
-        return object.getAttribute(KEY_SYMBOLICNAME);
+        return removeParameters(object.getAttribute(KEY_SYMBOLICNAME));
     }
 
     public String getName(ArtifactObject object) {
@@ -213,7 +232,6 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
     }
 
     public Map<String, String> extractMetaData(ArtifactResource artifact) throws IllegalArgumentException {
-
         try {
             Map<String, String> metadata = extractLocalizedHeaders(artifact);
 
@@ -225,7 +243,7 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
             String name = metadata.get(KEY_NAME);
             String version = metadata.get(KEY_VERSION);
             if (name == null) {
-                name = metadata.get(KEY_SYMBOLICNAME);
+                name = removeParameters(metadata.get(KEY_SYMBOLICNAME));
             }
             metadata.put(ArtifactObject.KEY_ARTIFACT_NAME, name + "-" + version);
             return metadata;
@@ -309,6 +327,9 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
                         localizationProperties = loadLocalizationProperties(jarInputStream, manifest);
                     }
                     value = localizationProperties.getProperty(value.substring(1), value);
+                }
+                if (KEY_SYMBOLICNAME.equals(key)) {
+                    value = removeParameters(value);
                 }
                 localizedHeaders.put(key, value);
             }

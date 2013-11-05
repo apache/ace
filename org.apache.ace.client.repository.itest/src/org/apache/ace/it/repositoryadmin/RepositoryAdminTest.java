@@ -253,7 +253,7 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
         }
 
         // Use a valid JAR file, with a Bundle-SymbolicName header, but do not supply an OBR.
-        attributes.putValue(BundleHelper.KEY_SYMBOLICNAME, "org.apache.ace.test" + System.currentTimeMillis());
+        attributes.putValue(BundleHelper.KEY_SYMBOLICNAME, String.format("org.apache.ace.test-%d; singleton:=true", System.currentTimeMillis()));
 
         temp = File.createTempFile("org.apache.ace.test2", ".jar");
         temp.deleteOnExit();

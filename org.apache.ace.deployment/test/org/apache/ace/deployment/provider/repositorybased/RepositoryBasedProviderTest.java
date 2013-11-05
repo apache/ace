@@ -175,7 +175,7 @@ public class RepositoryBasedProviderTest {
         BUNDLE3 = generateBundle(FileUtils.createTempFile(m_tempDirectory), null, "Bundle3", "3.0.0", null);
         BUNDLE4 = generateBundle(FileUtils.createTempFile(m_tempDirectory), null, "Bundle4", "4.0.0", null);
         BUNDLE4_1 = generateBundle(FileUtils.createTempFile(m_tempDirectory), null, "Bundle4", "4.1.0", null);
-        BUNDLE5 = generateBundle(FileUtils.createTempFile(m_tempDirectory), null, "Bundle5", "5.0.0", null);
+        BUNDLE5 = generateBundle(FileUtils.createTempFile(m_tempDirectory), null, "Bundle5;singleton:=true", "5.0.0", null);
         BUNDLE3_2 = generateBundle(FileUtils.createTempFile(m_tempDirectory), null, "Bundle3", "3.0.0", null);
         BUNDLE4_2 = generateBundle(FileUtils.createTempFile(m_tempDirectory), null, "Bundle4", "5.0.0", null);
 
