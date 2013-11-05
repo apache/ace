@@ -21,6 +21,8 @@ package org.apache.ace.client.repository.helper.configuration.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,11 +37,86 @@ import org.apache.ace.client.repository.helper.base.VelocityArtifactPreprocessor
 import org.apache.ace.client.repository.helper.configuration.ConfigurationHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.connectionfactory.ConnectionFactory;
+import org.osgi.service.log.LogService;
 import org.xml.sax.Attributes;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class ConfigurationHelperImpl implements ArtifactRecognizer, ConfigurationHelper {
+
+    static class MetaDataNamespaceCollector extends DefaultHandler {
+        private String m_metaDataNameSpace = "";
+
+        public String getMetaDataNamespace() {
+            return m_metaDataNameSpace;
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            if (qName.equals("MetaData") || qName.endsWith(":MetaData")) {
+                String nsAttributeQName = "xmlns";
+                if (qName.endsWith(":MetaData")) {
+                    nsAttributeQName = "xmlns" + ":" + qName.split(":")[0];
+                }
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    if (attributes.getQName(i).equals(nsAttributeQName)) {
+                        m_metaDataNameSpace = attributes.getValue(i);
+                    }
+                }
+            }
+            // first element is expected to have been the MetaData
+            // root so we can now terminate processing.
+            throw new SAXException("Done");
+        }
+    }
+
+    static class LoggingErrorHandler implements ErrorHandler {
+        private final ArtifactResource m_resource;
+        private final LogService m_log;
+
+        public LoggingErrorHandler(ArtifactResource resource, LogService log) {
+            m_resource = resource;
+            m_log = log;
+        }
+
+        @Override
+        public void warning(SAXParseException exception) throws SAXException {
+            log(LogService.LOG_WARNING, "Artifact '" + getName() + "' contains a warning!", exception);
+        }
+
+        @Override
+        public void error(SAXParseException exception) throws SAXException {
+            log(LogService.LOG_ERROR, "Artifact '" + getName() + "' contains an error!", exception);
+        }
+
+        @Override
+        public void fatalError(SAXParseException exception) throws SAXException {
+            log(LogService.LOG_ERROR, "Artifact '" + getName() + "' contains a fatal error!", exception);
+        }
+
+        private String getName() {
+            URL url = m_resource.getURL();
+            try {
+                if ("file".equals(url.getProtocol())) {
+                    return new File(url.toURI()).getName();
+                }
+            }
+            catch (URISyntaxException exception) {
+                // Ignore; fall through to return complete name...
+            }
+            return url.getFile();
+        }
+
+        private void log(int level, String msg, Exception exception) {
+            if (m_log != null) {
+                m_log.log(level, msg.concat(" ").concat(exception.getMessage()), exception);
+            }
+        }
+    }
 
     // known valid metatype namespaces
     private static final String NAMESPACE_1_0 = "http://www.osgi.org/xmlns/metatype/v1.0.0";
@@ -47,9 +124,10 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
     private static final String NAMESPACE_1_2 = "http://www.osgi.org/xmlns/metatype/v1.2.0";
 
     private final SAXParserFactory m_saxParserFactory;
-
     // Injected by Dependency Manager
     private volatile ConnectionFactory m_connectionFactory;
+    private volatile LogService m_log;
+
     // Created in #start()
     private volatile VelocityArtifactPreprocessor m_artifactPreprocessor;
 
@@ -58,9 +136,18 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
         m_saxParserFactory.setNamespaceAware(false);
         m_saxParserFactory.setValidating(false);
     }
-    
+
     public boolean canHandle(String mimetype) {
         return MIMETYPE.equals(mimetype);
+    }
+
+    public boolean canUse(ArtifactObject object) {
+        return MIMETYPE.equals(object.getMimetype());
+    }
+
+    public Map<String, String> checkAttributes(Map<String, String> attributes) {
+        // All necessary checks will be done by the constructor using getMandatoryAttributes.
+        return attributes;
     }
 
     public Map<String, String> extractMetaData(ArtifactResource artifact) throws IllegalArgumentException {
@@ -79,43 +166,6 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
         return result;
     }
 
-    public String recognize(ArtifactResource artifact) {
-        MetaDataNamespaceCollector handler = new MetaDataNamespaceCollector();
-        InputStream input = null;
-        try {
-            input = artifact.openStream();
-            SAXParser parser = m_saxParserFactory.newSAXParser();
-            parser.parse(input, handler);
-        }
-        catch (Exception e) {
-            String namespace = handler.getMetaDataNamespace();
-            if (namespace != null
-                && (namespace.equals(NAMESPACE_1_0)
-                    || namespace.equals(NAMESPACE_1_1)
-                    || namespace.equals(NAMESPACE_1_2))) {
-                return MIMETYPE;
-            }
-        }
-        finally {
-            if (input != null) {
-                try {
-                    input.close();
-                }
-                catch (IOException e) {}
-            }
-        }
-        return null;
-    }
-
-    public boolean canUse(ArtifactObject object) {
-        return MIMETYPE.equals(object.getMimetype());
-    }
-
-    public Map<String, String> checkAttributes(Map<String, String> attributes) {
-        // All necessary checks will be done by the constructor using getMandatoryAttributes.
-        return attributes;
-    }
-
     public <TYPE extends ArtifactObject> String getAssociationFilter(TYPE obj, Map<String, String> properties) {
         return "(" + KEY_FILENAME + "=" + obj.getAttribute(KEY_FILENAME) + ")";
     }
@@ -129,19 +179,49 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
     }
 
     public String[] getDefiningKeys() {
-        return new String[] {KEY_FILENAME};
+        return new String[] { KEY_FILENAME };
+    }
+
+    public String getExtension(ArtifactResource artifact) {
+        return ".xml";
     }
 
     public String[] getMandatoryAttributes() {
-        return new String[] {KEY_FILENAME};
+        return new String[] { KEY_FILENAME };
     }
 
     public ArtifactPreprocessor getPreprocessor() {
         return m_artifactPreprocessor;
     }
-    
-    public String getExtension(ArtifactResource artifact) {
-        return ".xml";
+
+    public String recognize(ArtifactResource artifact) {
+        MetaDataNamespaceCollector handler = new MetaDataNamespaceCollector();
+        InputStream input = null;
+        try {
+            input = artifact.openStream();
+            SAXParser parser = m_saxParserFactory.newSAXParser();
+
+            XMLReader reader = parser.getXMLReader();
+            reader.setErrorHandler(new LoggingErrorHandler(artifact, m_log));
+            reader.setContentHandler(handler);
+            reader.parse(new InputSource(input));
+        }
+        catch (Exception e) {
+            String namespace = handler.getMetaDataNamespace();
+            if (NAMESPACE_1_0.equals(namespace) || NAMESPACE_1_1.equals(namespace) || NAMESPACE_1_2.equals(namespace)) {
+                return MIMETYPE;
+            }
+        }
+        finally {
+            if (input != null) {
+                try {
+                    input.close();
+                }
+                catch (IOException e) {
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -156,34 +236,13 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
      */
     protected void stop() {
         m_artifactPreprocessor = null;
-        
     }
 
-    static class MetaDataNamespaceCollector extends DefaultHandler {
-
-        private String m_metaDataNameSpace = "";
-
-        public String getMetaDataNamespace() {
-            return m_metaDataNameSpace;
-        }
-
-        @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes)
-            throws SAXException {
-            if (qName.equals("MetaData") || qName.endsWith(":MetaData")) {
-                String nsAttributeQName = "xmlns";
-                if (qName.endsWith(":MetaData")) {
-                    nsAttributeQName = "xmlns" + ":" + qName.split(":")[0];
-                }
-                for (int i = 0; i < attributes.getLength(); i++) {
-                    if (attributes.getQName(i).equals(nsAttributeQName)) {
-                        m_metaDataNameSpace = attributes.getValue(i);
-                    }
-                }
-            }
-            // first element is expected to have been the MetaData
-            // root so we can now terminate processing.
-            throw new SAXException("Done");
-        }
+    /**
+     * @param log
+     *            the log service to set, can be <code>null</code>.
+     */
+    final void setLog(LogService log) {
+        m_log = log;
     }
 }

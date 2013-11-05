@@ -29,6 +29,7 @@ import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.log.LogService;
 
 /**
  * Activator class for the Configuration ArtifactHelper.
@@ -47,6 +48,9 @@ public class Activator extends DependencyActivatorBase {
             .add(createServiceDependency()
                 .setService(ConnectionFactory.class)
                 .setRequired(true))
+            .add(createServiceDependency()
+                .setService(LogService.class)
+                .setRequired(false))
             );
     }
 
