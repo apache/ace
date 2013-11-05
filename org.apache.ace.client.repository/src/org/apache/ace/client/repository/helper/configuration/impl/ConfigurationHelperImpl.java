@@ -85,17 +85,17 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
 
         @Override
         public void warning(SAXParseException exception) throws SAXException {
-            log(LogService.LOG_WARNING, "Artifact '" + getName() + "' contains a warning!", exception);
+            log(LogService.LOG_DEBUG, "Artifact '" + getName() + "' contains a warning!", exception);
         }
 
         @Override
         public void error(SAXParseException exception) throws SAXException {
-            log(LogService.LOG_ERROR, "Artifact '" + getName() + "' contains an error!", exception);
+            log(LogService.LOG_DEBUG, "Artifact '" + getName() + "' contains an error!", exception);
         }
 
         @Override
         public void fatalError(SAXParseException exception) throws SAXException {
-            log(LogService.LOG_ERROR, "Artifact '" + getName() + "' contains a fatal error!", exception);
+            log(LogService.LOG_DEBUG, "Artifact '" + getName() + "' contains a fatal error!", exception);
         }
 
         private String getName() {
