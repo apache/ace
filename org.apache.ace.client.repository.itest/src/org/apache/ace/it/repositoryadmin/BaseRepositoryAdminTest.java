@@ -19,6 +19,7 @@
 package org.apache.ace.it.repositoryadmin;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
@@ -362,7 +363,23 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         try {
             assertTrue(startLatch.await(1500, TimeUnit.MILLISECONDS));
 
-            T result = callable.call();
+            T result;
+            // XXX this is dodgy, I know, but currently a workaround for some spurious failing itests...
+            while (true) {
+                try {
+                    result = callable.call();
+                    break;
+                }
+                catch (Exception exception) {
+                    if (exception instanceof ConnectException) {
+                        // Restart it...
+                    }
+                    else {
+                        // Rethrow it...
+                        throw exception;
+                    }
+                }
+            }
 
             boolean r = topicLatch.await(15000, TimeUnit.MILLISECONDS);
             if (!r && debug) {
