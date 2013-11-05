@@ -19,12 +19,16 @@
 package org.apache.ace.client.repository.helper.user.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.client.repository.helper.ArtifactRecognizer;
@@ -33,15 +37,124 @@ import org.apache.ace.client.repository.helper.base.VelocityArtifactPreprocessor
 import org.apache.ace.client.repository.helper.user.UserAdminHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.connectionfactory.ConnectionFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import org.osgi.service.log.LogService;
+import org.xml.sax.Attributes;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class UserHelperImpl implements ArtifactRecognizer, UserAdminHelper {
 
+    static class LoggingErrorHandler implements ErrorHandler {
+        private final ArtifactResource m_resource;
+        private final LogService m_log;
+
+        public LoggingErrorHandler(ArtifactResource resource, LogService log) {
+            m_resource = resource;
+            m_log = log;
+        }
+
+        @Override
+        public void warning(SAXParseException exception) throws SAXException {
+            log(LogService.LOG_WARNING, "Artifact '" + getName() + "' contains a warning!", exception);
+        }
+
+        @Override
+        public void error(SAXParseException exception) throws SAXException {
+            log(LogService.LOG_ERROR, "Artifact '" + getName() + "' contains an error!", exception);
+        }
+
+        @Override
+        public void fatalError(SAXParseException exception) throws SAXException {
+            log(LogService.LOG_ERROR, "Artifact '" + getName() + "' contains a fatal error!", exception);
+        }
+
+        private String getName() {
+            URL url = m_resource.getURL();
+            try {
+                if ("file".equals(url.getProtocol())) {
+                    return new File(url.toURI()).getName();
+                }
+            }
+            catch (URISyntaxException exception) {
+                // Ignore; fall through to return complete name...
+            }
+            return url.getFile();
+        }
+
+        private void log(int level, String msg, Exception exception) {
+            if (m_log != null) {
+                m_log.log(level, msg.concat(" ").concat(exception.getMessage()), exception);
+            }
+        }
+    }
+
+    static class UserAdminXmlHandler extends DefaultHandler {
+        private boolean m_appearsValid = false;
+        private boolean m_rolesTagSeen = false;
+        private boolean m_groupOrUserTagSeen = false;
+
+        public boolean appearsValid() {
+            return m_appearsValid;
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            if (m_rolesTagSeen && isQName("roles", qName)) {
+                m_rolesTagSeen = false;
+            }
+            if (m_groupOrUserTagSeen && (isQName("group", qName) || isQName("user", qName))) {
+                m_groupOrUserTagSeen = false;
+            }
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            if (isQName("roles", qName)) {
+                m_rolesTagSeen = true;
+            }
+            else if (m_rolesTagSeen) {
+                if (!m_groupOrUserTagSeen) {
+                    if (isQName("group", qName) || isQName("user", qName)) {
+                        m_groupOrUserTagSeen = true;
+                        m_appearsValid = true;
+                    }
+                    else {
+                        m_appearsValid = false;
+                        // Unexpected tag...
+                        throw new SAXException("Done");
+                    }
+                }
+                else {
+                    // inside a group or user tag we do not care about the tags...
+                }
+            }
+        }
+
+        private boolean isQName(String expected, String name) {
+            return (name != null) && (expected.equals(name) || name.endsWith(":".concat(expected)));
+        }
+    }
+
+    private final SAXParserFactory m_saxParserFactory;
     // Injected by Dependency Manager
     private volatile ConnectionFactory m_connectionFactory;
+    private volatile LogService m_log;
+
     // Created in #start()
     private volatile VelocityArtifactPreprocessor m_artifactPreprocessor;
+
+    /**
+     * Creates a new {@link UserHelperImpl} instance.
+     */
+    public UserHelperImpl() {
+        m_saxParserFactory = SAXParserFactory.newInstance();
+        m_saxParserFactory.setNamespaceAware(false);
+        m_saxParserFactory.setValidating(false);
+    }
 
     public boolean canHandle(String mimetype) {
         return MIMETYPE.equals(mimetype);
@@ -63,26 +176,32 @@ public class UserHelperImpl implements ArtifactRecognizer, UserAdminHelper {
     }
 
     public String recognize(ArtifactResource artifact) {
+        UserAdminXmlHandler handler = new UserAdminXmlHandler();
+        InputStream input = null;
         try {
-            InputStream in = artifact.openStream();
-            
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
-            Node root = doc.getFirstChild();
-            if (!root.getNodeName().equals("roles")) {
-                return null;
-            }
-            for (Node node = root.getFirstChild(); root != null; root = root.getNextSibling()) {
-                if (!node.getNodeName().equals("group") && !node.getNodeName().equals("user") && !node.getNodeName().equals("#text")) {
-                    return null;
-                }
-            }
-            return MIMETYPE;
+            input = artifact.openStream();
+            SAXParser parser = m_saxParserFactory.newSAXParser();
+
+            XMLReader reader = parser.getXMLReader();
+            reader.setErrorHandler(new LoggingErrorHandler(artifact, m_log));
+            reader.setContentHandler(handler);
+            reader.parse(new InputSource(input));
         }
         catch (Exception e) {
-            // Does not matter.
+            // Ignore, we're only detecting whether or not it is a valid XML file that resembles our scheme...
+        }
+        finally {
+            if (input != null) {
+                try {
+                    input.close();
+                }
+                catch (IOException exception) {
+                    // Ignore...
+                }
+            }
         }
 
-        return null;
+        return handler.appearsValid() ? MIMETYPE : null;
     }
 
     public boolean canUse(ArtifactObject object) {
@@ -107,17 +226,17 @@ public class UserHelperImpl implements ArtifactRecognizer, UserAdminHelper {
     }
 
     public String[] getDefiningKeys() {
-        return new String[] {ArtifactObject.KEY_ARTIFACT_NAME};
+        return new String[] { ArtifactObject.KEY_ARTIFACT_NAME };
     }
 
     public String[] getMandatoryAttributes() {
-        return new String[] {ArtifactObject.KEY_ARTIFACT_NAME};
+        return new String[] { ArtifactObject.KEY_ARTIFACT_NAME };
     }
 
     public ArtifactPreprocessor getPreprocessor() {
         return m_artifactPreprocessor;
     }
-    
+
     public String getExtension(ArtifactResource artifact) {
         return ".xml";
     }
@@ -134,6 +253,14 @@ public class UserHelperImpl implements ArtifactRecognizer, UserAdminHelper {
      */
     protected void stop() {
         m_artifactPreprocessor = null;
-        
+
+    }
+
+    /**
+     * @param log
+     *            the log service to set, can be <code>null</code>.
+     */
+    final void setLog(LogService log) {
+        m_log = log;
     }
 }

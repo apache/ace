@@ -207,10 +207,7 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
             reader.parse(new InputSource(input));
         }
         catch (Exception e) {
-            String namespace = handler.getMetaDataNamespace();
-            if (NAMESPACE_1_0.equals(namespace) || NAMESPACE_1_1.equals(namespace) || NAMESPACE_1_2.equals(namespace)) {
-                return MIMETYPE;
-            }
+            // Ignore, we're only interested in the results contained in the handler...
         }
         finally {
             if (input != null) {
@@ -218,8 +215,13 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
                     input.close();
                 }
                 catch (IOException e) {
+                    // Ignore...
                 }
             }
+        }
+        String namespace = handler.getMetaDataNamespace();
+        if (NAMESPACE_1_0.equals(namespace) || NAMESPACE_1_1.equals(namespace) || NAMESPACE_1_2.equals(namespace)) {
+            return MIMETYPE;
         }
         return null;
     }

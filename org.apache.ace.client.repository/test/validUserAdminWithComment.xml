@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	This is valid
+-->
+<roles>
+	<group name="group1">
+		<properties>
+			<type>userGroup</type>
+		</properties>
+	</group>
+	<user name="user">
+		<properties>
+			<username>user</username>
+		</properties>
+		<credentials>
+			<password>secret</password>
+		</credentials>
+		<memberof>group1</memberof>
+	</user>
+</roles>

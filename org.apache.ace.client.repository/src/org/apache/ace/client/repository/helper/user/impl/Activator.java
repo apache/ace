@@ -29,6 +29,7 @@ import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.service.log.LogService;
 
 /**
  * Activator class for the UserAdmin ArtifactHelper.
@@ -36,23 +37,26 @@ import org.osgi.framework.Constants;
 public class Activator extends DependencyActivatorBase {
 
     @Override
-    public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
+    public void init(BundleContext context, DependencyManager manager) throws Exception {
         Properties props = new Properties();
         props.put(Constants.SERVICE_RANKING, 10);
         props.put(ArtifactObject.KEY_MIMETYPE, UserAdminHelper.MIMETYPE);
 
         UserHelperImpl helperImpl = new UserHelperImpl();
         manager.add(createComponent()
-            .setInterface(new String[]{ ArtifactHelper.class.getName(), ArtifactRecognizer.class.getName() }, props)
+            .setInterface(new String[] { ArtifactHelper.class.getName(), ArtifactRecognizer.class.getName() }, props)
             .setImplementation(helperImpl)
             .add(createServiceDependency()
                 .setService(ConnectionFactory.class)
                 .setRequired(true))
+            .add(createServiceDependency()
+                .setService(LogService.class)
+                .setRequired(false))
             );
     }
 
     @Override
-    public synchronized void destroy(BundleContext context, DependencyManager manager) throws Exception {
+    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
         // Nothing to do
     }
 }

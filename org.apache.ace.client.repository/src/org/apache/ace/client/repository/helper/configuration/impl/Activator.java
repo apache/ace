@@ -37,7 +37,7 @@ import org.osgi.service.log.LogService;
 public class Activator extends DependencyActivatorBase {
 
     @Override
-    public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
+    public void init(BundleContext context, DependencyManager manager) throws Exception {
         Dictionary<String, String> props = new Hashtable<String, String>();
         props.put(ArtifactObject.KEY_MIMETYPE, ConfigurationHelper.MIMETYPE);
 
@@ -55,7 +55,7 @@ public class Activator extends DependencyActivatorBase {
     }
 
     @Override
-    public synchronized void destroy(BundleContext context, DependencyManager manager) throws Exception {
+    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
         // Nothing to do
     }
 }
