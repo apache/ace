@@ -16,7 +16,7 @@ import java.util.List;
 public class BundleDirBundleProvider implements BundleProvider {
 
     public static final String BUNDLE_DIR_PROPERTY = "agent.bundles.dir";
-    public static final String BUNDLE_DIR_DEFAULT = "bundles";
+    public static final String BUNDLE_DIR_DEFAULT = "bundle";
 
     @Override
     public String[] getBundleNames() {
