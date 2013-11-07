@@ -18,7 +18,10 @@
  */
 package org.apache.ace.webui.vaadin;
 
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -39,9 +42,15 @@ public abstract class GenericAddWindow extends Window {
         setCaption(caption);
 
         m_name = new TextField("Name");
+        m_name.setNullSettingAllowed(false);
+        m_name.setRequired(true);
+        m_name.setImmediate(true);
         m_name.setWidth("100%");
 
         m_description = new TextField("Description");
+        m_name.setNullSettingAllowed(true);
+        m_description.setRequired(false);
+        m_description.setImmediate(true);
         m_description.setWidth("100%");
 
         initDialog();
@@ -50,7 +59,8 @@ public abstract class GenericAddWindow extends Window {
     /**
      * Shows this dialog on screen.
      * 
-     * @param window the parent window to show this dialog on, cannot be <code>null</code>.
+     * @param window
+     *            the parent window to show this dialog on, cannot be <code>null</code>.
      */
     public void show(final Window window) {
         if (getParent() != null) {
@@ -67,7 +77,8 @@ public abstract class GenericAddWindow extends Window {
     /**
      * Called when the {@link #onOk(String, String)} method failed with an exception.
      * 
-     * @param e the exception to handle, never <code>null</code>.
+     * @param e
+     *            the exception to handle, never <code>null</code>.
      */
     protected abstract void handleError(Exception e);
 
@@ -80,7 +91,7 @@ public abstract class GenericAddWindow extends Window {
         fields.addComponent(m_name);
         fields.addComponent(m_description);
 
-        Button okButton = new Button("Ok", new Button.ClickListener() {
+        final Button okButton = new Button("Ok", new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
                 try {
                     onOk((String) m_name.getValue(), (String) m_description.getValue());
@@ -91,6 +102,7 @@ public abstract class GenericAddWindow extends Window {
                 }
             }
         });
+        okButton.setEnabled(false);
         // Allow enter to be used to close this dialog with enter directly...
         okButton.setClickShortcut(KeyCode.ENTER);
         okButton.addStyleName(Reindeer.BUTTON_DEFAULT);
@@ -101,6 +113,16 @@ public abstract class GenericAddWindow extends Window {
             }
         });
         cancelButton.setClickShortcut(KeyCode.ESCAPE);
+
+        m_name.addListener(new TextChangeListener() {
+            @Override
+            public void textChange(TextChangeEvent event) {
+                String text = event.getText();
+                okButton.setEnabled((text != null) && !"".equals(text.trim()));
+            }
+        });
+        m_name.setTextChangeTimeout(250);
+        m_name.setTextChangeEventMode(TextChangeEventMode.TIMEOUT);
 
         HorizontalLayout buttonBar = new HorizontalLayout();
         buttonBar.setSpacing(true);
@@ -116,7 +138,7 @@ public abstract class GenericAddWindow extends Window {
         // The components added to the window are actually added to the window's
         // layout; you can use either. Alignments are set using the layout
         layout.setComponentAlignment(buttonBar, Alignment.BOTTOM_RIGHT);
-        
+
         // Allow direct typing...
         m_name.focus();
     }
@@ -124,9 +146,12 @@ public abstract class GenericAddWindow extends Window {
     /**
      * Called when the user acknowledges this window by pressing Ok.
      * 
-     * @param name the value of the name field;
-     * @param description the value of the description field.
-     * @throws Exception in case the creation failed.
+     * @param name
+     *            the value of the name field;
+     * @param description
+     *            the value of the description field.
+     * @throws Exception
+     *             in case the creation failed.
      */
     protected abstract void onOk(String name, String description) throws Exception;
 
