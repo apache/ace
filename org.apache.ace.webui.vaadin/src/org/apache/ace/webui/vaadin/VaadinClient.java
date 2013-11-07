@@ -178,10 +178,13 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     private final URL m_repository;
     private final boolean m_useAuth;
-
     private final String m_userName;
     private final AssociationHelper m_associations = new AssociationHelper();
     private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
+    // for the artifacts list...
+    private final int m_cacheRate;
+    private final int m_pageLength;
+
     private ProgressIndicator m_progress;
 
     private DependencyManager m_manager;
@@ -206,7 +209,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      * @param userName
      *            the hardcoded username to use when authentication is disabled.
      */
-    public VaadinClient(DependencyManager manager, URL aceHost, URL obrUrl, String repositoryXML, boolean useAuth, String userName, String password) {
+    public VaadinClient(DependencyManager manager, URL aceHost, URL obrUrl, String repositoryXML, boolean useAuth, String userName, String password, int cacheRate, int pageLength) {
         m_manager = manager;
         try {
             m_repository = new URL(aceHost, endpoint);
@@ -218,6 +221,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         m_repositoryXML = repositoryXML;
         m_useAuth = useAuth;
         m_userName = userName;
+        m_cacheRate = cacheRate;
+        m_pageLength = pageLength;
 
         if (!m_useAuth && (m_userName == null || "".equals(m_userName.trim()))) {
             throw new IllegalArgumentException("Need a valid user name when no authentication is used!");
@@ -644,7 +649,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
     }
 
     private ArtifactsPanel createArtifactsPanel() {
-        return new ArtifactsPanel(m_associations, this) {
+        return new ArtifactsPanel(m_associations, this, m_cacheRate, m_pageLength) {
             @Override
             protected EditWindow createEditor(final NamedObject object, final List<UIExtensionFactory> extensions) {
                 return new EditWindow("Edit Artifact", object, extensions) {

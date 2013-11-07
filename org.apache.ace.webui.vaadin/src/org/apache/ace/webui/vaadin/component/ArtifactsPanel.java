@@ -37,6 +37,9 @@ import com.vaadin.data.Item;
  * Provides an object panel for displaying artifacts.
  */
 public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, ArtifactRepository, RepositoryObject, FeatureObject> {
+    private final int m_cacheRate;
+    private final int m_pageLength;
+
     /**
      * Creates a new {@link ArtifactsPanel} instance.
      * 
@@ -45,14 +48,29 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
      * @param associationMgr
      *            the helper for creating/removing associations.
      */
-    public ArtifactsPanel(AssociationHelper associations, AssociationManager associationMgr) {
+    public ArtifactsPanel(AssociationHelper associations, AssociationManager associationMgr, int cacheRate, int pageLength) {
         super(associations, associationMgr, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, true, ArtifactObject.class);
+
+        m_cacheRate = cacheRate;
+        m_pageLength = pageLength;
+
+        setCacheRate(m_cacheRate);
+        setPageLength(m_pageLength);
+    }
+
+    @Override
+    public void populate() {
+        super.populate();
+        // For some reason, we need to explicitly set these two properties as Vaadin seems to loose their values
+        // somewhere...
+        setCacheRate(m_cacheRate);
+        setPageLength(m_pageLength);
     }
 
     @Override
     protected void defineTableColumns() {
         super.defineTableColumns();
-        
+
         setColumnCollapsed(OBJECT_DESCRIPTION, true);
     }
 

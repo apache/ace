@@ -292,6 +292,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         m_entityType = entityType;
 
         setSizeFull();
+        setAnimationsEnabled(false);
         setCellStyleGenerator(this);
         setSelectable(true);
         setMultiSelect(true);
@@ -303,6 +304,9 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
 
         setItemIconPropertyId(ICON);
         setHierarchyColumn(ICON);
+
+        setSortAscending(true);
+        setSortContainerPropertyId(OBJECT_NAME);
 
         if (hasEdit) {
             addListener(new ItemClickListener() {
@@ -337,7 +341,6 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         synchronized (m_extensionFactories) {
             m_extensionFactories.add(new UIExtensionFactoryHolder(ref, factory));
         }
-        populate();
     }
 
     @Override
@@ -401,7 +404,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
             if (isSupportedEntity(entity)) {
                 handleEvent(topic, entity, event);
             }
-            else if (RepositoryAdmin.TOPIC_REFRESH.equals(topic) || RepositoryAdmin.TOPIC_LOGIN.equals(topic)) {
+            else if (RepositoryAdmin.TOPIC_LOGIN.equals(topic)) {
                 populate();
             }
         }
@@ -425,13 +428,15 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     }
 
     /**
-     * Called to populate this table.
+     * Removes all current items and (re)populates this table.
      */
     public void populate() {
         removeAllItems();
         for (REPO_OBJ object : getAllRepositoryObjects()) {
             add(object);
         }
+        // Ensure the table is properly sorted...
+        sort();
     }
 
     /**
@@ -446,7 +451,6 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         synchronized (m_extensionFactories) {
             m_extensionFactories.remove(new UIExtensionFactoryHolder(ref, factory));
         }
-        populate();
     }
 
     /**
@@ -721,6 +725,15 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     }
 
     /**
+     * Returns all repository objects.
+     * 
+     * @return an {@link Iterable} with all repository objects, never <code>null</code>.
+     */
+    protected final Iterable<REPO_OBJ> getAllRepositoryObjects() {
+        return getRepository().get();
+    }
+
+    /**
      * Returns a user-friendly name for a given repository object.
      * 
      * @param object
@@ -976,15 +989,6 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         for (RepositoryObject obj : objects) {
             defs.add(obj.getDefinition());
         }
-    }
-
-    /**
-     * Returns all repository objects.
-     * 
-     * @return an {@link Iterable} with all repository objects, never <code>null</code>.
-     */
-    private Iterable<REPO_OBJ> getAllRepositoryObjects() {
-        return getRepository().get();
     }
 
     /**

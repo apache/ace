@@ -55,6 +55,8 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     private static final String KEY_OBR_XML = "obr.xml";
     /** The timeout (in seconds) of a session. */
     private static final String KEY_SESSION_TIMEOUT = "session.timeout";
+    private static final String KEY_CACHE_RATE = "artifacts.cache.rate";
+    private static final String KEY_PAGE_LENGTH = "artifacts.page.length";
 
     private static final boolean DEFAULT_USE_AUTHENTICATION = false;
     private static final String DEFAULT_USER_NAME = "";
@@ -64,6 +66,8 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     private static final String DEFAULT_OBR_XML = "repository.xml";
     private static final String DEFAULT_SERVLET_ENDPOINT = "/ace";
     private static final int DEFAULT_SESSION_TIMEOUT = 300; // in seconds.
+    private static final int DEFAULT_CACHE_RATE = 2;
+    private static final int DEFAULT_PAGE_LENGTH = 100;
 
     static {
         try {
@@ -84,6 +88,8 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     private volatile String m_repositoryXML;
     private volatile String m_servletEndpoint;
     private volatile int m_sessionTimeout;
+    private volatile int m_cacheRate;
+    private volatile int m_pageLength;
 
     /**
      * Creates a new {@link VaadinServlet} instance.
@@ -97,6 +103,8 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         m_repositoryXML = DEFAULT_OBR_XML;
         m_servletEndpoint = DEFAULT_SERVLET_ENDPOINT;
         m_sessionTimeout = DEFAULT_SESSION_TIMEOUT;
+        m_cacheRate = DEFAULT_CACHE_RATE;
+        m_pageLength = DEFAULT_PAGE_LENGTH;
     }
 
     @Override
@@ -109,6 +117,8 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         String repositoryXML = DEFAULT_OBR_XML;
         String servletEndpoint = DEFAULT_SERVLET_ENDPOINT;
         int sessionTimeout = DEFAULT_SESSION_TIMEOUT;
+        int cacheRate = DEFAULT_CACHE_RATE;
+        int pageLength = DEFAULT_PAGE_LENGTH;
 
         if (dictionary != null) {
             useAuth = getBoolean(dictionary, KEY_USE_AUTHENTICATION);
@@ -119,6 +129,16 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
             repositoryXML = getOptionalString(dictionary, KEY_OBR_XML);
             servletEndpoint = getOptionalString(dictionary, KEY_SERVLET_ENDPOINT);
             sessionTimeout = getInteger(dictionary, KEY_SESSION_TIMEOUT);
+            
+            Integer value = getOptionalInteger(dictionary, KEY_CACHE_RATE);
+            if (value != null) {
+                cacheRate = value.intValue(); 
+            }
+
+            value = getOptionalInteger(dictionary, KEY_PAGE_LENGTH);
+            if (value != null) {
+                pageLength = value.intValue(); 
+            }
         }
 
         if ("".equals(repositoryXML)) {
@@ -137,6 +157,8 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         m_repositoryXML = repositoryXML;
         m_servletEndpoint = servletEndpoint;
         m_sessionTimeout = sessionTimeout;
+        m_cacheRate = cacheRate;
+        m_pageLength = pageLength;
     }
 
     @Override
@@ -153,7 +175,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
 
     @Override
     protected Application getNewApplication(HttpServletRequest request) throws ServletException {
-        return new VaadinClient(m_manager, m_aceHost, m_obrUrl, m_repositoryXML, m_useAuth, m_userName, m_password);
+        return new VaadinClient(m_manager, m_aceHost, m_obrUrl, m_repositoryXML, m_useAuth, m_userName, m_password, m_cacheRate, m_pageLength);
     }
 
     @Override
@@ -186,10 +208,25 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     }
 
     private int getInteger(Dictionary dictionary, String key) throws ConfigurationException {
-        Object value = dictionary.get(key);
-        if (value == null || !(value instanceof String)) {
+        Integer value = getOptionalInteger(dictionary, key);
+        if (value == null) {
             throw new ConfigurationException(key, "Missing property");
         }
+        return value.intValue();
+    }
+
+    private Integer getOptionalInteger(Dictionary dictionary, String key) throws ConfigurationException {
+        Object value = dictionary.get(key);
+        if (value == null) {
+            return null;
+        }
+        if (!(value instanceof Integer) && !(value instanceof String)) {
+            throw new ConfigurationException(key, "Invalid value!");
+        }
+        if (value instanceof Integer) {
+            return (Integer) value;
+        }
+
         try {
             String valueStr = ((String) value).trim();
             return Integer.parseInt(valueStr);
