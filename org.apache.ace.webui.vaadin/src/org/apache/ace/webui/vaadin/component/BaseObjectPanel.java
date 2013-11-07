@@ -924,18 +924,20 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         // We've already visited this entity...
         seenTypes.add(m_entityType);
 
-        for (REPO_OBJ obj : selection) {
-            if (direction.isGoLeft() && m_leftTable != null && !seenTypes.contains(m_leftTable.m_entityType)) {
-                seenTypes.add(m_leftTable.m_entityType);
+        if (direction.isGoLeft() && m_leftTable != null && !seenTypes.contains(m_leftTable.m_entityType)) {
+            seenTypes.add(m_leftTable.m_entityType);
 
+            for (REPO_OBJ obj : selection) {
                 List<LEFT_ASSOC_REPO_OBJ> left = obj.getAssociations(m_leftTable.m_entityType);
                 extractDefinitions(associated, left);
                 // the associated items of our left-side table are the ones related to us...
                 m_leftTable.collectRelations(direction, left, seenTypes, related, related);
             }
-            if (direction.isGoRight() && m_rightTable != null && !seenTypes.contains(m_rightTable.m_entityType)) {
-                seenTypes.add(m_rightTable.m_entityType);
+        }
+        if (direction.isGoRight() && m_rightTable != null && !seenTypes.contains(m_rightTable.m_entityType)) {
+            seenTypes.add(m_rightTable.m_entityType);
 
+            for (REPO_OBJ obj : selection) {
                 List<RIGHT_ASSOC_REPO_OBJ> right = obj.getAssociations(m_rightTable.m_entityType);
                 extractDefinitions(associated, right);
                 // the associated items of our right-side table are the ones related to us...
