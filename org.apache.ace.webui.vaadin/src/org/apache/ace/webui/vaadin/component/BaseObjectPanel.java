@@ -308,12 +308,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
             addListener(new ItemClickListener() {
                 public void itemClick(ItemClickEvent event) {
                     if (event.isDoubleClick()) {
-                        RepositoryObject object = getFromId(event.getItemId());
-
-                        NamedObject namedObject = NamedObjectFactory.getNamedObject(object);
-                        if (namedObject != null) {
-                            showEditWindow(namedObject);
-                        }
+                        handleItemDoubleClick(event.getItemId());
                     }
                 }
             });
@@ -506,17 +501,6 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     }
 
     /**
-     * Updates the active table and recalculates all relations.
-     */
-    final void updateActiveTable() {
-        m_associations.clear();
-        m_associations.updateActiveTable(this);
-        recalculateRelations(Direction.BOTH);
-        // request the focus...
-        focus();
-    }
-
-    /**
      * Recalculates all relations.
      */
     final void recalculateRelations(Direction direction) {
@@ -565,6 +549,17 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
             // Request the focus again...
             focus();
         }
+    }
+
+    /**
+     * Updates the active table and recalculates all relations.
+     */
+    final void updateActiveTable() {
+        m_associations.clear();
+        m_associations.updateActiveTable(this);
+        recalculateRelations(Direction.BOTH);
+        // request the focus...
+        focus();
     }
 
     /**
@@ -816,6 +811,21 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     protected abstract void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event);
 
     /**
+     * Called whenever the user double clicks on a row.
+     * 
+     * @param itemId
+     *            the row/item ID of the double clicked item.
+     */
+    protected void handleItemDoubleClick(Object itemId) {
+        RepositoryObject object = getFromId(itemId);
+
+        NamedObject namedObject = NamedObjectFactory.getNamedObject(object);
+        if (namedObject != null) {
+            showEditWindow(namedObject);
+        }
+    }
+
+    /**
      * Returns whether the given {@link RepositoryObject} can be handled by this panel.
      * 
      * @param entity
@@ -896,6 +906,19 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
             Resource icon = getWorkingStateIcon(object);
             setItemIcon(object.getDefinition(), icon);
         }
+    }
+
+    /**
+     * Shows an edit window for the given named object.
+     * 
+     * @param object
+     *            the named object to edit;
+     * @param main
+     *            the main window to use.
+     */
+    protected final void showEditWindow(NamedObject object) {
+        List<UIExtensionFactory> extensions = getExtensionFactories();
+        createEditor(object, extensions).show(getParent().getWindow());
     }
 
     /**
@@ -984,18 +1007,5 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
             }
         }
         return extensions;
-    }
-
-    /**
-     * Shows an edit window for the given named object.
-     * 
-     * @param object
-     *            the named object to edit;
-     * @param main
-     *            the main window to use.
-     */
-    private void showEditWindow(NamedObject object) {
-        List<UIExtensionFactory> extensions = getExtensionFactories();
-        createEditor(object, extensions).show(getParent().getWindow());
     }
 }

@@ -28,7 +28,9 @@ import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
+import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.domain.NamedObjectFactory;
 import org.apache.ace.webui.vaadin.AssociationManager;
 
 import com.vaadin.data.Item;
@@ -55,6 +57,23 @@ public abstract class TargetsPanel extends BaseObjectPanel<TargetObject, TargetR
      */
     public TargetsPanel(AssociationHelper associations, AssociationManager associationRemover) {
         super(associations, associationRemover, "Target", UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET, true, TargetObject.class);
+    }
+
+    /**
+     * Called to populate this table.
+     */
+    public void populate() {
+        removeAllItems();
+        // All unregistered items aren't yet present in our TargetRepo, so we must add them explicitly...
+        for (StatefulTargetObject object : getStatefulTargetRepository().get()) {
+            if (!object.isRegistered()) {
+                Item item = addItem(object.getDefinition());
+                populateItem(object, item);
+            }
+        }
+        for (TargetObject object : getRepository().get()) {
+            add(object);
+        }
     }
 
     protected void defineTableColumns() {
@@ -110,15 +129,35 @@ public abstract class TargetsPanel extends BaseObjectPanel<TargetObject, TargetR
 
     @Override
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
-        TargetObject target = asTargetObject(entity);
-        if (TargetObject.TOPIC_ADDED.equals(topic)) {
-            add(target);
+        try {
+            TargetObject target = asTargetObject(entity);
+            if (TargetObject.TOPIC_ADDED.equals(topic)) {
+                add(target);
+            }
+            if (TargetObject.TOPIC_REMOVED.equals(topic)) {
+                remove(target);
+            }
+            if (topic.endsWith("CHANGED")) {
+                update(target);
+            }
         }
-        if (TargetObject.TOPIC_REMOVED.equals(topic)) {
-            remove(target);
+        catch (IllegalStateException exception) {
+            // Ignore...
         }
-        if (topic.endsWith("CHANGED")) {
-            update(target);
+    }
+
+    /**
+     * Called whenever the user double clicks on a row.
+     * 
+     * @param itemId
+     *            the row/item ID of the double clicked item.
+     */
+    protected void handleItemDoubleClick(Object itemId) {
+        StatefulTargetObject object = getStatefulTargetRepository().get((String) itemId);
+
+        NamedObject namedObject = NamedObjectFactory.getNamedObject(object);
+        if (namedObject != null) {
+            showEditWindow(namedObject);
         }
     }
 
@@ -129,13 +168,7 @@ public abstract class TargetsPanel extends BaseObjectPanel<TargetObject, TargetR
 
     protected void populateItem(TargetObject target, Item item) {
         StatefulTargetObject statefulTarget = asStatefulTargetObject(target);
-
-        item.getItemProperty(OBJECT_NAME).setValue(target.getID());
-        item.getItemProperty(REGISTRATION_STATE_ICON).setValue(getRegistrationStateIcon(statefulTarget));
-        item.getItemProperty(STORE_STATE_ICON).setValue(getStoreStateIcon(statefulTarget));
-        item.getItemProperty(PROVISIONING_STATE_ICON).setValue(getProvisioningStateIcon(statefulTarget));
-        item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(target));
-        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(statefulTarget));
+        populateItem(statefulTarget, item);
     }
 
     private StatefulTargetObject asStatefulTargetObject(RepositoryObject entity) {
@@ -150,12 +183,6 @@ public abstract class TargetsPanel extends BaseObjectPanel<TargetObject, TargetR
             return (TargetObject) entity;
         }
         return ((StatefulTargetObject) entity).getTargetObject();
-    }
-
-    private RemoveItemButton createRemoveItemButton(StatefulTargetObject object) {
-        RemoveItemButton b = new RemoveItemButton(object.getTargetObject());
-        b.setEnabled(object.isRegistered());
-        return b;
     }
 
     private Embedded getProvisioningStateIcon(StatefulTargetObject object) {
@@ -174,5 +201,18 @@ public abstract class TargetsPanel extends BaseObjectPanel<TargetObject, TargetR
         String name = object.getStoreState().name();
         Resource res = createIconResource("target_store_" + name);
         return createIcon(name, res);
+    }
+
+    private void populateItem(StatefulTargetObject statefulTarget, Item item) {
+        item.getItemProperty(OBJECT_NAME).setValue(statefulTarget.getID());
+        item.getItemProperty(REGISTRATION_STATE_ICON).setValue(getRegistrationStateIcon(statefulTarget));
+        item.getItemProperty(STORE_STATE_ICON).setValue(getStoreStateIcon(statefulTarget));
+        item.getItemProperty(PROVISIONING_STATE_ICON).setValue(getProvisioningStateIcon(statefulTarget));
+        if (statefulTarget.isRegistered()) {
+            TargetObject targetObject = statefulTarget.getTargetObject();
+
+            item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(targetObject));
+            item.getItemProperty(ACTION_DELETE).setValue(new RemoveItemButton(targetObject));
+        }
     }
 }
