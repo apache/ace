@@ -118,10 +118,10 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
         ArtifactObject artifact = (ArtifactObject) entity;
         if (ArtifactObject.TOPIC_ADDED.equals(topic)) {
-            add(artifact);
+            addToTable(artifact);
         }
         if (ArtifactObject.TOPIC_REMOVED.equals(topic)) {
-            remove(artifact);
+            removeFromTable(artifact);
         }
         if (ArtifactObject.TOPIC_CHANGED.equals(topic) || RepositoryAdmin.TOPIC_STATUSCHANGED.equals(topic)) {
             update(artifact);
@@ -137,8 +137,8 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
     protected void populateItem(ArtifactObject artifact, Item item) {
         item.getItemProperty(OBJECT_NAME).setValue(getDisplayName(artifact));
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(artifact.getDescription());
-        item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(artifact));
-        item.getItemProperty(ACTION_DELETE).setValue(new RemoveItemButton(artifact));
+        item.getItemProperty(ACTION_UNLINK).setValue(createRemoveLinkButton(artifact));
+        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(artifact));
     }
 
     private String getVersion(ArtifactObject artifact) {

@@ -66,71 +66,6 @@ import com.vaadin.ui.Window.Notification;
  */
 abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends ObjectRepository<REPO_OBJ>, LEFT_ASSOC_REPO_OBJ extends RepositoryObject, RIGHT_ASSOC_REPO_OBJ extends RepositoryObject> extends TreeTable implements EventHandler,
     CellStyleGenerator, ValueChangeListener {
-    /**
-     * Provides a generic remove item button.
-     */
-    protected class RemoveItemButton extends Button {
-        public RemoveItemButton(final REPO_OBJ object) {
-            setIcon(createIconResource("trash"));
-            setStyleName("small tiny");
-            setDescription("Delete " + getDisplayName(object));
-
-            addListener(new Button.ClickListener() {
-                public void buttonClick(ClickEvent event) {
-                    // Give some clue that this click is being processed...
-                    event.getButton().setEnabled(false);
-
-                    try {
-                        getRepository().remove(object);
-                    }
-                    catch (Exception e) {
-                        // ACE-246: notify user when the removal failed!
-                        getWindow().showNotification("Failed to remove item!", "<br/>Reason: " + e.getMessage(),
-                            Notification.TYPE_ERROR_MESSAGE);
-                    }
-                }
-            });
-        }
-    }
-
-    /**
-     * Provides a generic remove-link (or association) button.
-     */
-    protected class RemoveLinkButton extends Button {
-        public RemoveLinkButton(final REPO_OBJ object) {
-            this(object, null);
-        }
-
-        public RemoveLinkButton(final REPO_OBJ object, String parentId) {
-            setIcon(createIconResource("unlink"));
-            setStyleName("small tiny");
-            setData(object.getDefinition());
-            setDescription("Unlink " + getDisplayName(object));
-            // Only enable this button when actually selected...
-            setEnabled(false);
-
-            addListener(new Button.ClickListener() {
-                public void buttonClick(ClickEvent event) {
-                    // Give some clue that this click is being processed...
-                    event.getButton().setEnabled(false);
-
-                    Set<?> selection = m_associations.getActiveSelection();
-                    if (selection != null) {
-                        if (m_associations.isActiveTable(m_leftTable)) {
-                            for (Object itemId : selection) {
-                                removeLeftSideAssociation(m_leftTable.getFromId(itemId), object);
-                            }
-                        }
-                        else if (m_associations.isActiveTable(m_rightTable)) {
-                            for (Object itemId : selection) {
-                                removeRightSideAssocation(object, m_rightTable.getFromId(itemId));
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    }
 
     /**
      * Drop handler for associations.
@@ -433,7 +368,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     public void populate() {
         removeAllItems();
         for (REPO_OBJ object : getAllRepositoryObjects()) {
-            add(object);
+            addToTable(object);
         }
         // Ensure the table is properly sorted...
         sort();
@@ -572,7 +507,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * @param object
      *            the repository object to add, cannot be <code>null</code>.
      */
-    protected final void add(REPO_OBJ object) {
+    protected final void addToTable(REPO_OBJ object) {
         String itemId = object.getDefinition();
         String parentId = getParentId(object);
 
@@ -651,6 +586,89 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      */
     protected ThemeResource createIconResource(String iconName) {
         return new ThemeResource("icons/" + iconName.toLowerCase() + ".png");
+    }
+
+    /**
+     * Creates a remove-item button for the given repository object.
+     * 
+     * @param object
+     *            the object to create a remove-item button, cannot be <code>null</code>.
+     * @return a remove-item button, never <code>null</code>.
+     */
+    protected final Button createRemoveItemButton(REPO_OBJ object) {
+        return createRemoveItemButton(object, getDisplayName(object));
+    }
+
+    /**
+     * Creates a remove-item button for the given repository object.
+     * 
+     * @param object
+     *            the object to create a remove-item button, cannot be <code>null</code>;
+     * @param displayName
+     *            the display name for the description of the button, cannot be <code>null</code>.
+     * @return a remove-item button, never <code>null</code>.
+     */
+    protected final Button createRemoveItemButton(RepositoryObject object, String displayName) {
+        Button result = new Button();
+        result.setIcon(createIconResource("trash"));
+        result.setData(object.getDefinition());
+        result.setStyleName("small tiny");
+        result.setDescription("Delete " + displayName);
+        result.setDisableOnClick(true);
+
+        result.addListener(new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                try {
+                    handleItemRemoveObject(event.getButton().getData());
+                }
+                catch (Exception e) {
+                    // ACE-246: notify user when the removal failed!
+                    getWindow().showNotification("Failed to remove item!", "<br/>Reason: " + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                }
+            }
+        });
+
+        return result;
+    }
+
+    /**
+     * Creates a remove-link button for the given repository object.
+     * 
+     * @param object
+     *            the object to create a remove-link button, cannot be <code>null</code>.
+     * @return a remove-link button, never <code>null</code>.
+     */
+    protected final Button createRemoveLinkButton(REPO_OBJ object) {
+        return createRemoveLinkButton(object, getDisplayName(object));
+    }
+
+    /**
+     * Creates a remove-link button for the given repository object.
+     * 
+     * @param object
+     *            the object to create a remove-link button, cannot be <code>null</code>;
+     * @param displayName
+     *            the display name for the description of the button, cannot be <code>null</code>.
+     * @return a remove-link button, never <code>null</code>.
+     */
+    protected final Button createRemoveLinkButton(RepositoryObject object, String displayName) {
+        Button result = new Button();
+        result.setIcon(createIconResource("unlink"));
+        result.setStyleName("small tiny");
+        result.setData(object.getDefinition());
+        result.setDescription("Unlink " + displayName);
+        // Only enable this button when actually selected...
+        result.setEnabled(false);
+        result.setDisableOnClick(true);
+
+        result.addListener(new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                handleItemRemoveLink(event.getButton().getData());
+            }
+
+        });
+
+        return result;
     }
 
     /**
@@ -839,6 +857,38 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
     }
 
     /**
+     * Called by the remove-link button to remove a link.
+     * 
+     * @param itemID
+     *            the ID of the item to remove from the repository, cannot be <code>null</code>.
+     */
+    protected void handleItemRemoveLink(Object itemID) {
+        Set<?> selection = m_associations.getActiveSelection();
+        if (selection != null) {
+            if (m_associations.isActiveTable(m_leftTable)) {
+                for (Object itemId : selection) {
+                    removeLeftSideAssociation(m_leftTable.getFromId(itemId), getFromId(itemID));
+                }
+            }
+            else if (m_associations.isActiveTable(m_rightTable)) {
+                for (Object itemId : selection) {
+                    removeRightSideAssocation(getFromId(itemID), m_rightTable.getFromId(itemId));
+                }
+            }
+        }
+    }
+
+    /**
+     * Called by the remove-item button to remove a repository object from the repository.
+     * 
+     * @param itemID
+     *            the ID of the item to remove from the repository, cannot be <code>null</code>.
+     */
+    protected void handleItemRemoveObject(Object itemID) {
+        getRepository().remove(getFromId(itemID));
+    }
+
+    /**
      * Returns whether the given {@link RepositoryObject} can be handled by this panel.
      * 
      * @param entity
@@ -900,7 +950,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * @param object
      *            the repository object to remove, cannot be <code>null</code>.
      */
-    protected final void remove(REPO_OBJ object) {
+    protected final void removeFromTable(RepositoryObject object) {
         String itemID = object.getDefinition();
         Object parentID = getParent(itemID);
 

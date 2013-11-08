@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -85,6 +86,8 @@ import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutAction.ModifierKey;
 import com.vaadin.service.ApplicationContext;
@@ -93,6 +96,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.DragAndDropWrapper;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Window;
@@ -168,10 +172,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
     private GridLayout m_grid;
     private StatusLine m_statusLine;
     private File m_sessionDir; // private folder for session info
-    private Button m_artifactToolbar;
-    private Button m_featureToolbar;
-    private Button m_distributionToolbar;
-    private Button m_targetToolbar;
+    private HorizontalLayout m_artifactToolbar;
+    private HorizontalLayout m_featureToolbar;
+    private HorizontalLayout m_distributionToolbar;
+    private HorizontalLayout m_targetToolbar;
     private Window m_mainWindow;
     private final URL m_obrUrl;
     private final String m_repositoryXML;
@@ -541,7 +545,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      * @return Button
      */
     private Button createAddArtifactButton() {
-        Button button = new Button("Add artifact...");
+        Button button = new Button("+");
         addCrossPlatformAddShortcut(button, KeyCode.A, "Add a new artifact");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -560,7 +564,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      * @return the add-distribution button instance.
      */
     private Button createAddDistributionButton() {
-        Button button = new Button("Add Distribution...");
+        Button button = new Button("+");
         addCrossPlatformAddShortcut(button, KeyCode.D, "Add a new distribution");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -590,7 +594,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      * @return the add-feature button instance.
      */
     private Button createAddFeatureButton() {
-        Button button = new Button("Add Feature...");
+        Button button = new Button("+");
         addCrossPlatformAddShortcut(button, KeyCode.F, "Add a new feature");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -619,7 +623,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      * @return the add-target button instance.
      */
     private Button createAddTargetButton() {
-        Button button = new Button("Add target...");
+        Button button = new Button("+");
         addCrossPlatformAddShortcut(button, KeyCode.G, "Add a new target");
         button.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -643,6 +647,41 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
                     }
                 };
                 window.show(getMainWindow());
+            }
+        });
+        return button;
+    }
+
+    /**
+     * @return a button to approve one or more targets.
+     */
+    private Button createApproveTargetsButton() {
+        final Button button = new Button("A");
+        button.setDisableOnClick(true);
+        button.setImmediate(true);
+        button.setEnabled(false);
+        button.addListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent event) {
+                m_targetsPanel.approveSelectedTargets();
+            }
+        });
+        m_targetsPanel.addListener(new ValueChangeListener() {
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                TargetsPanel targetsPanel = (TargetsPanel) event.getProperty();
+
+                Collection<?> itemIDs = (Collection<?>) targetsPanel.getValue();
+
+                boolean enabled = false;
+                for (Object itemID : itemIDs) {
+                    if (targetsPanel.isItemApproveNeeded(itemID)) {
+                        enabled = true;
+                        break;
+                    }
+                }
+
+                button.setEnabled(enabled);
             }
         });
         return button;
@@ -678,6 +717,13 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         };
     }
 
+    private HorizontalLayout createArtifactToolbar() {
+        HorizontalLayout result = new HorizontalLayout();
+        result.setSpacing(true);
+        result.addComponent(createAddArtifactButton());
+        return result;
+    }
+
     private DistributionsPanel createDistributionsPanel() {
         return new DistributionsPanel(m_associations, this) {
             @Override
@@ -708,6 +754,13 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         };
     }
 
+    private HorizontalLayout createDistributionToolbar() {
+        HorizontalLayout result = new HorizontalLayout();
+        result.setSpacing(true);
+        result.addComponent(createAddDistributionButton());
+        return result;
+    }
+
     private FeaturesPanel createFeaturesPanel() {
         return new FeaturesPanel(m_associations, this) {
             @Override
@@ -736,6 +789,45 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
                 return m_admin;
             }
         };
+    }
+
+    private HorizontalLayout createFeatureToolbar() {
+        HorizontalLayout result = new HorizontalLayout();
+        result.setSpacing(true);
+        result.addComponent(createAddFeatureButton());
+        return result;
+    }
+
+    private Button createRegisterTargetsButton() {
+        final Button button = new Button("R");
+        button.setDisableOnClick(true);
+        button.setImmediate(true);
+        button.setEnabled(false);
+        button.addListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent event) {
+                m_targetsPanel.registerSelectedTargets();
+            }
+        });
+        m_targetsPanel.addListener(new ValueChangeListener() {
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                TargetsPanel targetsPanel = (TargetsPanel) event.getProperty();
+
+                Collection<?> itemIDs = (Collection<?>) targetsPanel.getValue();
+
+                boolean enabled = false;
+                for (Object itemID : itemIDs) {
+                    if (targetsPanel.isItemRegistrationNeeded(itemID)) {
+                        enabled = true;
+                        break;
+                    }
+                }
+
+                button.setEnabled(enabled);
+            }
+        });
+        return button;
     }
 
     private TargetsPanel createTargetsPanel() {
@@ -791,6 +883,15 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
                 return m_statefulTargetRepository;
             }
         };
+    }
+
+    private HorizontalLayout createTargetToolbar() {
+        HorizontalLayout result = new HorizontalLayout();
+        result.setSpacing(true);
+        result.addComponent(createAddTargetButton());
+        result.addComponent(createRegisterTargetsButton());
+        result.addComponent(createApproveTargetsButton());
+        return result;
     }
 
     private GridLayout createToolbar() {
@@ -1011,7 +1112,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         m_grid.addComponent(m_mainToolbar, 0, 0, count - 1, 0);
 
         m_artifactsPanel = createArtifactsPanel();
-        m_artifactToolbar = createAddArtifactButton();
+        m_artifactToolbar = createArtifactToolbar();
 
         final DragAndDropWrapper artifactsPanelWrapper = new DragAndDropWrapper(m_artifactsPanel);
         artifactsPanelWrapper.setDropHandler(new ArtifactDropHandler(uploadHandler));
@@ -1026,7 +1127,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         }
 
         m_featuresPanel = createFeaturesPanel();
-        m_featureToolbar = createAddFeatureButton();
+        m_featureToolbar = createFeatureToolbar();
 
         if (auth.hasRole("viewFeature")) {
             m_grid.addComponent(m_featuresPanel, count, 2);
@@ -1035,7 +1136,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         }
 
         m_distributionsPanel = createDistributionsPanel();
-        m_distributionToolbar = createAddDistributionButton();
+        m_distributionToolbar = createDistributionToolbar();
 
         if (auth.hasRole("viewDistribution")) {
             m_grid.addComponent(m_distributionsPanel, count, 2);
@@ -1044,7 +1145,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         }
 
         m_targetsPanel = createTargetsPanel();
-        m_targetToolbar = createAddTargetButton();
+        m_targetToolbar = createTargetToolbar();
 
         if (auth.hasRole("viewTarget")) {
             m_grid.addComponent(m_targetsPanel, count, 2);
@@ -1075,8 +1176,8 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         m_distributionsPanel.setAssociatedTables(m_featuresPanel, m_targetsPanel);
         m_targetsPanel.setAssociatedTables(m_distributionsPanel, null);
 
-        addListener(m_statusLine, RepositoryObject.PUBLIC_TOPIC_ROOT.concat(RepositoryObject.TOPIC_ALL_SUFFIX));
-        addListener(m_mainToolbar, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_LOGIN, RepositoryAdmin.TOPIC_REFRESH);
+        addListener(m_statusLine, StatefulTargetObject.TOPIC_ALL, RepositoryObject.PUBLIC_TOPIC_ROOT.concat(RepositoryObject.TOPIC_ALL_SUFFIX));
+        addListener(m_mainToolbar, StatefulTargetObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_LOGIN, RepositoryAdmin.TOPIC_REFRESH);
         addListener(m_artifactsPanel, ArtifactObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_LOGIN, RepositoryAdmin.TOPIC_REFRESH);
         addListener(m_featuresPanel, FeatureObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_LOGIN, RepositoryAdmin.TOPIC_REFRESH);
         addListener(m_distributionsPanel, DistributionObject.TOPIC_ALL, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_LOGIN, RepositoryAdmin.TOPIC_REFRESH);

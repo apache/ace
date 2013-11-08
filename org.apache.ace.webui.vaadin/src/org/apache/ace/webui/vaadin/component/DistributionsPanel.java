@@ -87,10 +87,10 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
         DistributionObject distribution = (DistributionObject) entity;
         if (DistributionObject.TOPIC_ADDED.equals(topic)) {
-            add(distribution);
+            addToTable(distribution);
         }
         if (DistributionObject.TOPIC_REMOVED.equals(topic)) {
-            remove(distribution);
+            removeFromTable(distribution);
         }
         if (DistributionObject.TOPIC_CHANGED.equals(topic) || RepositoryAdmin.TOPIC_STATUSCHANGED.equals(topic)) {
             update(distribution);
@@ -106,7 +106,7 @@ public abstract class DistributionsPanel extends BaseObjectPanel<DistributionObj
     protected void populateItem(DistributionObject distribution, Item item) {
         item.getItemProperty(OBJECT_NAME).setValue(distribution.getName());
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(distribution.getDescription());
-        item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(distribution));
-        item.getItemProperty(ACTION_DELETE).setValue(new RemoveItemButton(distribution));
+        item.getItemProperty(ACTION_UNLINK).setValue(createRemoveLinkButton(distribution));
+        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(distribution));
     }
 }

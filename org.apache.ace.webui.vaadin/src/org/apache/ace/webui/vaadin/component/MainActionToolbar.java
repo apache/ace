@@ -299,9 +299,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
             modified = getRepositoryAdmin().isModified();
         }
         catch (IOException e) {
-            getWindow().showNotification("Communication failed!",
-                "Failed to communicate with the server.<br />Reason: " + e.getMessage(),
-                Notification.TYPE_ERROR_MESSAGE);
+            showError("Communication failed!", "Failed to communicate with the server.", e);
         }
 
         // always enabled...

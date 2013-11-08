@@ -87,10 +87,10 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
     protected void handleEvent(String topic, RepositoryObject entity, org.osgi.service.event.Event event) {
         FeatureObject feature = (FeatureObject) entity;
         if (FeatureObject.TOPIC_ADDED.equals(topic)) {
-            add(feature);
+            addToTable(feature);
         }
         if (FeatureObject.TOPIC_REMOVED.equals(topic)) {
-            remove(feature);
+            removeFromTable(feature);
         }
         if (FeatureObject.TOPIC_CHANGED.equals(topic) || RepositoryAdmin.TOPIC_STATUSCHANGED.equals(topic)) {
             update(feature);
@@ -106,7 +106,7 @@ public abstract class FeaturesPanel extends BaseObjectPanel<FeatureObject, Featu
     protected void populateItem(FeatureObject feature, Item item) {
         item.getItemProperty(OBJECT_NAME).setValue(feature.getName());
         item.getItemProperty(OBJECT_DESCRIPTION).setValue(feature.getDescription());
-        item.getItemProperty(ACTION_UNLINK).setValue(new RemoveLinkButton(feature));
-        item.getItemProperty(ACTION_DELETE).setValue(new RemoveItemButton(feature));
+        item.getItemProperty(ACTION_UNLINK).setValue(createRemoveLinkButton(feature));
+        item.getItemProperty(ACTION_DELETE).setValue(createRemoveItemButton(feature));
     }
 }
