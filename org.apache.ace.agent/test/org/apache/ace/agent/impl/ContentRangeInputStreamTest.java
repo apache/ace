@@ -204,7 +204,12 @@ public class ContentRangeInputStreamTest {
 
         @Override
         public int getResponseCode() throws IOException {
-            return 206;
+            int[] connInfo = determineNextContent();
+            if (connInfo == null) {
+                return 500;
+            }
+            int len = connInfo[1] - connInfo[0];
+            return len > 0 ? 206 : 416;
         }
 
         private int[] determineNextContent() {

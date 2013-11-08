@@ -63,19 +63,25 @@ final class DownloadCallableImpl implements Callable<DownloadResult> {
             os = new BufferedOutputStream(new FileOutputStream(m_target, appendTarget));
 
             byte buffer[] = new byte[READBUFFER_SIZE];
-            long bytesRead = targetLength, totalBytes = -1L;
+            long bytesRead = targetLength;
+            long totalBytes = -1L;
             int read = 0;
 
             try {
                 while (!Thread.currentThread().isInterrupted() && (read >= 0)) {
                     read = is.read(buffer);
-                    if (read < 0) {
+                    // this can only fail when the IS is closed, but in that case, the read() above should have failed
+                    // already...
+                    totalBytes = is.getContentSize();
+
+                    if (read >= 0) {
+                        os.write(buffer, 0, read);
+                        // update local administration...
+                        bytesRead += read;
+                    }
+                    else {
                         break; // EOF...
                     }
-                    os.write(buffer, 0, read);
-                    // update local administration...
-                    bytesRead += read;
-                    totalBytes = is.getContentSize();
 
                     if (m_listener != null) {
                         m_listener.progress(bytesRead, totalBytes);
@@ -91,7 +97,9 @@ final class DownloadCallableImpl implements Callable<DownloadResult> {
                 os.flush();
             }
 
-            boolean stoppedEarly = Thread.currentThread().isInterrupted() || (totalBytes > 0L && bytesRead < totalBytes);
+            boolean downloadComplete = (bytesRead == totalBytes);
+            boolean stoppedEarly = Thread.currentThread().isInterrupted() || !downloadComplete;
+
             if (stoppedEarly) {
                 m_handle.logDebug("Download stopped early: %d of %d bytes downloaded... (%d)", bytesRead, totalBytes, targetLength);
 

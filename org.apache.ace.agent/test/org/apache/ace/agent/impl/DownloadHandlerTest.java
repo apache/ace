@@ -189,6 +189,26 @@ public class DownloadHandlerTest extends BaseAgentTest {
         assertSuccessful(handle.start(null), m_200digest);
     }
 
+    @Test
+    public void testSuccessfulResumeAfterCompleteDownload() throws Exception {
+        DownloadHandler downloadHandler = m_agentContext.getHandler(DownloadHandler.class);
+
+        final DownloadHandle handle = downloadHandler.getHandle(m_200url);
+        handle.discard();
+
+        Future<DownloadResult> future = handle.start(null);
+        DownloadResult result = future.get();
+        assertNotNull(result);
+        assertTrue(result.isComplete());
+        assertEquals(m_200digest, getDigest(result.getInputStream()));
+
+        Future<DownloadResult> future2 = handle.start(null);
+        DownloadResult result2 = future2.get();
+        assertNotNull(result2);
+        assertTrue(result2.isComplete());
+        assertEquals(m_200digest, getDigest(result2.getInputStream()));
+    }
+
     private void assertIOException(Future<DownloadResult> future) throws Exception {
         try {
             future.get(5, TimeUnit.SECONDS);

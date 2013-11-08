@@ -18,6 +18,7 @@
  */
 package org.apache.ace.agent.itest;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,9 +42,11 @@ import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.LoggingHandler.Levels;
 import org.apache.ace.test.constants.TestConstants;
+import org.apache.ace.test.utils.FileUtils;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.service.http.HttpService;
@@ -172,8 +175,14 @@ public class AgentDeploymentTest extends BaseAgentTest {
                     end = fileLength / 2;
                 }
 
-                resp.addHeader("Content-Range", String.format("bytes %d-%d/%d", start, end, fileLength));
-
+                if (start == end) {
+                    // Invalid...
+                    resp.addHeader("Content-Range", String.format("bytes */%d", fileLength));
+                    resp.setStatus(416); // content range not satisfiable...
+                    return;
+                }
+                
+                resp.addHeader("Content-Range", String.format("bytes %d-%d/%d", start, end - 1, fileLength));
                 resp.setStatus(206); // partial
             }
 
@@ -365,20 +374,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
     /**
      * Tests that we can install upgrades for an earlier installed DP.
      */
-    public void testInstallUpgradeDeploymentPackage() throws Exception {
-        setupAgentForNonStreamingDeployment();
-
-        // Try to install a DP that fails at bundle-starting due to a non-existing class, but this does not revert the
-        // installation of the DP itself...
-        expectSuccessfulDeployment(m_package5, null);
-
-        // If we install a newer version, it should succeed...
-        expectSuccessfulDeployment(m_package6, null);
-    }
-
-    /**
-     * Tests that we can install upgrades for an earlier installed DP.
-     */
     public void testGetSizeEstimateForDeploymentPackage() throws Exception {
         AgentControl control = getService(AgentControl.class);
 
@@ -386,7 +381,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
 
         ConfigurationHandler configurationHandler = control.getConfigurationHandler();
         configurationHandler.putAll(props);
-        
+
         // Allow configuration to propagate...
         Thread.sleep(100L);
 
@@ -410,6 +405,20 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     /**
+     * Tests that we can install upgrades for an earlier installed DP.
+     */
+    public void testInstallUpgradeDeploymentPackage() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        // Try to install a DP that fails at bundle-starting due to a non-existing class, but this does not revert the
+        // installation of the DP itself...
+        expectSuccessfulDeployment(m_package5, null);
+
+        // If we install a newer version, it should succeed...
+        expectSuccessfulDeployment(m_package6, null);
+    }
+
+    /**
      * Tests the deployment of "non-streamed" deployment packages in various situations.
      */
     public void testNonStreamingDeployment() throws Exception {
@@ -425,6 +434,30 @@ public class AgentDeploymentTest extends BaseAgentTest {
         setupAgentForNonStreamingDeployment();
 
         expectFailedDeployment(m_package5, Failure.ABORT_STREAM);
+    }
+
+    /**
+     * Tests the deployment of "non-streamed" deployment packages in various situations.
+     */
+    public void testNonStreamingDeployment_ChunkedContentRange() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package6, Failure.CONTENT_RANGE);
+    }
+
+    /**
+     * Tests the deployment of "non-streamed" deployment packages in various situations.
+     * <p>
+     * This test simulates a DP that is already downloaded, but not yet installed as reported in ACE-413.
+     * </p>
+     */
+    public void testNonStreamingDeployment_ChunkedContentAlreadyCompletelyDownloaded() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        // Simulate that the DP is already downloaded...
+        simulateDPDownloadComplete(m_package6);
+
+        expectSuccessfulDeployment(m_package6, Failure.CONTENT_RANGE);
     }
 
     /**
@@ -464,15 +497,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     /**
-     * Tests the deployment of "non-streamed" deployment packages in various situations.
-     */
-    public void testNonStreamingDeployment_ChunkedContentRange() throws Exception {
-        setupAgentForNonStreamingDeployment();
-
-        expectSuccessfulDeployment(m_package6, Failure.CONTENT_RANGE);
-    }
-
-    /**
      * Tests the deployment of "streamed" deployment packages in various situations.
      */
     public void testStreamingDeployment() throws Exception {
@@ -488,6 +512,15 @@ public class AgentDeploymentTest extends BaseAgentTest {
         setupAgentForStreamingDeployment();
 
         expectFailedDeployment(m_package5, Failure.ABORT_STREAM);
+    }
+
+    /**
+     * Tests the deployment of "streamed" deployment packages in various situations.
+     */
+    public void testStreamingDeployment_ChunkedContentRange() throws Exception {
+        setupAgentForStreamingDeployment();
+
+        expectSuccessfulDeployment(m_package1, Failure.CONTENT_RANGE);
     }
 
     /**
@@ -524,15 +557,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
         setupAgentForStreamingDeployment();
 
         expectSuccessfulDeployment(m_package1, Failure.VERSIONS_RETRY_AFTER);
-    }
-
-    /**
-     * Tests the deployment of "streamed" deployment packages in various situations.
-     */
-    public void testStreamingDeployment_ChunkedContentRange() throws Exception {
-        setupAgentForStreamingDeployment();
-
-        expectSuccessfulDeployment(m_package1, Failure.CONTENT_RANGE);
     }
 
     /**
@@ -582,19 +606,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     @Override
-    protected Component[] getDependencies() {
-        m_listener = new TestEventListener();
-        return new Component[] {
-            createComponent()
-                .setImplementation(this)
-                .add(createServiceDependency().setService(HttpService.class).setRequired(true)),
-            createComponent()
-                .setInterface(EventListener.class.getName(), null)
-                .setImplementation(m_listener)
-        };
-    }
-
-    @Override
     protected void doTearDown() throws Exception {
         // Remove all provisioned components...
         m_dependencyManager.clear();
@@ -612,6 +623,19 @@ public class AgentDeploymentTest extends BaseAgentTest {
         }
 
         resetAgentBundleState();
+    }
+
+    @Override
+    protected Component[] getDependencies() {
+        m_listener = new TestEventListener();
+        return new Component[] {
+            createComponent()
+                .setImplementation(this)
+                .add(createServiceDependency().setService(HttpService.class).setRequired(true)),
+            createComponent()
+                .setInterface(EventListener.class.getName(), null)
+                .setImplementation(m_listener)
+        };
     }
 
     private Map<String, String> createAgentConfiguration(boolean useStreaming, int syncInterval) {
@@ -673,6 +697,26 @@ public class AgentDeploymentTest extends BaseAgentTest {
         configurationHandler.putAll(props);
 
         waitForInstalledVersion(Version.emptyVersion);
+    }
+
+    /**
+     * Simulates a DP that is already completely downloaded.
+     * 
+     * @param _package
+     *            the test package to simulate a download for, cannot be <code>null</code>.
+     * @throws IOException
+     *             in case of I/O problems.
+     */
+    private void simulateDPDownloadComplete(TestPackage _package) throws IOException {
+        Bundle agentBundle = FrameworkUtil.getBundle(AgentConstants.class);
+        assertNotNull(agentBundle);
+        assertFalse(agentBundle.getBundleId() == m_bundleContext.getBundle().getBundleId());
+
+        // The filename used for DP is the encoded URL...
+        String dpFilename = String.format("http%%3A%%2F%%2Flocalhost%%3A%d%%2Fdeployment%%2F%s%%2Fversions%%2F%s", TestConstants.PORT, AGENT_ID, _package.getVersion());
+        File dpFile = new File(agentBundle.getBundleContext().getDataFile(""), dpFilename);
+
+        FileUtils.copy(_package.getFile(), dpFile);
     }
 
     private void waitForEventReceived(String topic) throws Exception {

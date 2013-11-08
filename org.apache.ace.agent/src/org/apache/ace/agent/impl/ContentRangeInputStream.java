@@ -44,6 +44,7 @@ class ContentRangeInputStream extends InputStream {
 
     private static final int SC_OK = 200;
     private static final int SC_PARTIAL_CONTENT = 206;
+    private static final int SC_RANGE_NOT_SATISFIABLE = 416;
     private static final int SC_SERVICE_UNAVAILABLE = 503;
 
     private static final int ST_EOF = -1;
@@ -320,29 +321,22 @@ class ContentRangeInputStream extends InputStream {
             return new long[] { totalBytes, totalBytes };
         }
         else if (rc == SC_PARTIAL_CONTENT) {
+            // Chunked response, see how many bytes we've got to read for it...
             String contentRange = conn.getHeaderField(HDR_CONTENT_RANGE);
             if (contentRange == null) {
                 throw new IOException("Server returned no Content-Range for partial content");
             }
-            if (!contentRange.startsWith(BYTES_)) {
-                throw new IOException("Server returned non-byte Content-Range " + contentRange);
+
+            return parseContentRangeHeader(contentRange);
+        }
+        else if (rc == SC_RANGE_NOT_SATISFIABLE) {
+            // Range not satisfiable, we might already have completed the download?
+            String contentRange = conn.getHeaderField(HDR_CONTENT_RANGE);
+            if (contentRange != null) {
+                return parseContentRangeHeader(contentRange);
             }
-
-            String[] parts = contentRange.substring(6).split("/");
-            String[] rangeDef = parts[0].split("-");
-
-            long start = Long.parseLong(rangeDef[0]);
-            long end = Long.parseLong(rangeDef[1]);
-
-            long totalBytes;
-            if ("*".equals(parts[1])) {
-                totalBytes = -1L;
-            }
-            else {
-                totalBytes = Long.parseLong(parts[1]);
-            }
-
-            return new long[] { (end - start), totalBytes };
+            
+            // fall through, we cannot handle this...
         }
         else if (rc == SC_SERVICE_UNAVAILABLE) {
             // Service is unavailable, throw an exception to try it again later...
@@ -350,9 +344,8 @@ class ContentRangeInputStream extends InputStream {
 
             throw new RetryAfterException(retry);
         }
-        else {
-            throw new IOException("Unknown/unexpected status code: " + rc);
-        }
+
+        throw new IOException("Unknown/unexpected status code: " + rc);
     }
 
     /**
@@ -369,6 +362,44 @@ class ContentRangeInputStream extends InputStream {
             closeChunk();
             throw exception;
         }
+    }
+
+    /**
+     * Parses a Content-Range header, which should be a byte-range specification of the content to expect.
+     * 
+     * @param value
+     *            the Content-Range header value to parse, cannot be <code>null</code>.
+     * @return an array with two elements, the first indicating the length of the current chunk, and the second the
+     *         total length of the content.
+     * @throws IOException
+     *             in case a non-byte Content-Range header value was given.
+     */
+    private long[] parseContentRangeHeader(String value) throws IOException {
+        if (!value.startsWith(BYTES_)) {
+            throw new IOException("Server returned non-byte Content-Range " + value);
+        }
+
+        String[] parts = value.substring(6).split("/");
+
+        long chunkSize = 0L;
+        if (!"*".equals(parts[0])) {
+            String[] rangeDef = parts[0].split("-");
+
+            long start = Long.parseLong(rangeDef[0]);
+            long end = Long.parseLong(rangeDef[1]);
+
+            chunkSize = end - start;
+        }
+
+        long totalBytes;
+        if ("*".equals(parts[1])) {
+            totalBytes = -1L;
+        }
+        else {
+            totalBytes = Long.parseLong(parts[1]);
+        }
+
+        return new long[] { chunkSize, totalBytes };
     }
 
     /**
@@ -397,7 +428,7 @@ class ContentRangeInputStream extends InputStream {
 
             m_contentInfo = contentInfo;
         }
-
-        return (m_conn != null);
+        // Make sure there's still content remaining to be read...
+        return (m_conn != null) && contentRemaining();
     }
 }
