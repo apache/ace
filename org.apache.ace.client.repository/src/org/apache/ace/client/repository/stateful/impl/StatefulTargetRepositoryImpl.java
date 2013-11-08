@@ -122,7 +122,9 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     public void remove(StatefulTargetObject entity) {
         synchronized (m_repository) {
             StatefulTargetObjectImpl statefulTarget = (StatefulTargetObjectImpl) entity;
-            unregister(statefulTarget.getID());
+            if (statefulTarget.isRegistered()) {
+                unregister(statefulTarget.getID());
+            }
             removeStateful(statefulTarget);
             // Ensure the external side sees the changes we've made...
             statefulTarget.updateTargetObject(false);
@@ -740,7 +742,8 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      */
     private static String nextVersion(String version) {
         try {
-            Version v = new Version(version);
+            // in case the given version is null or empty, v will be '0.0.0'... 
+            Version v = Version.parseVersion(version);
             Version result = new Version(v.getMajor() + 1, 0, 0);
             return result.toString();
         }
