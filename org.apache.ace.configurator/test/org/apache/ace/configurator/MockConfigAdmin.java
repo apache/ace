@@ -19,36 +19,53 @@
 package org.apache.ace.configurator;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-public class MockConfigAdmin implements ConfigurationAdmin {
+public abstract class MockConfigAdmin implements ConfigurationAdmin {
+    private final Map<String, Configuration> m_configs;
 
-    private Configuration m_configuration = new MockConfiguration();
-
-    public Configuration createFactoryConfiguration(String arg0) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+    public MockConfigAdmin() {
+        m_configs = new HashMap<String, Configuration>();
     }
 
-    public Configuration createFactoryConfiguration(String arg0, String arg1) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+    public Configuration createFactoryConfiguration(String factoryPID) throws IOException {
+        return createFactoryConfiguration(factoryPID, null);
+    }
+
+    public Configuration createFactoryConfiguration(String factoryPID, String location) throws IOException {
+        Configuration config = m_configs.get(factoryPID);
+        if (config == null) {
+            config = new MockConfiguration(this);
+            m_configs.put(factoryPID, config);
+        }
+        return config;
     }
 
     public Configuration getConfiguration(String pid) throws IOException {
-        return m_configuration;
+        return getConfiguration(pid, null);
     }
 
-    public Configuration getConfiguration(String arg0, String arg1) throws IOException {
-        // TODO Auto-generated method stub
-        return m_configuration;
+    public Configuration getConfiguration(String pid, String location) throws IOException {
+        Configuration config = m_configs.get(pid);
+        if (config == null) {
+            config = new MockConfiguration(this);
+            m_configs.put(pid, config);
+        }
+        return config;
     }
 
-    public Configuration[] listConfigurations(String arg0) throws IOException, InvalidSyntaxException {
-        return new Configuration[] {m_configuration};
+    public Configuration[] listConfigurations(String filter) throws IOException, InvalidSyntaxException {
+        Collection<Configuration> configs = m_configs.values();
+        return configs.toArray(new Configuration[configs.size()]);
     }
 
+    abstract void configDeleted(MockConfiguration config);
+
+    abstract void configUpdated(MockConfiguration config);
 }

@@ -40,43 +40,49 @@ import org.osgi.service.log.LogService;
 
 /**
  * Configures bundles managed by the <code>ConfigurationAdmin</code>. This Configurator uses text files as configuration
- * files containing properties. When a configuration file is added, the properties are being read and added. If the config file is
- * removed, the properties are removed as well.
+ * files containing properties. When a configuration file is added, the properties are being read and added. If the
+ * config file is removed, the properties are removed as well.
  * <p>
- * The configuration files should be stored in the configuration directory (often the 'conf' directory) of the OSGi framework and
- * should have the format: &lt;pid&gt;.cfg
+ * The configuration files should be stored in the configuration directory (often the 'conf' directory) of the OSGi
+ * framework and should have the format: &lt;pid&gt;.cfg
  * <p>
  * Note: this Configurator is based upon the principle in the FileInstall bundle Peter Kriens wrote. (see
  * http://www.aqute.biz/Code/FileInstall for more information)
  */
 public class Configurator implements Runnable {
-
     private static final String DELIM_START = "${";
     private static final String DELIM_STOP = "}";
+
     private static final FileFilter FILENAME_FILTER = new FileFilter() {
         public boolean accept(File file) {
             return !file.isHidden() && (file.getName().endsWith(".cfg") || file.isDirectory());
         }
     };
+
     private static final String FACTORY_INSTANCE_KEY = "factory.instance.pid";
 
-    private volatile LogService m_log;                  /* injected by dependency manager */
-    private volatile ConfigurationAdmin m_configAdmin;  /* injected by dependency manager */
-    private volatile BundleContext m_context;           /* injected by dependency manager */
+    private volatile LogService m_log; /* injected by dependency manager */
+    private volatile ConfigurationAdmin m_configAdmin; /* injected by dependency manager */
+    private volatile BundleContext m_context; /* injected by dependency manager */
 
     private final File m_configDir;
     private final long m_pollInterval;
-    private final Map m_checksums = new HashMap();   // absolutepath -> xor(length, date)
-    private final Map m_foundFactories = new HashMap(); // absolutedirpath -> (absolutepath -> xor(length, date))
-    private Thread m_configThread;
+    private final Map<String, Long> m_checksums = new HashMap<String, Long>();
+    private final Map<String, Map<String, Long>> m_foundFactories = new HashMap<String, Map<String, Long>>();
     private final boolean m_reconfig;
+
+    private Thread m_configThread;
 
     /**
      * Instantiates a new configurator.
-     * @param dir The directory to watch.
-     * @param pollInterval The poll iterval in ms.
-     * @param reconfig Whether or not to use reconfiguration: if <code>false</code>, existing configuration
-     * values will not be overwritten, only new values (for a given pid) will be added.
+     * 
+     * @param dir
+     *            The directory to watch.
+     * @param pollInterval
+     *            The poll iterval in ms.
+     * @param reconfig
+     *            Whether or not to use reconfiguration: if <code>false</code>, existing configuration values will not
+     *            be overwritten, only new values (for a given pid) will be added.
      */
     public Configurator(File dir, long pollInterval, boolean reconfig) {
         if ((dir == null) || !dir.isDirectory() || (pollInterval < 0)) {
@@ -100,7 +106,7 @@ public class Configurator implements Runnable {
 
     /**
      * Stops the Configuration timer.
-     *
+     * 
      * @throws InterruptedException
      */
     synchronized void stop() throws InterruptedException {
@@ -112,8 +118,8 @@ public class Configurator implements Runnable {
     }
 
     /**
-     * Starts the actual Timer task, and calls the configurator to make sure the configurations are performed. Checking whether
-     * a new configuration is present, will be done with an interval that can be defined via a system property.
+     * Starts the actual Timer task, and calls the configurator to make sure the configurations are performed. Checking
+     * whether a new configuration is present, will be done with an interval that can be defined via a system property.
      */
     public void run() {
         try {
@@ -133,7 +139,7 @@ public class Configurator implements Runnable {
      * the size of the new configuration has changed.
      */
     private void doConfigs() {
-        Set pids = new HashSet(m_checksums.keySet());
+        Set<String> pids = new HashSet<String>(m_checksums.keySet());
 
         File[] files = m_configDir.listFiles(FILENAME_FILTER);
         for (int i = 0; (files != null) && (i < files.length); i++) {
@@ -162,10 +168,10 @@ public class Configurator implements Runnable {
 
     private void doFactoryConfigs(String factoryPid, File[] newInstances) {
         if (!m_foundFactories.containsKey(factoryPid)) {
-            m_foundFactories.put(factoryPid, new HashMap());
+            m_foundFactories.put(factoryPid, new HashMap<String, Long>());
         }
-        Map instances = (Map) m_foundFactories.get(factoryPid);
-        Set instancesPids = new HashSet(instances.keySet());
+        Map<String, Long> instances = m_foundFactories.get(factoryPid);
+        Set<String> instancesPids = new HashSet<String>(instances.keySet());
 
         for (int j = 0; j < newInstances.length; j++) {
             File instanceConfigFile = newInstances[j];
@@ -180,7 +186,7 @@ public class Configurator implements Runnable {
             instancesPids.remove(instancePid);
         }
 
-        for (Iterator e = instancesPids.iterator(); e.hasNext(); ) {
+        for (Iterator e = instancesPids.iterator(); e.hasNext();) {
             String instancePid = (String) e.next();
             deleteConfig(instancePid, factoryPid);
             instances.remove(instancePid);
@@ -188,8 +194,9 @@ public class Configurator implements Runnable {
     }
 
     /**
-     * Sets the Configuration and calls update() to do the actual configuration on the ManagedService. If and only if the configuration
-     * did not exist before or has changed. A configuration has changed if the length or the lastModified date has changed.
+     * Sets the Configuration and calls update() to do the actual configuration on the ManagedService. If and only if
+     * the configuration did not exist before or has changed. A configuration has changed if the length or the
+     * lastModified date has changed.
      */
     private void processConfigFile(File configFile, String factoryPid) {
         InputStream in = null;
@@ -236,7 +243,7 @@ public class Configurator implements Runnable {
                 properties.put(FACTORY_INSTANCE_KEY, factoryPid + "_" + pid);
             }
             config.update(properties);
-            m_log.log(LogService.LOG_DEBUG, "Updated configuration for pid '" + pid + "' (" + properties +")");
+            m_log.log(LogService.LOG_DEBUG, "Updated configuration for pid '" + pid + "' (" + properties + ")");
         }
         catch (IOException ex) {
             m_log.log(LogService.LOG_ERROR, "Unable to update configuration for pid '" + pid + "'", ex);
@@ -292,16 +299,16 @@ public class Configurator implements Runnable {
         }
     }
 
-
     /**
      * Performs variable substitution for a complete set of properties
-     *
+     * 
      * @see #substVars(String, String, java.util.Map, java.util.Properties)
-     * @param properties Set of properties to apply substitution on.
+     * @param properties
+     *            Set of properties to apply substitution on.
      * @return Same set of properties with all variables substituted.
      */
     private Properties substVars(Properties properties) {
-        for (Enumeration propertyKeys = properties.propertyNames(); propertyKeys.hasMoreElements(); ) {
+        for (Enumeration propertyKeys = properties.propertyNames(); propertyKeys.hasMoreElements();) {
             String name = (String) propertyKeys.nextElement();
             String value = properties.getProperty(name);
             properties.setProperty(name, substVars(value, name, null, properties));
@@ -311,26 +318,30 @@ public class Configurator implements Runnable {
 
     /**
      * <p>
-     * This method performs property variable substitution on the specified value. If the specified value contains the syntax
-     * <tt>${&lt;prop-name&gt;}</tt>, where <tt>&lt;prop-name&gt;</tt> refers to either a configuration property or a
-     * system property, then the corresponding property value is substituted for the variable placeholder. Multiple variable
-     * placeholders may exist in the specified value as well as nested variable placeholders, which are substituted from inner
-     * most to outer most. Configuration properties override system properties.
+     * This method performs property variable substitution on the specified value. If the specified value contains the
+     * syntax <tt>${&lt;prop-name&gt;}</tt>, where <tt>&lt;prop-name&gt;</tt> refers to either a configuration property
+     * or a system property, then the corresponding property value is substituted for the variable placeholder. Multiple
+     * variable placeholders may exist in the specified value as well as nested variable placeholders, which are
+     * substituted from inner most to outer most. Configuration properties override system properties.
      * </p>
-     *
-     * @param val The string on which to perform property substitution.
-     * @param currentKey The key of the property being evaluated used to detect cycles.
-     * @param cycleMap Map of variable references used to detect nested cycles.
-     * @param configProps Set of configuration properties.
+     * 
+     * @param val
+     *            The string on which to perform property substitution.
+     * @param currentKey
+     *            The key of the property being evaluated used to detect cycles.
+     * @param cycleMap
+     *            Map of variable references used to detect nested cycles.
+     * @param configProps
+     *            Set of configuration properties.
      * @return The value of the specified string after system property substitution.
-     * @throws IllegalArgumentException If there was a syntax error in the property placeholder syntax or a recursive variable
-     *         reference.
+     * @throws IllegalArgumentException
+     *             If there was a syntax error in the property placeholder syntax or a recursive variable reference.
      */
-    private String substVars(String val, String currentKey, Map cycleMap, Properties configProps) throws IllegalArgumentException {
+    private String substVars(String val, String currentKey, Map<String, String> cycleMap, Properties configProps) throws IllegalArgumentException {
         // If there is currently no cycle map, then create
         // one for detecting cycles for this invocation.
         if (cycleMap == null) {
-            cycleMap = new HashMap();
+            cycleMap = new HashMap<String, String>();
         }
 
         // Put the current key in the cycle map.
@@ -360,13 +371,9 @@ public class Configurator implements Runnable {
 
         // If we do not have a start or stop delimiter, then just
         // return the existing value.
-        if ((startDelim < 0) && (stopDelim < 0)) {
+        // ACE-401: be liberal to the content, and do not throw an exception in case we see something that resembles a substitution but is in fact nothing...
+        if ((startDelim < 0) || (stopDelim < 0) || (startDelim > stopDelim)) {
             return val;
-        }
-        // At this point, we found a stop delimiter without a start,
-        // so throw an exception.
-        else if (((startDelim < 0) || (startDelim > stopDelim)) && (stopDelim >= 0)) {
-            throw new IllegalArgumentException("stop delimiter with no start delimiter: " + val);
         }
 
         // At this point, we have found a variable placeholder so
@@ -384,10 +391,11 @@ public class Configurator implements Runnable {
         // Try to configuration properties first.
         String substValue = (configProps != null) ? configProps.getProperty(variable, null) : null;
         if (substValue == null) {
-            // Ignore unknown property values.
+            // Ignore unknown property values, check whether it is defined as framework or system property...
             substValue = m_context.getProperty(variable);
             if (substValue == null) {
-                substValue = "";
+                // Still not found, then ignore this substitution...
+                return val;
             }
         }
 

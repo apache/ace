@@ -19,6 +19,9 @@
 package org.apache.ace.configurator;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,6 +29,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Dictionary;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.test.utils.TestUtils;
@@ -37,10 +42,176 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class ConfiguratorTest {
-
     private Configurator m_configurator;
     private File m_configDir;
-    private ConfigurationAdmin m_configAdmin;
+    private MockConfigAdmin m_configAdmin;
+
+    private volatile CountDownLatch m_deleteLatch;
+    private volatile CountDownLatch m_updateLatch;
+
+    @Test(groups = { UNIT })
+    public void testAddConfiguration() throws Exception {
+        String pid = "test-add";
+
+        Properties initialConfiguration = createProperties();
+        saveConfiguration(pid, initialConfiguration);
+
+        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        assertNotNull(configuration, "No configuration received from configurator");
+        assertEquals(createProperties(), configuration, "Configuration content is unexpected");
+    }
+
+    @Test(groups = { UNIT })
+    public void testAddFactoryConfiguration() throws Exception {
+        String pid = "test-add";
+        String factoryPID = "testFactory";
+
+        Properties props = createProperties();
+        saveConfiguration(pid, "testFactory", props);
+
+        Dictionary configuration = getAndWaitForConfigurationUpdate(factoryPID);
+        assertNotNull(configuration, "No configuration received from configurator");
+        assertEquals(configuration.remove("factory.instance.pid"), "testFactory_test-add", "Incorrect factory instance pid was added to the configuration");
+        assertEquals(createProperties(), configuration, "Configuration content is unexpected");
+    }
+
+    // update a configuration, only adding a key (this is allowed in all cases)
+    @Test(groups = { UNIT })
+    public void testChangeConfigurationUsingNewKey() throws Exception {
+        String pid = "test-change";
+
+        Properties initialConfiguration = createProperties();
+        saveConfiguration(pid, initialConfiguration);
+
+        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        assertNotNull(configuration, "No configuration received from configurator");
+        assertEquals(initialConfiguration, configuration);
+
+        initialConfiguration.put("anotherKey", "anotherValue");
+        saveConfiguration("test-change", initialConfiguration);
+
+        // now the configuration should be updated
+        configuration = getAndWaitForConfigurationUpdate(pid);
+        assertNotNull(configuration, "No configuration received from configurator");
+        assertEquals(initialConfiguration, configuration);
+    }
+
+    // update a configuration, changing an already existing key, not using reconfiguration
+    @Test(groups = { UNIT })
+    public void testChangeConfigurationUsingSameKeyNoReconfigure() throws Exception {
+        String pid = "test-change";
+
+        Properties configurationValues = createProperties();
+        Properties initialConfigurationValues = new Properties();
+        initialConfigurationValues.putAll(configurationValues);
+        saveConfiguration(pid, configurationValues);
+
+        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        assertNotNull(configuration, "No configuration received from configurator");
+        assertEquals(configurationValues, configuration);
+
+        configurationValues.put("test", "value42");
+        saveConfiguration("test-change", configurationValues);
+
+        // The update should have been ignored, and the old values should still be present.
+        configuration = getAndWaitForConfigurationUpdate(pid);
+        assertNotNull(configuration, "No configuration received from configurator");
+        assertEquals(initialConfigurationValues, configuration);
+    }
+
+    // update a configuration, changing an already existing key, using reconfiguration
+    @Test(groups = { UNIT })
+    public void testChangeConfigurationUsingSameKeyWithReconfigure() throws Exception {
+        String pid = "test-change";
+
+        setUp(true); // Instruct the configurator to reconfigure
+        Properties configurationValues = createProperties();
+        saveConfiguration(pid, configurationValues);
+
+        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        assertNotNull(configuration, "No configuration received from configurator");
+        assertEquals(configurationValues, configuration);
+
+        configurationValues.put("test", "value42");
+        saveConfiguration(pid, configurationValues);
+
+        // now the configuration should be updated
+        configuration = getAndWaitForConfigurationUpdate(pid);
+        assertNotNull(configuration, "No configuration received from configurator");
+        assertEquals(configurationValues, configuration);
+    }
+
+    @Test(groups = { UNIT })
+    public void testPropertySubstitution() throws Exception {
+        String pid = "test-subst";
+
+        Properties initial = new Properties();
+        initial.put("key1", "leading ${foo.${bar}} middle ${baz} trailing");
+        initial.put("bar", "a");
+        initial.put("foo.a", "text");
+        initial.put("baz", "word");
+        // ACE-401: use some weird log4j conversion pattern in our config file, should not confuse the Configurator's
+        // substitution algorithm...
+        initial.put("key2", "%d{ISO8601} | %-5.5p | %C | %X{bundle.name} | %m%n");
+        // unknown and partially unknown variables shouldn't get substituted...
+        initial.put("key3", "${qux} ${quu.${bar}} ${baz.${bar}}");
+        saveConfiguration(pid, initial);
+
+        Dictionary config = getAndWaitForConfigurationUpdate(pid);
+        assertNotNull(config, "No configuration received from configurator");
+        assertEquals(config.get("key1"), "leading text middle word trailing", "Substitution failed!");
+        assertEquals(config.get("key2"), "%d{ISO8601} | %-5.5p | %C | %X{bundle.name} | %m%n", "Substitution failed!");
+        assertEquals(config.get("key3"), "${qux} ${quu.${bar}} ${baz.${bar}}", "Substitution failed!");
+    }
+
+    @Test(groups = { UNIT })
+    public void testPropertySubstitutionFromContext() throws Exception {
+        String pid = "test-subst";
+
+        Properties initialConfiguration = createProperties();
+        initialConfiguration.put("subst", "${contextProp}");
+        saveConfiguration(pid, initialConfiguration);
+
+        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        assertNotNull(configuration, "No configuration received from configurator");
+        assertEquals(configuration.get("subst"), "contextVal", "Substitution failed");
+    }
+
+    // remove a configuration
+    @Test(groups = { UNIT })
+    public void testRemoveConfiguration() throws Exception {
+        String pid = "test-remove";
+
+        Properties initialConfiguration = createProperties();
+        saveConfiguration(pid, initialConfiguration);
+
+        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        assertNotNull(configuration, "No configuration received from configurator");
+        assertEquals(createProperties(), configuration);
+
+        // ok, the configuration is done.
+        // now try to remove it.
+        removeConfiguration(pid);
+
+        // after some processing time, we should get a message that the configuration is now removed.
+        waitForConfigurationDelete(pid);
+    }
+
+    // remove a configuration
+    @Test(groups = { UNIT })
+    public void testRemoveFactoryConfiguration() throws Exception {
+        String pid = "test-remove";
+        String factoryPID = "testFactory";
+
+        Properties props = createProperties();
+        saveConfiguration(pid, factoryPID, props);
+        getAndWaitForConfigurationUpdate(factoryPID);
+
+        removeConfiguration(pid, factoryPID);
+
+        // after some processing time, we should get a message that the configuration is now removed.
+        waitForConfigurationDelete(factoryPID);
+    }
 
     @BeforeMethod(alwaysRun = true)
     protected void setUp() throws Exception {
@@ -49,29 +220,107 @@ public class ConfiguratorTest {
 
     /**
      * Sets up the environment for testing.
-     * @param reconfig Indicates whether or not the configurator should use reconfiguration.
+     * 
+     * @param reconfig
+     *            Indicates whether or not the configurator should use reconfiguration.
      */
     protected void setUp(boolean reconfig) throws Exception {
-        m_configAdmin = new MockConfigAdmin();
+        m_configAdmin = new MockConfigAdmin() {
+            @Override
+            void configDeleted(MockConfiguration config) {
+                m_deleteLatch.countDown();
+            }
+
+            @Override
+            void configUpdated(MockConfiguration config) {
+                m_updateLatch.countDown();
+            }
+        };
 
         m_configDir = FileUtils.createTempFile(null);
         m_configDir.mkdir();
-        m_configurator = new Configurator(m_configDir, 400, reconfig);
+        m_configurator = new Configurator(m_configDir, 200, reconfig);
 
         TestUtils.configureObject(m_configurator, ConfigurationAdmin.class, m_configAdmin);
         TestUtils.configureObject(m_configurator, LogService.class);
         TestUtils.configureObject(m_configurator, BundleContext.class, TestUtils.createMockObjectAdapter(BundleContext.class, new Object() {
             @SuppressWarnings("unused")
             public String getProperty(String key) {
-                return "contextProp";
+                if ("contextProp".equals(key)) {
+                    return "contextVal";
+                }
+                return null;
             }
         }));
         m_configurator.start();
     }
 
+    @AfterMethod(alwaysRun = true)
+    protected void tearDown() throws Exception {
+        m_configurator.stop();
+        FileUtils.removeDirectoryWithContent(m_configDir);
+
+        m_deleteLatch = null;
+        m_updateLatch = null;
+    }
+
+    // set some standard properties for testing
+    private Properties createProperties() {
+        Properties props = new Properties();
+        props.put("test", "value1");
+        props.put("test2", "value2");
+        return props;
+    }
+
     /**
-     * save the properties into a configuration file the configurator can read.
-     * The file is first created and then moved to make sure the configuration doesn't read an empty file
+     * Get the configuration and if it not available yet wait for it. If there is still no configuration after the wait
+     * time, null is returned.
+     */
+    private Dictionary getAndWaitForConfigurationUpdate(String pid) throws Exception {
+        assertTrue(m_updateLatch.await(2, TimeUnit.SECONDS));
+
+        return m_configAdmin.getConfiguration(pid).getProperties();
+    }
+
+    // remove a created configuration file
+    private void removeConfiguration(String servicePid) {
+        removeConfiguration(servicePid, null);
+    }
+
+    private void removeConfiguration(String servicePid, String factoryPid) {
+        if (factoryPid != null) {
+            new File(m_configDir, factoryPid + File.separator + servicePid + ".cfg").delete();
+        }
+        else {
+            new File(m_configDir, servicePid + ".cfg").delete();
+        }
+
+        m_deleteLatch = new CountDownLatch(1);
+    }
+
+    /**
+     * Renames a given source file to a new destination file, using Commons-IO.
+     * <p>
+     * This avoids the problem mentioned in ACE-155.
+     * </p>
+     * 
+     * @param source
+     *            the file to rename;
+     * @param dest
+     *            the file to rename to.
+     */
+    private void renameFile(File source, File dest) {
+        try {
+            org.apache.commons.io.FileUtils.moveFile(source, dest);
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Failed to rename file!", e);
+        }
+    }
+
+    /**
+     * save the properties into a configuration file the configurator can read. The file is first created and then moved
+     * to make sure the configuration doesn't read an empty file
      */
     private void saveConfiguration(String servicePid, Properties configuration) {
         saveConfiguration(servicePid, null, configuration);
@@ -87,9 +336,11 @@ public class ConfiguratorTest {
             outFile = FileUtils.createTempFile(null);
             fileOutputStream = new FileOutputStream(outFile);
             configuration.store(fileOutputStream, null);
-        } catch (IOException ioe) {
+        }
+        catch (IOException ioe) {
             // the test will fail, ignore this.
-        } finally {
+        }
+        finally {
             if (fileOutputStream != null) {
                 try {
                     fileOutputStream.close();
@@ -117,247 +368,15 @@ public class ConfiguratorTest {
                 renameFile(outFile, dest);
             }
         }
-    }
 
-    // remove a created configuration file
-    private void removeConfiguration(String servicePid) {
-        removeConfiguration(servicePid, null);
-    }
-
-    private void removeConfiguration(String servicePid, String factoryPid) {
-        if (factoryPid != null) {
-            new File(m_configDir, factoryPid + File.separator + servicePid + ".cfg").delete();
-        } else {
-            new File(m_configDir, servicePid + ".cfg").delete();
-        }
-    }
-
-    // set some standard properties for testing
-    private Properties createProperties() {
-        Properties props = new Properties();
-        props.put("test", "value1");
-        props.put("test2", "value2");
-        return props;
-    }
-
-    // add a configuration
-    @Test(groups = { UNIT })
-    public void testAddConfiguration() {
-        Properties initialConfiguration = createProperties();
-        saveConfiguration("test-add", initialConfiguration);
-
-        Dictionary configuration = getAndWaitForConfiguration(initialConfiguration);
-        assert configuration != null : "No configuration received from configurator";
-        assert configuration.equals(createProperties()) : "Configuration content is unexpected";
-    }
-
-    @Test(groups = { UNIT })
-    public void testAddFactoryConfiguration() {
-        Properties props = createProperties();
-        saveConfiguration("test-add", "testFactory", props);
-
-        Dictionary configuration = getAndWaitForConfiguration(props);
-        assert configuration != null : "No configuration received from configurator";
-        assert "testFactory_test-add".equals(configuration.remove("factory.instance.pid")) : "Incorrect factory instance pid was added to the configuration";
-        assert configuration.equals(createProperties()) : "Configuration content is unexpected";
-    }
-
-    // remove a configuration
-    @Test(groups = { UNIT })
-    public void testRemoveFactoryConfiguration() {
-        Properties props = createProperties();
-        saveConfiguration("test-remove", "testFactory", props);
-        getAndWaitForConfiguration(props);
-
-        removeConfiguration("test-remove", "testFactory");
-
-        // after some processing time, we should get a message that the configuration is now removed.
-        long startTimeMillis = System.currentTimeMillis();
-        boolean isDeleted = false;
-        try {
-            while (!isDeleted && (System.currentTimeMillis() < startTimeMillis + 2000)) {
-                isDeleted = ((MockConfiguration) m_configAdmin.getConfiguration("")).isDeleted();
-                if (!isDeleted) {
-                    Thread.sleep(100);
-                }
-            }
-        } catch (InterruptedException ie) {
-            // not much we can do
-        }
-        catch (IOException e) {
-            // cannot come from our mock config admin
-        }
-        assert isDeleted : "The configuration is not removed as expected";
-    }
-
-    @Test(groups = { UNIT })
-    public void testPropertySubstitution( ) {
-        Properties initialConfiguration = createProperties();
-        initialConfiguration.put("var", "value");
-        initialConfiguration.put("subst", "${var}");
-        saveConfiguration("test-subst", initialConfiguration);
-
-        Dictionary configuration = getAndWaitForConfiguration(initialConfiguration);
-        assert configuration != null : "No configuration received from configurator";
-        assert configuration.get("subst").equals(configuration.get("var")) : "Substitution failed";
-    }
-
-    @Test(groups = { UNIT })
-    public void testPropertySubstitutionFromContext() {
-        Properties initialConfiguration = createProperties();
-        initialConfiguration.put("subst", "${var}");
-        saveConfiguration("test-subst", initialConfiguration);
-
-        Dictionary configuration = getAndWaitForConfiguration(initialConfiguration);
-        assert configuration != null : "No configuration received from configurator";
-        assert configuration.get("subst") != null : "Substitution failed";
-    }
-
-    // update a configuration, only adding a key (this is allowed in all cases)
-    @Test(groups = { UNIT })
-    public void testChangeConfigurationUsingNewKey() {
-        Properties initialConfiguration = createProperties();
-        saveConfiguration("test-change", initialConfiguration);
-
-        Dictionary configuration = getAndWaitForConfiguration(initialConfiguration);
-        assert configuration != null : "No configuration received from configurator";
-        assert configuration.equals(initialConfiguration) : "Configuration content not expected. Was expecting " + initialConfiguration.size() + " but got " + configuration.size();
-
-        initialConfiguration.put("anotherKey","anotherValue");
-        saveConfiguration("test-change", initialConfiguration);
-
-        // now the configuration should be updated
-        configuration = getAndWaitForConfiguration(initialConfiguration);
-        assert configuration != null : "No configuration received from configurator";
-        assert configuration.equals(initialConfiguration) : "Configuration content not expected. Was expecting " + initialConfiguration.size() + " but got " + configuration.size();
-    }
-
-    // update a configuration, changing an already existing key, not using reconfiguration
-    @Test(groups = { UNIT })
-    public void testChangeConfigurationUsingSameKeyNoReconfigure() {
-        Properties configurationValues = createProperties();
-        Properties initialConfigurationValues = new Properties();
-        initialConfigurationValues.putAll(configurationValues);
-        saveConfiguration("test-change", configurationValues);
-
-        Dictionary configuration = getAndWaitForConfiguration(configurationValues);
-        assert configuration != null : "No configuration received from configurator";
-        assert configuration.equals(configurationValues) : "Configuration content not expected. Was expecting " + configurationValues.size() + " but got " + configuration.size();
-
-        configurationValues.put("test","value42");
-        saveConfiguration("test-change", configurationValues);
-
-        // The update should have been ignored, and the old values should still be present.
-        configuration = getAndWaitForConfiguration(configurationValues);
-        assert configuration != null : "No configuration received from configurator";
-        assert configuration.equals(initialConfigurationValues) : "Configuration content not expected. Was expecting " + configurationValues.size() + " but got " + configuration.size();
-    }
-
-    // update a configuration, changing an already existing key, using reconfiguration
-    @Test(groups = { UNIT })
-    public void testChangeConfigurationUsingSameKeyWithReconfigure() throws Exception {
-        setUp(true); // Instruct the configurator to reconfigure
-        Properties configurationValues = createProperties();
-        saveConfiguration("test-change", configurationValues);
-
-        Dictionary configuration = getAndWaitForConfiguration(configurationValues);
-        assert configuration != null : "No configuration received from configurator";
-        assert configuration.equals(configurationValues) : "Configuration content not expected. Was expecting " + configurationValues.size() + " but got " + configuration.size();
-
-        configurationValues.put("test","value42");
-        saveConfiguration("test-change", configurationValues);
-
-        // now the configuration should be updated
-        configuration = getAndWaitForConfiguration(configurationValues);
-        assert configuration != null : "No configuration received from configurator";
-        assert configuration.equals(configurationValues) : "Configuration content not expected. Was expecting " + configurationValues.size() + " but got " + configuration.size();
-    }
-
-    // remove a configuration
-    @Test(groups = { UNIT })
-    public void testRemoveConfiguration() {
-        Properties initialConfiguration = createProperties();
-        saveConfiguration("test-remove", initialConfiguration);
-
-        Dictionary configuration = getAndWaitForConfiguration(initialConfiguration);
-        assert configuration != null : "No configuration received from configurator";
-        assert configuration.equals(createProperties()) : "Configuration content is unexpected";
-
-        // ok, the configuration is done.
-        // now try to remove it.
-        removeConfiguration("test-remove");
-
-        // after some processing time, we should get a message that the configuration is now removed.
-        long startTimeMillis = System.currentTimeMillis();
-        boolean isDeleted = false;
-        try {
-            while (!isDeleted && (System.currentTimeMillis() < startTimeMillis + 2000)) {
-                isDeleted = ((MockConfiguration) m_configAdmin.getConfiguration("")).isDeleted();
-                if (!isDeleted) {
-                    Thread.sleep(100);
-                }
-            }
-        } catch (InterruptedException ie) {
-            // not much we can do
-        }
-        catch (IOException e) {
-            // cannot come from our mock config admin
-        }
-        assert isDeleted : "The configuration is not removed as expected";
+        m_updateLatch = new CountDownLatch(1);
     }
 
     /**
-     * Get the configuration and if it not available yet wait for it.
-     * If there is still no configuration after the wait time,
-     * null is returned.
+     * Get the configuration and if it not available yet wait for it. If there is still no configuration after the wait
+     * time, null is returned.
      */
-    public Dictionary getAndWaitForConfiguration(Dictionary expectedConfiguration) {
-        long startTimeMillis = System.currentTimeMillis();
-        // make sure we iterate at least once
-        Dictionary configuration = null;
-        try {
-            boolean success = false;
-            while (!success && (System.currentTimeMillis() < startTimeMillis + 2000)) {
-                configuration = m_configAdmin.getConfiguration("").getProperties();
-                if (configuration != null) {
-                    synchronized(configuration) {
-                        if (expectedConfiguration.equals(configuration)) {
-                            success = true;
-                        }
-                    }
-                }
-                if (!success) {
-                    Thread.sleep(100);
-                }
-            }
-        } catch (InterruptedException ie) {
-            // not much we can do
-        }
-        catch (IOException e) {
-            // cannot come from our mock config admin
-        }
-        return configuration;
-    }
-
-    @AfterMethod(alwaysRun = true)
-    public void tearDown() throws Exception {
-        m_configurator.stop();
-        FileUtils.removeDirectoryWithContent(m_configDir);
-    }
-
-    /**
-     * Renames a given source file to a new destination file, using Commons-IO.
-     * <p>This avoids the problem mentioned in ACE-155.</p>
-     * 
-     * @param source the file to rename;
-     * @param dest the file to rename to.
-     */
-    private void renameFile(File source, File dest) {
-        try {
-            org.apache.commons.io.FileUtils.moveFile(source, dest);
-        }
-        catch (IOException e) {
-            throw new RuntimeException("Failed to rename file!", e);
-        }
+    private void waitForConfigurationDelete(String pid) throws Exception {
+        assertTrue(m_deleteLatch.await(2, TimeUnit.SECONDS));
     }
 }

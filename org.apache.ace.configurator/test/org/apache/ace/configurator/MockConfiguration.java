@@ -24,26 +24,28 @@ import java.util.Dictionary;
 import org.osgi.service.cm.Configuration;
 
 public class MockConfiguration implements Configuration {
-
+    private final MockConfigAdmin m_ca;
     private Dictionary m_properties = null;
     private boolean m_isDeleted = false;
+    
+    public MockConfiguration(MockConfigAdmin ca) {
+        m_ca = ca;
+    }
 
     public void delete() throws IOException {
         m_isDeleted = true;
+        m_ca.configDeleted(this);
     }
 
     public String getBundleLocation() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public String getFactoryPid() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public String getPid() {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -51,22 +53,19 @@ public class MockConfiguration implements Configuration {
         return m_properties;
     }
 
-    public void setBundleLocation(String arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void update() throws IOException {
-        // TODO Auto-generated method stub
-
-    }
-
-    public synchronized void update(Dictionary newConfiguration) throws IOException {
-        m_properties = newConfiguration;
-    }
-
     public boolean isDeleted() {
         return m_isDeleted;
     }
 
+    public void setBundleLocation(String location) {
+    }
+
+    public void update() throws IOException {
+        m_ca.configUpdated(this);
+    }
+
+    public synchronized void update(Dictionary newConfiguration) throws IOException {
+        m_properties = newConfiguration;
+        m_ca.configUpdated(this);
+    }
 }
