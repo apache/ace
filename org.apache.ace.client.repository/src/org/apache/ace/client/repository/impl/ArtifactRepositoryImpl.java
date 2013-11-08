@@ -26,6 +26,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -213,8 +214,8 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             throw new IllegalArgumentException("There are no artifact recognizers available.");
         }
 
-        // If available, sort the references by service ranking.
-        Arrays.sort(refs, SERVICE_RANK_COMPARATOR);
+        // Sort the references by service ranking.
+        Arrays.sort(refs, Collections.reverseOrder());
 
         ArtifactResource resource = convertToArtifactResource(url);
 
@@ -501,33 +502,6 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
             return preprocessor.needsNewVersion(artifact.getURL(), new TargetPropertyResolver(target), targetID, fromVersion);
         }
     }
-
-    /**
-     * Custom comparator which sorts service references by service rank, highest rank first.
-     */
-    // TODO ServiceReferences are comparable by default now
-    private static Comparator<ServiceReference> SERVICE_RANK_COMPARATOR = new Comparator<ServiceReference>() {
-        public int compare(ServiceReference o1, ServiceReference o2) {
-            int rank1 = 0;
-            int rank2 = 0;
-            try {
-                Object rankObject1 = o1.getProperty(Constants.SERVICE_RANKING);
-                rank1 = (rankObject1 == null) ? 0 : ((Integer) rankObject1).intValue();
-            }
-            catch (ClassCastException cce) {
-                // No problem.
-            }
-            try {
-                Object rankObject2 = o2.getProperty(Constants.SERVICE_RANKING);
-                rank1 = (rankObject2 == null) ? 0 : ((Integer) rankObject2).intValue();
-            }
-            catch (ClassCastException cce) {
-                // No problem.
-            }
-
-            return rank1 - rank2;
-        }
-    };
 
     /**
      * Converts a given URL to a {@link ArtifactResource} that abstracts the way we access the contents of the URL away
