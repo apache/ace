@@ -34,6 +34,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventHandler;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.terminal.gwt.server.WebBrowser;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -402,7 +403,9 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
     }
 
     private void addCrossPlatformShortcut(Button button, int key, String description) {
-        ShortcutHelper.addCrossPlatformShortcut((WebBrowser) getWindow().getTerminal(), button, description, key);
+        // ACE-427 - NPE when using getMainWindow() if no authentication is used...
+        WebApplicationContext context = (WebApplicationContext) getApplication().getContext();
+        ShortcutHelper.addCrossPlatformShortcut(context.getBrowser(), button, description, key);
     }
 
     /**
