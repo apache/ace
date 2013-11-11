@@ -91,10 +91,11 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutAction.ModifierKey;
 import com.vaadin.service.ApplicationContext;
-import com.vaadin.terminal.gwt.server.WebBrowser;
+import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.DragAndDropWrapper;
+import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -481,7 +482,9 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
     }
 
     private void addCrossPlatformAddShortcut(Button button, int keycode, String description) {
-        ShortcutHelper.addCrossPlatformShortcut((WebBrowser) getMainWindow().getTerminal(), button, description, keycode, ModifierKey.SHIFT);
+        // ACE-427 - NPE when using getMainWindow() if no authentication is used...
+        WebApplicationContext context = (WebApplicationContext) getContext();
+        ShortcutHelper.addCrossPlatformShortcut(context.getBrowser(), button, description, keycode, ModifierKey.SHIFT);
     }
 
     private void addDependency(Component component, Class service) {
@@ -1115,6 +1118,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         m_artifactToolbar = createArtifactToolbar();
 
         final DragAndDropWrapper artifactsPanelWrapper = new DragAndDropWrapper(m_artifactsPanel);
+        artifactsPanelWrapper.setDragStartMode(DragStartMode.COMPONENT);
         artifactsPanelWrapper.setDropHandler(new ArtifactDropHandler(uploadHandler));
         artifactsPanelWrapper.setCaption(m_artifactsPanel.getCaption());
         artifactsPanelWrapper.setSizeFull();
