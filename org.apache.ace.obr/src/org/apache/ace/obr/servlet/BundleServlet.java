@@ -126,8 +126,9 @@ public class BundleServlet extends HttpServlet implements ManagedService {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
 
         String fileName = request.getParameter("filename");
+        boolean replace = Boolean.parseBoolean(request.getParameter("replace"));
         try {
-            String storePath = m_store.put(request.getInputStream(), fileName);
+            String storePath = m_store.put(request.getInputStream(), fileName, replace);
             if (storePath != null) {
                 sendCreated(request, response, storePath);
             }

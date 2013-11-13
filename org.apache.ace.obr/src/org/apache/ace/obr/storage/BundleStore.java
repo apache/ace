@@ -24,7 +24,7 @@ import org.osgi.service.cm.ManagedService;
  * under the License.
  */
 
-public interface BundleStore extends ManagedService {
+public interface BundleStore {
 
     /**
      * Returns an <code>InputStream</code> to the data of the specified resource.
@@ -36,17 +36,18 @@ public interface BundleStore extends ManagedService {
     public InputStream get(String filePath) throws IOException;
 
     /**
-     * Stores the specified resource in the store. For non OSGi bundles a valid filename must be specified that may
-     * contain a valid OSGi version.
-     * <br/><br/>
-     * Filename pattern: <code>&lt;filename&gt;[-&lt;version&gt;].&lt;extension&gt;<code>
+     * Stores the specified resource in the store. If the resource already existed, it
+     * will only be accepted if you either try to store exactly the same resource (byte-by-byte)
+     * or tell it to forcefully replace the resource. The latter should only be done with
+     * extreme care.
      *
      * @param fileName name of the resource, ignored if the resource is an OSGi bundle
-     * @param data The actual data of the resource.
-     * @return the filePath if the resource was successfully stored, <code>null</code> if the resource already existed
+     * @param data the actual data of the resource
+     * @param replace <code>true</code> to replace any existing resource with the same name
+     * @return the filePath if the resource was successfully stored, <code>null</code> if the resource already existed and was different
      * @throws java.io.IOException If there was a problem reading or writing the data of the resource.
      */
-    public String put(InputStream data, String fileName) throws IOException;
+    public String put(InputStream data, String fileName, boolean replace) throws IOException;
     
     /**
      * Removes the specified resource from the store.

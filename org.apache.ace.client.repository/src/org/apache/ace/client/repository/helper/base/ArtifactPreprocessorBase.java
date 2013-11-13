@@ -101,15 +101,17 @@ public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
         if (obrBase == null) {
             throw new IOException("There is no storage available for this artifact.");
         }
-        if ((name == null) || (input == null)) {
-            throw new IllegalArgumentException("None of the parameters can be null.");
+        if (name == null) {
+            throw new IllegalArgumentException("Name cannot be null.");
+        }
+        if (input == null) {
+            throw new IllegalArgumentException("Input stream cannot be null.");
         }
 
         OutputStream output = null;
         String location = null;
         try {
-
-            URL url = new URL(obrBase, "?filename=" + name);
+            URL url = new URL(obrBase, "?filename=" + name + "&replace=true");
             URLConnection connection = m_connectionFactory.createConnection(url);
             connection.setDoOutput(true);
             connection.setDoInput(true);

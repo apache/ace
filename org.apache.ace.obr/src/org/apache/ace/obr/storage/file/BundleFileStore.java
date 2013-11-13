@@ -18,6 +18,7 @@
  */
 package org.apache.ace.obr.storage.file;
 
+import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -89,7 +90,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
         return result;
     }
 
-    public String put(InputStream data, String fileName) throws IOException {
+    public String put(InputStream data, String fileName, boolean replace) throws IOException {
 
         if (fileName == null) {
             fileName = "";
@@ -109,8 +110,13 @@ public class BundleFileStore implements BundleStore, ManagedService {
             throw new IOException("Failed to store resource (filename = " +  fileName  + ")");
         }
         if (storeLocation.exists()) {
-            m_log.log(LogService.LOG_ERROR, "Resource already existed in OBR (filename = " +  fileName  + ")");
-            return null;
+        	if (replace || compare(storeLocation, tempFile)) {
+        		m_log.log(LogService.LOG_DEBUG, "Exact same resource already existed in OBR (filename = " +  fileName  + ")");
+        	}
+        	else {
+        		m_log.log(LogService.LOG_ERROR, "Different resource with same name already existed in OBR (filename = " +  fileName  + ")");
+        		return null;
+        	}
         }
 
         moveFile(tempFile, storeLocation);
@@ -122,7 +128,39 @@ public class BundleFileStore implements BundleStore, ManagedService {
         return filePath;
     }
 
-    public boolean remove(String fileName) throws IOException {
+    /** Compares the contents of two files, returns <code>true</code> if they're exactly the same. */
+    private boolean compare(File first, File second) throws IOException {
+    	BufferedInputStream bis = new BufferedInputStream(new FileInputStream(first));
+    	BufferedInputStream bis2 = new BufferedInputStream(new FileInputStream(second));
+    	int b1, b2;
+    	try {
+	    	do {
+	    		b1 = bis.read();
+	    		b2 = bis2.read();
+	    		if (b1 != b2) {
+	    			return false;
+	    		}
+	    	}
+	    	while (b1 != -1 && b2 != -1);
+	    	return (b1 == b2);
+    	}
+    	finally {
+    		if (bis != null) {
+    			try {
+    				bis.close();
+    			}
+    			catch (IOException e) {}
+    		}
+    		if (bis2 != null) {
+    			try {
+    				bis2.close();
+    			}
+    			catch (IOException e) {}
+    		}
+    	}
+	}
+
+	public boolean remove(String fileName) throws IOException {
         File file = createFile(fileName);
         if (file.exists()) {
             if (file.delete()) {

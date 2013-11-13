@@ -32,6 +32,7 @@ import java.util.Random;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
 import org.apache.ace.obr.metadata.MetadataGenerator;
 import org.apache.ace.obr.storage.file.constants.OBRFileStoreConstants;
@@ -250,25 +251,36 @@ public class BundleFileStoreTest {
     @Test(groups = { UNIT })
     public void putBundle() throws Exception {
         File bundle = createTmpResource("foo.bar", "1.0.0");
-        String filePath = m_bundleStore.put(new FileInputStream(bundle), null);
+        String filePath = m_bundleStore.put(new FileInputStream(bundle), null, false);
         assert filePath.equals("foo/foo.bar-1.0.0.jar") : "Path should be 'foo/foo.bar-1.0.0.jar', was " + filePath;
         File file = new File(m_directory, filePath);
         assert file.exists();
     }
 
     @Test(groups = { UNIT })
-    public void putBundleDuplicate() throws Exception {
+    public void putBundleSameDuplicate() throws Exception {
         File bundle = createTmpResource("foo.bar", "1.0.0");
-        String filePath = m_bundleStore.put(new FileInputStream(bundle), null);
+        String filePath = m_bundleStore.put(new FileInputStream(bundle), null, false);
         assert filePath != null;
-        String filePath2 = m_bundleStore.put(new FileInputStream(bundle), null);
+        String filePath2 = m_bundleStore.put(new FileInputStream(bundle), null, false);
+        assert filePath2 != null;
+        assert filePath2.equals(filePath);
+    }
+
+    @Test(groups = { UNIT })
+    public void putBundleDifferentDuplicate() throws Exception {
+        File bundle = createTmpResource("foo.bar", "1.0.0", new byte[] {1});
+        File bundle2 = createTmpResource("foo.bar", "1.0.0", new byte[] {2});
+        String filePath = m_bundleStore.put(new FileInputStream(bundle), null, false);
+        assert filePath != null;
+        String filePath2 = m_bundleStore.put(new FileInputStream(bundle2), null, false);
         assert filePath2 == null;
     }
 
     @Test(groups = { UNIT }, expectedExceptions = { IOException.class }, expectedExceptionsMessageRegExp = "Not a valid bundle and no filename found.*")
     public void putBundleFail() throws Exception {
         File bundle = createTmpResource(null, "1.0.0");
-        String filePath = m_bundleStore.put(new FileInputStream(bundle), null);
+        String filePath = m_bundleStore.put(new FileInputStream(bundle), null, false);
         assert filePath.equals("foo/bar/foo.bar-1.0.0.jar") : "Path should be 'foo/bar/foo.bar-1.0.0.jar', was " + filePath;
         File file = new File(m_directory, filePath);
         assert file.exists();
@@ -277,7 +289,7 @@ public class BundleFileStoreTest {
     @Test(groups = { UNIT })
     public void putRemoveArtifact() throws Exception {
         File bundle = createTmpResource(null, null);
-        String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar-2.3.7.test1.xxx");
+        String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar-2.3.7.test1.xxx", false);
         assert filePath.equals("foo/foo.bar-2.3.7.test1.xxx");
         File file = new File(m_directory, filePath);
         assert file.exists();
@@ -286,7 +298,7 @@ public class BundleFileStoreTest {
     @Test(groups = { UNIT })
     public void putArtifactDefaultVersion() throws Exception {
         File bundle = createTmpResource(null, null);
-        String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar.xxx");
+        String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar.xxx", false);
         assert filePath.equals("foo/foo.bar.xxx");
         File file = new File(m_directory, filePath);
         assert file.exists();
@@ -295,7 +307,7 @@ public class BundleFileStoreTest {
     @Test(groups = { UNIT })
     public void putArtifactMavenVersion() throws Exception {
         File bundle = createTmpResource(null, null);
-        String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar-2.3.7-test1.xxx");
+        String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar-2.3.7-test1.xxx", false);
         assert filePath.equals("foo/foo.bar-2.3.7-test1.xxx");
         File file = new File(m_directory, filePath);
         assert file.exists();
@@ -304,19 +316,19 @@ public class BundleFileStoreTest {
     @Test(groups = { UNIT }, expectedExceptions = { IOException.class }, expectedExceptionsMessageRegExp = "Not a valid bundle and no filename found.*")
     public void putArtifactFail1() throws Exception {
         File bundle = createTmpResource(null, null);
-        m_bundleStore.put(new FileInputStream(bundle), null);
+        m_bundleStore.put(new FileInputStream(bundle), null, false);
     }
 
     @Test(groups = { UNIT }, expectedExceptions = { IOException.class }, expectedExceptionsMessageRegExp = "Not a valid bundle and no filename found.*")
     public void putArtifactFail2() throws Exception {
         File bundle = createTmpResource(null, null);
-        m_bundleStore.put(new FileInputStream(bundle), "");
+        m_bundleStore.put(new FileInputStream(bundle), "", false);
     }
 
     @Test(groups = { UNIT })
     public void removeBundle() throws Exception {
         File bundle = createTmpResource("foo.bar", "1.0.0");
-        String filePath = m_bundleStore.put(new FileInputStream(bundle), null);
+        String filePath = m_bundleStore.put(new FileInputStream(bundle), null, false);
         File file = new File(m_directory, filePath);
         assert file.exists();
         assert m_bundleStore.remove(filePath);
@@ -333,7 +345,7 @@ public class BundleFileStoreTest {
     @Test(groups = { UNIT })
     public void removeArtifact() throws Exception {
         File bundle = createTmpResource(null, null);
-        String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar-2.3.7.test1.xxx");
+        String filePath = m_bundleStore.put(new FileInputStream(bundle), "foo.bar-2.3.7.test1.xxx", false);
         assert filePath.equals("foo/foo.bar-2.3.7.test1.xxx");
         File file = new File(m_directory, filePath);
         assert file.exists();
@@ -389,6 +401,10 @@ public class BundleFileStoreTest {
     }
     
     private File createTmpResource(String symbolicName, String version) throws IOException {
+    	return createTmpResource(symbolicName, version, null);
+    }
+    
+    private File createTmpResource(String symbolicName, String version, byte[] data) throws IOException {
         File tmpFile = File.createTempFile("tmpbundle-", "jar");
         tmpFile.deleteOnExit();
         
@@ -401,6 +417,10 @@ public class BundleFileStoreTest {
             manifest.getMainAttributes().putValue(Constants.BUNDLE_VERSION, version);
         }
         JarOutputStream target = new JarOutputStream(new FileOutputStream(tmpFile), manifest);
+        if (data != null) {
+        	target.putNextEntry(new ZipEntry("data"));
+        	target.write(data, 0, data.length);
+        }
         target.close();
         return tmpFile;
     }
