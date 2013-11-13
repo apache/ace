@@ -17,7 +17,7 @@ then
 fi
 
 # Consts
-KEYS_URL="http://www.apache.org/dist/felix/KEYS"
+KEYS_URL="http://www.apache.org/dist/ace/KEYS"
 REL_URL="https://dist.apache.org/repos/dist/dev/ace/apache-ace-${RELEASE}/"
 PWD=`pwd`
 mkdir ${DOWNLOAD} 2>/dev/null
