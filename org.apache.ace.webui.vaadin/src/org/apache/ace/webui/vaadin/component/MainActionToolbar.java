@@ -35,7 +35,6 @@ import org.osgi.service.event.EventHandler;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
-import com.vaadin.terminal.gwt.server.WebBrowser;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
