@@ -477,6 +477,8 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
             }
 
             logDebug("Config changed: disabled: %s, update: %s, fixPkg: %s, syncDelay: %d, syncInterval: %d, maxRetries: %d", m_disabled.get(), m_updateStreaming.get(), m_fixPackage.get(), m_syncDelay.get(), m_interval.get(), m_maxRetries.get());
+            
+            scheduleRunAfterDelay();
         }
     }
 
@@ -514,11 +516,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
 
     @Override
     protected void onStart() throws Exception {
-        long delay = m_syncDelay.get();
-
-        scheduleRun(delay);
-
-        logDebug("Controller scheduled to run in %d seconds", delay);
+        scheduleRunAfterDelay();
     }
 
     @Override
@@ -530,6 +528,14 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         }
 
         unscheduleRun();
+    }
+    
+    protected void scheduleRunAfterDelay() {
+        long delay = m_syncDelay.get();
+
+        scheduleRun(delay);
+
+        logDebug("Controller scheduled to run in %d seconds", delay);        
     }
 
     protected void scheduleRun(long seconds) {

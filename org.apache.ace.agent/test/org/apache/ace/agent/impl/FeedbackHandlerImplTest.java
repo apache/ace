@@ -83,7 +83,7 @@ public class FeedbackHandlerImplTest extends BaseAgentTest {
     public void testSingleFeedbackChannelConfig() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(CONFIG_FEEDBACK_CHANNELS, AUDITLOG);
+        configureAgent(configurationHandler, CONFIG_FEEDBACK_CHANNELS, AUDITLOG);
 
         FeedbackHandler feedbackHandler = m_agentContextImpl.getHandler(FeedbackHandler.class);
 
@@ -95,7 +95,7 @@ public class FeedbackHandlerImplTest extends BaseAgentTest {
     public void testUpdateConfigAddFeedbackChannel() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(CONFIG_FEEDBACK_CHANNELS, AUDITLOG);
+        configureAgent(configurationHandler, CONFIG_FEEDBACK_CHANNELS, AUDITLOG);
 
         FeedbackHandler feedbackHandler = m_agentContextImpl.getHandler(FeedbackHandler.class);
 
@@ -104,7 +104,7 @@ public class FeedbackHandlerImplTest extends BaseAgentTest {
         assertFeedbackChannelsPresent(feedbackHandler, AUDITLOG);
         assertFeedbackChannelsNotPresent(feedbackHandler, CUSTOMCHANNEL);
 
-        configurationHandler.put(CONFIG_FEEDBACK_CHANNELS, AUDITLOG_AND_CUSTOMCHANNEL);
+        configureAgent(configurationHandler, CONFIG_FEEDBACK_CHANNELS, AUDITLOG_AND_CUSTOMCHANNEL);
 
         assertFeedbackChannelNames(feedbackHandler, AUDITLOG, CUSTOMCHANNEL);
 
@@ -115,14 +115,14 @@ public class FeedbackHandlerImplTest extends BaseAgentTest {
     public void testUpdateConfigRemoveFeedbackChannel() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(CONFIG_FEEDBACK_CHANNELS, AUDITLOG_AND_CUSTOMCHANNEL);
+        configureAgent(configurationHandler, CONFIG_FEEDBACK_CHANNELS, AUDITLOG_AND_CUSTOMCHANNEL);
 
         FeedbackHandler feedbackHandler = m_agentContextImpl.getHandler(FeedbackHandler.class);
 
         assertFeedbackChannelNames(feedbackHandler, AUDITLOG, CUSTOMCHANNEL);
         assertFeedbackChannelsPresent(feedbackHandler, AUDITLOG, CUSTOMCHANNEL);
 
-        configurationHandler.put(CONFIG_FEEDBACK_CHANNELS, AUDITLOG);
+        configureAgent(configurationHandler, CONFIG_FEEDBACK_CHANNELS, AUDITLOG);
 
         assertFeedbackChannelNames(feedbackHandler, AUDITLOG);
         assertFeedbackChannelsPresent(feedbackHandler, AUDITLOG);

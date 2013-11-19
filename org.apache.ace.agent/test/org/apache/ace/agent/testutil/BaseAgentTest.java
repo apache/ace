@@ -26,12 +26,15 @@ import static org.easymock.EasyMock.verify;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentContextAware;
+import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.impl.AgentContextImpl;
 import org.osgi.framework.BundleContext;
 import org.testng.annotations.AfterClass;
@@ -57,6 +60,14 @@ public abstract class BaseAgentTest {
 
     protected void clearTestMocks() {
         m_mocks.clear();
+    }
+
+    protected void configureAgent(ConfigurationHandler handler, String... configuration) {
+        Map<String, String> config = new HashMap<String, String>();
+        for (int i = 0; i < configuration.length; i += 2) {
+            config.put(configuration[i], configuration[i + 1]);
+        }
+        handler.putAll(config);
     }
 
     protected File getWorkDir() {

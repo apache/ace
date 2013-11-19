@@ -117,8 +117,7 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         System.setProperty(systemKey1, "value1");
         System.setProperty(systemKey2, "value2");
 
-        configurationHandler.put(systemKey1, "newvalue1");
-        configurationHandler.put(systemKey2, "newvalue2");
+        configureAgent(configurationHandler, systemKey1, "newvalue1", systemKey2, "newvalue2");
 
         m_agentContextImpl.stop();
         m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
@@ -157,8 +156,7 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         m_agentContextImpl.start();
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.putBoolean("boolean1", true);
-        configurationHandler.putBoolean("boolean2", false);
+        configureAgent(configurationHandler, "boolean1", "true", "boolean2", "false");
 
         assertEquals(configurationHandler.getBoolean("boolean1", false), true);
         assertEquals(configurationHandler.getBoolean("boolean2", true), false);
@@ -176,8 +174,7 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         m_agentContextImpl.start();
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.putLong("long1", 42);
-        configurationHandler.putLong("long2", 4l);
+        configureAgent(configurationHandler, "long1", "42", "long2", "4");
 
         assertEquals(configurationHandler.getLong("long1", 0l), 42);
         assertEquals(configurationHandler.getLong("long2", 0l), 4l);

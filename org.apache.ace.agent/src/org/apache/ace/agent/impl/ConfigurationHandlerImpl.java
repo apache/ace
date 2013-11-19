@@ -98,7 +98,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     public void put(String key, String value) {
         String previous = (String) m_configProps.put(key, value);
         if (previous == null || !previous.equals(value)) {
-            fireConfigChangeEvent();
+            fireConfigChangeEventAsynchronously();
             // causes the config to be written eventually...
             scheduleStore();
         }
@@ -107,7 +107,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     @Override
     public void putAll(Map<String, String> props) {
         m_configProps.putAll(props);
-        fireConfigChangeEvent();
+        fireConfigChangeEventAsynchronously();
         // causes the config to be written eventually...
         scheduleStore();
     }
@@ -126,7 +126,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     public void remove(String key) {
         Object value = m_configProps.remove(key);
         if (value != null) {
-            fireConfigChangeEvent();
+            fireConfigChangeEventAsynchronously();
             // causes the config to be written eventually...
             scheduleStore();
         }
@@ -155,8 +155,8 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
 
     @Override
     protected void onStart() throws Exception {
-        // Notify all interested listeners about this...
-        fireConfigChangeEvent();
+        // Notify all interested listeners about this, but do this the first time synchronously, see ACE-431.
+        fireConfigChangeEventSynchronously();
     }
 
     @Override
@@ -165,12 +165,12 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
         storeConfig();
     }
 
-    private void fireConfigChangeEvent() {
-        Map<String, String> props = new HashMap<String, String>();
-        for (Map.Entry<Object, Object> entry : m_configProps.entrySet()) {
-            props.put((String) entry.getKey(), (String) entry.getValue());
-        }
-        getEventsHandler().postEvent(EVENT_AGENT_CONFIG_CHANGED, props);
+    private void fireConfigChangeEventAsynchronously() {
+        getEventsHandler().postEvent(EVENT_AGENT_CONFIG_CHANGED, getConfigurationSnapshot());
+    }
+
+    private void fireConfigChangeEventSynchronously() {
+        getEventsHandler().sendEvent(EVENT_AGENT_CONFIG_CHANGED, getConfigurationSnapshot());
     }
 
     private File getConfigDir() throws IOException {
@@ -187,6 +187,17 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
             throw new IOException("Unable to acces configuration file: " + file.getAbsolutePath());
         }
         return file;
+    }
+
+    /**
+     * @return a new map instance with a snapshot of the current configuration, never <code>null</code>.
+     */
+    private Map<String, String> getConfigurationSnapshot() {
+        Map<String, String> props = new HashMap<String, String>();
+        for (Map.Entry<Object, Object> entry : m_configProps.entrySet()) {
+            props.put((String) entry.getKey(), (String) entry.getValue());
+        }
+        return props;
     }
 
     private void loadConfig() throws IOException {

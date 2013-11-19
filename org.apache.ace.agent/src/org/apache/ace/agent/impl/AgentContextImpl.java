@@ -20,7 +20,7 @@ package org.apache.ace.agent.impl;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
@@ -60,7 +60,7 @@ public class AgentContextImpl implements AgentContext {
     };
 
     private final Map<Class<?>, Object> m_handlers = new HashMap<Class<?>, Object>();
-    private final Set<Object> m_components = new HashSet<Object>();
+    private final Set<Object> m_components = new LinkedHashSet<Object>();
     private final File m_workDir;
 
     public AgentContextImpl(File workDir) {
@@ -86,7 +86,9 @@ public class AgentContextImpl implements AgentContext {
         for (Object component : m_components) {
             initAgentContextAware(component);
         }
-        for (Object handler : m_handlers.values()) {
+        // Ensure the handlers are started in a deterministic order...
+        for (Class<?> handlerIface : KNOWN_HANDLERS) {
+            Object handler = m_handlers.get(handlerIface);
             startAgentContextAware(handler);
         }
         for (Object component : m_components) {

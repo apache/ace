@@ -79,8 +79,7 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
     public void testAvailableURL() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_availableURL.toExternalForm());
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
+        configureAgent(configurationHandler, AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_availableURL.toExternalForm(), AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
 
         DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
         assertEquals(discoveryHandler.getServerUrl(), m_availableURL);
@@ -90,8 +89,7 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
     public void testUnavailableURL_unavailable() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_unavailableURL.toExternalForm());
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
+        configureAgent(configurationHandler, AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_unavailableURL.toExternalForm(), AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
 
         DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
         assertNull(discoveryHandler.getServerUrl());
@@ -101,13 +99,12 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
     public void testUnavailableAfterConfigUpdate() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_availableURL.toExternalForm());
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
+        configureAgent(configurationHandler, AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_availableURL.toExternalForm(), AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
 
         DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
         assertEquals(discoveryHandler.getServerUrl(), m_availableURL);
 
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_unavailableURL.toExternalForm());
+        configureAgent(configurationHandler, AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_unavailableURL.toExternalForm());
 
         assertNull(discoveryHandler.getServerUrl());
     }
@@ -116,13 +113,12 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
     public void testAvailableAfterConfigUpdate() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_unavailableURL.toExternalForm());
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
+        configureAgent(configurationHandler, AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_unavailableURL.toExternalForm(), AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
 
         DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
         assertNull(discoveryHandler.getServerUrl());
 
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_availableURL.toExternalForm());
+        configureAgent(configurationHandler, AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_availableURL.toExternalForm());
 
         assertEquals(discoveryHandler.getServerUrl(), m_availableURL);
     }
@@ -131,8 +127,7 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
     public void testAvailableAfterUnavailableURL() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_unavailableURL.toExternalForm() + "," + m_availableURL.toExternalForm());
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
+        configureAgent(configurationHandler, AgentConstants.CONFIG_DISCOVERY_SERVERURLS, m_unavailableURL.toExternalForm() + "," + m_availableURL.toExternalForm(), AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
 
         DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
         assertEquals(discoveryHandler.getServerUrl(), m_availableURL);
@@ -142,8 +137,7 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
     public void testEmptyURLConfig() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, "");
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
+        configureAgent(configurationHandler, AgentConstants.CONFIG_DISCOVERY_SERVERURLS, "", AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
 
         DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
         assertNull(discoveryHandler.getServerUrl());
@@ -153,8 +147,7 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
     public void testBadURLConfig() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
 
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, "invalidURL");
-        configurationHandler.put(AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
+        configureAgent(configurationHandler, AgentConstants.CONFIG_DISCOVERY_SERVERURLS, "invalidURL", AgentConstants.CONFIG_DISCOVERY_CHECKING, "true");
 
         DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
         assertNull(discoveryHandler.getServerUrl());

@@ -60,7 +60,10 @@ public interface ConfigurationHandler {
      *            The key, must not be <code>null</code>
      * @param value
      *            The value, must not be <code>null</code>
+     * @deprecated use {@link #putAll(Map)} instead which allows the configuration to be updated without partial
+     *             visibility issues.
      */
+    @Deprecated
     void put(String key, String value);
 
     /**
@@ -76,7 +79,10 @@ public interface ConfigurationHandler {
      * 
      * @param key
      *            The key, must not be <code>null</code>
+     * @deprecated use {@link #putAll(Map)} instead which allows the configuration to be updated without partial
+     *             visibility issues.
      */
+    @Deprecated
     void remove(String key);
 
     /**
@@ -97,7 +103,10 @@ public interface ConfigurationHandler {
      *            The key, must not be <code>null</code>
      * @param value
      *            The value
+     * @deprecated use {@link #putAll(Map)} instead which allows the configuration to be updated without partial
+     *             visibility issues.
      */
+    @Deprecated
     void putLong(String key, long value);
 
     /**
@@ -118,6 +127,9 @@ public interface ConfigurationHandler {
      *            The key, must not be <code>null</code>
      * @param value
      *            The value
+     * @deprecated use {@link #putAll(Map)} instead which allows the configuration to be updated without partial
+     *             visibility issues.
      */
+    @Deprecated
     void putBoolean(String key, boolean Value);
 }

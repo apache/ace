@@ -3,11 +3,14 @@ package org.apache.ace.agent.itest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.AgentControl;
+import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.builder.DeploymentPackageBuilder;
 import org.apache.ace.it.IntegrationTestBase;
 import org.osgi.framework.Bundle;
@@ -45,7 +48,7 @@ public abstract class BaseAgentTest extends IntegrationTestBase {
             }
             m_file = createPackage(m_name, m_version, files);
         }
-        
+
         public String getName() {
             return m_name;
         }
@@ -142,6 +145,14 @@ public abstract class BaseAgentTest extends IntegrationTestBase {
         }
         // System.out.println("BaseAgentTest: Starting agent bundle");
         agentBundle.start();
+    }
+
+    protected void configureAgent(ConfigurationHandler handler, String... configuration) {
+        Map<String, String> config = new HashMap<String, String>();
+        for (int i = 0; i < configuration.length; i += 2) {
+            config.put(configuration[i], configuration[i + 1]);
+        }
+        handler.putAll(config);
     }
 
     private void cleanDir(File dir) {

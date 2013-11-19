@@ -430,7 +430,7 @@ public class CustomAgentControllerTest extends BaseAgentTest {
 
     @Override
     protected void configureAdditionalServices() throws Exception {
-        m_control.getConfigurationHandler().put(AgentConstants.CONFIG_CONTROLLER_DISABLED, "true");
+        configureAgent(m_control.getConfigurationHandler(), AgentConstants.CONFIG_CONTROLLER_DISABLED, "true");
 
         TestBundle bundle1v1 = new TestBundle(TEST_BUNDLE_NAME_PREFIX.concat("1"), V1_0_0);
         TestPackage package1 = new TestPackage(AGENT_ID, V1_0_0, bundle1v1);
