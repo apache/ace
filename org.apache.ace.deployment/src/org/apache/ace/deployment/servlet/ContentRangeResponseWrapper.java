@@ -47,16 +47,23 @@ public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
         private static final int BUFFER_SIZE = 32 * 1024; // kB
 
         private final HttpServletResponse m_response;
+        private final boolean m_streamAll;
         private final long m_requestFirstBytePos;
         private final long m_requestLastBytePos;
-
         private final FileOutputStream m_os;
         private final File m_file;
 
         private final AtomicLong m_instanceLen = new AtomicLong(0);
 
-        public ContentRangeOutputStreamWrapper(HttpServletResponse response, long firstBytePos, long lastBytePos) throws IOException {
+        public ContentRangeOutputStreamWrapper(HttpServletResponse response) throws IOException {
+            this(response, 0, Long.MAX_VALUE);
+        }
 
+        public ContentRangeOutputStreamWrapper(HttpServletResponse response, long firstBytePos, long lastBytePos) throws IOException {
+            this(response, firstBytePos, lastBytePos, (firstBytePos == 0 && lastBytePos == Long.MAX_VALUE));
+        }
+
+        private ContentRangeOutputStreamWrapper(HttpServletResponse response, long firstBytePos, long lastBytePos, boolean streamAll) throws IOException {
             assert response != null;
             assert firstBytePos >= 0;
             assert lastBytePos > firstBytePos;
@@ -64,6 +71,7 @@ public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
             m_response = response;
             m_requestFirstBytePos = firstBytePos;
             m_requestLastBytePos = lastBytePos;
+            m_streamAll = streamAll;
 
             // We use a file to buffer because Deployment Packages can be big and the current common ACE Agent case it a
             // range request for some start position up-to EOF.
@@ -99,9 +107,11 @@ public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
                     long lastBytePos = instanceLastBytePos < m_requestLastBytePos ? instanceLastBytePos : m_requestLastBytePos;
                     long contentLength = lastBytePos - firstBytePos + 1;
 
-                    m_response.setStatus(SC_PARTIAL_CONTENT);
+                    m_response.setStatus(m_streamAll ? SC_OK : SC_PARTIAL_CONTENT);
                     m_response.setHeader("Content-Length", String.valueOf(contentLength));
-                    m_response.setHeader("Content-Range", String.format("bytes %d-%d/%d", firstBytePos, lastBytePos, instanceLength));
+                    if (!m_streamAll) {
+                        m_response.setHeader("Content-Range", String.format("bytes %d-%d/%d", firstBytePos, lastBytePos, instanceLength));
+                    }
 
                     byte[] buffer = new byte[BUFFER_SIZE];
                     is = new FileInputStream(m_file);
@@ -132,7 +142,7 @@ public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
     }
 
     private final HttpServletResponse m_response;
-    private ServletOutputStream m_outputStream;
+    private final ServletOutputStream m_outputStream;
 
     public ContentRangeResponseWrapper(HttpServletRequest request, HttpServletResponse response) throws IOException {
         super(response);
@@ -145,19 +155,20 @@ public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
 
         // If a valid Range request is present we install the ContentRangeOutputStreamWrapper. Otherwise we do not touch
         // the response ServletOutputStream until we have to in #getOutputStream().
+        ContentRangeOutputStreamWrapper wrapper = null;
         long[] requestRange = getRequestRange(request);
         if (requestRange != null) {
-            m_outputStream = new ContentRangeOutputStreamWrapper(response, requestRange[0], requestRange[1]);
+            wrapper = new ContentRangeOutputStreamWrapper(response, requestRange[0], requestRange[1]);
         }
+        if (wrapper == null) {
+            // Assume a range of "bytes=0-", which simply streams everything. This solves ACE-435...
+            wrapper = new ContentRangeOutputStreamWrapper(response);
+        }
+        m_outputStream = wrapper;
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        // If a ContentRangeOutputStreamWrapper is installed we return it. Otherwise we simply delegate to the original
-        // response directly.
-        if (m_outputStream == null) {
-            return m_response.getOutputStream();
-        }
         return m_outputStream;
     }
 
