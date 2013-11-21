@@ -124,7 +124,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
 
                             delegate.install(downloadResult.getInputStream());
 
-                            endInstallation(updateInfo, true /* success */, null);
+                            installationSuccess(updateInfo);
 
                             clearDownloadState();
                         }
@@ -148,8 +148,11 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
                         if (cause instanceof RetryAfterException) {
                             throw (RetryAfterException) cause;
                         }
-                        else if (cause instanceof Exception) {
-                            throw (Exception) cause;
+                        else if (cause instanceof InstallationFailedException) {
+                            throw (InstallationFailedException) cause;
+                        }
+                        else if (cause instanceof IOException) {
+                            throw (IOException) cause;
                         }
                         else {
                             throw new RuntimeException("Failed to handle cause!", cause);
@@ -160,9 +163,13 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
                     // Does not cause the installation to end...
                     throw ex;
                 }
-                catch (Exception ex) {
+                catch (InstallationFailedException ex) {
                     // All other exceptions cause the installation to end/fail...
-                    endInstallation(updateInfo, false /* success */, ex);
+                    installationFailed(updateInfo, ex);
+                }
+                catch (IOException ex) {
+                    // All other exceptions cause the installation to end/fail...
+                    installationFailed(updateInfo, ex);
                 }
             }
         }
@@ -219,14 +226,17 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
 
                 delegate.install(inputStream);
 
-                endInstallation(updateInfo, true /* success */, null);
+                installationSuccess(updateInfo);
             }
             catch (RetryAfterException ex) {
                 // We aren't ready yet...
                 throw ex;
             }
-            catch (Exception ex) {
-                endInstallation(updateInfo, false /* success */, ex);
+            catch (InstallationFailedException ex) {
+                installationFailed(updateInfo, ex);
+            }
+            catch (IOException ex) {
+                installationFailed(updateInfo, ex);
             }
             finally {
                 closeSilently(inputStream);
@@ -337,21 +347,44 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
          * Should be called to notify that an installation is ended, successfully or unsuccessfully.
          * 
          * @param updateInfo
+         *            the information about the update.
+         */
+        protected final void installationSuccess(UpdateInfo updateInfo) {
+            m_lastVersionSuccessful = true;
+            m_failureCount = 0;
+            m_controller.sendDeploymentCompletedEvent(updateInfo, true /* success */);
+        }
+
+        /**
+         * Should be called to notify that an installation is ended, successfully or unsuccessfully.
+         * 
+         * @param updateInfo
          *            the information about the update;
-         * @param success
-         *            <code>true</code> if the installation was successful, <code>false</code> otherwise;
          * @param cause
          *            the (optional) cause why the installation failed.
          */
-        protected final void endInstallation(UpdateInfo updateInfo, boolean success, Exception cause) throws RetryAfterException {
-            m_lastVersionSuccessful = success;
-            if (cause instanceof InstallationFailedException || cause instanceof IOException) {
-                m_failureCount++;
-            }
-            else {
-                m_failureCount = 0;
-            }
-            m_controller.sendDeploymentCompletedEvent(updateInfo, success);
+        protected final void installationFailed(UpdateInfo updateInfo, InstallationFailedException cause) {
+            getController().logWarning("Installation of deployment package failed: %s!", cause, cause.getReason());
+
+            m_lastVersionSuccessful = false;
+            m_failureCount++;
+            m_controller.sendDeploymentCompletedEvent(updateInfo, false /* success */);
+        }
+
+        /**
+         * Should be called to notify that an installation is ended, successfully or unsuccessfully.
+         * 
+         * @param updateInfo
+         *            the information about the update;
+         * @param cause
+         *            the (optional) cause why the installation failed.
+         */
+        protected final void installationFailed(UpdateInfo updateInfo, IOException cause) {
+            getController().logWarning("Installation of deployment package failed: generic I/O exception.", cause);
+
+            m_lastVersionSuccessful = false;
+            m_failureCount++;
+            m_controller.sendDeploymentCompletedEvent(updateInfo, false /* success */);
         }
 
         protected final DefaultController getController() {
@@ -477,7 +510,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
             }
 
             logDebug("Config changed: disabled: %s, update: %s, fixPkg: %s, syncDelay: %d, syncInterval: %d, maxRetries: %d", m_disabled.get(), m_updateStreaming.get(), m_fixPackage.get(), m_syncDelay.get(), m_interval.get(), m_maxRetries.get());
-            
+
             scheduleRunAfterDelay();
         }
     }
@@ -488,15 +521,15 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         long interval = m_interval.get();
 
         if (disabled) {
-        	logDebug("Controller disabled by configuration. Skipping...");
-        	return;
+            logDebug("Controller disabled by configuration. Skipping...");
+            return;
         }
         try {
-        	logDebug("Controller syncing...");
-        	runFeedback();
-        	runAgentUpdate();
-        	runDeploymentUpdate();
-        	logDebug("Sync completed. Rescheduled in %d seconds", interval);
+            logDebug("Controller syncing...");
+            runFeedback();
+            runAgentUpdate();
+            runDeploymentUpdate();
+            logDebug("Sync completed. Rescheduled in %d seconds", interval);
         }
         catch (RetryAfterException e) {
             // any method may throw this causing the sync to abort. The server is busy so no sense in trying
@@ -529,13 +562,13 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
 
         unscheduleRun();
     }
-    
+
     protected void scheduleRunAfterDelay() {
         long delay = m_syncDelay.get();
 
         scheduleRun(delay);
 
-        logDebug("Controller scheduled to run in %d seconds", delay);        
+        logDebug("Controller scheduled to run in %d seconds", delay);
     }
 
     protected void scheduleRun(long seconds) {
@@ -627,12 +660,12 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         boolean fixPackage = m_fixPackage.get();
 
         UpdateInstaller updateInstaller = getUpdateInstaller();
-    	try {
-    		updateInstaller.installUpdate(getAgentUpdateHandler(), fixPackage, maxRetries);
-    	}
-    	catch (IOException e) {
+        try {
+            updateInstaller.installUpdate(getAgentUpdateHandler(), fixPackage, maxRetries);
+        }
+        catch (IOException e) {
             logError("Agent update aborted due to Exception.", e);
-    	}
+        }
     }
 
     private void runDeploymentUpdate() throws RetryAfterException {
@@ -642,12 +675,12 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         boolean fixPackage = m_fixPackage.get();
 
         UpdateInstaller updateInstaller = getUpdateInstaller();
-    	try {
-    		updateInstaller.installUpdate(getDeploymentHandler(), fixPackage, maxRetries);
-    	}
-    	catch (IOException e) {
+        try {
+            updateInstaller.installUpdate(getDeploymentHandler(), fixPackage, maxRetries);
+        }
+        catch (IOException e) {
             logError("Deployment update aborted due to Exception.", e);
-    	}
+        }
     }
 
     private void runFeedback() throws RetryAfterException {

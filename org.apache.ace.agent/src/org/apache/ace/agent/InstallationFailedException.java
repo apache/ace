@@ -18,25 +18,95 @@
  */
 package org.apache.ace.agent;
 
+import org.apache.ace.agent.impl.DeploymentHandlerImpl;
+import org.osgi.service.deploymentadmin.DeploymentException;
+
 /**
  * Generic exception that is thrown when an installation of an update failed.
  * 
- * @see UpdateHandler#install(java.io.InputStream)
+ * @see DeploymentHandlerImpl#install(java.io.InputStream)
  */
 public class InstallationFailedException extends Exception {
+
+    /* DeploymentException codes duplicated for ease of use. */
+
+    public static final int CODE_CANCELLED = 401;
+    public static final int CODE_NOT_A_JAR = 404;
+    public static final int CODE_ORDER_ERROR = 450;
+    public static final int CODE_MISSING_HEADER = 451;
+    public static final int CODE_BAD_HEADER = 452;
+    public static final int CODE_MISSING_FIXPACK_TARGET = 453;
+    public static final int CODE_MISSING_BUNDLE = 454;
+    public static final int CODE_MISSING_RESOURCE = 455;
+    public static final int CODE_SIGNING_ERROR = 456;
+    public static final int CODE_BUNDLE_NAME_ERROR = 457;
+    public static final int CODE_FOREIGN_CUSTOMIZER = 458;
+    public static final int CODE_BUNDLE_SHARING_VIOLATION = 460;
+    public static final int CODE_RESOURCE_SHARING_VIOLATION = 461;
+    public static final int CODE_COMMIT_ERROR = 462;
+    public static final int CODE_OTHER_ERROR = 463;
+    public static final int CODE_PROCESSOR_NOT_FOUND = 464;
+    public static final int CODE_TIMEOUT = 465;
+
     private static final long serialVersionUID = 1L;
+
+    private final int m_code;
 
     /**
      * Creates a new {@link InstallationFailedException} instance.
      */
-    public InstallationFailedException(String msg) {
-        super(msg);
+    public InstallationFailedException(String msg, DeploymentException cause) {
+        super(msg, cause.getCause());
+        m_code = cause.getCode();
     }
 
     /**
-     * Creates a new {@link InstallationFailedException} instance.
+     * @return the code of the originating deployment exception, see the <tt>CODE_*</tt> constants for more information.
      */
-    public InstallationFailedException(String msg, Throwable cause) {
-        super(msg, cause);
+    public int getCode() {
+        return m_code;
+    }
+
+    /**
+     * @return a string representation as to why the installation failed, never <code>null</code>.
+     */
+    public String getReason() {
+        switch (m_code) {
+            case CODE_BAD_HEADER:
+                return "Syntax error in any manifest header";
+            case CODE_BUNDLE_NAME_ERROR:
+                return "Bundle symbolic name is not the same as defined by the deployment package manifest";
+            case CODE_BUNDLE_SHARING_VIOLATION:
+                return "Bundle with the same symbolic name already exists";
+            case CODE_CANCELLED:
+                return "Installation was cancelled";
+            case CODE_COMMIT_ERROR:
+                return "A Resource Processors involved in the deployment session threw an exception with the CODE_PREPARE error code";
+            case CODE_FOREIGN_CUSTOMIZER:
+                return "Matched resource processor service is a customizer from another deployment package";
+            case CODE_MISSING_BUNDLE:
+                return "A bundle in the deployment package is marked as DeploymentPackage-Missing but there is no such bundle in the target deployment package";
+            case CODE_MISSING_FIXPACK_TARGET:
+                return "Fix pack version range doesn't fit to the version of the target deployment package or the target deployment package of the fix pack doesn't exist";
+            case CODE_MISSING_HEADER:
+                return "Missing mandatory manifest header";
+            case CODE_MISSING_RESOURCE:
+                return "A resource in the source deployment package is marked as DeploymentPackage-Missing but there is no such resource in the target deployment package";
+            case CODE_NOT_A_JAR:
+                return "The InputStream is not a jar";
+            case CODE_ORDER_ERROR:
+                return "Order of files in the deployment package is bad";
+            case CODE_PROCESSOR_NOT_FOUND:
+                return "The Resource Processor service with the given PID is not found";
+            case CODE_RESOURCE_SHARING_VIOLATION:
+                return "An artifact of any resource already exists";
+            case CODE_SIGNING_ERROR:
+                return "Bad deployment package signing";
+            case CODE_TIMEOUT:
+                return "Installation of deployment package timed out";
+            case CODE_OTHER_ERROR:
+            default:
+                return "Unknown/other error condition";
+        }
     }
 }
