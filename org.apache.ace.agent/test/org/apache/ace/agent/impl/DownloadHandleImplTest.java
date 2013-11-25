@@ -147,7 +147,7 @@ public class DownloadHandleImplTest extends BaseAgentTest {
         final DownloadHandle handle = downloadHandler.getHandle(m_testContentURL);
         future = handle.start(new DownloadProgressListener() {
             @Override
-            public void progress(long bytesRead, long totalBytes) {
+            public void progress(long bytesRead) {
                 handle.stop();
             }
         });
@@ -187,8 +187,8 @@ public class DownloadHandleImplTest extends BaseAgentTest {
         // Start the download, but interrupt it after reading the first chunk of data...
         future = handle.start(new DownloadProgressListener() {
             @Override
-            public void progress(long bytesRead, long totalBytes) {
-                System.out.printf("Downloaded %d from %d bytes, interrupting download...%n", bytesRead, totalBytes);
+            public void progress(long bytesRead) {
+                System.out.printf("Downloaded %d bytes, interrupting download...%n", bytesRead);
                 Thread.currentThread().interrupt();
             }
         });
@@ -208,9 +208,9 @@ public class DownloadHandleImplTest extends BaseAgentTest {
             private int m_count = 5;
 
             @Override
-            public void progress(long bytesRead, long totalBytes) {
+            public void progress(long bytesRead) {
                 if (--m_count == 0) {
-                    System.out.printf("Downloaded %d from %d bytes, stopping download...%n", bytesRead, totalBytes);
+                    System.out.printf("Downloaded %d bytes, stopping download...%n", bytesRead);
                     handle2.stop();
                 }
             }

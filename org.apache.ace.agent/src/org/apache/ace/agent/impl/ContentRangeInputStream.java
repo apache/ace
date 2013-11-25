@@ -34,6 +34,15 @@ import org.apache.ace.agent.RetryAfterException;
 /**
  * Abstraction for {@link HttpURLConnection}s that might use content range headers, or partial responses, to return the
  * contents of an URL.
+ * <p>
+ * This implementation is capable of handling partial content requests, using the HTTP 216 response code, and tries to
+ * follow the recommendations as specified in RFC 2616 as closely as possible. This implementation deviates from the RFC
+ * by allowing the Content-Range header to be lacking both the last-byte-pos and a resource-length, as used in
+ * {@link ContentRangeResponseWrapper}. This is an optimization that is used for ACE as we do not want to, nor can, know
+ * the exact length of some of the streams we're sending.
+ * </p>
+ * 
+ * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.16
  */
 class ContentRangeInputStream extends InputStream {
     private static final String HDR_CONTENT_RANGE = "Content-Range";
@@ -141,22 +150,6 @@ class ContentRangeInputStream extends InputStream {
 
             closeChunk();
         }
-    }
-
-    /**
-     * Returns the total content size, if available.
-     * 
-     * @return the total length (in bytes) of the content, or <tt>-1</tt> if no content size is known.
-     * @throws IOException
-     *             in case of I/O errors, such as when this stream is already closed.
-     */
-    public long getContentSize() throws IOException {
-        assertOpen();
-
-        if (m_contentInfo == null || m_contentInfo.length < 2) {
-            return -1L;
-        }
-        return m_contentInfo[1];
     }
 
     @Override
@@ -335,7 +328,7 @@ class ContentRangeInputStream extends InputStream {
             if (contentRange != null) {
                 return parseContentRangeHeader(contentRange);
             }
-            
+
             // fall through, we cannot handle this...
         }
         else if (rc == SC_SERVICE_UNAVAILABLE) {
@@ -385,10 +378,16 @@ class ContentRangeInputStream extends InputStream {
         if (!"*".equals(parts[0])) {
             String[] rangeDef = parts[0].split("-");
 
-            long start = Long.parseLong(rangeDef[0]);
-            long end = Long.parseLong(rangeDef[1]);
+            try {
+                long start = Long.parseLong(rangeDef[0]);
+                long end = Long.parseLong(rangeDef[1]);
 
-            chunkSize = end - start;
+                chunkSize = end - start;
+            }
+            catch (Exception exception) {
+                // Ack; invalid range specified, cannot determine chunk size!
+                chunkSize = -1L;
+            }
         }
 
         long totalBytes;

@@ -78,7 +78,8 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
         }
     }
 
-    private static final String DEFAULT_SERVER_URL = "http://localhost:8080";
+    static final String DEFAULT_SERVER_URL = "http://localhost:8080";
+
     private static final boolean DEFAULT_CHECK_SERVER_URLS = true;
     private static final long DEFAULT_CACHE_MILLISECONDS = 30000;
     private final Map<String, CheckedURL> m_checkedURLs = new HashMap<String, CheckedURL>();

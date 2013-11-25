@@ -200,8 +200,8 @@ public class CustomAgentControllerTest extends BaseAgentTest {
 
                     Future<DownloadResult> future = downloadHandle.start(new DownloadProgressListener() {
                         @Override
-                        public void progress(long bytesRead, long totalBytes) {
-                            System.out.printf("Download progress: %d of %d bytes read...%n", bytesRead, totalBytes);
+                        public void progress(long bytesRead) {
+                            System.out.printf("Download progress: %d bytes read...%n", bytesRead);
                         }
                     });
                     // Block until the download is complete...

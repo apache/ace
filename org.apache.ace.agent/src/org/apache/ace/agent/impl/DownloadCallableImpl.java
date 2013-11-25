@@ -64,15 +64,12 @@ final class DownloadCallableImpl implements Callable<DownloadResult> {
 
             byte buffer[] = new byte[READBUFFER_SIZE];
             long bytesRead = targetLength;
-            long totalBytes = -1L;
+            boolean downloadComplete = false;
             int read = 0;
 
             try {
                 while (!Thread.currentThread().isInterrupted() && (read >= 0)) {
                     read = is.read(buffer);
-                    // this can only fail when the IS is closed, but in that case, the read() above should have failed
-                    // already...
-                    totalBytes = is.getContentSize();
 
                     if (read >= 0) {
                         os.write(buffer, 0, read);
@@ -80,11 +77,12 @@ final class DownloadCallableImpl implements Callable<DownloadResult> {
                         bytesRead += read;
                     }
                     else {
+                        downloadComplete = true;
                         break; // EOF...
                     }
 
                     if (m_listener != null) {
-                        m_listener.progress(bytesRead, totalBytes);
+                        m_listener.progress(bytesRead);
                     }
                 }
             }
@@ -97,16 +95,15 @@ final class DownloadCallableImpl implements Callable<DownloadResult> {
                 os.flush();
             }
 
-            boolean downloadComplete = (bytesRead == totalBytes);
             boolean stoppedEarly = Thread.currentThread().isInterrupted() || !downloadComplete;
 
             if (stoppedEarly) {
-                m_handle.logDebug("Download stopped early: %d of %d bytes downloaded... (%d)", bytesRead, totalBytes, targetLength);
+                m_handle.logDebug("Download stopped early: %d bytes downloaded...", bytesRead);
 
                 return new DownloadResultImpl(DownloadState.STOPPED);
             }
 
-            m_handle.logDebug("Download completed: %d bytes downloaded...", totalBytes);
+            m_handle.logDebug("Download completed: %d bytes downloaded...", bytesRead);
 
             return new DownloadResultImpl(DownloadState.SUCCESSFUL, m_target);
         }

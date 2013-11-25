@@ -96,7 +96,7 @@ public class DeploymentServletTest {
         m_requestPathInfo = "/existing/versions/2.0.0";
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_OK);
-        assertResponseHeaderValue("Content-Length", "100");
+        assertResponseHeaderNotPresent("Content-Length");
         assertResponseOutputSize(100);
         assertGeneratorTargetId("existing");
         assertGeneratorToVersion("2.0.0");
@@ -129,7 +129,7 @@ public class DeploymentServletTest {
         m_requestRangeHeader = "bytes=a-1";
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_OK);
-        assertResponseHeaderValue("Content-Length", "100");
+        assertResponseHeaderNotPresent("Content-Length");
         assertResponseOutputSize(100);
     }
 
@@ -140,8 +140,8 @@ public class DeploymentServletTest {
         m_requestRangeHeader = "bytes=0-10";
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_PARTIAL_CONTENT);
-        assertResponseHeaderValue("Content-Length", "11");
-        assertResponseHeaderValue("Content-Range", "bytes 0-10/100");
+        assertResponseHeaderNotPresent("Content-Length");
+        assertResponseHeaderValue("Content-Range", "bytes 0-10/*");
     }
 
     @Test
@@ -154,8 +154,8 @@ public class DeploymentServletTest {
         m_requestRangeHeader = "bytes=2-";
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_PARTIAL_CONTENT);
-        assertResponseHeaderValue("Content-Length", "98");
-        assertResponseHeaderValue("Content-Range", "bytes 2-99/100");
+        assertResponseHeaderNotPresent("Content-Length");
+        assertResponseHeaderValue("Content-Range", "bytes 2-/*");
         assertResponseOutputSize(98);
     }
 
@@ -166,8 +166,8 @@ public class DeploymentServletTest {
         m_requestRangeHeader = "bytes=2-50";
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_PARTIAL_CONTENT);
-        assertResponseHeaderValue("Content-Length", "49");
-        assertResponseHeaderValue("Content-Range", "bytes 2-50/100");
+        assertResponseHeaderNotPresent("Content-Length");
+        assertResponseHeaderValue("Content-Range", "bytes 2-50/*");
     }
 
     @Test
@@ -180,8 +180,8 @@ public class DeploymentServletTest {
         m_requestRangeHeader = "bytes=2-100";
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_PARTIAL_CONTENT);
-        assertResponseHeaderValue("Content-Length", "98");
-        assertResponseHeaderValue("Content-Range", "bytes 2-99/100");
+        assertResponseHeaderNotPresent("Content-Length");
+        assertResponseHeaderValue("Content-Range", "bytes 2-100/*");
         assertResponseOutputSize(98);
     }
 
@@ -199,7 +199,7 @@ public class DeploymentServletTest {
         m_requestRangeHeader = "bytes=2-1";
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_OK);
-        assertResponseHeaderValue("Content-Length", "100");
+        assertResponseHeaderNotPresent("Content-Length");
         assertResponseOutputSize(100);
     }
 
@@ -209,8 +209,8 @@ public class DeploymentServletTest {
         m_requestPathInfo = "/existing/versions/2.0.0";
         m_requestRangeHeader = "bytes=100-110";
         m_servlet.doGet(m_request, m_response);
-        assertResponseCode(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
-        assertResponseHeaderValue("Content-Range", "bytes */100");
+        assertResponseCode(HttpServletResponse.SC_PARTIAL_CONTENT);
+        assertResponseHeaderValue("Content-Range", "bytes 100-110/*");
         assertResponseHeaderNotPresent("Content-Length");
         assertResponseOutputSize(0);
     }

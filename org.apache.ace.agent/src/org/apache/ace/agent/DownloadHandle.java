@@ -42,10 +42,8 @@ public interface DownloadHandle {
          * 
          * @param bytesRead
          *            The number of bytes that has been received so far;
-         * @param totalBytes
-         *            The total length of the content or -1 if unknown.
          */
-        void progress(long bytesRead, long totalBytes);
+        void progress(long bytesRead);
     }
 
     /**

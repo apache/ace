@@ -175,9 +175,9 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         }
 
         @Override
-        public void progress(long bytesRead, long totalBytes) {
+        public void progress(long bytesRead) {
             if (m_updateInfo != null) {
-                getController().logInfo("Progress of %s update download: %d of %d bytes...", m_updateInfo.m_type, bytesRead, totalBytes);
+                getController().logInfo("%d bytes of %s update downloaded...", bytesRead, m_updateInfo.m_type);
             }
         }
 

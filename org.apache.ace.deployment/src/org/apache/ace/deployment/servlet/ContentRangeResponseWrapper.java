@@ -18,12 +18,7 @@
  */
 package org.apache.ace.deployment.servlet;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,114 +30,20 @@ import javax.servlet.http.HttpServletResponseWrapper;
 
 /**
  * Wraps a HttpServletResponse to add byte range support allowing client to request partial content.
+ * <p>
+ * Note: this implementation does <em>not</em> strictly follow the recommendations made in RFC 2616! For example, it
+ * does not ever send the "Content-Length" header, nor provide a "Resource-Length" value at any time. This is an
+ * "optimization" we've added for ACE, as we do not know the content/resource length in advance, nor are willing to
+ * sacrifice performance to get knowledge about this.
+ * </p>
  * 
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35.1
  */
 public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
-
-    /**
-     * Internal helper that Wraps a ServletOutputStream to add byte range support.
-     */
-    private static class ContentRangeOutputStreamWrapper extends ServletOutputStream {
-        private static final int BUFFER_SIZE = 32 * 1024; // kB
-
-        private final HttpServletResponse m_response;
-        private final boolean m_streamAll;
-        private final long m_requestFirstBytePos;
-        private final long m_requestLastBytePos;
-        private final FileOutputStream m_os;
-        private final File m_file;
-
-        private final AtomicLong m_instanceLen = new AtomicLong(0);
-
-        public ContentRangeOutputStreamWrapper(HttpServletResponse response) throws IOException {
-            this(response, 0, Long.MAX_VALUE);
-        }
-
-        public ContentRangeOutputStreamWrapper(HttpServletResponse response, long firstBytePos, long lastBytePos) throws IOException {
-            this(response, firstBytePos, lastBytePos, (firstBytePos == 0 && lastBytePos == Long.MAX_VALUE));
-        }
-
-        private ContentRangeOutputStreamWrapper(HttpServletResponse response, long firstBytePos, long lastBytePos, boolean streamAll) throws IOException {
-            assert response != null;
-            assert firstBytePos >= 0;
-            assert lastBytePos > firstBytePos;
-
-            m_response = response;
-            m_requestFirstBytePos = firstBytePos;
-            m_requestLastBytePos = lastBytePos;
-            m_streamAll = streamAll;
-
-            // We use a file to buffer because Deployment Packages can be big and the current common ACE Agent case it a
-            // range request for some start position up-to EOF.
-            m_file = File.createTempFile("deploymentpackage", ".jar");
-            m_os = new FileOutputStream(m_file);
-        }
-
-        @Override
-        public void write(int b) throws IOException {
-            // We only need to buffer the relevant bytes since we keep track of the instance length in the counter.
-            long value = m_instanceLen.getAndIncrement();
-            if (value >= m_requestFirstBytePos && value <= m_requestLastBytePos) {
-                m_os.write(b);
-            }
-        }
-
-        @Override
-        public void close() throws IOException {
-            closeQuietly(m_os);
-
-            long instanceLength = m_instanceLen.get();
-            long instanceLastBytePos = instanceLength - 1L;
-            InputStream is = null;
-            ServletOutputStream os = null;
-
-            try {
-                if (instanceLastBytePos < m_requestFirstBytePos) {
-                    m_response.setStatus(SC_REQUESTED_RANGE_NOT_SATISFIABLE);
-                    m_response.setHeader("Content-Range", String.format("bytes */%d", instanceLength));
-                }
-                else {
-                    long firstBytePos = m_requestFirstBytePos;
-                    long lastBytePos = instanceLastBytePos < m_requestLastBytePos ? instanceLastBytePos : m_requestLastBytePos;
-                    long contentLength = lastBytePos - firstBytePos + 1;
-
-                    m_response.setStatus(m_streamAll ? SC_OK : SC_PARTIAL_CONTENT);
-                    m_response.setHeader("Content-Length", String.valueOf(contentLength));
-                    if (!m_streamAll) {
-                        m_response.setHeader("Content-Range", String.format("bytes %d-%d/%d", firstBytePos, lastBytePos, instanceLength));
-                    }
-
-                    byte[] buffer = new byte[BUFFER_SIZE];
-                    is = new FileInputStream(m_file);
-                    os = m_response.getOutputStream();
-
-                    for (int bytesRead = is.read(buffer); bytesRead != -1; bytesRead = is.read(buffer)) {
-                        os.write(buffer, 0, bytesRead);
-                    }
-                }
-            }
-            finally {
-                closeQuietly(is);
-                closeQuietly(os);
-                m_file.delete();
-            }
-        }
-
-        private static void closeQuietly(Closeable resource) throws IOException {
-            if (resource != null) {
-                try {
-                    resource.close();
-                }
-                catch (Exception e) {
-                    // ignore
-                }
-            }
-        }
-    }
+    private final long m_requestFirstBytePos;
+    private final long m_requestLastBytePos;
 
     private final HttpServletResponse m_response;
-    private final ServletOutputStream m_outputStream;
 
     public ContentRangeResponseWrapper(HttpServletRequest request, HttpServletResponse response) throws IOException {
         super(response);
@@ -151,25 +52,62 @@ public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
         assert response != null;
 
         m_response = response;
-        m_response.setHeader("Accept-Ranges", "bytes");
 
-        // If a valid Range request is present we install the ContentRangeOutputStreamWrapper. Otherwise we do not touch
-        // the response ServletOutputStream until we have to in #getOutputStream().
-        ContentRangeOutputStreamWrapper wrapper = null;
         long[] requestRange = getRequestRange(request);
         if (requestRange != null) {
-            wrapper = new ContentRangeOutputStreamWrapper(response, requestRange[0], requestRange[1]);
+            m_requestFirstBytePos = requestRange[0];
+            m_requestLastBytePos = requestRange[1];
         }
-        if (wrapper == null) {
-            // Assume a range of "bytes=0-", which simply streams everything. This solves ACE-435...
-            wrapper = new ContentRangeOutputStreamWrapper(response);
+        else {
+            m_requestFirstBytePos = 0;
+            m_requestLastBytePos = Long.MAX_VALUE;
         }
-        m_outputStream = wrapper;
+
+        boolean streamAll = (m_requestFirstBytePos == 0) && (m_requestLastBytePos == Long.MAX_VALUE);
+
+        m_response.setHeader("Accept-Ranges", "bytes");
+        if (m_requestFirstBytePos < m_requestLastBytePos) {
+            if (streamAll) {
+                m_response.setStatus(SC_OK);
+            }
+            else {
+                m_response.setStatus(SC_PARTIAL_CONTENT);
+
+                StringBuilder cr = new StringBuilder("bytes ").append(m_requestFirstBytePos).append('-');
+                if (m_requestLastBytePos > 0 && m_requestLastBytePos < Long.MAX_VALUE) {
+                    cr.append(m_requestLastBytePos);
+                }
+                cr.append("/*"); // unknown instance length...
+                m_response.setHeader("Content-Range", cr.toString());
+            }
+        }
+        else {
+            m_response.setStatus(SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+        }
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        return m_outputStream;
+        final ServletOutputStream delegate = m_response.getOutputStream();
+
+        return new ServletOutputStream() {
+            /** keeps the actual number of bytes written by our caller... */
+            private final AtomicLong m_written = new AtomicLong(0L);
+
+            @Override
+            public void write(int b) throws IOException {
+                // We only need to buffer the relevant bytes since we keep track of the instance length in the counter.
+                long written = m_written.getAndIncrement();
+                if (written >= m_requestFirstBytePos && written <= m_requestLastBytePos) {
+                    delegate.write(b);
+                }
+            }
+
+            @Override
+            public void close() throws IOException {
+                delegate.close();
+            }
+        };
     }
 
     /**

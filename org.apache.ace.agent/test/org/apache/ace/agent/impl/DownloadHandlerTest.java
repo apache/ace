@@ -180,7 +180,7 @@ public class DownloadHandlerTest extends BaseAgentTest {
 
         Future<DownloadResult> future = handle.start(new DownloadProgressListener() {
             @Override
-            public void progress(long read, long total) {
+            public void progress(long read) {
                 Thread.currentThread().interrupt();
             }
         });

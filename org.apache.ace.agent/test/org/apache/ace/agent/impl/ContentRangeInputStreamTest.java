@@ -39,7 +39,7 @@ import org.testng.annotations.Test;
  */
 public class ContentRangeInputStreamTest {
     static enum Failure {
-        CONTENT_NOT_FOUND, SERVER_UNAVAILABLE, PARTIAL_NO_CONTENT_RANGE, PARTIAL_NON_BYTE_RANGE, PARTIAL_COMPLETE_BODY, PARTIAL_CHANGING_CONTENT_LENGTH;
+        CONTENT_NOT_FOUND, SERVER_UNAVAILABLE, PARTIAL_NO_CONTENT_RANGE, PARTIAL_NON_BYTE_RANGE, PARTIAL_COMPLETE_BODY, PARTIAL_CHANGING_CONTENT_LENGTH, PARTIAL_UNKNOWN_CHUNK_SIZE;
     }
 
     /**
@@ -111,6 +111,9 @@ public class ContentRangeInputStreamTest {
                     int cl = (getRequestProperty("Range") != null) ? 1024 : m_length;
                     return String.format("bytes %d-%d/%d", 48, 96, cl);
                 }
+                else if (m_failure == Failure.PARTIAL_UNKNOWN_CHUNK_SIZE) {
+                    return String.format("bytes %d-/*", 48);
+                }
                 else if (m_failure != Failure.PARTIAL_NO_CONTENT_RANGE) {
                     return String.format("bytes %d-%d/%d", 48, 96, m_length);
                 }
@@ -121,14 +124,18 @@ public class ContentRangeInputStreamTest {
         @Override
         public InputStream getInputStream() throws IOException {
             if (m_stream == null) {
-                m_stream = new ByteArrayInputStream(m_content.substring(48, 96).getBytes());
+                if (m_failure == Failure.PARTIAL_UNKNOWN_CHUNK_SIZE) {
+                    m_stream = new ByteArrayInputStream(m_content.substring(48).getBytes());
+                } else {
+                    m_stream = new ByteArrayInputStream(m_content.substring(48, 96).getBytes());
+                }
             }
             return m_stream;
         }
 
         @Override
         public int getResponseCode() {
-            if (m_failure == Failure.PARTIAL_NO_CONTENT_RANGE || m_failure == Failure.PARTIAL_NON_BYTE_RANGE || m_failure == Failure.PARTIAL_CHANGING_CONTENT_LENGTH) {
+            if (m_failure == Failure.PARTIAL_NO_CONTENT_RANGE || m_failure == Failure.PARTIAL_NON_BYTE_RANGE || m_failure == Failure.PARTIAL_CHANGING_CONTENT_LENGTH || m_failure == Failure.PARTIAL_UNKNOWN_CHUNK_SIZE) {
                 return 206;
             }
             else if (m_failure == Failure.PARTIAL_COMPLETE_BODY) {
@@ -528,6 +535,19 @@ public class ContentRangeInputStreamTest {
         ContentRangeInputStream is = new ContentRangeInputStream(handler, m_testURL);
 
         assertEquals(slurpAsStringWithBuffer(is), content);
+    }
+
+    /**
+     * Tests that we can read partial content and return the expected contents.
+     */
+    @Test
+    public void testReadPartialContentWithUnknownChunkSizeOk() throws Exception {
+        String content = m_content;
+
+        ConnectionHandler handler = new TestConnectionHandler(new FailingContentConnection(content, Failure.PARTIAL_UNKNOWN_CHUNK_SIZE));
+        ContentRangeInputStream is = new ContentRangeInputStream(handler, m_testURL);
+
+        assertEquals(slurpAsStringWithBuffer(is), content.substring(48));
     }
 
     /**
