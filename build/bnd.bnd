@@ -2,8 +2,9 @@
 -dependson \
     org.apache.ace.agent,\
     org.apache.ace.agent.itest,\
-    org.apache.ace.agent.launcher,\
+    org.apache.ace.agent.controller.itest,\
     org.apache.ace.agent.update.itest,\
+    org.apache.ace.agent.launcher,\
     org.apache.ace.ant.tasks,\
     org.apache.ace.authentication,\
     org.apache.ace.authentication.itest,\
