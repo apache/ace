@@ -52,6 +52,7 @@ public class Activator implements BundleActivator, LifecycleCallback {
     private volatile ScheduledExecutorService m_executorService;
     private volatile ServiceRegistration m_agentControlRegistration;
     private volatile DependencyTrackerImpl m_dependencyTracker;
+    private volatile Object m_controller;
 
     // injected services
     private volatile PackageAdmin m_packageAdmin;
@@ -73,17 +74,20 @@ public class Activator implements BundleActivator, LifecycleCallback {
 
         addPackageAdminDependency(m_dependencyTracker);
 
-        if (Boolean.getBoolean(AgentConstants.CONFIG_IDENTIFICATION_DISABLED)) {
+        if (getBoolean(bundleContext, AgentConstants.CONFIG_IDENTIFICATION_DISABLED)) {
             addIdentificationHandlerDependency(m_dependencyTracker);
         }
 
-        if (Boolean.getBoolean(AgentConstants.CONFIG_DISCOVERY_DISABLED)) {
+        if (getBoolean(bundleContext, AgentConstants.CONFIG_DISCOVERY_DISABLED)) {
             addDiscoveryHandlerDependency(m_dependencyTracker);
         }
 
-        if (Boolean.getBoolean(AgentConstants.CONFIG_CONNECTION_DISABLED)) {
+        if (getBoolean(bundleContext, AgentConstants.CONFIG_CONNECTION_DISABLED)) {
             addConnectionHandlerDependency(m_dependencyTracker);
         }
+
+        // Create the controller in this method will ensure that if this fails, this bundle is *not* started...
+        m_controller = createAgentController(bundleContext);
 
         m_dependencyTracker.startTracking();
     }
@@ -128,8 +132,10 @@ public class Activator implements BundleActivator, LifecycleCallback {
         ConnectionHandler connectionHandler = (m_connectionHandler != null) ? m_connectionHandler : new ConnectionHandlerImpl();
         m_agentContext.setHandler(ConnectionHandler.class, connectionHandler);
 
-        m_agentContext.addComponent(new DefaultController());
         m_agentContext.addComponent(new EventLoggerImpl(context));
+
+        // Lastly, inject the (custom) controller for this agent...
+        m_agentContext.setController(m_controller);
 
         m_agentContext.start();
 
@@ -194,6 +200,43 @@ public class Activator implements BundleActivator, LifecycleCallback {
     }
 
     /**
+     * Factory method for creating the agent controller.
+     * 
+     * @param context
+     *            the bundle context to use, cannot be <code>null</code>.
+     * @return a controller instance, never <code>null</code>.
+     * @throws ClassNotFoundException
+     *             in case a custom controller class was defined, but this class could not be loaded;
+     * @throws IllegalAccessException
+     *             in case a custom controller class was defined, but did not have a public default constructor;
+     * @throws InstantiationException
+     *             in case a custom controller class was defined, but instantiation lead to an exception.
+     */
+    private Object createAgentController(BundleContext context) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        String controllerName = context.getProperty(AgentConstants.CONFIG_CONTROLLER_CLASS);
+        if (controllerName != null) {
+            Class<?> controllerClass = context.getBundle().loadClass(controllerName);
+            return controllerClass.newInstance();
+        }
+        return new DefaultController();
+    }
+
+    /**
+     * Retrieves the bundle (or system) property with the given name and returns <code>true</code> iff the value of that
+     * property is "true" (case insensitive).
+     * 
+     * @param bundleContext
+     *            the bundle context to use;
+     * @param propertyName
+     *            the name of the boolean property to retrieve.
+     * @return <code>true</code> iff the value of the property was "true" (case insenstive), <code>false</code>
+     *         otherwise.
+     */
+    private static boolean getBoolean(BundleContext bundleContext, String propertyName) {
+        return Boolean.parseBoolean(bundleContext.getProperty(propertyName));
+    }
+
+    /**
      * Internal thread factory that assigns recognizable names to the threads it creates and sets them in daemon mode.
      */
     public static class InternalThreadFactory implements ThreadFactory {
@@ -202,14 +245,7 @@ public class Activator implements BundleActivator, LifecycleCallback {
 
         @Override
         public Thread newThread(Runnable r) {
-            Thread thread = new Thread(r, String.format(NAME_TPL, m_count.incrementAndGet()));
-            // TODO JaWi: is this really what we want? This means that these threads can be
-            // shutdown without any means to cleanup (can cause I/O errors, file corruption,
-            // a new world order, ...)
-            thread.setDaemon(true);
-            // TODO JaWi: shouldn't we set the uncaught exception handler for these kind of
-            // threads? It would allow us to explicitly log something when things go wrong...
-            return thread;
+            return new Thread(r, String.format(NAME_TPL, m_count.incrementAndGet()));
         }
     }
 }

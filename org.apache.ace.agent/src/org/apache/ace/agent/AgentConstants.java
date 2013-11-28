@@ -85,12 +85,25 @@ public interface AgentConstants {
     String CONFIG_DISCOVERY_CHECKING = CONFIG_KEY_NAMESPACE + ".discovery.checking";
 
     /**
+     * Configuration option to override the default controller with another implementation. This custom implementation
+     * is expected to be in the same bundle as the agent. Should be a fully qualified class name, and if omitted, the
+     * default controller will be used.
+     * <p>
+     * Note that this property is expected to be set as system or environment setting!
+     * </p>
+     */
+    String CONFIG_CONTROLLER_CLASS = CONFIG_KEY_NAMESPACE + ".controller.class";
+
+    /**
      * Configuration option to disable the default controller. When set to true some other bundle control the agent's
      * behavior. Should be <code>{true,false}</code>, default is <code>false</code>.
      * <p>
      * Note that this property is expected to be set as system or environment setting!
      * </p>
+     * 
+     * @deprecated use {@link #CONFIG_CONTROLLER_CLASS} instead!
      */
+    @Deprecated
     String CONFIG_CONTROLLER_DISABLED = CONFIG_KEY_NAMESPACE + ".controller.disabled";
 
     /**

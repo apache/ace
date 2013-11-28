@@ -94,6 +94,8 @@ public class AgentContextImpl implements AgentContext {
         for (Object component : m_components) {
             startAgentContextAware(component);
         }
+
+        // TODO correctly handle custom controller components!
     }
 
     /**
@@ -137,13 +139,24 @@ public class AgentContextImpl implements AgentContext {
     }
 
     /**
-     * Add a component on the context. 
+     * Adds a component to this context.
      * 
      * @param component
-     *            The component
+     *            The component to add, cannot be <code>null</code>.
      */
-    public void addComponent(AgentContextAware component) {
+    public void addComponent(Object component) {
         m_components.add(component);
+    }
+
+    /**
+     * Sets the controller to use for the agent.
+     * 
+     * @param controller
+     *            the controller to use, cannot be <code>null</code>.
+     */
+    public void setController(Object controller) {
+        // For now this ensures the same behaviour as we had. This will change in the near future!
+        addComponent(controller);
     }
 
     private void initAgentContextAware(Object object) throws Exception {
