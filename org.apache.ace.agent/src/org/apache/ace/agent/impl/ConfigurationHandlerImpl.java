@@ -18,9 +18,9 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_KEY_NAMESPACE;
 import static org.apache.ace.agent.AgentConstants.CONFIG_KEY_RETAIN;
+import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -95,41 +95,11 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     }
 
     @Override
-    public void put(String key, String value) {
-        String previous = (String) m_configProps.put(key, value);
-        if (previous == null || !previous.equals(value)) {
-            fireConfigChangeEventAsynchronously();
-            // causes the config to be written eventually...
-            scheduleStore();
-        }
-    }
-
-    @Override
     public void putAll(Map<String, String> props) {
         m_configProps.putAll(props);
         fireConfigChangeEventAsynchronously();
         // causes the config to be written eventually...
         scheduleStore();
-    }
-
-    @Override
-    public void putBoolean(String key, boolean value) {
-        put(key, String.valueOf(value));
-    }
-
-    @Override
-    public void putLong(String key, long value) {
-        put(key, String.valueOf(value));
-    }
-
-    @Override
-    public void remove(String key) {
-        Object value = m_configProps.remove(key);
-        if (value != null) {
-            fireConfigChangeEventAsynchronously();
-            // causes the config to be written eventually...
-            scheduleStore();
-        }
     }
 
     /**

@@ -137,7 +137,7 @@ public class EventLoggerImplTest extends BaseAgentTest {
     @Test
     public void testExcludeEvent() throws Exception {
         ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
-        configurationHandler.put(AgentConstants.CONFIG_LOGGING_EXCLUDE_EVENTS, "1001,1002");
+        configureAgent(configurationHandler, AgentConstants.CONFIG_LOGGING_EXCLUDE_EVENTS, "1001,1002");
 
         FrameworkEvent event = new FrameworkEvent(32, new Object());
 

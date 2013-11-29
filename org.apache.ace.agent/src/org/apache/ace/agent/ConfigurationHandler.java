@@ -54,36 +54,12 @@ public interface ConfigurationHandler {
     String get(String key, String defaultValue);
 
     /**
-     * Store a single configuration value.
-     * 
-     * @param key
-     *            The key, must not be <code>null</code>
-     * @param value
-     *            The value, must not be <code>null</code>
-     * @deprecated use {@link #putAll(Map)} instead which allows the configuration to be updated without partial
-     *             visibility issues.
-     */
-    @Deprecated
-    void put(String key, String value);
-
-    /**
      * Store a configuration value.
      * 
      * @param props
      *            the properties to put, cannot be <code>null</code>.
      */
     void putAll(Map<String, String> props);
-
-    /**
-     * Remove a configuration value.
-     * 
-     * @param key
-     *            The key, must not be <code>null</code>
-     * @deprecated use {@link #putAll(Map)} instead which allows the configuration to be updated without partial
-     *             visibility issues.
-     */
-    @Deprecated
-    void remove(String key);
 
     /**
      * Retrieve the configuration value associated with the key, or the specified default.
@@ -97,19 +73,6 @@ public interface ConfigurationHandler {
     long getLong(String key, long defaultValue);
 
     /**
-     * Store a configuration value.
-     * 
-     * @param key
-     *            The key, must not be <code>null</code>
-     * @param value
-     *            The value
-     * @deprecated use {@link #putAll(Map)} instead which allows the configuration to be updated without partial
-     *             visibility issues.
-     */
-    @Deprecated
-    void putLong(String key, long value);
-
-    /**
      * Retrieve the configuration value associated with the key, or the specified default.
      * 
      * @param key
@@ -119,17 +82,4 @@ public interface ConfigurationHandler {
      * @return The associated value if it exists, otherwise the default value
      */
     boolean getBoolean(String key, boolean defaultValue);
-
-    /**
-     * Store a configuration value.
-     * 
-     * @param key
-     *            The key, must not be <code>null</code>
-     * @param value
-     *            The value
-     * @deprecated use {@link #putAll(Map)} instead which allows the configuration to be updated without partial
-     *             visibility issues.
-     */
-    @Deprecated
-    void putBoolean(String key, boolean Value);
 }

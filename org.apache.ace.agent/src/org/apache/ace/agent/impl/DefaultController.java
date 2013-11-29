@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandle.DownloadProgressListener;
 import org.apache.ace.agent.DownloadResult;
@@ -69,7 +70,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         @Override
         public void doInstallUpdate(UpdateHandler delegate, UpdateInfo updateInfo) throws RetryAfterException {
             m_type = updateInfo.m_type;
-            
+
             DefaultController controller = getController();
             controller.logInfo("Starting download of %s update, %s => %s...", m_type, updateInfo.m_from, updateInfo.m_to);
 
@@ -474,6 +475,17 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
     @Override
     protected void onInit() throws Exception {
         getEventsHandler().addListener(this);
+
+        // The controller is started *after* all other components, causing it to miss the initial configuration-update
+        // event, hence we need to get the configuration ourselves for the first time...
+        ConfigurationHandler config = getConfigurationHandler();
+        m_updateStreaming.set(config.getBoolean(CONFIG_CONTROLLER_STREAMING, m_updateStreaming.get()));
+        m_fixPackage.set(config.getBoolean(CONFIG_CONTROLLER_FIXPACKAGES, m_fixPackage.get()));
+        m_interval.set(config.getLong(CONFIG_CONTROLLER_SYNCINTERVAL, m_interval.get()));
+        m_syncDelay.set(config.getLong(CONFIG_CONTROLLER_SYNCDELAY, m_syncDelay.get()));
+        m_maxRetries.set(config.getLong(CONFIG_CONTROLLER_RETRIES, m_maxRetries.get()));
+
+        logDebug("Config initialized: update: %s, fixPkg: %s, syncDelay: %d, syncInterval: %d, maxRetries: %d", m_updateStreaming.get(), m_fixPackage.get(), m_syncDelay.get(), m_interval.get(), m_maxRetries.get());
     }
 
     @Override
