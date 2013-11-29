@@ -1,4 +1,5 @@
-Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
+Test-Cases: org.apache.ace.agent.itest.CustomAgentControllerTest,\
+	org.apache.ace.agent.itest.CustomStandaloneAgentControllerTest
 -runbundles: \
 	org.mockito.mockito-all,\
 	org.apache.ace.test;version=latest,\
@@ -13,7 +14,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 	org.apache.felix.log,\
 	biz.aQute.bnd,\
 	osgi.cmpn
-Bundle-Activator: org.apache.ace.agent.impl.Activator
 Private-Package: \
 	org.apache.ace.range,\
 	org.apache.ace.agent,\

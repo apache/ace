@@ -18,105 +18,52 @@
  */
 package org.apache.ace.agent.itest;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.ace.agent.AgentConstants;
-import org.apache.ace.agent.AgentControl;
+import org.apache.ace.agent.AgentContext;
+import org.apache.ace.agent.AgentContextAware;
+import org.apache.ace.agent.AgentUpdateHandler;
 import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.agent.DownloadHandle;
 import org.apache.ace.agent.DownloadHandle.DownloadProgressListener;
 import org.apache.ace.agent.DownloadResult;
 import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.agent.FeedbackHandler;
+import org.apache.ace.agent.IdentificationHandler;
+import org.apache.ace.agent.LoggingHandler;
 import org.apache.ace.agent.UpdateHandler;
-import org.apache.ace.test.constants.TestConstants;
-import org.apache.ace.test.utils.NetUtils;
-import org.apache.felix.dm.Component;
-import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
-import org.osgi.service.http.HttpService;
 
 /**
- * Tests that we can create an agent with a completely custom controller, see {@link CustomController} for more
- * information about the actual implementation.
+ * Tests that we can create an agent with a completely custom controller, see {@link CustomContextAwareController} for
+ * more information about the actual implementation.
  * 
- * @see CustomController
+ * @see CustomContextAwareController
  */
 public class CustomAgentControllerTest extends BaseAgentControllerTest {
-    /**
-     * Provides a simple implementation of {@link AgentUser} that always acknowledges a download and/or installation.
-     */
-    static class AcknowledgingAgentUser implements AgentUser {
-        @Override
-        public boolean downloadAvailableUpdate(UpdateType updateType, String agentId, Version from, Version to) {
-            // Always proceed with a download...
-            return true;
-        }
-
-        @Override
-        public boolean installAvailableUpdate(UpdateType updateType, String agentId, Version from, Version to) {
-            // Always proceed with the installation...
-            return true;
-        }
-    }
-
-    /**
-     * Denotes a "user" of our agent that is monitoring our agent and able to respond to questions.
-     */
-    static interface AgentUser {
-        /**
-         * Asks the user whether or not to download an available update.
-         * 
-         * @param updateType
-         *            the type of update to download, cannot be <code>null</code>;
-         * @param agentId
-         *            the identification of the agent that has an update available;
-         * @param from
-         *            the current installed version to upgrade from;
-         * @param to
-         *            the available version to upgrade to.
-         * @return <code>true</code> if the update should be downloaded, <code>false</code> otherwise.
-         */
-        boolean downloadAvailableUpdate(UpdateType updateType, String agentId, Version from, Version to);
-
-        /**
-         * Asks the user whether or not to install an available update, after it has been downloaded.
-         * 
-         * @param updateType
-         *            the type of update to install, cannot be <code>null</code>;
-         * @param agentId
-         *            the identification of the agent that has an update available;
-         * @param from
-         *            the current installed version to upgrade from;
-         * @param to
-         *            the available version to upgrade to.
-         * @return <code>true</code> if the update should be installed, <code>false</code> otherwise.
-         */
-        boolean installAvailableUpdate(UpdateType updateType, String agentId, Version from, Version to);
-    }
-
     /**
      * The actual custom controller as {@link Runnable} task, that simply loops and executes its tasks until notified to
      * stop.
      * 
      * @see #run()
      */
-    class CustomController implements Runnable {
-        private volatile boolean m_stop = false;
+    public static class CustomContextAwareController implements AgentContextAware, Runnable {
+        private volatile AgentContext m_agentContext;
+        private volatile BundleContext m_bundleContext;
+        private volatile AgentUser m_agentUser;
+
+        @Override
+        public void init(AgentContext agentContext) throws Exception {
+            m_agentContext = agentContext;
+
+            m_bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
+            m_bundleContext.registerService(AgentUser.class.getName(), new AcknowledgingAgentUser(), null);
+        }
 
         /**
          * Main loop, will sleep for a little and once every 500 ms will do the following:
@@ -136,16 +83,17 @@ public class CustomAgentControllerTest extends BaseAgentControllerTest {
          */
         @Override
         public void run() {
-            while (!m_stop) {
+            while (!Thread.interrupted()) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(500);
                 }
                 catch (InterruptedException exception) {
                     // We're requested to stop...
+                    Thread.currentThread().interrupt();
                     break;
                 }
 
-                if (m_stop) {
+                if (Thread.currentThread().isInterrupted()) {
                     // Check once more whether we're not stopped while sleeping...
                     break;
                 }
@@ -158,11 +106,24 @@ public class CustomAgentControllerTest extends BaseAgentControllerTest {
             }
         }
 
+        @Override
+        public void start(AgentContext agentContext) throws Exception {
+            logInfo("Custom controller running...");
+
+            ServiceReference serviceRef = m_bundleContext.getServiceReference(AgentUser.class.getName());
+            if (serviceRef != null) {
+                m_agentUser = (AgentUser) m_bundleContext.getService(serviceRef);
+            }
+            else {
+                throw new IllegalStateException("No agent user service registered?!");
+            }
+        }
+
         /**
          * Stops the main loop and allows the {@link #run()} loop to terminate (after it has done all of its work).
          */
         public void stop() {
-            m_stop = true;
+            logInfo("Custom controller stopping...");
         }
 
         /**
@@ -194,14 +155,14 @@ public class CustomAgentControllerTest extends BaseAgentControllerTest {
                         return;
                     }
 
-                    System.out.printf("Downloading %s update (from v%s to v%s)...%n", updateType, installed, available);
+                    logInfo("Downloading %s update (from v%s to v%s)...", updateType, installed, available);
 
                     DownloadHandle downloadHandle = updateHandler.getDownloadHandle(available, false /* fixPackage */);
 
                     Future<DownloadResult> future = downloadHandle.start(new DownloadProgressListener() {
                         @Override
                         public void progress(long bytesRead) {
-                            System.out.printf("Download progress: %d bytes read...%n", bytesRead);
+                            logInfo("Download progress: %d bytes read...", bytesRead);
                         }
                     });
                     // Block until the download is complete...
@@ -209,15 +170,18 @@ public class CustomAgentControllerTest extends BaseAgentControllerTest {
 
                     // Download is complete, ask the user once more if we're allowed to install the update...
                     if (m_agentUser.installAvailableUpdate(updateType, getAgentId(), installed, available)) {
-                        System.out.printf("Installing %s update (from v%s to v%s)...%n", updateType, installed, available);
+                        logInfo("Installing %s update (from v%s to v%s)...", updateType, installed, available);
 
                         // We've confirmation that we can install this update...
                         updateHandler.install(result.getInputStream());
                     }
+
+                    // Throw away downloaded packages...
+                    downloadHandle.discard();
                 }
             }
             catch (Exception exception) {
-                System.out.printf("%s update failed with %s.%n", updateType, exception.getMessage());
+                logWarning("%s update failed with %s.", exception, updateType, exception.getMessage());
                 exception.printStackTrace(System.out);
             }
         }
@@ -226,7 +190,7 @@ public class CustomAgentControllerTest extends BaseAgentControllerTest {
          * @return the identification of the current agent, as returned by the agent's API.
          */
         private String getAgentId() {
-            return m_control.getAgentId();
+            return m_agentContext.getHandler(IdentificationHandler.class).getAgentId();
         }
 
         /**
@@ -239,12 +203,20 @@ public class CustomAgentControllerTest extends BaseAgentControllerTest {
         private UpdateHandler getUpdateHandler(UpdateType updateType) {
             UpdateHandler updateHandler;
             if (UpdateType.AGENT == updateType) {
-                updateHandler = m_control.getAgentUpdateHandler();
+                updateHandler = m_agentContext.getHandler(AgentUpdateHandler.class);
             }
             else {
-                updateHandler = m_control.getDeploymentHandler();
+                updateHandler = m_agentContext.getHandler(DeploymentHandler.class);
             }
             return updateHandler;
+        }
+
+        private void logInfo(String msg, Object... args) {
+            m_agentContext.getHandler(LoggingHandler.class).logInfo("CustomController", msg, null, args);
+        }
+
+        private void logWarning(String msg, Exception ex, Object... args) {
+            m_agentContext.getHandler(LoggingHandler.class).logWarning("CustomController", msg, ex, args);
         }
 
         /**
@@ -257,151 +229,28 @@ public class CustomAgentControllerTest extends BaseAgentControllerTest {
          */
         private void sendFeedbackToServer() {
             try {
-                FeedbackHandler feedbackHandler = m_control.getFeedbackHandler();
+                FeedbackHandler feedbackHandler = m_agentContext.getHandler(FeedbackHandler.class);
                 Set<String> channelNames = feedbackHandler.getChannelNames();
                 for (String channelName : channelNames) {
                     FeedbackChannel channel = feedbackHandler.getChannel(channelName);
 
-                    System.out.printf("Synchronizing feedback of %s with server...%n", channelName);
+                    logInfo("Synchronizing feedback of %s with server...", channelName);
 
                     channel.sendFeedback();
                 }
             }
             catch (Exception exception) {
-                System.out.printf("Feedback synchronization failed with %s.%n", exception.getMessage());
-                exception.printStackTrace(System.out);
+                logWarning("Feedback synchronization failed with %s.", exception, exception.getMessage());
             }
         }
     }
 
     /**
-     * Stub servlet that acts as an ACE server for our agent. Does only the bare minimum with respect to a complete
-     * server.
+     * Creates a new {@link CustomAgentControllerTest} instance.
      */
-    static class StubDeploymentServlet extends HttpServlet {
-        private static final long serialVersionUID = 1L;
-
-        private final Map<String, TestPackage> m_packages = new HashMap<String, TestPackage>();
-        private final String m_agentId;
-
-        public StubDeploymentServlet(String agentId, TestPackage... testPackages) {
-            m_agentId = agentId;
-
-            for (TestPackage testPackage : testPackages) {
-                m_packages.put(testPackage.getVersion().toString(), testPackage);
-            }
-        }
-
-        @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            String pathInfo = req.getPathInfo();
-
-            if (pathInfo.startsWith("/auditlog/query")) {
-                resp.setContentType("text/plain");
-                PrintWriter writer = resp.getWriter();
-                writer.println(req.getParameter("tid") + "," + req.getParameter("logid") + ",0-10");
-                writer.close();
-            }
-            else if (pathInfo.startsWith("/deployment/")) {
-                String pathinfoTail = pathInfo.replaceFirst("/deployment/" + m_agentId + "/versions/?", "");
-                if (pathinfoTail.equals("")) {
-                    sendVersions(resp);
-                }
-                else {
-                    TestPackage dpackage = m_packages.get(pathinfoTail);
-                    if (dpackage == null) {
-                        throw new IllegalStateException("Test error! Should never happen... " + pathinfoTail);
-                    }
-                    sendPackage(dpackage, req, resp);
-                }
-            }
-            else if (pathInfo.startsWith("/agent/")) {
-                String tail = pathInfo.replaceFirst("/agent/" + m_agentId + "/org.apache.ace.agent/versions/", "");
-                if ("".equals(tail)) {
-                    sendVersions(resp);
-                }
-            }
-            else {
-                resp.setContentLength(0);
-                resp.setStatus(HttpServletResponse.SC_OK);
-            }
-            resp.flushBuffer();
-        }
-
-        @Override
-        protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            String pathInfo = request.getPathInfo();
-            if (pathInfo.startsWith("/auditlog/")) {
-                InputStream is = request.getInputStream();
-                while (is.read() != -1) {
-                }
-                is.close();
-            }
-            response.setContentType("text/plain");
-            response.flushBuffer();
-        }
-
-        @Override
-        protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-            response.setContentType("text/plain");
-            response.flushBuffer();
-        }
-
-        private void sendPackage(TestPackage dpackage, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-            InputStream is = null;
-            OutputStream os = null;
-            try {
-                is = new FileInputStream(dpackage.getFile());
-                os = resp.getOutputStream();
-
-                int read;
-                byte[] buffer = new byte[4096];
-                do {
-                    read = is.read(buffer);
-                    if (read >= 0) {
-                        os.write(buffer, 0, read);
-                    }
-                }
-                while (read >= 0);
-            }
-            finally {
-                if (is != null) {
-                    is.close();
-                }
-                if (os != null) {
-                    os.close();
-                }
-            }
-        }
-
-        private void sendVersions(HttpServletResponse resp) throws IOException {
-            PrintWriter writer = resp.getWriter();
-            for (String version : m_packages.keySet()) {
-                writer.println(version);
-            }
-            writer.close();
-
-            resp.setContentType("text/plain");
-            resp.setStatus(200);
-            resp.flushBuffer();
-        }
+    public CustomAgentControllerTest() {
+        super(CustomContextAwareController.class.getName(), "1", "0.0.1");
     }
-
-    /**
-     * Denotes the kind of update.
-     */
-    static enum UpdateType {
-        AGENT, DEPLOYMENT;
-    }
-
-    private static final Version V1_0_0 = Version.parseVersion("1.0.0");
-    private static final String TEST_BUNDLE_NAME_PREFIX = "test.bundle";
-    private static final String AGENT_ID = "defaultTargetID";
-
-    // Injected by Felix DM...
-    private volatile HttpService m_http;
-    private volatile AgentControl m_control;
-    private volatile AgentUser m_agentUser;
 
     /**
      * Tests that we can provide a custom controller implementation based on the following use-case:
@@ -411,81 +260,9 @@ public class CustomAgentControllerTest extends BaseAgentControllerTest {
      * proceed with the installation of the update.
      * </p>
      * 
-     * @see CustomController
+     * @see CustomContextAwareController
      */
     public void testCustomController() throws Exception {
-        CustomController controller = new CustomController();
-
-        Thread thread = new Thread(controller);
-        thread.start();
-
-        try {
-            waitForInstalledVersion(V1_0_0);
-        }
-        finally {
-            controller.stop();
-            thread.join();
-        }
-    }
-
-    @Override
-    protected void configureAdditionalServices() throws Exception {
-        configureAgent(m_control.getConfigurationHandler(), AgentConstants.CONFIG_CONTROLLER_DISABLED, "true");
-
-        TestBundle bundle1v1 = new TestBundle(TEST_BUNDLE_NAME_PREFIX.concat("1"), V1_0_0);
-        TestPackage package1 = new TestPackage(AGENT_ID, V1_0_0, bundle1v1);
-
-        StubDeploymentServlet servlet = new StubDeploymentServlet(AGENT_ID, package1);
-
-        String url = String.format("http://localhost:%d/", TestConstants.PORT);
-        NetUtils.waitForURL(url, 404, 10000);
-
-        m_http.registerServlet("/", servlet, null, null);
-
-        NetUtils.waitForURL(url, 200, 10000);
-    }
-
-    @Override
-    protected void configureProvisionedServices() throws Exception {
-        m_bundleContext.registerService(AgentUser.class.getName(), new AcknowledgingAgentUser(), null);
-    }
-
-    @Override
-    protected void doTearDown() throws Exception {
-        // Remove all provisioned components...
-        m_dependencyManager.clear();
-
-        m_http.unregister("/");
-
-        // Force an uninstall of all remaining test bundles...
-        for (Bundle bundle : m_bundleContext.getBundles()) {
-            String bsn = bundle.getSymbolicName();
-            if (bsn.startsWith(TEST_BUNDLE_NAME_PREFIX)) {
-                bundle.uninstall();
-            }
-        }
-    }
-
-    @Override
-    protected Component[] getDependencies() {
-        return new Component[] {
-            createComponent()
-                .setImplementation(this)
-                .add(createServiceDependency().setService(HttpService.class).setRequired(true))
-                .add(createServiceDependency().setService(AgentControl.class).setRequired(true))
-                .add(createServiceDependency().setService(AgentUser.class).setRequired(true))
-        };
-    }
-
-    private void waitForInstalledVersion(Version version) throws Exception {
-        DeploymentHandler deploymentHandler = m_control.getDeploymentHandler();
-
-        int timeout = 100;
-        while (!deploymentHandler.getInstalledVersion().equals(version)) {
-            Thread.sleep(100);
-            if (timeout-- <= 0) {
-                fail("Timed out while waiting for deployment " + version);
-            }
-        }
+        waitForInstalledVersion(m_agentControl.getDeploymentHandler(), m_dpVersion);
     }
 }
