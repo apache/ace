@@ -77,12 +77,31 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     }
 
     @Override
+    public int getInt(String key, int defaultValue) {
+        String value = get(key, "");
+        try {
+            if (!"".equals(value)) {
+                return Integer.decode(value);
+            }
+        }
+        catch (NumberFormatException exception) {
+            // Ignore; return default...
+        }
+        return defaultValue;
+    }
+
+    @Override
     public long getLong(String key, long defaultValue) {
         String value = get(key, "");
-        if (value.equals("")) {
-            return defaultValue;
+        try {
+            if (!"".equals(value)) {
+                return Long.decode(value);
+            }
         }
-        return Long.parseLong(value);
+        catch (NumberFormatException exception) {
+            // Ignore; return default...
+        }
+        return defaultValue;
     }
 
     @Override

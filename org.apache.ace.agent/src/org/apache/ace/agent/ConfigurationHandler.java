@@ -36,13 +36,6 @@ import java.util.Set;
 public interface ConfigurationHandler {
 
     /**
-     * Return an unmodifiable copy of the configuration keys.
-     * 
-     * @return The set of keys
-     */
-    Set<String> keySet();
-
-    /**
      * Retrieve the configuration value associated with the key, or the specified default.
      * 
      * @param key
@@ -54,12 +47,26 @@ public interface ConfigurationHandler {
     String get(String key, String defaultValue);
 
     /**
-     * Store a configuration value.
+     * Retrieve the configuration value associated with the key, or the specified default.
      * 
-     * @param props
-     *            the properties to put, cannot be <code>null</code>.
+     * @param key
+     *            The key, must not be <code>null</code>
+     * @param defaultValue
+     *            The default value
+     * @return The associated value if it exists, otherwise the default value
      */
-    void putAll(Map<String, String> props);
+    boolean getBoolean(String key, boolean defaultValue);
+
+    /**
+     * Retrieve the configuration value associated with the key, or the specified default.
+     * 
+     * @param key
+     *            The key, must not be <code>null</code>
+     * @param defaultValue
+     *            The default value
+     * @return The associated value if it exists, otherwise the default value
+     */
+    int getInt(String key, int defaultValue);
 
     /**
      * Retrieve the configuration value associated with the key, or the specified default.
@@ -73,13 +80,17 @@ public interface ConfigurationHandler {
     long getLong(String key, long defaultValue);
 
     /**
-     * Retrieve the configuration value associated with the key, or the specified default.
+     * Return an unmodifiable copy of the configuration keys.
      * 
-     * @param key
-     *            The key, must not be <code>null</code>
-     * @param defaultValue
-     *            The default value
-     * @return The associated value if it exists, otherwise the default value
+     * @return The set of keys
      */
-    boolean getBoolean(String key, boolean defaultValue);
+    Set<String> keySet();
+
+    /**
+     * Store a configuration value.
+     * 
+     * @param props
+     *            the properties to put, cannot be <code>null</code>.
+     */
+    void putAll(Map<String, String> props);
 }
