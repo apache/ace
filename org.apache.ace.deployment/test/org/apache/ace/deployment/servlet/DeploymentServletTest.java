@@ -97,7 +97,7 @@ public class DeploymentServletTest {
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_OK);
         assertResponseHeaderNotPresent("Content-Length");
-        assertResponseOutputSize(100);
+        assertResponseOutput(0, 100);
         assertGeneratorTargetId("existing");
         assertGeneratorToVersion("2.0.0");
     }
@@ -130,7 +130,7 @@ public class DeploymentServletTest {
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_OK);
         assertResponseHeaderNotPresent("Content-Length");
-        assertResponseOutputSize(100);
+        assertResponseOutput(0, 100);
     }
 
     @Test
@@ -156,7 +156,7 @@ public class DeploymentServletTest {
         assertResponseCode(HttpServletResponse.SC_PARTIAL_CONTENT);
         assertResponseHeaderNotPresent("Content-Length");
         assertResponseHeaderValue("Content-Range", "bytes 2-/*");
-        assertResponseOutputSize(98);
+        assertResponseOutput(2, 98);
     }
 
     @Test(groups = { UNIT })
@@ -168,6 +168,22 @@ public class DeploymentServletTest {
         assertResponseCode(HttpServletResponse.SC_PARTIAL_CONTENT);
         assertResponseHeaderNotPresent("Content-Length");
         assertResponseHeaderValue("Content-Range", "bytes 2-50/*");
+        assertResponseOutput(2, 49);
+    }
+
+    @Test
+    public void getRangeDataForExistingTarget_firstOKlastOK2() throws Exception {
+        // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35.1
+        // If the last-byte-pos value is absent, or if the value is greater than or equal to the current length of the
+        // entity-body, last-byte-pos is taken to be equal to one less than the current length of the entity- body in
+        // bytes.
+        m_requestPathInfo = "/existing/versions/2.0.0";
+        m_requestRangeHeader = "bytes=2-99";
+        m_servlet.doGet(m_request, m_response);
+        assertResponseCode(HttpServletResponse.SC_PARTIAL_CONTENT);
+        assertResponseHeaderNotPresent("Content-Length");
+        assertResponseHeaderValue("Content-Range", "bytes 2-99/*");
+        assertResponseOutput(2, 98);
     }
 
     @Test
@@ -182,7 +198,7 @@ public class DeploymentServletTest {
         assertResponseCode(HttpServletResponse.SC_PARTIAL_CONTENT);
         assertResponseHeaderNotPresent("Content-Length");
         assertResponseHeaderValue("Content-Range", "bytes 2-100/*");
-        assertResponseOutputSize(98);
+        assertResponseOutput(2, 98);
     }
 
     @Test
@@ -200,7 +216,7 @@ public class DeploymentServletTest {
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_OK);
         assertResponseHeaderNotPresent("Content-Length");
-        assertResponseOutputSize(100);
+        assertResponseOutput(0, 100);
     }
 
     @Test
@@ -212,7 +228,7 @@ public class DeploymentServletTest {
         assertResponseCode(HttpServletResponse.SC_PARTIAL_CONTENT);
         assertResponseHeaderValue("Content-Range", "bytes 100-110/*");
         assertResponseHeaderNotPresent("Content-Length");
-        assertResponseOutputSize(0);
+        assertResponseOutput(-1, 0);
     }
 
     @Test
@@ -260,7 +276,7 @@ public class DeploymentServletTest {
         m_requestCurrentParameter = "2.0.0";
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_OK);
-        assertResponseOutputSize(100);
+        assertResponseOutput(0, 100);
         assertGeneratorTargetId("existing");
         assertGeneratorToVersion("2.0.0");
         assertGeneratorFromVersion("2.0.0");
@@ -274,7 +290,7 @@ public class DeploymentServletTest {
         m_requestCurrentParameter = "1.0.0";
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_OK);
-        assertResponseOutputSize(100);
+        assertResponseOutput(0, 100);
         assertGeneratorTargetId("existing");
         assertGeneratorToVersion("2.0.0");
         assertGeneratorFromVersion(null);
@@ -298,7 +314,7 @@ public class DeploymentServletTest {
         m_requestCurrentParameter = null;
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_OK);
-        assertResponseOutputSize(100);
+        assertResponseOutput(0, 100);
         assertGeneratorTargetId("existing");
         assertGeneratorToVersion("2.0.0");
         assertGeneratorFromVersion(null);
@@ -327,7 +343,7 @@ public class DeploymentServletTest {
         m_requestPathInfo = "/nonexisting/versions";
         m_servlet.doGet(m_request, m_response);
         assertResponseCode(HttpServletResponse.SC_NOT_FOUND);
-        assertResponseOutputSize(0);
+        assertResponseOutput(-1, 0);
     }
 
     @BeforeMethod(alwaysRun = true)
@@ -461,8 +477,13 @@ public class DeploymentServletTest {
         configureObject(m_servlet, StreamGenerator.class, m_generator);
         configureObject(m_servlet, DeploymentProvider.class, m_provider);
 
+        byte[] data = new byte[100];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = (byte) (i + 1);
+        }
+
         // set the default state
-        m_generatorResultStream = new ByteArrayInputStream(new byte[100]);
+        m_generatorResultStream = new ByteArrayInputStream(data);
         m_requestCurrentParameter = null;
         m_generatorId = null;
         m_generatorFromVersion = null;
@@ -499,7 +520,11 @@ public class DeploymentServletTest {
         assertEquals(m_responseHeaders.get(name), value, "Unexpected response header");
     }
 
-    private void assertResponseOutputSize(long size) throws Exception {
-        assertEquals(m_responseOutputStream.size(), size, "We should have got a (dummy) deployment package of");
+    private void assertResponseOutput(int offset, int size) throws Exception {
+        byte[] data = m_responseOutputStream.toByteArray();
+        assertEquals(data.length, size, "We should have got a (dummy) deployment package of");
+        for (int i = 0; i < data.length; i++) {
+            assertEquals(data[i], i + offset + 1);
+        }
     }
 }
