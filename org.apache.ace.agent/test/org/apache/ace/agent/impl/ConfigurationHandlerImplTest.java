@@ -34,16 +34,15 @@ import org.testng.annotations.Test;
  * Testing {@link ConfigurationHandlerImpl}.
  */
 public class ConfigurationHandlerImplTest extends BaseAgentTest {
-
     private AgentContextImpl m_agentContextImpl;
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void setUpAgain(Method method) throws Exception {
         m_agentContextImpl = mockAgentContext(method.getName());
         replayTestMocks();
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void tearDownAgain(Method method) throws Exception {
         m_agentContextImpl.stop();
         verifyTestMocks();
@@ -51,12 +50,28 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
     }
 
     @Test
-    public void testConfigClean() throws Exception {
-
+    public void testConfigBooleanProps() throws Exception {
         ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
-        m_agentContextImpl.stop();
-        m_agentContextImpl.setHandler(ConfigurationHandler.class, configurationHandler);
-        m_agentContextImpl.start();
+
+        resetConfigurationHandler(configurationHandler);
+
+        configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
+
+        configureAgent(configurationHandler, "boolean1", "true", "boolean2", "false");
+
+        assertEquals(configurationHandler.getBoolean("boolean1", false), true);
+        assertEquals(configurationHandler.getBoolean("boolean2", true), false);
+
+        assertEquals(configurationHandler.getBoolean("booleanX", true), true);
+        assertEquals(configurationHandler.getBoolean("booleanY", false), false);
+    }
+
+    @Test
+    public void testConfigClean() throws Exception {
+        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
+
+        resetConfigurationHandler(configurationHandler);
+
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
         assertNotNull(configurationHandler.keySet());
@@ -65,14 +80,30 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
 
         // should be persisted
         configurationHandler = new ConfigurationHandlerImpl();
-        m_agentContextImpl.stop();
-        m_agentContextImpl.setHandler(ConfigurationHandler.class, configurationHandler);
-        m_agentContextImpl.start();
+
+        resetConfigurationHandler(configurationHandler);
+
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
         assertNotNull(configurationHandler.keySet());
         assertEquals(0, configurationHandler.keySet().size());
         assertEquals(configurationHandler.get("key1", "default1"), "default1");
+    }
+
+    @Test
+    public void testConfigLongProps() throws Exception {
+        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
+
+        resetConfigurationHandler(configurationHandler);
+
+        configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
+
+        configureAgent(configurationHandler, "long1", "42", "long2", "4");
+
+        assertEquals(configurationHandler.getLong("long1", 0l), 42);
+        assertEquals(configurationHandler.getLong("long2", 0l), 4l);
+
+        assertEquals(configurationHandler.getLong("longX", 42l), 42l);
     }
 
     @Test
@@ -83,10 +114,7 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         System.setProperty(systemKey1, "value1");
         System.setProperty(systemKey2, "value2");
 
-        m_agentContextImpl.stop();
-
-        m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
-        m_agentContextImpl.start();
+        resetConfigurationHandler();
 
         ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
@@ -100,10 +128,7 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         System.clearProperty(systemKey1);
         System.clearProperty(systemKey2);
 
-        m_agentContextImpl.stop();
-
-        m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
-        m_agentContextImpl.start();
+        resetConfigurationHandler();
 
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
@@ -119,9 +144,8 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
 
         configureAgent(configurationHandler, systemKey1, "newvalue1", systemKey2, "newvalue2");
 
-        m_agentContextImpl.stop();
-        m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
-        m_agentContextImpl.start();
+        resetConfigurationHandler();
+
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
         assertNotNull(configurationHandler.keySet());
@@ -136,9 +160,8 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         System.setProperty(systemKey1 + AgentConstants.CONFIG_KEY_RETAIN, "true");
         System.setProperty(systemKey2 + AgentConstants.CONFIG_KEY_RETAIN, "true");
 
-        m_agentContextImpl.stop();
-        m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
-        m_agentContextImpl.start();
+        resetConfigurationHandler();
+
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
         assertNotNull(configurationHandler.keySet());
@@ -147,38 +170,17 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
         assertEquals(configurationHandler.get(systemKey2, "qqq"), "value2");
     }
 
-    @Test
-    public void testConfigBooleanProps() throws Exception {
-
-        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
-        m_agentContextImpl.stop();
-        m_agentContextImpl.setHandler(ConfigurationHandler.class, configurationHandler);
-        m_agentContextImpl.start();
-        configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
-
-        configureAgent(configurationHandler, "boolean1", "true", "boolean2", "false");
-
-        assertEquals(configurationHandler.getBoolean("boolean1", false), true);
-        assertEquals(configurationHandler.getBoolean("boolean2", true), false);
-
-        assertEquals(configurationHandler.getBoolean("booleanX", true), true);
-        assertEquals(configurationHandler.getBoolean("booleanY", false), false);
+    private void resetConfigurationHandler() throws Exception {
+        resetConfigurationHandler(new ConfigurationHandlerImpl());
     }
 
-    @Test
-    public void testConfigLongProps() throws Exception {
+    private void resetConfigurationHandler(ConfigurationHandler configurationHandler) throws Exception {
+        ConfigurationHandler oldConfigurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
+        if (oldConfigurationHandler instanceof ComponentBase) {
+            ((ComponentBase) oldConfigurationHandler).stop();
+        }
 
-        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
-        m_agentContextImpl.stop();
         m_agentContextImpl.setHandler(ConfigurationHandler.class, configurationHandler);
         m_agentContextImpl.start();
-        configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
-
-        configureAgent(configurationHandler, "long1", "42", "long2", "4");
-
-        assertEquals(configurationHandler.getLong("long1", 0l), 42);
-        assertEquals(configurationHandler.getLong("long2", 0l), 4l);
-
-        assertEquals(configurationHandler.getLong("longX", 42l), 42l);
     }
 }

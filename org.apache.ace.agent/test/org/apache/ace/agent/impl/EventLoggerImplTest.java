@@ -43,7 +43,7 @@ public class EventLoggerImplTest extends BaseAgentTest {
     static class TestFeedbackChannel implements FeedbackChannel {
 
         int m_lastType = 0;
-        
+
         @Override
         public void sendFeedback() throws RetryAfterException, IOException {
         }
@@ -52,24 +52,24 @@ public class EventLoggerImplTest extends BaseAgentTest {
         public void write(int type, Map<String, String> properties) throws IOException {
             m_lastType = type;
         }
-        
+
         public int getLastTtype() {
             return m_lastType;
         }
-        
+
         public void reset() {
             m_lastType = 0;
         }
     }
-    
+
     static class TestFeedbackHandler implements FeedbackHandler {
 
         Map<String, FeedbackChannel> channels = new HashMap<String, FeedbackChannel>();
-        
+
         TestFeedbackHandler() {
             channels.put("auditlog", new TestFeedbackChannel());
         }
-        
+
         @Override
         public Set<String> getChannelNames() throws IOException {
             return channels.keySet();
@@ -79,14 +79,14 @@ public class EventLoggerImplTest extends BaseAgentTest {
         public FeedbackChannel getChannel(String name) throws IOException {
             return channels.get("auditlog");
         }
-        
+
     }
-    
+
     private AgentContextImpl m_agentContext;
     private EventLoggerImpl m_eventLogger;
     private EventsHandler m_eventsHandler;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUpOnceAgain() throws Exception {
         m_agentContext = mockAgentContext();
 
@@ -99,18 +99,19 @@ public class EventLoggerImplTest extends BaseAgentTest {
         m_agentContext.start();
 
     }
-    
-    @AfterClass
+
+    @AfterClass(alwaysRun = true)
     public void tearDownOnceAgain() throws Exception {
         m_agentContext.stop();
         verifyTestMocks();
         clearTestMocks();
     }
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void reset() throws Exception {
         // create a new eventlogger for every test
         m_eventLogger = new EventLoggerImpl(mockBundleContext());
+        m_eventLogger.init(m_agentContext);
         m_eventsHandler.addListener(m_eventLogger);
         m_eventLogger.start(m_agentContext);
 
@@ -119,19 +120,19 @@ public class EventLoggerImplTest extends BaseAgentTest {
         TestFeedbackChannel channel = (TestFeedbackChannel) feedbackHandler.getChannel("auditlog");
         channel.reset();
     }
-    
+
     @SuppressWarnings("deprecation")
     @Test
     public void testWriteEvent() throws Exception {
         FrameworkEvent event = new FrameworkEvent(32, new Object());
         m_eventLogger.frameworkEvent(event);
-        
+
         FeedbackHandler feedbackHandler = m_agentContext.getHandler(FeedbackHandler.class);
         TestFeedbackChannel channel = (TestFeedbackChannel) feedbackHandler.getChannel("auditlog");
         assertEquals(channel.getLastTtype(), 1001);
-        
+
     }
-    
+
     @SuppressWarnings("deprecation")
     @Test
     public void testExcludeEvent() throws Exception {
@@ -144,7 +145,7 @@ public class EventLoggerImplTest extends BaseAgentTest {
         TestFeedbackChannel channel = (TestFeedbackChannel) feedbackHandler.getChannel("auditlog");
         // make sure the configuration is written to the channel
         assertEquals(channel.getLastTtype(), 2000);
-        
+
         m_eventLogger.frameworkEvent(event);
 
         // make sure nothing is written to the channel

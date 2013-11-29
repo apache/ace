@@ -67,8 +67,8 @@ public class Activator implements BundleActivator, LifecycleCallback {
      */
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        // Essentially a single-threaded executor with scheduling support...
-        m_executorService = new ScheduledThreadPoolExecutor(1 /* core pool size */, new InternalThreadFactory());
+        // Essentially a two-threaded executor with scheduling support, one thread is "reserved" for the controller...
+        m_executorService = new ScheduledThreadPoolExecutor(2 /* core pool size */, new InternalThreadFactory());
 
         m_dependencyTracker = new DependencyTrackerImpl(bundleContext, this);
 
@@ -240,7 +240,7 @@ public class Activator implements BundleActivator, LifecycleCallback {
      * Internal thread factory that assigns recognizable names to the threads it creates and sets them in daemon mode.
      */
     public static class InternalThreadFactory implements ThreadFactory {
-        private static final String NAME_TPL = "ACE Agent worker (%s)";
+        private static final String NAME_TPL = "ACE Agent Worker %s";
         private final AtomicInteger m_count = new AtomicInteger();
 
         @Override

@@ -65,7 +65,8 @@ Private-Package: aQute.bnd.annotation.component,\
 -runproperties: \
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.apache.felix.log.storeDebug=true,\
-	org.apache.felix.log.maxSize=1000
+	org.apache.felix.log.maxSize=1000,\
+	org.osgi.framework.bootdelegation="com.yourkit.*,com.sun.*,sun.*,apple.*,com.apple.*"
 Import-Package: org.apache.ace.agent,\
 	!org.osgi.service.component.annotations,\
 	*

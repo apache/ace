@@ -23,7 +23,10 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentContextAware;
@@ -59,60 +62,37 @@ public class AgentContextImpl implements AgentContext {
         ScheduledExecutorService.class
     };
 
-    private final Map<Class<?>, Object> m_handlers = new HashMap<Class<?>, Object>();
-    private final Set<Object> m_components = new LinkedHashSet<Object>();
+    private final Map<Class<?>, Object> m_handlers;
+    private final Set<Object> m_components;
+    private final AtomicReference<Object> m_controllerRef;
+    private final Semaphore m_semaphore;
     private final File m_workDir;
+
+    private volatile Future<?> m_future;
 
     public AgentContextImpl(File workDir) {
         m_workDir = workDir;
+
+        m_semaphore = new Semaphore(1);
+        m_handlers = new HashMap<Class<?>, Object>();
+        m_components = new LinkedHashSet<Object>();
+        m_controllerRef = new AtomicReference<Object>();
     }
 
     /**
-     * Start the context.
+     * Adds a component to this context.
      * 
-     * @throws Exception
-     *             On failure.
+     * @param component
+     *            The component to add, cannot be <code>null</code>.
      */
-    public void start() throws Exception {
-        // Make sure the agent-context is set for all known handlers before they are started, this way we can ensure
-        // they can properly call each other in their onStart() methods...
-        for (Class<?> handlerIface : KNOWN_HANDLERS) {
-            Object handler = m_handlers.get(handlerIface);
-            if (handler == null) {
-                throw new IllegalStateException("Can not start context. Missing handler: " + handlerIface.getName());
-            }
-            initAgentContextAware(handler);
-        }
-        for (Object component : m_components) {
-            initAgentContextAware(component);
-        }
-        // Ensure the handlers are started in a deterministic order...
-        for (Class<?> handlerIface : KNOWN_HANDLERS) {
-            Object handler = m_handlers.get(handlerIface);
-            startAgentContextAware(handler);
-        }
-        for (Object component : m_components) {
-            startAgentContextAware(component);
-        }
-
-        // TODO correctly handle custom controller components!
+    public void addComponent(Object component) {
+        m_components.add(component);
     }
 
-    /**
-     * Stop the context.
-     * 
-     * @throws Exception
-     *             On failure.
-     */
-    public void stop() throws Exception {
-        for (Object component : m_components) {
-            stopAgentContextAware(component);
-        }
-        for (int i = (KNOWN_HANDLERS.length - 1); i >= 0; i--) {
-            Class<?> iface = KNOWN_HANDLERS[i];
-            Object handler = m_handlers.get(iface);
-            stopAgentContextAware(handler);
-        }
+    @Override
+    public <T> T getHandler(Class<T> iface) {
+        Object result = m_handlers.get(iface);
+        return iface.cast(result);
     }
 
     @Override
@@ -120,10 +100,22 @@ public class AgentContextImpl implements AgentContext {
         return m_workDir;
     }
 
-    @Override
-    public <T> T getHandler(Class<T> iface) {
-        Object result = m_handlers.get(iface);
-        return iface.cast(result);
+    /**
+     * Sets the controller to use for the agent.
+     * 
+     * @param controller
+     *            the controller to use, cannot be <code>null</code>.
+     */
+    public void setController(Object controller) {
+        Object old;
+        do {
+            old = m_controllerRef.get();
+        }
+        while (!m_controllerRef.compareAndSet(old, controller));
+
+        if (old != null) {
+            stopController(old);
+        }
     }
 
     /**
@@ -139,27 +131,81 @@ public class AgentContextImpl implements AgentContext {
     }
 
     /**
-     * Adds a component to this context.
+     * Start the context.
      * 
-     * @param component
-     *            The component to add, cannot be <code>null</code>.
+     * @throws Exception
+     *             On failure.
      */
-    public void addComponent(Object component) {
-        m_components.add(component);
+    public void start() throws Exception {
+        m_semaphore.acquire();
+        try {
+            // Make sure the agent-context is set for all known handlers before they are started, this way we can ensure
+            // they can properly call each other in their onStart() methods...
+            for (Class<?> handlerIface : KNOWN_HANDLERS) {
+                Object handler = m_handlers.get(handlerIface);
+                if (handler == null) {
+                    throw new IllegalStateException("Can not start context. Missing handler: " + handlerIface.getName());
+                }
+                initAgentContextAware(handler);
+            }
+            for (Object component : m_components) {
+                initAgentContextAware(component);
+            }
+            // Ensure the handlers are started in a deterministic order...
+            for (Class<?> handlerIface : KNOWN_HANDLERS) {
+                Object handler = m_handlers.get(handlerIface);
+                startAgentContextAware(handler);
+            }
+            for (Object component : m_components) {
+                startAgentContextAware(component);
+            }
+
+            // Lastly, start the agent controller...
+            Object controller = m_controllerRef.get();
+            if (controller != null) {
+                startController(controller);
+            }
+        }
+        finally {
+            m_semaphore.release();
+        }
     }
 
     /**
-     * Sets the controller to use for the agent.
+     * Stop the context.
      * 
-     * @param controller
-     *            the controller to use, cannot be <code>null</code>.
+     * @throws Exception
+     *             On failure.
      */
-    public void setController(Object controller) {
-        // For now this ensures the same behaviour as we had. This will change in the near future!
-        addComponent(controller);
+    public void stop() throws Exception {
+        m_semaphore.acquire();
+        try {
+            // First, stop the agent controller...
+            Object controller = m_controllerRef.get();
+            if (controller != null) {
+                stopController(controller);
+            }
+
+            for (Object component : m_components) {
+                stopAgentContextAware(component);
+            }
+            for (int i = (KNOWN_HANDLERS.length - 1); i >= 0; i--) {
+                Class<?> iface = KNOWN_HANDLERS[i];
+                Object handler = m_handlers.get(iface);
+                stopAgentContextAware(handler);
+            }
+        }
+        finally {
+            // We do *not* allow the handlers/components to be reused...
+            m_handlers.clear();
+            m_components.clear();
+            m_controllerRef.set(null);
+
+            m_semaphore.release();
+        }
     }
 
-    private void initAgentContextAware(Object object) throws Exception {
+    private void initAgentContextAware(Object object) {
         if (object instanceof AgentContextAware) {
             try {
                 ((AgentContextAware) object).init(this);
@@ -181,6 +227,40 @@ public class AgentContextImpl implements AgentContext {
         }
     }
 
+    private void startController(final Object object) {
+        terminateRunningController();
+
+        initAgentContextAware(object);
+
+        // In case of a Runnable, we start a separate thread that executes this task...
+        if (object instanceof Runnable) {
+            ScheduledExecutorService executorService = getHandler(ScheduledExecutorService.class);
+            if (executorService == null || executorService.isShutdown()) {
+                return;
+            }
+
+            m_future = executorService.submit(new Runnable() {
+                private static final String NAME = "ACE Agent Controller";
+
+                @Override
+                public void run() {
+                    // Annotate the name of the thread for debugging purposes...
+                    Thread.currentThread().setName(NAME);
+
+                    startAgentContextAware(object);
+
+                    ((Runnable) object).run();
+
+                    stopAgentContextAware(object);
+                }
+            });
+        }
+        else {
+            // Expect the controller to handle its own execution...
+            startAgentContextAware(object);
+        }
+    }
+
     private void stopAgentContextAware(Object object) {
         if (object instanceof AgentContextAware) {
             try {
@@ -189,6 +269,24 @@ public class AgentContextImpl implements AgentContext {
             catch (Exception exception) {
                 exception.printStackTrace();
             }
+        }
+    }
+
+    private void stopController(Object object) {
+        terminateRunningController();
+
+        if (!(object instanceof Runnable)) {
+            stopAgentContextAware(object);
+        }
+    }
+
+    /**
+     * Terminates any running controller (if any).
+     */
+    private void terminateRunningController() {
+        if (m_future != null) {
+            m_future.cancel(true /* mayInterruptWhileRunning */);
+            m_future = null;
         }
     }
 }

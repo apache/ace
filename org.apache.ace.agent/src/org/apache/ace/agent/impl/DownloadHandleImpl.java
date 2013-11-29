@@ -45,6 +45,8 @@ class DownloadHandleImpl implements DownloadHandle {
         m_url = url;
 
         m_file = new File(m_handler.getDataLocation(), getDownloadFileName());
+
+        m_handler.logDebug("Created download handle for %s in %s.", m_file.getName(), m_file.getPath());
     }
 
     @Override

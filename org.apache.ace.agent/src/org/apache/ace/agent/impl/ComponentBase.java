@@ -20,6 +20,7 @@ package org.apache.ace.agent.impl;
 
 import java.io.File;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentContextAware;
@@ -40,10 +41,11 @@ import org.apache.ace.agent.LoggingHandler;
 public abstract class ComponentBase implements AgentContextAware {
     private final String m_identifier;
     // Injected by AgentContextImpl...
-    private volatile AgentContext m_context;
+    private final AtomicReference<AgentContext> m_contextRef;
 
     public ComponentBase(String handlerIdentifier) {
         m_identifier = handlerIdentifier;
+        m_contextRef = new AtomicReference<AgentContext>();
     }
 
     @Override
@@ -51,9 +53,9 @@ public abstract class ComponentBase implements AgentContextAware {
         if (agentContext == null) {
             throw new IllegalArgumentException("Context must not be null");
         }
-        if (m_context == null) {
-            m_context = agentContext;
-        }
+
+        setAgentContext(agentContext);
+
         onInit();
     }
 
@@ -62,8 +64,9 @@ public abstract class ComponentBase implements AgentContextAware {
         if (agentContext == null) {
             throw new IllegalArgumentException("Context must not be null");
         }
-        if (m_context == null) {
-            m_context = agentContext;
+        else if (getAgentContext() != agentContext) {
+            // Just to be sure...
+            throw new IllegalStateException("Context changed between init and start?!");
         }
         onStart();
     }
@@ -74,15 +77,16 @@ public abstract class ComponentBase implements AgentContextAware {
             onStop();
         }
         finally {
-            m_context = null;
+            setAgentContext(null);
         }
     }
 
     protected final AgentContext getAgentContext() {
-        if (m_context == null) {
+        AgentContext context = m_contextRef.get();
+        if (context == null) {
             throw new IllegalStateException("Handler is not started: " + m_identifier);
         }
-        return m_context;
+        return context;
     }
 
     protected void onInit() throws Exception {
@@ -98,51 +102,51 @@ public abstract class ComponentBase implements AgentContextAware {
     }
 
     protected final IdentificationHandler getIdentificationHandler() {
-        return m_context.getHandler(IdentificationHandler.class);
+        return getAgentContext().getHandler(IdentificationHandler.class);
     }
 
     protected final DiscoveryHandler getDiscoveryHandler() {
-        return m_context.getHandler(DiscoveryHandler.class);
+        return getAgentContext().getHandler(DiscoveryHandler.class);
     }
 
     protected final ConnectionHandler getConnectionHandler() {
-        return m_context.getHandler(ConnectionHandler.class);
+        return getAgentContext().getHandler(ConnectionHandler.class);
     }
 
     protected final DeploymentHandler getDeploymentHandler() {
-        return m_context.getHandler(DeploymentHandler.class);
+        return getAgentContext().getHandler(DeploymentHandler.class);
     }
 
     protected final DownloadHandler getDownloadHandler() {
-        return m_context.getHandler(DownloadHandler.class);
+        return getAgentContext().getHandler(DownloadHandler.class);
     }
 
     protected final ConfigurationHandler getConfigurationHandler() {
-        return m_context.getHandler(ConfigurationHandler.class);
+        return getAgentContext().getHandler(ConfigurationHandler.class);
     }
 
     protected final AgentUpdateHandler getAgentUpdateHandler() {
-        return m_context.getHandler(AgentUpdateHandler.class);
+        return getAgentContext().getHandler(AgentUpdateHandler.class);
     }
 
     protected final FeedbackHandler getFeedbackHandler() {
-        return m_context.getHandler(FeedbackHandler.class);
+        return getAgentContext().getHandler(FeedbackHandler.class);
     }
 
     protected final LoggingHandler getLoggingHandler() {
-        return m_context.getHandler(LoggingHandler.class);
+        return getAgentContext().getHandler(LoggingHandler.class);
     }
 
     protected final EventsHandler getEventsHandler() {
-        return m_context.getHandler(EventsHandler.class);
+        return getAgentContext().getHandler(EventsHandler.class);
     }
 
     protected final ScheduledExecutorService getExecutorService() {
-        return m_context.getHandler(ScheduledExecutorService.class);
+        return getAgentContext().getHandler(ScheduledExecutorService.class);
     }
 
     protected final File getWorkDir() {
-        return m_context.getWorkDir();
+        return getAgentContext().getWorkDir();
     }
 
     protected final void logDebug(String message, Object... args) {
@@ -175,5 +179,13 @@ public abstract class ComponentBase implements AgentContextAware {
 
     protected final void logError(String message, Throwable cause, Object... args) {
         getLoggingHandler().logError(m_identifier, message, cause, args);
+    }
+
+    private void setAgentContext(AgentContext agentContext) {
+        AgentContext old;
+        do {
+            old = m_contextRef.get();
+        }
+        while (!m_contextRef.compareAndSet(old, agentContext));
     }
 }

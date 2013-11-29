@@ -56,7 +56,7 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
     private final Set<Integer> m_excludeEventList;
 
     public EventLoggerImpl(BundleContext bundleContext) {
-        super("auditlogger");
+        super("eventlogger");
 
         m_bundleContext = bundleContext;
         m_isStarted = new AtomicBoolean(false);

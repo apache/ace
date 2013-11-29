@@ -113,7 +113,7 @@ public abstract class BaseAgentTest extends IntegrationTestBase {
 
     @Override
     protected void configureProvisionedServices() throws Exception {
-        resetAgentBundleState();
+        // resetAgentBundleState();
     }
 
     protected Bundle getAgentBundle() {
@@ -130,7 +130,7 @@ public abstract class BaseAgentTest extends IntegrationTestBase {
         File dataDir = agentBundle.getBundleContext().getDataFile("");
 
         // System.out.println("BaseAgentTest: Stopping agent bundle");
-        agentBundle.stop();
+        agentBundle.stop(Bundle.STOP_TRANSIENT);
         // System.out.println("BaseAgentTest: Cleaning bundle data dir (" + dataDir + ")");
         cleanDir(dataDir);
         // System.out.println("BaseAgentTest: Cleaning system properties");
