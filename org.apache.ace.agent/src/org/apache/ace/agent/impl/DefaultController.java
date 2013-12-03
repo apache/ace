@@ -165,6 +165,8 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
             }
             catch (InstallationFailedException ex) {
                 installationFailed(updateInfo, ex);
+                
+                controller.logError("Deployment failed: %s %s", ex.getMessage(), (ex.getCause() != null) ? ex.getCause().getMessage() : "");
             }
             catch (IOException ex) {
                 installationFailed(updateInfo, ex);

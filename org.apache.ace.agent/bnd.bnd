@@ -27,7 +27,7 @@ Export-Package: org.apache.ace.agent,\
 
 # Keeping the agent as lean as possible. Remove debug when compiling
 # offline
-javac.debug:  off
+#javac.debug:  off
 
 -buildpath: osgi.core;version=4.2,\
 	osgi.cmpn;version=4.2,\

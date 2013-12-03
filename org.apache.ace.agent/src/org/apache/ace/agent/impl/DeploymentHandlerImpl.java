@@ -23,6 +23,9 @@ import static org.apache.ace.agent.impl.ReflectionUtil.invokeMethod;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -35,6 +38,7 @@ import org.apache.ace.agent.InstallationFailedException;
 import org.apache.ace.agent.RetryAfterException;
 import org.apache.felix.deploymentadmin.DeploymentAdminImpl;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.service.deploymentadmin.DeploymentAdmin;
@@ -49,18 +53,67 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
 
     /**
      * Internal EventAdmin that delegates to actual InternalEvents. Used to inject into the DeploymentAdmin only.
+     * If it can find an EventAdmin service in the framework, it will also send events to that service. It does so
+     * without ever trying to import any API, because of two reasons:
+     * <ol>
+     * <li>We want to isolate the management agent as well as possible from the rest of the framework.</li>
+     * <li>We have an internal copy of the EventAdmin API, which means we cannot be exposed to another version anyway.</li>
+     * </ol>
      */
     final class EventAdminBridge implements EventAdmin {
+        private final BundleContext m_context;
+
+        public EventAdminBridge(BundleContext context) {
+            m_context = context;
+        }
+        
         @Override
         public void postEvent(Event event) {
             getEventsHandler().postEvent(event.getTopic(), getPayload(event));
+            eventAdminInvoke("postEvent", event);
         }
 
         @Override
         public void sendEvent(Event event) {
-            getEventsHandler().postEvent(event.getTopic(), getPayload(event));
+            getEventsHandler().sendEvent(event.getTopic(), getPayload(event));
+            eventAdminInvoke("sendEvent", event);
         }
 
+        private void eventAdminInvoke(String method, Event event) {
+            try {
+                // try to find an EventAdmin service
+                ServiceReference[] refs = m_context.getAllServiceReferences(EventAdmin.class.getName(), null);
+                if (refs != null && refs.length > 0) {
+                    // if we've found one (or more) we pick the first match
+                    Object svc = m_context.getService(refs[0]);
+                    if (svc != null) {
+                        try {
+                            // if the service is still around, we use the instance to find its classloader
+                            // and obtain a reference to its "Event" class
+                            Class clazz = svc.getClass().getClassLoader().loadClass(Event.class.getName());
+                            // and try to find a constructor
+                            Constructor ctor = clazz.getConstructor(String.class, Map.class);
+                            // instantiate the event, using the topic and payload
+                            Object eventAdminEvent = ctor.newInstance(event.getTopic(), getPayload(event));
+                            // and now try to find the supplied method (either postEvent or sendEvent)
+                            Method methodReference = svc.getClass().getMethod(method, clazz);
+                            // and invoke it
+                            methodReference.invoke(svc, eventAdminEvent);
+                        }
+                        finally {
+                            // make sure we always unget our service reference
+                            m_context.ungetService(refs[0]);
+                        }
+                    }
+                }
+            }
+            catch (Exception e) {
+                // there is a lot that can go wrong, but not much we can do at this point
+                // beyond logging the error message
+                logError("Failed to invoke EventAdmin: %s", e, e.getMessage());
+            }
+        }
+        
         private Map<String, String> getPayload(Event event) {
             Map<String, String> payload = new HashMap<String, String>();
             for (String propertyName : event.getPropertyNames()) {
@@ -118,7 +171,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
         m_deploymentAdmin = new DeploymentAdminImpl();
         configureField(m_deploymentAdmin, BundleContext.class, bundleContext);
         configureField(m_deploymentAdmin, PackageAdmin.class, packageAdmin);
-        configureField(m_deploymentAdmin, EventAdmin.class, new EventAdminBridge());
+        configureField(m_deploymentAdmin, EventAdmin.class, new EventAdminBridge(bundleContext));
         configureField(m_deploymentAdmin, LogService.class, new LogServiceBridge());
     }
 
