@@ -21,7 +21,7 @@ public class BundleDirBundleProvider implements BundleProvider {
     @Override
     public String[] getBundleNames() {
         File dir = getDir();
-        if (!dir.exists() || !dir.canRead()) {
+        if (!dir.exists() || !dir.canRead() || !dir.isDirectory()) {
             return new String[] {};
         }
 
@@ -47,9 +47,6 @@ public class BundleDirBundleProvider implements BundleProvider {
     }
 
     private File getDir() {
-        String dir = System.getProperty(BUNDLE_DIR_PROPERTY);
-        if (dir != null)
-            return new File(dir);
-        return new File(BUNDLE_DIR_DEFAULT);
+        return new File(System.getProperty(BUNDLE_DIR_PROPERTY, BUNDLE_DIR_DEFAULT));
     }
 }

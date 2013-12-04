@@ -19,12 +19,10 @@
 
 package org.apache.ace.agent.launcher;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -36,7 +34,6 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 
 import org.apache.ace.agent.AgentConstants;
-import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.LoggingHandler;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -46,23 +43,21 @@ import org.apache.commons.cli.Options;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
-import org.osgi.framework.Version;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 
 /**
- * A simple launcher, that launches the embedded Felix together with a management agent. Additional bundles may be
+ * A simple launcher, that launches the embedded OSGi framework together with a management agent. Additional bundles may be
  * installed by putting {@link BundleProvider} services on the classpath.
  */
 public class Launcher {
 
     public static void main(String[] args) throws Exception {
-
         Options options = new Options();
-        options.addOption("a", "agent", true, "agentid (default handler)");
-        options.addOption("s", "serverurl", true, "serverurl (default handler");
+        options.addOption("a", "agent", true, "agent id (default handler)");
+        options.addOption("s", "serverurl", true, "server url (default handler)");
         options.addOption("v", "verbose", false, "verbose logging");
+        options.addOption("c", "config", true, "configuration file (see below)");
         options.addOption("h", "help", false, "print this message");
 
         CommandLineParser parser = new BasicParser();
@@ -71,11 +66,6 @@ public class Launcher {
         if (command.hasOption("h")) {
             printHelp(options);
             return;
-        }
-
-        String[] arguments = command.getArgs();
-        if (arguments.length > 1) {
-            printHelp(options);
         }
 
         Map<String, String> configuration = new Hashtable<String, String>();
@@ -87,8 +77,8 @@ public class Launcher {
         }
 
         // overwrite with user properties
-        if (arguments.length == 1) {
-            Properties userProperties = loadUserProperties(arguments[0]);
+        if (command.hasOption("c")) {
+            Properties userProperties = loadUserProperties(command.getOptionValue("c"));
             if (userProperties != null) {
                 for (Object key : userProperties.keySet()) {
                     configuration.put((String) key, userProperties.getProperty((String) key));
@@ -102,18 +92,50 @@ public class Launcher {
             configuration.put(AgentConstants.CONFIG_LOGGING_LEVEL, LoggingHandler.Levels.DEBUG.name());
         }
 
+        // set server urls
+        if (command.hasOption("s")) {
+            configuration.put("agent.discovery.serverurls", command.getOptionValue("s"));
+        }
+
+        // set agent id
+        if (command.hasOption("a")) {
+            configuration.put("agent.identification.agentid", command.getOptionValue("a"));
+        }
+        
         new Launcher(configuration).run();
     }
 
     private static void printHelp(Options options) {
+        // if all else fails, this is our default jar name
+        String jarName = "org.apache.ace.agent.launcher.felix.jar";
+        // because we have to use an unofficial API to get to the command line
+        // to find the name of the jar that was started
+        String command = System.getProperty("sun.java.command");
+        if (command != null) {
+            String[] args = command.split(" ");
+            if (args.length > 0) {
+                jarName = args[0];
+            }
+        }
         HelpFormatter formatter = new HelpFormatter();
         formatter
             .printHelp(
                 120,
-                "java -jar org.apache.ace.agent.launcher [options] [configurationfile]",
-                "\nApache ACE AgentLauncher\n\n", options,
-                "\n\nConfiguration file options\n\nTODO", false);
-    }
+                "java -jar " + jarName + " [options]",
+                "\n\nOptions:\n\n", options,
+                "\n\nConfiguration file format:\n\n" +
+                "A configuration file that can contain framework or agent configuration settings. " +
+                "If you specify a certain setting both on the command line and in a configuration file, the command line takes precedence. " +
+                "Framework configuration should be prefixed with 'framework.' so for example 'framework.org.osgi.framework.bootdelegation' will become 'org.osgi.framework.bootdelegation'. " +
+                "Agent configuration starts with 'agent.' and will not be replaced. " +
+                "Available options are (not exclusive):\n" +
+                "agent.identification.agentid  : A name to uniquely identify the target\n" +
+                "agent.discovery.serverurls    : Location of the Apache ACE server\n" +
+                "agent.controller.syncinterval : Synchronization interval in seconds\n" +
+                "agent.controller.syncdelay    : Synchronization initial delay in seconds\n" +
+                "\n\nAlso, you can create a folder called 'bundle' and put bundles in that folder that will be started by the launcher.\n"
+                , false);
+        }
 
     private static Properties loadDefaultProperties() throws IOException {
         Properties properties = new Properties();
@@ -134,7 +156,7 @@ public class Launcher {
         File configFile = new File(configFileArgument);
         if (!configFile.exists() || !configFile.isFile()
             || !configFile.canRead()) {
-            System.err.println("Can not acces configuration file : " + configFileArgument);
+            System.err.println("Can not access configuration file : " + configFileArgument);
             return null;
         }
         Properties properties = new Properties();
@@ -168,7 +190,7 @@ public class Launcher {
             FrameworkFactory frameworkFactory = loadFrameworkFactory();
             Map<String, String> frameworkProperties = createFrameworkProperties();
             if (m_verbose) {
-                System.out.println("Launching OSGI framework\n factory\t: "
+                System.out.println("Launching OSGi framework\n factory\t: "
                     + frameworkFactory.getClass().getName()
                     + "\n properties\t: " + frameworkProperties);
             }
@@ -272,50 +294,6 @@ public class Launcher {
                 frameworkProperties.put(frameworkKey, frameworkValue);
             }
         }
-        getAgentApiPackageSpec();
-        String extraPackage = frameworkProperties.get(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA);
-        if (extraPackage == null || extraPackage.equals("")) {
-            frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, getAgentApiPackageSpec());
-        }
-        else {
-            frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, extraPackage + "," + getAgentApiPackageSpec());
-        }
         return frameworkProperties;
-    }
-
-    /**
-     * Determines the export clause for the agent API package.
-     * 
-     * @return the export clause
-     * @throws Exception on failure
-     */
-    private String getAgentApiPackageSpec() throws IOException {
-        String apiPackage = AgentControl.class.getPackage().getName();
-        String apiVersion = Version.emptyVersion.toString();
-        InputStream packageInfoStream = null;
-        BufferedReader packageInfoReader = null;
-        try {
-            packageInfoStream = getClass().getClassLoader().getResourceAsStream(apiPackage.replaceAll("\\.", "/") + "/packageinfo");
-            packageInfoReader = new BufferedReader(new InputStreamReader(packageInfoStream));
-            String packageInfoLine = null;
-            while ((packageInfoLine = packageInfoReader.readLine()) != null) {
-                if (packageInfoLine.trim().startsWith("version ")) {
-                    apiVersion = packageInfoLine.trim().replaceFirst("version ", "");
-                    break;
-                }
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            if (packageInfoReader != null) {
-                packageInfoReader.close();
-            }
-            else {
-                if (packageInfoStream != null) {
-                    packageInfoStream.close();
-                }
-            }
-        }
-        return apiPackage + ";version=" + apiVersion;
     }
 }
