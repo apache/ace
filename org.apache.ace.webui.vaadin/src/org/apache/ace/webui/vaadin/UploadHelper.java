@@ -33,6 +33,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 
+import com.vaadin.event.Transferable;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptAll;
@@ -51,11 +52,11 @@ import com.vaadin.ui.Upload.SucceededEvent;
 public class UploadHelper {
     public static interface UploadHandle {
         void cleanup();
-        
+
         Exception getFailureReason();
 
         File getFile();
-        
+
         String getFilename();
 
         boolean isSuccessful();
@@ -73,8 +74,13 @@ public class UploadHelper {
 
         @Override
         public void drop(DragAndDropEvent dropEvent) {
+            Transferable transferable = dropEvent.getTransferable();
+            if (!(transferable instanceof WrapperTransferable)) {
+                return;
+            }
+
             // expecting this to be an html5 drag
-            WrapperTransferable tr = (WrapperTransferable) dropEvent.getTransferable();
+            WrapperTransferable tr = (WrapperTransferable) transferable;
             Html5File[] files = tr.getFiles();
             if (files != null) {
                 for (Html5File html5File : files) {
@@ -239,12 +245,12 @@ public class UploadHelper {
                 m_fos.close();
             }
         }
-        
+
         @Override
         public Exception getFailureReason() {
             return m_failureReason;
         }
-        
+
         @Override
         public File getFile() {
             return m_file;

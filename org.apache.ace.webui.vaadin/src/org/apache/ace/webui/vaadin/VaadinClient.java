@@ -1118,7 +1118,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         m_artifactToolbar = createArtifactToolbar();
 
         final DragAndDropWrapper artifactsPanelWrapper = new DragAndDropWrapper(m_artifactsPanel);
-        artifactsPanelWrapper.setDragStartMode(DragStartMode.COMPONENT);
+        artifactsPanelWrapper.setDragStartMode(DragStartMode.HTML5);
         artifactsPanelWrapper.setDropHandler(new ArtifactDropHandler(uploadHandler));
         artifactsPanelWrapper.setCaption(m_artifactsPanel.getCaption());
         artifactsPanelWrapper.setSizeFull();
