@@ -11,8 +11,9 @@
 	org.apache.felix.log.storeDebug=true,\
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.apache.felix.log.maxSize=1000,\
-	agent.logging.level=DEBUG,\
+	agent.logging.level=INFO,\
 	agent.identification.agentid=target-1,\
 	agent.discovery.serverurls=http://localhost:8080,\
-	agent.controller.syncinterval=30,\
-	agent.controller.syncdelay=1
+	agent.controller.syncinterval=10,\
+	agent.controller.streaming=true,\
+	agent.controller.syncdelay=5

@@ -4,7 +4,7 @@
 #
 
 # Configure your server here
-server=http://localhost:${org.apache.ace.server.port}
+server=http://${org.apache.ace.server}
 
 # Note that AMIs are specific to an Amazon availability zone
 amiId=ami-6a31041e
