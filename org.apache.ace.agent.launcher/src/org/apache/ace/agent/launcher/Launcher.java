@@ -34,7 +34,6 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 
 import org.apache.ace.agent.AgentConstants;
-import org.apache.ace.agent.LoggingHandler;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
