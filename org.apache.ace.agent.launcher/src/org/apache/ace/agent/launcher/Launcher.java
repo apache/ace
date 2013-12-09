@@ -89,7 +89,7 @@ public class Launcher {
         // convenience debug override
         if (command.hasOption("v")) {
             configuration.put("verbose", "true");
-            configuration.put(AgentConstants.CONFIG_LOGGING_LEVEL, LoggingHandler.Levels.DEBUG.name());
+            configuration.put(AgentConstants.CONFIG_LOGGING_LEVEL, "DEBUG");
         }
 
         // set server urls
