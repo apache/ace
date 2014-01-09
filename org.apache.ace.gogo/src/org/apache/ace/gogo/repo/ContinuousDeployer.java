@@ -160,7 +160,7 @@ public class ContinuousDeployer {
     private Resource deploySnapshotResource(Resource resource, Version snapshotVersion) throws Exception {
 
         File file = m_developmentRepo.get(getIdentity(resource), getVersion(resource).toString(), Strategy.EXACT, null);
-        if (getType(resource).equals("osgi.bundle")) {
+        if (getType(resource).equals("osgi.bundle") || getType(resource).equals("osgi.fragment")) {
             file = getBundleWithNewVersion(file, snapshotVersion.toString());
         }
 
