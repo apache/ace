@@ -32,7 +32,7 @@ Export-Package: org.apache.ace.agent,\
 -buildpath: osgi.core;version=4.2,\
 	osgi.cmpn;version=4.2,\
 	javax.servlet;version=2.5,\
-	org.apache.felix.deploymentadmin;version=0.9.4,\
+	org.apache.felix.deploymentadmin;version=0.9.5,\
 	org.easymock,\
 	org.apache.felix.http.jetty;version=2.2.1,\
 	org.apache.ace.range.api;version=latest,\

@@ -102,8 +102,8 @@
 		<mkdir dir="${target.target.dir}" />
 
 		<resources id="devserver-store">
-			<file file="../org.apache.ace.deployment.rp.autoconf/generated/org.apache.ace.deployment.rp.autoconf.jar" />
-			<file file="../org.apache.ace.launcher/generated/org.apache.ace.launcher.jar" />
+			<file file="../cnf/localrepo/org.apache.felix.deployment.rp.autoconf/org.apache.felix.deployment.rp.autoconf-0.1.5.jar" />
+			<file file="../org.apache.ace.agent.launcher/generated/org.apache.ace.agent.launcher.felix.jar" />
 		</resources>
 
 		<!-- copy the configuration files -->
@@ -124,12 +124,12 @@
 		<copy todir="${target.server.dir}/store" flatten="true">
 			<resources refid="devserver-store" />
 		</copy>
-		<move file="${target.server.dir}/store/org.apache.ace.launcher.jar" toFile="${target.server.dir}/store/ace-launcher.jar"/>
+		<move file="${target.server.dir}/store/org.apache.ace.agent.launcher.felix.jar" toFile="${target.server.dir}/store/ace-launcher.jar"/>
 
 		<copy todir="${target.server-allinone.dir}/store" flatten="true">
 			<resources refid="devserver-store" />
 		</copy>
-		<move file="${target.server-allinone.dir}/store/org.apache.ace.launcher.jar" toFile="${target.server-allinone.dir}/store/ace-launcher.jar"/>
+		<move file="${target.server-allinone.dir}/store/org.apache.ace.agent.launcher.felix.jar" toFile="${target.server-allinone.dir}/store/ace-launcher.jar"/>
 
 		<!-- create the executable jars -->
 		<bndpackage runfile="../run-server-allinone/server-allinone.bndrun" output="${target.server-allinone.dir}/server-allinone.jar" />

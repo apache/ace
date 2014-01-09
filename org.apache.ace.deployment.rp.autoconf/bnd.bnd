@@ -1,4 +1,4 @@
--buildpath: org.apache.felix.deployment.rp.autoconf;version=0.1.4
+-buildpath: org.apache.felix.deployment.rp.autoconf;version=0.1.5
 
 Bundle-Activator: org.apache.felix.deployment.rp.autoconf.Activator
 Bundle-Description: Apache ACE AutoConf Resource Processor that warps the Apache Felix AutoConf Resource Processor implementation to add import package qualifiers
