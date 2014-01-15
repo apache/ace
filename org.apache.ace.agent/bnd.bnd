@@ -39,7 +39,7 @@ Export-Package: org.apache.ace.agent,\
 	org.apache.ace.feedback.common;version=latest
 
 -sources false
--runfw: org.apache.felix.framework;version='[4.0,5.0)'
+-runfw: org.apache.felix.framework;version='[4,5)'
 -runee: JavaSE-1.6
 -runbundles: org.apache.felix.gogo.command,\
 	org.apache.felix.gogo.runtime,\

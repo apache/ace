@@ -1,7 +1,7 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 Private-Package: org.apache.ace.useradmin.ui.test
 -runvm: -ea
--runfw: org.apache.felix.framework;version='[4.0.3,4.0.3]'
+-runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: osgi.cmpn,\
 	com.vaadin,\
 	org.apache.felix.configadmin,\

@@ -63,7 +63,7 @@ Private-Package: \
 	aQute.libg.version
 -runee: JavaSE-1.6
 -runvm: -ea
--runfw: org.apache.felix.framework
+-runfw: org.apache.felix.framework;version='[4,5)'
 -buildpath: osgi.core;version='[4.2,5)',\
 	org.apache.ace.agent;version=latest,\
 	org.apache.ace.builder;version=latest,\
