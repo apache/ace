@@ -87,7 +87,7 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
             throw new IllegalStateException("The repository is currently busy, so no new objects can be created.");
         }
         T result = (T) createNewInhabitant(attributes, tags);
-        if (add(result)) {
+        if (internalAdd(result)) {
             return result;
         }
         throw new IllegalArgumentException("Failed to add new object: entity already exists!");
@@ -185,30 +185,11 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         m_notifier.notifyChanged(topic, props, internalOnly);
     }
 
-    @SuppressWarnings("unchecked")
     public void remove(T entity) {
         if (m_busy) {
             throw new IllegalStateException("The repository is currently busy, so no objects can be removed.");
         }
-
-        boolean result = false;
-
-        Lock writeLock = m_lock.writeLock();
-        writeLock.lock();
-        try {
-            if (m_repo.remove(entity)) {
-                m_index.remove(entity.getDefinition());
-                ((I) entity).setDeleted();
-                result = true;
-            }
-        }
-        finally {
-            writeLock.unlock();
-        }
-
-        if (result) {
-            notifyEntityChanged(entity, RepositoryObject.TOPIC_REMOVED_SUFFIX);
-        }
+        internalRemove(entity);
     }
 
     /**
@@ -243,7 +224,7 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
                 reader.moveDown();
                 I newInhabitant = createNewInhabitant(reader);
                 newInhabitant.setBusy(m_busy);
-                add((T) newInhabitant);
+                internalAdd((T) newInhabitant);
                 reader.moveUp();
             }
         }
@@ -253,36 +234,6 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         finally {
             writeLock.unlock();
         }
-    }
-
-    /**
-     * Helper method that stores an object in the repository, taking care of the right events.
-     * 
-     * @param entity
-     *            the object to be stored.
-     * @return true only when the object (or at least one identical to it) did not yet exist in the repository.
-     */
-    boolean add(T entity) {
-        boolean result = false;
-
-        Lock writeLock = m_lock.writeLock();
-        writeLock.lock();
-        try {
-            if (!m_repo.contains(entity)) {
-                m_repo.add(entity);
-                m_index.put(entity.getDefinition(), entity);
-                result = true;
-            }
-        }
-        finally {
-            writeLock.unlock();
-        }
-
-        if (result) {
-            notifyEntityChanged(entity, RepositoryObject.TOPIC_ADDED_SUFFIX);
-        }
-
-        return result;
     }
 
     Filter createFilter(String filter) throws InvalidSyntaxException {
@@ -308,6 +259,60 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
      * @return The new inhabitant.
      */
     abstract I createNewInhabitant(Map<String, String> attributes, Map<String, String> tags);
+
+    /**
+     * Helper method that stores an object in the repository, taking care of the right events.
+     * 
+     * @param entity
+     *            the object to be stored.
+     * @return true only when the object (or at least one identical to it) did not yet exist in the repository.
+     */
+    boolean internalAdd(T entity) {
+        boolean result = false;
+
+        Lock writeLock = m_lock.writeLock();
+        writeLock.lock();
+        try {
+            if (!m_repo.contains(entity)) {
+                m_repo.add(entity);
+                m_index.put(entity.getDefinition(), entity);
+                result = true;
+            }
+        }
+        finally {
+            writeLock.unlock();
+        }
+
+        if (result) {
+            notifyEntityChanged(entity, RepositoryObject.TOPIC_ADDED_SUFFIX);
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    boolean internalRemove(T entity) {
+        boolean result = false;
+
+        Lock writeLock = m_lock.writeLock();
+        writeLock.lock();
+        try {
+            if (m_repo.remove(entity)) {
+                m_index.remove(entity.getDefinition());
+                ((I) entity).setDeleted();
+                result = true;
+            }
+        }
+        finally {
+            writeLock.unlock();
+        }
+
+        if (result) {
+            notifyEntityChanged(entity, RepositoryObject.TOPIC_REMOVED_SUFFIX);
+        }
+
+        return result;
+    }
 
     /**
      * Removes all objects in this repository, without caring for the consistency and correct event firing.

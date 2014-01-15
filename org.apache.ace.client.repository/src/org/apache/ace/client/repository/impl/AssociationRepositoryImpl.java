@@ -59,7 +59,7 @@ public abstract class AssociationRepositoryImpl<L extends RepositoryObject, R ex
                 attributes.put(Association.LEFT_CARDINALITY, "" + leftCardinality);
                 attributes.put(Association.RIGHT_CARDINALITY, "" + rightCardinality);
                 association = (T) createNewInhabitant(attributes);
-                if (!add(association)) {
+                if (!internalAdd(association)) {
                     return null;
                 }
             }

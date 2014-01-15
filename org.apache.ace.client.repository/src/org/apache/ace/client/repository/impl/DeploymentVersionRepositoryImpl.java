@@ -101,8 +101,8 @@ public class DeploymentVersionRepositoryImpl extends ObjectRepositoryImpl<Deploy
     }
 
     @Override
-    boolean add(DeploymentVersionObject entity) {
-        boolean result = super.add(entity);
+    boolean internalAdd(DeploymentVersionObject entity) {
+        boolean result = super.internalAdd(entity);
 
         int deploymentVersionLimit = getDeploymentVersionLimit();
         if (deploymentVersionLimit > 0) {
@@ -160,7 +160,9 @@ public class DeploymentVersionRepositoryImpl extends ObjectRepositoryImpl<Deploy
             SortedSet<DeploymentVersionObject> versions = entry.getValue();
             while (versions.size() > deploymentVersionLimit) {
                 DeploymentVersionObject head = versions.first();
-                remove(head);
+                // We can be called while unmarshalling the database, hence we need to ensure that we do not use the
+                // public API as this one throws an exception while this repository is busy. See ACE-449.
+                internalRemove(head);
                 versions.remove(head);
             }
         }
