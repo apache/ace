@@ -6,7 +6,8 @@ Bundle-Name: Apache ACE Agent Felix launcher
 Bundle-Description: Standalone launcher that start a Felix framework with an embedded ACE Agent
 
 # Include the felix defaults
-felix.version=4.0.3
+felix.version=4.2.1
+
 Include-Resource: @${repo;org.apache.felix.framework;${felix.version}}!/default.properties,\
     @${repo;org.apache.felix.framework;${felix.version}}!/META-INF/services/*,\
     @${repo;org.apache.felix.framework;${felix.version}}!/org/*,\
