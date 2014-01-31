@@ -181,7 +181,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
                     resp.setStatus(416); // content range not satisfiable...
                     return;
                 }
-                
+
                 resp.addHeader("Content-Range", String.format("bytes %d-%d/%d", start, end - 1, fileLength));
                 resp.setStatus(206); // partial
             }
@@ -337,6 +337,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
     private TestPackage m_package4;
     private TestPackage m_package5;
     private TestPackage m_package6;
+    private TestPackage m_package7;
 
     /**
      * Test case for ACE-323: when a version of a DP was downloaded correctly, but did not install correctly, we should
@@ -438,15 +439,6 @@ public class AgentDeploymentTest extends BaseAgentTest {
 
     /**
      * Tests the deployment of "non-streamed" deployment packages in various situations.
-     */
-    public void testNonStreamingDeployment_ChunkedContentRange() throws Exception {
-        setupAgentForNonStreamingDeployment();
-
-        expectSuccessfulDeployment(m_package6, Failure.CONTENT_RANGE);
-    }
-
-    /**
-     * Tests the deployment of "non-streamed" deployment packages in various situations.
      * <p>
      * This test simulates a DP that is already downloaded, but not yet installed as reported in ACE-413.
      * </p>
@@ -456,6 +448,15 @@ public class AgentDeploymentTest extends BaseAgentTest {
 
         // Simulate that the DP is already downloaded...
         simulateDPDownloadComplete(m_package6);
+
+        expectSuccessfulDeployment(m_package6, Failure.CONTENT_RANGE);
+    }
+
+    /**
+     * Tests the deployment of "non-streamed" deployment packages in various situations.
+     */
+    public void testNonStreamingDeployment_ChunkedContentRange() throws Exception {
+        setupAgentForNonStreamingDeployment();
 
         expectSuccessfulDeployment(m_package6, Failure.CONTENT_RANGE);
     }
@@ -485,6 +486,16 @@ public class AgentDeploymentTest extends BaseAgentTest {
         setupAgentForNonStreamingDeployment();
 
         expectFailedDeployment(m_package3, Failure.EMPTY_STREAM);
+    }
+
+    /**
+     * ACE-451: Tests the deployment of an invalid "non-streamed" deployment packages, which should cause the
+     * installation to be aborted.
+     */
+    public void testNonStreamingDeployment_InvalidDeploymentPackage() throws Exception {
+        setupAgentForNonStreamingDeployment();
+
+        expectFailedDeployment(m_package7, null);
     }
 
     /**
@@ -551,6 +562,16 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     /**
+     * ACE-451: Tests the deployment of an invalid "streamed" deployment packages, which should cause the installation
+     * to be aborted.
+     */
+    public void testStreamingDeployment_InvalidDeploymentPackage() throws Exception {
+        setupAgentForStreamingDeployment();
+
+        expectFailedDeployment(m_package7, null);
+    }
+
+    /**
      * Tests the deployment of "streamed" deployment packages in various situations.
      */
     public void testStreamingDeployment_VersionsRetryAfter() throws Exception {
@@ -597,6 +618,8 @@ public class AgentDeploymentTest extends BaseAgentTest {
         m_package4 = new TestPackage(AGENT_ID, V4_0_0, bundle1v2, bundle2v2);
         m_package5 = new TestPackage(AGENT_ID, V5_0_0, bundle1v2, bundle2v2, bundle3v1);
         m_package6 = new TestPackage(AGENT_ID, V6_0_0, bundle1v2, bundle2v2, bundle3v2);
+        // This leads to an *incorrect* DP, as it contains two bundles with the same BSN...
+        m_package7 = new TestPackage(AGENT_ID, V1_0_0, bundle1v1, bundle1v2);
 
         m_servlet = new TestDeploymentServlet(AGENT_ID);
 

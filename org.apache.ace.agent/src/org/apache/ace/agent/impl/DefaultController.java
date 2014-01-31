@@ -113,12 +113,16 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
                     }
                 }
             }
+            catch (RetryAfterException ex) {
+                // We aren't ready yet...
+                throw ex;
+            }
             catch (InstallationFailedException exception) {
-                // Installation failed...
                 installationFailed(updateInfo, exception);
             }
-            catch (IOException exception) {
-                // I/O exception causes the installation to fail...
+            catch (Throwable exception) {
+                // ACE-451, catch all exceptions, including runtime exceptions to ensure proper handling and logging
+                // takes place...
                 installationFailed(updateInfo, exception);
             }
         }
@@ -165,10 +169,10 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
             }
             catch (InstallationFailedException ex) {
                 installationFailed(updateInfo, ex);
-                
-                controller.logError("Deployment failed: %s %s", ex.getMessage(), (ex.getCause() != null) ? ex.getCause().getMessage() : "");
             }
-            catch (IOException ex) {
+            catch (Throwable ex) {
+                // ACE-451, catch all exceptions, including runtime exceptions to ensure proper handling and logging
+                // takes place...
                 installationFailed(updateInfo, ex);
             }
             finally {
@@ -298,7 +302,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
          */
         protected final void installationFailed(UpdateInfo updateInfo, InstallationFailedException exception) {
             // InstallationFailedException is a catch-all wrapper exception, so use its cause directly...
-            getController().logWarning("Installation of %s update failed: %s!", exception.getCause(), updateInfo.m_type, exception.getReason());
+            getController().logError("Installation of %s update failed: %s!", exception.getCause(), updateInfo.m_type, exception.getReason());
 
             m_lastVersionSuccessful = false;
             m_failureCount++;
@@ -313,8 +317,8 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
          * @param cause
          *            the (optional) cause why the installation failed.
          */
-        protected final void installationFailed(UpdateInfo updateInfo, IOException cause) {
-            getController().logWarning("Installation of %s update failed: generic I/O exception.", cause, updateInfo.m_type);
+        protected final void installationFailed(UpdateInfo updateInfo, Throwable cause) {
+            getController().logError("Installation of %s update failed: %s!", cause, updateInfo.m_type, cause.getMessage());
 
             m_lastVersionSuccessful = false;
             m_failureCount++;
