@@ -24,7 +24,6 @@ import static org.apache.ace.agent.impl.ReflectionUtil.invokeMethod;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -38,7 +37,6 @@ import org.apache.ace.agent.InstallationFailedException;
 import org.apache.ace.agent.RetryAfterException;
 import org.apache.felix.deploymentadmin.DeploymentAdminImpl;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.service.deploymentadmin.DeploymentAdmin;
@@ -52,9 +50,9 @@ import org.osgi.service.packageadmin.PackageAdmin;
 public class DeploymentHandlerImpl extends UpdateHandlerBase implements DeploymentHandler {
 
     /**
-     * Internal EventAdmin that delegates to actual InternalEvents. Used to inject into the DeploymentAdmin only.
-     * If it can find an EventAdmin service in the framework, it will also send events to that service. It does so
-     * without ever trying to import any API, because of two reasons:
+     * Internal EventAdmin that delegates to actual InternalEvents. Used to inject into the DeploymentAdmin only. If it
+     * can find an EventAdmin service in the framework, it will also send events to that service. It does so without
+     * ever trying to import any API, because of two reasons:
      * <ol>
      * <li>We want to isolate the management agent as well as possible from the rest of the framework.</li>
      * <li>We have an internal copy of the EventAdmin API, which means we cannot be exposed to another version anyway.</li>
@@ -66,7 +64,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
         public EventAdminBridge(BundleContext context) {
             m_context = context;
         }
-        
+
         @Override
         public void postEvent(Event event) {
             getEventsHandler().postEvent(event.getTopic(), getPayload(event));
@@ -79,6 +77,11 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
             eventAdminInvoke("sendEvent", event);
         }
 
+        /**
+         * Bridges events from out local event-handling methods to the first EventAdmin service. As we do not have a
+         * dependency on the (external!) EventAdmin API we cannot always call like we normally would do for
+         * OSGi-services. Instead, we need to do some advanced reflection trickery in order to call an EventAdmin.
+         */
         private void eventAdminInvoke(String method, Event event) {
             try {
                 // try to find an EventAdmin service
@@ -90,9 +93,9 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
                         try {
                             // if the service is still around, we use the instance to find its classloader
                             // and obtain a reference to its "Event" class
-                            Class clazz = svc.getClass().getClassLoader().loadClass(Event.class.getName());
+                            Class<?> clazz = svc.getClass().getClassLoader().loadClass(Event.class.getName());
                             // and try to find a constructor
-                            Constructor ctor = clazz.getConstructor(String.class, Map.class);
+                            Constructor<?> ctor = clazz.getConstructor(String.class, Map.class);
                             // instantiate the event, using the topic and payload
                             Object eventAdminEvent = ctor.newInstance(event.getTopic(), getPayload(event));
                             // and now try to find the supplied method (either postEvent or sendEvent)
@@ -113,7 +116,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
                 logError("Failed to invoke EventAdmin: %s", e, e.getMessage());
             }
         }
-        
+
         private Map<String, String> getPayload(Event event) {
             Map<String, String> payload = new HashMap<String, String>();
             for (String propertyName : event.getPropertyNames()) {
