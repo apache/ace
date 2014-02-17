@@ -32,10 +32,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.deploymentadmin.spi.ResourceProcessorException;
 
 /**
- * The ResourceStore keeps track of resources, keeps them around in a separate storage
- * for installing and removing, and keeps track of which resource belongs to which deployment package.
- * The information stored by the ResourceStore will be persisted as often as possible, to allow
- * crash recovery.
+ * The ResourceStore keeps track of resources, keeps them around in a separate storage for installing and removing, and
+ * keeps track of which resource belongs to which deployment package. The information stored by the ResourceStore will
+ * be persisted as often as possible, to allow crash recovery.
  */
 abstract class ResourceStore
 {
@@ -72,9 +71,12 @@ abstract class ResourceStore
     /**
      * Adds a resource to persistent storage and handles the administration.
      *
-     * @param deploymentPackageName the name of a deployment package
-     * @param name the name of the resource
-     * @param stream a stream from which the resource with <code>name</code> can be read
+     * @param deploymentPackageName
+     *            the name of a deployment package
+     * @param name
+     *            the name of the resource
+     * @param stream
+     *            a stream from which the resource with <code>name</code> can be read
      */
     public void addResource(String deploymentPackageName, String name, InputStream stream) throws IOException, ResourceProcessorException {
         synchronized (m_resources) {
@@ -124,11 +126,13 @@ abstract class ResourceStore
     /**
      * Checks the validity of a resource.
      *
-     * @param resource a stream containing the resource
-     * @throws Exception when something is wrong with the resource
+     * @param resource
+     *            a stream containing the resource
+     * @throws Exception
+     *             when something is wrong with the resource
      */
     public abstract void validate(InputStream resource) throws Exception;
-    
+
     /**
      * Marks the start of a deployment process.
      */
@@ -142,21 +146,24 @@ abstract class ResourceStore
     /**
      * Installs a given resource.
      *
-     * @param resourceName the name of the resource
+     * @param resourceName
+     *            the name of the resource
      */
     public abstract void install(String resourceName) throws IOException;
 
     /**
      * Uninstalls a given resource.
      *
-     * @param resourceName the name of the resource
+     * @param resourceName
+     *            the name of the resource
      */
     public abstract void uninstall(String resourceName) throws IOException;
 
     /**
      * Gets the names of all driver bundles that belong to a given deployment package.
      *
-     * @param deploymentPackageName the name of a deployment package
+     * @param deploymentPackageName
+     *            the name of a deployment package
      * @return a list of the names of all driver bundles that belong to <code>deploymentPackageName</code>
      */
     public List<String> getResources(String deploymentPackageName) {
@@ -174,9 +181,10 @@ abstract class ResourceStore
     /**
      * Gets the name of the deployment package to which a given resource belongs.
      *
-     * @param resourceName the name of a resource
-     * @return the name of the deployment package to which <code>resourceName</code>
-     *     belongs, or <code>null</code> if this resource is unknown
+     * @param resourceName
+     *            the name of a resource
+     * @return the name of the deployment package to which <code>resourceName</code> belongs, or <code>null</code> if
+     *         this resource is unknown
      */
     public String getDeploymentPackage(String resourceName) {
         return m_resources.get(resourceName);
@@ -185,10 +193,11 @@ abstract class ResourceStore
     /**
      * Gets the stream belonging to a given resource.
      *
-     * @param name the name of a the resource
-     * @return an InputStream providing access to the named resource. It is the caller's
-     * task to close it.
-     * @throws java.io.IOException when an exception occurs accessing the resource
+     * @param name
+     *            the name of a the resource
+     * @return an InputStream providing access to the named resource. It is the caller's task to close it.
+     * @throws java.io.IOException
+     *             when an exception occurs accessing the resource
      */
     protected InputStream getResource(String name) throws IOException {
         File resource = new File(new File(m_context.getDataFile(TEMP_DIR), m_resources.get(name)), name);

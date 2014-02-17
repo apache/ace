@@ -98,9 +98,13 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
     public void run() {
         try {
             if (!m_repo.isCurrent()) {
+                m_log.log(LogService.LOG_DEBUG, "UpdateUserAdminTask updating to latest version...");
+
                 m_configurator.setUsers(m_repo.checkout(true));
-                m_log.log(LogService.LOG_DEBUG, "UpdateUserAdminTask updates to a new version: " + m_repo.getMostRecentVersion());
+
                 saveVersion(m_properties, m_repo.getMostRecentVersion());
+
+                m_log.log(LogService.LOG_DEBUG, "UpdateUserAdminTask updated to latest version: " + m_repo.getMostRecentVersion());
             }
         }
         catch (ConnectException e) {
@@ -111,25 +115,7 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
             // If anything went wrong, this means the remote repository is not available;
             // this also means the UserAdmin is left undisturbed.
             m_log.log(LogService.LOG_WARNING, "Failed to update UserAdmin repository.", e);
-        }
-    }
 
-    /**
-     * Called by Dependency Manager upon starting of this component.
-     * 
-     * @param comp
-     *            this component, cannot be <code>null</code>.
-     */
-    public void start(Component comp) {
-        try {
-            // Try to read the server data
-            m_configurator.setUsers(m_repo.checkout(true));
-        }
-        catch (ConnectException e) {
-            // ACE-199: log only a single line, instead of a complete stack trace...
-            m_log.log(LogService.LOG_WARNING, "Failed to update UserAdmin repository. Connection refused (is the server down?!)");
-        }
-        catch (IOException e) {
             try {
                 m_log.log(LogService.LOG_DEBUG, "UpdateUserAdminTask failed to load remote data; falling back to local data.");
                 // If reading remote fails, try to set whatever we have locally
@@ -140,6 +126,17 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
                 m_log.log(LogService.LOG_DEBUG, "UpdateUserAdminTask failed to load local data.");
             }
         }
+    }
+
+    /**
+     * Called by Dependency Manager upon starting of this component.
+     * 
+     * @param comp
+     *            this component, cannot be <code>null</code>.
+     */
+    public void start(Component comp) {
+        // ACE-452: run at least once at start-up...
+        run();
     }
 
     public void updated(Dictionary dict) throws ConfigurationException {
@@ -182,6 +179,9 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
      *            the remote repository to remove, cannot be <code>null</code>.
      */
     final void removeRepo(Repository remoteRepo) {
+        // Ensure the latest version is properly stored...
+        saveVersion(m_properties, m_repo.getMostRecentVersion());
+
         m_repo = null;
     }
 

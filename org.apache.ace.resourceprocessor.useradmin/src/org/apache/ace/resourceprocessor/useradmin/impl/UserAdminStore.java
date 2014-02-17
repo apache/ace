@@ -46,233 +46,88 @@ import org.xml.sax.SAXException;
 
 public class UserAdminStore extends ResourceStore implements UserAdminConfigurator {
 
-    private UserAdmin m_userAdmin;
-    private Object m_userAdminLock = new Object();
+    /**
+     * Value object for relaying user information between XML-processing methods and UserAdmin users. This indirection
+     * is necessary because we want to separate the parsing of the XML, and the actual installation.
+     */
+    private class ProcessRole {
+        private final int m_type;
+        private final String m_name;
+        private final Map<String, Object> m_properties = new HashMap<String, Object>();
+        private final Map<String, Object> m_credentials = new HashMap<String, Object>();
+        private final List<String> m_memberOf = new ArrayList<String>();
+
+        ProcessRole(String name, int type) {
+            m_name = name;
+            m_type = type;
+        }
+
+        public Map<String, Object> getCredentials() {
+            return m_credentials;
+        }
+
+        public List<String> getMemberOf() {
+            return m_memberOf;
+        }
+
+        public String getName() {
+            return m_name;
+        }
+
+        public Map<String, Object> getProperties() {
+            return m_properties;
+        }
+
+        public int getType() {
+            return m_type;
+        }
+    }
+    
+    private final Object m_installListLock = new Object();
+    private final Object m_userAdminLock = new Object();
+
+    private volatile UserAdmin m_userAdmin;
     private volatile LogService m_log;
+    private volatile List<String> m_installedUsers;
 
     private List<ProcessRole> m_toInstall = new ArrayList<ProcessRole>();
     private List<ProcessRole> m_toRemove = new ArrayList<ProcessRole>();
-    private Object m_installListLock = new Object();
     private boolean m_clear;
 
-    private List<String> m_installedUsers;
-    
+
     UserAdminStore(BundleContext context) {
         super(context);
     }
 
-    
-    
     @Override
     public void begin() {
-    	m_installedUsers = new ArrayList<String>();
+        m_installedUsers = new ArrayList<String>();
     }
-    
+
     @Override
     public void end() {
-    	m_installedUsers = new ArrayList<String>();
+        checkTransactionInProgress();
+        m_installedUsers = null;
     }
-    
+
     @Override
     public void install(String resourceName) throws IOException {
-        InputStream input = getResource(resourceName);
-        install(input);
-    }
-
-    public void install(Document doc) {
-        installRoles(doc);
-        updateUserAdmin();
-    }
-
-    public void install(InputStream input) throws IOException {
-        install(getDocument(input));
-    }
-
-    @Override
-    public void uninstall(String resourceName) throws IOException {
-        InputStream input = getResource(resourceName);
-        uninstall(getDocument(input));
-    }
-
-    public void uninstall(Document doc) {
-        removeRoles(doc);
-        updateUserAdmin();
-    }
-
-    public void uninstall(InputStream input) throws IOException {
-        uninstall(getDocument(input));
-    }
-
-    public void setUsers(Document doc) {
-        m_toInstall.clear();
-        m_toRemove.clear();
-        installRoles(doc);
-        m_clear = true;
         begin();
+        installRoles(getDocument(getResource(resourceName)));
         updateUserAdmin();
         end();
     }
 
     public void setUsers(InputStream input) throws IOException {
-        setUsers(getDocument(input));
+        setUsers(getDocument(input), true /* clearExistingUsers */);
     }
 
     @Override
-    public void validate(InputStream resource) throws Exception {
-        Document doc = getDocument(resource);
-        getRoles(doc);
-    }
-
-    /**
-     * Installs the users and groups found in a document.
-     */
-    private void installRoles(Document doc) {
-        synchronized (m_installListLock) {
-            m_toInstall.addAll(getRoles(doc));
-        }
-    }
-
-    /**
-     * Removes the users and groups found in a document.
-     */
-    private void removeRoles(Document doc) {
-        synchronized (m_installListLock) {
-            m_toRemove.addAll(getRoles(doc));
-        }
-    }
-
-    /**
-     * Updates the currently present UserAdmin with the data in m_toInstall and m_toRemove.
-     */
-    private void updateUserAdmin() {
-        synchronized(m_installListLock) {
-            synchronized (m_userAdminLock) {
-                if (m_userAdmin == null) {
-                    return;
-                }
-
-                // install or update all roles we have to update
-                while (!m_toInstall.isEmpty()) {
-                    ProcessRole role = m_toInstall.remove(0);
-                    updateRole(role);
-                }
-
-                // remove all roles that have not been updated if this install
-                // is a full install
-                if (m_clear) {
-                    Role[] roles = null;
-                    try {
-                        roles = m_userAdmin.getRoles(null);
-                    }
-                    catch (InvalidSyntaxException e) {
-                        // Will not happen, since we pass in a null filter.
-                    }
-                    for (Role r : roles) {
-                        if (!m_installedUsers.contains(r.getName())) {
-                            m_userAdmin.removeRole(r.getName());
-                        }
-                    }
-                }
-
-                // if this is not a full install, remove any roles that should be
-                // removed
-                if (!m_clear) {
-                    while (!m_toRemove.isEmpty()) {
-                    	//do it tail to head
-                        ProcessRole role = m_toRemove.remove( m_toRemove.size() - 1 );
-                        
-                        if (!m_installedUsers.contains(role.getName())) {
-                        	m_userAdmin.removeRole(role.getName());
-                        }
-                    }
-                }
-
-                m_clear = false;
-            }
-        }
-    }
-
-    /**
-     * Updates a role with new parameter, but reuses the UserAdmin's role object
-     * for this (if available).
-     */
-    private void updateRole(ProcessRole role) {
-        m_installedUsers.add(role.getName());
-        
-        Role r = m_userAdmin.getRole(role.getName());
-        if (r == null) {
-            r = m_userAdmin.createRole(role.getName(), role.getType());
-        }
-        clearDictionary(r.getProperties());
-        for (Entry<String, Object> entry : role.getProperties().entrySet()) {
-            r.getProperties().put(entry.getKey(), entry.getValue());
-        }
-        clearDictionary(((User) r).getCredentials());
-        if (role.getType() == Role.USER) {
-            for (Entry<String, Object> entry : role.getCredentials().entrySet()) {
-                ((User) r).getCredentials().put(entry.getKey(), entry.getValue());
-            }
-        }
-        for (Group g : memberOf(r)) {
-            g.removeMember(r);
-        }
-        for (String groupName : role.getMemberOf()) {
-            Group g = (Group) m_userAdmin.getRole(groupName);
-            if (g == null) {
-                m_log.log(LogService.LOG_WARNING, "Cannot add user " + role.getName() + " to group " + groupName + ", because the group does not exist.");
-                continue;
-            }
-            g.addMember(r);
-        }
-    }
-
-    private void clearDictionary(Dictionary dict) {
-        Enumeration i = dict.keys();
-        while (i.hasMoreElements()) {
-            dict.remove(i.nextElement());
-        }
-    }
-
-    /**
-     * Helper that finds all groups this role is a member of.
-     */
-    private Group[] memberOf(Role r) {
-        List<Group> result = new ArrayList<Group>();
-        Role[] roles = null;
-        try {
-            roles = m_userAdmin.getRoles(null);
-        }
-        catch (InvalidSyntaxException e) {
-            // Will not happen, since we pass in a null filter.
-        }
-        if (roles == null) {
-            return new Group[0];
-        }
-        for (Role group : roles) {
-            if (group instanceof Group) {
-                Role[] members = ((Group) group).getMembers();
-                if (members != null) {
-                    if (contains(r, members)) {
-                        result.add((Group) group);
-                    }
-                }
-            }
-        }
-
-        return result.toArray(new Group[result.size()]);
-    }
-
-    /**
-     * Helper method that checks the presence of an object in an array. Returns
-     * <code>true</code> if <code>t</code> is in <code>ts</code>, <code>false</code> otherwise.
-     */
-    private <T> boolean contains(T t, T[] ts) {
-        for (T current : ts) {
-            if (current.equals(t)) {
-                return true;
-            }
-        }
-        return false;
+    public void uninstall(String resourceName) throws IOException {
+        begin();
+        removeRoles(getDocument(getResource(resourceName)));
+        updateUserAdmin();
+        end();
     }
 
     /**
@@ -302,6 +157,38 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
         }
     }
 
+    @Override
+    public void validate(InputStream resource) throws Exception {
+        Document doc = getDocument(resource);
+        getRoles(doc);
+    }
+    
+    private void checkTransactionInProgress() {
+        if (m_installedUsers == null) {
+            throw new IllegalStateException("No transaction in progress!");
+        }
+    }
+
+    private void clearDictionary(Dictionary dict) {
+        Enumeration i = dict.keys();
+        while (i.hasMoreElements()) {
+            dict.remove(i.nextElement());
+        }
+    }
+
+    /**
+     * Helper method that checks the presence of an object in an array. Returns <code>true</code> if <code>t</code> is
+     * in <code>ts</code>, <code>false</code> otherwise.
+     */
+    private <T> boolean contains(T t, T[] ts) {
+        for (T current : ts) {
+            if (current.equals(t)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Gets the DOM document contained in a stream.
      */
@@ -321,23 +208,7 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
     }
 
     /**
-     * Gets all roles that are present in a document.
-     * @param doc The document to use.
-     * @return A list of ProcessRoles.
-     */
-    private List<ProcessRole> getRoles(Document doc) {
-        List<ProcessRole> result = new ArrayList<ProcessRole>();
-        for (Node node = doc.getFirstChild().getFirstChild(); node != null; node = node.getNextSibling()) {
-            if (!node.getNodeName().equals("#text")) {
-                result.add(getRole(node));
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Helper method that takes a single XML node containing a 'user' or 'group', and return a
-     * ProcessRole for it.
+     * Helper method that takes a single XML node containing a 'user' or 'group', and return a ProcessRole for it.
      */
     private ProcessRole getRole(Node node) {
         ProcessRole result = new ProcessRole(node.getAttributes().getNamedItem("name").getTextContent(), (node.getNodeName().equals("group") ? Role.GROUP : Role.USER));
@@ -379,41 +250,160 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
     }
 
     /**
-     * Value object for relaying user information between XML-processing methods and
-     * UserAdmin users.
-     * This indirection is necessary because we want to separate the parsing of the
-     * XML, and the actual installation.
+     * Gets all roles that are present in a document.
+     * 
+     * @param doc
+     *            The document to use.
+     * @return A list of ProcessRoles.
      */
-    private class ProcessRole {
-        private final int m_type;
-        private final String m_name;
-        private final Map<String, Object> m_properties = new HashMap<String, Object>();
-        private final Map<String, Object> m_credentials = new HashMap<String, Object>();
-        private final List<String> m_memberOf = new ArrayList<String>();
+    private List<ProcessRole> getRoles(Document doc) {
+        List<ProcessRole> result = new ArrayList<ProcessRole>();
+        for (Node node = doc.getFirstChild().getFirstChild(); node != null; node = node.getNextSibling()) {
+            if (!node.getNodeName().equals("#text")) {
+                result.add(getRole(node));
+            }
+        }
+        return result;
+    }
 
-        ProcessRole(String name, int type) {
-            m_name = name;
-            m_type = type;
+    /**
+     * Installs the users and groups found in a document.
+     */
+    private void installRoles(Document doc) {
+        synchronized (m_installListLock) {
+            m_toInstall.addAll(getRoles(doc));
+        }
+    }
+
+    /**
+     * Helper that finds all groups this role is a member of.
+     */
+    private Group[] memberOf(Role r) {
+        List<Group> result = new ArrayList<Group>();
+        Role[] roles = null;
+        try {
+            roles = m_userAdmin.getRoles(null);
+        }
+        catch (InvalidSyntaxException e) {
+            // Will not happen, since we pass in a null filter.
+        }
+        if (roles == null) {
+            return new Group[0];
+        }
+        for (Role group : roles) {
+            if (group instanceof Group) {
+                Role[] members = ((Group) group).getMembers();
+                if (members != null) {
+                    if (contains(r, members)) {
+                        result.add((Group) group);
+                    }
+                }
+            }
         }
 
-        public int getType() {
-            return m_type;
-        }
+        return result.toArray(new Group[result.size()]);
+    }
 
-        public String getName() {
-            return m_name;
+    /**
+     * Removes the users and groups found in a document.
+     */
+    private void removeRoles(Document doc) {
+        synchronized (m_installListLock) {
+            m_toRemove.addAll(getRoles(doc));
         }
+    }
 
-        public Map<String, Object> getProperties() {
-            return m_properties;
+    private void setUsers(Document doc, boolean clearExistingUsers) {
+        m_toInstall.clear();
+        m_toRemove.clear();
+        installRoles(doc);
+        m_clear = clearExistingUsers;
+        begin();
+        updateUserAdmin();
+        end();        
+    }
+
+    /**
+     * Updates a role with new parameter, but reuses the UserAdmin's role object for this (if available).
+     */
+    private void updateRole(ProcessRole role) {
+        m_installedUsers.add(role.getName());
+
+        Role r = m_userAdmin.getRole(role.getName());
+        if (r == null) {
+            r = m_userAdmin.createRole(role.getName(), role.getType());
         }
-
-        public Map<String, Object> getCredentials() {
-            return m_credentials;
+        clearDictionary(r.getProperties());
+        for (Entry<String, Object> entry : role.getProperties().entrySet()) {
+            r.getProperties().put(entry.getKey(), entry.getValue());
         }
+        clearDictionary(((User) r).getCredentials());
+        if (role.getType() == Role.USER) {
+            for (Entry<String, Object> entry : role.getCredentials().entrySet()) {
+                ((User) r).getCredentials().put(entry.getKey(), entry.getValue());
+            }
+        }
+        for (Group g : memberOf(r)) {
+            g.removeMember(r);
+        }
+        for (String groupName : role.getMemberOf()) {
+            Group g = (Group) m_userAdmin.getRole(groupName);
+            if (g == null) {
+                m_log.log(LogService.LOG_WARNING, "Cannot add user " + role.getName() + " to group " + groupName + ", because the group does not exist.");
+                continue;
+            }
+            g.addMember(r);
+        }
+    }
 
-        public List<String> getMemberOf() {
-            return m_memberOf;
+    /**
+     * Updates the currently present UserAdmin with the data in m_toInstall and m_toRemove.
+     */
+    private void updateUserAdmin() {
+        synchronized (m_installListLock) {
+            synchronized (m_userAdminLock) {
+                if (m_userAdmin == null) {
+                    return;
+                }
+
+                // install or update all roles we have to update
+                while (!m_toInstall.isEmpty()) {
+                    ProcessRole role = m_toInstall.remove(0);
+                    updateRole(role);
+                }
+
+                // remove all roles that have not been updated if this install
+                // is a full install
+                if (m_clear) {
+                    Role[] roles = null;
+                    try {
+                        roles = m_userAdmin.getRoles(null);
+                    }
+                    catch (InvalidSyntaxException e) {
+                        // Will not happen, since we pass in a null filter.
+                    }
+                    for (Role r : roles) {
+                        if (!m_installedUsers.contains(r.getName())) {
+                            m_userAdmin.removeRole(r.getName());
+                        }
+                    }
+                }
+
+                // if this is not a full install, remove any roles that should be
+                // removed
+                if (!m_clear) {
+                    while (!m_toRemove.isEmpty()) {
+                        // do it tail to head
+                        ProcessRole role = m_toRemove.remove(m_toRemove.size() - 1);
+
+                        if (!m_installedUsers.contains(role.getName())) {
+                            m_userAdmin.removeRole(role.getName());
+                        }
+                    }
+                }
+
+                m_clear = false;
+            }
         }
     }
 

@@ -1,5 +1,0 @@
-Private-Package: org.apache.ace.configurator.serveruseradmin
-Bundle-Activator: org.apache.ace.configurator.serveruseradmin.Activator
-Bundle-Version: 1.0.0
-Bundle-Name: Apache ACE Configurator Serveruseradmin
-Bundle-Description: Configures and initial user until configuration is up and running

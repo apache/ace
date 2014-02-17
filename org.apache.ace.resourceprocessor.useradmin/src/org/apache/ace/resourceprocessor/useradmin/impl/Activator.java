@@ -30,9 +30,8 @@ import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
- * Activator for the UserAdmin resource processor. The services of this bundle
- * will be published as a UserAdminConfigurator, and a ResourceProcessor for use
- * by the Deployment Admin.
+ * Activator for the UserAdmin resource processor. The services of this bundle will be published as a
+ * UserAdminConfigurator, and a ResourceProcessor for use by the Deployment Admin.
  */
 public class Activator extends DependencyActivatorBase {
     private static final String PID = "org.apache.ace.resourceprocessor.useradmin";
@@ -45,15 +44,14 @@ public class Activator extends DependencyActivatorBase {
         Properties props = new Properties();
         props.put(Constants.SERVICE_PID, PID);
         manager.add(createComponent().setInterface(ResourceProcessor.class.getName(), props)
-                .setImplementation(processor)
-                .add(createServiceDependency()
-                    .setService(UserAdminConfigurator.class)
-                    .setRequired(true)) // This UserAdminConfigurator is the same as below,
-                                        // and we don't want to add UserAdmins twice.
-                .add(createServiceDependency()
-                    .setService(LogService.class)
-                    .setRequired(false)));
-
+            .setImplementation(processor)
+            .add(createServiceDependency()
+                .setService(UserAdminConfigurator.class)
+                .setRequired(true)) // This UserAdminConfigurator is the same as below,
+                                    // and we don't want to add UserAdmins twice.
+            .add(createServiceDependency()
+                .setService(LogService.class)
+                .setRequired(false)));
 
         manager.add(createComponent().setInterface(UserAdminConfigurator.class.getName(), null)
             .setImplementation(userAdminStore)

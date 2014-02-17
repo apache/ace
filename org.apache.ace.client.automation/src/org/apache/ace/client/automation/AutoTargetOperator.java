@@ -40,8 +40,8 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
- * Automatic target operator, when configured will automatically register, approve, auto-approve
- * and commit targets to the repository. An LDAP filter can be used to filter for the correct targets.
+ * Automatic target operator, when configured will automatically register, approve, auto-approve and commit targets to
+ * the repository. An LDAP filter can be used to filter for the correct targets.
  */
 public class AutoTargetOperator implements ManagedService {
 
@@ -55,20 +55,18 @@ public class AutoTargetOperator implements ManagedService {
     private volatile LogService m_log;
     private volatile Dictionary m_settings;
 
-    private static String username = "serverUser";
-
     // used for processing the auditlog (tell the repository about that)
     private final AuditLogProcessTask m_task = new AuditLogProcessTask();
     private Object m_serviceReg = null;
 
     public void start() {
         // get user
-        User user = m_userAdmin.getUser("username",username);
+        User user = m_userAdmin.getUser("username", getConfigValue(ConfigItem.USERNAME));
 
         // login at Repository admin
         try {
-            URL url =  new URL(getConfigValue( ConfigItem.HOSTNAME) + getConfigValue( ConfigItem.ENDPOINT));
-            String customerName = getConfigValue( ConfigItem.CUSTOMER_NAME);
+            URL url = new URL(getConfigValue(ConfigItem.HOSTNAME) + getConfigValue(ConfigItem.ENDPOINT));
+            String customerName = getConfigValue(ConfigItem.CUSTOMER_NAME);
 
             RepositoryAdminLoginContext loginContext = m_reposAdmin.createLoginContext(user);
             loginContext
@@ -99,7 +97,7 @@ public class AutoTargetOperator implements ManagedService {
 
         m_serviceReg = null;
 
-        //logout
+        // logout
         try {
             m_reposAdmin.logout(true);
         }
@@ -110,7 +108,8 @@ public class AutoTargetOperator implements ManagedService {
     }
 
     /**
-     * Runnable that will synchronize audit log data with the server and tell the repository about the changes if applicable.
+     * Runnable that will synchronize audit log data with the server and tell the repository about the changes if
+     * applicable.
      */
     private final class AuditLogProcessTask implements Runnable {
 
@@ -118,7 +117,7 @@ public class AutoTargetOperator implements ManagedService {
 
         public void process() {
             // perform synchronous model actions
-            synchronized(m_lock) {
+            synchronized (m_lock) {
                 m_statefulTargetRepos.refresh();
                 boolean changed = false;
                 try {
@@ -147,22 +146,22 @@ public class AutoTargetOperator implements ManagedService {
         }
 
         public void run() {
-                process();
+            process();
         }
     }
 
     private void checkoutModel() throws IOException {
         // Do a checkout
         if (!m_reposAdmin.isCurrent()) {
-               m_reposAdmin.checkout();
+            m_reposAdmin.checkout();
         }
     }
 
     private boolean registerTargets() throws InvalidSyntaxException {
         boolean changed = false;
-        String filter = "(&" + getConfigValue( ConfigItem.REGISTER_TARGET_FILTER) +
-        "(" + StatefulTargetObject.KEY_REGISTRATION_STATE + "=" + StatefulTargetObject.RegistrationState.Unregistered + "))";
-        List<StatefulTargetObject> stos =  m_statefulTargetRepos.get(m_bundleContext.createFilter(filter));
+        String filter = "(&" + getConfigValue(ConfigItem.REGISTER_TARGET_FILTER) +
+            "(" + StatefulTargetObject.KEY_REGISTRATION_STATE + "=" + StatefulTargetObject.RegistrationState.Unregistered + "))";
+        List<StatefulTargetObject> stos = m_statefulTargetRepos.get(m_bundleContext.createFilter(filter));
         for (StatefulTargetObject sto : stos) {
             sto.register();
             changed = true;
@@ -172,28 +171,28 @@ public class AutoTargetOperator implements ManagedService {
 
     private boolean setAutoApprove() throws InvalidSyntaxException {
         boolean changed = false;
-        String filter = "(&" + getConfigValue( ConfigItem.AUTO_APPROVE_TARGET_FILTER) +
-        "(" + StatefulTargetObject.KEY_REGISTRATION_STATE + "=" + StatefulTargetObject.RegistrationState.Registered + ")" +
-        "(!(" + TargetObject.KEY_AUTO_APPROVE + "=true)))";
+        String filter = "(&" + getConfigValue(ConfigItem.AUTO_APPROVE_TARGET_FILTER) +
+            "(" + StatefulTargetObject.KEY_REGISTRATION_STATE + "=" + StatefulTargetObject.RegistrationState.Registered + ")" +
+            "(!(" + TargetObject.KEY_AUTO_APPROVE + "=true)))";
 
-        List<StatefulTargetObject> stos =  m_statefulTargetRepos.get(m_bundleContext.createFilter(filter));
+        List<StatefulTargetObject> stos = m_statefulTargetRepos.get(m_bundleContext.createFilter(filter));
         for (StatefulTargetObject sto : stos) {
-                sto.setAutoApprove(true);
-                changed = true;
-            }
+            sto.setAutoApprove(true);
+            changed = true;
+        }
         return changed;
     }
 
     private boolean approveTargets() throws InvalidSyntaxException {
         boolean changed = false;
-        String filter = "(&" + getConfigValue( ConfigItem.APPROVE_TARGET_FILTER) +
-        "(" + StatefulTargetObject.KEY_STORE_STATE + "=" + StatefulTargetObject.StoreState.Unapproved + "))";
+        String filter = "(&" + getConfigValue(ConfigItem.APPROVE_TARGET_FILTER) +
+            "(" + StatefulTargetObject.KEY_STORE_STATE + "=" + StatefulTargetObject.StoreState.Unapproved + "))";
 
-        List<StatefulTargetObject> stos =  m_statefulTargetRepos.get(m_bundleContext.createFilter(filter));
-            for (StatefulTargetObject sto : stos) {
-                sto.approve();
-                changed = true;
-            }
+        List<StatefulTargetObject> stos = m_statefulTargetRepos.get(m_bundleContext.createFilter(filter));
+        for (StatefulTargetObject sto : stos) {
+            sto.approve();
+            changed = true;
+        }
         return changed;
     }
 
@@ -201,7 +200,7 @@ public class AutoTargetOperator implements ManagedService {
         if (settings != null) {
             for (ConfigItem item : ConfigItem.values()) {
                 String value = (String) settings.get(item.toString());
-                if ((value == null) || value.equals("")) {
+                if ((value == null) || "".equals(value.trim())) {
                     throw new ConfigurationException(item.toString(), item.getErrorText());
                 }
             }
@@ -211,7 +210,8 @@ public class AutoTargetOperator implements ManagedService {
     }
 
     /**
-     * @param item The configuration item (enum)
+     * @param item
+     *            The configuration item (enum)
      * @return The value stored in the configuration dictionary.
      */
     private String getConfigValue(ConfigItem item) {
@@ -219,21 +219,21 @@ public class AutoTargetOperator implements ManagedService {
     }
 
     /**
-     *  Helper class used for target automation client configuration.
-     *  ENUM (itemname, errormessage, filter true/false)
+     * Helper class used for target automation client configuration. ENUM (itemname, errormessage, filter true/false)
      *
      */
     private enum ConfigItem {
-        REGISTER_TARGET_FILTER ("registerTargetFilter", "Register target filter missing", true),
-        APPROVE_TARGET_FILTER ("approveTargetFilter", "Approve target filter missing", true),
-        AUTO_APPROVE_TARGET_FILTER ("autoApproveTargetFilter", "Auto approve config value missing", true),
-        COMMIT_REPO ("commitRepositories", "Commit value missing.", false),
-        TARGET_REPOSITORY ("targetRepository", "TargetRepository id missing.", false),
-        DEPLOYMENT_REPOSITORY ("deploymentRepository", "DeploymentRepository id missing.", false),
-        STORE_REPOSITORY ("storeRepository", "Store Repository id missing.", false),
-        CUSTOMER_NAME ("customerName", "Customer name missing", false),
-        HOSTNAME ("hostName", "Hostname missing.", false),
-        ENDPOINT ("endpoint", "Endpoint missing in config.", false);
+        REGISTER_TARGET_FILTER("registerTargetFilter", "Register target filter missing", true),
+        APPROVE_TARGET_FILTER("approveTargetFilter", "Approve target filter missing", true),
+        AUTO_APPROVE_TARGET_FILTER("autoApproveTargetFilter", "Auto approve config value missing", true),
+        COMMIT_REPO("commitRepositories", "Commit value missing.", false),
+        TARGET_REPOSITORY("targetRepository", "TargetRepository id missing.", false),
+        DEPLOYMENT_REPOSITORY("deploymentRepository", "DeploymentRepository id missing.", false),
+        STORE_REPOSITORY("storeRepository", "Store Repository id missing.", false),
+        CUSTOMER_NAME("customerName", "Customer name missing", false),
+        HOSTNAME("hostName", "Hostname missing.", false),
+        ENDPOINT("endpoint", "Endpoint missing in config.", false),
+        USERNAME("userName", "UserName missing.", false);
 
         private final String m_name;
         private final String m_errorText;

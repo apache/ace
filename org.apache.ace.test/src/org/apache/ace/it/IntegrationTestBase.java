@@ -175,6 +175,28 @@ public class IntegrationTestBase extends TestCase {
     }
 
     /**
+     * The 'after' callback will be called after all components from {@link #getDependencies} have been started.<br>
+     * <br>
+     * The {@link #after} callback is most useful for configuring additional services after all mandatory services are
+     * resolved.
+     */
+    protected void configureAdditionalServices() throws Exception {
+    }
+
+    /**
+     * Creates a factory configuration with the given properties, just like {@link #configure}.
+     * 
+     * @return The PID of newly created configuration.
+     */
+    protected String configureFactory(String factoryPid, String... configuration) throws IOException {
+        Properties props = properties(configuration);
+        Configuration config = createFactoryConfiguration(factoryPid);
+        config.update(props);
+        m_trackedConfigurations.add(config);
+        return config.getPid();
+    }
+
+    /**
      * Configures the "org.apache.felix.http" and waits until the service is actually ready to process requests.
      * <p>
      * The reason that this method exists is that configuring the Felix HTTP bundle causes it to actually stop and
@@ -226,47 +248,6 @@ public class IntegrationTestBase extends TestCase {
         if (tries == 0) {
             throw new IOException("Failed waiting on HTTP service?!");
         }
-    }
-
-    /**
-     * The 'after' callback will be called after all components from {@link #getDependencies} have been started.<br>
-     * <br>
-     * The {@link #after} callback is most useful for configuring additional services after all mandatory services are
-     * resolved.
-     */
-    protected void configureAdditionalServices() throws Exception {
-    }
-
-    /**
-     * @param filter
-     * @return an array of configurations, can be <code>null</code>.
-     */
-    protected Configuration[] listConfigurations(String filter) throws IOException, InvalidSyntaxException {
-        ConfigurationAdmin admin = getService(ConfigurationAdmin.class);
-        return admin.listConfigurations(filter);
-    }
-
-    /**
-     * Sets whether or not any of the tracked configurations should be automatically be deleted when ending a test.
-     * 
-     * @param aClean
-     *            <code>true</code> (the default) to clean configurations, <code>false</code> to disable this behaviour.
-     */
-    protected void setAutoDeleteTrackedConfigurations(boolean aClean) {
-        m_cleanConfigurations = aClean;
-    }
-
-    /**
-     * Creates a factory configuration with the given properties, just like {@link #configure}.
-     * 
-     * @return The PID of newly created configuration.
-     */
-    protected String configureFactory(String factoryPid, String... configuration) throws IOException {
-        Properties props = properties(configuration);
-        Configuration config = createFactoryConfiguration(factoryPid);
-        config.update(props);
-        m_trackedConfigurations.add(config);
-        return config.getPid();
     }
 
     /**
@@ -549,6 +530,45 @@ public class IntegrationTestBase extends TestCase {
     }
 
     /**
+     * Utility method to determine the number of test cases in the implementing class.
+     * <p>
+     * Test cases are considered <em>public</em> methods starting their name with "test".
+     * </p>
+     * 
+     * @return a test count, >= 0.
+     */
+    protected final int getTestCount() {
+        int count = 0;
+
+        for (Method m : getClass().getMethods()) {
+            if (m.getName().startsWith("test")) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * @param filter
+     * @return an array of configurations, can be <code>null</code>.
+     */
+    protected Configuration[] listConfigurations(String filter) throws IOException, InvalidSyntaxException {
+        ConfigurationAdmin admin = getService(ConfigurationAdmin.class);
+        return admin.listConfigurations(filter);
+    }
+
+    /**
+     * Sets whether or not any of the tracked configurations should be automatically be deleted when ending a test.
+     * 
+     * @param aClean
+     *            <code>true</code> (the default) to clean configurations, <code>false</code> to disable this behaviour.
+     */
+    protected void setAutoDeleteTrackedConfigurations(boolean aClean) {
+        m_cleanConfigurations = aClean;
+    }
+
+    /**
      * Set up of this test case.
      */
     protected final void setUp() throws Exception {
@@ -590,26 +610,6 @@ public class IntegrationTestBase extends TestCase {
         catch (InterruptedException e) {
             fail("Interrupted while waiting for services to get started.");
         }
-    }
-
-    /**
-     * Utility method to determine the number of test cases in the implementing class.
-     * <p>
-     * Test cases are considered <em>public</em> methods starting their name with "test".
-     * </p>
-     * 
-     * @return a test count, >= 0.
-     */
-    protected final int getTestCount() {
-        int count = 0;
-
-        for (Method m : getClass().getMethods()) {
-            if (m.getName().startsWith("test")) {
-                count++;
-            }
-        }
-
-        return count;
     }
 
     @Override

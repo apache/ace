@@ -70,10 +70,14 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
+import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
+
+    protected static final String TEST_USER_NAME = "testUser";
 
     final class MockUser implements User {
         private final String m_name;
@@ -269,6 +273,30 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         Map<String, String> tags = new HashMap<String, String>();
 
         return m_targetRepository.create(attr, tags);
+    }
+
+    /**
+     * @return a {@link User} with {@link #TEST_USER_NAME} as user name, can be <code>null</code>.
+     */
+    protected final User createTestUser() {
+        return createUser(TEST_USER_NAME);
+    }
+
+    /**
+     * @param name
+     *            the name of the user to create, cannot be <code>null</code>;
+     * @return a {@link User} with the given name, or <code>null</code> in case no such user could be created.
+     */
+    protected final User createUser(String name) {
+        UserAdmin useradmin = getService(UserAdmin.class);
+        User user = (User) useradmin.createRole(name, Role.USER);
+        if (user == null) {
+            user = useradmin.getUser("username", name);
+        }
+        else {
+            user.getProperties().put("username", name);
+        }
+        return user;
     }
 
     protected void deleteObr(String endpoint) throws IOException, InvalidSyntaxException, InterruptedException {

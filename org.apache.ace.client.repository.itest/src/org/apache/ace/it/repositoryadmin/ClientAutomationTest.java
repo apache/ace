@@ -44,6 +44,8 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
      */
     public void testAutoTargetOperator() throws Exception {
         startRepositoryService();
+        
+        createTestUser();
 
         addRepository("storeInstance", "apache", "store", true);
         addRepository("targetInstance", "apache", "target", true);
@@ -60,6 +62,7 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
         props.put("storeRepository", "store");
         props.put("customerName", "apache");
         props.put("hostName", HOST);
+        props.put("userName", TEST_USER_NAME);
         props.put("endpoint", ENDPOINT_NAME);
 
         final Configuration config = m_configAdmin.getConfiguration("org.apache.ace.client.automation", null);
