@@ -9,7 +9,8 @@
 	org.apache.felix.gogo.shell,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.ace.feedback.common;version=latest,\
-	org.apache.ace.client.workspace;version=latest
+	org.apache.ace.client.workspace;version=latest,\
+	org.apache.ace.test;version=latest
 Private-Package: org.apache.ace.client.rest,\
 	com.google.gson,\
 	com.google.gson.annotations,\
