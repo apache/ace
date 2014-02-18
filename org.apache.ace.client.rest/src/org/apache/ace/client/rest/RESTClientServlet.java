@@ -23,28 +23,21 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.client.repository.RepositoryObject;
-import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
+import org.apache.ace.client.workspace.Workspace;
+import org.apache.ace.client.workspace.WorkspaceManager;
 import org.apache.ace.feedback.Event;
-import org.apache.felix.dm.Component;
-import org.apache.felix.dm.DependencyManager;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
-import org.osgi.service.useradmin.User;
-import org.osgi.service.useradmin.UserAdmin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -61,20 +54,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     private static final String LATEST_FOLDER = "latest";
     /** Name of the folder where working copies are kept. */
     private static final String WORK_FOLDER = "work";
-    /** A boolean denoting whether or not authentication is enabled. */
-    private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
-    /** URL of the repository to talk to. */
-    private static final String KEY_REPOSITORY_URL = "repository.url";
-    /** Name of the customer. */
-    private static final String KEY_CUSTOMER_NAME = "customer.name";
-    /** Name of the store repository. */
-    private static final String KEY_STORE_REPOSITORY_NAME = "store.repository.name";
-    /** Name of the distribution repository. */
-    private static final String KEY_DISTRIBUTION_REPOSITORY_NAME = "distribution.repository.name";
-    /** Name of the deployment repository. */
-    private static final String KEY_DEPLOYMENT_REPOSITORY_NAME = "deployment.repository.name";
-    /** Name of the user to log in as, in case no actual authentication is used. */
-    private static final String KEY_USER_NAME = "user.name";
+
     /** The action name for approving targets. */
     private static final String ACTION_APPROVE = "approve";
     /** The action name for registering targets. */
@@ -82,27 +62,11 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     /** The action name for reading audit events. */
     private static final String ACTION_AUDITEVENTS = "auditEvents";
 
-    private static long m_sessionID = 1;
-
     private volatile LogService m_logger;
-    private volatile DependencyManager m_dm;
-    private volatile SessionFactory m_sessionFactory;
-    
-	private volatile AuthenticationService m_authenticationService;
-	private volatile UserAdmin m_userAdmin;
-    
 
-    private final Map<String, Workspace> m_workspaces;
-    private final Map<String, Component> m_workspaceComponents;
+    private volatile WorkspaceManager workspaceManager;
+
     private final Gson m_gson;
-    
-    private boolean m_useAuthentication;
-    private String m_repositoryURL;
-    private String m_customerName;
-    private String m_storeRepositoryName;
-    private String m_targetRepositoryName;
-    private String m_deploymentRepositoryName;
-    private String m_serverUser;
 
     /**
      * Creates a new {@link RESTClientServlet} instance.
@@ -111,59 +75,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         m_gson = (new GsonBuilder())
             .registerTypeHierarchyAdapter(RepositoryObject.class, new RepositoryObjectSerializer())
             .registerTypeHierarchyAdapter(Event.class, new LogEventSerializer())
-            .create();
-        
-        m_workspaces = new HashMap<String, Workspace>();
-        m_workspaceComponents = new HashMap<String, Component>();
-    }
-    
-    public void init(Component component) {
-        addDependency(component, AuthenticationService.class, m_useAuthentication);
-        addDependency(component, UserAdmin.class, true);
-    }
-    
-    private void addDependency(Component component, Class service, boolean isRequired) {
-        component.add(component.getDependencyManager().createServiceDependency()
-            .setService(service)
-            .setRequired(isRequired)
-            .setInstanceBound(true)
-        );
-    }
-    
-    public void destroy() {
-    	Set<String> keySet = m_workspaces.keySet();
-    	if (!keySet.isEmpty()) {
-    		String[] keys = keySet.toArray(new String[keySet.size()]);
-    		for (String key : keys) {
-    			try {
-					removeWorkspace(key);
-				}
-    			catch (IOException e) {
-    				m_logger.log(LogService.LOG_WARNING, "Could not properly remove workspace.", e);
-				}
-    		}
-    	}
-    }
-
-    public void updated(Dictionary properties) throws ConfigurationException {
-        // First check whether all mandatory configuration keys are available...
-        String useAuth = getProperty(properties, KEY_USE_AUTHENTICATION);
-        if (useAuth == null || !("true".equalsIgnoreCase(useAuth) || "false".equalsIgnoreCase(useAuth))) {
-            throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
-        }
-
-        // Note that configuration changes are only applied to new work areas, started after the
-        // configuration was changed. No attempt is done to "fix" existing work areas, although we
-        // might consider flushing/invalidating them.
-        synchronized (m_workspaces) {
-            m_useAuthentication = Boolean.valueOf(useAuth);
-            m_repositoryURL = getProperty(properties, KEY_REPOSITORY_URL, "http://localhost:8080/repository");
-            m_customerName = getProperty(properties, KEY_CUSTOMER_NAME, "apache");
-            m_storeRepositoryName = getProperty(properties, KEY_STORE_REPOSITORY_NAME, "shop");
-            m_targetRepositoryName = getProperty(properties, KEY_DISTRIBUTION_REPOSITORY_NAME, "target");
-            m_deploymentRepositoryName = getProperty(properties, KEY_DEPLOYMENT_REPOSITORY_NAME, "deployment");
-            m_serverUser = getProperty(properties, KEY_USER_NAME, "d");
-        }
+            .create();        
     }
 
     /**
@@ -210,36 +122,6 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     }
 
     /**
-     * Helper method to safely obtain a property value from the given dictionary.
-     * 
-     * @param properties the dictionary to retrieve the value from, can be <code>null</code>;
-     * @param key the name of the property to retrieve, cannot be <code>null</code>;
-     * @param defaultValue the default value to return in case the property does not exist, or the given dictionary was <code>null</code>.
-     * @return a property value, can be <code>null</code>.
-     */
-    String getProperty(Dictionary properties, String key, String defaultValue) {
-        String value = getProperty(properties, key);
-        return (value == null) ? defaultValue : value; 
-    }
-
-    /**
-     * Helper method to safely obtain a property value from the given dictionary.
-     * 
-     * @param properties the dictionary to retrieve the value from, can be <code>null</code>;
-     * @param key the name of the property to retrieve, cannot be <code>null</code>.
-     * @return a property value, can be <code>null</code>.
-     */
-    String getProperty(Dictionary properties, String key) {
-        if (properties != null) {
-            Object value = properties.get(key);
-            if (value != null && value instanceof String) {
-                return (String) value;
-            }
-        }
-        return null;
-    }
-
-    /**
      * @see javax.servlet.http.HttpServlet#doDelete(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     @Override
@@ -252,7 +134,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
         final String id = pathElements[1];
 
-        Workspace workspace = getWorkspace(id);
+        Workspace workspace = workspaceManager.getWorkspace(id);
         if (workspace == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + id);
             return;
@@ -260,7 +142,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
         if (pathElements.length == 2) {
         	try {
-        		removeWorkspace(id);
+        		workspaceManager.removeWorkspace(id);
         	}
         	catch (IOException ioe) {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not delete work area: " + ioe.getMessage());
@@ -303,7 +185,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             // path elements of length > 1...
             final String id = pathElements[1];
 
-            Workspace workspace = getWorkspace(id);
+            Workspace workspace = workspaceManager.getWorkspace(id);
             if (workspace == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + id);
                 return;
@@ -350,11 +232,17 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
 
         if (pathElements.length == 1) {
-            createWorkspace(req, resp);
+            Workspace workspace = workspaceManager.createWorkspace(req.getParameterMap(), req);
+            if(workspace == null) {
+                resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            }
+            else {
+                resp.sendRedirect(req.getServletPath() + "/" + buildPathFromElements(WORK_FOLDER, workspace.getSessionID()));
+            }
         }
         else {
             // more than one path elements...
-            Workspace workspace = getWorkspace(pathElements[1]);
+            Workspace workspace = workspaceManager.getWorkspace(pathElements[1]);
             if (workspace == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
                 return;
@@ -388,7 +276,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             return;
         }
 
-        Workspace workspace = getWorkspace(pathElements[1]);
+        Workspace workspace = workspaceManager.getWorkspace(pathElements[1]);
         if (workspace == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
             return;
@@ -426,7 +314,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
      */
     private void createRepositoryObject(Workspace workspace, String entityType, RepositoryValueObject data, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            RepositoryObject object = workspace.addRepositoryObject(entityType, data.attributes, data.tags);
+            RepositoryObject object = workspace.createRepositoryObject(entityType, data.attributes, data.tags);
 
             resp.sendRedirect(req.getServletPath() + "/" + buildPathFromElements(WORK_FOLDER, workspace.getSessionID(), entityType, object.getDefinition()));
         }
@@ -436,48 +324,6 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
     }
     
-    /**
-     * Creates a new workspace.
-     * 
-     * @param resp the servlet response to write the response data to.
-     * @throws IOException in case of I/O errors.
-     */
-    private void createWorkspace(final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
-        // TODO get data from post body (if no data, assume latest??) -> for now always assume latest
-        final String sessionID;
-        final Workspace workspace;
-        final Component component;
-
-        synchronized (m_workspaces) {
-            sessionID = "rest-" + m_sessionID++;
-            workspace = new Workspace(sessionID, m_repositoryURL, m_customerName, m_storeRepositoryName, m_targetRepositoryName, m_deploymentRepositoryName);
-            m_workspaces.put(sessionID, workspace);
-
-            component = m_dm.createComponent().setImplementation(workspace);
-            m_workspaceComponents.put(sessionID, component);
-        }
-        // any parameters supplied in this call are passed on to the session
-        // factory, so you can use these to configure your session
-        m_sessionFactory.createSession(sessionID, req.getParameterMap());
-        m_dm.add(component);
-        
-        
-        User user;
-        if (m_useAuthentication) {
-            // Use the authentication service to authenticate the given request...
-            user = m_authenticationService.authenticate(req);
-        } else {
-            // Use the "hardcoded" user to login with...
-            user = m_userAdmin.getUser("username", m_serverUser);
-        }
-        
-        if (user == null || !workspace.login(user)) {
-            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-        }
-        else {
-            resp.sendRedirect(req.getServletPath() + "/" + buildPathFromElements(WORK_FOLDER, sessionID));
-        }
-    }
 
     /**
      * Deletes a repository object from the current workspace.
@@ -515,19 +361,6 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
     }
 
-    /**
-     * Returns a workspace by its identification.
-     * 
-     * @param id the (session) identifier of the workspace to return.
-     * @return the workspace with requested ID, or <code>null</code> if no such workspace exists.
-     */
-    private Workspace getWorkspace(String id) {
-        Workspace workspace;
-        synchronized (m_workspaces) {
-            workspace = m_workspaces.get(id);
-        }
-        return workspace;
-    }
 
     /**
      * Performs an idempotent action on an repository object for the given workspace.
@@ -658,32 +491,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
     }
 
-    /**
-     * Removes the workspace with the given identifier.
-     * 
-     * @param id the identifier of the workspace to remove; 
-     * @param resp the servlet response to write the response data to.
-     * @throws IOException in case of I/O problems.
-     */
-    private void removeWorkspace(final String id) throws IOException {
-        final Workspace workspace;
-        final Component component;
 
-        synchronized (m_workspaces) {
-            workspace = m_workspaces.remove(id);
-            component = m_workspaceComponents.remove(id);
-        }
-
-        if ((workspace != null) && (component != null)) {
-            try {
-                workspace.logout();
-            }
-            finally {
-                m_dm.remove(component);
-                m_sessionFactory.destroySession(id);
-            }
-        }
-    }
 
     /**
      * Updates an existing repository object.
@@ -697,7 +505,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
      */
     private void updateRepositoryObject(Workspace workspace, String entityType, String entityId, RepositoryValueObject data, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            workspace.updateObjectWithData(entityType, entityId, data);
+            workspace.updateRepositoryObject(entityType, entityId, data.attributes, data.tags);
 
             resp.sendRedirect(req.getServletPath() + "/" + buildPathFromElements(WORK_FOLDER, workspace.getSessionID(), entityType, entityId));
         }
@@ -738,49 +546,10 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             return null; // should never occur
         }
     }
-    
-    /*** SHELL COMMANDS ***/
 
-    public Workspace cw() throws Exception {
-    	return cw(m_customerName, m_customerName, m_customerName, null);
-    }
-
-    public Workspace cw(Map sessionConfiguration) throws Exception {
-    	return cw(m_customerName, m_customerName, m_customerName, sessionConfiguration);
+    @Override
+    public void updated(Dictionary properties) throws ConfigurationException {
+       // TODO Does anything need to happen here when the service endpoint is updated? 
     }
     
-	public Workspace cw(String storeCustomerName, String targetCustomerName, String deploymentCustomerName) throws Exception {
-		return cw(storeCustomerName, targetCustomerName, deploymentCustomerName, null);
-	}
-    
-	public Workspace cw(String storeCustomerName, String targetCustomerName, String deploymentCustomerName, Map sessionConfiguration) throws Exception {
-        final String sessionID;
-        final Workspace workspace;
-        final Component component;
-
-        synchronized (m_workspaces) {
-            sessionID = "shell-" + m_sessionID++;
-            workspace = new Workspace(sessionID, m_repositoryURL, storeCustomerName, m_storeRepositoryName, targetCustomerName, m_targetRepositoryName, deploymentCustomerName, m_deploymentRepositoryName);
-            m_workspaces.put(sessionID, workspace);
-
-            component = m_dm.createComponent().setImplementation(workspace);
-            m_workspaceComponents.put(sessionID, component);
-        }
-        m_sessionFactory.createSession(sessionID, sessionConfiguration);
-        m_dm.add(component);
-        
-        
-        // Use the "hardcoded" user to login with...
-        User user = m_userAdmin.getUser("username", m_serverUser);
-        if (user == null || !workspace.login(user)) {
-            return null;
-        }
-        else {
-            return workspace;
-        }
-    }
-	
-	public void rw(Workspace w) throws Exception {
-		removeWorkspace(w.getSessionID());
-	}
-}
+ }

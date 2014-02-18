@@ -16,12 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.client.rest;
+package org.apache.ace.client.workspace.impl;
 
 import java.util.Properties;
 
-import javax.servlet.Servlet;
-
+import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.workspace.WorkspaceManager;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
@@ -30,37 +29,26 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
-    public static final String RESTCLIENT_PID = "org.apache.ace.client.rest";
-    
+
+    /**
+     * Identifier for configuration settings.
+     */
+    public static final String WORKSPACE_PID = "org.apache.ace.client.workspace";
+
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        manager.add(createComponent()
-            .setInterface(Servlet.class.getName(), null)
-            .setImplementation(RESTClientServlet.class)
-            .add(createServiceDependency()
-                .setService(WorkspaceManager.class)
-                .setRequired(true)
-            )
-            .add(createConfigurationDependency()
-                .setPropagate(true)
-                .setPid(RESTCLIENT_PID)
-            )
-            .add(createServiceDependency()
-                .setService(LogService.class)
-                .setRequired(false)
-            )
-        );
-
-        Properties listProps = new Properties();
-        listProps.put(CommandProcessor.COMMAND_SCOPE, "coll");
-        listProps.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "first", "rest" });
-        manager.add(createComponent()
-            .setInterface(Object.class.getName(), listProps)
-            .setImplementation(CollectionCommands.class)
-        );
+        Properties props = new Properties();
+        props.put(CommandProcessor.COMMAND_SCOPE, "ace");
+        props.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "cw", "gw", "rw" });
+        manager.add(createComponent().setInterface(WorkspaceManager.class.getName(), props)
+                .setImplementation(WorkspaceManagerImpl.class)
+                .add(createServiceDependency().setService(SessionFactory.class).setRequired(true))
+                .add(createConfigurationDependency().setPropagate(true).setPid(WORKSPACE_PID))
+                .add(createServiceDependency().setService(LogService.class).setRequired(false)));
     }
 
     @Override
     public void destroy(BundleContext context, DependencyManager manager) throws Exception {
+        // nothing needs to be explicitly destroyed here at the moment
     }
 }

@@ -20,8 +20,6 @@ package org.apache.ace.client.rest;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
-import java.util.Properties;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.mockito.Mockito;
@@ -29,25 +27,16 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class RESTClientTest {
-    @Test(groups = { UNIT })
-    public void testPathTransforms() {
-        String path = "one/two/last%20path";
-        RESTClientServlet s = new RESTClientServlet();
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(request.getPathInfo()).thenReturn(path);
-        String[] elements = s.getPathElements(request);
-        Assert.assertEquals(elements[0], "one");
-        Assert.assertEquals(elements[1], "two");
-        Assert.assertEquals(elements[2], "last path");
-        String result = s.buildPathFromElements(elements);
-        Assert.assertEquals(result, path);
-    }
-    
-    @Test(groups = { UNIT })
-    public void testPropertyGetter() {
-        RESTClientServlet s = new RESTClientServlet();
-        Assert.assertEquals(s.getProperty(new Properties() {{ put("key", "value"); }},  "key", "notused"), "value");
-        Assert.assertEquals(s.getProperty(new Properties() {{ put("unusedkey", "value"); }},  "key", "default"), "default");
-        Assert.assertEquals(s.getProperty(null,  "key", "default"), "default");
-    }
-}
+	@Test(groups = { UNIT })
+	public void testPathTransforms() {
+		String path = "one/two/last%20path";
+		RESTClientServlet s = new RESTClientServlet();
+		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+		Mockito.when(request.getPathInfo()).thenReturn(path);
+		String[] elements = s.getPathElements(request);
+		Assert.assertEquals(elements[0], "one");
+		Assert.assertEquals(elements[1], "two");
+		Assert.assertEquals(elements[2], "last path");
+		String result = s.buildPathFromElements(elements);
+		Assert.assertEquals(result, path);
+	}}

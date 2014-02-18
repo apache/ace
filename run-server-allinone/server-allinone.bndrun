@@ -24,6 +24,7 @@
 	org.apache.ace.client.repository.helper.configuration;version=latest,\
 	org.apache.ace.client.repository.impl;version=latest,\
 	org.apache.ace.client.rest;version=latest,\
+	org.apache.ace.client.workspace;version=latest,\
 	org.apache.ace.configurator.useradmin.task;version=latest,\
 	org.apache.ace.configurator.impl;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
