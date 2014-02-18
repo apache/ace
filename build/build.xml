@@ -12,6 +12,7 @@
 	<property name="target.base.dir" value="generated/apache-ace-${version}-bin" />
 	<property name="target.server-allinone.dir" value="${target.base.dir}/server-allinone" />
 	<property name="target.server.dir" value="${target.base.dir}/server" />
+	<property name="target.relay.dir" value="${target.base.dir}/relay" />
 	<property name="target.client.dir" value="${target.base.dir}/client" />
 	<property name="target.obr.dir" value="${target.base.dir}/obr" />
 	<property name="target.target.dir" value="${target.base.dir}/target" />
@@ -97,6 +98,7 @@
 	<target name="package-bin" description="Packages the binary distribution." depends="init">
 		<mkdir dir="${target.server.dir}" />
 		<mkdir dir="${target.server-allinone.dir}" />
+		<mkdir dir="${target.relay.dir}" />
 		<mkdir dir="${target.client.dir}" />
 		<mkdir dir="${target.obr.dir}" />
 		<mkdir dir="${target.target.dir}" />
@@ -113,6 +115,9 @@
 		<copy todir="${target.server.dir}/conf">
 			<fileset dir="../run-server/conf" />
 		</copy>
+		<copy todir="${target.relay.dir}/conf">
+			<fileset dir="../run-relay/conf" />
+		</copy>
 		<copy todir="${target.client.dir}/conf">
 			<fileset dir="../run-client/conf" />
 		</copy>
@@ -121,10 +126,10 @@
 		</copy>
 
 		<!-- add jar files to store directory -->
-		<copy todir="${target.server.dir}/store" flatten="true">
+		<copy todir="${target.obr.dir}/store" flatten="true">
 			<resources refid="devserver-store" />
 		</copy>
-		<move file="${target.server.dir}/store/org.apache.ace.agent.launcher.felix.jar" toFile="${target.server.dir}/store/ace-launcher.jar"/>
+		<move file="${target.obr.dir}/store/org.apache.ace.agent.launcher.felix.jar" toFile="${target.obr.dir}/store/ace-launcher.jar" />
 
 		<copy todir="${target.server-allinone.dir}/store" flatten="true">
 			<resources refid="devserver-store" />
@@ -134,6 +139,7 @@
 		<!-- create the executable jars -->
 		<bndpackage runfile="../run-server-allinone/server-allinone.bndrun" output="${target.server-allinone.dir}/server-allinone.jar" />
 		<bndpackage runfile="../run-server/server.bndrun" output="${target.server.dir}/server.jar" />
+		<bndpackage runfile="../run-relay/relay.bndrun" output="${target.relay.dir}/relay.jar" />
 		<bndpackage runfile="../run-client/client.bndrun" output="${target.client.dir}/client.jar" />
 		<bndpackage runfile="../run-obr/obr.bndrun" output="${target.obr.dir}/obr.jar" />
 		<bndpackage runfile="../run-target/target.bndrun" output="${target.target.dir}/target.jar" />
