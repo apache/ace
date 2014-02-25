@@ -30,6 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.feedback.AuditEvent;
 import org.apache.ace.feedback.Descriptor;
@@ -193,6 +196,60 @@ public class ServerLogStoreTester {
             }
         }
     }
+    
+    
+    
+    
+    @SuppressWarnings("serial")
+    @Test(groups = { UNIT })
+    public void testConcurrentLog() throws IOException, InterruptedException {
+        ExecutorService es = Executors.newFixedThreadPool(8);
+        final Map<String, String> props = new HashMap<String, String>();
+        props.put("test", "bar");
+
+        List<Descriptor> ranges = m_logStore.getDescriptors();
+        assert ranges.isEmpty() : "New store should have no ranges.";
+        for (String target : new String[] { "g1", "g2", "g3" }) {
+            for (long log : new long[] { 1, 2, 3, 5 }) {
+                for (long id = 0; id < 500; id++) {
+                    final String t = target;
+                    final long l = log;
+                    final long i = id;
+                    es.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            List<Event> list = new ArrayList<>();
+                            list.add(new Event(t, l, i, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, props));
+                            try {
+                                m_logStore.put(list);
+                            }
+                            catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                            
+                        }
+                    });
+                }
+            }
+        }
+        es.shutdown();
+        es.awaitTermination(60, TimeUnit.SECONDS);
+        int size = m_logStore.getDescriptors().size();
+        assert size == 3 * 4 : "Incorrect amount of ranges returned from store: " + size;
+        List<Event> stored = new ArrayList<Event>();
+        for (Descriptor range : m_logStore.getDescriptors()) {
+            for (Descriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
+                stored.addAll(m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getStoreID())));
+            }
+        }
+
+        Set<String> out = new HashSet<String>();
+        for (Event event : stored) {
+            out.add(event.toRepresentation());
+        }
+    }
+    
     
     private void delete(File root) {
         if (root.isDirectory()) {
