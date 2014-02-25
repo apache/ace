@@ -1,0 +1,9 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	javax.servlet,\
+	org.apache.ace.gogo;version=latest,\
+	org.apache.felix.gogo.runtime,\
+	org.apache.commons.io
+Bundle-Activator: org.apache.ace.gogo.servlet.Activator
+Private-Package: org.apache.ace.gogo.servlet
