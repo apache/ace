@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
@@ -79,8 +79,8 @@ public class LogStoreImpl implements LogStore, ManagedService {
     }
 
     public List<Event> get(Descriptor descriptor) throws IOException {
+        obtainLock(descriptor.getTargetID(), descriptor.getStoreID());
         try {
-            obtainLock(descriptor.getTargetID(), descriptor.getStoreID());
             return getInternal(descriptor);
         }
         finally {
@@ -278,7 +278,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
                     high = Long.MAX_VALUE;
                 }
                 // send (eventadmin)event about a new (log)event being stored
-                Dictionary props = new Hashtable();
+                Dictionary<String, Object> props = new Hashtable<String, Object>();
                 props.put(LogStore.EVENT_PROP_LOGNAME, m_name);
                 props.put(LogStore.EVENT_PROP_LOG_EVENT, event);
                 m_eventAdmin.postEvent(new org.osgi.service.event.Event(LogStore.EVENT_TOPIC, props));
@@ -419,8 +419,8 @@ public class LogStoreImpl implements LogStore, ManagedService {
     }
 
     private void clean(String targetID, Long logID) throws IOException {
+        obtainLock(targetID, logID);
         try {
-            obtainLock(targetID, logID);
             List<Event> events = getInternal(new Descriptor(targetID, logID, SortedRangeSet.FULL_SET));
             if (events.size() > m_maxEvents) {
                 for (int i = 0; i < m_maxEvents; i++) {
@@ -454,15 +454,10 @@ public class LogStoreImpl implements LogStore, ManagedService {
 
         // try to obtain the lock if we could not lock it on the first try
         if (alreadyLocked) {
-            int nrOfTries = 1;
-            while (alreadyLocked && nrOfTries < 10000) {
-                try {
-                    Thread.sleep(1);
-                }
-                catch (InterruptedException e) {
-                    break;
-                }
-                nrOfTries++;
+            int nrOfTries = 0;
+            while (alreadyLocked && nrOfTries++ < 10000) {
+                LockSupport.parkNanos(50);
+
                 synchronized (lockedLogs) {
                     alreadyLocked = lockedLogs.contains(logID);
                     if (!alreadyLocked) {

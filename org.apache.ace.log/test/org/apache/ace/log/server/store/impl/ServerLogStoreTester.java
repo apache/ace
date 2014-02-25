@@ -218,7 +218,7 @@ public class ServerLogStoreTester {
                     es.execute(new Runnable() {
                         @Override
                         public void run() {
-                            List<Event> list = new ArrayList<>();
+                            List<Event> list = new ArrayList<Event>();
                             list.add(new Event(t, l, i, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, props));
                             try {
                                 m_logStore.put(list);
