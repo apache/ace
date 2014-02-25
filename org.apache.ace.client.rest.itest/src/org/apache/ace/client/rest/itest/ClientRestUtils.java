@@ -198,13 +198,14 @@ public class ClientRestUtils {
 
     /** Creates a new workspace. */
     public static WebResource createWorkspace(String host, Client c) {
-        WebResource r = c.resource(host.concat("/client/work"));
+        WebResource r = c.resource(host.concat("/client/work/"));
         try {
             r.post(String.class, "");
             fail("We should have been redirected to a new workspace.");
             return null; // to keep the compiler happy, it does not understand what fail() does
         }
         catch (UniformInterfaceException e) {
+            assertEquals("Expected a valid redirect after creating a workspace", 302, e.getResponse().getStatus());
             return c.resource(e.getResponse().getLocation());
         }
     }
