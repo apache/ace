@@ -456,7 +456,14 @@ public class LogStoreImpl implements LogStore, ManagedService {
         if (alreadyLocked) {
             int nrOfTries = 0;
             while (alreadyLocked && nrOfTries++ < 10000) {
-                LockSupport.parkNanos(50);
+                try {
+                    Thread.sleep(1);
+                }
+                catch (InterruptedException exception) {
+                    // Restore interrupted flag...
+                    Thread.currentThread().interrupt();
+                    break;
+                }
 
                 synchronized (lockedLogs) {
                     alreadyLocked = lockedLogs.contains(logID);

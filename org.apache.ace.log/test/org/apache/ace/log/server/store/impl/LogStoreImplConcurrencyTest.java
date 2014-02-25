@@ -153,8 +153,13 @@ public class LogStoreImplConcurrencyTest {
                     long id = i;
                     Event event = new Event(TARGET_ID, STORE_ID, id, id, rnd.nextInt(10));
 
-                    m_store.put(Arrays.asList(event));
-                    m_written.putIfAbsent(Long.valueOf(id), event);
+                    try {
+                        m_store.put(Arrays.asList(event));
+                        m_written.putIfAbsent(Long.valueOf(id), event);
+                    }
+                    catch (Exception exception) {
+                        // Ignore...
+                    }
                 }
 
                 System.out.printf("Writer (%s) finished with %d records written...%n", m_name, m_written.size());
@@ -162,12 +167,9 @@ public class LogStoreImplConcurrencyTest {
             catch (InterruptedException e) {
                 // ok, stop...
             }
-            catch (IOException exception) {
-                exception.printStackTrace();
-            }
             finally {
                 m_stop.countDown();
-                
+
                 System.out.println("Ending writer (" + m_name + ")");
             }
         }
