@@ -60,14 +60,14 @@ public class TestDataCommands {
         return url.toExternalForm();
     }
 
-    @Descriptor("Generates a metatype configuration artifact with version 1.0.0")
-    public static String gca() throws Exception {
-        return gca(new String[0]);
+    @Descriptor("Generates a metatype configuration artifact")
+    public static String gca(@Descriptor("The (placeholder) property names") String[] propertyNames) throws Exception {
+        return gca(null, propertyNames);
     }
 
-    @Descriptor("Generates a metatype configuration artifact with a given version")
-    public static String gca(@Descriptor("The (placeholder) property names") String[] propertyNames) throws Exception {
-        URL url = generateMetaTypeArtifact(propertyNames);
+    @Descriptor("Generates a metatype configuration artifact")
+    public static String gca(@Descriptor("The artifact name to use") String name, @Descriptor("The (placeholder) property names") String[] propertyNames) throws Exception {
+        URL url = generateMetaTypeArtifact(name, propertyNames);
         return url.toExternalForm();
     }
 
@@ -91,12 +91,21 @@ public class TestDataCommands {
         }
     }
 
-    public static URL generateMetaTypeArtifact(String[] propertyNames) throws Exception {
+    public static URL generateMetaTypeArtifact(String name, String[] propertyNames) throws Exception {
         if (propertyNames == null || propertyNames.length < 1) {
             throw new IllegalArgumentException("Need at least one property name!");
         }
 
-        File dataFile = File.createTempFile("config", ".xml");
+        File dataFile;
+        if (name == null) {
+            dataFile = File.createTempFile("config", ".xml");
+        }
+        else {
+            if (!name.endsWith(".xml")) {
+                name = name.concat(".xml");
+            }
+            dataFile = new File(System.getProperty("java.io.tmpdir"), name);
+        }
         dataFile.deleteOnExit();
 
         XMLOutputFactory factory = XMLOutputFactory.newInstance();

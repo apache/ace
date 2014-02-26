@@ -1,0 +1,34 @@
+#
+# Sets up a workspace with a collection of entities for testing.
+#
+
+# install test bundle with additional Gogo commands needed later on in this script
+pwd = (cd) getAbsolutePath
+start 'file:'$pwd'/../org.apache.ace.test/generated/org.apache.ace.test.jar'
+
+# create a workspace
+w = (cw)
+
+# create entities in workspace
+each [0 1 2 3 4 5 6 7 8 9] {
+	a = $it
+	each [0 1 2 3 4 5 6 7 8] {
+		echo 'Creating bundle artifact-'$a$it' ...'
+		# generate artifacts and associate them
+        $w ca (gba 'artifact-'$a$it) true
+		$w ca2f '(bundle-symbolicname=artifact-'$a$it')' '(name=feature-'$a')'
+	}
+	echo 'Creating config-'$a'.xml ...'
+	c = (gca 'config-'$a 'common' 'prop'$a'1' 'prop'$a'2' 'prop'$a'3')
+	$w ca $c true
+	$w ca2f '(artifactName=config-'$a'.xml)' '(name=feature-'$a')'
+	$w cf 'feature-'$it
+	$w cf2d '(name=feature-'$it')' '(name=dist-'$it')'
+	$w cd 'dist-'$it
+	$w cd2t '(name=dist-'$it')' '(id=target-'$it')'
+	$w ct 'target-'$it
+}
+
+# commit and delete the workspace
+$w commit
+rw $w

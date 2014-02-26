@@ -1,0 +1,29 @@
+#
+# Clears a complete workspace, removing all the artifacts it finds. Does not
+# attempt to delete anything from an OBR, just all the metadata in ACE.
+#
+
+# install test bundle with additional Gogo commands needed later on in this script
+pwd = (cd) getAbsolutePath
+start 'file:'$pwd'/../org.apache.ace.test/generated/org.apache.ace.test.jar'
+
+
+# create a workspace
+w = (cw)
+
+# delete contents of workspace
+each ($w la) {$w da $it}
+each ($w lf) {$w df $it}
+each ($w ld) {$w dd $it}
+each ($w lt) {$w dt $it}
+each ($w la2f) {$w da2f $it}
+each ($w lf2d) {$w df2d $it}
+each ($w ld2t) {$w dd2t $it}
+
+# delete artifacts from OBR as well (assuming local OBR is used!)...
+r = (repo OBR 'http://localhost:8080/obr/repository.xml')
+repo:rm $r
+
+# commit and delete the workspace
+$w commit
+rw $w

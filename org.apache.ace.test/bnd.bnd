@@ -7,6 +7,9 @@
 Export-Package: org.apache.ace.it,\
 	org.apache.ace.test.constants,\
 	org.apache.ace.test.utils
+Import-Package: \
+	junit.framework;resolution:=optional,\
+	*
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Test
 Bundle-Description: Provides base classes and utils for integration tests
