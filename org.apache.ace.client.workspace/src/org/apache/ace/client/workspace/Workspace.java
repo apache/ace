@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryObject;
+import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
@@ -118,7 +119,7 @@ public interface Workspace {
      *             when the ObjectRepository this Workspace represents would throw this same exception
      */
     public RepositoryObject createRepositoryObject(String entityType, Map<String, String> attributes,
-            Map<String, String> tags) throws IllegalArgumentException;
+        Map<String, String> tags) throws IllegalArgumentException;
 
     /**
      * @param entityType
@@ -151,7 +152,7 @@ public interface Workspace {
      *            the tags of the RepositoryObject
      */
     public void updateRepositoryObject(String entityType, String entityId, Map<String, String> attributes,
-            Map<String, String> tags);
+        Map<String, String> tags);
 
     /**
      * Create an association of the specified between a left-hand side object and a right-hand side object with the
@@ -169,7 +170,7 @@ public interface Workspace {
      *            the cardinality of the right-hand side
      */
     public void createAssocation(String entityType, String leftEntityId, String rightEntityId, String leftCardinality,
-            String rightCardinality);
+        String rightCardinality);
 
     /**
      * Get the RepositoryObject that represents the left-hand side of the specified association.
@@ -219,10 +220,52 @@ public interface Workspace {
 
     public List<ArtifactObject> la(String filter) throws Exception;
 
+    /**
+     * Creates and optionally uploads an artifact from a given URL.
+     * <p>
+     * This method uses, in contrast to the other "ca" methods, all known {@link ArtifactHelper}s to import the given
+     * artifact and therefore will fail in case you try to upload an unrecognized artifact.
+     * </p>
+     * 
+     * @param url
+     *            the URL of the artifact to import & create;
+     * @param upload
+     *            <code>true</code> if the artifact should be uploaded to the OBR, <code>false</code> if it is already
+     *            in the OBR.
+     * @throws Exception
+     */
+    public void ca(String url, boolean upload) throws Exception;
+
+    /**
+     * Creates a new bundle artifact.
+     * 
+     * @param name
+     *            the name of the bundle artifact;
+     * @param url
+     *            the URL of the bundle artifact;
+     * @param bsn
+     *            the BSN of the bundle artifact;
+     * @param version
+     *            the version of the bundle artifact.
+     */
     public void ca(String name, String url, String bsn, String version);
 
+    /**
+     * Creates a new bundle artifact.
+     * 
+     * @param attrs
+     *            the attributes of the to-be-created artifact;
+     */
     public void ca(Map<String, String> attrs);
 
+    /**
+     * Creates a new artifact.
+     * 
+     * @param attrs
+     *            the attributes of the to-be-created artifact;
+     * @param tags
+     *            the tags of the to-be-created artifact.
+     */
     public void ca(Map<String, String> attrs, Map<String, String> tags);
 
     public void da(RepositoryObject repositoryObject);
@@ -327,7 +370,7 @@ public interface Workspace {
     /*** other/generic ***/
 
     public void cas(String entityType, String leftEntityId, String rightEntityId, String leftCardinality,
-            String rightCardinality);
+        String rightCardinality);
 
     public boolean isModified() throws IOException;
 

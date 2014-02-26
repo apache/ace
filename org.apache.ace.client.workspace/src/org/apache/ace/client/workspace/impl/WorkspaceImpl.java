@@ -82,14 +82,14 @@ public class WorkspaceImpl implements Workspace {
     private volatile LogService m_log;
 
     public WorkspaceImpl(String sessionID, String repositoryURL, String customerName, String storeRepositoryName,
-            String distributionRepositoryName, String deploymentRepositoryName) throws MalformedURLException {
+        String distributionRepositoryName, String deploymentRepositoryName) throws MalformedURLException {
         this(sessionID, repositoryURL, customerName, storeRepositoryName, customerName, distributionRepositoryName,
-                customerName, deploymentRepositoryName);
+            customerName, deploymentRepositoryName);
     }
 
     public WorkspaceImpl(String sessionID, String repositoryURL, String storeCustomerName, String storeRepositoryName,
-            String distributionCustomerName, String distributionRepositoryName, String deploymentCustomerName,
-            String deploymentRepositoryName) throws MalformedURLException {
+        String distributionCustomerName, String distributionRepositoryName, String deploymentCustomerName,
+        String deploymentRepositoryName) throws MalformedURLException {
         m_sessionID = sessionID;
         m_repositoryURL = new URL(repositoryURL);
         m_storeCustomerName = storeCustomerName;
@@ -107,13 +107,13 @@ public class WorkspaceImpl implements Workspace {
 
     private void addSessionDependency(Component component, Class<?> service, boolean isRequired) {
         component.add(m_manager.createServiceDependency()
-                .setService(service, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
-                .setRequired(isRequired).setInstanceBound(true));
+            .setService(service, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
+            .setRequired(isRequired).setInstanceBound(true));
     }
 
     private void addDependency(Component component, Class<?> service, boolean isRequired) {
         component.add(m_manager.createServiceDependency().setService(service).setRequired(isRequired)
-                .setInstanceBound(true));
+            .setInstanceBound(true));
     }
 
     public void init(Component component) {
@@ -140,13 +140,13 @@ public class WorkspaceImpl implements Workspace {
             RepositoryAdminLoginContext context = m_repositoryAdmin.createLoginContext(user);
 
             context.add(
-                    context.createShopRepositoryContext().setLocation(m_repositoryURL).setCustomer(m_storeCustomerName)
-                            .setName(m_storeRepositoryName).setWriteable())
-                    .add(context.createTargetRepositoryContext().setLocation(m_repositoryURL)
-                            .setCustomer(m_distributionCustomerName).setName(m_distributionRepositoryName)
-                            .setWriteable())
-                    .add(context.createDeploymentRepositoryContext().setLocation(m_repositoryURL)
-                            .setCustomer(m_deploymentCustomerName).setName(m_deploymentRepositoryName).setWriteable());
+                context.createShopRepositoryContext().setLocation(m_repositoryURL).setCustomer(m_storeCustomerName)
+                    .setName(m_storeRepositoryName).setWriteable())
+                .add(context.createTargetRepositoryContext().setLocation(m_repositoryURL)
+                    .setCustomer(m_distributionCustomerName).setName(m_distributionRepositoryName)
+                    .setWriteable())
+                .add(context.createDeploymentRepositoryContext().setLocation(m_repositoryURL)
+                    .setCustomer(m_deploymentCustomerName).setName(m_deploymentRepositoryName).setWriteable());
 
             m_repositoryAdmin.login(context);
             m_repositoryAdmin.checkout();
@@ -154,7 +154,7 @@ public class WorkspaceImpl implements Workspace {
         catch (IOException e) {
             e.printStackTrace();
             m_log.log(LogService.LOG_ERROR,
-                    "Could not login and checkout. Workspace will probably not work correctly.", e);
+                "Could not login and checkout. Workspace will probably not work correctly.", e);
             return false;
         }
 
@@ -195,7 +195,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public RepositoryObject createRepositoryObject(String entityType, Map<String, String> attributes,
-            Map<String, String> tags) throws IllegalArgumentException {
+        Map<String, String> tags) throws IllegalArgumentException {
         if (TARGET.equals(entityType)) {
             ObjectRepository<StatefulTargetObject> repo = getGenericObjectRepository(TARGET);
             StatefulTargetRepository statefulRepo = (StatefulTargetRepository) repo;
@@ -212,7 +212,7 @@ public class WorkspaceImpl implements Workspace {
     // be integrated given the current API.
     private void prepareAssociationAttributes(String entityType, Map<String, String> attributes) {
         if (ARTIFACT2FEATURE.equals(entityType) || FEATURE2DISTRIBUTION.equals(entityType)
-                || DISTRIBUTION2TARGET.equals(entityType)) {
+            || DISTRIBUTION2TARGET.equals(entityType)) {
 
             String leftAttribute = attributes.get("left");
             String rightAttribute = attributes.get("right");
@@ -231,7 +231,7 @@ public class WorkspaceImpl implements Workspace {
                 if (left instanceof StatefulTargetObject) {
                     if (((StatefulTargetObject) left).isRegistered()) {
                         attributes.put(Association.LEFT_ENDPOINT, ((StatefulTargetObject) left).getTargetObject()
-                                .getAssociationFilter(attributes));
+                            .getAssociationFilter(attributes));
                     }
                 }
                 else {
@@ -242,7 +242,7 @@ public class WorkspaceImpl implements Workspace {
                 if (right instanceof StatefulTargetObject) {
                     if (((StatefulTargetObject) right).isRegistered()) {
                         attributes.put(Association.RIGHT_ENDPOINT, ((StatefulTargetObject) right).getTargetObject()
-                                .getAssociationFilter(attributes));
+                            .getAssociationFilter(attributes));
                     }
                 }
                 else {
@@ -254,7 +254,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public void updateRepositoryObject(String entityType, String entityId, Map<String, String> attributes,
-            Map<String, String> tags) {
+        Map<String, String> tags) {
         RepositoryObject repositoryObject = getRepositoryObject(entityType, entityId);
         // first handle the attributes
         for (Entry<String, String> attribute : attributes.entrySet()) {
@@ -300,7 +300,7 @@ public class WorkspaceImpl implements Workspace {
     // can't be integrated given the current API.
     private void updateAssociationAttributes(String entityType, RepositoryObject repositoryObject) {
         if (ARTIFACT2FEATURE.equals(entityType) || FEATURE2DISTRIBUTION.equals(entityType)
-                || DISTRIBUTION2TARGET.equals(entityType)) {
+            || DISTRIBUTION2TARGET.equals(entityType)) {
             String leftAttribute = repositoryObject.getAttribute("left");
             String rightAttribute = repositoryObject.getAttribute("right");
 
@@ -318,28 +318,28 @@ public class WorkspaceImpl implements Workspace {
                 if (left instanceof StatefulTargetObject) {
                     if (((StatefulTargetObject) left).isRegistered()) {
                         repositoryObject.addAttribute(
-                                Association.LEFT_ENDPOINT,
-                                ((StatefulTargetObject) left).getTargetObject().getAssociationFilter(
-                                        getAttributes(((StatefulTargetObject) left).getTargetObject())));
+                            Association.LEFT_ENDPOINT,
+                            ((StatefulTargetObject) left).getTargetObject().getAssociationFilter(
+                                getAttributes(((StatefulTargetObject) left).getTargetObject())));
                     }
                 }
                 else {
                     repositoryObject.addAttribute(Association.LEFT_ENDPOINT,
-                            left.getAssociationFilter(getAttributes(left)));
+                        left.getAssociationFilter(getAttributes(left)));
                 }
             }
             if (right != null) {
                 if (right instanceof StatefulTargetObject) {
                     if (((StatefulTargetObject) right).isRegistered()) {
                         repositoryObject.addAttribute(
-                                Association.RIGHT_ENDPOINT,
-                                ((StatefulTargetObject) right).getTargetObject().getAssociationFilter(
-                                        getAttributes(((StatefulTargetObject) right).getTargetObject())));
+                            Association.RIGHT_ENDPOINT,
+                            ((StatefulTargetObject) right).getTargetObject().getAssociationFilter(
+                                getAttributes(((StatefulTargetObject) right).getTargetObject())));
                     }
                 }
                 else {
                     repositoryObject.addAttribute(Association.RIGHT_ENDPOINT,
-                            right.getAssociationFilter(getAttributes(right)));
+                        right.getAssociationFilter(getAttributes(right)));
                 }
             }
         }
@@ -356,7 +356,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public void createAssocation(String entityType, String leftEntityId, String rightEntityId, String leftCardinality,
-            String rightCardinality) {
+        String rightCardinality) {
         Map<String, String> attrs = new HashMap<String, String>();
         Map<String, String> tags = new HashMap<String, String>();
         attrs.put(Association.LEFT_ENDPOINT, leftEntityId);
@@ -481,6 +481,11 @@ public class WorkspaceImpl implements Workspace {
     public List<ArtifactObject> la(String filter) throws Exception {
         ObjectRepository<ArtifactObject> repo = getGenericObjectRepository(ARTIFACT);
         return repo.get(m_context.createFilter(filter));
+    }
+
+    @Override
+    public void ca(String url, boolean upload) throws Exception {
+        m_artifactRepository.importArtifact(new URL(url), upload);
     }
 
     @Override
@@ -713,7 +718,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public void cas(String entityType, String leftEntityId, String rightEntityId, String leftCardinality,
-            String rightCardinality) {
+        String rightCardinality) {
         createAssocation(entityType, leftEntityId, rightEntityId, leftCardinality, rightCardinality);
     }
 
