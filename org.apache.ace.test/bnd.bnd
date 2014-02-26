@@ -2,6 +2,7 @@
 	osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\
+	org.apache.felix.gogo.runtime,\
 	org.apache.felix.dependencymanager
 Export-Package: org.apache.ace.it,\
 	org.apache.ace.test.constants,\
@@ -9,3 +10,5 @@ Export-Package: org.apache.ace.it,\
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Test
 Bundle-Description: Provides base classes and utils for integration tests
+Private-Package: org.apache.ace.it.gogo
+Bundle-Activator: org.apache.ace.it.gogo.Activator
