@@ -31,6 +31,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.felix.service.command.Descriptor;
@@ -152,10 +153,8 @@ public class TestDataCommands {
             return dataFile.toURI().toURL();
         }
         finally {
+            closeSilently(writer);
             closeSilently(fos);
-            if (writer != null) {
-                writer.close();
-            }
         }
     }
 
@@ -166,6 +165,17 @@ public class TestDataCommands {
             }
         }
         catch (IOException exception) {
+            // Ignore...
+        }
+    }
+
+    private static void closeSilently(XMLStreamWriter resource) {
+        try {
+            if (resource != null) {
+                resource.close();
+            }
+        }
+        catch (XMLStreamException exception) {
             // Ignore...
         }
     }
