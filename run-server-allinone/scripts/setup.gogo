@@ -9,24 +9,42 @@ start 'file:'$pwd'/../org.apache.ace.test/generated/org.apache.ace.test.jar'
 # create a workspace
 w = (cw)
 
-# create entities in workspace
+# create 10 features, distributions and targets...
 each [0 1 2 3 4 5 6 7 8 9] {
 	a = $it
-	each [0 1 2 3 4 5 6 7 8] {
+	
+	echo 'Creating feature '$a' ...'
+	$w cf 'feature-'$it
+	$w cf2d '(name=feature-'$a')' '(name=dist-'$a')'
+	echo 'Creating distribution '$a' ...'
+	$w cd 'dist-'$it
+	$w cd2t '(name=dist-'$a')' '(id=target-'$a')'
+	echo 'Creating target '$a' ...'
+	$w ct [id='target-'$a] [common=value 'prop'$a'1'=foo 'prop'$a'2'=bar 'prop'$a'3'=qux]	
+}
+
+# create 1000 artifacts and link them to the 10 features...
+a = 0
+while {(lt $a 100)} {
+	each [0 1 2 3 4 5 6 7 8 9] {
 		echo 'Creating bundle artifact-'$a$it' ...'
 		# generate artifacts and associate them
-        $w ca (gba 'artifact-'$a$it) true
-		$w ca2f '(bundle-symbolicname=artifact-'$a$it')' '(name=feature-'$a')'
+        $w ca (gba 'artifact-'$it'-'$a) true
+		$w ca2f '(bundle-symbolicname=artifact-'$it'-'$a')' '(name=feature-'$it')'
 	}
-	echo 'Creating config-'$a'.xml ...'
-	c = (gca 'config-'$a 'common' 'prop'$a'1' 'prop'$a'2' 'prop'$a'3')
-	$w ca $c true
-	$w ca2f '(artifactName=config-'$a'.xml)' '(name=feature-'$a')'
-	$w cf 'feature-'$it
-	$w cf2d '(name=feature-'$it')' '(name=dist-'$it')'
-	$w cd 'dist-'$it
-	$w cd2t '(name=dist-'$it')' '(id=target-'$it')'
-	$w ct 'target-'$it
+	a = (inc $a)
+}
+
+# create 100 metatype configurations and link them to the 10 features...
+a = 0
+while {(lt $a 10)} {
+	each [0 1 2 3 4 5 6 7 8 9] {
+		echo 'Creating config-'$it'-'$a'.xml ...'
+		c = (gca 'config-'$it'-'$a 'common' 'prop'$it'1' 'prop'$it'2' 'prop'$it'3')
+		$w ca $c true
+		$w ca2f '(artifactName=config-'$it'-'$a'.xml)' '(name=feature-'$it')'
+	}
+    a = (inc $a)
 }
 
 # commit and delete the workspace
