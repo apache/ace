@@ -23,7 +23,7 @@ import org.apache.felix.service.command.Descriptor;
 public class MathCommands {
 
     public final static String SCOPE = "math";
-    public final static String[] FUNCTIONS = new String[] { "lt", "gt", "eq", "inc", "dec" };
+    public final static String[] FUNCTIONS = new String[] { "lt", "gt", "eq", "inc", "dec", "add", "sub" };
 
     @Descriptor("test if first number is greater then second number")
     public static boolean gt(long first, long second) {
@@ -48,5 +48,15 @@ public class MathCommands {
     @Descriptor("returns the given number decremented by one")
     public static long dec(long num) {
         return num - 1;
+    }
+
+    @Descriptor("returns the addition of two numbers")
+    public static long add(long a, long b) {
+        return a + b;
+    }
+
+    @Descriptor("returns the difference of two numbers")
+    public static long sub(long a, long b) {
+        return a - b;
     }
 }
