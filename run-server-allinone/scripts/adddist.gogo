@@ -1,0 +1,31 @@
+#
+# Adds some distributions, features and artifacts (based on setup.gogo).
+#
+
+# install test bundle with additional Gogo commands needed later on in this script
+pwd = (cd) getAbsolutePath
+start 'file:'$pwd'/../org.apache.ace.test/generated/org.apache.ace.test.jar'
+
+# create a workspace
+w = (cw)
+
+# create entities in workspace
+each [0 1 2 3 4 5 6 7 8 9] {
+	a = $it
+	each [0 1 2 3 4 5 6 7 8] {
+		# generate artifacts and associate them
+        $w ca (gba 'artifact-extra-'$a$it) true
+		$w ca2f '(bundle-symbolicname=artifact-extra-'$a$it')' '(name=feature-extra-'$a')'
+	}
+	echo 'Creating config-'$a'.xml ...'
+	c = (gca 'config-extra-'$a 'common' 'prop'$a'1' 'prop'$a'2' 'prop'$a'3')
+	$w ca $c true
+	$w ca2f '(artifactName=config-extra-'$a'.xml)' '(name=feature-extra-'$a')'
+	$w cf 'feature-extra-'$it
+	$w cf2d '(name=feature-extra-'$it')' '(name=dist-extra-'$it')'
+	$w cd 'dist-extra-'$it
+}
+
+# commit and delete the workspace
+$w commit
+rw $w
