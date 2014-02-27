@@ -1,0 +1,21 @@
+#
+# Creates 10 additional targets, with some tags, and associates them with
+# existing distributions (from setup.gogo).
+#
+
+# install test bundle with additional Gogo commands needed later on in this script
+pwd = (cd) getAbsolutePath
+start 'file:'$pwd'/../org.apache.ace.test/generated/org.apache.ace.test.jar'
+
+# create a workspace
+w = (cw)
+
+# create targets
+each [0 1 2 3 4 5 6 7 8 9] {
+	$w cd2t '(name=dist-'$it')' '(id=target-extra-'$it')'
+	$w ct [id='target-extra-'$it] [prop01=test prop02=another prop03=value]
+}
+
+# commit and delete the workspace
+$w commit
+rw $w
