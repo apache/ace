@@ -220,6 +220,8 @@ public interface Workspace {
 
     public List<ArtifactObject> la(String filter) throws Exception;
 
+    public List<ArtifactObject> lr();
+
     /**
      * Creates and optionally uploads an artifact from a given URL.
      * <p>

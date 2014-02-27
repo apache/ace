@@ -9,6 +9,9 @@ start 'file:'$pwd'/../org.apache.ace.test/generated/org.apache.ace.test.jar'
 # create a workspace
 w = (cw)
 
+# upload resource processor
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.deployment.rp.autoconf/org.apache.felix.deployment.rp.autoconf-0.1.5.jar' true
+
 # create 10 features, distributions and targets...
 each [0 1 2 3 4 5 6 7 8 9] {
 	a = $it

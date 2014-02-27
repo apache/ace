@@ -476,6 +476,10 @@ public class WorkspaceImpl implements Workspace {
     public List<ArtifactObject> la() {
         return getGenericRepositoryObjects(ARTIFACT);
     }
+    
+    public List<ArtifactObject> lr() {
+        return m_artifactRepository.getResourceProcessors();
+    }
 
     @Override
     public List<ArtifactObject> la(String filter) throws Exception {

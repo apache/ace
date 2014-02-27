@@ -13,6 +13,7 @@ w = (cw)
 
 # delete contents of workspace
 each ($w la) {$w da $it}
+each ($w lr) {$w da $it}
 each ($w lf) {$w df $it}
 each ($w ld) {$w dd $it}
 each ($w lt) {$w dt $it}
