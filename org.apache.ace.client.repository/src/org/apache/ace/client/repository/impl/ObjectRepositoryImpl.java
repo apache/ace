@@ -19,11 +19,10 @@
 package org.apache.ace.client.repository.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -55,8 +54,8 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
     // for thread-safety
     protected final ReadWriteLock m_lock = new ReentrantReadWriteLock();
 
-    private final List<T> m_repo = new CopyOnWriteArrayList<T>();
-    private final Map<String, T> m_index = new ConcurrentHashMap<String, T>();
+    private final List<T> m_repo = new ArrayList<T>();
+    private final Map<String, T> m_index = new HashMap<String, T>();
     private final ChangeNotifier m_notifier;
     private final String m_xmlNode;
     private final RepositoryConfiguration m_repoConfig;

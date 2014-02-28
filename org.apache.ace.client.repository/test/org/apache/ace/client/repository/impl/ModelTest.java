@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +66,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * Test class for the object model used </code>org.apache.ace.client.repository<code>.
+ * Test class for the object model used <code>org.apache.ace.client.repository</code>.
  */
 public class ModelTest {
 
@@ -700,6 +701,33 @@ public class ModelTest {
         assertTrue(repo.contains(target1_v5));
         assertTrue(repo.contains(target2_v1));
         assertTrue(repo.contains(target2_v2));
+    }
+    
+    @Test(groups = { TestUtils.UNIT })
+    public void testConcurrentAccessToObjectRepository() throws Exception {
+        initializeRepositoryAdmin();
+        // adds 10 features
+        for (int i = 0; i < 10; i++) {
+            createBasicFeatureObject("feature-" + i);
+        }
+        // asks for a list
+        List<FeatureObject> list = m_featureRepository.get();
+        // then adds another feature
+        createBasicFeatureObject("feature-X");
+        // and makes sure the returned list still has 10 features, not 11, and not
+        // throwing any concurrent modification exceptions
+        assertEquals(list.size(), 10);
+        Iterator<FeatureObject> iterator = list.iterator();
+        for (int i = 0; i < 10; i++) {
+            assertTrue(iterator.hasNext());
+            assertTrue(iterator.next() != null);
+        }
+        assertFalse(iterator.hasNext());
+        // remove item from the list
+        list.remove(0);
+        // get a new list, ensure there are still 11 features
+        list = m_featureRepository.get();
+        assertEquals(list.size(), 11);
     }
 
     private ArtifactObject createBasicArtifactObject(String symbolicName) {
