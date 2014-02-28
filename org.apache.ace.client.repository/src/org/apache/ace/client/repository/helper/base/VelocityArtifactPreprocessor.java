@@ -223,7 +223,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         if (hash == null) {
             try {
                 hash = hash(getBytesFromUrl(getFullUrl(url, target, version)));
-                m_cachedHashes.put(key, new WeakReference<String>(hash));
+                m_cachedHashes.put(key, new SoftReference<String>(hash));
             }
             catch (IOException e) {
                 return null;
