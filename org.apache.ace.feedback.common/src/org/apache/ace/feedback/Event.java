@@ -59,7 +59,7 @@ public class Event implements Comparable {
         m_type = type;
         m_properties = new HashMap<String, String>();
 
-        Enumeration<String> keys = dictionary.elements();
+        Enumeration<String> keys = dictionary.keys();
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
             m_properties.put(key, dictionary.get(key));
@@ -88,8 +88,7 @@ public class Event implements Comparable {
             }
         }
         catch (Exception e) {
-            throw new IllegalArgumentException(
-                "Could not create event from: " + representation, e);
+            throw new IllegalArgumentException("Could not create event from: " + representation, e);
         }
     }
 
