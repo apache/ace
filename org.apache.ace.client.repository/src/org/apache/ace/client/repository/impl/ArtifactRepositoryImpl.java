@@ -101,6 +101,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
     public List<ArtifactObject> get() {
         // Note that this excludes any Bundle artifacts which are resource processors.
         try {
+            // ??? should we do that to that key?
             return super.get(createFilter("(!(" + RepositoryUtil.escapeFilterValue(BundleHelper.KEY_RESOURCE_PROCESSOR_PID) + "=*))"));
         }
         catch (InvalidSyntaxException e) {

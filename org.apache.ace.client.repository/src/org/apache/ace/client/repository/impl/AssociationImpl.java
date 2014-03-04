@@ -252,10 +252,10 @@ public class AssociationImpl<L extends RepositoryObject, R extends RepositoryObj
         // for now, we chop of the star, and check whether the topic starts with that.
         RepositoryObject entity = (RepositoryObject) event.getProperty(RepositoryObject.EVENT_ENTITY);
         if ((event.getTopic().endsWith("ADDED")) || event.getTopic().endsWith("REMOVED")) {
-            if (m_leftClass.isInstance(entity) && m_filterLeft.match(entity.getDictionary())) {
+            if (m_leftClass.isInstance(entity) && m_filterLeft.matchCase(entity.getDictionary())) {
                 locateLeftEndpoint(true);
             }
-            if (m_rightClass.isInstance(entity) && m_filterRight.match(entity.getDictionary())) {
+            if (m_rightClass.isInstance(entity) && m_filterRight.matchCase(entity.getDictionary())) {
                 locateRightEndpoint(true);
             }
         }

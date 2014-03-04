@@ -465,7 +465,7 @@ public class WorkspaceImpl implements Workspace {
         List<ArtifactObject> rps = m_artifactRepository.getResourceProcessors();
         List<ArtifactObject> res = new LinkedList<ArtifactObject>();
         for (ArtifactObject rp : rps) {
-            if (f.match(rp.getDictionary())) {
+            if (f.matchCase(rp.getDictionary())) {
                 res.add(rp);
             }
         }

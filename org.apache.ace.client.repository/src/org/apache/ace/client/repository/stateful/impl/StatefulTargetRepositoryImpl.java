@@ -107,7 +107,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         synchronized (m_repository) {
             List<StatefulTargetObject> result = new ArrayList<StatefulTargetObject>();
             for (StatefulTargetObject entry : m_repository.values()) {
-                if (filter.match(entry.getDictionary())) {
+                if (filter.matchCase(entry.getDictionary())) {
                     result.add(entry);
                 }
             }

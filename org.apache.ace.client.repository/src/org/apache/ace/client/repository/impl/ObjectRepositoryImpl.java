@@ -20,6 +20,7 @@ package org.apache.ace.client.repository.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -109,7 +110,7 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         try {
             List<T> result = new ArrayList<T>();
             for (T entry : m_repo) {
-                if (filter.match(entry.getDictionary())) {
+                if (filter.matchCase(entry.getDictionary())) {
                     result.add(entry);
                 }
             }
@@ -353,3 +354,4 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         notifyChanged(topic, props, m_busy);
     }
 }
+

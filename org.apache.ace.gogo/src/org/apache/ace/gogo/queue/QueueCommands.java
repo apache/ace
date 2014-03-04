@@ -101,7 +101,7 @@ public class QueueCommands {
 
         Filter f = FrameworkUtil.createFilter(filter);
         for (Dictionary<String, String> entry : copy) {
-            if (f.match(entry)) {
+            if (f.matchCase(entry)) {
                 return true;
             }
         }
@@ -123,7 +123,7 @@ public class QueueCommands {
 
         Filter f = FrameworkUtil.createFilter(filter);
         for (Dictionary<String, String> entry : copy) {
-            if (f.match(entry)) {
+            if (f.matchCase(entry)) {
                 result.add(toMap(entry));
                 m_queue.remove(entry);
             }
