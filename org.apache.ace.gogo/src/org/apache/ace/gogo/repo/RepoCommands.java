@@ -116,7 +116,7 @@ public class RepoCommands {
 
         for (Resource resource : resources) {
             String location = getUrl(resources.get(0));
-            System.out.println("rm " + resource + " => " + location);
+//            System.out.println("rm " + resource + " => " + location);
             deleteResource(resource);
         }
     }
