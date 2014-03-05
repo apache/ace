@@ -1,0 +1,33 @@
+#
+# Creates an additional 100 bundles and 10 configuration files
+#
+
+# install test bundle with additional Gogo commands needed later on in this script
+pwd = (cd) getAbsolutePath
+start 'file:'$pwd'/../org.apache.ace.test/generated/org.apache.ace.test.jar'
+
+# create a workspace
+w = (cw)
+
+# create 100 bundle artifacts and link them to the 10 features...
+a = 0
+while {(lt $a 10)} {
+	each [0 1 2 3 4 5 6 7 8 9] {
+		echo 'Creating bundle artifact-extra-'$a$it' ...'
+		# generate artifacts and associate them
+        $w ca (gba 'artifact-extra-2-'$it'-'$a) true
+		$w ca2f '(bundle-symbolicname=artifact-extra-2-'$it'-'$a')' '(name=feature-'$it')'
+	}
+	a = (inc $a)
+}
+
+each [0 1 2 3 4 5 6 7 8 9] {
+	echo 'Creating config-'$it'.xml ...'
+	c = (gca 'config-extra-2-'$it 'common' 'prop'$it'1' 'prop'$it'2' 'prop'$it'3')
+	$w ca $c true
+	$w ca2f '(artifactName=config-extra-2-'$it'.xml)' '(name=feature-'$it')'
+}
+
+# commit and delete the workspace
+$w commit
+rw $w

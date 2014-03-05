@@ -38,9 +38,12 @@ import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.RepositoryUtil;
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
+import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
+import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
+import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
 import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.DistributionObject;
@@ -609,8 +612,8 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     }
 
     /**
-     * Returns a map of all resource processors that are available. If there are multiple versions
-     * of a specific processor, it will only return the latest version.
+     * Returns a map of all resource processors that are available. If there are multiple versions of a specific
+     * processor, it will only return the latest version.
      * 
      * @return a map of all resource processors, indexed by processor ID
      */
@@ -742,7 +745,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      */
     private static String nextVersion(String version) {
         try {
-            // in case the given version is null or empty, v will be '0.0.0'... 
+            // in case the given version is null or empty, v will be '0.0.0'...
             Version v = Version.parseVersion(version);
             Version result = new Version(v.getMajor() + 1, 0, 0);
             return result.toString();
@@ -771,6 +774,15 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                     }
                 }
             }
+            else if (TargetObject.PRIVATE_TOPIC_CHANGED.equals(topic)) {
+                synchronized (m_repository) {
+                    String id = ((TargetObject) event.getProperty(RepositoryObject.EVENT_ENTITY)).getID();
+                    StatefulTargetObjectImpl stoi = getStatefulTargetObject(id);
+                    if (stoi != null) {
+                        stoi.determineStatus();
+                    }
+                }
+            }
             else if (TargetObject.PRIVATE_TOPIC_REMOVED.equals(topic)) {
                 synchronized (m_repository) {
                     String id = ((TargetObject) event.getProperty(RepositoryObject.EVENT_ENTITY)).getID();
@@ -794,12 +806,19 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                     }
                 }
             }
-            else {
+            else if (!RepositoryAdmin.PRIVATE_TOPIC_LOGIN.equals(topic) && !RepositoryAdmin.PRIVATE_TOPIC_REFRESH.equals(topic)) {
                 // Something else has changed; however, the entire shop may have an influence on
-                // any target, so recheck everything.
-                synchronized (m_repository) {
-                    for (StatefulTargetObjectImpl stoi : m_repository.values()) {
-                        stoi.determineStatus();
+                // any target, so recheck everything that is reachable from the entity...
+
+                RepositoryObject entity = (RepositoryObject) event.getProperty(RepositoryObject.EVENT_ENTITY);
+                if (entity != null) {
+                    synchronized (m_repository) {
+                        for (StatefulTargetObjectImpl stoi : m_repository.values()) {
+                            // Check whether the entity is reachable from this target...
+                            if (isReachableFrom(stoi, entity)) {
+                                stoi.determineStatus();
+                            }
+                        }
                     }
                 }
             }
@@ -811,6 +830,78 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                 populate();
             }
         }
+    }
+
+    /**
+     * Determines whether a given entity is reachable from a given stateful target, by traversing all its associations.
+     * 
+     * @param target
+     *            the stateful target object to check;
+     * @param entity
+     *            the entity to test.
+     * @return <code>true</code> if the given entity is reachable from the given target, <code>false</code> otherwise.
+     */
+    private boolean isReachableFrom(StatefulTargetObjectImpl target, RepositoryObject entity) {
+        if (entity instanceof DistributionObject) {
+            return target.isAssociated(entity, DistributionObject.class);
+        }
+        else if (entity instanceof Distribution2TargetAssociation) {
+            return ((Distribution2TargetAssociation) entity).getRight().contains(target.getTargetObject());
+        }
+        else if (entity instanceof FeatureObject) {
+            for (DistributionObject dist : target.getDistributions()) {
+                if (dist.isAssociated(entity, FeatureObject.class)) {
+                    return true;
+                }
+            }
+        }
+        else if (entity instanceof Feature2DistributionAssociation) {
+            List<DistributionObject> associatedDistributions = ((Feature2DistributionAssociation) entity).getRight();
+            for (DistributionObject dist : target.getDistributions()) {
+                if (associatedDistributions.contains(dist)) {
+                    return true;
+                }
+            }
+        }
+        else if (entity instanceof ArtifactObject) {
+            List<ArtifactObject> reachableArtifacts = new ArrayList<ArtifactObject>();
+            for (DistributionObject dist : target.getDistributions()) {
+                for (FeatureObject feat : dist.getFeatures()) {
+                    if (feat.isAssociated(entity, ArtifactObject.class)) {
+                        return true;
+                    }
+                    else {
+                        // Keep a list of reachable artifacts while we're at it, used below...
+                        reachableArtifacts.addAll(feat.getArtifacts());
+                    }
+                }
+            }
+
+            // Not found as regular artifact, maybe we've got a resource processor?
+            String resourceProcessorPID = entity.getAttribute(BundleHelper.KEY_RESOURCE_PROCESSOR_PID);
+            if (resourceProcessorPID != null) {
+                for (ArtifactObject reachableArtifact : reachableArtifacts) {
+                    if (resourceProcessorPID.equals(reachableArtifact.getProcessorPID())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        else if (entity instanceof Artifact2FeatureAssociation) {
+            for (DistributionObject dist : target.getDistributions()) {
+                List<FeatureObject> associatedFeatures = ((Artifact2FeatureAssociation) entity).getRight();
+                for (FeatureObject feat : dist.getFeatures()) {
+                    if (associatedFeatures.contains(feat)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        else {
+            // Uhoh, this actually shouldn't happen...
+            m_log.log(LogService.LOG_WARNING, "Unhandled entity in reachability check for stateful target: " + entity.getDefinition());
+        }
+        return false;
     }
 
     boolean needsNewVersion(ArtifactObject artifact, String targetID, String version) {

@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.ace.client.repository.Associatable;
 import org.apache.ace.client.repository.Association;
@@ -246,7 +248,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
 
     private void determineStoreState(DeploymentVersionObject deploymentVersionObject) {
         synchronized (m_lock) {
-            List<String> fromShop = new ArrayList<String>();
+            SortedSet<String> fromShop = new TreeSet<String>();
             ArtifactObject[] artifactsFromShop = m_repository.getNecessaryArtifacts(getID());
             DeploymentVersionObject mostRecentVersion;
             if (deploymentVersionObject == null) {
@@ -265,13 +267,11 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
                 return;
             }
 
-            // TODO in the artifacts we get from the shop, there seem to be some duplicates
-            // which does not influence the algorithm below, but we might want to optimize this
             for (ArtifactObject ao : artifactsFromShop) {
                 fromShop.add(ao.getURL());
             }
 
-            List<String> fromDeployment = new ArrayList<String>();
+            SortedSet<String> fromDeployment = new TreeSet<String>();
             for (DeploymentArtifact da : getArtifactsFromDeployment()) {
                 fromDeployment.add(da.getDirective(DeploymentArtifact.DIRECTIVE_KEY_BASEURL));
             }
@@ -279,7 +279,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
             if ((mostRecentVersion == null) && fromShop.isEmpty()) {
                 setStoreState(StoreState.New);
             }
-            else if (fromShop.containsAll(fromDeployment) && fromDeployment.containsAll(fromShop)) {
+            else if (fromShop.equals(fromDeployment)) {
                 // great, we have the same artifacts. But... do they need to be reprocessed?
                 // this might be the case when the target has new tags that affect templates
                 for (ArtifactObject ao : artifactsFromShop) {
