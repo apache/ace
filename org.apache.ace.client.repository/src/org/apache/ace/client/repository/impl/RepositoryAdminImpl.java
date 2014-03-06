@@ -84,6 +84,11 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     private final static String PREFS_LOCAL_FILE_LOCATION = "FileLocation";
     private final static String PREFS_LOCAL_FILE_CURRENT = "current";
     private final static String PREFS_LOCAL_FILE_BACKUP = "backup";
+    
+    private static final String KEY_CAUSE = "cause";
+    private static final String CAUSE_COMMIT = "commit";
+    private static final String CAUSE_REVERT = "revert";
+    private static final String CAUSE_CHECKOUT = "checkout";
 
     /**
      * Maps from interface classes of the ObjectRepositories to their implementations.
@@ -282,7 +287,10 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             for (RepositorySet set : m_repositorySets) {
                 set.checkout();
             }
-            m_changeNotifier.notifyChanged(TOPIC_REFRESH_SUFFIX, null);
+
+            Properties props = new Properties();
+            props.put(KEY_CAUSE, CAUSE_CHECKOUT);
+            m_changeNotifier.notifyChanged(TOPIC_REFRESH_SUFFIX, props);
         }
     }
 
@@ -295,7 +303,10 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             for (RepositorySet set : m_repositorySets) {
                 set.commit();
             }
-            m_changeNotifier.notifyChanged(TOPIC_REFRESH_SUFFIX, null);
+
+            Properties props = new Properties();
+            props.put(KEY_CAUSE, CAUSE_COMMIT);
+            m_changeNotifier.notifyChanged(TOPIC_REFRESH_SUFFIX, props);
         }
     }
 
@@ -320,7 +331,10 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             for (RepositorySet set : m_repositorySets) {
                 set.revert();
             }
-            m_changeNotifier.notifyChanged(TOPIC_REFRESH_SUFFIX, null);
+            
+            Properties props = new Properties();
+            props.put(KEY_CAUSE, CAUSE_REVERT);
+            m_changeNotifier.notifyChanged(TOPIC_REFRESH_SUFFIX, props);
         }
     }
 

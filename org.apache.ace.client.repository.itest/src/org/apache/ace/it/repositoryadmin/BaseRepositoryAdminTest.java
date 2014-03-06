@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -344,6 +345,10 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
     }
 
     protected <T> T runAndWaitForEvent(Callable<T> callable, final boolean debug, final String... topicList) throws Exception {
+        return runAndWaitForEvent(callable, debug, null, topicList);
+    }
+    
+    protected <T> T runAndWaitForEvent(Callable<T> callable, final boolean debug, final List<Event> events, final String... topicList) throws Exception {
         Dictionary<String, Object> topics = new Hashtable<String, Object>();
         topics.put(EventConstants.EVENT_TOPIC, topicList);
 
@@ -360,6 +365,9 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
                         System.err.println("Received event: " + event.getTopic());
                     }
                     if (waitingForTopic.remove(event.getTopic())) {
+                        if (events != null) {
+                            events.add(event);
+                        }
                         if (debug) {
                             System.err.println("Event was expected.");
                         }

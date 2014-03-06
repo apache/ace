@@ -26,7 +26,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.jar.Attributes;
@@ -48,6 +50,7 @@ import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.event.Event;
 import org.osgi.service.useradmin.User;
 
 public class RepositoryAdminTest extends BaseRepositoryAdminTest {
@@ -189,14 +192,16 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
 
         sgo.approve();
 
+        List<Event> events = new ArrayList<Event>();
         runAndWaitForEvent(new Callable<Void>() {
             public Void call() throws Exception {
                 m_repositoryAdmin.commit();
                 return null;
             }
-        }, false, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED);
+        }, false, events, DeploymentVersionObject.TOPIC_ADDED, TOPIC_STATUS_CHANGED, RepositoryAdmin.TOPIC_REFRESH);
 
         assertFalse("We approved the new version by hand, so we should not need approval.", sgo.needsApprove());
+        assertContainsRefreshCause(events, "commit");
 
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
@@ -481,15 +486,17 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
             // expected
         }
 
+        List<Event> events = new ArrayList<Event>();
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
                 m_repositoryAdmin.checkout();
                 return null;
             }
-        }, false, RepositoryAdmin.TOPIC_REFRESH);
+        }, false, events, RepositoryAdmin.TOPIC_REFRESH);
 
         assertTrue("After initial checkout, the repository is current.", m_repositoryAdmin.isCurrent());
         assertFalse("Immediately after login, the repository cannot be modified.", m_repositoryAdmin.isModified());
+        assertContainsRefreshCause(events, "checkout");
 
         ArtifactObject b1 = runAndWaitForEvent(new Callable<ArtifactObject>() {
             public ArtifactObject call() throws Exception {
@@ -619,13 +626,26 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
 
         assertEquals("We expect 2 items in the bundle repository;", 2, m_artifactRepository.get().size());
 
+        events.clear();
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
                 m_repositoryAdmin.revert();
                 return null;
             }
-        }, false, RepositoryAdmin.TOPIC_REFRESH, RepositoryAdmin.TOPIC_STATUSCHANGED);
+        }, false, events, RepositoryAdmin.TOPIC_STATUSCHANGED, RepositoryAdmin.TOPIC_REFRESH);
 
         assertEquals("We expect 1 item in the bundle repository;", 1, m_artifactRepository.get().size());
+        assertContainsRefreshCause(events, "revert");
+    }
+
+    private void assertContainsRefreshCause(List<Event> events, String cause) {
+        boolean found = false;
+        for (Event event : events) {
+            if (RepositoryAdmin.TOPIC_REFRESH.equals(event.getTopic())) {
+                assertEquals("Refresh property does not have the correct cause property?!", event.getProperty("cause"), cause);
+                found = true;
+            }
+        }
+        assertTrue("Events did not contain expected refresh event!", found);
     }
 }
