@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.security.DigestInputStream;
@@ -115,46 +116,35 @@ public final class DeployerUtil {
     }
 
     /**
-     * Check if there is a diff between two arbitrary files.
+     * Check if there is a difference between two arbitrary files.
      * 
-     * @param first
-     *            The first file
-     * @param second
-     *            The second file
+     * @param first the first file
+     * @param second the second file
      * @return <code>true</code> if there is a difference, otherwise <code>false</code>
-     * @throws Exception
-     *             On failure
+     * @throws Exception on failure
      */
     public static boolean filesDiffer(File first, File second) throws Exception {
-
         if (first.length() != second.length()) {
             return true;
         }
-
-        DigestInputStream stream = null;
-        byte[] firstHash = null;
-        byte[] secondHash = null;
-
+        InputStream firstStream = new FileInputStream(first);
+        InputStream secondStream = new FileInputStream(second);
         try {
-            stream = new DigestInputStream(new FileInputStream(first), MessageDigest.getInstance("MD5"));
-            while (stream.read() != -1) {
+            for (int i = 0; i < first.length(); i++) {
+                if (firstStream.read() != secondStream.read()) {
+                    return false;
+                }
             }
-            firstHash = stream.getMessageDigest().digest();
+            return true;
         }
         finally {
-            stream.close();
-        }
-
-        try {
-            stream = new DigestInputStream(new FileInputStream(second), MessageDigest.getInstance("MD5"));
-            while (stream.read() != -1) {
+            try {
+                firstStream.close();
             }
-            secondHash = stream.getMessageDigest().digest();
+            finally {
+                secondStream.close();
+            }
         }
-        finally {
-            stream.close();
-        }
-        return !Arrays.equals(firstHash, secondHash);
     }
 
     /**
@@ -169,45 +159,67 @@ public final class DeployerUtil {
      *             On failure
      */
     public static File getBundleWithNewVersion(File sourceJar, String version) throws IOException {
-
+        boolean deleteTargetFile = false;
         File targetFile = File.createTempFile("bundle", ".jar");
         byte[] buf = new byte[1024];
         ZipInputStream zin = new ZipInputStream(new FileInputStream(sourceJar));
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(targetFile));
-        ZipEntry entry = zin.getNextEntry();
-        while (entry != null) {
-            String name = entry.getName();
-            out.putNextEntry(new ZipEntry(name));
-
-            if (name.equals("META-INF/MANIFEST.MF")) {
-                // FIXME quick abort
-                ByteBuffer bb = ByteBuffer.allocate(100 * 1024);
-                int len;
-                while ((len = zin.read(buf)) > 0) {
-                    bb.put(buf, 0, len);
-                }
-
-                BufferedReader r = new BufferedReader(new StringReader(new String(bb.array(), 0, bb.position())));
-                String line;
-                while ((line = r.readLine()) != null) {
-                    if (line.startsWith("Bundle-Version:")) {
-                        out.write(("Bundle-Version: " + version + "\r\n").getBytes());
+        try {
+            ZipEntry entry = zin.getNextEntry();
+            while (entry != null) {
+                String name = entry.getName();
+                out.putNextEntry(new ZipEntry(name));
+    
+                if (name.equals("META-INF/MANIFEST.MF")) {
+                    // FIXME quick abort
+                    long manifestSize = entry.getSize();
+                    if (manifestSize > Integer.MAX_VALUE) {
+                        throw new IOException("Cannot handle extremely large manifest!");
                     }
-                    else {
-                        out.write((line + "\r\n").getBytes());
+                    ByteBuffer bb = ByteBuffer.allocate(manifestSize > 0 ? (int) (manifestSize + 1024) : 1024 * 1024);
+                    int len;
+                    while ((len = zin.read(buf)) > 0) {
+                        bb.put(buf, 0, len);
+                    }
+    
+                    BufferedReader r = new BufferedReader(new StringReader(new String(bb.array(), 0, bb.position())));
+                    String line;
+                    while ((line = r.readLine()) != null) {
+                        if (line.startsWith("Bundle-Version:")) {
+                            out.write(("Bundle-Version: " + version + "\r\n").getBytes());
+                        }
+                        else {
+                            out.write((line + "\r\n").getBytes());
+                        }
                     }
                 }
-            }
-            else {
-                int len;
-                while ((len = zin.read(buf)) > 0) {
-                    out.write(buf, 0, len);
+                else {
+                    int len;
+                    while ((len = zin.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
                 }
+                entry = zin.getNextEntry();
             }
-            entry = zin.getNextEntry();
         }
-        zin.close();
-        out.close();
+        catch (IOException e) {
+            // if something went wrong, we are throwing an exception and the
+            // target file we created can be deleted (done in 'finally' after the
+            // streams are closed)
+            deleteTargetFile = true;
+            throw e;
+        }
+        finally {
+            try {
+                zin.close();
+            }
+            finally {
+                out.close();
+                if (deleteTargetFile) {
+                    targetFile.delete();
+                }
+            }
+        }
         return targetFile;
     }
 

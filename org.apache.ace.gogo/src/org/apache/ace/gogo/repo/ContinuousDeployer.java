@@ -30,10 +30,9 @@ import aQute.bnd.deployer.repository.FixedIndexedRepo;
 import aQute.bnd.service.Strategy;
 
 public class ContinuousDeployer {
-
-    FixedIndexedRepo m_deploymentRepo;
-    FixedIndexedRepo m_developmentRepo;
-    FixedIndexedRepo m_releaseRepo;
+    final FixedIndexedRepo m_deploymentRepo;
+    final FixedIndexedRepo m_developmentRepo;
+    final FixedIndexedRepo m_releaseRepo;
 
     public ContinuousDeployer(FixedIndexedRepo deploymentRepo, FixedIndexedRepo developmentRepo, FixedIndexedRepo releaseRepo) {
         m_deploymentRepo = deploymentRepo;
@@ -44,7 +43,7 @@ public class ContinuousDeployer {
     /**
      * Deploys all resources from the development repository into the deployment repository.
      * 
-     * @return
+     * @return a list of deployed resources
      * @throws Exception
      */
     public List<Resource> deployResources() throws Exception {
@@ -86,15 +85,15 @@ public class ContinuousDeployer {
     private Resource deployReleasedResource(Resource releasedResource) throws Exception {
         List<Resource> deployedResources = findResources(m_deploymentRepo, getIdentityVersionRequirement(releasedResource));
         if (deployedResources.size() == 0) {
-            System.out.println("Uploading released resource:  " + getString(releasedResource));
+            System.out.println("Uploading released resource: " + getString(releasedResource));
             List<Resource> copied = copyResources(m_releaseRepo, m_deploymentRepo, getIdentityVersionRequirement(releasedResource));
             if (copied.size() != 1) {
-                throw new IllegalStateException("Exepected 1 result ofter copy");
+                throw new IllegalStateException("Expected one result after copy: " + getString(releasedResource));
             }
             return copied.get(0);
         }
         else {
-            System.out.println("Released resource allready deployed:  " + getString(releasedResource));
+            System.out.println("Released resource already deployed: " + getString(releasedResource));
             return deployedResources.get(0);
         }
     }
@@ -109,16 +108,15 @@ public class ContinuousDeployer {
      * @throws Exception
      */
     private Resource deploySnapshotResource(Resource developmentResource) throws Exception {
-
         Version releasedBaseVersion = getReleasedBaseVersion(developmentResource);
         Resource snapshotResource = getHighestSnapshotResource(developmentResource, releasedBaseVersion);
 
         if (snapshotResource == null) {
-            System.out.println("Uploading initial snapshot:  " + getString(developmentResource) + " -> " + getNextSnapshotVersion(releasedBaseVersion));
+            System.out.println("Uploading initial snapshot: " + getString(developmentResource) + " -> " + getNextSnapshotVersion(releasedBaseVersion));
             return deploySnapshotResource(developmentResource, getNextSnapshotVersion(releasedBaseVersion));
         }
 
-        System.out.println("Found existing snapshot:  " + getString(snapshotResource));
+        System.out.println("Found existing snapshot: " + getString(snapshotResource));
         if (getIdentity(developmentResource).equals("com.google.guava")) {
             // FIXME workaround for BND#374
             System.out.println("Skipping snapshot diff on Google Guava to work around https://github.com/bndtools/bnd/issues/374");
@@ -144,11 +142,11 @@ public class ContinuousDeployer {
         }
 
         if (snapshotModified) {
-            System.out.println("Uploading new snapshot:  " + getString(developmentResource) + " -> " + getNextSnapshotVersion(getVersion(snapshotResource)));
+            System.out.println("Uploading new snapshot: " + getString(developmentResource) + " -> " + getNextSnapshotVersion(getVersion(snapshotResource)));
             return deploySnapshotResource(developmentResource, getNextSnapshotVersion(getVersion(snapshotResource)));
         }
         else {
-            System.out.println("Ignoring new snapshot:  " + getString(developmentResource));
+            System.out.println("Ignoring new snapshot: " + getString(developmentResource));
             List<Resource> resultResources = findResources(m_deploymentRepo, getIdentityVersionRequirement(snapshotResource));
             if (resultResources == null || resultResources.size() == 0) {
                 throw new IllegalStateException("Can not find target resource after put: " + developmentResource);
@@ -158,7 +156,6 @@ public class ContinuousDeployer {
     }
 
     private Resource deploySnapshotResource(Resource resource, Version snapshotVersion) throws Exception {
-
         File file = m_developmentRepo.get(getIdentity(resource), getVersion(resource).toString(), Strategy.EXACT, null);
         if (getType(resource).equals("osgi.bundle") || getType(resource).equals("osgi.fragment")) {
             file = getBundleWithNewVersion(file, snapshotVersion.toString());
@@ -185,13 +182,13 @@ public class ContinuousDeployer {
 
         }
         finally {
-            if (input != null)
+            if (input != null) {
                 input.close();
+            }
         }
     }
 
     private Resource getHighestSnapshotResource(Resource resource, Version base) throws Exception {
-
         List<Resource> resources = findResources(m_deploymentRepo, getIdentity(resource));
         Resource matchedResource = null;
         for (Resource candidateResource : resources) {
@@ -201,7 +198,6 @@ public class ContinuousDeployer {
                 matchedResource = candidateResource;
             }
         }
-
         return matchedResource;
     }
 
