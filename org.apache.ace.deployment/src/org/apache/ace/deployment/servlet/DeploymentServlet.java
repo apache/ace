@@ -148,7 +148,9 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         }
         catch (AceRestException e) {
             m_log.log(LogService.LOG_WARNING, e.getMessage(), e);
-            e.handleAsHttpError(response);
+            if (!e.handleAsHttpError(response)) {
+                m_log.log(LogService.LOG_ERROR, "Failed to properly notify client of exception!", e);
+            }
         }
         catch (OverloadedException oe) {
             throw new ServletException(oe);
@@ -178,7 +180,9 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         }
         catch (AceRestException e) {
             m_log.log(LogService.LOG_WARNING, e.getMessage(), e);
-            e.handleAsHttpError(response);
+            if (!e.handleAsHttpError(response)) {
+                m_log.log(LogService.LOG_ERROR, "Failed to properly notify client of exception!", e);
+            }
         }
         catch (OverloadedException oe) {
             throw new ServletException(oe);

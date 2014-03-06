@@ -143,7 +143,9 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
         }
         catch (AceRestException e) {
             m_log.log(LogService.LOG_WARNING, e.getMessage(), e);
-            e.handleAsHttpError(response);
+            if (!e.handleAsHttpError(response)) {
+                m_log.log(LogService.LOG_ERROR, "Failed to properly notify client of exception!", e);
+            }
         }
     }
 

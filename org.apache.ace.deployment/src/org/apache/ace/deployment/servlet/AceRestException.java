@@ -19,6 +19,7 @@
 package org.apache.ace.deployment.servlet;
 
 import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -40,7 +41,12 @@ public class AceRestException extends Exception {
      *
      * @param response
      */
-    public void handleAsHttpError(HttpServletResponse response) throws IOException {
-        response.sendError(m_statusCode, m_description);
+    public boolean handleAsHttpError(HttpServletResponse response) throws IOException {
+        if (!response.isCommitted()) {
+            response.reset();
+            response.sendError(m_statusCode, m_description);
+            return true;
+        }
+        return false;
     }
 }
