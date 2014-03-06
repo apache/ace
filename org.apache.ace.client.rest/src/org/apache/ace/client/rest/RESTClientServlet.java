@@ -64,7 +64,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
     private volatile LogService m_logger;
 
-    private volatile WorkspaceManager workspaceManager;
+    private volatile WorkspaceManager m_workspaceManager;
 
     private final Gson m_gson;
 
@@ -134,7 +134,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
         final String id = pathElements[1];
 
-        Workspace workspace = workspaceManager.getWorkspace(id);
+        Workspace workspace = m_workspaceManager.getWorkspace(id);
         if (workspace == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + id);
             return;
@@ -142,7 +142,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
         if (pathElements.length == 2) {
         	try {
-        		workspaceManager.removeWorkspace(id);
+        		m_workspaceManager.removeWorkspace(id);
         	}
         	catch (IOException ioe) {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not delete work area: " + ioe.getMessage());
@@ -185,7 +185,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             // path elements of length > 1...
             final String id = pathElements[1];
 
-            Workspace workspace = workspaceManager.getWorkspace(id);
+            Workspace workspace = m_workspaceManager.getWorkspace(id);
             if (workspace == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + id);
                 return;
@@ -232,7 +232,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
 
         if (pathElements.length == 1) {
-            Workspace workspace = workspaceManager.createWorkspace(req.getParameterMap(), req);
+            Workspace workspace = m_workspaceManager.createWorkspace(req.getParameterMap(), req);
             if(workspace == null) {
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             }
@@ -242,7 +242,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
         else {
             // more than one path elements...
-            Workspace workspace = workspaceManager.getWorkspace(pathElements[1]);
+            Workspace workspace = m_workspaceManager.getWorkspace(pathElements[1]);
             if (workspace == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
                 return;
@@ -276,7 +276,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             return;
         }
 
-        Workspace workspace = workspaceManager.getWorkspace(pathElements[1]);
+        Workspace workspace = m_workspaceManager.getWorkspace(pathElements[1]);
         if (workspace == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find workspace: " + pathElements[1]);
             return;
