@@ -22,8 +22,6 @@
     org.apache.ace.consolelogger,\
     org.apache.ace.deployment,\
     org.apache.ace.deployment.itest,\
-    org.apache.ace.deployment.rp.autoconf,\
-    org.apache.ace.deployment.rp.autoconf.itest,\
     org.apache.ace.discovery,\
 	org.apache.ace.feedback.common,\
     org.apache.ace.gogo,\
