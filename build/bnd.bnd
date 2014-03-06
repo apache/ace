@@ -35,7 +35,6 @@
     org.apache.ace.log.itest,\
     org.apache.ace.log.server.store.itest,\
     org.apache.ace.log.server.ui,\
-    org.apache.ace.managementagent,\
     org.apache.ace.nodelauncher,\
     org.apache.ace.obr,\
     org.apache.ace.processlauncher,\
