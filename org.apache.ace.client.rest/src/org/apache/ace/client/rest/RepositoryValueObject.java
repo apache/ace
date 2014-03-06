@@ -26,4 +26,19 @@ import java.util.Map;
 public class RepositoryValueObject {
     public Map<String, String> attributes;
     public Map<String, String> tags;
+    
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer(getClass().getSimpleName());
+        if (attributes != null) {
+        	sb.append(" with attributes [" + attributes.toString() + "]");
+        	if (tags != null) {
+        		sb.append(" and");
+        	}
+        }
+        if (tags != null) {
+        	sb.append(" with tags [" + tags.toString() + "]");
+        }
+        return sb.toString();
+    }
 }

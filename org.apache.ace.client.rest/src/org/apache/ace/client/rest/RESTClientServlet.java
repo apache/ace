@@ -319,8 +319,8 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             resp.sendRedirect(req.getServletPath() + "/" + buildPathFromElements(WORK_FOLDER, workspace.getSessionID(), entityType, object.getDefinition()));
         }
         catch (IllegalArgumentException e) {
-            m_logger.log(LogService.LOG_WARNING, "Failed to add entity of type: " + entityType, e);
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not add entity of type " + entityType);
+            m_logger.log(LogService.LOG_WARNING, "Failed to add entity of type: " + entityType + " with data: " + data);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not add entity of type " + entityType + " with data: " + data);
         }
     }
     
@@ -510,8 +510,8 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
             resp.sendRedirect(req.getServletPath() + "/" + buildPathFromElements(WORK_FOLDER, workspace.getSessionID(), entityType, entityId));
         }
         catch (IllegalArgumentException e) {
-            m_logger.log(LogService.LOG_WARNING, "Failed to update entity of type: " + entityType, e);
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not update entity of type " + entityType);
+            m_logger.log(LogService.LOG_WARNING, "Failed to update entity of type: " + entityType + " with data: " + data, e);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not update entity of type " + entityType + " with data: " + data);
         }
     }
 
