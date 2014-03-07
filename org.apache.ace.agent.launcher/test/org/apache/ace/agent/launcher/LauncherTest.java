@@ -18,18 +18,31 @@
  */
 package org.apache.ace.agent.launcher;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
+import java.io.File;
+import java.net.URL;
+
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link Launcher}.
  */
 public class LauncherTest {
-    private static final String TEST_PROPERTIES = "test/test.properties";
-
     private static final String AGENT_DISCOVERY_SERVERURLS = "agent.discovery.serverurls";
     private static final String AGENT_ID = "agent.identification.agentid";
+
+    private String m_testProperties;
+
+    @BeforeMethod(alwaysRun = true)
+    public void setUp() throws Exception {
+        URL url = getClass().getResource("test.properties");
+        assertNotNull(url);
+        m_testProperties = new File(url.toURI()).getAbsolutePath();
+    }
 
     @Test
     public void testParseAgentIdOk() throws Exception {
@@ -41,7 +54,7 @@ public class LauncherTest {
         launcher.parseArgs(AGENT_ID.concat("=id2"));
         assertEquals(launcher.getConfiguration().get(AGENT_ID), "id2");
 
-        launcher.parseArgs("-c", TEST_PROPERTIES);
+        launcher.parseArgs("-c", m_testProperties);
         assertEquals(launcher.getConfiguration().get(AGENT_ID), "myAgentID");
 
         // -a supersedes agent.identification.agentid!
@@ -49,7 +62,7 @@ public class LauncherTest {
         assertEquals(launcher.getConfiguration().get(AGENT_ID), "id1");
 
         // command line version supersedes the value in config file!
-        launcher.parseArgs("-c", TEST_PROPERTIES, AGENT_ID.concat("=id2"));
+        launcher.parseArgs("-c", m_testProperties, AGENT_ID.concat("=id2"));
         assertEquals(launcher.getConfiguration().get(AGENT_ID), "id2");
     }
 
@@ -63,7 +76,7 @@ public class LauncherTest {
         launcher.parseArgs(AGENT_DISCOVERY_SERVERURLS.concat("=d,e,f"));
         assertEquals(launcher.getConfiguration().get(AGENT_DISCOVERY_SERVERURLS), "d,e,f");
 
-        launcher.parseArgs("-c", TEST_PROPERTIES);
+        launcher.parseArgs("-c", m_testProperties);
         assertEquals(launcher.getConfiguration().get(AGENT_DISCOVERY_SERVERURLS), "http://localhost:1234/");
 
         // -s supersedes agent.discovery.serverurls!
@@ -71,7 +84,7 @@ public class LauncherTest {
         assertEquals(launcher.getConfiguration().get(AGENT_DISCOVERY_SERVERURLS), "a,b,c");
 
         // command line version supersedes the value in config file!
-        launcher.parseArgs("-c", TEST_PROPERTIES, AGENT_DISCOVERY_SERVERURLS.concat("=d,e,f"));
+        launcher.parseArgs("-c", m_testProperties, AGENT_DISCOVERY_SERVERURLS.concat("=d,e,f"));
         assertEquals(launcher.getConfiguration().get(AGENT_DISCOVERY_SERVERURLS), "d,e,f");
     }
 
@@ -79,7 +92,7 @@ public class LauncherTest {
     public void testParseSystemPropertyOk() throws Exception {
         Launcher launcher = new Launcher();
 
-        launcher.parseArgs("system.property=value", "-c", TEST_PROPERTIES);
+        launcher.parseArgs("system.property=value", "-c", m_testProperties);
         // The system properties shouldn't be included in the configuration...
         assertNull(launcher.getConfiguration().get("property"));
         assertNull(launcher.getConfiguration().get("prop2"));
