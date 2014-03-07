@@ -31,6 +31,7 @@ import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
+import org.osgi.framework.BundleContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -56,11 +57,13 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
         m_availableURL = new URL("http://localhost:" + PORT);
         m_unavailableURL = new URL("http://localhost:9999");
 
+        BundleContext bc = mockBundleContext();
+
         m_agentContextImpl = mockAgentContext();
         m_agentContext = m_agentContextImpl;
         m_agentContextImpl.setHandler(DiscoveryHandler.class, new DiscoveryHandlerImpl());
-        m_agentContextImpl.setHandler(EventsHandler.class, new EventsHandlerImpl(mockBundleContext()));
-        m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
+        m_agentContextImpl.setHandler(EventsHandler.class, new EventsHandlerImpl(bc));
+        m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl(bc));
         m_agentContextImpl.setHandler(ConnectionHandler.class, new ConnectionHandlerImpl());
         replayTestMocks();
         m_agentContextImpl.start();

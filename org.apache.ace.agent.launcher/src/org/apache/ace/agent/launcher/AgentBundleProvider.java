@@ -18,24 +18,28 @@
  */
 package org.apache.ace.agent.launcher;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * {@link BundleProvider} for the core agent bundle.
  * 
  * @see META-INF/services/org.apache.ace.agent.launcher.BundleProvider
- * 
  */
 public class AgentBundleProvider implements BundleProvider {
+    private static final String AGENT_BUNDLE = "/org.apache.ace.agent.jar";
 
     @Override
-    public String[] getBundleNames() {
-        return new String[] { "org.apache.ace.agent" };
+    public URL[] getBundles(PropertyProvider properties) throws IOException {
+        URL agentURL = getClass().getResource(AGENT_BUNDLE);
+        if (agentURL == null) {
+            throw new RuntimeException("No agent bundle found!");
+        }
+        return new URL[] { agentURL };
     }
 
     @Override
-    public InputStream getInputStream(String name) {
-        return getClass().getClassLoader().getResourceAsStream(
-            "org.apache.ace.agent.jar");
+    public String toString() {
+        return getClass().getSimpleName();
     }
 }

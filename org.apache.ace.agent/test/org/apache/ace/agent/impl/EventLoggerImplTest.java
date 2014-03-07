@@ -32,6 +32,7 @@ import org.apache.ace.agent.FeedbackChannel;
 import org.apache.ace.agent.FeedbackHandler;
 import org.apache.ace.agent.RetryAfterException;
 import org.apache.ace.agent.testutil.BaseAgentTest;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkEvent;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -90,9 +91,11 @@ public class EventLoggerImplTest extends BaseAgentTest {
     public void setUpOnceAgain() throws Exception {
         m_agentContext = mockAgentContext();
 
-        m_eventsHandler = new EventsHandlerImpl(mockBundleContext());
+        BundleContext bc = mockBundleContext();
+
+        m_eventsHandler = new EventsHandlerImpl(bc);
         m_agentContext.setHandler(EventsHandler.class, m_eventsHandler);
-        m_agentContext.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
+        m_agentContext.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl(bc));
         m_agentContext.setHandler(FeedbackHandler.class, new TestFeedbackHandler());
 
         replayTestMocks();

@@ -19,13 +19,13 @@
 package org.apache.ace.agent.impl;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
 
 import java.lang.reflect.Method;
 
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
+import org.osgi.framework.BundleContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -34,10 +34,12 @@ import org.testng.annotations.Test;
  * Testing {@link ConfigurationHandlerImpl}.
  */
 public class ConfigurationHandlerImplTest extends BaseAgentTest {
+    private BundleContext m_context;
     private AgentContextImpl m_agentContextImpl;
 
     @BeforeMethod(alwaysRun = true)
     public void setUpAgain(Method method) throws Exception {
+        m_context = mockBundleContext();
         m_agentContextImpl = mockAgentContext(method.getName());
         replayTestMocks();
     }
@@ -51,7 +53,7 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
 
     @Test
     public void testConfigBooleanProps() throws Exception {
-        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
+        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl(m_context);
 
         resetConfigurationHandler(configurationHandler);
 
@@ -68,31 +70,27 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
 
     @Test
     public void testConfigClean() throws Exception {
-        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
+        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl(m_context);
 
         resetConfigurationHandler(configurationHandler);
 
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        assertNotNull(configurationHandler.keySet());
-        assertEquals(0, configurationHandler.keySet().size());
         assertEquals(configurationHandler.get("key1", "default1"), "default1");
 
         // should be persisted
-        configurationHandler = new ConfigurationHandlerImpl();
+        configurationHandler = new ConfigurationHandlerImpl(m_context);
 
         resetConfigurationHandler(configurationHandler);
 
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        assertNotNull(configurationHandler.keySet());
-        assertEquals(0, configurationHandler.keySet().size());
         assertEquals(configurationHandler.get("key1", "default1"), "default1");
     }
 
     @Test
     public void testConfigLongProps() throws Exception {
-        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl();
+        ConfigurationHandler configurationHandler = new ConfigurationHandlerImpl(m_context);
 
         resetConfigurationHandler(configurationHandler);
 
@@ -118,12 +116,10 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
 
         ConfigurationHandler configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        assertNotNull(configurationHandler.keySet());
-        assertEquals(2, configurationHandler.keySet().size());
         assertEquals(configurationHandler.get(systemKey1, "default1"), "value1");
         assertEquals(configurationHandler.get(systemKey2, "default2"), "value2");
 
-        // System props should be persisted
+        // System props should *not* be persisted, they are not in our control...
 
         System.clearProperty(systemKey1);
         System.clearProperty(systemKey2);
@@ -132,12 +128,10 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
 
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        assertNotNull(configurationHandler.keySet());
-        assertEquals(2, configurationHandler.keySet().size());
-        assertEquals(configurationHandler.get(systemKey1, "qqq"), "value1");
-        assertEquals(configurationHandler.get(systemKey2, "qqq"), "value2");
+        assertEquals(configurationHandler.get(systemKey1, "qux"), "qux");
+        assertEquals(configurationHandler.get(systemKey2, "quu"), "quu");
 
-        // System props should override by default
+        // System props should not override the configured values...
 
         System.setProperty(systemKey1, "value1");
         System.setProperty(systemKey2, "value2");
@@ -148,30 +142,24 @@ public class ConfigurationHandlerImplTest extends BaseAgentTest {
 
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        assertNotNull(configurationHandler.keySet());
-        assertEquals(2, configurationHandler.keySet().size());
-        assertEquals(configurationHandler.get(systemKey1, "qqq"), "value1");
-        assertEquals(configurationHandler.get(systemKey2, "qqq"), "value2");
+        assertEquals(configurationHandler.get(systemKey1, "qux"), "newvalue1");
+        assertEquals(configurationHandler.get(systemKey2, "quu"), "newvalue2");
 
-        // System props should not override if retain is set
+        // System props should not override if explicitly configured values are present...
 
         System.setProperty(systemKey1, "valueX");
         System.setProperty(systemKey2, "valueY");
-        System.setProperty(systemKey1 + AgentConstants.CONFIG_KEY_RETAIN, "true");
-        System.setProperty(systemKey2 + AgentConstants.CONFIG_KEY_RETAIN, "true");
 
         resetConfigurationHandler();
 
         configurationHandler = m_agentContextImpl.getHandler(ConfigurationHandler.class);
 
-        assertNotNull(configurationHandler.keySet());
-        assertEquals(2, configurationHandler.keySet().size());
-        assertEquals(configurationHandler.get(systemKey1, "qqq"), "value1");
-        assertEquals(configurationHandler.get(systemKey2, "qqq"), "value2");
+        assertEquals(configurationHandler.get(systemKey1, "qqq"), "newvalue1");
+        assertEquals(configurationHandler.get(systemKey2, "qqq"), "newvalue2");
     }
 
     private void resetConfigurationHandler() throws Exception {
-        resetConfigurationHandler(new ConfigurationHandlerImpl());
+        resetConfigurationHandler(new ConfigurationHandlerImpl(m_context));
     }
 
     private void resetConfigurationHandler(ConfigurationHandler configurationHandler) throws Exception {

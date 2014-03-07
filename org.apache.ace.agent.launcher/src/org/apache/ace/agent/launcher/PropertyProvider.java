@@ -18,24 +18,17 @@
  */
 package org.apache.ace.agent.launcher;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ServiceLoader;
-
 /**
- * {@link ServiceLoader} interface for launcher extension bundles providers.
+ * Simple abstraction to retrieve property values.
  */
-public interface BundleProvider {
+public interface PropertyProvider {
+
     /**
-     * Returns all the bundles to (pre-)install with the launcher.
+     * Returns the value of the property with the given key.
      * 
-     * @param properties
-     *            the property provider to access configuration properties, cannot be <code>null</code>.
-     * @return an array with the URLs of bundles to install, never <code>null</code>.
-     * @throws IllegalArgumentException
-     *             in case the given provider was <code>null</code>;
-     * @throws IOException
-     *             in case of other I/O problems.
+     * @param key
+     *            the key of the property to retrieve, should not be <code>null</code>.
+     * @return the property value, can be <code>null</code>.
      */
-    URL[] getBundles(PropertyProvider properties) throws IOException;
+    String getProperty(String key);
 }

@@ -83,7 +83,9 @@ public interface ConfigurationHandler {
      * Return an unmodifiable copy of the configuration keys.
      * 
      * @return The set of keys
+     * @deprecated do not use, no replacement.
      */
+    @Deprecated
     Set<String> keySet();
 
     /**

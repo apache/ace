@@ -36,6 +36,8 @@ import org.apache.ace.agent.AgentContext;
 import org.apache.ace.agent.AgentContextAware;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.impl.AgentContextImpl;
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.osgi.framework.BundleContext;
 import org.testng.annotations.AfterClass;
 
@@ -105,6 +107,13 @@ public abstract class BaseAgentTest {
         BundleContext result = createNiceMock(BundleContext.class);
         expect(result.getDataFile(anyObject(String.class))).andReturn(dataFile).anyTimes();
         expect(result.createFilter(anyObject(String.class))).andReturn(null).anyTimes();
+        expect(result.getProperty(anyObject(String.class))).andAnswer(new IAnswer<String>() {
+            @Override
+            public String answer() throws Throwable {
+                String key = (String) EasyMock.getCurrentArguments()[0];
+                return System.getProperty(key);
+            }
+        }).anyTimes();
         replay(result);
         return result;
     }

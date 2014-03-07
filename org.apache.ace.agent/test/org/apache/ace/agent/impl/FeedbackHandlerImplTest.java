@@ -31,6 +31,7 @@ import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.FeedbackHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
+import org.osgi.framework.BundleContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -52,9 +53,11 @@ public class FeedbackHandlerImplTest extends BaseAgentTest {
         m_agentContextImpl = mockAgentContext();
         replayTestMocks();
 
+        BundleContext bc = mockBundleContext();
+
         m_agentContextImpl.setHandler(FeedbackHandler.class, new FeedbackHandlerImpl());
-        m_agentContextImpl.setHandler(EventsHandler.class, new EventsHandlerImpl(mockBundleContext()));
-        m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
+        m_agentContextImpl.setHandler(EventsHandler.class, new EventsHandlerImpl(bc));
+        m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl(bc));
 
         m_agentContextImpl.start();
     }

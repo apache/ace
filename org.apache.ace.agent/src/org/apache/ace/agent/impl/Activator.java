@@ -115,7 +115,7 @@ public class Activator implements BundleActivator, LifecycleCallback {
         m_agentContext = new AgentContextImpl(bundleDataArea);
 
         m_agentContext.setHandler(LoggingHandler.class, new LoggingHandlerImpl());
-        m_agentContext.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
+        m_agentContext.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl(context));
         m_agentContext.setHandler(EventsHandler.class, new EventsHandlerImpl(context));
         m_agentContext.setHandler(ScheduledExecutorService.class, m_executorService);
         m_agentContext.setHandler(DownloadHandler.class, new DownloadHandlerImpl(bundleDataArea));

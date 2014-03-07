@@ -18,8 +18,6 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.apache.ace.agent.AgentConstants.CONFIG_KEY_NAMESPACE;
-import static org.apache.ace.agent.AgentConstants.CONFIG_KEY_RETAIN;
 import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 
 import java.io.File;
@@ -31,7 +29,6 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +36,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.agent.ConfigurationHandler;
+import org.osgi.framework.BundleContext;
 
 /**
  * Default thread-safe {@link ConfigurationHandler} implementation.
@@ -49,39 +47,50 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     /** File name use for storage. */
     public static final String CONFIG_STORAGE_FILENAME = "config.properties";
 
+    private final BundleContext m_context;
+
     private ResettableTimer m_timer;
     private volatile ConcurrentMap<Object, Object> m_configProps;
 
-    public ConfigurationHandlerImpl() {
+    public ConfigurationHandlerImpl(BundleContext context) {
         super("configuration");
+
+        m_context = context;
 
         m_configProps = new ConcurrentHashMap<Object, Object>();
     }
 
     @Override
     public String get(String key, String defaultValue) {
-        String value = (String) m_configProps.get(key);
+        Object value = getProperty(key);
         if (value == null) {
             value = defaultValue;
         }
-        return value;
+        return String.valueOf(value);
     }
 
     @Override
     public boolean getBoolean(String key, boolean defaultValue) {
-        String value = get(key, "");
-        if (value.equals("")) {
+        Object value = getProperty(key);
+        if (value == null) {
             return defaultValue;
         }
-        return Boolean.parseBoolean(value);
+        return (value instanceof Boolean) ? ((Boolean) value).booleanValue() : Boolean.parseBoolean(String.valueOf(value));
     }
 
     @Override
     public int getInt(String key, int defaultValue) {
-        String value = get(key, "");
+        Object value = getProperty(key);
+        if (value == null) {
+            return defaultValue;
+        }
+
         try {
-            if (!"".equals(value)) {
-                return Integer.decode(value);
+            if (value instanceof Number) {
+                return ((Number) value).intValue();
+            }
+            else if (value instanceof String) {
+                return Integer.decode((String) value);
             }
         }
         catch (NumberFormatException exception) {
@@ -92,10 +101,17 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
 
     @Override
     public long getLong(String key, long defaultValue) {
-        String value = get(key, "");
+        Object value = getProperty(key);
+        if (value == null) {
+            return defaultValue;
+        }
+
         try {
-            if (!"".equals(value)) {
-                return Long.decode(value);
+            if (value instanceof Number) {
+                return ((Number) value).longValue();
+            }
+            else if (value instanceof String) {
+                return Long.decode((String) value);
             }
         }
         catch (NumberFormatException exception) {
@@ -137,7 +153,6 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     @Override
     protected void onInit() throws Exception {
         loadConfig();
-        loadSystemProps();
 
         m_timer = new ResettableTimer(getExecutorService(), this, 5, TimeUnit.SECONDS);
     }
@@ -189,6 +204,14 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
         return props;
     }
 
+    private Object getProperty(String key) {
+        Object result = m_configProps.get(key);
+        if (result == null) {
+            result = m_context.getProperty(key);
+        }
+        return result;
+    }
+
     private void loadConfig() throws IOException {
         InputStream input = null;
         try {
@@ -202,22 +225,6 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
         finally {
             if (input != null) {
                 input.close();
-            }
-        }
-    }
-
-    private void loadSystemProps() {
-        Properties sysProps = System.getProperties();
-
-        for (Entry<Object, Object> entry : sysProps.entrySet()) {
-            String key = (String) entry.getKey();
-
-            if (key.startsWith(CONFIG_KEY_NAMESPACE) && !key.endsWith(CONFIG_KEY_RETAIN)) {
-                boolean retain = Boolean.parseBoolean(sysProps.getProperty(key.concat(CONFIG_KEY_RETAIN)));
-
-                if (!retain || !m_configProps.containsKey(key)) {
-                    m_configProps.put(entry.getKey(), entry.getValue());
-                }
             }
         }
     }

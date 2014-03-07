@@ -31,12 +31,6 @@ public interface AgentConstants {
     String CONFIG_KEY_NAMESPACE = "agent";
 
     /**
-     * Agent configuration property key postfix. When set to true, the system property will not overwrite an existing
-     * configuration value
-     */
-    String CONFIG_KEY_RETAIN = ".retain";
-
-    /**
      * Configuration loglevel for default logger. Should be a valid options s specified by {@link LoggingHandler.Levels}
      * , default is <code>INFO</code>.
      */
@@ -93,18 +87,6 @@ public interface AgentConstants {
      * </p>
      */
     String CONFIG_CONTROLLER_CLASS = CONFIG_KEY_NAMESPACE + ".controller.class";
-
-    /**
-     * Configuration option to disable the default controller. When set to true some other bundle control the agent's
-     * behavior. Should be <code>{true,false}</code>, default is <code>false</code>.
-     * <p>
-     * Note that this property is expected to be set as system or environment setting!
-     * </p>
-     * 
-     * @deprecated use {@link #CONFIG_CONTROLLER_CLASS} instead!
-     */
-    @Deprecated
-    String CONFIG_CONTROLLER_DISABLED = CONFIG_KEY_NAMESPACE + ".controller.disabled";
 
     /**
      * Configuration option to set streaming behavior of the default controller. Should be <code>{true,false}</code>,

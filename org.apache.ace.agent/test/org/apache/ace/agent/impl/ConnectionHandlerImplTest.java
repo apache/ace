@@ -39,6 +39,7 @@ import org.apache.ace.agent.ConnectionHandler.Types;
 import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
+import org.osgi.framework.BundleContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -84,9 +85,11 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
         m_webServer.addServlet(new BasicAuthServlet(USERNAME, PASSWORD), "/basicauth/*");
         m_webServer.start();
 
+        BundleContext bc = mockBundleContext();
+        
         m_agentContext = mockAgentContext();
-        m_agentContext.setHandler(EventsHandler.class, new EventsHandlerImpl(mockBundleContext()));
-        m_agentContext.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl());
+        m_agentContext.setHandler(EventsHandler.class, new EventsHandlerImpl(bc));
+        m_agentContext.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl(bc));
         m_agentContext.setHandler(ConnectionHandler.class, new ConnectionHandlerImpl());
 
         replayTestMocks();
