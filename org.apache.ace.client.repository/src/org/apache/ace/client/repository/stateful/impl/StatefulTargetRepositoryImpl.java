@@ -842,6 +842,11 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      * @return <code>true</code> if the given entity is reachable from the given target, <code>false</code> otherwise.
      */
     private boolean isReachableFrom(StatefulTargetObjectImpl target, RepositoryObject entity) {
+        // ACE-467 ensure we only take registered targets into consideration...
+        if (!target.isRegistered()) {
+            return false;
+        }
+
         if (entity instanceof DistributionObject) {
             return target.isAssociated(entity, DistributionObject.class);
         }
