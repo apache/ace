@@ -34,3 +34,4 @@ Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Repository itest
 Bundle-Description: Integration test bundle for Apache ACE Repository
 Bundle-Category: itest
+-baseline:

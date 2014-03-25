@@ -31,6 +31,9 @@ import java.util.jar.Manifest;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.osgi.framework.Constants;
 
+import aQute.bnd.annotation.ConsumerType;
+
+@ConsumerType
 public class BundleStreamGenerator {
 
     public static Manifest getBundleManifest(String symbolicname, String version, Map<String, String> additionalHeaders) {

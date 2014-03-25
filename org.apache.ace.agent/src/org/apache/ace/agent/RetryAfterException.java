@@ -18,10 +18,13 @@
  */
 package org.apache.ace.agent;
 
+import aQute.bnd.annotation.ProviderType;
+
 
 /**
  * Exception that indicates that the upstream server responded with a Retry-After.
  */
+@ProviderType
 public class RetryAfterException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 

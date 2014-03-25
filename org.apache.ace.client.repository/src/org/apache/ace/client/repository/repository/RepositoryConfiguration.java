@@ -21,9 +21,12 @@ package org.apache.ace.client.repository.repository;
 
 import java.net.URL;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Provides the configuration options for several of the repositories.
  */
+@ProviderType
 public interface RepositoryConfiguration {
 
     /**

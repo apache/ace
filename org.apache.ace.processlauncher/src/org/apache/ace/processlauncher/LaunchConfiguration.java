@@ -20,6 +20,8 @@ package org.apache.ace.processlauncher;
 
 import java.io.File;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Denotes a particular launch configuration for a process, describing what and how to launch.
  * <p>
@@ -66,6 +68,7 @@ import java.io.File;
  * #executable.normalExitValue = 0
  * </pre>
  */
+@ProviderType
 public interface LaunchConfiguration {
 
     /**

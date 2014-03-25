@@ -1,10 +1,11 @@
--buildpath: osgi.core,\
+-buildpath: ${^-buildpath},\
+	osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.client.repository.api;version=latest
 Private-Package: org.apache.ace.client.automation
 Bundle-Activator: org.apache.ace.client.automation.Activator
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Client Automation
 Bundle-Description: Provides automation tasks for the Apache ACE client

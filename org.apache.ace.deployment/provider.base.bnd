@@ -1,4 +1,4 @@
 Export-Package: org.apache.ace.deployment.provider.impl
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-Name: Apache ACE Deployment Base
 Bundle-Description: Provides the Deployemnt Base packages

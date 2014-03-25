@@ -21,12 +21,15 @@ package org.apache.ace.repository.ext;
 import java.io.IOException;
 import java.io.InputStream;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Provides an interface for backing up objects. <code>write</code> and <code>read</code>
  * allow writing and reading of the current version of the object. <code>backup</code>
  * backs up the object, and <code>restore</code> restores it from a previously backed up
  * version, if any. There is no way to directly use the backup.
  */
+@ProviderType
 public interface BackupRepository
 {
 

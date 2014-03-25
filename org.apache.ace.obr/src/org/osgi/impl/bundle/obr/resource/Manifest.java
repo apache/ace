@@ -20,8 +20,11 @@ package org.osgi.impl.bundle.obr.resource;
 import java.io.*;
 import java.util.*;
 
+import aQute.bnd.annotation.ProviderType;
+
 
 @SuppressWarnings({"unchecked"})
+@ProviderType
 public class Manifest extends Hashtable {
 	static final long	serialVersionUID	= 1L;
 	List				imports;

@@ -18,9 +18,12 @@
  */
 package org.apache.ace.agent;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Agent context delegate interface that is responsible for target identification.
  */
+@ConsumerType
 public interface IdentificationHandler {
 
     /**

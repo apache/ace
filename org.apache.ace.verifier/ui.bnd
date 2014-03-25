@@ -2,6 +2,6 @@ Private-Package: org.apache.ace.deployment.verifier.ui
 Bundle-Activator: org.apache.ace.deployment.verifier.ui.Activator
 Import-Package: org.osgi.framework;version='[1.5,2)',\
 	*
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Verifier UI
 Bundle-Description: Registers an ACE webui extension that adds verifier functions

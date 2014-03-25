@@ -20,6 +20,8 @@ package org.apache.ace.client.repository;
 
 import java.util.Map;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Factory service for creating and destroying sessions. Sessions are identified by some kind
  * of identification. This identification is also used as a service property in case there is
@@ -27,6 +29,7 @@ import java.util.Map;
  * service session ID. It is also used to listen to session specific events, in which case this
  * same property is part of the actual event so it can be used in event filters.
  */
+@ProviderType
 public interface SessionFactory {
     /** Session ID for session specific service or event. */
     public static final String SERVICE_SID = "service.sid";

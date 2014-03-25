@@ -21,12 +21,15 @@ package org.apache.ace.deployment;
 import java.io.InputStream;
 import org.osgi.framework.Version;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Service that abstracts the actual implementation that manages components that are to be deployed.
  * Implementations of this interface could for example make use of the <code>DeploymentAdmin</code>
  * from the OSGi spec to actually deploy packages. The objects used as arguments and return values
  * must all be of the same type, which type depends on the implementation.
  */
+@ProviderType
 public interface Deployment {
 
     /**

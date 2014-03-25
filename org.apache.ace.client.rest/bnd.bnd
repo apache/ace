@@ -1,4 +1,5 @@
--buildpath: osgi.core,\
+-buildpath: ${^-buildpath},\
+	osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.client.repository.api;version=latest,\
@@ -18,6 +19,6 @@ Private-Package: org.apache.ace.client.rest,\
 	com.google.gson.reflect,\
 	com.google.gson.stream
 Bundle-Activator: org.apache.ace.client.rest.Activator
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Client REST
 Bundle-Description: Provides a REST binding for the Apache ACE Client

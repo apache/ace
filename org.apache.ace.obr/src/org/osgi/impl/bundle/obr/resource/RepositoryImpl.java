@@ -27,6 +27,8 @@ import org.kxml2.io.KXmlParser;
 import org.osgi.service.obr.*;
 import org.xmlpull.v1.*;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Implements the basic repository. A repository holds a set of resources.
  * 
@@ -34,6 +36,7 @@ import org.xmlpull.v1.*;
  * @version $Revision: 44 $
  */
 @SuppressWarnings({"unchecked"})
+@ProviderType
 public class RepositoryImpl implements Repository {
 	transient Set			resources		= new HashSet();
 	URL						url;

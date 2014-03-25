@@ -1,4 +1,4 @@
 Export-Package: org.apache.ace.log
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-Name: Apache ACE Log API
 Bundle-Description: Provides the Apache ACE Log API packages

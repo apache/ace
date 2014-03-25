@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Denotes a 'physical' artifact that is located by an URL, and provide means to access the contents of this artifact.
  * <p>
@@ -31,6 +33,7 @@ import java.net.URL;
  * implementor of this class has to worry about this instead.
  * </p>
  */
+@ProviderType
 public interface ArtifactResource {
 
     /**

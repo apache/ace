@@ -1,6 +1,6 @@
 Private-Package: org.apache.ace.discovery.property,\
 	org.apache.ace.discovery.property.constants
 Bundle-Activator: org.apache.ace.discovery.property.Activator
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Discovery Property
 Bundle-Description: Registers a service factory for property based Discovery services

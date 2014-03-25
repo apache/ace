@@ -20,9 +20,12 @@ package org.apache.ace.client.repository.helper.user;
 
 import org.apache.ace.client.repository.helper.ArtifactHelper;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Definitions for the UserAdminHelper artifact helper.
  */
+@ProviderType
 public interface UserAdminHelper extends ArtifactHelper {
     public static final String MIMETYPE = "application/vnd.apache.ace.useradmin";
     public static final String PROCESSOR = "org.apache.ace.resourceprocessor.useradmin";

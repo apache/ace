@@ -19,8 +19,11 @@ package org.osgi.impl.bundle.obr.resource;
 
 import java.util.*;
 
+import aQute.bnd.annotation.ProviderType;
+
 
 @SuppressWarnings({"unchecked"})
+@ProviderType
 public class ManifestEntry implements Comparable {
 	String		name;
 	VersionRange	version;

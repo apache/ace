@@ -4,5 +4,6 @@ Export-Package: org.apache.ace.feedback
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Feedback API
 Bundle-Description: Provides the Apache ACE Feedback API packages
--buildpath: org.apache.ace.range.api;version=latest,\
+-buildpath: ${^-buildpath},\
+	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.test;version=latest

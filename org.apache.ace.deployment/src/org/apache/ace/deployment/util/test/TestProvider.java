@@ -26,6 +26,9 @@ import java.util.List;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 
+import aQute.bnd.annotation.ConsumerType;
+
+@ConsumerType
 public class TestProvider implements DeploymentProvider {
     private List<ArtifactData> m_collection;
     private List<String> m_versions;

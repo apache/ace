@@ -22,10 +22,13 @@ import java.util.List;
 
 import org.apache.ace.client.repository.RepositoryObject;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Interface to a DistributionObject. The basic functionality is defined by RepositoryObject, but extended for
  * distribution-specific information.
  */
+@ProviderType
 public interface DistributionObject extends RepositoryObject {
     public static final String TOPIC_ENTITY_ROOT = DistributionObject.class.getSimpleName() + "/";
 

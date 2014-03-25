@@ -27,12 +27,15 @@ import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.ext.BackupRepository;
 import org.apache.ace.repository.ext.CachedRepository;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Provides a CachedRepository, which uses either a <code>Repository</code> and a <code>BackupRepository</code>
  * as remote and local storage, or a URL location and two files, from which it will create a <code>Repository</code>
  *  and a <code>FileBasedBackupRepository</code>. Note that this class is not thread-safe, and should be synchronized
  *  by the caller.
  */
+@ConsumerType
 public class CachedRepositoryImpl implements CachedRepository {
     public static final long UNCOMMITTED_VERSION = -1;
 

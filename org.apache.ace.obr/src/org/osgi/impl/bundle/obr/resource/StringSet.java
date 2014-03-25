@@ -21,7 +21,10 @@ package org.osgi.impl.bundle.obr.resource;
 
 import java.util.*;
 
+import aQute.bnd.annotation.ProviderType;
+
 @SuppressWarnings({"unchecked"})
+@ProviderType
 public class StringSet extends HashSet {
 	static final long	serialVersionUID	= 1L;
 

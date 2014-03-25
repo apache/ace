@@ -20,9 +20,12 @@ package org.apache.ace.client.repository;
 
 import java.util.List;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The Associatable interface is to be implemented by any object that wants to be used in an Association.
  */
+@ProviderType
 public interface Associatable
 {
     /**

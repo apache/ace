@@ -31,9 +31,12 @@ import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.Image;
 import org.jclouds.sshj.config.SshjSshClientModule;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
 
+@ProviderType
 public class JcloudsNodeLauncherConfig implements NodeLauncherConfig {
     private ComputeServiceContext m_computeServiceContext;
     

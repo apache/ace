@@ -78,3 +78,4 @@ Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Authentication itest
 Bundle-Category: itest
 Bundle-Description: Integration tests for Apache ACE Authentication
+-baseline:

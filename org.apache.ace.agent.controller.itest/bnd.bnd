@@ -83,3 +83,4 @@ Import-Package: \
 	*
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Agent Custom Controller itest
+-baseline:

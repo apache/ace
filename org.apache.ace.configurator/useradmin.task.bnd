@@ -2,6 +2,6 @@ Private-Package: org.apache.ace.configurator.useradmin.task,\
 	org.apache.ace.repository.ext,\
 	org.apache.ace.repository.ext.impl
 Bundle-Activator: org.apache.ace.configurator.useradmin.task.Activator
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Configurator Useradmintask
 Bundle-Description: Registeres a runnable task that synchronizes user xml to useradmin

@@ -21,9 +21,12 @@ package org.apache.ace.client.repository.repository;
 
 import java.net.URL;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Constants used for the repository.
  */
+@ProviderType
 public interface RepositoryConstants {
     /**
      * Configuration key for hiding or showing unregistered targets. The value should either be a {@link Boolean} or a

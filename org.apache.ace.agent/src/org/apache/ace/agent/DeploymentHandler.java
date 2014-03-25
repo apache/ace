@@ -18,9 +18,12 @@
  */
 package org.apache.ace.agent;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Agent context delegate interface that provides the deployment functions.
  */
+@ConsumerType
 public interface DeploymentHandler extends UpdateHandler {
     // No additional methods
 }

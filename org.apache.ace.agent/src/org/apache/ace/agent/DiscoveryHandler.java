@@ -20,10 +20,13 @@ package org.apache.ace.agent;
 
 import java.net.URL;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Agent context delegate interface that is responsible for discovering servers. If the handler supports dynamic
  * discovery or multiple URLs it should select the most appropriate candidate.
  */
+@ConsumerType
 public interface DiscoveryHandler {
 
     /**

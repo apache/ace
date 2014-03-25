@@ -20,9 +20,12 @@ package org.apache.ace.agent;
 
 import java.util.Formatter;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Agent context delegate interface that is responsible for logging.
  */
+@ConsumerType
 public interface LoggingHandler {
 
     enum Levels {

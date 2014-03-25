@@ -22,6 +22,9 @@ import java.util.List;
 
 import org.apache.ace.client.repository.RepositoryObject;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface TargetObject extends RepositoryObject {
     public static final String KEY_ID = "id";
     public static final String KEY_AUTO_APPROVE = "autoapprove";

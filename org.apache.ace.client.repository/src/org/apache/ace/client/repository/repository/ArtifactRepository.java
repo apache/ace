@@ -26,9 +26,12 @@ import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.TargetObject;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Interface to a ArtifactRepository. The functionality is defined by the generic AssociationRepository.
  */
+@ProviderType
 public interface ArtifactRepository extends ObjectRepository<ArtifactObject> {
     static class ArtifactAlreadyExistsException extends IOException {
         private final URL m_url;

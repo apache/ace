@@ -23,6 +23,9 @@ import java.util.jar.Attributes;
 
 import org.apache.ace.deployment.provider.ArtifactData;
 
+import aQute.bnd.annotation.ConsumerType;
+
+@ConsumerType
 public class TestData implements ArtifactData {
     private final String m_fileName;
     private final String m_symbolicName;

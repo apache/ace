@@ -1,6 +1,6 @@
 -buildpath: ant;version=latest,\
 	org.apache.ace.builder;version=latest
 Export-Package: org.apache.ace.ant.deploymentpackage
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Ant Tasks
 Bundle-Description: Ant tasks providing offline support for deploymentpackage creation

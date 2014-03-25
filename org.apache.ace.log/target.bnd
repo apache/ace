@@ -1,6 +1,6 @@
 Private-Package: org.apache.ace.log.target,\
 	org.apache.ace.log.target.task
 Bundle-Activator: org.apache.ace.log.target.Activator
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Log Target
 Bundle-Description: Registers service factories for target log configuration and synchronization

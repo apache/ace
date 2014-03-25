@@ -22,9 +22,12 @@ import java.util.*;
 import org.osgi.service.obr.Capability;
 import org.xmlpull.v1.XmlPullParser;
 
+import aQute.bnd.annotation.ProviderType;
+
 
 
 @SuppressWarnings({"unchecked"})
+@ProviderType
 public class CapabilityImpl implements Capability {
 	String				name;
 	Map	properties	= new TreeMap();

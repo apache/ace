@@ -20,9 +20,12 @@ package org.apache.ace.agent;
 
 import java.util.Map;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Agent context delegate interface that is responsible for handling events.
  */
+@ConsumerType
 public interface EventsHandler {
 
     /**

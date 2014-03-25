@@ -1,4 +1,4 @@
-Private-Package: \
+Private-Package: org.apache.ace.nodelauncher.amazon.impl,\
 	META-INF.services,\
 	META-INF.maven.*,\
 	functions,\
@@ -16,8 +16,7 @@ Private-Package: \
 	org.slf4j.*,\
 	org.bouncycastle.*,\
 	com.sun.jersey.*
-Bundle-Activator: \
-	org.apache.ace.nodelauncher.amazon.Activator
+Bundle-Activator: org.apache.ace.nodelauncher.amazon.impl.Activator
 Import-Package: \
 	!com.google.*,\
 	!junit.*,\
@@ -47,6 +46,6 @@ Export-Package: \
 	org.apache.ace.nodelauncher.amazon
 Include-Resource:\
 	META-INF/services/org.jclouds.apis.ApiMetadata=resources/org.jclouds.apis.ApiMetadata
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-Name: Apache ACE NodeLauncher Amazon
 Bundle-Description: Registers a NodeLaucnher service for Amazon

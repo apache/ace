@@ -56,3 +56,4 @@ Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE UserAdminUI itest
 Bundle-Description: Integration test bundle for Apache ACE UserAdminUI
 Bundle-Category: itest
+-baseline:

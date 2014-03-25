@@ -1,12 +1,13 @@
--buildpath: \
+-buildpath: ${^-buildpath},\
 	osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	javax.servlet
-Export-Package: org.apache.ace.location,\
-	org.apache.ace.location.upnp,\
-	org.apache.ace.location.upnp.actions,\
-	org.apache.ace.location.upnp.util
-Bundle-Version: 1.0.0
+Export-Package: org.apache.ace.location
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Location UPnP
 Bundle-Description: Registers a UPnP based Location service
+Private-Package: org.apache.ace.location.upnp,\
+	org.apache.ace.location.upnp.actions,\
+	org.apache.ace.location.upnp.util
+Bundle-Activator: org.apache.ace.location.upnp.Activator

@@ -30,6 +30,8 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Builder for deployment packages. Can handle bundles, resource processors and artifacts. Uses the builder pattern:
  * 
@@ -49,6 +51,7 @@ import java.util.zip.ZipEntry;
  * the order you specify for bundles, resource processors and artifacts, but you don't have to specify all bundles and
  * resource processors first and then all artifacts.
  */
+@ConsumerType
 public class DeploymentPackageBuilder {
     private static final String PREFIX_BUNDLE = "bundle-";
     private static final String PREFIX_ARTIFACT = "artifact-";

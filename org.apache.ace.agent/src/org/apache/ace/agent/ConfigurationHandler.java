@@ -21,6 +21,8 @@ package org.apache.ace.agent;
 import java.util.Map;
 import java.util.Set;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Agent context delegate interface that is responsible for managing persisted configuration. External launchers may
  * override or set values within the {@link AgentConstants.CONFIG_KEY_NAMESPACE} through system properties when the
@@ -33,6 +35,7 @@ import java.util.Set;
  * <code>agent.controller.syncinterval=3000</code><br/>
  * <code>agent.controller.syncinterval.retain=true</code>
  */
+@ConsumerType
 public interface ConfigurationHandler {
 
     /**

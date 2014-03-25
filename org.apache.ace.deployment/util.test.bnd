@@ -1,4 +1,4 @@
 Export-Package: org.apache.ace.deployment.util.test
-Bundle-Version: 1.0.0
+Bundle-Version: 1.1.0
 Bundle-Name: Apache ACE Deployment Test util
 Bundle-Description: Provide Deployment test utility packages

@@ -21,10 +21,13 @@ package org.apache.ace.agent;
 import java.io.IOException;
 import java.io.InputStream;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Represents the result of a download task.
  * 
  */
+@ConsumerType
 public interface DownloadResult {
     /**
      * Returns an input stream to the downloaded result.

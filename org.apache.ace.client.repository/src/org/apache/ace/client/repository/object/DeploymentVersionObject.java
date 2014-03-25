@@ -20,6 +20,8 @@ package org.apache.ace.client.repository.object;
 
 import org.apache.ace.client.repository.RepositoryObject;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The interface to a DeploymentVersion. The basic functionality is defined
  * by RepositoryObject, but extended for deployment version-specific information.
@@ -27,6 +29,7 @@ import org.apache.ace.client.repository.RepositoryObject;
  * DeploymentVersions need some additional information about the artifacts they
  * are associated with; see DeploymentArtifact.
  */
+@ProviderType
 public interface DeploymentVersionObject extends RepositoryObject {
 
     public static final String KEY_TARGETID = "targetID";

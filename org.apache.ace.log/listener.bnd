@@ -1,5 +1,5 @@
 Private-Package: org.apache.ace.log.listener
 Bundle-Activator: org.apache.ace.log.listener.Activator
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Log Listener
 Bundle-Description: Registers log listeners for OSGi life-cycle and deployment events

@@ -24,9 +24,12 @@ import java.util.SortedSet;
 
 import org.osgi.framework.Version;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Generic interface for installing updates.
  */
+@ConsumerType
 public interface UpdateHandler {
     /**
      * @return a short descriptive name for this update handler, for example, "agent updater".

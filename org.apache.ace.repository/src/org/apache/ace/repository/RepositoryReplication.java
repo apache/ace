@@ -23,9 +23,12 @@ import java.io.InputStream;
 
 import org.apache.ace.range.SortedRangeSet;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The interface for replication of the data in a repository.
  */
+@ProviderType
 public interface RepositoryReplication
 {
     /**

@@ -22,6 +22,9 @@ import java.io.IOException;
 import org.apache.ace.client.repository.RepositoryObject.WorkingState;
 import org.osgi.service.useradmin.User;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface RepositoryAdmin
 {
 

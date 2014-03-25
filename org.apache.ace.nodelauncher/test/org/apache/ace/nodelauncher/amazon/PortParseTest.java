@@ -1,5 +1,6 @@
 package org.apache.ace.nodelauncher.amazon;
 
+import org.apache.ace.nodelauncher.amazon.impl.AmazonNodeLauncher;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import static org.apache.ace.test.utils.TestUtils.UNIT;

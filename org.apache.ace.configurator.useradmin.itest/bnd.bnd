@@ -42,3 +42,4 @@ Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Configurator Useradmintask itest
 Bundle-Description: Integration test bundle for Apache ACE Configurator Useradmintask
 Bundle-Category: itest
+-baseline:

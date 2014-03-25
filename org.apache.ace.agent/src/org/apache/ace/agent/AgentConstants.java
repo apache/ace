@@ -20,9 +20,12 @@ package org.apache.ace.agent;
 
 import org.apache.ace.feedback.AuditEvent;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Compile time constants for this package. Includes configuration keys and event topics.
  */
+@ProviderType
 public interface AgentConstants {
 
     /**

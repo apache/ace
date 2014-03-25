@@ -21,11 +21,14 @@ package org.apache.ace.agent;
 import org.apache.ace.agent.impl.DeploymentHandlerImpl;
 import org.osgi.service.deploymentadmin.DeploymentException;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Generic exception that is thrown when an installation of an update failed.
  * 
  * @see DeploymentHandlerImpl#install(java.io.InputStream)
  */
+@ProviderType
 public class InstallationFailedException extends Exception {
 
     /* DeploymentException codes duplicated for ease of use. */

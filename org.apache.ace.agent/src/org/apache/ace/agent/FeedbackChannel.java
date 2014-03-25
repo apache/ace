@@ -21,11 +21,14 @@ package org.apache.ace.agent;
 import java.io.IOException;
 import java.util.Map;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Represents a channel on which feedback information can be reported back to the server. An agent can configure
  * multiple feedback channels for reporting different pieces of information. By default, one feedback channel is
  * present, which is used for reporting the audit events.
  */
+@ProviderType
 public interface FeedbackChannel {
 
     /**

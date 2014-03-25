@@ -22,6 +22,9 @@ import java.util.regex.*;
 
 import org.osgi.framework.*;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public class VersionRange implements Comparable {
 	Version high;
 	Version low;

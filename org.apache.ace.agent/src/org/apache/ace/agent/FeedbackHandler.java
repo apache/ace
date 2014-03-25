@@ -21,9 +21,12 @@ package org.apache.ace.agent;
 import java.io.IOException;
 import java.util.Set;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Agent context delegate interface that is responsible for handling feedback channels.
  */
+@ConsumerType
 public interface FeedbackHandler {
 
     /** Returns the feedback channels names */

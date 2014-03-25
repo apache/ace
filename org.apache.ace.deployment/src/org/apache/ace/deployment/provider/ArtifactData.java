@@ -21,10 +21,13 @@ package org.apache.ace.deployment.provider;
 import java.net.URL;
 import java.util.jar.Attributes;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The ArtifactData as returned by the <code>DeploymentProvider</code> class in this package. It contains several pieces
  * of data which describe the artifact and the place where it can be found.
  */
+@ProviderType
 public interface ArtifactData {
 
     /**

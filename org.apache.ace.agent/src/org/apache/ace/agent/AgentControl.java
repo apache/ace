@@ -18,10 +18,13 @@
  */
 package org.apache.ace.agent;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The agent's control (service) interface. Provides control functions and access to configuration for consumers that
  * wish to control the agent's behavior.
  */
+@ProviderType
 public interface AgentControl {
 
     /** Returns the agent's identifier */

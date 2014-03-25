@@ -20,10 +20,13 @@ package org.apache.ace.client.repository;
 
 import java.net.URL;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * RepositoryAdminLoginContext represents a context for logins to the repository admin. It is used to specify
  * which repositories are to be used in a given session with the RepositoryAdmin.
  */
+@ProviderType
 public interface RepositoryAdminLoginContext
 {
     /**

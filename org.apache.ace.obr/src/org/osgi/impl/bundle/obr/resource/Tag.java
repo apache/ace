@@ -21,6 +21,8 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The Tag class represents a minimal XML tree. It consist of a named element
  * with a hashtable of named attributes. Methods are provided to walk the tree
@@ -28,6 +30,7 @@ import java.util.*;
  * objects or other Tag objects.
  */
 @SuppressWarnings({"unchecked"})
+@ProviderType
 public class Tag {
 	Tag						parent;
 	String					name;

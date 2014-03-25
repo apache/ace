@@ -18,6 +18,9 @@
  */
 package org.apache.ace.http.listener.constants;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface HttpConstants
 {
     /**

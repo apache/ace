@@ -1,5 +1,5 @@
 Private-Package: org.apache.ace.obr.servlet
 Bundle-Activator: org.apache.ace.obr.servlet.Activator
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE OBR Servlet
 Bundle-Description: Registers the ACE OBR servlet

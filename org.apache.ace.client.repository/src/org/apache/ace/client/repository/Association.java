@@ -20,10 +20,13 @@ package org.apache.ace.client.repository;
 
 import java.util.List;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Represents a basic association between two Associatable objects, whose types
  * are given by the generic parameters.
  */
+@ProviderType
 public interface Association<L extends Associatable, R extends Associatable> extends RepositoryObject {
     /**
      * A filter string indicating the left endpoint.

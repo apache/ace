@@ -25,7 +25,10 @@ import org.osgi.framework.Version;
 import org.osgi.service.obr.*;
 import org.xmlpull.v1.XmlPullParser;
 
+import aQute.bnd.annotation.ProviderType;
+
 @SuppressWarnings({"unchecked"})
+@ProviderType
 public class ResourceImpl implements Resource {
     List capabilities = new ArrayList();
     List requirements = new ArrayList();

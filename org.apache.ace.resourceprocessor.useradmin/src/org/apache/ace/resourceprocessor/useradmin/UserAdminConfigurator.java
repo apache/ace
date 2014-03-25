@@ -21,6 +21,8 @@ package org.apache.ace.resourceprocessor.useradmin;
 import java.io.IOException;
 import java.io.InputStream;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The UserAdminConfigurator can be used to install, remove or explicitly set the users that should be present in the
  * system's UserAdmin.<br>
@@ -51,6 +53,7 @@ import java.io.InputStream;
  * and update it with all data it has received up to then. Note that UserAdminStore is intended to work with one
  * UserAdmin at a time.
  */
+@ProviderType
 public interface UserAdminConfigurator
 {
     /**

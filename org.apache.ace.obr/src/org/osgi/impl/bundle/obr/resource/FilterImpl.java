@@ -25,7 +25,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import aQute.bnd.annotation.ProviderType;
+
 @SuppressWarnings({"unchecked"})
+@ProviderType
 public class FilterImpl {
 	final char		WILDCARD	= 65535;
 

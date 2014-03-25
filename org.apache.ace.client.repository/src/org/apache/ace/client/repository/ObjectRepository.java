@@ -22,9 +22,12 @@ import java.util.List;
 import java.util.Map;
 import org.osgi.framework.Filter;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * A basic object repository, storing implementers of RepositoryObject.
  */
+@ProviderType
 public interface ObjectRepository<T extends RepositoryObject> {
     /**
      * Removes the given entity from this repository. Will silently fail

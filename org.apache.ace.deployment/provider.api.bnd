@@ -1,4 +1,4 @@
 Export-Package: org.apache.ace.deployment.provider
-Bundle-Version: 1.0.0
+Bundle-Version: 1.1.0
 Bundle-Name: Apache ACE Deployment Provider API
 Bundle-Description: Provides the Deployment Provider API packages

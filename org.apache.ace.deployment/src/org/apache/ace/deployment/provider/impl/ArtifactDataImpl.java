@@ -24,9 +24,12 @@ import java.util.jar.Attributes;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.osgi.framework.Constants;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Implementation of <code>ArtifactData</code>. It overrides equals to make comparisons between versions easier.
  */
+@ConsumerType
 public class ArtifactDataImpl implements ArtifactData {
     public final static String HEADER_NAME = "Name";
     public static final String CUSTOMIZER = "DeploymentPackage-Customizer";

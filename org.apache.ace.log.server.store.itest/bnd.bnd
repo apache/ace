@@ -36,3 +36,4 @@ Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Log Server Store itest
 Bundle-Description: Integration test bundle for Apache ACE Log
 Bundle-Category: itest
+-baseline:

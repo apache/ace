@@ -21,6 +21,8 @@ package org.apache.ace.authentication.api;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Provides a pluggable authentication processor, responsible for the actual authentication of a
  * user based on given context information.
@@ -29,6 +31,7 @@ import org.osgi.service.useradmin.UserAdmin;
  * an order in which they should be used is determined based on their <em>service ranking</em>.
  * </p>
  */
+@ConsumerType
 public interface AuthenticationProcessor {
 
     /**

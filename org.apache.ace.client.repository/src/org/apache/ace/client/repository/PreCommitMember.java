@@ -20,10 +20,13 @@ package org.apache.ace.client.repository;
 
 import java.io.IOException;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * An interface that can be implemented by anybody that wants to be invoked as part of the
  * pre-commit cycle of a RepositoryAdmin.
  */
+@ProviderType
 public interface PreCommitMember {
     /**
      * Resets any volatile changes that might have been made as part of earlier operations.

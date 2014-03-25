@@ -22,10 +22,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.apache.ace.repository.Repository;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Provides a cached repository representation, allowing the storing of local changes, without
  * committing them to the actual repository immediately.
  */
+@ProviderType
 public interface CachedRepository extends Repository {
 
     /**

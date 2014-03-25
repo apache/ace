@@ -66,3 +66,5 @@ Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Deployment itest
 Bundle-Description: Integration test bundle for Apache ACE Deployment
 Bundle-Category: itest
+
+-baseline:

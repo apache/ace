@@ -28,3 +28,4 @@ Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE HTTP itest
 Bundle-Description: Integration test bundle for Apache ACE HTTP
 Bundle-Category: itest
+-baseline:

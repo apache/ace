@@ -1,4 +1,5 @@
--buildpath: osgi.cmpn,\
+-buildpath: ${^-buildpath},\
+	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	com.vaadin;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
@@ -13,6 +14,6 @@ Private-Package: org.apache.ace.webui.domain,\
 Export-Package: org.apache.ace.webui
 Include-Resource: resources/
 Bundle-Activator: org.apache.ace.webui.vaadin.Activator
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE WebUI Vaadin
 Bundle-Description: Provides the base ACE WebUI based on Vaadin

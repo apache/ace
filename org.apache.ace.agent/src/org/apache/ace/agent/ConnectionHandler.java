@@ -22,9 +22,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Agent context delegate interface that is responsible for opening connection.
  */
+@ConsumerType
 public interface ConnectionHandler {
 
     /**

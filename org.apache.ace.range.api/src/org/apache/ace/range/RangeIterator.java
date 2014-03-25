@@ -21,6 +21,8 @@ package org.apache.ace.range;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Iterates over a <code>SortedRangeSet</code>. Does not exactly implement
  * the <code>Iterator</code> interface because we have <code>long</code>
@@ -28,6 +30,7 @@ import java.util.NoSuchElementException;
  * is not thread-safe and results are unpredictable if the underlying set is
  * modified.
  */
+@ProviderType
 public class RangeIterator {
     private final ListIterator m_iterator;
     private Range m_current;

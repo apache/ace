@@ -20,6 +20,8 @@ package org.apache.ace.agent;
 
 import java.util.concurrent.Future;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * A {@link DownloadHandle} provides control over an asynchronous download and access to the resulting file when the it
  * is completed. <br/>
@@ -31,6 +33,7 @@ import java.util.concurrent.Future;
  * <li>Resulting files must be assumed to be transient.
  * <ul>
  */
+@ConsumerType
 public interface DownloadHandle {
     /**
      * Callback interface; when registered the completed method will be invoked when the download terminates for any

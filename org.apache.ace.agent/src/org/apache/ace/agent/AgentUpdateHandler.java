@@ -18,9 +18,12 @@
  */
 package org.apache.ace.agent;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Agent context delegate interface that is responsible for managing agent updates.
  */
+@ConsumerType
 public interface AgentUpdateHandler extends UpdateHandler {
     // No additional methods
 }

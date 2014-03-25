@@ -20,10 +20,13 @@ package org.apache.ace.log;
 
 import java.util.Dictionary;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Log interface for a fairly generic logging mechanism, where each log entry has a type
  * and a dictionary of properties.
  */
+@ProviderType
 public interface Log
 {
     /**

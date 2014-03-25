@@ -18,10 +18,13 @@
  */
 package org.apache.ace.deployment.provider;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Exception that indicates that the deployment provider is overloaded.
  * Callers that receive this exception should 
  */
+@ProviderType
 public class OverloadedException extends RuntimeException {
 
     private static final long serialVersionUID = 915400242733422258L;

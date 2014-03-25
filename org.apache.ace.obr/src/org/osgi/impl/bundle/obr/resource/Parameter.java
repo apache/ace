@@ -17,6 +17,9 @@
  */
 package org.osgi.impl.bundle.obr.resource;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 class Parameter {
 	final static int	ATTRIBUTE	= 1;
 	final static int	DIRECTIVE	= 2;

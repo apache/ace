@@ -1,4 +1,5 @@
--buildpath: org.apache.felix.dependencymanager,\
+-buildpath: ${^-buildpath},\
+	org.apache.felix.dependencymanager,\
 	org.mockito.mockito-all,\
 	osgi.core,\
 	osgi.cmpn,\
@@ -20,6 +21,6 @@ Private-Package: org.apache.ace.processlauncher.osgi,\
 Bundle-Activator: org.apache.ace.processlauncher.osgi.Activator
 Export-Package: org.apache.ace.processlauncher,\
 	org.apache.ace.processlauncher.util
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE ProcessLauncher
 Bundle-Description: Registers a service factory and ProcessLauncher service

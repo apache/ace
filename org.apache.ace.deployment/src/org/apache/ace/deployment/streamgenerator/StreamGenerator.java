@@ -23,6 +23,9 @@ import java.io.InputStream;
 
 import org.apache.ace.deployment.provider.OverloadedException;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface StreamGenerator
 {
 

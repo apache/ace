@@ -18,9 +18,12 @@
  */
 package org.apache.ace.agent;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Providers interface for (extension) components.
  */
+@ConsumerType
 public interface AgentContextAware {
 
     /**

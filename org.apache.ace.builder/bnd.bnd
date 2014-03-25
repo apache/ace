@@ -1,5 +1,6 @@
--buildpath: org.apache.ace.test;version=latest
+-buildpath: ${^-buildpath},\
+	org.apache.ace.test;version=latest
 Export-Package: org.apache.ace.builder
-Bundle-Version: 1.0.1
+Bundle-Version: 2.0.0
 Bundle-Name: Apache ACE Builder
 Bundle-Description: Implementation of the Apace ACE DeploymentPackage builder

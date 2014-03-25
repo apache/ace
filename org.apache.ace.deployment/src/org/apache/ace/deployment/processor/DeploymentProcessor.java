@@ -25,12 +25,15 @@ import java.io.InputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Deployment processors can post process the deployment package before it is sent to the original requester. This allows you to
  * transform how the data is actually sent, allowing you to basically "repackage" the content on the fly. Deployment processors
  * should be registered as services with a service property called "processor" which should match a request property of the same
  * name and value.
  */
+@ProviderType
 public interface DeploymentProcessor {
     /**
      * Post-process the stream and send it to the response. The input stream is the deployment package as it was generated. You

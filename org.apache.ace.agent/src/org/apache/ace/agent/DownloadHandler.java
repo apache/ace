@@ -20,6 +20,8 @@ package org.apache.ace.agent;
 
 import java.net.URL;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Service interface for downloading content from a particular {@link URL}.
  * <p>
@@ -27,6 +29,7 @@ import java.net.URL;
  * temporarily stop an ongoing download to resume it on a later moment.
  * </p>
  */
+@ConsumerType
 public interface DownloadHandler {
 
     /**

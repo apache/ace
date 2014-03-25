@@ -18,9 +18,12 @@
  */
 package org.apache.ace.agent;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The state of a download handle that completed.
  */
+@ProviderType
 public enum DownloadState {
     /**
      * The handle completed successfully.

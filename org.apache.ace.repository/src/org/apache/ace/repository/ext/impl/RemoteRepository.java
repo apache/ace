@@ -34,9 +34,12 @@ import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.Repository;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * This class works as a local interface for a remote repository by handling the network communication.
  */
+@ConsumerType
 public class RemoteRepository implements Repository {
     private static final String COMMAND_QUERY = "/query";
     private static final String COMMAND_CHECKOUT = "/checkout";

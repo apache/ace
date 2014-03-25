@@ -18,11 +18,14 @@
  */
 package org.apache.ace.test.constants;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Constants for global test parameters. Use these throughout the test
  * codebase. Make sure to only use public static finals here, which
  * can be inlined by the compiler.
  */
+@ProviderType
 public interface TestConstants {
     /** The port the webserver is running on for testing. */
     public static final int PORT = 8080;

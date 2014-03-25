@@ -21,9 +21,12 @@ package org.apache.ace.processlauncher;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Provides a listener interface for interacting with a process' input/output stream.
  */
+@ConsumerType
 public interface ProcessStreamListener {
 
     /**

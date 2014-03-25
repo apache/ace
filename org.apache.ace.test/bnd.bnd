@@ -1,4 +1,4 @@
--buildpath: \
+-buildpath: ${^-buildpath},\
 	osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\
@@ -11,7 +11,8 @@ Import-Package: \
 	junit.framework;resolution:=optional,\
 	org.apache.felix.service.command;resolution:=optional,\
 	*
-Bundle-Version: 1.0.0
+
+Bundle-Version: 1.1.0
 Bundle-Name: Apache ACE Test
 Bundle-Description: Provides base classes and utils for integration tests
 Private-Package: org.apache.ace.it.gogo

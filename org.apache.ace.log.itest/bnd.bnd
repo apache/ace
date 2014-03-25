@@ -1,5 +1,6 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
--buildpath: junit.osgi,\
+-buildpath: ${^-buildpath},\
+	junit.osgi,\
 	osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
@@ -51,3 +52,4 @@ Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Log itest
 Bundle-Description: Integration test bundle for Apache ACE Log
 Bundle-Category: itest
+-baseline:

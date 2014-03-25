@@ -20,6 +20,9 @@ package org.apache.ace.builder;
 
 import java.net.URL;
 
+import aQute.bnd.annotation.ConsumerType;
+
+@ConsumerType
 public class ArtifactData {
     private final URL m_url;
     private final String m_filename;

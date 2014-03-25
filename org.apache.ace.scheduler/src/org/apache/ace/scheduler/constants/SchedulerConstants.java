@@ -18,9 +18,12 @@
  */
 package org.apache.ace.scheduler.constants;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Compile time constants for the scheduler.
  */
+@ProviderType
 public interface SchedulerConstants {
     /** Persistent ID for the scheduler, provided for configuration purposes. */
     public static final String SCHEDULER_PID = "org.apache.ace.scheduler";
