@@ -23,8 +23,11 @@ import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.FeatureObject;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Interface to a Artifact2FeatureAssociationRepository. The functionality is defined by the generic AssociationRepository.
  */
+@ProviderType
 public interface Artifact2FeatureAssociationRepository extends AssociationRepository<ArtifactObject, FeatureObject, Artifact2FeatureAssociation> {
 }

@@ -20,6 +20,8 @@ package org.apache.ace.processlauncher;
 
 import java.util.Properties;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Allows code to be run <em>before</em> a process is actually launched, and <em>after</em> a
  * process is terminated.
@@ -28,6 +30,7 @@ import java.util.Properties;
  * directories and/or configuration files for each individually launched process.
  * </p>
  */
+@ConsumerType
 public interface ProcessLifecycleListener {
 
     /**

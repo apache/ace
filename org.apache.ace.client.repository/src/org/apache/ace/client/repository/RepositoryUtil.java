@@ -18,6 +18,9 @@
  */
 package org.apache.ace.client.repository;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public class RepositoryUtil
 {
 	/**

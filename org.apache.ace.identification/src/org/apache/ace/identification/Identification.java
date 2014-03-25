@@ -18,10 +18,13 @@
  */
 package org.apache.ace.identification;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The Identification service can be used to identify the system it is running on. This
  * identification must be unique and must not change.
  */
+@ProviderType
 public interface Identification
 {
 

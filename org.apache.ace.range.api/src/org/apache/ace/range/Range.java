@@ -18,9 +18,12 @@
  */
 package org.apache.ace.range;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Class that captures a simple, modifiable range.
  */
+@ProviderType
 public class Range
 {
     private long m_low;

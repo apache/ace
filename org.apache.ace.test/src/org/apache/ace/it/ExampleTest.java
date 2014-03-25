@@ -25,10 +25,13 @@ import junit.framework.Assert;
 import org.apache.felix.dm.Component;
 import org.osgi.service.packageadmin.PackageAdmin;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * This class serves as a minimal example of our integration tests. Also, if this test fails, something is likely
  * wrong with the environment
  */
+@ConsumerType
 public class ExampleTest extends IntegrationTestBase {
 
 //    @Configuration

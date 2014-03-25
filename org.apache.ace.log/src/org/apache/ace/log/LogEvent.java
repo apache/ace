@@ -24,9 +24,12 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import org.apache.ace.log.util.Codec;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Log event from a specific target and log.
  */
+@ProviderType
 public class LogEvent implements Comparable {
     private final String m_targetID;
     private final long m_logID;

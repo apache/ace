@@ -23,6 +23,8 @@ import java.io.InputStream;
 
 import org.w3c.dom.Document;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The UserAdminConfigurator can be used to install, remove or explicitly set the users that
  * should be present in the system's UserAdmin.<br>
@@ -52,6 +54,7 @@ import org.w3c.dom.Document;
  * data around until one is, and update it with all data it has received up to then.
  * Note that UserAdminStore is intended to work with one UserAdmin at a time.
  */
+@ProviderType
 public interface UserAdminConfigurator
 {
     /**

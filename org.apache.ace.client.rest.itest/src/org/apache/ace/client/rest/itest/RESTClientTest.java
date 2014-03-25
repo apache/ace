@@ -21,8 +21,8 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-import aQute.lib.osgi.Builder;
-import aQute.lib.osgi.Jar;
+import aQute.bnd.osgi.Builder;
+import aQute.bnd.osgi.Jar;
 
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;

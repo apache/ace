@@ -20,9 +20,12 @@ package org.apache.ace.client.repository.object;
 
 import org.apache.ace.client.repository.Association;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Interface to a Feature2DistributionAssociation. Most functionality is defined by the generic Association.
  */
+@ProviderType
 public interface Feature2DistributionAssociation extends Association<FeatureObject, DistributionObject> {
     public static final String TOPIC_ENTITY_ROOT = Feature2DistributionAssociation.class.getSimpleName() + "/";
 

@@ -18,10 +18,13 @@
  */
 package org.apache.ace.log;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Audit log event. These events are recorded in the audit log, which keeps track of
  * all life cycle events that occur on a target.
  */
+@ProviderType
 public interface AuditEvent
 {
 

@@ -1,4 +1,4 @@
--buildpath: osgi.core,\
+-buildpath: ${^-buildpath}, osgi.core,\
 	osgi.cmpn,\
 	org.apache.ace.test;version=latest,\
 	commons-codec;version=1.4

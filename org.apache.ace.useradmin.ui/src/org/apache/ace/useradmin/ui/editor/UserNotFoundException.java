@@ -18,6 +18,9 @@
  */
 package org.apache.ace.useradmin.ui.editor;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public class UserNotFoundException extends Exception {
     public UserNotFoundException(String username) {
         super("User: " + username + " not found");

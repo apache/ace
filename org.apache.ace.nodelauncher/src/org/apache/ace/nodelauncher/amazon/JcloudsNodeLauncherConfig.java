@@ -18,6 +18,8 @@
  */
 package org.apache.ace.nodelauncher.amazon;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
 import org.apache.ace.nodelauncher.NodeLauncherConfig;
@@ -35,6 +37,7 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.Set;
 
+@ProviderType
 public class JcloudsNodeLauncherConfig implements NodeLauncherConfig {
     private ComputeServiceContext m_computeServiceContext;
     

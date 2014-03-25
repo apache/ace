@@ -27,7 +27,9 @@ import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.service.log.LogEntry;
 
+import aQute.bnd.annotation.ProviderType;
 
+@ProviderType
 public interface VerifierService {
 	public static final String EE_1_7 = "JavaSE-1.6,JavaSE-1.7,J2SE-1.5,J2SE-1.4,J2SE-1.3,OSGi/Minimum-1.2,OSGi/Minimum-1.1,OSGi/Minimum-1.0";
 	public static final String EE_1_6 = "JavaSE-1.6,J2SE-1.5,J2SE-1.4,J2SE-1.3,OSGi/Minimum-1.2,OSGi/Minimum-1.1,OSGi/Minimum-1.0";

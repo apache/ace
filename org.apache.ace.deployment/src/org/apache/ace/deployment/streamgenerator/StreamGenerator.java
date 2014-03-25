@@ -21,6 +21,9 @@ package org.apache.ace.deployment.streamgenerator;
 import java.io.IOException;
 import java.io.InputStream;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface StreamGenerator
 {
 

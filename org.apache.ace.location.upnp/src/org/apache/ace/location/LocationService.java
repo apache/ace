@@ -20,6 +20,9 @@ package org.apache.ace.location;
 
 import java.net.URL;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface LocationService
 {
 	public URL getLocation();

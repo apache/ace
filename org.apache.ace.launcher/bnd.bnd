@@ -1,5 +1,5 @@
 -sources: false
--buildpath: \
+-buildpath: ${^-buildpath}, \
 	osgi.core,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.framework,\

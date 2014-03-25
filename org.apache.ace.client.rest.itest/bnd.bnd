@@ -1,5 +1,5 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
--buildpath: \
+-buildpath: ${^-buildpath}, \
 	osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\

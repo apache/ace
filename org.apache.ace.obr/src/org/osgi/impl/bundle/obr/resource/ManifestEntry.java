@@ -19,7 +19,10 @@ package org.osgi.impl.bundle.obr.resource;
 
 import java.util.*;
 
+import aQute.bnd.annotation.ProviderType;
 
+
+@ProviderType
 public class ManifestEntry implements Comparable {
 	String		name;
 	VersionRange	version;

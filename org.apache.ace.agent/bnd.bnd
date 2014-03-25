@@ -1,7 +1,8 @@
 Bundle-Activator: org.apache.ace.agent.impl.Activator
 Bundle-Version: 1.0.0
 
--buildpath: osgi.core,\
+-buildpath: ${^-buildpath},\
+	osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.deploymentadmin,\

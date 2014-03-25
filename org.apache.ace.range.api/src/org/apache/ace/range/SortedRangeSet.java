@@ -24,10 +24,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Collection that stores a sorted set of ranges and is able to represent them
  * as a string.
  */
+@ProviderType
 public class SortedRangeSet
 {
     /**

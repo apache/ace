@@ -8,7 +8,7 @@ Private-Package: org.apache.ace.agent.itest
 -runee: JavaSE-1.6
 -runvm: -ea
 -runfw: org.apache.felix.framework
--buildpath: osgi.core;version='[4.2,5)',\
+-buildpath: ${^-buildpath}, osgi.core;version='[4.2,5)',\
 	osgi.cmpn,\
 	junit.osgi,\
 	org.mockito.mockito-all,\

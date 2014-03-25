@@ -1,4 +1,4 @@
--buildpath: osgi.core,\
+-buildpath: ${^-buildpath}, osgi.core,\
 	org.apache.felix.framework,\
 	org.apache.ace.agent;version=latest,\
 	commons-codec,\

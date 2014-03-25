@@ -24,10 +24,13 @@ import java.net.URLConnection;
 
 import org.osgi.service.useradmin.User;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Provides a service to create {@link URLConnection}s. The connection factory will be responsible 
  * for supplying the necessary credentials to ensure the authentication of the connection succeeds.
  */
+@ProviderType
 public interface ConnectionFactory {
 
     /**

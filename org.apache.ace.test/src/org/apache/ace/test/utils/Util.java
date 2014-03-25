@@ -20,6 +20,9 @@ package org.apache.ace.test.utils;
 
 import java.util.Properties;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public class Util {
 
     /**

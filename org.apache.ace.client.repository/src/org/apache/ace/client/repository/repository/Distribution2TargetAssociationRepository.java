@@ -23,9 +23,12 @@ import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Interface to a Distribution2TargetAssociationRepository. The functionality is defined by the generic AssociationRepository.
  */
+@ProviderType
 public interface Distribution2TargetAssociationRepository extends AssociationRepository<DistributionObject, TargetObject, Distribution2TargetAssociation> {
     /**
      * Creates an assocation from a given distribution to multiple targets, which correspond to the given

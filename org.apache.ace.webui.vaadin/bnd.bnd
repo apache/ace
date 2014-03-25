@@ -1,4 +1,5 @@
--buildpath: osgi.cmpn,\
+-buildpath: ${^-buildpath},\
+	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	com.vaadin;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\

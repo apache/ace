@@ -18,6 +18,9 @@
  */
 package org.apache.ace.location.upnp;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface UPnPConstants
 {
 	public final static String PROVISIONING_DEVICE_TYPE = "urn:schemas-upnp-org:device:ProvisioningDevice:1";

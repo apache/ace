@@ -21,6 +21,9 @@ package org.apache.ace.test.utils;
 import java.io.File;
 import java.io.IOException;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public class FileUtils {
 
     /**

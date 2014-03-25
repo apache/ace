@@ -20,10 +20,13 @@ package org.apache.ace.client.repository.helper;
 
 import java.util.Map;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Service interface for services that can recognize the type of an artifact, given a URL
  * to that artifact.
  */
+@ConsumerType
 public interface ArtifactRecognizer
 {
     /**

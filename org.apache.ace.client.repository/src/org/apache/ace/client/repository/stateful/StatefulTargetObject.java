@@ -28,11 +28,14 @@ import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.log.LogEvent;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Represents the information that a <code>TargetObject</code>
  * has, plus added functionality for gathering information from a deployment repository and,
  * optionally, from an AuditLog.
  */
+@ProviderType
 public interface StatefulTargetObject extends RepositoryObject {
 
     public static final String TOPIC_ADDED = StatefulTargetObject.class.getName().replace('.', '/') + "/ADDED";

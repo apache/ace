@@ -1,4 +1,4 @@
--buildpath: osgi.core,\
+-buildpath: ${^-buildpath}, osgi.core,\
 	osgi.cmpn,\
 	javax.servlet,\
 	org.apache.felix.dependencymanager,\

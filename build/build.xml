@@ -150,4 +150,14 @@
 		<!-- and cleanup -->
 		<delete dir="${target.base.dir}" />
 	</target>
+	
+	<target name="package-release" depends="init" description="Packages all artifacts to a release repository.">
+		<!--
+		<bndrelease />
+		-->
+		<mkdir dir="generated/releaserepo" />
+		<copy todir="generated/releaserepo" flatten="true">
+			<fileset dir=".." includes="*/generated/*.jar" />
+		</copy>
+	</target>
 </project>

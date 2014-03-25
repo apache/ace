@@ -1,4 +1,5 @@
 -buildpath: \
+	${^-buildpath},\
 	osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\

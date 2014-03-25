@@ -42,10 +42,13 @@ import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * This class can be used as a 'default' artifact preprocessor, using the Velocity template engine to preprocess
  * the artifact.
  */
+@ConsumerType
 public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
 
     // matches a valid OSGi version

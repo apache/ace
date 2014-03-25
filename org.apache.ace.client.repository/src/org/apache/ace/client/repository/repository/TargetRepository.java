@@ -21,8 +21,11 @@ package org.apache.ace.client.repository.repository;
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.object.TargetObject;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Interface to a GatewayRepository. The functionality is defined by the generic AssociationRepository.
  */
+@ProviderType
 public interface TargetRepository extends ObjectRepository<TargetObject>{
 }

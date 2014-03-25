@@ -19,7 +19,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 Private-Package: org.apache.ace.log.server.store.tests
 -runvm: -ea
 -runfw: org.apache.felix.framework;version='[4,5)'
--buildpath: \
+-buildpath: ${^-buildpath}, \
 	osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\

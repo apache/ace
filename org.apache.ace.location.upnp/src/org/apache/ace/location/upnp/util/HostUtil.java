@@ -21,6 +21,9 @@ package org.apache.ace.location.upnp.util;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public class HostUtil
 {
 	private HostUtil() {}

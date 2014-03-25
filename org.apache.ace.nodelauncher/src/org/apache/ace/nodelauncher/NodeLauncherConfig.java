@@ -18,6 +18,8 @@
  */
 package org.apache.ace.nodelauncher;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Empty interface that should be implemented by NodeLauncherConfig implmentation. The interface is empty
  * because configuration is very different for each kind of node (e.g. an embedded node vs a jclouds node) it's
@@ -26,6 +28,7 @@ package org.apache.ace.nodelauncher;
  * Clients of this interface (e.g. UI) should cast this interface to the concrete implementation it's built for.
  *
  */
+@ProviderType
 public interface NodeLauncherConfig {
 
 }

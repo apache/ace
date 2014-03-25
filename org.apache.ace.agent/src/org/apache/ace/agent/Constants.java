@@ -18,11 +18,14 @@
  */
 package org.apache.ace.agent;
 
+import aQute.bnd.annotation.ProviderType;
+
 
 /**
  * Compile time constants for the bundle. Only located in the API package for development time visibility.
  * 
  */
+@ProviderType
 public interface Constants {
 
     /**

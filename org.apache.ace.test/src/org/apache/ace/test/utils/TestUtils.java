@@ -25,9 +25,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Utility class that injects dependencies. Can be used to unit test service implementations.
  */
+@ProviderType
 public class TestUtils {
     public static final String UNIT = "unit";
     public static final String INTEGRATION = "integration";

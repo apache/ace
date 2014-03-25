@@ -23,10 +23,13 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Map;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * A basic repository object, intended to be stored in a ObjectRepository of its given type.
  * A RepositoryObject is associatable.
  */
+@ProviderType
 public interface RepositoryObject extends Associatable {
     /**
      * This key is used to store the RepositoryObject an event comes from, in the Event object.

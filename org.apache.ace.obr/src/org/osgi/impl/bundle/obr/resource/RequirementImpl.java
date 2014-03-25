@@ -20,6 +20,8 @@ package org.osgi.impl.bundle.obr.resource;
 import org.osgi.service.obr.*;
 import org.xmlpull.v1.XmlPullParser;
 
+import aQute.bnd.annotation.ProviderType;
+
 
 
 /**
@@ -28,6 +30,7 @@ import org.xmlpull.v1.XmlPullParser;
  * 
  * @version $Revision: 44 $
  */
+@ProviderType
 public class RequirementImpl implements Requirement {
 	int		id;
 	String	name;

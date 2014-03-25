@@ -24,6 +24,8 @@ import java.util.StringTokenizer;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.log.util.Codec;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Instances of this class represent a range of log events. Such a range is defined by:
  * <ul>
@@ -32,6 +34,7 @@ import org.apache.ace.log.util.Codec;
  * <li>A set of event IDs</li>
  * </ul>
  */
+@ProviderType
 public class LogDescriptor {
     private final SortedRangeSet m_rangeSet;
     private final long m_logID;

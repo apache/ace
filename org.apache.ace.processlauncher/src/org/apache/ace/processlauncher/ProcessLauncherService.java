@@ -20,10 +20,13 @@ package org.apache.ace.processlauncher;
 
 import java.io.IOException;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Provides a managed service factory for launching processes based on a certain launch
  * configuration.
  */
+@ProviderType
 public interface ProcessLauncherService {
 
     /** The service PID that is used for registration of this service factory. */

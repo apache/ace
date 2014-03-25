@@ -20,7 +20,10 @@ package org.apache.ace.client.repository.helper;
 
 import java.util.Comparator;
 import java.util.Map;
+
 import org.apache.ace.client.repository.object.ArtifactObject;
+
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Interface to an artifact helper. For each type of artifact, there should be a helper
@@ -28,6 +31,7 @@ import org.apache.ace.client.repository.object.ArtifactObject;
  * in the service's properties, so it can be identified. The <code>KEY_MIMETYPE</code> in
  * this class can be used for this purpose.
  */
+@ConsumerType
 public interface ArtifactHelper
 {
     public static final String KEY_MIMETYPE = "mimetype";

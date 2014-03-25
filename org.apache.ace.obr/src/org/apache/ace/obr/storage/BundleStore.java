@@ -5,6 +5,8 @@ import java.io.InputStream;
 
 import org.osgi.service.cm.ManagedService;
 
+import aQute.bnd.annotation.ProviderType;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -24,6 +26,7 @@ import org.osgi.service.cm.ManagedService;
  * under the License.
  */
 
+@ProviderType
 public interface BundleStore extends ManagedService {
 
     /**

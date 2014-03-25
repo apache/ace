@@ -1,32 +1,12 @@
-# General Options
-project.dependson       = ${p-dependson;:}
-project.bootclasspath   = ${p-bootclasspath;:}
-project.buildpath       = ${p-buildpath;:}
-project.sourcepath      = ${p-sourcepath;:}
-project.allsourcepath   = ${p-allsourcepath;:}
-project.output          = ${p-output}
+-buildpath: biz.aQute.bnd.annotation
+
 project.testpath        = ${p-testpath;:}:${workspace}/cnf/lib/testng/testng-6.5.2.jar
 
--verbose:     true
-project:      ${basedir}
-src:          src
-bin:          bin
-target-dir:   generated
-target:       ${project}/${target-dir}
-build:        ${workspace}/cnf
-p:            ${basename;${project}}
-project.name: ${p}
-
-# Java Compiler Options
-java:         java
-javac:        javac
 javac.source: 1.6
 javac.target: 1.6
 javac.debug:  on
 
-# Bnd Options
 -sources:       true
--sourcepath:    ${project}/src
 
 # Default Bundle headers
 Bundle-DocURL: http://ace.apache.org/

@@ -18,10 +18,13 @@
  */
 package org.apache.ace.client.repository.helper;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Interface for resolving properties about the template's
  * environment which are to be used by an ArtifactPreprocessor.
  */
+@ConsumerType
 public interface PropertyResolver
 {
     /**

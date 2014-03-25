@@ -21,9 +21,12 @@ package org.apache.ace.client.repository.helper;
 import java.io.IOException;
 import java.net.URL;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * An ArtifactPreprocessor processes an artifact before it is deployed.
  */
+@ConsumerType
 public interface ArtifactPreprocessor {
     /**
      * Preprocesses a single artifact, uploads it to the obr, and returns the new URL as a string.

@@ -30,10 +30,13 @@ import java.net.URLConnection;
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * This class can be used as a base class for artifact preprocessors. It comes with its own upload() method, which will
  * be used by all artifact preprocessors anyway.
  */
+@ConsumerType
 public abstract class ArtifactPreprocessorBase implements ArtifactPreprocessor {
 
     /** 64k buffers should be enough for everybody... */

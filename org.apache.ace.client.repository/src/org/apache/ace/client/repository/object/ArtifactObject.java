@@ -22,10 +22,13 @@ import java.util.List;
 
 import org.apache.ace.client.repository.RepositoryObject;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Interface to an ArtifactObject. The basic functionality is defined by RepositoryObject, but extended for
  * artifact-specific information.
  */
+@ProviderType
 public interface ArtifactObject extends RepositoryObject {
     /**
      * Key to be used in the <code>ArtifactObject</code>'s attributes.

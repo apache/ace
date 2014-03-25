@@ -18,10 +18,13 @@
  */
 package org.apache.ace.client.repository.object;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Interface to a deployment artifact, which is used to gather information about
  * the deployment of a single artifact.
  */
+@ProviderType
 public interface DeploymentArtifact {
 
     /**

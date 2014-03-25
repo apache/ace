@@ -18,6 +18,9 @@
  */
 package org.apache.ace.useradmin.ui.editor;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public class GroupNotFoundException extends Exception {
     public GroupNotFoundException(String groupName) {
         super("Group: " + groupName + " not found");

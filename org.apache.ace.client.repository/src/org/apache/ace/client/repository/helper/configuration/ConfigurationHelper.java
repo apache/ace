@@ -20,9 +20,12 @@ package org.apache.ace.client.repository.helper.configuration;
 
 import org.apache.ace.client.repository.helper.ArtifactHelper;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Definitions for ConfigurationHelper,used to treat an artifact as an AutoConf file.
  */
+@ProviderType
 public interface ConfigurationHelper extends ArtifactHelper {
     public static final String KEY_FILENAME = "filename";
     public static final String MIMETYPE = "application/xml:osgi-autoconf";

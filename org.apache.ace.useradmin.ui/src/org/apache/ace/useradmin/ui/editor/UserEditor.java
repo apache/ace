@@ -23,9 +23,12 @@ import java.util.List;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.User;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * UserEditor is used to call operations to edit Users on the useradminService
  */
+@ProviderType
 public interface UserEditor {
     /**
      * AddUser can be called to ask the useradmin to add an user to useradmin service If the user already exist the

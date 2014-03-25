@@ -1,5 +1,6 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
--buildpath: junit.osgi,\
+-buildpath: ${^-buildpath},\
+	junit.osgi,\
 	osgi.core;version='[4.1,5)',\
 	osgi.cmpn,\
 	org.mockito.mockito-all,\

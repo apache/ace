@@ -18,11 +18,14 @@
  */
 package org.apache.ace.agent;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * TODO implement or remove? The question is whether we want to expose a single API to the rest of the environment to
  * allow client bundles to do deploy/log stuff.
  * 
  */
+@ProviderType
 public interface ManagementAgent {
 
 }

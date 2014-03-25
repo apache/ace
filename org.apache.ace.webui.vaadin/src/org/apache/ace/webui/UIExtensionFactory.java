@@ -20,12 +20,15 @@ package org.apache.ace.webui;
 
 import java.util.Map;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import com.vaadin.ui.Component;
 
 /**
  * Creates components for named extension points in the Vaadin UI. Extension factories
  * are used throughout the UI to allow other bundles to contribute features.
  */
+@ConsumerType
 public interface UIExtensionFactory {
     public static final String EXTENSION_POINT_KEY = "extension_point";
     public static final String EXTENSION_POINT_VALUE_ARTIFACT = "artifact";

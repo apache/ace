@@ -1,5 +1,5 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
--buildpath: junit.osgi,\
+-buildpath: ${^-buildpath}, junit.osgi,\
 	osgi.core,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\

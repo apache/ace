@@ -18,6 +18,9 @@
  */
 package org.apache.ace.useradmin.ui.editor;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public class UserAlreadyExistsException extends Exception {
     public UserAlreadyExistsException(String username) {
         super("User: " + username + " already exists");

@@ -1,4 +1,4 @@
--buildpath: org.apache.felix.dependencymanager,\
+-buildpath: ${^-buildpath}, org.apache.felix.dependencymanager,\
 	org.mockito.mockito-all,\
 	osgi.core,\
 	osgi.cmpn,\

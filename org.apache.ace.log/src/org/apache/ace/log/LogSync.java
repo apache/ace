@@ -20,10 +20,13 @@ package org.apache.ace.log;
 
 import java.io.IOException;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Log synchronizing interface. It is intended to give direct access to the synchronizing
  * possibilities of the server side log.
  */
+@ProviderType
 public interface LogSync
 {
 

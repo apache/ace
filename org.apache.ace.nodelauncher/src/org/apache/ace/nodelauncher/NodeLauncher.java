@@ -20,6 +20,8 @@ package org.apache.ace.nodelauncher;
 
 import java.util.Properties;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * A TargetLauncher starts, stops and interrogates named nodes. These nodes
  * represent running JVMs in some sense; they can be provided by some
@@ -29,6 +31,7 @@ import java.util.Properties;
  * either a single Management Agent, which can be identified by the <code>id</code>,
  * or a Node Manager.
  */
+@ProviderType
 public interface NodeLauncher {
     /**
      * Starts a new node with the given ID. Does not check whether this ID is already in use.

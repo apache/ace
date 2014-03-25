@@ -21,9 +21,12 @@ package org.apache.ace.useradmin.ui.editor;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.User;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * UserDTO contains the information of the user and the group.
  */
+@ProviderType
 public class UserDTO implements Comparable<UserDTO> {
 
     private User m_user;

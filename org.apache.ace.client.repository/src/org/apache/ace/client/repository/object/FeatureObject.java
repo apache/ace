@@ -22,10 +22,13 @@ import java.util.List;
 
 import org.apache.ace.client.repository.RepositoryObject;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Interface to a FeatureObject. The basic functionality is defined by RepositoryObject, but extended for
  * feature-specific information.
  */
+@ProviderType
 public interface FeatureObject extends RepositoryObject {
     public static final String KEY_DESCRIPTION = "description";
     public static final String KEY_NAME = "name";

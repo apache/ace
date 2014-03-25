@@ -1,4 +1,4 @@
--buildpath: \
+-buildpath: ${^-buildpath}, \
 	osgi.core,\
 	osgi.cmpn,\
 	javax.servlet,\

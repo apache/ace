@@ -21,10 +21,13 @@ package org.apache.ace.client.repository;
 import java.util.List;
 import java.util.Map;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Represents a basic repository of associations. The associations are to be of type
  * <code>T</code>, associating types <code>L</code> and <code>R</code>.
  */
+@ProviderType
 public interface AssociationRepository<L extends Associatable, R extends Associatable, T extends Association<L, R>> extends ObjectRepository<T>{
     /**
      * Creates a static association between two filters for objects, stores it,

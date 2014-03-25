@@ -46,6 +46,8 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Base class for integration tests. There is no technical reason to use this, but it might make
  * your life easier.<br>
@@ -53,6 +55,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * {@link org.apache.ace.it.ExampleTest} shows a minimal example of an integration test.
  *
  */
+@ConsumerType
 public class IntegrationTestBase extends TestCase {
     private static class ComponentCounter implements ComponentStateListener {
         private final List<Component> m_components = new ArrayList<Component>();

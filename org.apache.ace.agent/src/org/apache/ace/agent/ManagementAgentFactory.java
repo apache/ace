@@ -20,10 +20,13 @@ package org.apache.ace.agent;
 
 import java.util.Map;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Service interface for configuring the management agent.
  *
  */
+@ConsumerType
 public interface ManagementAgentFactory {
 
     void updated(Map<String, String> configuration) throws Exception;

@@ -10,4 +10,4 @@
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.apache.felix.log.maxSize=1000,\
 	launch.keep=true,\
-	launch.storage.dir=bundle-cache
+	xlaunch.storage.dir=bundle-cache

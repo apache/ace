@@ -22,9 +22,12 @@ import java.util.Map;
 
 import org.apache.ace.client.repository.ObjectRepository;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Represents a repository of <ode>StatefulTargetObject</code>'s.
  */
+@ProviderType
 public interface StatefulTargetRepository extends ObjectRepository<StatefulTargetObject> {
 
     /**

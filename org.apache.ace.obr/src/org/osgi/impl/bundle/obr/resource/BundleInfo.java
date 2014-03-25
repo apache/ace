@@ -24,12 +24,15 @@ import java.util.zip.*;
 
 import org.osgi.service.obr.Resource;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Convert a bundle to a generic resource description and store its local
  * dependencies (like for example a license file in the JAR) in a zip file.
  * 
  * @version $Revision: 44 $
  */
+@ProviderType
 public class BundleInfo {
 	Manifest	manifest;
 	File		bundleJar;

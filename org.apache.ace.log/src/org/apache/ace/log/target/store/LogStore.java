@@ -24,10 +24,13 @@ import java.util.List;
 
 import org.apache.ace.log.LogEvent;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Server log store interface for the targets. Implementations of this service interface provide a persisted storage for
  * log data.
  */
+@ProviderType
 public interface LogStore
 {
 

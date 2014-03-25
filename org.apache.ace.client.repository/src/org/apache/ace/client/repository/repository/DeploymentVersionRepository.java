@@ -7,10 +7,13 @@ import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
 
+import aQute.bnd.annotation.ProviderType;
+
 
 /**
  * Interface to a DeploymentVersionRepository. The functionality is defined by the generic ObjectRepository.
  */
+@ProviderType
 public interface DeploymentVersionRepository extends ObjectRepository<DeploymentVersionObject> {
     /**
      * Creates a new inhabitant based on the given attributes and bundle URLs. The object

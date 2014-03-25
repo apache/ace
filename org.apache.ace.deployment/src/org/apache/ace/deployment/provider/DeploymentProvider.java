@@ -21,10 +21,13 @@ package org.apache.ace.deployment.provider;
 import java.io.IOException;
 import java.util.List;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * An interface that provides the meta information for the bundles
  * in a certain version number.
  */
+@ProviderType
 public interface DeploymentProvider {
 
     /**

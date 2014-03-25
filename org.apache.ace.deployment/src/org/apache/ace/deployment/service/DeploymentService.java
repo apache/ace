@@ -23,12 +23,15 @@ import java.util.SortedSet;
 
 import org.osgi.framework.Version;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Deployment service can be used to talk to the management agent about deployment packages,
  * versions and updates, and to actually perform them. This interface coexists with the
  * tasks that are also published by the management agent and that are probably more convenient
  * if you just want to schedule (checks for) updates.
  */
+@ProviderType
 public interface DeploymentService {
 
     /**

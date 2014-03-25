@@ -22,9 +22,12 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Class containing utility methods concerning network related stuff.
  */
+@ProviderType
 public class NetUtils {
 
     /**

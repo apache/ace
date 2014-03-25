@@ -20,6 +20,8 @@ package org.apache.ace.authentication.api;
 
 import org.osgi.service.useradmin.User;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Provides a generic and pluggable authentication service.
  * <p>
@@ -30,6 +32,7 @@ import org.osgi.service.useradmin.User;
  * 
  * @see AuthenticationProcessor
  */
+@ProviderType
 public interface AuthenticationService {
 
     /**
