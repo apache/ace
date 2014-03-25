@@ -18,7 +18,8 @@
  */
 package org.apache.ace.client.rest.itest;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,8 +28,8 @@ import java.io.IOException;
 
 import org.apache.ace.test.utils.FileUtils;
 
-import aQute.lib.osgi.Builder;
-import aQute.lib.osgi.Jar;
+import aQute.bnd.osgi.Builder;
+import aQute.bnd.osgi.Jar;
 
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;

@@ -30,8 +30,8 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 import org.osgi.service.http.HttpService;
 
-import aQute.lib.osgi.Builder;
-import aQute.lib.osgi.Jar;
+import aQute.bnd.osgi.Builder;
+import aQute.bnd.osgi.Jar;
 
 public abstract class BaseAgentControllerTest extends IntegrationTestBase {
     /**

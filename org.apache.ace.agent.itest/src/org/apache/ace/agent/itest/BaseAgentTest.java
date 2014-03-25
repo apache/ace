@@ -16,8 +16,8 @@ import org.apache.ace.it.IntegrationTestBase;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 
-import aQute.lib.osgi.Builder;
-import aQute.lib.osgi.Jar;
+import aQute.bnd.osgi.Builder;
+import aQute.bnd.osgi.Jar;
 
 public abstract class BaseAgentTest extends IntegrationTestBase {
 
