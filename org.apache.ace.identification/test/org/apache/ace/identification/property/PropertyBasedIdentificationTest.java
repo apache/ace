@@ -25,7 +25,7 @@ import java.lang.reflect.Field;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.apache.ace.identification.property.constants.IdentificationConstants;
+import org.apache.ace.identification.IdentificationConstants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 import org.testng.Assert;

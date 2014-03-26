@@ -73,13 +73,39 @@
 	-->
 	<target name="compile" depends="dependencies" if="project.sourcepath">
 		<mkdir dir="${project.output}"/>
-		<javac fork="yes" executable="${javac}" srcdir="${project.sourcepath}" destdir="${project.output}" classpath="${project.buildpath}" bootclasspath="${project.bootclasspath}" deprecation="true" listfiles="true" target="${javac.target}" source="${javac.source}" debug="${javac.debug}" includeAntRuntime="no" verbose="${verbose}" />
+		<componentdef name="ecj" classname="org.eclipse.jdt.core.JDTCompilerAdapter" classpath="${workspacedir}/cnf/ecj/ecj.jar:${workspacedir}/cnf/ecj/jdtCompilerAdapter.jar" />
+		<javac fork="yes" executable="${javac}" srcdir="${project.sourcepath}" destdir="${project.output}" classpath="${project.buildpath}" deprecation="true" listfiles="true" target="${javac.target}" source="${javac.source}" debug="${javac.debug}" includeAntRuntime="no" verbose="${verbose}">
+			<ecj />
+		</javac>
 		<copy todir="${project.output}" verbose="${verbose}" preservelastmodified="true">
 			<fileset dir="${project.sourcepath}">
 				<exclude name="**/*.java" />
 				<exclude name="**/*.class" />
 			</fileset>
 		</copy>
+	</target>
+	
+	<!-- ECJ Compiler support -->
+	<target name="install-ecj" depends="init, install-ecj-eclipse, install-ecj-noeclipse">
+	</target>
+
+	<target name="install-ecj-eclipse" if="eclipse.home">
+		<echo message="Eclipse is installed at ${eclipse.home}." />
+		<mkdir dir="ecj" />
+		<copy tofile="ecj/ecj.jar">
+			<fileset dir="${eclipse.home}/plugins">
+				<include name="org.eclipse.jdt.core_*.jar" />
+			</fileset>
+		</copy>
+		<unzip src="ecj/ecj.jar" dest="ecj">
+		    <patternset>
+		        <include name="jdtCompilerAdapter.jar" />
+		    </patternset>
+		</unzip>
+	</target>
+
+	<target name="install-ecj-noeclipse" unless="eclipse.home">
+		<echo message="Please run this ant task from within Eclipse and make sure you're using the 'same JRE as the workspace' setting." />
 	</target>
 
 	<!-- 

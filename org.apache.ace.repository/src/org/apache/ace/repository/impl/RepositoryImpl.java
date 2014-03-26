@@ -31,8 +31,8 @@ import java.util.Arrays;
 
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.Repository;
+import org.apache.ace.repository.RepositoryConstants;
 import org.apache.ace.repository.RepositoryReplication;
-import org.apache.ace.repository.impl.constants.RepositoryConstants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 

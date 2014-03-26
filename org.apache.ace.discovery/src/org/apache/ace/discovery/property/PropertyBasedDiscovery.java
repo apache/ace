@@ -23,7 +23,7 @@ import java.net.URL;
 import java.util.Dictionary;
 
 import org.apache.ace.discovery.Discovery;
-import org.apache.ace.discovery.property.constants.DiscoveryConstants;
+import org.apache.ace.discovery.DiscoveryConstants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;

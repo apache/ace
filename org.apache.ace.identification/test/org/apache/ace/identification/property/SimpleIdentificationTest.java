@@ -22,7 +22,7 @@ import static org.apache.ace.test.utils.TestUtils.UNIT;
 
 import java.util.Properties;
 
-import org.apache.ace.identification.property.constants.IdentificationConstants;
+import org.apache.ace.identification.IdentificationConstants;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.log.LogService;
 import org.testng.annotations.BeforeTest;

@@ -29,15 +29,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.connectionfactory.ConnectionFactory;
-import org.apache.ace.discovery.property.constants.DiscoveryConstants;
+import org.apache.ace.discovery.DiscoveryConstants;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
 import org.apache.ace.http.listener.constants.HttpConstants;
-import org.apache.ace.identification.property.constants.IdentificationConstants;
+import org.apache.ace.identification.IdentificationConstants;
 import org.apache.ace.log.Log;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.repository.Repository;
-import org.apache.ace.repository.impl.constants.RepositoryConstants;
+import org.apache.ace.repository.RepositoryConstants;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Constants;

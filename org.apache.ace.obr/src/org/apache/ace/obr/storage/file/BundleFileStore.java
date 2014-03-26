@@ -38,7 +38,7 @@ import java.util.Stack;
 import org.apache.ace.obr.metadata.MetadataGenerator;
 import org.apache.ace.obr.metadata.util.ResourceMetaData;
 import org.apache.ace.obr.storage.BundleStore;
-import org.apache.ace.obr.storage.file.constants.OBRFileStoreConstants;
+import org.apache.ace.obr.storage.OBRFileStoreConstants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;

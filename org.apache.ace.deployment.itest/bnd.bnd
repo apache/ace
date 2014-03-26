@@ -16,7 +16,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.deployment.provider.filebased;version=latest,\
 	org.apache.ace.deployment.util.test;version=latest,\
-	org.apache.ace.feedback.common;version=latest
+	org.apache.ace.feedback.common;version=latest,\
+	org.apache.ace.deployment.provider.base;version=latest,\
+	org.apache.ace.deployment.task;version=latest
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runvm: -ea
 -runbundles: osgi.cmpn,\

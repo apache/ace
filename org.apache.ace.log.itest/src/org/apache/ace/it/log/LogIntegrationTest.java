@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.ace.discovery.property.constants.DiscoveryConstants;
+import org.apache.ace.discovery.DiscoveryConstants;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
 import org.apache.ace.http.listener.constants.HttpConstants;
-import org.apache.ace.identification.property.constants.IdentificationConstants;
+import org.apache.ace.identification.IdentificationConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.log.Log;
 import org.apache.ace.log.server.store.LogStore;

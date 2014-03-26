@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.repository.Repository;
-import org.apache.ace.repository.impl.constants.RepositoryConstants;
+import org.apache.ace.repository.RepositoryConstants;
 import org.apache.felix.dm.Component;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;

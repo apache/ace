@@ -33,9 +33,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
 import org.apache.ace.deployment.util.test.BundleStreamGenerator;
-import org.apache.ace.discovery.property.constants.DiscoveryConstants;
+import org.apache.ace.discovery.DiscoveryConstants;
 import org.apache.ace.http.listener.constants.HttpConstants;
-import org.apache.ace.identification.property.constants.IdentificationConstants;
+import org.apache.ace.identification.IdentificationConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.apache.ace.test.constants.TestConstants;
@@ -327,9 +327,9 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
 
     private void configureServer() throws IOException {
         // configure data bundle
-        configure(org.apache.ace.deployment.servlet.Activator.DEPLOYMENT_PID, HttpConstants.ENDPOINT, "/deployment", "authentication.enabled", "false");
+        configure("org.apache.ace.deployment.servlet", HttpConstants.ENDPOINT, "/deployment", "authentication.enabled", "false");
         // configure file based backend
-        configure(org.apache.ace.deployment.provider.filebased.Activator.PID, "BaseDirectoryName", m_tempDir.getAbsolutePath());
+        configure("org.apache.ace.deployment.provider.filebased", "BaseDirectoryName", m_tempDir.getAbsolutePath());
     }
 
     private ArtifactData generateBundle(File file, String symbolicName, String version) throws Exception {

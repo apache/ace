@@ -1,4 +1,4 @@
 Export-Package: org.apache.ace.discovery
-Bundle-Version: 1.0.0
+Bundle-Version: 1.1.0
 Bundle-Name: Apache ACE Discovery API
 Bundle-Description: Provides the DIscovery API packages

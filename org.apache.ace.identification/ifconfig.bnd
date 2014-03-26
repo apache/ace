@@ -1,5 +1,5 @@
 Private-Package: org.apache.ace.identification.ifconfig
 Bundle-Activator: org.apache.ace.identification.ifconfig.Activator
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Identification Ifconfig
 Bundle-Description: Registers an Identification service based on interface

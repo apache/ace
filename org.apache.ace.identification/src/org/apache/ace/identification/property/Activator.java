@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.ace.identification.Identification;
-import org.apache.ace.identification.property.constants.IdentificationConstants;
+import org.apache.ace.identification.IdentificationConstants;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;

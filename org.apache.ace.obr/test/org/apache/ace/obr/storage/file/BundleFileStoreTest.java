@@ -35,7 +35,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import org.apache.ace.obr.metadata.MetadataGenerator;
-import org.apache.ace.obr.storage.file.constants.OBRFileStoreConstants;
+import org.apache.ace.obr.storage.OBRFileStoreConstants;
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.framework.Constants;

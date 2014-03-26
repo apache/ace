@@ -18,13 +18,13 @@
  */
 package org.apache.ace.repository.impl;
 
-import static org.apache.ace.repository.impl.constants.RepositoryConstants.REPOSITORY_BASE_DIR;
-import static org.apache.ace.repository.impl.constants.RepositoryConstants.REPOSITORY_CUSTOMER;
-import static org.apache.ace.repository.impl.constants.RepositoryConstants.REPOSITORY_FILE_EXTENSION;
-import static org.apache.ace.repository.impl.constants.RepositoryConstants.REPOSITORY_INITIAL_CONTENT;
-import static org.apache.ace.repository.impl.constants.RepositoryConstants.REPOSITORY_LIMIT;
-import static org.apache.ace.repository.impl.constants.RepositoryConstants.REPOSITORY_MASTER;
-import static org.apache.ace.repository.impl.constants.RepositoryConstants.REPOSITORY_NAME;
+import static org.apache.ace.repository.RepositoryConstants.REPOSITORY_BASE_DIR;
+import static org.apache.ace.repository.RepositoryConstants.REPOSITORY_CUSTOMER;
+import static org.apache.ace.repository.RepositoryConstants.REPOSITORY_FILE_EXTENSION;
+import static org.apache.ace.repository.RepositoryConstants.REPOSITORY_INITIAL_CONTENT;
+import static org.apache.ace.repository.RepositoryConstants.REPOSITORY_LIMIT;
+import static org.apache.ace.repository.RepositoryConstants.REPOSITORY_MASTER;
+import static org.apache.ace.repository.RepositoryConstants.REPOSITORY_NAME;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

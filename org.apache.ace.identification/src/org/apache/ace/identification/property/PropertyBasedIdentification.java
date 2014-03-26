@@ -21,7 +21,7 @@ package org.apache.ace.identification.property;
 import java.util.Dictionary;
 
 import org.apache.ace.identification.Identification;
-import org.apache.ace.identification.property.constants.IdentificationConstants;
+import org.apache.ace.identification.IdentificationConstants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;

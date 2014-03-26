@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.ace.discovery.Discovery;
-import org.apache.ace.discovery.property.constants.DiscoveryConstants;
+import org.apache.ace.discovery.DiscoveryConstants;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
