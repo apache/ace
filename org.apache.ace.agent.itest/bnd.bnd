@@ -14,41 +14,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 	org.apache.felix.log,\
 	biz.aQute.bnd,\
 	osgi.cmpn
-Private-Package: aQute.bnd.annotation.component,\
-	aQute.bnd.help,\
-	aQute.bnd.service.action,\
-	aQute.lib.deployer,\
-	aQute.lib.osgi.eclipse,\
-	aQute.libg.filelock,\
-	aQute.bnd.build,\
-	aQute.bnd.maven.support,\
-	aQute.bnd.settings,\
-	aQute.libg.command,\
-	aQute.libg.tuple,\
+Private-Package: \
 	org.apache.ace.agent.itest,\
-	aQute.lib.osgi,\
-	aQute.bnd.annotation,\
-	aQute.bnd.annotation.metatype,\
-	aQute.bnd.component,\
-	aQute.bnd.make,\
-	aQute.bnd.make.component,\
-	aQute.bnd.make.metatype,\
-	aQute.bnd.maven,\
-	aQute.bnd.service,\
-	aQute.lib.base64,\
-	aQute.lib.collections,\
-	aQute.lib.filter,\
-	aQute.lib.hex,\
-	aQute.lib.io,\
-	aQute.lib.tag,\
-	aQute.libg.cryptography,\
-	aQute.libg.generics,\
-	aQute.libg.header,\
-	aQute.libg.qtokens,\
-	aQute.libg.reporter,\
-	aQute.libg.sed,\
-	aQute.libg.tarjan,\
-	aQute.libg.version
+	aQute.*
 -runee: JavaSE-1.6
 -runvm: -ea
 -runfw: org.apache.felix.framework;version='[4,5)'
@@ -69,6 +37,8 @@ Private-Package: aQute.bnd.annotation.component,\
 	org.osgi.framework.bootdelegation="com.yourkit.*,com.sun.*,sun.*,apple.*,com.apple.*"
 Import-Package: org.apache.ace.agent,\
 	!org.osgi.service.component.annotations,\
+	!org.apache.tools.ant.*,\
+	!aQute.*,\
 	*
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Agent itest

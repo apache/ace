@@ -1,5 +1,4 @@
-Private-Package: org.apache.ace.repository.impl,\
-	org.apache.ace.repository.impl.constants
+Private-Package: org.apache.ace.repository.impl
 Bundle-Activator: org.apache.ace.repository.impl.Activator
 Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Repository Service

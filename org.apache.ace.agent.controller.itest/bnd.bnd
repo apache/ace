@@ -27,40 +27,7 @@ Private-Package: \
 	org.osgi.service.event,\
 	org.osgi.service.log,\
 	org.osgi.util.tracker,\
-	aQute.bnd.annotation.component,\
-	aQute.bnd.help,\
-	aQute.bnd.service.action,\
-	aQute.lib.deployer,\
-	aQute.lib.osgi.eclipse,\
-	aQute.libg.filelock,\
-	aQute.bnd.build,\
-	aQute.bnd.maven.support,\
-	aQute.bnd.settings,\
-	aQute.libg.command,\
-	aQute.libg.tuple,\
-	aQute.lib.osgi,\
-	aQute.bnd.annotation,\
-	aQute.bnd.annotation.metatype,\
-	aQute.bnd.component,\
-	aQute.bnd.make,\
-	aQute.bnd.make.component,\
-	aQute.bnd.make.metatype,\
-	aQute.bnd.maven,\
-	aQute.bnd.service,\
-	aQute.lib.base64,\
-	aQute.lib.collections,\
-	aQute.lib.filter,\
-	aQute.lib.hex,\
-	aQute.lib.io,\
-	aQute.lib.tag,\
-	aQute.libg.cryptography,\
-	aQute.libg.generics,\
-	aQute.libg.header,\
-	aQute.libg.qtokens,\
-	aQute.libg.reporter,\
-	aQute.libg.sed,\
-	aQute.libg.tarjan,\
-	aQute.libg.version
+	aQute.*
 -runee: JavaSE-1.6
 -runvm: -ea
 -runfw: org.apache.felix.framework;version='[4,5)'
@@ -80,6 +47,8 @@ Private-Package: \
 	org.apache.felix.log.maxSize=1000
 Import-Package: \
 	!org.osgi.service.component.annotations,\
+	!org.apache.tools.ant.*,\
+	!aQute.*,\
 	*
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Agent Custom Controller itest

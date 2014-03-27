@@ -1,5 +1,4 @@
 Private-Package: org.apache.ace.obr.storage.file,\
-	org.apache.ace.obr.storage.file.constants,\
 	org.apache.ace.obr.metadata.util
 Bundle-Activator: org.apache.ace.obr.storage.file.Activator
 Export-Package: org.apache.ace.obr.storage

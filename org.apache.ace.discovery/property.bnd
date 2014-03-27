@@ -1,5 +1,4 @@
-Private-Package: org.apache.ace.discovery.property,\
-	org.apache.ace.discovery.property.constants
+Private-Package: org.apache.ace.discovery.property
 Bundle-Activator: org.apache.ace.discovery.property.Activator
 Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Discovery Property
