@@ -54,12 +54,14 @@ public class InstallationFailedException extends Exception {
     private static final long serialVersionUID = 1L;
 
     private final int m_code;
+    private final String m_origMsg;
 
     /**
      * Creates a new {@link InstallationFailedException} instance.
      */
     public InstallationFailedException(String msg, DeploymentException cause) {
         super(msg, cause.getCause());
+        m_origMsg = cause.getMessage();
         m_code = cause.getCode();
     }
 
@@ -68,6 +70,13 @@ public class InstallationFailedException extends Exception {
      */
     public int getCode() {
         return m_code;
+    }
+
+    /**
+     * @return the original message of the exception that caused this exception.
+     */
+    public String getOriginalMessage() {
+        return m_origMsg;
     }
 
     /**
@@ -108,8 +117,9 @@ public class InstallationFailedException extends Exception {
             case CODE_TIMEOUT:
                 return "Installation of deployment package timed out";
             case CODE_OTHER_ERROR:
+                return m_origMsg + " (" + m_code + ")";
             default:
-                return "Unknown/other error condition";
+                return "Unknown error condition: " + m_origMsg + " (" + m_code + ")";
         }
     }
 }

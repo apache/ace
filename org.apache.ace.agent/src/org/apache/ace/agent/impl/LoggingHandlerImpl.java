@@ -21,11 +21,15 @@ package org.apache.ace.agent.impl;
 import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
 import static org.apache.ace.agent.AgentConstants.CONFIG_LOGGING_LEVEL;
 
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Map;
 
 import org.apache.ace.agent.EventListener;
 import org.apache.ace.agent.LoggingHandler;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.log.LogService;
 
 /**
  * Default thread-safe {@link LoggingHandler} implementation that logs messages to {@link System.out} .
@@ -33,14 +37,17 @@ import org.apache.ace.agent.LoggingHandler;
 public class LoggingHandlerImpl extends ComponentBase implements LoggingHandler, EventListener {
     private static final Levels DEFAULT_LEVEL = Levels.WARNING;
 
+    private final BundleContext m_context;
+
     private volatile Levels m_logLevel;
 
-    public LoggingHandlerImpl() {
-        this(DEFAULT_LEVEL);
+    public LoggingHandlerImpl(BundleContext context) {
+        this(context, fromName(context.getProperty(CONFIG_LOGGING_LEVEL), DEFAULT_LEVEL));
     }
 
-    public LoggingHandlerImpl(Levels defaultLevel) {
+    public LoggingHandlerImpl(BundleContext context, Levels defaultLevel) {
         super("logging");
+        m_context = context;
         m_logLevel = defaultLevel;
     }
 
@@ -49,7 +56,7 @@ public class LoggingHandlerImpl extends ComponentBase implements LoggingHandler,
         if (EVENT_AGENT_CONFIG_CHANGED.equals(topic)) {
             String newValue = payload.get(CONFIG_LOGGING_LEVEL);
 
-            m_logLevel = fromName(newValue);
+            m_logLevel = fromName(newValue, m_logLevel);
         }
     }
 
@@ -91,22 +98,67 @@ public class LoggingHandlerImpl extends ComponentBase implements LoggingHandler,
         if (args.length > 0) {
             message = String.format(message, args);
         }
-        System.out.printf("[%s] %TT (%s) %s%n", logLevel, new Date(), component, message);
 
-        if (exception != null) {
-            exception.printStackTrace(System.out);
+        if (!invokeExternalLogService(logLevel, message, exception)) {
+            invokeInternalLogService(logLevel, component, message, exception);
         }
     }
 
-    private static Levels fromName(String name) {
-        if (name == null) {
-            return DEFAULT_LEVEL;
+    private boolean invokeInternalLogService(Levels logLevel, String component, String message, Throwable exception) {
+        System.out.printf("[%s] %TT (%s) %s%n", logLevel, new Date(), component, message);
+        if (exception != null) {
+            exception.printStackTrace(System.out);
         }
+        return true;
+    }
+
+    /**
+     * Bridges events from out local event-handling methods to the first (external) LogService implementation. As we do
+     * not have a dependency on the (external!) LogService API we cannot always call like we normally would do for
+     * OSGi-services. Instead, we need to do some advanced reflection trickery in order to call the first found
+     * LogService.
+     * 
+     * @return <code>true</code> if an external log service was successfully called, <code>false</code> otherwise.
+     */
+    private boolean invokeExternalLogService(Levels logLevel, String message, Throwable exception) {
         try {
-            return Levels.valueOf(name.toUpperCase().trim());
+            ServiceReference[] refs = m_context.getAllServiceReferences(LogService.class.getName(), null);
+            if (refs != null && refs.length > 0) {
+                // if we've found one (or more) we pick the first match
+                Object svc = m_context.getService(refs[0]);
+                if (svc != null) {
+                    try {
+                        Method m = svc.getClass().getMethod("log", Integer.TYPE, String.class, Throwable.class);
+                        m.setAccessible(true); // Not entirely sure why this is needed for a public method...
+                        m.invoke(svc, logLevel.getLogLevel(), message, exception);
+                        // Success!
+                        return true;
+                    }
+                    finally {
+                        // make sure we always unget our service reference
+                        m_context.ungetService(refs[0]);
+                    }
+                }
+            }
         }
         catch (Exception e) {
-            return DEFAULT_LEVEL;
+            // there is a lot that can go wrong, but not much we can do at this point
+            // beyond logging the error message to our default logging implementation...
+            invokeInternalLogService(Levels.ERROR, "logging", "Failed to invoke external LogService: " + e.getMessage(), e);
         }
+
+        return false;
+    }
+
+    private static Levels fromName(String name, Levels defaultLevel) {
+        try {
+            if (name != null) {
+                return Levels.valueOf(name.toUpperCase().trim());
+            }
+        }
+        catch (Exception e) {
+            // Fall through...
+        }
+        return defaultLevel;
     }
 }

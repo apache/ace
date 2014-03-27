@@ -56,6 +56,7 @@ import org.apache.ace.agent.LoggingHandler.Levels;
 import org.apache.ace.agent.RetryAfterException;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
+import org.osgi.framework.BundleContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -122,9 +123,11 @@ public class DownloadHandlerTest extends BaseAgentTest {
         m_agentContextImpl = mockAgentContext();
         m_agentContext = m_agentContextImpl;
 
-        m_agentContextImpl.setHandler(EventsHandler.class, new EventsHandlerImpl(mockBundleContext()));
+        BundleContext bc = mockBundleContext();
+        
+        m_agentContextImpl.setHandler(EventsHandler.class, new EventsHandlerImpl(bc));
         m_agentContextImpl.setHandler(ConnectionHandler.class, new ConnectionHandlerImpl());
-        m_agentContextImpl.setHandler(LoggingHandler.class, new LoggingHandlerImpl(Levels.DEBUG));
+        m_agentContextImpl.setHandler(LoggingHandler.class, new LoggingHandlerImpl(bc, Levels.DEBUG));
         m_agentContextImpl.setHandler(DownloadHandler.class, new DownloadHandlerImpl(dataLocation));
 
         m_agentContextImpl.start();

@@ -68,13 +68,13 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
         @Override
         public void postEvent(Event event) {
             getEventsHandler().postEvent(event.getTopic(), getPayload(event));
-            eventAdminInvoke("postEvent", event);
+            invokeExternalEventAdmin("postEvent", event);
         }
 
         @Override
         public void sendEvent(Event event) {
             getEventsHandler().sendEvent(event.getTopic(), getPayload(event));
-            eventAdminInvoke("sendEvent", event);
+            invokeExternalEventAdmin("sendEvent", event);
         }
 
         /**
@@ -82,7 +82,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
          * dependency on the (external!) EventAdmin API we cannot always call like we normally would do for
          * OSGi-services. Instead, we need to do some advanced reflection trickery in order to call an EventAdmin.
          */
-        private void eventAdminInvoke(String method, Event event) {
+        private void invokeExternalEventAdmin(String method, Event event) {
             try {
                 // try to find an EventAdmin service
                 ServiceReference[] refs = m_context.getAllServiceReferences(EventAdmin.class.getName(), null);
@@ -137,20 +137,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
 
         @Override
         public void log(int level, String message, Throwable exception) {
-            switch (level) {
-                case LogService.LOG_WARNING:
-                    logWarning(message, exception);
-                    break;
-                case LogService.LOG_INFO:
-                    logInfo(message, exception);
-                    break;
-                case LogService.LOG_DEBUG:
-                    logDebug(message, exception);
-                    break;
-                default:
-                    logError(message, exception);
-                    break;
-            }
+            invokeInternalLogService(level, message, exception);
         }
 
         @Override
@@ -161,6 +148,24 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
         @Override
         public void log(ServiceReference sr, int level, String message, Throwable exception) {
             log(level, message, exception);
+        }
+
+        private void invokeInternalLogService(int level, String message, Throwable exception) {
+            switch (level) {
+                case LogService.LOG_ERROR:
+                    logError(message, exception);
+                    break;
+                case LogService.LOG_WARNING:
+                    logWarning(message, exception);
+                    break;
+                case LogService.LOG_INFO:
+                    logInfo(message, exception);
+                    break;
+                case LogService.LOG_DEBUG:
+                default:
+                    logDebug(message, exception);
+                    break;
+            }
         }
     }
 
