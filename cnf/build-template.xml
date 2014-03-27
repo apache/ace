@@ -91,13 +91,13 @@
 
 	<target name="install-ecj-eclipse" if="eclipse.home">
 		<echo message="Eclipse is installed at ${eclipse.home}." />
-		<mkdir dir="ecj" />
-		<copy tofile="ecj/ecj.jar">
+		<mkdir dir="${workspacedir}/cnf/ecj" />
+		<copy tofile="${workspacedir}/cnf/ecj/ecj.jar">
 			<fileset dir="${eclipse.home}/plugins">
 				<include name="org.eclipse.jdt.core_*.jar" />
 			</fileset>
 		</copy>
-		<unzip src="ecj/ecj.jar" dest="ecj">
+		<unzip src="${workspacedir}/cnf/ecj/ecj.jar" dest="${workspacedir}/cnf/ecj">
 		    <patternset>
 		        <include name="jdtCompilerAdapter.jar" />
 		    </patternset>
