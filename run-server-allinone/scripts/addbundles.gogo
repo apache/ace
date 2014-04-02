@@ -16,7 +16,7 @@ while {(lt $a 10)} {
 		echo 'Creating bundle artifact-extra-'$a$it' ...'
 		# generate artifacts and associate them
         $w ca (gba 'artifact-extra-2-'$it'-'$a) true
-		$w ca2f '(bundle-symbolicname=artifact-extra-2-'$it'-'$a')' '(name=feature-'$it')'
+		$w ca2f '(Bundle-SymbolicName=artifact-extra-2-'$it'-'$a')' '(name=feature-'$it')'
 	}
 	a = (inc $a)
 }

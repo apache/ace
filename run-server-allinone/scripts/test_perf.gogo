@@ -1,0 +1,12 @@
+# Simple script to test performance of an ACE server
+#
+# usage : 
+#   run server-allinone
+#   time {source scripts/test_perf.gogo}
+#
+cd scripts
+sh clear.gogo
+sh setup.gogo
+sh addtargets.gogo
+sh adddist.gogo
+sh addbundles.gogo

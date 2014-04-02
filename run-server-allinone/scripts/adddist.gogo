@@ -15,7 +15,7 @@ each [0 1 2 3 4 5 6 7 8 9] {
 	each [0 1 2 3 4 5 6 7 8] {
 		# generate artifacts and associate them
         $w ca (gba 'artifact-extra-'$a$it) true
-		$w ca2f '(bundle-symbolicname=artifact-extra-'$a$it')' '(name=feature-extra-'$a')'
+		$w ca2f '(Bundle-SymbolicName=artifact-extra-'$a$it')' '(name=feature-extra-'$a')'
 	}
 	echo 'Creating config-'$a'.xml ...'
 	c = (gca 'config-extra-'$a 'common' 'prop'$a'1' 'prop'$a'2' 'prop'$a'3')
