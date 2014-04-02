@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent.impl;
 
-import static org.apache.ace.agent.AgentConstants.EVENT_AGENT_CONFIG_CHANGED;
+import static org.apache.ace.agent.AgentConstants.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -152,6 +152,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
 
     @Override
     protected void onInit() throws Exception {
+        loadSystemProps();
         loadConfig();
 
         m_timer = new ResettableTimer(getExecutorService(), this, 5, TimeUnit.SECONDS);
@@ -220,11 +221,24 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
             Properties props = new Properties();
             props.load(input);
 
-            m_configProps = new ConcurrentHashMap<Object, Object>(props);
+            m_configProps.putAll(props);
         }
         finally {
             if (input != null) {
                 input.close();
+            }
+        }
+    }
+
+    private void loadSystemProps() {
+        Properties sysProps = System.getProperties();
+
+        for (Map.Entry<Object, Object> entry : sysProps.entrySet()) {
+            String key = (String) entry.getKey();
+
+            if (key.startsWith(CONFIG_KEY_NAMESPACE)) {
+                logDebug("Using system-wide property: %s => %s", entry.getKey(), entry.getValue());
+                m_configProps.put(entry.getKey(), entry.getValue());
             }
         }
     }
