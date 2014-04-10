@@ -35,7 +35,7 @@ There are two ways of building and developing ACE: on the command line and
 within Eclipse. Below are the requirements in case you want to be able to do
 both:
 
-1)  Install J2SE 6 SDK (or later), which can be downloaded from
+1)  Install Java SE 7 (or later), which can be downloaded from
     http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 2)  Make sure that your JAVA_HOME environment variable is set to the newly
@@ -45,7 +45,7 @@ both:
 3)  Install Apache Ant 1.8 (or later), which can be downloaded from:
     http://ant.apache.org/bindownload.cgi
     
-4)  Install Eclipse, for example, Eclipse Juno with the following plugins:
+4)  Install the latest version of Eclipse with the following plugins:
     * Subclipse;
     * BndTools;
     * TestNG.
