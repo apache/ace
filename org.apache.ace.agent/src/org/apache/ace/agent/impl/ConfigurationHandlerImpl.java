@@ -152,7 +152,6 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
 
     @Override
     protected void onInit() throws Exception {
-        loadSystemProps();
         loadConfig();
 
         m_timer = new ResettableTimer(getExecutorService(), this, 5, TimeUnit.SECONDS);
@@ -195,13 +194,26 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     }
 
     /**
-     * @return a new map instance with a snapshot of the current configuration, never <code>null</code>.
+     * @return a new map instance with a snapshot of the current configuration, including the current (agent-specific)
+     *         system properties, never <code>null</code>.
      */
     private Map<String, String> getConfigurationSnapshot() {
         Map<String, String> props = new HashMap<String, String>();
+
+        // First copy all agent-related system properties, as they can be overridden by local configuration options...
+        Properties sysProps = System.getProperties();
+        for (Map.Entry<Object, Object> entry : sysProps.entrySet()) {
+            String key = (String) entry.getKey();
+
+            if (key.startsWith(CONFIG_KEY_NAMESPACE)) {
+                props.put(key, (String) entry.getValue());
+            }
+        }
+
         for (Map.Entry<Object, Object> entry : m_configProps.entrySet()) {
             props.put((String) entry.getKey(), (String) entry.getValue());
         }
+
         return props;
     }
 
@@ -226,19 +238,6 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
         finally {
             if (input != null) {
                 input.close();
-            }
-        }
-    }
-
-    private void loadSystemProps() {
-        Properties sysProps = System.getProperties();
-
-        for (Map.Entry<Object, Object> entry : sysProps.entrySet()) {
-            String key = (String) entry.getKey();
-
-            if (key.startsWith(CONFIG_KEY_NAMESPACE)) {
-                logDebug("Using system-wide property: %s => %s", entry.getKey(), entry.getValue());
-                m_configProps.put(entry.getKey(), entry.getValue());
             }
         }
     }

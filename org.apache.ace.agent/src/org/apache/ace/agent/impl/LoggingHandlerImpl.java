@@ -42,6 +42,8 @@ public class LoggingHandlerImpl extends ComponentBase implements LoggingHandler,
     private volatile Levels m_logLevel;
 
     public LoggingHandlerImpl(BundleContext context) {
+        // Obtain the system/framework setting as early as possible to ensure that we start logging 
+        // at the right level from the start (avoiding missing log statements)...
         this(context, fromName(context.getProperty(CONFIG_LOGGING_LEVEL), DEFAULT_LEVEL));
     }
 
