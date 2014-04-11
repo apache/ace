@@ -27,7 +27,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -84,6 +83,9 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
     private static final long DEFAULT_CACHE_MILLISECONDS = 30000;
     private final Map<String, CheckedURL> m_checkedURLs = new HashMap<String, CheckedURL>();
 
+    private final List<String> m_defaultServerURLs;
+    private final boolean m_defaultCheckURLs;
+
     private volatile List<String> m_serverURLs;
     private volatile boolean m_checkURLs;
 
@@ -98,8 +100,8 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
     DiscoveryHandlerImpl(String[] serverURLs, boolean checkServerURLs) {
         super("discovery");
 
-        m_serverURLs = Arrays.asList(serverURLs);
-        m_checkURLs = checkServerURLs;
+        m_defaultServerURLs = m_serverURLs = Arrays.asList(serverURLs);
+        m_defaultCheckURLs = m_checkURLs = checkServerURLs;
     }
 
     @Override
@@ -119,22 +121,36 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
             return;
         }
 
-        List<String> serverURLs = new ArrayList<String>();
+        List<String> serverURLs;
         String urlsValue = payload.get(CONFIG_DISCOVERY_SERVERURLS);
-        if (urlsValue == null || "".equals(urlsValue.trim())) {
-            serverURLs.addAll(Arrays.asList(DEFAULT_SERVER_URL));
+        if (urlsValue != null && !"".equals(urlsValue.trim())) {
+            String[] urls = urlsValue.trim().split("\\s*,\\s*");
+            serverURLs = Arrays.asList(urls);
         }
         else {
-            String[] urls = urlsValue.trim().split("\\s*,\\s*");
-            serverURLs.addAll(Arrays.asList(urls));
+            serverURLs = m_defaultServerURLs;
         }
-        m_serverURLs = serverURLs;
 
         String checkingValue = payload.get(CONFIG_DISCOVERY_CHECKING);
-        m_checkURLs = Boolean.parseBoolean(checkingValue);
+        boolean checkURLs;
+        if (checkingValue != null && !"".equals(checkingValue.trim())) {
+            checkURLs = Boolean.parseBoolean(checkingValue);
+        }
+        else {
+            checkURLs = m_defaultCheckURLs;
+        }
 
-        logDebug("Config changed: urls: %s, checking: %s", urlsValue, checkingValue);
-        m_checkedURLs.clear();
+        List<String> oldServerURLs = m_serverURLs;
+        boolean oldCheckURLs = m_checkURLs;
+
+        if (!oldServerURLs.equals(serverURLs) || oldCheckURLs != checkURLs) {
+            m_serverURLs = serverURLs;
+            m_checkURLs = checkURLs;
+
+            logDebug("Discovery configuration changed: urls: %s, checking: %s", m_serverURLs, m_checkURLs);
+            
+            m_checkedURLs.clear();
+        }
     }
 
     /**
