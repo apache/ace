@@ -592,15 +592,17 @@ public class RESTClientServlet extends HttpServlet implements ManagedService, Ht
     	else {
     		try {
     			Object timeoutObject = properties.get(KEY_SESSION_TIMEOUT);
-    			if (timeoutObject instanceof Integer) {
-    				m_sessionTimeout = (Integer) timeoutObject;
-    			}
-    			else {
-    				m_sessionTimeout = Integer.parseInt(timeoutObject.toString());
-    			}
-    			if (m_sessionTimeout < 1) {
-    				m_sessionTimeout = DEFAULT_SESSION_TIMEOUT;
-    				throw new ConfigurationException(KEY_SESSION_TIMEOUT, "Session timeout should be at least 1 second");
+    			if (timeoutObject != null) {
+	    			if (timeoutObject instanceof Integer) {
+	    				m_sessionTimeout = (Integer) timeoutObject;
+	    			}
+	    			else {
+	    				m_sessionTimeout = Integer.parseInt(timeoutObject.toString());
+	    			}
+	    			if (m_sessionTimeout < 1) {
+	    				m_sessionTimeout = DEFAULT_SESSION_TIMEOUT;
+	    				throw new ConfigurationException(KEY_SESSION_TIMEOUT, "Session timeout should be at least 1 second");
+	    			}
     			}
     		}
     		catch (Exception e) {
