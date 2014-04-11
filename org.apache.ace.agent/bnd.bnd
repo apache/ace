@@ -35,6 +35,7 @@ Export-Package: org.apache.ace.agent,\
 	javax.servlet;version=2.5,\
 	org.apache.felix.deploymentadmin;version=0.9.5,\
 	org.easymock,\
+	org.apache.ace.test;version=latest,\
 	org.apache.felix.http.jetty;version=2.2.1,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest
