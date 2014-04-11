@@ -29,7 +29,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
-
     /**
      * Identifier for configuration settings.
      */
@@ -41,10 +40,10 @@ public class Activator extends DependencyActivatorBase {
         props.put(CommandProcessor.COMMAND_SCOPE, "ace");
         props.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "cw", "gw", "rw" });
         manager.add(createComponent().setInterface(WorkspaceManager.class.getName(), props)
-                .setImplementation(WorkspaceManagerImpl.class)
-                .add(createServiceDependency().setService(SessionFactory.class).setRequired(true))
-                .add(createConfigurationDependency().setPropagate(true).setPid(WORKSPACE_PID))
-                .add(createServiceDependency().setService(LogService.class).setRequired(false)));
+            .setImplementation(WorkspaceManagerImpl.class)
+            .add(createServiceDependency().setService(SessionFactory.class).setRequired(true))
+            .add(createConfigurationDependency().setPropagate(true).setPid(WORKSPACE_PID))
+            .add(createServiceDependency().setService(LogService.class).setRequired(false)));
     }
 
     @Override

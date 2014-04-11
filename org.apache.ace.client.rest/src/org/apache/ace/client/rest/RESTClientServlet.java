@@ -22,13 +22,19 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
 
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
@@ -48,7 +54,11 @@ import com.google.gson.JsonPrimitive;
 /**
  * Servlet that offers a REST client API.
  */
-public class RESTClientServlet extends HttpServlet implements ManagedService {
+public class RESTClientServlet extends HttpServlet implements ManagedService, HttpSessionListener {
+	private static final String SESSION_KEY_WORKSPACES = "workspaces";
+	/** Timeout in seconds for REST sessions. */
+    private static final String KEY_SESSION_TIMEOUT = "session.timeout";
+    private static final int DEFAULT_SESSION_TIMEOUT = 300; // in seconds.
     
     /** Alias that redirects to the latest version automatically. */
     private static final String LATEST_FOLDER = "latest";
@@ -65,6 +75,8 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
     private volatile LogService m_logger;
 
     private volatile WorkspaceManager m_workspaceManager;
+    
+    private volatile int m_sessionTimeout = DEFAULT_SESSION_TIMEOUT;
 
     private final Gson m_gson;
 
@@ -126,6 +138,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
      */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    	HttpSession session = getSession(req);
         String[] pathElements = getPathElements(req);
         if (pathElements == null || pathElements.length < 1 || !WORK_FOLDER.equals(pathElements[0])) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -142,6 +155,11 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
         if (pathElements.length == 2) {
         	try {
+            	Set<String> workspaces = (Set<String>) session.getAttribute(SESSION_KEY_WORKSPACES);
+            	if (workspaces != null) {
+            		workspaces.remove(workspace.getSessionID());
+                	session.setAttribute(SESSION_KEY_WORKSPACES, workspaces);
+            	}
         		m_workspaceManager.removeWorkspace(id);
         	}
         	catch (IOException ioe) {
@@ -157,11 +175,21 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
         }
     }
 
+	private HttpSession getSession(HttpServletRequest req) {
+		HttpSession session = req.getSession(false);
+		if (session == null) {
+			session = req.getSession(true);
+			session.setMaxInactiveInterval(m_sessionTimeout); // seconds
+		}
+		return session;
+	}
+
     /**
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    	HttpSession session = getSession(req);
         String[] pathElements = getPathElements(req);
         if (pathElements == null || pathElements.length == 0) {
             // TODO return a list of versions
@@ -225,6 +253,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    	HttpSession session = getSession(req);
         String[] pathElements = getPathElements(req);
         if (pathElements == null || pathElements.length < 1 || !WORK_FOLDER.equals(pathElements[0])) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -233,10 +262,16 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
         if (pathElements.length == 1) {
             Workspace workspace = m_workspaceManager.createWorkspace(req.getParameterMap(), req);
-            if(workspace == null) {
+            if (workspace == null) {
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             }
             else {
+            	Set<String> workspaces = (Set<String>) session.getAttribute(SESSION_KEY_WORKSPACES);
+            	if (workspaces == null) {
+            		workspaces = new HashSet<>();
+            	}
+            	workspaces.add(workspace.getSessionID());
+            	session.setAttribute(SESSION_KEY_WORKSPACES, workspaces);
                 resp.sendRedirect(req.getServletPath() + "/" + buildPathFromElements(WORK_FOLDER, workspace.getSessionID()));
             }
         }
@@ -270,6 +305,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    	HttpSession session = getSession(req);
         String[] pathElements = getPathElements(req);
         if (pathElements == null || pathElements.length != 4 || !WORK_FOLDER.equals(pathElements[0])) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -549,7 +585,49 @@ public class RESTClientServlet extends HttpServlet implements ManagedService {
 
     @Override
     public void updated(Dictionary properties) throws ConfigurationException {
-       // TODO Does anything need to happen here when the service endpoint is updated? 
+    	if (properties == null) {
+    		// defaults
+    		m_sessionTimeout = DEFAULT_SESSION_TIMEOUT;
+    	}
+    	else {
+    		try {
+    			Object timeoutObject = properties.get(KEY_SESSION_TIMEOUT);
+    			if (timeoutObject instanceof Integer) {
+    				m_sessionTimeout = (Integer) timeoutObject;
+    			}
+    			else {
+    				m_sessionTimeout = Integer.parseInt(timeoutObject.toString());
+    			}
+    			if (m_sessionTimeout < 1) {
+    				m_sessionTimeout = DEFAULT_SESSION_TIMEOUT;
+    				throw new ConfigurationException(KEY_SESSION_TIMEOUT, "Session timeout should be at least 1 second");
+    			}
+    		}
+    		catch (Exception e) {
+    			throw new ConfigurationException(KEY_SESSION_TIMEOUT, "Could not parse timeout, it should either be a string or integer");
+    		}
+    	}
     }
-    
- }
+
+	@Override
+	public void sessionCreated(HttpSessionEvent e) {
+	}
+
+	@Override
+	public void sessionDestroyed(HttpSessionEvent e) {
+		HttpSession session = e.getSession();
+		if (session != null) {
+			Set<String> workspaces = (Set<String>) session.getAttribute(SESSION_KEY_WORKSPACES);
+			if (workspaces != null) {
+				for (String id : workspaces) {
+					try {
+						m_workspaceManager.removeWorkspace(id);
+					}
+					catch (IOException ioe) {
+						m_logger.log(LogService.LOG_WARNING, "Error while removing workspace after session timeout", ioe);
+					}
+				}
+			}
+		}
+	}
+}

@@ -21,6 +21,7 @@ package org.apache.ace.client.rest;
 import java.util.Properties;
 
 import javax.servlet.Servlet;
+import javax.servlet.http.HttpSessionListener;
 
 import org.apache.ace.client.workspace.WorkspaceManager;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -35,7 +36,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         manager.add(createComponent()
-            .setInterface(Servlet.class.getName(), null)
+            .setInterface(new String[] { Servlet.class.getName(), HttpSessionListener.class.getName() }, null)
             .setImplementation(RESTClientServlet.class)
             .add(createServiceDependency()
                 .setService(WorkspaceManager.class)
