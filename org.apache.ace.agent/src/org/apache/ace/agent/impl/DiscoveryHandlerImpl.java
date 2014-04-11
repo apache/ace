@@ -84,11 +84,22 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
     private static final long DEFAULT_CACHE_MILLISECONDS = 30000;
     private final Map<String, CheckedURL> m_checkedURLs = new HashMap<String, CheckedURL>();
 
-    private volatile List<String> m_serverURLs = Arrays.asList(DEFAULT_SERVER_URL);
-    private volatile boolean m_checkURLs = DEFAULT_CHECK_SERVER_URLS;
+    private volatile List<String> m_serverURLs;
+    private volatile boolean m_checkURLs;
 
     public DiscoveryHandlerImpl() {
+        this(DEFAULT_SERVER_URL, DEFAULT_CHECK_SERVER_URLS);
+    }
+
+    DiscoveryHandlerImpl(String serverURL, boolean checkServerURLs) {
+        this(new String[] { serverURL }, checkServerURLs);
+    }
+
+    DiscoveryHandlerImpl(String[] serverURLs, boolean checkServerURLs) {
         super("discovery");
+
+        m_serverURLs = Arrays.asList(serverURLs);
+        m_checkURLs = checkServerURLs;
     }
 
     @Override

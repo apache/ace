@@ -291,6 +291,7 @@ public abstract class BaseAgentControllerTest extends IntegrationTestBase {
         System.setProperty(AgentConstants.CONFIG_CONTROLLER_CLASS, m_controllerName);
         System.setProperty(AgentConstants.CONFIG_IDENTIFICATION_AGENTID, AGENT_ID);
         System.setProperty(AgentConstants.CONFIG_LOGGING_LEVEL, "DEBUG");
+        System.setProperty(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, url);
 
         // We start the bundle activator ourselves (to avoid weird circularities and timing issues)...
         startAgentBundle();

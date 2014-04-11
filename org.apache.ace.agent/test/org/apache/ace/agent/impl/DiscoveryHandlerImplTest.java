@@ -31,6 +31,7 @@ import org.apache.ace.agent.DiscoveryHandler;
 import org.apache.ace.agent.EventsHandler;
 import org.apache.ace.agent.testutil.BaseAgentTest;
 import org.apache.ace.agent.testutil.TestWebServer;
+import org.apache.ace.test.constants.TestConstants;
 import org.osgi.framework.BundleContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -61,7 +62,8 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
 
         m_agentContextImpl = mockAgentContext();
         m_agentContext = m_agentContextImpl;
-        m_agentContextImpl.setHandler(DiscoveryHandler.class, new DiscoveryHandlerImpl());
+        // Make sure the default server URL is not reachable, as used for this test...
+        m_agentContextImpl.setHandler(DiscoveryHandler.class, new DiscoveryHandlerImpl("http://localhost:" + TestConstants.PORT, true));
         m_agentContextImpl.setHandler(EventsHandler.class, new EventsHandlerImpl(bc));
         m_agentContextImpl.setHandler(ConfigurationHandler.class, new ConfigurationHandlerImpl(bc));
         m_agentContextImpl.setHandler(ConnectionHandler.class, new ConnectionHandlerImpl());
