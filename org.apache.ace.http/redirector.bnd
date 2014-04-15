@@ -1,5 +1,5 @@
 Private-Package: org.apache.ace.http.redirector
 Bundle-Activator: org.apache.ace.http.redirector.Activator
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE HTTP Redirector
-Bundle-Description: Unknown.. sources missing
+Bundle-Description: Redirects configured URLs
