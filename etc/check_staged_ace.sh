@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -43,7 +43,7 @@ if [ -z "${version}" -o ! -d "${tmpDir}" ]; then
     exit
 fi
 
-function checkSig() {
+checkSig() {
     sigFile="$1.asc"
     if [ ! -f $sigFile ]; then
         echo "$sigFile is missing!!!"
@@ -54,7 +54,7 @@ function checkSig() {
     if [ "$?" = "0" ]; then echo "OK"; else echo "BAD!!!"; fi
 }
 
-function checkSum() {
+checkSum() {
     archive=$1
     sumFile=$2
     alg=$3
@@ -105,12 +105,13 @@ cd ${tmpDir}/apache-ace-${version}
 for f in `find . -type f | grep -v '\.\(asc\|sha1\?\|md5\)$'`; do
     echo "checking $f" 
 
-    echo "\tASC: \c"
+    echo -e "    ASC: \c"
     checkSig $f
-    echo "\tMD5: \c"
+    echo -e "    MD5: \c"
     checkSum $f "$f.md5" MD5
-    echo "\tSHA: \c"
+    echo -e "    SHA: \c"
     checkSum $f "$f.sha" SHA512
+    echo ""
 done
 
 cd $PWD
