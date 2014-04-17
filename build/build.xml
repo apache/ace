@@ -70,8 +70,10 @@
 			<zipfileset prefix="apache-ace-${version}-src" dir=".." includes="
 				cnf/buildrepo/**,
 				cnf/localrepo/**,
+				cnf/releaserepo/**,
 				cnf/lib/**,
 				cnf/plugins/**,
+				cnf/ecj/**
 				" />
 		</zip>
 	</target>
