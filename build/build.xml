@@ -2,7 +2,7 @@
 <project name="project" default="build"> 
 	<import file="../cnf/build.xml"/>
 	
-	<property name="version" value="2.0.0" />
+	<property name="version" value="2.0.1" />
 	<property name="target.dir" value="generated" />
 	<property name="src.zip" value="apache-ace-${version}-src.zip" />
 	<property name="deps.zip" value="apache-ace-${version}-deps.zip" />
