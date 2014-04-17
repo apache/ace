@@ -1,74 +1,118 @@
 #!/bin/sh
 #
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# This script verifies the signatures and checksums of a release.
+#
 # This script can be used to check the signatures and checksums of staged ACE
 # release using gpg.
+# Usage:
 #
+#   check_staged_ace.sh <version> [<temp-dir>]
+# 
+# Where:
+#   <version> represents the staged release version, e.g., 2.0.0;
+#   <temp-dir> represents the location where the release artifacts
+#              should be stored, defaults to /tmp/ace-staging if
+#              omitted.
 
 
-# Params
+version=${1}
+tmpDir=${2:-/tmp/ace-staging}
 
-RELEASE=${1}
-DOWNLOAD=${2:-/tmp/ace-staging}
-
-if [ -z "${RELEASE}" -o ! -d "${DOWNLOAD}" ]
-then
- echo "Usage: check_staged_ace.sh <release-version> [temp-directory]"
- exit
+if [ ! -d "${tmpDir}" ]; then
+    mkdir "${tmpDir}"
 fi
 
-# Consts
+if [ -z "${version}" -o ! -d "${tmpDir}" ]; then
+    echo "Usage: check_staged_ace.sh <release-version> [temp-directory]"
+    exit
+fi
+
+function checkSig() {
+    sigFile="$1.asc"
+    if [ ! -f $sigFile ]; then
+        echo "$sigFile is missing!!!"
+        exit 1
+    fi
+
+    gpg --verify $sigFile 2>/dev/null >/dev/null
+    if [ "$?" = "0" ]; then echo "OK"; else echo "BAD!!!"; fi
+}
+
+function checkSum() {
+    archive=$1
+    sumFile=$2
+    alg=$3
+    if [ ! -f $sumFile ]; then
+        echo "$sumFile is missing!!!"
+        exit 1
+    fi
+
+    orig=`cat $sumFile | sed 's/.*: *//' | tr -d ' \t\n\r'`
+    actual=`gpg --print-md $alg $archive | sed 's/.*: *//' | tr -d ' \t\n\r'`
+    if [ "$orig" = "$actual" ]; then echo "OK"; else echo "BAD!!!"; fi
+}
+
 KEYS_URL="http://www.apache.org/dist/ace/KEYS"
-REL_URL="https://dist.apache.org/repos/dist/dev/ace/apache-ace-${RELEASE}/"
+REL_URL="https://dist.apache.org/repos/dist/dev/ace/apache-ace-${version}/"
 PWD=`pwd`
-mkdir ${DOWNLOAD} 2>/dev/null
 
 echo "################################################################################"
 echo "                               IMPORTING KEYS                                   "
 echo "################################################################################"
-if [ ! -e "${DOWNLOAD}/KEYS" ]
-then
- wget --no-check-certificate -P "${DOWNLOAD}" $KEYS_URL 
+if [ ! -e "${tmpDir}/KEYS" ]; then
+    wget --no-check-certificate -P "${tmpDir}" $KEYS_URL 
 fi
-gpg --import "${DOWNLOAD}/KEYS" 
+gpg --import "${tmpDir}/KEYS" 
 
-if [ ! -e "${DOWNLOAD}/apache-ace-${RELEASE}" ]
+if [ ! -e "${tmpDir}/apache-ace-${version}" ]
 then
- echo "################################################################################"
- echo "                           DOWNLOAD STAGED REPOSITORY                           "
- echo "################################################################################"
+    echo "################################################################################"
+    echo "                           DOWNLOAD STAGED REPOSITORY                           "
+    echo "################################################################################"
 
- wget \
-  -e "robots=off" --wait 1 -r -np "--reject=html,txt" "--follow-tags=" \
-  -P "${DOWNLOAD}/apache-ace-${RELEASE}" -nH "--cut-dirs=5" --ignore-length --no-check-certificate \
-  $REL_URL
-
+    wget \
+      -e "robots=off" --wait 1 -r -np "--reject=html,txt" "--follow-tags=" \
+      -P "${tmpDir}/apache-ace-${version}" -nH "--cut-dirs=5" --ignore-length --no-check-certificate \
+      $REL_URL
 else
- echo "################################################################################"
- echo "                       USING EXISTING STAGED REPOSITORY                         "
- echo "################################################################################"
- echo "${DOWNLOAD}/apache-ace-${RELEASE}"
+    echo "################################################################################"
+    echo "                       USING EXISTING STAGED REPOSITORY                         "
+    echo "################################################################################"
+    echo "${tmpDir}/apache-ace-${version}"
 fi
 
 echo "################################################################################"
 echo "                          CHECK SIGNATURES AND DIGESTS                          "
 echo "################################################################################"
 
-cd ${DOWNLOAD}/apache-ace-${RELEASE}
-for i in `find . -type f -printf '%P\n' | grep -v '\.\(asc\|sha\|md5\)$'`
-do
- f=`echo $i`
- echo "checking $f" 
+cd ${tmpDir}/apache-ace-${version}
+for f in `find . -type f | grep -v '\.\(asc\|sha1\?\|md5\)$'`; do
+    echo "checking $f" 
 
- gpg --verify $f.asc
- if [ "$?" = "0" ]; then echo " ASC: OK"; else echo " ASC: FAIL"; fi
-
- if [ "`cat $f.md5 2>/dev/null`" = "`gpg --print-md md5 $f 2>/dev/null`" ];
- then echo " MD5: OK"; else echo " MD5: FAIL"; fi
-
- if [ "`cat $f.sha 2>/dev/null`" = "`gpg --print-md sha512 $f 2>/dev/null`" ];
- then echo " SHA: OK"; else echo " SHA: FAIL"; fi
-
+    echo "\tASC: \c"
+    checkSig $f
+    echo "\tMD5: \c"
+    checkSum $f "$f.md5" MD5
+    echo "\tSHA: \c"
+    checkSum $f "$f.sha" SHA512
 done
+
 cd $PWD
 echo "################################################################################"
 
