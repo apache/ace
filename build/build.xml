@@ -157,4 +157,14 @@
 		<!-- and cleanup -->
 		<delete dir="${target.base.dir}" />
 	</target>
+	
+	<target name="package-baseline" description="packages all non-itest bundles in a single folder for import into a baseline repo">
+		<mkdir dir="${target.dir}/baseline" />
+		<copy todir="${target.dir}/baseline" flatten="true">
+			<fileset dir="..">
+				<include name="*/generated/*.jar" />
+				<exclude name="*/generated/*.itest.jar" />
+			</fileset>
+		</copy>
+	</target>
 </project>
