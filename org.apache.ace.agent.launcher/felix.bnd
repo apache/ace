@@ -1,7 +1,7 @@
 
 # The Jar Main-Class header
 Main-Class: org.apache.ace.agent.launcher.Launcher
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Agent Felix launcher
 Bundle-Description: Standalone launcher that start a Felix framework with an embedded ACE Agent
 
