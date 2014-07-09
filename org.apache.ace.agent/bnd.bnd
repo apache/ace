@@ -1,6 +1,6 @@
 Bundle-Name: Apache ACE Agent
 Bundle-Description: Implementation of the Apache ACE Agent
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Activator: org.apache.ace.agent.impl.Activator
 
 Private-Package: org.apache.ace.range,\
