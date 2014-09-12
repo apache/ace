@@ -75,13 +75,13 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     public void updated(String pid, Dictionary dict) throws ConfigurationException {
         String name = (String) dict.get(KEY_LOG_NAME);
         if ((name == null) || "".equals(name)) {
-            throw new ConfigurationException(KEY_LOG_NAME, "Log name has to be specified.");
+            throw new ConfigurationException(KEY_LOG_NAME, "Log name has to be specified: " + name);
         }
         
         String useAuthString = (String) dict.get(KEY_USE_AUTHENTICATION);
         if (useAuthString == null
             || !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
-            throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
+            throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value: " + useAuthString);
         }
         boolean useAuth = Boolean.parseBoolean(useAuthString);
 
