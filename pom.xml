@@ -34,7 +34,7 @@
           </execution>
           <execution>
             <id>compile-apache-ace</id>
-            <phase>clean</phase>
+            <phase>compile</phase>
             <configuration>
               <target>
                 <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
