@@ -40,13 +40,14 @@ import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
+
+import static org.apache.commons.cli.OptionBuilder.*;
 
 /**
  * A simple launcher, that launches the embedded OSGi framework together with a management agent. Additional bundles may
@@ -80,11 +81,11 @@ public class Launcher implements PropertyProvider {
 
     public Map<String, String> parseArgs(String... args) throws Exception {
         Options options = new Options();
-        options.addOption(OptionBuilder.withDescription("the agent ID to use").hasArg().withArgName("ID").withLongOpt("agent").create('a'));
-        options.addOption(OptionBuilder.withDescription("the Apache ACE server URL(s) to use").hasArg().withArgName("URLs").withLongOpt("serverurl").create('s'));
-        options.addOption(OptionBuilder.withDescription("enable verbose logging").withLongOpt("verbose").create('v'));
-        options.addOption(OptionBuilder.withDescription("use configuration file").hasArg().withArgName("FILE").withLongOpt("config").create('c'));
-        options.addOption(OptionBuilder.withDescription("prints this message").withLongOpt("help").create('h'));
+        addOption( options, 'a', "agent", "ID", "the agent ID to use" );
+        addOption( options, 's', "serverurl", "URLs", "the Apache ACE server URL(s) to use" );
+        addOption( options, 'v', "verbose", "enable verbose logging" );
+        addOption( options, 'c', "config", "FILE", "use configuration file" );
+        addOption( options, 'h', "help", "prints this message" );
 
         // Start from scratch...
         Map<String, String> config = new HashMap<String, String>();
@@ -125,15 +126,28 @@ public class Launcher implements PropertyProvider {
         return (m_configuration = config);
     }
 
+    private void addOption(Options options, char opt, String longopt, String argName, String description) {
+        withDescription(description);
+        hasArg();
+        withArgName(argName);
+        withLongOpt(longopt);
+        options.addOption(create(opt));
+    }
+
+    private void addOption(Options options, char opt, String longopt, String description) {
+        hasArg(false);
+        withDescription(description);
+        withLongOpt(longopt);
+        options.addOption(create(opt));
+    }
+
     /**
-     * Main execution logic of the launcher; Start a framework, install bundles and pass configuration to the
-     * {@link AgentFactory}.
-     * 
-     * @throws Exception
-     *             on failure
+     * Main execution logic of the launcher; Start a framework and install bundles.
+     * <p>
+     * This method never returns. It waits for the Framework to stop, and upon completion it will {@code System.exit()}.
+     * </p>
      */
-    public void run() throws Exception {
-        int rc = 0;
+    public void run() {
         try {
             FrameworkFactory frameworkFactory = loadFrameworkFactory();
             BundleProvider[] bundleProviders = loadBundleProviders();
@@ -141,7 +155,8 @@ public class Launcher implements PropertyProvider {
             logVerbose("Launching OSGi framework\n- factory:\t%s\n- properties:\t%s\n- providers:\t%s\n",
                 frameworkFactory.getClass().getName(), m_configuration, Arrays.toString(bundleProviders));
 
-            Framework framework = frameworkFactory.newFramework(m_configuration);
+            final Framework framework = frameworkFactory.newFramework(m_configuration);
+            installShutdownHook(framework);
             framework.init();
 
             BundleContext context = framework.getBundleContext();
@@ -155,13 +170,27 @@ public class Launcher implements PropertyProvider {
             logVerbose("Startup complete...");
 
             framework.waitForStop(0);
+            System.exit(0);
         }
         catch (Exception e) {
             e.printStackTrace(System.err);
-            rc = 1;
+            System.exit(1);
         }
+    }
 
-        System.exit(rc);
+    private void installShutdownHook(final Framework framework) {
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    framework.stop();
+                    framework.waitForStop(0);
+                }
+                catch (BundleException | InterruptedException e) {
+                    e.printStackTrace(System.err);
+                }
+            }
+        }, "Apache ACE Shutdown Hook"));
     }
 
     /**

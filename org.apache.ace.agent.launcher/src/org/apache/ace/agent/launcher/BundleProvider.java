@@ -20,10 +20,9 @@ package org.apache.ace.agent.launcher;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ServiceLoader;
 
 /**
- * {@link ServiceLoader} interface for launcher extension bundles providers.
+ * {@link java.util.ServiceLoader} interface for launcher extension bundles providers.
  */
 public interface BundleProvider {
     /**

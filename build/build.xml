@@ -2,7 +2,7 @@
 <project name="project" default="build"> 
 	<import file="../cnf/build.xml"/>
 	
-	<property name="version" value="2.0.1" />
+	<property name="version" value="2.1.0" />
 	<property name="target.dir" value="generated" />
 	<property name="src.zip" value="apache-ace-${version}-src.zip" />
 	<property name="deps.zip" value="apache-ace-${version}-deps.zip" />
@@ -15,6 +15,7 @@
 	<property name="target.relay.dir" value="${target.base.dir}/relay" />
 	<property name="target.client.dir" value="${target.base.dir}/client" />
 	<property name="target.obr.dir" value="${target.base.dir}/obr" />
+	<property name="target.develop.dir" value="${target.base.dir}/develop" />
 	<property name="target.target.dir" value="${target.base.dir}/target" />
 	<property name="bin.zip" value="apache-ace-${version}-bin.zip" />
 
@@ -103,7 +104,8 @@
 		<mkdir dir="${target.relay.dir}" />
 		<mkdir dir="${target.client.dir}" />
 		<mkdir dir="${target.obr.dir}" />
-		<mkdir dir="${target.target.dir}" />
+		<mkdir dir="${target.develop.dir}" />
+		<mkdir dir="${target.target.dir}/bin" />
 
 		<resources id="devserver-store">
 			<file file="../cnf/localrepo/org.apache.felix.deployment.rp.autoconf/org.apache.felix.deployment.rp.autoconf-0.1.5.jar" />
@@ -126,6 +128,9 @@
 		<copy todir="${target.obr.dir}/conf">
 			<fileset dir="../run-obr/conf" />
 		</copy>
+    <copy todir="${target.target.dir}/bin">
+      <fileset dir="../run-target/scripts" />
+    </copy>
 
 		<!-- add jar files to store directory -->
 		<copy todir="${target.obr.dir}/store" flatten="true">
@@ -133,10 +138,19 @@
 		</copy>
 		<move file="${target.obr.dir}/store/org.apache.ace.agent.launcher.felix.jar" toFile="${target.obr.dir}/store/ace-launcher.jar" />
 
-		<copy todir="${target.server-allinone.dir}/store" flatten="true">
+    <copy todir="${target.target.dir}/conf">
+      <fileset dir="../run-target/conf" />
+    </copy>
+
+    <copy todir="${target.target.dir}/bin">
+      <fileset file="${target.obr.dir}/store/ace-launcher.jar"/>
+    </copy>
+
+    <copy todir="${target.server-allinone.dir}/store" flatten="true">
 			<resources refid="devserver-store" />
 		</copy>
 		<move file="${target.server-allinone.dir}/store/org.apache.ace.agent.launcher.felix.jar" toFile="${target.server-allinone.dir}/store/ace-launcher.jar"/>
+
 
 		<!-- create the executable jars -->
 		<bndpackage runfile="../run-server-allinone/server-allinone.bndrun" output="${target.server-allinone.dir}/server-allinone.jar" />
@@ -144,7 +158,7 @@
 		<bndpackage runfile="../run-relay/relay.bndrun" output="${target.relay.dir}/relay.jar" />
 		<bndpackage runfile="../run-client/client.bndrun" output="${target.client.dir}/client.jar" />
 		<bndpackage runfile="../run-obr/obr.bndrun" output="${target.obr.dir}/obr.jar" />
-		<bndpackage runfile="../run-target/target.bndrun" output="${target.target.dir}/target.jar" />
+		<bndpackage runfile="../run-develop/develop.bndrun" output="${target.develop.dir}/debug-target.jar" />
 
 		<!-- create one giant ZIP-file with everything in it -->
 		<zip destfile="${target.dir}/${bin.zip}">

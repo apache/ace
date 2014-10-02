@@ -1,7 +1,10 @@
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runee: JavaSE-1.6
--runbundles:  \
-	org.apache.ace.agent;version=latest
+-runbundles: org.apache.felix.gogo.command,\
+	org.apache.felix.gogo.runtime,\
+	org.apache.felix.gogo.shell,\
+	org.apache.ace.agent;version=latest,\
+	org.apache.felix.log
 -runproperties: \
 	launch.keep=true,\
 	launch.storage.dir=bundle-cache,\
