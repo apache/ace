@@ -34,5 +34,8 @@ Bundle-DocURL: http://ace.apache.org/
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
 Bundle-Vendor: The Apache Software Foundation
 
+# Remove certain generated headers that we don't need
+-removeheaders: Bnd-LastModified,Tool,Created-By,Private-Package
+
 # Semantic versioning
 #-baseline: *
