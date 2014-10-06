@@ -46,17 +46,13 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     public static final String CONFIG_STORAGE_SUBDIR = "config";
     /** File name use for storage. */
     public static final String CONFIG_STORAGE_FILENAME = "config.properties";
-
     private final BundleContext m_context;
-
     private ResettableTimer m_timer;
     private volatile ConcurrentMap<Object, Object> m_configProps;
 
     public ConfigurationHandlerImpl(BundleContext context) {
         super("configuration");
-
         m_context = context;
-
         m_configProps = new ConcurrentHashMap<Object, Object>();
     }
 
@@ -180,7 +176,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     private File getConfigDir() throws IOException {
         File dir = new File(getAgentContext().getWorkDir(), CONFIG_STORAGE_SUBDIR);
         if (!dir.exists() && !dir.mkdir()) {
-            throw new IOException("Unable to acces configuration directory: " + dir.getAbsolutePath());
+            throw new IOException("Unable to access configuration directory: " + dir.getAbsolutePath());
         }
         return dir;
     }
@@ -188,7 +184,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     private File getConfigFile() throws IOException {
         File file = new File(getConfigDir(), CONFIG_STORAGE_FILENAME);
         if (!file.exists() && !file.createNewFile()) {
-            throw new IOException("Unable to acces configuration file: " + file.getAbsolutePath());
+            throw new IOException("Unable to access configuration file: " + file.getAbsolutePath());
         }
         return file;
     }

@@ -83,8 +83,8 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
     private static final long DEFAULT_CACHE_MILLISECONDS = 30000;
     private final Map<String, CheckedURL> m_checkedURLs = new HashMap<String, CheckedURL>();
 
-    private final List<String> m_defaultServerURLs;
-    private final boolean m_defaultCheckURLs;
+    private List<String> m_defaultServerURLs;
+    private boolean m_defaultCheckURLs;
 
     private volatile List<String> m_serverURLs;
     private volatile boolean m_checkURLs;
@@ -99,13 +99,14 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
 
     DiscoveryHandlerImpl(String[] serverURLs, boolean checkServerURLs) {
         super("discovery");
-
         m_defaultServerURLs = m_serverURLs = Arrays.asList(serverURLs);
         m_defaultCheckURLs = m_checkURLs = checkServerURLs;
     }
 
     @Override
     protected void onInit() throws Exception {
+        String urls = getConfigurationHandler().get(CONFIG_DISCOVERY_SERVERURLS, mergeUrls(m_defaultServerURLs));
+        m_defaultServerURLs = m_serverURLs = splitUrls(urls);
         getEventsHandler().addListener(this);
     }
 
@@ -124,8 +125,7 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
         List<String> serverURLs;
         String urlsValue = payload.get(CONFIG_DISCOVERY_SERVERURLS);
         if (urlsValue != null && !"".equals(urlsValue.trim())) {
-            String[] urls = urlsValue.trim().split("\\s*,\\s*");
-            serverURLs = Arrays.asList(urls);
+            serverURLs = splitUrls(urlsValue);
         }
         else {
             serverURLs = m_defaultServerURLs;
@@ -146,11 +146,24 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
         if (!oldServerURLs.equals(serverURLs) || oldCheckURLs != checkURLs) {
             m_serverURLs = serverURLs;
             m_checkURLs = checkURLs;
-
             logDebug("Discovery configuration changed: urls: %s, checking: %s", m_serverURLs, m_checkURLs);
-            
             m_checkedURLs.clear();
         }
+    }
+    
+    List<String> splitUrls(String urlsValue) {
+        return Arrays.asList(urlsValue.trim().split("\\s*,\\s*"));
+    }
+    
+    String mergeUrls(List<String> urls) {
+    	StringBuilder sb = new StringBuilder();
+    	for (String url : urls) {
+    		if (sb.length() > 0) {
+    			sb.append(',');
+    		}
+    		sb.append(url);
+    	}
+    	return sb.toString();
     }
 
     /**
@@ -179,7 +192,6 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
     }
 
     private URL getURL(String serverURL, boolean checkURL) {
-
         try {
             if (!checkURL) {
                 return new URL(serverURL);
@@ -202,7 +214,6 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
                     }
                 }
             }
-
             try {
                 tryConnect(checkedURL.m_url);
                 logDebug("Succesfully connected to serverURL: %s", serverURL);

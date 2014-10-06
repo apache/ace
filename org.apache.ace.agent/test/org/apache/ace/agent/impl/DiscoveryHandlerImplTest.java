@@ -22,6 +22,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
 import java.net.URL;
+import java.util.List;
 
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.AgentContext;
@@ -155,5 +156,18 @@ public class DiscoveryHandlerImplTest extends BaseAgentTest {
 
         DiscoveryHandler discoveryHandler = m_agentContext.getHandler(DiscoveryHandler.class);
         assertNull(discoveryHandler.getServerUrl());
+    }
+    
+    @Test
+    public void testSplitAndMergeUrls() throws Exception {
+        DiscoveryHandlerImpl discoveryHandler = (DiscoveryHandlerImpl) m_agentContext.getHandler(DiscoveryHandler.class);
+        String urlsValue = "http://a/,http://b/,http://c/";
+		List<String> urls = discoveryHandler.splitUrls(urlsValue);
+        assertEquals(urls.size(), 3);
+        assertEquals(urls.get(0), "http://a/");
+        assertEquals(urls.get(1), "http://b/");
+        assertEquals(urls.get(2), "http://c/");
+        String mergedUrls = discoveryHandler.mergeUrls(urls);
+        assertEquals(mergedUrls, urlsValue);
     }
 }
