@@ -81,11 +81,11 @@ public class Launcher implements PropertyProvider {
 
     public Map<String, String> parseArgs(String... args) throws Exception {
         Options options = new Options();
-        addOption( options, 'a', "agent", "ID", "the agent ID to use" );
-        addOption( options, 's', "serverurl", "URLs", "the Apache ACE server URL(s) to use" );
-        addOption( options, 'v', "verbose", "enable verbose logging" );
-        addOption( options, 'c', "config", "FILE", "use configuration file" );
-        addOption( options, 'h', "help", "prints this message" );
+        addOption(options, 'a', "agent", "ID", "the agent ID to use");
+        addOption(options, 's', "serverurl", "URLs", "the Apache ACE server URL(s) to use");
+        addOption(options, 'v', "verbose", "enable verbose logging");
+        addOption(options, 'c', "config", "FILE", "use configuration file");
+        addOption(options, 'h', "help", "prints this message");
 
         // Start from scratch...
         Map<String, String> config = new HashMap<String, String>();
@@ -246,18 +246,17 @@ public class Launcher implements PropertyProvider {
     private BundleProvider[] loadBundleProviders() throws Exception {
         ServiceLoader<BundleProvider> bundleFactoryLoader = ServiceLoader.load(BundleProvider.class);
         Iterator<BundleProvider> bundleFactoryIterator = bundleFactoryLoader.iterator();
-        List<BundleProvider> bundelFactoryList = new ArrayList<BundleProvider>();
+        List<BundleProvider> bundleFactoryList = new ArrayList<BundleProvider>();
         while (bundleFactoryIterator.hasNext()) {
-            bundelFactoryList.add(bundleFactoryIterator.next());
+            bundleFactoryList.add(bundleFactoryIterator.next());
         }
-        return bundelFactoryList.toArray(new BundleProvider[bundelFactoryList.size()]);
+        return bundleFactoryList.toArray(new BundleProvider[bundleFactoryList.size()]);
     }
 
     private Properties loadDefaultProperties() throws IOException {
         InputStream inStream = null;
         try {
             inStream = getClass().getResourceAsStream("launcher-defaults.properties");
-
             Properties properties = new Properties();
             properties.load(inStream);
             return properties;
