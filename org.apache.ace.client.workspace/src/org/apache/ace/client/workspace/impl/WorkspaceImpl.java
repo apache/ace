@@ -58,6 +58,8 @@ import org.osgi.framework.Filter;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 
+import com.sun.corba.se.impl.oa.poa.AOMEntry;
+
 public class WorkspaceImpl implements Workspace {
 
     private final String m_sessionID;
@@ -517,6 +519,13 @@ public class WorkspaceImpl implements Workspace {
     public void da(RepositoryObject repositoryObject) {
         deleteRepositoryObject(ARTIFACT, repositoryObject.getDefinition());
     }
+    
+    @Override
+    public void da(String filter) throws Exception {
+        for (ArtifactObject object : la(filter)) {
+        	deleteRepositoryObject(ARTIFACT, object.getDefinition());
+        }
+    }
 
     @Override
     public List<Artifact2FeatureAssociation> la2f() {
@@ -542,6 +551,14 @@ public class WorkspaceImpl implements Workspace {
     @Override
     public void da2f(Artifact2FeatureAssociation repositoryObject) {
         deleteRepositoryObject(ARTIFACT2FEATURE, repositoryObject.getDefinition());
+    }
+    
+    @Override
+    public void da2f(String filter) throws Exception {
+        for (Artifact2FeatureAssociation object : la2f(filter)) {
+        	deleteRepositoryObject(ARTIFACT2FEATURE, object.getDefinition());
+        }
+    	
     }
 
     @Override
@@ -576,6 +593,13 @@ public class WorkspaceImpl implements Workspace {
     public void df(FeatureObject repositoryObject) {
         deleteRepositoryObject(FEATURE, repositoryObject.getDefinition());
     }
+    
+    @Override
+    public void df(String filter) throws Exception {
+        for (FeatureObject object : lf(filter)) {
+        	deleteRepositoryObject(FEATURE, object.getDefinition());
+        }
+    }
 
     @Override
     public List<Feature2DistributionAssociation> lf2d() {
@@ -601,6 +625,13 @@ public class WorkspaceImpl implements Workspace {
     @Override
     public void df2d(Feature2DistributionAssociation repositoryObject) {
         deleteRepositoryObject(FEATURE2DISTRIBUTION, repositoryObject.getDefinition());
+    }
+    
+    @Override
+    public void df2d(String filter) throws Exception {
+        for (Feature2DistributionAssociation object : lf2d(filter)) {
+        	deleteRepositoryObject(FEATURE2DISTRIBUTION, object.getDefinition());
+        }
     }
 
     @Override
@@ -637,6 +668,13 @@ public class WorkspaceImpl implements Workspace {
     }
 
     @Override
+    public void dd(String filter) throws Exception {
+        for (DistributionObject object : ld(filter)) {
+        	deleteRepositoryObject(DISTRIBUTION, object.getDefinition());
+        }
+    }
+
+    @Override
     public List<Distribution2TargetAssociation> ld2t() {
         return getGenericRepositoryObjects(DISTRIBUTION2TARGET);
     }
@@ -660,6 +698,13 @@ public class WorkspaceImpl implements Workspace {
     @Override
     public void dd2t(Distribution2TargetAssociation repositoryObject) {
         deleteRepositoryObject(DISTRIBUTION2TARGET, repositoryObject.getDefinition());
+    }
+    
+    @Override
+    public void dd2t(String filter) throws Exception {
+        for (Distribution2TargetAssociation object : ld2t(filter)) {
+        	deleteRepositoryObject(DISTRIBUTION2TARGET, object.getDefinition());
+        }
     }
 
     @Override
@@ -693,6 +738,13 @@ public class WorkspaceImpl implements Workspace {
     @Override
     public void dt(StatefulTargetObject repositoryObject) {
         deleteRepositoryObject(TARGET, repositoryObject.getDefinition());
+    }
+    
+    @Override
+    public void dt(String filter) throws Exception {
+        for (StatefulTargetObject object : lt(filter)) {
+        	deleteRepositoryObject(TARGET, object.getDefinition());
+        }
     }
 
     @Override

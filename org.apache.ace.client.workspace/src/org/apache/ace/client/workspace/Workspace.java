@@ -272,6 +272,8 @@ public interface Workspace {
 
     public void da(RepositoryObject repositoryObject);
 
+    public void da(String filter) throws Exception;
+
     /*** artifact to feature association ***/
 
     public List<Artifact2FeatureAssociation> la2f();
@@ -283,6 +285,8 @@ public interface Workspace {
     public void ca2f(String left, String right, String leftCardinality, String rightCardinalty);
 
     public void da2f(Artifact2FeatureAssociation repositoryObject);
+    
+    public void da2f(String filter) throws Exception;
 
     /*** feature ***/
 
@@ -297,6 +301,8 @@ public interface Workspace {
     public void cf(Map<String, String> attrs, Map<String, String> tags);
 
     public void df(FeatureObject repositoryObject);
+    
+    public void df(String filter) throws Exception;
 
     /*** feature to distribution association ***/
 
@@ -309,6 +315,8 @@ public interface Workspace {
     public void cf2d(String left, String right, String leftCardinality, String rightCardinalty);
 
     public void df2d(Feature2DistributionAssociation repositoryObject);
+    
+    public void df2d(String filter) throws Exception;
 
     /*** distribution ***/
 
@@ -323,6 +331,8 @@ public interface Workspace {
     public void cd(Map<String, String> attrs, Map<String, String> tags);
 
     public void dd(DistributionObject repositoryObject);
+    
+    public void dd(String filter) throws Exception;
 
     /*** distribution to target association ***/
 
@@ -335,6 +345,8 @@ public interface Workspace {
     public void cd2t(String left, String right, String leftCardinality, String rightCardinalty);
 
     public void dd2t(Distribution2TargetAssociation repositoryObject);
+    
+    public void dd2t(String filter) throws Exception;
 
     /*** target ***/
 
@@ -349,6 +361,8 @@ public interface Workspace {
     public RepositoryObject ct(Map<String, String> attrs, Map<String, String> tags);
 
     public void dt(StatefulTargetObject repositoryObject);
+    
+    public void dt(String filter) throws Exception;
 
     /**
      * Approves a given stateful target object.
