@@ -46,6 +46,7 @@ import org.osgi.impl.bundle.obr.resource.RepositoryImpl;
 import org.osgi.impl.bundle.obr.resource.ResourceImpl;
 import org.osgi.impl.bundle.obr.resource.Tag;
 import org.osgi.impl.bundle.obr.resource.VersionRange;
+import org.osgi.service.log.LogService;
 
 /**
  * Iterate over a set of given bundles and convert them to resources. When -a is specified, other resources than bundles
@@ -68,6 +69,25 @@ public class Index
         .getAbsoluteFile();
     static RepositoryImpl repository;
     static String root;
+	public static LogService m_log;
+	
+	static void error(String message) {
+		if (m_log != null) {
+			m_log.log(LogService.LOG_ERROR, message);
+		}
+		else {
+			System.err.println(message);
+		}
+	}
+	static void error(String message, Throwable t) {
+		if (m_log != null) {
+			m_log.log(LogService.LOG_ERROR, message, t);
+		}
+		else {
+			System.err.println(message);
+			t.printStackTrace(System.err);
+		}
+	}
 
     /**
      * Main entry. See -help for options.
@@ -76,9 +96,6 @@ public class Index
      * @throws Exception
      */
     public static void main(String args[]) throws Exception {
-        System.err.println("Bundle Indexer | v2.2");
-        System.err.println("(c) 2007 OSGi, All Rights Reserved");
-
         Set<ResourceImpl> resources = new HashSet<ResourceImpl>();
         root = rootFile.toURI().toURL().toString();
         repository = new RepositoryImpl(rootFile.toURI().toURL());
@@ -104,8 +121,7 @@ public class Index
                         args[++i]);
                 }
                 else if (args[i].startsWith("-help")) {
-                    System.err
-                        .println("bindex [-t \"%s\" symbolic name \"%v\" version \"%f\" filename \"%p\" dirpath ] [ -r repository.(xml|zip) ] [-help] [-l file:license.html ] [-quiet] [-all] <jar file>*");
+                    error("bindex [-t \"%s\" symbolic name \"%v\" version \"%f\" filename \"%p\" dirpath ] [ -r repository.(xml|zip) ] [-help] [-l file:license.html ] [-quiet] [-all] <jar file>*");
                 }
                 else if (args[i].startsWith("-a")) {
                     all = true;
@@ -115,9 +131,7 @@ public class Index
                 }
             }
             catch (Exception e) {
-                System.err.println("Error in " + args[i] + " : " +
-                    e.getMessage());
-                e.printStackTrace();
+            	error("Error in " + args[i] + " : " + e.getMessage(), e);
             }
         }
 
@@ -197,24 +211,34 @@ public class Index
                 return;
             }
             if (path.getName().endsWith(".jar")) {
-                BundleInfo info = new BundleInfo(repository, path);
-                ResourceImpl resource = info.build();
-                if (urlTemplate != null) {
-                    doTemplate(path, resource);
-                }
-                else {
-                    resource.setURL(path.toURI().toURL());
-                }
-
-                resources.add(resource);
+            	try {
+	                BundleInfo info = new BundleInfo(repository, path);
+	                ResourceImpl resource = info.build();
+	                if (urlTemplate != null) {
+	                    doTemplate(path, resource);
+	                }
+	                else {
+	                    resource.setURL(path.toURI().toURL());
+	                }
+	
+	                resources.add(resource);
+            	}
+            	catch (Exception e) {
+            		error("could not parse bundle " + path.getName() + ": " + e.getMessage(), e);
+            	}
             }
             else {
                 // this is some other resource, we might want to include it.
                 if (all) {
-                    ResourceMetaData metadata = ResourceMetaData.getArtifactMetaData(path.getName());
-                    ResourceImpl impl = new ResourceImpl(repository, metadata.getSymbolicName(), new VersionRange(metadata.getVersion()));
-                    impl.setURL(path.toURI().toURL());
-                    resources.add(impl);
+                	try {
+	                    ResourceMetaData metadata = ResourceMetaData.getArtifactMetaData(path.getName());
+	                    ResourceImpl impl = new ResourceImpl(repository, metadata.getSymbolicName(), new VersionRange(metadata.getVersion()));
+	                    impl.setURL(path.toURI().toURL());
+	                    resources.add(impl);
+                	}
+                	catch (Exception e) {
+                		error("could not parse resource " + path.getName() + ": " + e.getMessage(), e);
+                	}
                 }
             }
         }

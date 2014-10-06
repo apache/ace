@@ -36,6 +36,7 @@ public class BindexMetadataTest {
     private ArtifactData generateBundle(File file, String symbolicName, String version) throws Exception {
         // create a mock bundle, which is only used to generate the bundle on disk, and not used for anything else...
         ArtifactData bundle = new ArtifactDataImpl(file.getName(), symbolicName, -1L, version, file.toURI().toURL(), false);
+        System.out.println("GETVERSION: " + bundle.getVersion());
         BundleStreamGenerator.generateBundle(bundle);
         return bundle;
     }
@@ -65,7 +66,7 @@ public class BindexMetadataTest {
             }
         }
         in.close();
-        assert count == 3 : "Expected 3 resources in the repositoty index, found " + count + ".";
+        assert count == 3 : "Expected 3 resources in the repository index, found " + count + ".";
     }
 
     /**
@@ -94,6 +95,34 @@ public class BindexMetadataTest {
             }
         }
         in.close();
-        assert count == 0 : "Expected 0 resources in the repositoty index, found " + count + ".";
+        assert count == 0 : "Expected 0 resources in the repository index, found " + count + ".";
+    }
+
+    /**
+     * Generate metadata index with partially invalid contents, verify contents
+     */
+    @Test(groups = { UNIT })
+    public void generatePartiallyInvalidMetaData() throws Exception {
+        File dir = File.createTempFile("meta", "");
+        dir.delete();
+        dir.mkdir();
+        generateBundle(File.createTempFile("bundle", ".jar", dir), "bundle.symbolicname.1", "1.0.0");
+        generateBundle(File.createTempFile("bundle", ".jar", dir), "bundle.symbolicname.2", "1.0_0");
+        generateBundle(File.createTempFile("bundle", ".jar", dir), "bundle.symbolicname.3", "1.0.0");
+        MetadataGenerator meta = new BIndexMetadataGenerator();
+        meta.generateMetadata(dir);
+        File index = new File(dir, "repository.xml");
+        assert index.exists() : "No repository index was generated";
+        assert index.length() > 0 : "Repository index can not be size 0";
+        int count = 0;
+        String line;
+        BufferedReader in = new BufferedReader(new FileReader(index));
+        while ((line = in.readLine()) != null) {
+            if (line.contains("<resource")) {
+                count++;
+            }
+        }
+        in.close();
+        assert count == 2 : "Expected 2 resources in the repository index, found " + count + ".";
     }
 }

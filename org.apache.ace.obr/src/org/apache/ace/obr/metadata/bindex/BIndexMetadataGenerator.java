@@ -42,6 +42,7 @@ public class BIndexMetadataGenerator implements MetadataGenerator {
             File index = new File(directory, INDEX_FILENAME + INDEX_EXTENSION);
             try {
                 tempIndex = File.createTempFile("repo", INDEX_EXTENSION, directory);
+                Index.m_log = m_log;
                 Index.main(new String[] { "-q", "-a", "-r", tempIndex.getAbsolutePath(), directory.getAbsolutePath() });
                 renameFile(tempIndex, index);
             }

@@ -17,8 +17,22 @@
  */
 package org.osgi.impl.bundle.obr.resource;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StreamTokenizer;
+import java.io.StringReader;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import org.osgi.framework.Version;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -38,7 +52,7 @@ public class Manifest extends Hashtable {
 	Vector				duplicates	= new Vector();
 	final static String	wordparts	= "~!@#$%^&*_:/?><.-+";
 	ManifestEntry		bsn;
-	VersionRange			version;
+	Version				version;
 	ManifestEntry		host;
 	List				require;
 
@@ -112,12 +126,10 @@ public class Manifest extends Hashtable {
 				}
 				if (header.equals("bundle-version")) {
 					try {
-						version = new VersionRange(value.trim());
+						version = new Version(value.trim());
 					}
 					catch (Exception e) {
-						version = new VersionRange("0");
-						System.err.println("Invalid version attr for: " + bsn
-								+ " value is " + value);
+						throw new IOException("Invalid version attr for: " + bsn + " value is " + value);
 					}
 				}
 				if (header.equals("fragment-host"))
@@ -317,9 +329,10 @@ public class Manifest extends Hashtable {
 			return null;
 	}
 
-	public VersionRange getVersion() {
-		if (version == null)
-			return new VersionRange("0");
+	public Version getVersion() {
+		if (version == null) {
+			throw new IllegalStateException("bundle version is null");
+		}
 		return version;
 	}
 
