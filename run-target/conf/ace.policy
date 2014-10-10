@@ -1,0 +1,7 @@
+
+// ACE doesn't define a security policy, but supports the creation of one.
+// Add -security when starting the ACE Management Agent to enable this policy file.
+
+grant {
+    java.security.AllPermission;
+}
