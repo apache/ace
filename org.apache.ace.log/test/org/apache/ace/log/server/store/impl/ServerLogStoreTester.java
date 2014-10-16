@@ -173,8 +173,8 @@ public class ServerLogStoreTester {
     public void testClean() throws Exception {
         List<Event> events = new ArrayList<Event>();
         for (String target : new String[] { "target"}) {
-            for (long log : new long[] { 1,2 }) {
-                for (long id : new long[] { 1, 2 }) {
+            for (long log : new long[] { 1, 2 }) {
+                for (long id : new long[] { 1, 2, 3, 4 }) {
                     events.add(new Event(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new HashMap<String, String>()));
                 }
             }

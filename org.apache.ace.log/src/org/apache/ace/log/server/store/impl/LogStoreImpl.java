@@ -260,10 +260,8 @@ public class LogStoreImpl implements LogStore, ManagedService {
                 // and sort
                 Collections.sort(list);
                 // and remove if necessary
-                for (int i = 0; i < m_maxEvents; i++) {
-                    if (list.size() > 0) {
-                        list.remove(0);
-                    }
+                while (list.size() > m_maxEvents) {
+                	list.remove(0);
                 }
                 out = new PrintWriter(new FileWriter(new File(dir, logID.toString())));
             }
@@ -422,12 +420,8 @@ public class LogStoreImpl implements LogStore, ManagedService {
         obtainLock(targetID, logID);
         try {
             List<Event> events = getInternal(new Descriptor(targetID, logID, SortedRangeSet.FULL_SET));
-            if (events.size() > m_maxEvents) {
-                for (int i = 0; i < m_maxEvents; i++) {
-                    if (events.size() > 0) {
-                        events.remove(0);
-                    }
-                }
+            while (events.size() > m_maxEvents) {
+            	events.remove(0);
             }
             put(targetID, logID, events);
         }
