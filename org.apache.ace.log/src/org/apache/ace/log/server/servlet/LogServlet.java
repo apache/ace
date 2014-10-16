@@ -183,6 +183,14 @@ public class LogServlet extends HttpServlet {
             output.print(range.toRepresentation());
             return true;
         }
+        else if (targetID != null) {
+            // target id is specified, return only the ranges that match this target
+            List<Descriptor> ranges = m_store.getDescriptors(targetID);
+            for (Descriptor range : ranges) {
+                output.print(range.toRepresentation() + "\n");
+            }
+            return true;
+        }
         else if ((targetID == null) && (logID == null)) {
             // no target or log id has been specified, return all ranges
             List<Descriptor> ranges = m_store.getDescriptors();

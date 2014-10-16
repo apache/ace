@@ -42,6 +42,7 @@ import org.apache.ace.discovery.Discovery;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
 import org.apache.ace.log.LogSync;
+import org.apache.ace.log.server.servlet.LogServlet;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.SortedRangeSet;
 import org.osgi.service.log.LogService;
@@ -70,13 +71,18 @@ public class LogSyncTask implements Runnable, LogSync {
     private volatile ConnectionFactory m_connectionFactory;
     private final String m_endpoint;
     private final String m_name;
-
-    private final Mode m_mode;;
+    private final String m_targetID;
+    private final Mode m_mode;
 
     public LogSyncTask(String endpoint, String name, Mode mode) {
+    	this(endpoint, name, mode, null);
+    }
+
+    public LogSyncTask(String endpoint, String name, Mode mode, String targetID) {
         m_endpoint = endpoint;
         m_name = name;
         m_mode = mode;
+        m_targetID = targetID;
     }
 
     public String getName() {
@@ -363,7 +369,12 @@ public class LogSyncTask implements Runnable, LogSync {
     }
 
     private URL createURL(URL host, String command) throws MalformedURLException {
-        return new URL(host, m_endpoint.concat("/").concat(command));
+    	if (m_targetID == null) {
+    		return new URL(host, m_endpoint + "/" + command);
+    	}
+    	else {
+    		return new URL(host, m_endpoint + "/" + command + "?" + TARGETID_KEY + "=" + m_targetID);
+    	}
     }
 
     private boolean isEmptyRangeSet(SortedRangeSet set) {

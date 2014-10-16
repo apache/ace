@@ -22,6 +22,7 @@ import static org.apache.ace.test.utils.TestUtils.UNIT;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -64,6 +65,18 @@ public class LogServletTest {
         boolean result = m_logServlet.handleQuery(m_range.getTargetID(), String.valueOf(m_range.getStoreID()), null, output);
         assert result;
         assert m_range.toRepresentation().equals(output.m_text);
+        output.m_text = "";
+        result = m_logServlet.handleQuery(null, null, null, output);
+        assert result;
+        assert (m_range.toRepresentation() + "\n").equals(output.m_text);
+    }
+    
+    @Test(groups = { UNIT })
+    public void queryLogWithTargetFilter() throws Exception {
+        MockServletOutputStream output = new MockServletOutputStream();
+        boolean result = m_logServlet.handleQuery(m_range.getTargetID(), null, null, output);
+        assert result;
+        assert m_range.toRepresentation().equals(output.m_text.trim());
         output.m_text = "";
         result = m_logServlet.handleQuery(null, null, null, output);
         assert result;
@@ -116,7 +129,9 @@ public class LogServletTest {
             return events;
         }
         public List<Descriptor> getDescriptors(String targetID) {
-            return null;
+        	List<Descriptor> ranges = new ArrayList<Descriptor>();
+            ranges.add(m_range);
+            return ranges;
         }
         public List<Descriptor> getDescriptors() {
             List<Descriptor> ranges = new ArrayList<Descriptor>();

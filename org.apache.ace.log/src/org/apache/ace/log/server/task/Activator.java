@@ -40,6 +40,7 @@ import org.osgi.service.log.LogService;
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
     private static final String KEY_LOG_NAME = "name";
     private static final String KEY_MODE = "mode";
+    private static final String KEY_TARGETID = "tid";
     
     private final Map<String, Component> m_instances = new HashMap<String, Component>();
     private volatile DependencyManager m_manager;
@@ -76,15 +77,16 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         else if ("pushpull".equals(modeValue)) {
         	mode = Mode.PUSHPULL;
         }
+        String targetID = (String) dict.get(KEY_TARGETID);
 
         Component oldComponent, newComponent;
         
         Properties props = new Properties();
         props.put(KEY_LOG_NAME, name);
         props.put("taskName", LogSyncTask.class.getName());
-        props.put("description", "Syncs log (name=" + name + ", mode=" + mode.toString() + ") with a server.");
+        props.put("description", "Syncs log (name=" + name + ", mode=" + mode.toString() + (targetID == null ? "" : ", targetID=" + targetID) + ") with a server.");
         String filter = "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=" + name + "))";
-        LogSyncTask service = new LogSyncTask(name, name, mode);
+        LogSyncTask service = new LogSyncTask(name, name, mode, targetID);
         newComponent = m_manager.createComponent()
     		.setInterface(new String[] { Runnable.class.getName(), LogSync.class.getName() }, props)
     		.setImplementation(service)
