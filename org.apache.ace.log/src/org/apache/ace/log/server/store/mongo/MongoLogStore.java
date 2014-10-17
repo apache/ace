@@ -185,6 +185,12 @@ public class MongoLogStore implements LogStore, ManagedService {
 
     @Override
     public void clean() throws IOException {
-        // TODO : if m_max_events > 0 then remove all events from the mongo store where there are more than m_maxEvents
+        // TODO if m_max_events > 0 then remove all events from the mongo store where there are more than m_maxEvents
+    }
+    
+    @Override
+    public Event put(String targetID, int type, Dictionary props) throws IOException {
+    	// TODO add an event to the appropriate store
+    	return null;
     }
 }

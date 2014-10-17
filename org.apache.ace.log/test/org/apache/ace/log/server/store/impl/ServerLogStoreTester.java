@@ -100,6 +100,39 @@ public class ServerLogStoreTester {
         assert in.equals(out) : "Stored events differ from the added.";
     }
 
+    @Test(groups = { UNIT })
+    public void testCreateLogMessagesConcurrently() throws Exception {
+        final Properties props = new Properties();
+        props.put("test", "bar");
+
+        List<Descriptor> ranges = m_logStore.getDescriptors();
+        assert ranges.isEmpty() : "New store should have no ranges.";
+        ExecutorService exec = Executors.newFixedThreadPool(10);
+        for (final String target : new String[] { "g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8", "g9", "g10" }) {
+        	exec.execute(new Runnable() { public void run() {
+        		for (long id = 0; id < 1000; id++) {
+        			try {
+						m_logStore.put(target, 1, props);
+					}
+        			catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+        		}
+        	};} );
+        }
+        exec.shutdown();
+        exec.awaitTermination(10, TimeUnit.SECONDS);
+        assert m_logStore.getDescriptors().size() == 10 : "Incorrect amount of ranges returned from store: " + m_logStore.getDescriptors().size();
+        List<Event> stored = new ArrayList<Event>();
+        for (Descriptor range : m_logStore.getDescriptors()) {
+            for (Descriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
+                stored.addAll(m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getStoreID())));
+            }
+        }
+        assert stored.size() == 10000 : "Incorrect number of events got stored: " + stored.size();
+    }
+    
+    
     @Test(groups = { TestUtils.UNIT })
     public void testLogWithSpecialCharacters() throws IOException {
         String targetID = "myta\0rget";

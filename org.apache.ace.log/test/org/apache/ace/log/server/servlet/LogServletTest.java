@@ -23,6 +23,7 @@ import static org.apache.ace.test.utils.TestUtils.UNIT;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 
@@ -145,6 +146,10 @@ public class LogServletTest {
             m_events = events;
         }
         public void clean() throws IOException {
+            throw new UnsupportedOperationException("not implemented");
+        }
+        @Override
+        public Event put(String targetID, int type, Dictionary props) throws IOException {
             throw new UnsupportedOperationException("not implemented");
         }
     }

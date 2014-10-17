@@ -19,6 +19,7 @@
 package org.apache.ace.log.server.store;
 
 import java.io.IOException;
+import java.util.Dictionary;
 import java.util.List;
 
 import org.apache.ace.feedback.Descriptor;
@@ -101,4 +102,15 @@ public interface LogStore
      * @throws IOException in case of any error
      */
     public void clean() throws IOException;
+    
+    /**
+     * Create a new event out of the given type and properties. Write it to the store and return it.
+     *
+     * @param targetID the targetID of this event.
+     * @param type the type of the event.
+     * @param props the properties of the event.
+     * @return the created event that has been persisted.
+     * @throws java.io.IOException in case of any IO error.
+     */
+    public Event put(String targetID, int type, Dictionary props) throws IOException;
 }

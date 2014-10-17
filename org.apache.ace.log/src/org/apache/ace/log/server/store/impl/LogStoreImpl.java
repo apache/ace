@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -36,7 +37,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.LockSupport;
 
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
@@ -144,12 +144,21 @@ public class LogStoreImpl implements LogStore, ManagedService {
     }
 
     public Descriptor getDescriptor(String targetID, long logID) throws IOException {
+        return getDescriptorInternal(targetID, logID, true);
+    }
+
+    private Descriptor getDescriptorInternal(String targetID, long logID) throws IOException {
+    	return getDescriptorInternal(targetID, logID, false);
+    }
+    
+    private Descriptor getDescriptorInternal(String targetID, long logID, boolean lock) throws IOException {
         Long high = m_fileToID.get(new File(new File(m_dir, targetIDToFilename(targetID)), String.valueOf(logID)).getAbsolutePath());
         if (high != null) {
             Range r = new Range(1, high);
             return new Descriptor(targetID, logID, new SortedRangeSet(r.toRepresentation()));
         }
-        List<Event> events = get(new Descriptor(targetID, logID, SortedRangeSet.FULL_SET));
+        Descriptor descriptor = new Descriptor(targetID, logID, SortedRangeSet.FULL_SET);
+		List<Event> events = lock ? get(descriptor) : getInternal(descriptor);
 
         long[] idsArray = new long[events.size()];
         int i = 0;
@@ -478,6 +487,45 @@ public class LogStoreImpl implements LogStore, ManagedService {
         Set<Long> lockedLogs = m_locks.get(targetID);
         synchronized (lockedLogs) {
             lockedLogs.remove(logID);
+        }
+    }
+    
+    @Override
+    public Event put(String targetID, int type, Dictionary dict) throws IOException {
+        Map<String, String> props = new HashMap<String, String>();
+        Enumeration keys = dict.keys();
+        while (keys.hasMoreElements()) {
+            String key = (String) keys.nextElement();
+            props.put(key, (String) dict.get(key));
+        }
+        List<Descriptor> descriptors = getDescriptors(targetID);
+        // sort and pick highest
+        Descriptor descriptor = null;
+        long highest = 0;
+        for (Descriptor d : descriptors) {
+        	if (d.getStoreID() > highest) {
+        		highest = d.getStoreID();
+        		descriptor = d;
+        	}
+        }
+        // check if we found a descriptor, if not we need to create one
+        if (descriptor == null) {
+        	descriptor = new Descriptor(targetID, System.currentTimeMillis(), new SortedRangeSet(""));
+        }
+        long storeID = descriptor.getStoreID();
+        obtainLock(targetID, storeID);
+        try {
+        	// re-fetch within the lock
+        	descriptor = getDescriptorInternal(targetID, storeID);
+            long high = descriptor.getRangeSet().getHigh();
+            Event result = new Event(targetID, storeID, high + 1, System.currentTimeMillis(), type, props);
+            List<Event> list = new ArrayList<>();
+            list.add(result);
+            put(targetID, storeID, list);
+            return result;
+        }
+        finally {
+        	releaseLock(targetID, storeID);
         }
     }
 }
