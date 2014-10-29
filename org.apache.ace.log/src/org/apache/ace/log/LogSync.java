@@ -53,6 +53,13 @@ public interface LogSync
      * <code>false</code> otherwise.
      */
     public boolean pushpull() throws IOException;
+    
+    /** Pushes lowest IDs to remote repository. */
+    public boolean pushIDs() throws IOException;
+    /** Pulls lowest IDs from remote repository. */
+    public boolean pullIDs() throws IOException;
+    /** Pushes and pulls lowest IDs to/from remote repository. */
+    public boolean pushpullIDs() throws IOException;
 
     /**
      * Returns the name of the log 'channel' this log sync task is assigned to.

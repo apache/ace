@@ -40,6 +40,7 @@ import org.osgi.service.log.LogService;
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
     private static final String KEY_LOG_NAME = "name";
     private static final String KEY_MODE = "mode";
+    private static final String KEY_MODE_LOWEST_IDS = "mode-lowest-ids";
     private static final String KEY_TARGETID = "tid";
     
     private final Map<String, Component> m_instances = new HashMap<String, Component>();
@@ -69,13 +70,27 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         if ((name == null) || "".equals(name)) {
             throw new ConfigurationException(KEY_LOG_NAME, "Log name has to be specified.");
         }
-        Mode mode = Mode.PUSH;
+        Mode dataTransferMode = Mode.PUSH;
         String modeValue = (String) dict.get(KEY_MODE);
         if ("pull".equals(modeValue)) {
-        	mode = Mode.PULL;
+        	dataTransferMode = Mode.PULL;
         }
         else if ("pushpull".equals(modeValue)) {
-        	mode = Mode.PUSHPULL;
+        	dataTransferMode = Mode.PUSHPULL;
+        }
+        else if ("none".equals(modeValue)) {
+        	dataTransferMode = Mode.NONE;
+        }
+        Mode lowestIDsMode = Mode.NONE;
+        modeValue = (String) dict.get(KEY_MODE_LOWEST_IDS);
+        if ("pull".equals(modeValue)) {
+        	lowestIDsMode = Mode.PULL;
+        }
+        else if ("pushpull".equals(modeValue)) {
+        	lowestIDsMode = Mode.PUSHPULL;
+        }
+        else if ("push".equals(modeValue)) {
+        	lowestIDsMode = Mode.PUSH;
         }
         String targetID = (String) dict.get(KEY_TARGETID);
 
@@ -84,9 +99,9 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         Properties props = new Properties();
         props.put(KEY_LOG_NAME, name);
         props.put("taskName", LogSyncTask.class.getName());
-        props.put("description", "Syncs log (name=" + name + ", mode=" + mode.toString() + (targetID == null ? "" : ", targetID=" + targetID) + ") with a server.");
+        props.put("description", "Syncs log (name=" + name + ", mode=" + dataTransferMode.toString() + (targetID == null ? "" : ", targetID=" + targetID) + ") with a server.");
         String filter = "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=" + name + "))";
-        LogSyncTask service = new LogSyncTask(name, name, mode, targetID);
+        LogSyncTask service = new LogSyncTask(name, name, dataTransferMode, lowestIDsMode, targetID);
         newComponent = m_manager.createComponent()
     		.setInterface(new String[] { Runnable.class.getName(), LogSync.class.getName() }, props)
     		.setImplementation(service)

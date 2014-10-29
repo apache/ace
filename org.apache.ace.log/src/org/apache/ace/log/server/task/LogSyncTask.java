@@ -41,8 +41,8 @@ import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
+import org.apache.ace.feedback.LowestID;
 import org.apache.ace.log.LogSync;
-import org.apache.ace.log.server.servlet.LogServlet;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.SortedRangeSet;
 import org.osgi.service.log.LogService;
@@ -50,13 +50,14 @@ import org.osgi.service.log.LogService;
 public class LogSyncTask implements Runnable, LogSync {
 
     public static enum Mode {
-        PUSH, PULL, PUSHPULL
+        NONE, PUSH, PULL, PUSHPULL
     }
 
     private static final String COMMAND_QUERY = "query";
     private static final String COMMAND_SEND = "send";
-
+    private static final String COMMAND_SEND_IDS = "sendids";
     private static final String COMMAND_RECEIVE = "receive";
+    private static final String COMMAND_RECEIVE_IDS = "receiveids";
     private static final String TARGETID_KEY = "tid";
     @SuppressWarnings("unused")
     private static final String FILTER_KEY = "filter";
@@ -72,16 +73,18 @@ public class LogSyncTask implements Runnable, LogSync {
     private final String m_endpoint;
     private final String m_name;
     private final String m_targetID;
-    private final Mode m_mode;
+    private final Mode m_dataTransferMode;
+    private final Mode m_lowestIDMode;
 
-    public LogSyncTask(String endpoint, String name, Mode mode) {
-    	this(endpoint, name, mode, null);
+    public LogSyncTask(String endpoint, String name, Mode dataTransferMode, Mode lowestIDMode) {
+    	this(endpoint, name, dataTransferMode, lowestIDMode, null);
     }
 
-    public LogSyncTask(String endpoint, String name, Mode mode, String targetID) {
+    public LogSyncTask(String endpoint, String name, Mode dataTransferMode, Mode lowestIDMode, String targetID) {
         m_endpoint = endpoint;
         m_name = name;
-        m_mode = mode;
+        m_dataTransferMode = dataTransferMode;
+        m_lowestIDMode = lowestIDMode;
         m_targetID = targetID;
     }
 
@@ -100,10 +103,49 @@ public class LogSyncTask implements Runnable, LogSync {
     public boolean pushpull() throws IOException {
         return synchronize(true /* push */, true /* pull */);
     }
+    
+    public boolean pullIDs() throws IOException {
+    	return synchronizeLowestIDs(false, true);
+    }
+
+    public boolean pushIDs() throws IOException {
+    	return synchronizeLowestIDs(true, false);
+    }
+
+    public boolean pushpullIDs() throws IOException {
+    	return synchronizeLowestIDs(true, true);
+    }
 
     public void run() {
         try {
-            switch (m_mode) {
+            switch (m_lowestIDMode) {
+	            case NONE:
+	            	break;
+                case PULL:
+                    pullIDs();
+                    break;
+                case PUSH:
+                    pushIDs();
+                    break;
+                case PUSHPULL:
+                    pushpullIDs();
+                    break;
+            }
+        }
+        catch (MalformedURLException e) {
+            m_log.log(LogService.LOG_ERROR, "Unable to (" + m_lowestIDMode + ") synchronize IDs (name=" + m_name + ") with remote (malformed URL, incorrect configuration?)", e);
+        }
+        catch (ConnectException e) {
+            m_log.log(LogService.LOG_WARNING, "Unable to (" + m_lowestIDMode + ") synchronize IDs (name=" + m_name + ") with remote (connection refused, remote not up?)", e);
+        }
+        catch (IOException e) {
+            m_log.log(LogService.LOG_ERROR, "Unable to (" + m_lowestIDMode + ") synchronize IDs (name=" + m_name + ") with remote", e);
+        }
+
+        try {
+            switch (m_dataTransferMode) {
+	            case NONE:
+	            	break;
                 case PULL:
                     pull();
                     break;
@@ -116,13 +158,13 @@ public class LogSyncTask implements Runnable, LogSync {
             }
         }
         catch (MalformedURLException e) {
-            m_log.log(LogService.LOG_ERROR, "Unable to (" + m_mode.toString() + ") synchronize log (name=" + m_name + ") with remote (malformed URL, incorrect configuration?)");
+            m_log.log(LogService.LOG_ERROR, "Unable to (" + m_dataTransferMode + ") synchronize log (name=" + m_name + ") with remote (malformed URL, incorrect configuration?)", e);
         }
         catch (ConnectException e) {
-            m_log.log(LogService.LOG_WARNING, "Unable to (" + m_mode.toString() + ") synchronize log (name=" + m_name + ") with remote (connection refused, remote not up?)");
+            m_log.log(LogService.LOG_WARNING, "Unable to (" + m_dataTransferMode + ") synchronize log (name=" + m_name + ") with remote (connection refused, remote not up?)", e);
         }
         catch (IOException e) {
-            m_log.log(LogService.LOG_ERROR, "Unable to (" + m_mode.toString() + ") synchronize log (name=" + m_name + ") with remote", e);
+            m_log.log(LogService.LOG_ERROR, "Unable to (" + m_dataTransferMode + ") synchronize log (name=" + m_name + ") with remote", e);
         }
     }
 
@@ -400,6 +442,121 @@ public class LogSyncTask implements Runnable, LogSync {
             result |= doPull(host, localRanges, remoteRanges);
         }
 
+        return result;
+    }
+    
+    private boolean synchronizeLowestIDs(boolean push, boolean pull) throws IOException {
+        URL host = m_discovery.discover();
+    	
+        boolean result = false;
+        if (push) {
+            result |= doPushLowestIDs(host);
+        }
+        if (pull) {
+            result |= doPullLowestIDs(host);
+        }
+
+        return result;
+    }
+    
+    protected boolean doPushLowestIDs(URL host) {
+    	boolean result = false;
+        OutputStream sendOutput = null;
+        HttpURLConnection sendConnection = null;
+
+        try {
+            sendConnection = createConnection(createURL(host, COMMAND_SEND_IDS));
+            // ACE-294: enable streaming mode causing only small amounts of memory to be
+            // used for this commit. Otherwise, the entire input stream is cached into
+            // memory prior to sending it to the server...
+            sendConnection.setChunkedStreamingMode(8192);
+            sendConnection.setDoOutput(true);
+            sendOutput = sendConnection.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sendOutput));
+            try {
+            	for (Descriptor d : (m_targetID == null ? m_logStore.getDescriptors() : m_logStore.getDescriptors(m_targetID))) {
+            		long lowestID = m_logStore.getLowestID(d.getTargetID(), d.getStoreID());
+            		if (lowestID > 0) {
+            			LowestID lid = new LowestID(d.getTargetID(), d.getStoreID(), lowestID);
+            			writer.write(lid.toRepresentation() + "\n");
+            		}
+            	}
+            }
+            finally {
+                writer.close();
+            }
+
+            // Will cause a flush and reads the response from the server...
+            int rc = sendConnection.getResponseCode();
+            result = (rc == HttpServletResponse.SC_OK);
+
+            if (!result) {
+                String msg = sendConnection.getResponseMessage();
+                m_log.log(LogService.LOG_WARNING, String.format("Could not push lowest IDs '%s'. Server response: %s (%d)", m_name, msg, rc));
+            }
+        }
+        catch (IOException e) {
+            m_log.log(LogService.LOG_ERROR, "Unable to (fully) push lowest IDs with remote", e);
+        }
+        finally {
+            closeSilently(sendOutput);
+            closeSilently(sendConnection);
+        }
+        if (result) {
+            m_log.log(LogService.LOG_DEBUG, "Pushed lowest IDs (" + m_name + ") successfully to remote...");
+        }
+        return result;
+    }
+    
+    protected boolean doPullLowestIDs(URL host) {
+        boolean result = false;
+        InputStream receiveInput = null;
+        HttpURLConnection receiveConnection = null;
+        try {
+            URL url = createURL(host, COMMAND_RECEIVE_IDS);
+
+            receiveConnection = createConnection(url);
+            receiveInput = receiveConnection.getInputStream();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(receiveInput));
+            try {
+            	String line;
+                while ((line = reader.readLine()) != null) {
+                    try {
+                    	LowestID lid = new LowestID(line);
+                		m_logStore.setLowestID(lid.getTargetID(), lid.getStoreID(), lid.getLowestID());
+                    }
+                    catch (IllegalArgumentException e) {
+                        // Just skip this one.
+                    	m_log.log(LogService.LOG_WARNING, "Could not parse incoming line: " + line + " because: " + e.getMessage(), e);
+                    }
+                }
+            }
+            catch (IOException e) {
+                m_log.log(LogService.LOG_DEBUG, "Error reading line from reader", e);
+            }
+            finally {
+                reader.close();
+            }
+
+            int rc = receiveConnection.getResponseCode();
+            result = (rc == HttpServletResponse.SC_OK);
+
+            if (!result) {
+                String msg = receiveConnection.getResponseMessage();
+                m_log.log(LogService.LOG_WARNING, String.format("Could not receive lowest IDs '%s'. Server response: %s (%d)", m_name, msg, rc));
+            }
+        }
+        catch (IOException e) {
+            m_log.log(LogService.LOG_ERROR, "Unable to connect to receive lowest IDs.", e);
+        }
+        finally {
+            closeSilently(receiveInput);
+            closeSilently(receiveConnection);
+        }
+        if (result) {
+            m_log.log(LogService.LOG_DEBUG, "Pulled lowest IDs (" + m_name + ") successfully from remote...");
+        }
         return result;
     }
 }

@@ -113,4 +113,7 @@ public interface LogStore
      * @throws java.io.IOException in case of any IO error.
      */
     public Event put(String targetID, int type, Dictionary props) throws IOException;
+    
+    public void setLowestID(String targetID, long logID, long lowestID) throws IOException;
+    public long getLowestID(String targetID, long logID) throws IOException;
 }

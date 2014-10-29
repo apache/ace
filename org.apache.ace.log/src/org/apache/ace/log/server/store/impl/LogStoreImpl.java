@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -62,7 +63,8 @@ public class LogStoreImpl implements LogStore, ManagedService {
     private int m_maxEvents = 0;
 
     private final ConcurrentMap<String, Set<Long>> m_locks = new ConcurrentHashMap<String, Set<Long>>();
-    private final Map<String, Long> m_fileToID = new HashMap<String, Long>();
+    private final Map<String, Long> m_fileToHighestID = new HashMap<String, Long>();
+    private final Map<String, Long> m_fileToLowestID = new HashMap<String, Long>();
 
     public LogStoreImpl(File baseDir, String name) {
         m_name = name;
@@ -103,7 +105,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
         final SortedRangeSet set = descriptor.getRangeSet();
         BufferedReader in = null;
         try {
-            File log = new File(new File(m_dir, targetIDToFilename(descriptor.getTargetID())), String.valueOf(descriptor.getStoreID()));
+            File log = getLogFile(descriptor.getTargetID(), descriptor.getStoreID());
             if (!log.isFile()) {
                 return result;
             }
@@ -119,15 +121,15 @@ public class LogStoreImpl implements LogStore, ManagedService {
                 else {
                     counter = -1;
                 }
-                if (set.contains(id)) {
+                if (set.contains(id) && id >= getLowestIDInternal(descriptor.getTargetID(), descriptor.getStoreID())) {
                     result.add(event);
                 }
             }
             if (counter < 1) {
-                m_fileToID.remove(file);
+                m_fileToHighestID.remove(file);
             }
             else {
-                m_fileToID.put(file, counter);
+                m_fileToHighestID.put(file, counter);
             }
         }
         finally {
@@ -152,7 +154,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
     }
     
     private Descriptor getDescriptorInternal(String targetID, long logID, boolean lock) throws IOException {
-        Long high = m_fileToID.get(new File(new File(m_dir, targetIDToFilename(targetID)), String.valueOf(logID)).getAbsolutePath());
+        Long high = m_fileToHighestID.get(getLogFile(targetID, logID).getAbsolutePath());
         if (high != null) {
             Range r = new Range(1, high);
             return new Descriptor(targetID, logID, new SortedRangeSet(r.toRepresentation()));
@@ -169,20 +171,20 @@ public class LogStoreImpl implements LogStore, ManagedService {
     }
 
     public List<Descriptor> getDescriptors(String targetID) throws IOException {
-        File dir = new File(m_dir, targetIDToFilename(targetID));
+        File dir = getTargetDirectory(targetID);
         List<Descriptor> result = new ArrayList<Descriptor>();
         if (!dir.isDirectory()) {
             return result;
         }
 
-        for (String name : notNull(dir.list())) {
+        for (String name : notNull(dir.list(LOGID_FILENAME_FILTER))) {
             result.add(getDescriptor(targetID, Long.parseLong(name)));
         }
 
         return result;
     }
 
-    public List<Descriptor> getDescriptors() throws IOException {
+	public List<Descriptor> getDescriptors() throws IOException {
         List<Descriptor> result = new ArrayList<Descriptor>();
         for (String name : notNull(m_dir.list())) {
             result.addAll(getDescriptors(filenameToTargetID(name)));
@@ -227,8 +229,8 @@ public class LogStoreImpl implements LogStore, ManagedService {
         // 1. we can append events at the end of the existing file
         // 2. we need to insert events in the existing file (meaning we have to
         // rewrite basically the whole file)
-        String file = new File(new File(m_dir, targetIDToFilename(targetID)), String.valueOf(logID)).getAbsolutePath();
-        Long highest = m_fileToID.get(file);
+        String file = getLogFile(targetID, logID).getAbsolutePath();
+        Long highest = m_fileToHighestID.get(file);
         boolean cached = false;
         if (highest != null) {
             if (highest.longValue() + 1 == list.get(0).getID()) {
@@ -255,7 +257,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
 
         PrintWriter out = null;
         try {
-            File dir = new File(m_dir, targetIDToFilename(targetID));
+            File dir = getTargetDirectory(targetID);
             if (!dir.isDirectory() && !dir.mkdirs()) {
                 throw new IOException("Unable to create backup store.");
             }
@@ -291,10 +293,10 @@ public class LogStoreImpl implements LogStore, ManagedService {
                 m_eventAdmin.postEvent(new org.osgi.service.event.Event(LogStore.EVENT_TOPIC, props));
             }
             if ((cached) && (high < Long.MAX_VALUE)) {
-                m_fileToID.put(file, new Long(high));
+                m_fileToHighestID.put(file, new Long(high));
             }
             else {
-                m_fileToID.remove(file);
+                m_fileToHighestID.remove(file);
             }
         }
         finally {
@@ -306,6 +308,27 @@ public class LogStoreImpl implements LogStore, ManagedService {
             }
         }
     }
+
+	private void createTargetDirectory(String targetID) throws IOException {
+		File directory = getTargetDirectory(targetID);
+		if (!directory.isDirectory()) {
+			if (!directory.mkdirs()) {
+				throw new IOException("Could not create directory: " + directory.getAbsolutePath());
+			}
+		}
+	}
+
+	private File getTargetDirectory(String targetID) {
+		return new File(m_dir, targetIDToFilename(targetID));
+	}
+
+	private File getLogFile(String targetID, Long logID) {
+		return new File(getTargetDirectory(targetID), String.valueOf(logID));
+	}
+
+	private File getLogFileIndex(String targetID, Long logID) {
+		return new File(getTargetDirectory(targetID), String.valueOf(logID) + ".index");
+	}
 
     /**
      * Sort the given list of events into a map of maps according to the targetID and the logID of each event.
@@ -527,5 +550,88 @@ public class LogStoreImpl implements LogStore, ManagedService {
         finally {
         	releaseLock(targetID, storeID);
         }
+    }
+    
+    @Override
+    public void setLowestID(String targetID, long logID, long lowestID) throws IOException {
+        obtainLock(targetID, logID);
+        try {
+	        long currentID = getLowestIDInternal(targetID, logID);
+	        if (currentID < lowestID) {
+		        FileWriter fw = null;
+		        try {
+		        	createTargetDirectory(targetID);
+		        	File index = getLogFileIndex(targetID, logID);
+					fw = new FileWriter(index);
+		        	fw.write(Long.toString(lowestID));
+		        	m_fileToLowestID.put(index.getAbsolutePath(), lowestID);
+		        }
+		        finally {
+	    			if (fw != null) {
+	    				try {
+	    					fw.close();
+	    				}
+	    				catch (IOException ioe) {}
+	    			}
+		        }
+	        }
+        }
+        finally {
+            releaseLock(targetID, logID);
+		}
+    }
+    
+    public long getLowestID(String targetID, long logID) throws IOException {
+        obtainLock(targetID, logID);
+        try {
+        	return getLowestIDInternal(targetID, logID);
+        }
+        finally {
+            releaseLock(targetID, logID);
+        }
+    }
+    
+    private long getLowestIDInternal(String targetID, long logID) {
+    	File index = getLogFileIndex(targetID, logID);
+    	Long result = m_fileToLowestID.get(index.getAbsolutePath());
+    	if (result == null) {
+    		BufferedReader br = null;
+    		try {
+				br = new BufferedReader(new FileReader(index));
+    			String line = br.readLine();
+    			br.close();
+    			result = Long.parseLong(line);
+    			m_fileToLowestID.put(index.getAbsolutePath(), result);
+    		}
+    		catch (Exception nfe) {
+    			// if the file somehow got corrupted, or does not exist,
+    			// we simply assume 0 as the default
+    			m_fileToLowestID.put(index.getAbsolutePath(), 0L);
+    			return 0L;
+    		}
+    		finally {
+    			if (br != null) {
+    				try {
+						br.close();
+					}
+    				catch (IOException e) {}
+    			}
+    		}
+    	}
+    	return result;
+    }
+
+    private static FilenameFilter LOGID_FILENAME_FILTER = new LogIDFilenameFilter();
+    private static class LogIDFilenameFilter implements FilenameFilter {
+		@Override
+		public boolean accept(File dir, String name) {
+			try {
+				Long.parseLong(name);
+				return true;
+			}
+			catch (NumberFormatException nfe) {
+				return false;
+			}
+		}
     }
 }

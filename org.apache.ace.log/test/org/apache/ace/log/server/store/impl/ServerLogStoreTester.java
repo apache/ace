@@ -82,12 +82,7 @@ public class ServerLogStoreTester {
         }
         m_logStore.put(events);
         assert m_logStore.getDescriptors().size() == 3 * 4 : "Incorrect amount of ranges returned from store";
-        List<Event> stored = new ArrayList<Event>();
-        for (Descriptor range : m_logStore.getDescriptors()) {
-            for (Descriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
-                stored.addAll(m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getStoreID())));
-            }
-        }
+        List<Event> stored = getStoredEvents();
 
         Set<String> in = new HashSet<String>();
         for (Event event : events) {
@@ -100,6 +95,52 @@ public class ServerLogStoreTester {
         assert in.equals(out) : "Stored events differ from the added.";
     }
 
+    
+    @SuppressWarnings("serial")
+    @Test(groups = { UNIT })
+    public void testLogLowestID() throws IOException {
+        Map<String, String> props = new HashMap<String, String>();
+        props.put("test", "bar");
+
+        List<Descriptor> ranges = m_logStore.getDescriptors();
+        assert ranges.isEmpty() : "New store should have no ranges.";
+        List<Event> events = new ArrayList<Event>();
+
+        assert 0 == m_logStore.getLowestID("target", 1) : "Lowest ID should be 0 by default, not: " + m_logStore.getLowestID("target", 1);
+        m_logStore.setLowestID("target", 1, 10);
+        assert 10 == m_logStore.getLowestID("target", 1) : "Lowest ID should be 10, not: " + m_logStore.getLowestID("target", 1);
+        assert 0 == m_logStore.getLowestID("target", 0) : "Lowest ID should be 0 by default, not: " + m_logStore.getLowestID("target", 1);
+        assert 0 == m_logStore.getLowestID("target2", 1) : "Lowest ID should be 0 by default, not: " + m_logStore.getLowestID("target", 1);
+
+        for (long id = 0; id < 20; id++) {
+            events.add(new Event("target", 1, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, props));
+        }
+        m_logStore.put(events);
+        assert m_logStore.getDescriptors().size() == 1 : "Incorrect amount of ranges returned from store";
+        List<Event> stored = getStoredEvents();
+        assert stored.size() == 10 : "Exactly 10 events should have been stored";
+        m_logStore.setLowestID("target", 1, 19);
+        stored = getStoredEvents();
+        assert stored.size() == 1 : "Exactly 1 event should have been stored";
+        m_logStore.setLowestID("target", 1, 20);
+        stored = getStoredEvents();
+        assert stored.size() == 0 : "No events should have been stored";
+        m_logStore.setLowestID("target", 1, 100);
+        stored = getStoredEvents();
+        assert stored.size() == 0 : "No events should have been stored";
+    }
+
+	private List<Event> getStoredEvents() throws IOException {
+		List<Event> stored = new ArrayList<Event>();
+        for (Descriptor range : m_logStore.getDescriptors()) {
+            for (Descriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
+                stored.addAll(m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getStoreID())));
+            }
+        }
+		return stored;
+	}
+    
+    
     @Test(groups = { UNIT })
     public void testCreateLogMessagesConcurrently() throws Exception {
         final Properties props = new Properties();
@@ -123,12 +164,7 @@ public class ServerLogStoreTester {
         exec.shutdown();
         exec.awaitTermination(10, TimeUnit.SECONDS);
         assert m_logStore.getDescriptors().size() == 10 : "Incorrect amount of ranges returned from store: " + m_logStore.getDescriptors().size();
-        List<Event> stored = new ArrayList<Event>();
-        for (Descriptor range : m_logStore.getDescriptors()) {
-            for (Descriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
-                stored.addAll(m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getStoreID())));
-            }
-        }
+        List<Event> stored = getStoredEvents();
         assert stored.size() == 10000 : "Incorrect number of events got stored: " + stored.size();
     }
     
@@ -270,12 +306,7 @@ public class ServerLogStoreTester {
         es.awaitTermination(60, TimeUnit.SECONDS);
         int size = m_logStore.getDescriptors().size();
         assert size == 3 * 4 : "Incorrect amount of ranges returned from store: " + size;
-        List<Event> stored = new ArrayList<Event>();
-        for (Descriptor range : m_logStore.getDescriptors()) {
-            for (Descriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
-                stored.addAll(m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getStoreID())));
-            }
-        }
+        List<Event> stored = getStoredEvents();
 
         Set<String> out = new HashSet<String>();
         for (Event event : stored) {

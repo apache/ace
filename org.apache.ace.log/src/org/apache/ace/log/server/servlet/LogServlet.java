@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
+import org.apache.ace.feedback.LowestID;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.SortedRangeSet;
 import org.osgi.service.log.LogService;
@@ -57,6 +58,10 @@ import org.osgi.service.useradmin.User;
  * http://host:port/auditlog/receive - Return all known events
  * http://host:port/auditlog/receive?tid=myid - Return all known events belonging to the specified target ID
  * http://host:port/auditlog/receive?tid=myid&logid=2374623874 - Return all known events belonging to the specified target ID
+ * 
+ * Similarly, you can also send/receive lowest IDs for the logs:
+ * http://host:port/auditlog/sendids
+ * http://host:port/auditlog/receiveids
  *
  * If the request is not correctly formatted or other problems arise error code <code>HttpServletResponse.SC_NOT_FOUND</code> will be sent in the response.
  */
@@ -71,6 +76,8 @@ public class LogServlet extends HttpServlet {
     private static final String QUERY = "/query";
     private static final String SEND = "/send";
     private static final String RECEIVE = "/receive";
+    private static final String SEND_IDS = "/sendids";
+    private static final String RECEIVE_IDS = "/receiveids";
 
     // url parameter keys
     private static final String TARGETID_KEY = "tid";
@@ -100,16 +107,17 @@ public class LogServlet extends HttpServlet {
             if (SEND.equals(path) && !handleSend(request.getInputStream())) {
                 sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Could not construct a log event for all events received");
             }
+            else if (SEND_IDS.equals(path) && !handleSendIDs(request.getInputStream())) {
+                sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Could not set lowest IDs for all logs received");
+            }
         }
         catch (IOException e) {
-            sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error processing received log events");
+            sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error processing post request");
         }
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        // 'query' and 'receive' calls are GET calls
-
         String path = request.getPathInfo();
         String targetID = request.getParameter(TARGETID_KEY);
         String logID = request.getParameter(LOGID_KEY);
@@ -126,11 +134,14 @@ public class LogServlet extends HttpServlet {
                 sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Unable to interpret query");
             }
             else if (RECEIVE.equals(path) && !handleReceive(targetID, logID, range, filter, output)) {
-                sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Unable to interpret receive query");
+                sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Unable to interpret receive request");
+            }
+            else if (RECEIVE_IDS.equals(path) && !handleReceiveIDs(targetID, logID, filter, output)) {
+                sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Unable to interpret receiveids request");
             }
         }
         catch (IOException e) {
-            sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to process query");
+            sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to process request", e);
         }
         finally {
             try {
@@ -144,9 +155,6 @@ public class LogServlet extends HttpServlet {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (!authenticate(req)) {
@@ -269,6 +277,73 @@ public class LogServlet extends HttpServlet {
         m_store.put(events);
         return success;
     }
+    
+    // Handle a call to the send IDs 'command'
+    protected boolean handleSendIDs(ServletInputStream input) throws IOException {
+        boolean success = true;
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(input));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                try {
+                	LowestID lid = new LowestID(line);
+                	m_log.log(LogService.LOG_DEBUG, "Lowest ID event received: '" + line +"'");
+                	m_store.setLowestID(lid.getTargetID(), lid.getStoreID(), lid.getLowestID());
+                }
+                catch (IllegalArgumentException iae) {
+                    success = false;
+                    m_log.log(LogService.LOG_WARNING, "Could not construct lowest ID from string: '" + line + "'");
+                }
+            }
+        }
+        finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                }
+                catch (Exception ex) {
+                    // not much we can do
+                }
+            }
+        }
+        return success;
+    }
+    
+    // Handle a call to the receive 'command'
+    protected boolean handleReceiveIDs(String targetID, String logID, String filter, ServletOutputStream output) throws IOException {
+        if ((targetID != null) && (logID != null)) {
+            // target and log id are specified, return only the lowest ID that matches these id's
+    		long logid = Long.parseLong(logID);
+        	outputLowestID(targetID, logid, output);
+            return true;
+        }
+        else if ((targetID != null) && (logID == null)) {
+            // target id is specified, log id is not, return all events that belong to the specified target id
+            List<Descriptor> descriptors = m_store.getDescriptors(targetID);
+            for (Descriptor descriptor : descriptors) {
+                outputLowestID(targetID, descriptor.getStoreID(), output);
+            }
+            return true;
+        }
+        else if ((targetID == null) && (logID == null)) {
+            // no target or log id has been specified, return all events
+            List<Descriptor> descriptors = m_store.getDescriptors();
+            for (Descriptor descriptor : descriptors) {
+                outputLowestID(descriptor.getTargetID(), descriptor.getStoreID(), output);
+            }
+            return true;
+        }
+        return false;
+    }
+
+	private void outputLowestID(String targetID, long logID, ServletOutputStream output) throws IOException {
+		long lowestID = m_store.getLowestID(targetID, logID);
+		if (lowestID > 0) {
+			LowestID lid = new LowestID(targetID, logID, lowestID);
+			output.print(lid.toRepresentation() + "\n");
+		}
+	}
 
     // print string representations of all events in the specified range to the specified output
     private void outputRange(ServletOutputStream output, Descriptor range) throws IOException {
@@ -280,7 +355,16 @@ public class LogServlet extends HttpServlet {
 
     // send an error response
     private void sendError(HttpServletResponse response, int statusCode, String description) {
-        m_log.log(LogService.LOG_WARNING, "Log request failed: " + description);
+    	sendError(response, statusCode, description, null);
+    }
+    
+    private void sendError(HttpServletResponse response, int statusCode, String description, Throwable t) {
+    	if (t == null) {
+    		m_log.log(LogService.LOG_WARNING, "Log request failed: " + description);
+    	}
+    	else {
+    		m_log.log(LogService.LOG_WARNING, "Log request failed: " + description, t);
+    	}
         try {
             response.sendError(statusCode, description);
         }

@@ -193,4 +193,16 @@ public class MongoLogStore implements LogStore, ManagedService {
     	// TODO add an event to the appropriate store
     	return null;
     }
+
+	@Override
+	public void setLowestID(String targetID, long logID, long lowestID) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public long getLowestID(String targetID, long logID) throws IOException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

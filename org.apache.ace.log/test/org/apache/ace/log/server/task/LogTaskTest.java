@@ -39,7 +39,7 @@ public class LogTaskTest {
         public List<Descriptor> m_calledWith = new ArrayList<Descriptor>();
 
         public MockLogSyncTask(String endpoint, String name) {
-            super(endpoint, name, LogSyncTask.Mode.PUSH);
+            super(endpoint, name, LogSyncTask.Mode.PUSH, LogSyncTask.Mode.NONE);
         }
 
         public void clear() {
