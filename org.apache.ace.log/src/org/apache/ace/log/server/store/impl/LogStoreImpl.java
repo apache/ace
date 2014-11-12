@@ -271,8 +271,10 @@ public class LogStoreImpl implements LogStore, ManagedService {
                 // and sort
                 Collections.sort(list);
                 // and remove if necessary
-                while (list.size() > m_maxEvents) {
-                	list.remove(0);
+                if (m_maxEvents > 0) {
+	                while (list.size() > m_maxEvents) {
+	                	list.remove(0);
+	                }
                 }
                 out = new PrintWriter(new FileWriter(new File(dir, logID.toString())));
             }

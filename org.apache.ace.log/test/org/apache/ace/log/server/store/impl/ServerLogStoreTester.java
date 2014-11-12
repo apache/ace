@@ -95,6 +95,58 @@ public class ServerLogStoreTester {
         assert in.equals(out) : "Stored events differ from the added.";
     }
 
+    @SuppressWarnings("serial")
+    @Test(groups = { UNIT })
+    public void testLogOutOfOrder() throws IOException {
+        Map<String, String> props = new HashMap<String, String>();
+        props.put("test", "bar");
+
+        List<Descriptor> ranges = m_logStore.getDescriptors();
+        assert ranges.isEmpty() : "New store should have no ranges.";
+
+        List<Event> events = new ArrayList<Event>();
+        events.add(new Event("t1", 1, 2, 2, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("t1", 1, 3, 3, AuditEvent.FRAMEWORK_STARTED, props));
+        events.add(new Event("t1", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        m_logStore.put(events);
+        assert m_logStore.getDescriptors().size() == 1 : "Incorrect amount of ranges returned from store";
+        List<Event> stored = getStoredEvents();
+
+        Set<String> out = new HashSet<String>();
+        for (Event event : stored) {
+            out.add(event.toRepresentation());
+        }
+        assert out.size() == 3 : "Stored events differ from the added.";
+    }
+
+    @SuppressWarnings("serial")
+    @Test(groups = { UNIT })
+    public void testLogOutOfOrderOneByOne() throws IOException {
+        Map<String, String> props = new HashMap<String, String>();
+        props.put("test", "bar");
+
+        List<Descriptor> ranges = m_logStore.getDescriptors();
+        assert ranges.isEmpty() : "New store should have no ranges.";
+
+        List<Event> events = new ArrayList<Event>();
+        events.add(new Event("t1", 1, 2, 2, AuditEvent.FRAMEWORK_STARTED, props));
+        m_logStore.put(events);
+        events.clear();
+        events.add(new Event("t1", 1, 3, 3, AuditEvent.FRAMEWORK_STARTED, props));
+        m_logStore.put(events);
+        events.clear();
+        events.add(new Event("t1", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
+        m_logStore.put(events);
+        assert m_logStore.getDescriptors().size() == 1 : "Incorrect amount of ranges returned from store";
+        List<Event> stored = getStoredEvents();
+
+        Set<String> out = new HashSet<String>();
+        for (Event event : stored) {
+            out.add(event.toRepresentation());
+        }
+        assert out.size() == 3 : "Stored events differ from the added: " + out.size();
+    }
+
     
     @SuppressWarnings("serial")
     @Test(groups = { UNIT })
