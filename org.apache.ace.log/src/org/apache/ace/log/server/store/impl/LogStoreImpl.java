@@ -112,16 +112,20 @@ public class LogStoreImpl implements LogStore, ManagedService {
             in = new BufferedReader(new FileReader(log));
             String file = log.getAbsolutePath();
             long counter = 0;
+            long lowestID = getLowestIDInternal(descriptor.getTargetID(), descriptor.getStoreID());
             for (String line = in.readLine(); line != null; line = in.readLine()) {
                 Event event = new Event(line);
                 long id = event.getID();
-                if ((counter != -1) && ++counter == id) {
-
+                if (id < lowestID) {
+                	continue;
                 }
-                else {
+                if (lowestID > 0 && id == lowestID) {
+                	counter = lowestID - 1;
+                }
+                if ((counter == -1) || ++counter != id) {
                     counter = -1;
                 }
-                if (set.contains(id) && id >= getLowestIDInternal(descriptor.getTargetID(), descriptor.getStoreID())) {
+				if (set.contains(id)) {
                     result.add(event);
                 }
             }
@@ -155,9 +159,16 @@ public class LogStoreImpl implements LogStore, ManagedService {
     
     private Descriptor getDescriptorInternal(String targetID, long logID, boolean lock) throws IOException {
         Long high = m_fileToHighestID.get(getLogFile(targetID, logID).getAbsolutePath());
+        long lowestID = getLowestIDInternal(targetID, logID);
         if (high != null) {
-            Range r = new Range(1, high);
-            return new Descriptor(targetID, logID, new SortedRangeSet(r.toRepresentation()));
+            long low = lowestID > 0 ? lowestID : 1;
+            if (low > high) {
+                return new Descriptor(targetID, logID, new SortedRangeSet(""));
+            }
+            else {
+            	Range r = new Range(low, high);
+            	return new Descriptor(targetID, logID, new SortedRangeSet(r.toRepresentation()));
+            }
         }
         Descriptor descriptor = new Descriptor(targetID, logID, SortedRangeSet.FULL_SET);
 		List<Event> events = lock ? get(descriptor) : getInternal(descriptor);

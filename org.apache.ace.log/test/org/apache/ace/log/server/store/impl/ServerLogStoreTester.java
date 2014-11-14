@@ -164,19 +164,30 @@ public class ServerLogStoreTester {
         assert 0 == m_logStore.getLowestID("target", 0) : "Lowest ID should be 0 by default, not: " + m_logStore.getLowestID("target", 1);
         assert 0 == m_logStore.getLowestID("target2", 1) : "Lowest ID should be 0 by default, not: " + m_logStore.getLowestID("target", 1);
 
-        for (long id = 0; id < 20; id++) {
+        for (long id = 1; id <= 20; id++) {
             events.add(new Event("target", 1, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, props));
         }
         m_logStore.put(events);
-        assert m_logStore.getDescriptors().size() == 1 : "Incorrect amount of ranges returned from store";
+        List<Descriptor> descriptors = m_logStore.getDescriptors();
+        assert descriptors.size() == 1 : "Incorrect amount of ranges returned from store";
+        String range = descriptors.get(0).getRangeSet().toRepresentation();
+        assert range.equals("10-20") : "Incorrect range in descriptor: " + range;
         List<Event> stored = getStoredEvents();
-        assert stored.size() == 10 : "Exactly 10 events should have been stored";
-        m_logStore.setLowestID("target", 1, 19);
-        stored = getStoredEvents();
-        assert stored.size() == 1 : "Exactly 1 event should have been stored";
+        assert stored.size() == 11 : "Exactly 11 events should have been stored";
         m_logStore.setLowestID("target", 1, 20);
         stored = getStoredEvents();
+        assert stored.size() == 1 : "Exactly 1 event should have been stored";
+        descriptors = m_logStore.getDescriptors();
+        assert descriptors.size() == 1 : "Incorrect amount of ranges returned from store";
+        range = descriptors.get(0).getRangeSet().toRepresentation();
+        assert range.equals("20") : "Incorrect range in descriptor: " + range;
+        m_logStore.setLowestID("target", 1, 21);
+        stored = getStoredEvents();
         assert stored.size() == 0 : "No events should have been stored";
+        descriptors = m_logStore.getDescriptors();
+        assert descriptors.size() == 1 : "Incorrect amount of ranges returned from store";
+        range = descriptors.get(0).getRangeSet().toRepresentation();
+        assert range.equals("") : "Incorrect range in descriptor: " + range;
         m_logStore.setLowestID("target", 1, 100);
         stored = getStoredEvents();
         assert stored.size() == 0 : "No events should have been stored";
