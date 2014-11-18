@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -193,11 +194,63 @@ public class ServerLogStoreTester {
         assert stored.size() == 0 : "No events should have been stored";
     }
 
-	private List<Event> getStoredEvents() throws IOException {
+    @SuppressWarnings("serial")
+    @Test(groups = { UNIT })
+    public void testLogIDGenerationWithLowestID() throws IOException {
+        Dictionary<String, String> props = new Hashtable<>();
+        props.put("test", "foo");
+
+        long logID = 0;
+        for (long id = 1; id <= 20; id++) {
+            Event event = m_logStore.put("target", 1, props);
+            System.out.println("Event: " + event.toRepresentation());
+            logID = event.getStoreID();
+        }
+
+        List<Descriptor> descriptors = m_logStore.getDescriptors();
+        assert descriptors.size() == 1 : "Incorrect amount of ranges returned from store";
+        String range = descriptors.get(0).getRangeSet().toRepresentation();
+        assert range.equals("1-20") : "Incorrect range in descriptor: " + range;
+        List<Event> stored = getStoredEvents();
+        assert stored.size() == 20 : "Exactly 20 events should have been stored";
+        
+        m_logStore.setLowestID("target", logID, 10);
+        assert 10 == m_logStore.getLowestID("target", logID) : "Lowest ID should be 10, not: " + m_logStore.getLowestID("target", logID);
+        
+        stored = getStoredEvents();
+        assert stored.size() == 11 : "Exactly 11 events should have been stored, we found " + stored.size();
+        descriptors = m_logStore.getDescriptors();
+        assert descriptors.size() == 1 : "Incorrect amount of ranges returned from store";
+        range = descriptors.get(0).getRangeSet().toRepresentation();
+        assert range.equals("10-20") : "Incorrect range in descriptor: " + range;
+
+        m_logStore.setLowestID("target", logID, 21);
+        stored = getStoredEvents();
+        assert stored.size() == 0 : "No events should have been stored, we found " + stored.size();
+        descriptors = m_logStore.getDescriptors();
+        assert descriptors.size() == 1 : "Incorrect amount of ranges returned from store";
+        range = descriptors.get(0).getRangeSet().toRepresentation();
+        assert range.equals("") : "Incorrect range in descriptor: " + range;
+
+        for (long id = 1; id <= 20; id++) {
+            System.out.println("Event: " + m_logStore.put("target", 1, props).toRepresentation());
+        }
+        
+        stored = getStoredEvents();
+        assert stored.size() == 20 : "Exactly 20 events should have been stored, we found " + stored.size();
+        descriptors = m_logStore.getDescriptors();
+        assert descriptors.size() == 1 : "Incorrect amount of ranges returned from store";
+        range = descriptors.get(0).getRangeSet().toRepresentation();
+        assert range.equals("21-40") : "Incorrect range in descriptor: " + range;
+    }
+    
+    private List<Event> getStoredEvents() throws IOException {
 		List<Event> stored = new ArrayList<Event>();
         for (Descriptor range : m_logStore.getDescriptors()) {
+            System.out.println("TID: " + range.getTargetID());
             for (Descriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
                 stored.addAll(m_logStore.get(m_logStore.getDescriptor(range2.getTargetID(), range2.getStoreID())));
+                System.out.println("  Range: " + range2.getRangeSet());
             }
         }
 		return stored;

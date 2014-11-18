@@ -554,6 +554,10 @@ public class LogStoreImpl implements LogStore, ManagedService {
         	// re-fetch within the lock
         	descriptor = getDescriptorInternal(targetID, storeID);
             long high = descriptor.getRangeSet().getHigh();
+            long lowestID = getLowestIDInternal(targetID, storeID);
+            if (high < lowestID) {
+                high = lowestID - 1;
+            }
             Event result = new Event(targetID, storeID, high + 1, System.currentTimeMillis(), type, props);
             List<Event> list = new ArrayList<>();
             list.add(result);
@@ -577,6 +581,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
 		        	File index = getLogFileIndex(targetID, logID);
 					fw = new FileWriter(index);
 		        	fw.write(Long.toString(lowestID));
+		        	System.out.println("SLID: " + index.getAbsolutePath() + "=" + lowestID);
 		        	m_fileToLowestID.put(index.getAbsolutePath(), lowestID);
 		        }
 		        finally {
@@ -615,11 +620,13 @@ public class LogStoreImpl implements LogStore, ManagedService {
     			br.close();
     			result = Long.parseLong(line);
     			m_fileToLowestID.put(index.getAbsolutePath(), result);
+                System.out.println("GLID: " + index.getAbsolutePath() + "=" + result);
     		}
     		catch (Exception nfe) {
     			// if the file somehow got corrupted, or does not exist,
     			// we simply assume 0 as the default
     			m_fileToLowestID.put(index.getAbsolutePath(), 0L);
+                System.out.println("GLID: " + index.getAbsolutePath() + "=0!!!");
     			return 0L;
     		}
     		finally {
