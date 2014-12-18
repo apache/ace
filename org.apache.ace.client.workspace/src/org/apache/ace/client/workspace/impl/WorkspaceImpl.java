@@ -58,8 +58,6 @@ import org.osgi.framework.Filter;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 
-import com.sun.corba.se.impl.oa.poa.AOMEntry;
-
 public class WorkspaceImpl implements Workspace {
 
     private final String m_sessionID;
@@ -277,6 +275,17 @@ public class WorkspaceImpl implements Workspace {
         updateAssociationAttributes(entityType, repositoryObject);
         updateTags(tags, repositoryObject);
     }
+    
+    @Override
+    public void idp(String dpURL) throws Exception {
+        idp(dpURL, true /* autoCommit */);
+    }
+    
+    @Override
+    public void idp(String dpURL, boolean autoCommit) throws Exception {
+        // Delegate all complexity to a separate helper class...
+        new DPHelper(this, m_log).importDeploymentPackage(dpURL, autoCommit);
+    }
 
     private void updateTags(Map<String, String> tags, RepositoryObject repositoryObject) {
         Enumeration<String> keys;
@@ -491,7 +500,11 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public void ca(String url, boolean upload) throws Exception {
-        m_artifactRepository.importArtifact(new URL(url), upload);
+        createArtifact(url, upload);
+    }
+
+    public ArtifactObject createArtifact(String url, boolean upload) throws Exception {
+        return m_artifactRepository.importArtifact(new URL(url), upload);
     }
 
     @Override
@@ -586,7 +599,11 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public void cf(Map<String, String> attrs, Map<String, String> tags) {
-        createRepositoryObject(FEATURE, attrs, tags);
+        createFeature(attrs, tags);
+    }
+
+    public FeatureObject createFeature(Map<String, String> attrs, Map<String, String> tags) {
+        return (FeatureObject) createRepositoryObject(FEATURE, attrs, tags);
     }
 
     @Override
@@ -659,7 +676,11 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public void cd(Map<String, String> attrs, Map<String, String> tags) {
-        createRepositoryObject(DISTRIBUTION, attrs, tags);
+        createDistribution(attrs, tags);
+    }
+
+    public DistributionObject createDistribution(Map<String, String> attrs, Map<String, String> tags) {
+        return (DistributionObject) createRepositoryObject(DISTRIBUTION, attrs, tags);
     }
 
     @Override

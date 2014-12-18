@@ -392,4 +392,25 @@ public interface Workspace {
 
     public boolean isCurrent() throws IOException;
 
+    /*** deployment package ***/
+
+    /**
+     * Imports a deployment package from a given URL and commits all changes to the workspace.
+     * 
+     * @param dpURL
+     *            the URL to the deployment package to import.
+     * @see #idp(String, boolean)
+     */
+    public void idp(String dpURL) throws Exception;
+
+    /**
+     * Imports a deployment package from a given URL.
+     * 
+     * @param dpURL
+     *            the URL to the deployment package to import;
+     * @param autoCommit
+     *            <code>true</code> if changes to the workspace should be committed automatically, <code>false</code>
+     *            otherwise.
+     */
+    public void idp(String dpURL, boolean autoCommit) throws Exception;
 }
