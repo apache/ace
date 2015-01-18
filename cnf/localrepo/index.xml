@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<repository increment='1421330042658' name='Local' xmlns='http://www.osgi.org/xmlns/repository/v1.0.0'>
+<repository increment='1421609627484' name='Local' xmlns='http://www.osgi.org/xmlns/repository/v1.0.0'>
   <resource>
     <capability namespace='osgi.identity'>
       <attribute name='osgi.identity' value='biz.aQute.bnd'/>
@@ -7099,9 +7099,9 @@
       <attribute name='version' type='Version' value='0.9.8.SNAPSHOT'/>
     </capability>
     <capability namespace='osgi.content'>
-      <attribute name='osgi.content' value='d491d3dcd4aa4fc5dded0648d169393cabaf23883ea4775818ed43f306de8b24'/>
+      <attribute name='osgi.content' value='737e67d9a28131f89fadcf36a3f5c3d46703b569883954275270bb1239c85412'/>
       <attribute name='url' value='org.apache.felix.deploymentadmin/org.apache.felix.deploymentadmin-0.9.8.jar'/>
-      <attribute name='size' type='Long' value='100254'/>
+      <attribute name='size' type='Long' value='100235'/>
       <attribute name='mime' value='application/vnd.osgi.bundle'/>
     </capability>
     <capability namespace='osgi.wiring.bundle'>
