@@ -18,8 +18,10 @@
  */
 package org.apache.ace.http.listener;
 
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,22 +36,26 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 /**
- * Service responsible for registrating Servlets at HttpServices.<p>
+ * Service responsible for registrating Servlets at HttpServices.
+ * <p>
  *
- * When a Servlet is being added or removed, the callback methods in this class are being
- * called via the DependencyManager. A Servlet is being added to all HttpServices currently
- * available or removed from all available HttpServices.<p>
+ * When a Servlet is being added or removed, the callback methods in this class are being called via the
+ * DependencyManager. A Servlet is being added to all HttpServices currently available or removed from all available
+ * HttpServices.
+ * <p>
  *
- * In case a HttpService is being added or removed, other callback methods are being called
- * via the DependencyManager. When a HttpService is added, all previously registered Servlets
- * are being registered to this new HttpService. In case of removal, all Servlet endpoints are
- * being removed from the HttpService that is going to be removed.<p>
+ * In case a HttpService is being added or removed, other callback methods are being called via the DependencyManager.
+ * When a HttpService is added, all previously registered Servlets are being registered to this new HttpService. In case
+ * of removal, all Servlet endpoints are being removed from the HttpService that is going to be removed.
+ * <p>
  */
 public class Activator extends DependencyActivatorBase {
+    private static final String INIT_PREFIX = "init.";
 
-    private volatile LogService m_log; // injected
     private final Set<ServiceReference> m_httpServices = new HashSet<ServiceReference>();
     private final Map<ServiceReference, String> m_servlets = new HashMap<ServiceReference, String>();
+
+    private volatile LogService m_log; // injected
     private BundleContext m_context;
 
     @Override
@@ -71,21 +77,25 @@ public class Activator extends DependencyActivatorBase {
     }
 
     /**
-     * Callback method used in case a Servlet is being added. This Servlet is being added
-     * to all available HttpServices under the endpoint configured via the Configurator.
+     * Callback method used in case a Servlet is being added. This Servlet is being added to all available HttpServices
+     * under the endpoint configured via the Configurator.
      *
-     * @param ref  reference to the Servlet
+     * @param ref
+     *            reference to the Servlet
      */
     public synchronized void addServlet(ServiceReference ref) {
         // register servlet to all HttpServices
-        String endpoint = (String)ref.getProperty(HttpConstants.ENDPOINT);
+        String endpoint = (String) ref.getProperty(HttpConstants.ENDPOINT);
         m_servlets.put(ref, endpoint);
-        Servlet servlet = (Servlet)m_context.getService(ref);
+
+        Servlet servlet = (Servlet) m_context.getService(ref);
+        Dictionary<String, Object> initParams = getInitParams(ref);
+
         for (ServiceReference reference : m_httpServices) {
             HttpService httpService = (HttpService) m_context.getService(reference);
             try {
                 if ((httpService != null) && (endpoint != null) && (servlet != null)) {
-                    httpService.registerServlet(endpoint, servlet, null, null);
+                    httpService.registerServlet(endpoint, servlet, initParams, null);
                 }
                 else {
                     m_log.log(LogService.LOG_WARNING, "Unable to register servlet with endpoint '" + endpoint + "'");
@@ -97,11 +107,21 @@ public class Activator extends DependencyActivatorBase {
         }
     }
 
+    private Dictionary<String, Object> getInitParams(ServiceReference ref) {
+        Dictionary<String, Object> initParams = new Hashtable<String, Object>();
+        for (String key : ref.getPropertyKeys()) {
+            if (key.startsWith(INIT_PREFIX)) {
+                initParams.put(key.substring(INIT_PREFIX.length()), ref.getProperty(key));
+            }
+        }
+        return initParams;
+    }
+
     /**
-     * Callback method used in case a Servlet is being changed. This Servlet is removed
-     * and then added again. 
+     * Callback method used in case a Servlet is being changed. This Servlet is removed and then added again.
      *
-     * @param ref  reference to the Servlet
+     * @param ref
+     *            reference to the Servlet
      */
     public synchronized void changeServlet(ServiceReference ref) {
         removeServlet(ref, m_servlets.get(ref));
@@ -109,14 +129,15 @@ public class Activator extends DependencyActivatorBase {
     }
 
     /**
-     * Callback method used in case a Servlet is being removed. This Servlet is being removed
-     * from all available HttpServices using the endpoint configured via the Configurator.
+     * Callback method used in case a Servlet is being removed. This Servlet is being removed from all available
+     * HttpServices using the endpoint configured via the Configurator.
      *
-     * @param ref  reference to the Servlet
+     * @param ref
+     *            reference to the Servlet
      */
     public synchronized void removeServlet(ServiceReference ref) {
         // remove servlet from all HttpServices
-        String endpoint = (String)ref.getProperty(HttpConstants.ENDPOINT);
+        String endpoint = (String) ref.getProperty(HttpConstants.ENDPOINT);
         removeServlet(ref, endpoint);
     }
 
@@ -136,21 +157,23 @@ public class Activator extends DependencyActivatorBase {
     }
 
     /**
-     * Callback method used in case a HttpService is being added. To this Service all previously
-     * registered Servlet are added under the endpoints of the Servlets (which are configured
-     * via the Configurator).
+     * Callback method used in case a HttpService is being added. To this Service all previously registered Servlet are
+     * added under the endpoints of the Servlets (which are configured via the Configurator).
      *
-     * @param ref  reference to the Service
+     * @param ref
+     *            reference to the Service
      */
     public synchronized void addHttpService(ServiceReference ref, HttpService httpService) {
         m_httpServices.add(ref);
         // register all servlets to this new HttpService
         for (ServiceReference reference : m_servlets.keySet()) {
-            Servlet servlet = (Servlet)m_context.getService(reference);
-            String endpoint = (String)reference.getProperty(HttpConstants.ENDPOINT);
+            Servlet servlet = (Servlet) m_context.getService(reference);
+            String endpoint = (String) reference.getProperty(HttpConstants.ENDPOINT);
             if ((servlet != null) && (endpoint != null)) {
+                Dictionary<String, Object> initParams = getInitParams(reference);
+
                 try {
-                    httpService.registerServlet(endpoint, servlet, null, null);
+                    httpService.registerServlet(endpoint, servlet, initParams, null);
                 }
                 catch (Exception e) {
                     m_log.log(LogService.LOG_WARNING, "Already registered under existing endpoint", e);
@@ -160,11 +183,11 @@ public class Activator extends DependencyActivatorBase {
     }
 
     /**
-     * Callback method used in case a HttpService is being removed. From this Service all previously
-     * registered Servlet are removed using the endpoints of the Servlets (which are configured
-     * via the Configurator).
+     * Callback method used in case a HttpService is being removed. From this Service all previously registered Servlet
+     * are removed using the endpoints of the Servlets (which are configured via the Configurator).
      *
-     * @param ref  reference to the Service
+     * @param ref
+     *            reference to the Service
      */
     public synchronized void removeHttpService(ServiceReference ref, HttpService httpService) {
         m_httpServices.remove(ref);
@@ -175,7 +198,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public synchronized void destroy(BundleContext context, DependencyManager arg1) throws Exception {
         for (ServiceReference httpRef : m_httpServices) {
-            HttpService httpService = (HttpService)m_context.getService(httpRef);
+            HttpService httpService = (HttpService) m_context.getService(httpRef);
             if (httpService != null) {
                 unregisterEndpoints(httpService);
             }
@@ -186,14 +209,14 @@ public class Activator extends DependencyActivatorBase {
     }
 
     /**
-     * Unregisters all Servlets (via their endpoints) from the HttpService being passed to
-     * this method.
+     * Unregisters all Servlets (via their endpoints) from the HttpService being passed to this method.
      *
-     * @param httpService  the HttpService that is being unregistered
+     * @param httpService
+     *            the HttpService that is being unregistered
      */
     private void unregisterEndpoints(HttpService httpService) {
         for (ServiceReference reference : m_servlets.keySet()) {
-            String endpoint = (String)reference.getProperty(HttpConstants.ENDPOINT);
+            String endpoint = (String) reference.getProperty(HttpConstants.ENDPOINT);
             if (endpoint != null) {
                 try {
                     httpService.unregister(endpoint);
