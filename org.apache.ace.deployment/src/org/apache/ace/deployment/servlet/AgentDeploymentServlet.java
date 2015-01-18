@@ -44,6 +44,8 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.connectionfactory.ConnectionFactory;
+import org.apache.felix.dm.Component;
+import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.Version;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
@@ -68,6 +70,7 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
     public static final String TEXT_MIMETYPE = "text/plain";
 
     // injected by Dependency Manager
+    private volatile DependencyManager m_dm;
     private volatile LogService m_log;
     private volatile AuthenticationService m_authService;
     private volatile ConnectionFactory m_connectionFactory;
@@ -125,6 +128,17 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
             m_useAuth = false;
             m_obrURL = null;
         }
+    }
+
+    /**
+     * Called by Dependency Manager upon initialization of this component.
+     * 
+     * @param comp the component to initialize, cannot be <code>null</code>.
+     */
+    protected void init(Component comp) {
+        comp.add(m_dm.createServiceDependency()
+            .setService(AuthenticationService.class).setRequired(m_useAuth).setInstanceBound(true)
+        );
     }
 
     @Override
