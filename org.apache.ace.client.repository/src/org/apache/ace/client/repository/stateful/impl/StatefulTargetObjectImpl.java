@@ -728,6 +728,10 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
                     return getStatusAttribute((String) key);
                 }
             }
+            // ACE-509 - make sure we've got a proper target object to work on...
+            if (m_targetObject == null) {
+                return null;
+            }
             String tag = m_targetObject.getTag((String)key);
             String attr = m_targetObject.getAttribute((String)key);
             if (tag == null) {
