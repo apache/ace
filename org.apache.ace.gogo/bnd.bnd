@@ -6,7 +6,8 @@
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.ace.bnd.repository;version=latest,\
-	org.apache.ace.log.server.store.api;version=latest
+	org.apache.ace.log.server.store.api;version=latest,\
+	org.apache.ace.feedback.common;version=latest
 
 Bundle-Name: Apache ACE Gogo commands
 Bundle-Description: Provides Gogo commands for working with ACE	
