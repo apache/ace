@@ -51,15 +51,20 @@ public class Activator extends DependencyActivatorBase {
                 .setRequired(true)
             )
             );
+        
+        Properties props = new Properties();
+        // ACE-472 - put Vaadin in production mode...
+        props.put("init.productionMode", "true");
+        
         // register the main application for the ACE UI client
         manager.add(createComponent()
-            .setInterface(Servlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), props)
             .setImplementation(VaadinServlet.class)
             .add(createConfigurationDependency()
                 .setPid(PID).setPropagate(true))
             );
 
-        Properties props = new Properties();
+        props = new Properties();
         props.put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET);
         props.put(Constants.SERVICE_RANKING, Integer.valueOf(100));
 
