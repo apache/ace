@@ -187,7 +187,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
     private final AssociationHelper m_associations = new AssociationHelper();
     private final AtomicBoolean m_dependenciesResolved = new AtomicBoolean(false);
     // for the artifacts list...
-    private final int m_cacheRate;
+    private final double m_cacheRate;
     private final int m_pageLength;
 
     private ProgressIndicator m_progress;
@@ -214,7 +214,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      * @param userName
      *            the hardcoded username to use when authentication is disabled.
      */
-    public VaadinClient(DependencyManager manager, URL aceHost, URL obrUrl, String repositoryXML, boolean useAuth, String userName, String password, int cacheRate, int pageLength) {
+    public VaadinClient(DependencyManager manager, URL aceHost, URL obrUrl, String repositoryXML, boolean useAuth, String userName, String password, double cacheRate, int pageLength) {
         m_manager = manager;
         try {
             m_repository = new URL(aceHost, endpoint);

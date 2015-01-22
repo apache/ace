@@ -37,7 +37,7 @@ import com.vaadin.data.Item;
  * Provides an object panel for displaying artifacts.
  */
 public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, ArtifactRepository, RepositoryObject, FeatureObject> {
-    private final int m_cacheRate;
+    private final double m_cacheRate;
     private final int m_pageLength;
 
     /**
@@ -48,7 +48,7 @@ public abstract class ArtifactsPanel extends BaseObjectPanel<ArtifactObject, Art
      * @param associationMgr
      *            the helper for creating/removing associations.
      */
-    public ArtifactsPanel(AssociationHelper associations, AssociationManager associationMgr, int cacheRate, int pageLength) {
+    public ArtifactsPanel(AssociationHelper associations, AssociationManager associationMgr, double cacheRate, int pageLength) {
         super(associations, associationMgr, "Artifact", UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT, true, ArtifactObject.class);
 
         m_cacheRate = cacheRate;

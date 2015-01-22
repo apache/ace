@@ -66,7 +66,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     private static final String DEFAULT_OBR_XML = "repository.xml";
     private static final String DEFAULT_SERVLET_ENDPOINT = "/ace";
     private static final int DEFAULT_SESSION_TIMEOUT = 300; // in seconds.
-    private static final int DEFAULT_CACHE_RATE = 2;
+    private static final double DEFAULT_CACHE_RATE = 1;
     private static final int DEFAULT_PAGE_LENGTH = 100;
 
     static {
@@ -88,7 +88,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     private volatile String m_repositoryXML;
     private volatile String m_servletEndpoint;
     private volatile int m_sessionTimeout;
-    private volatile int m_cacheRate;
+    private volatile double m_cacheRate;
     private volatile int m_pageLength;
 
     /**
@@ -117,7 +117,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         String repositoryXML = DEFAULT_OBR_XML;
         String servletEndpoint = DEFAULT_SERVLET_ENDPOINT;
         int sessionTimeout = DEFAULT_SESSION_TIMEOUT;
-        int cacheRate = DEFAULT_CACHE_RATE;
+        double cacheRate = DEFAULT_CACHE_RATE;
         int pageLength = DEFAULT_PAGE_LENGTH;
 
         if (dictionary != null) {
@@ -130,14 +130,14 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
             servletEndpoint = getOptionalString(dictionary, KEY_SERVLET_ENDPOINT);
             sessionTimeout = getInteger(dictionary, KEY_SESSION_TIMEOUT);
             
-            Integer value = getOptionalInteger(dictionary, KEY_CACHE_RATE);
-            if (value != null) {
-                cacheRate = value.intValue(); 
+            Double doubleValue = getOptionalDouble(dictionary, KEY_CACHE_RATE);
+            if (doubleValue != null) {
+                cacheRate = doubleValue.doubleValue(); 
             }
 
-            value = getOptionalInteger(dictionary, KEY_PAGE_LENGTH);
-            if (value != null) {
-                pageLength = value.intValue(); 
+            Integer intValue = getOptionalInteger(dictionary, KEY_PAGE_LENGTH);
+            if (intValue != null) {
+                pageLength = intValue.intValue(); 
             }
         }
 
@@ -213,6 +213,27 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
             throw new ConfigurationException(key, "Missing property");
         }
         return value.intValue();
+    }
+
+    private Double getOptionalDouble(Dictionary dictionary, String key) throws ConfigurationException {
+        Object value = dictionary.get(key);
+        if (value == null) {
+            return null;
+        }
+        if (!(value instanceof Double) && !(value instanceof String)) {
+            throw new ConfigurationException(key, "Invalid value!");
+        }
+        if (value instanceof Double) {
+            return (Double) value;
+        }
+
+        try {
+            String valueStr = ((String) value).trim();
+            return Double.parseDouble(valueStr);
+        }
+        catch (NumberFormatException exception) {
+            throw new ConfigurationException(key, "Invalid value!");
+        }
     }
 
     private Integer getOptionalInteger(Dictionary dictionary, String key) throws ConfigurationException {
