@@ -109,17 +109,6 @@ import com.vaadin.ui.Window.Notification;
 @SuppressWarnings("serial")
 public class VaadinClient extends com.vaadin.Application implements AssociationManager, LoginFunction {
 
-    private static final long serialVersionUID = 1L;
-
-    private static final AtomicLong SESSION_ID = new AtomicLong(1L);
-
-    private static final String targetRepo = "target";
-    private static final String shopRepo = "shop";
-    private static final String deployRepo = "deployment";
-    private static final String customerName = "apache";
-
-    private static final String endpoint = "/repository";
-
     // basic session ID generator
     private static long generateSessionID() {
         return SESSION_ID.getAndIncrement();
@@ -146,6 +135,17 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         }
         directory.delete();
     }
+
+    private static final long serialVersionUID = 1L;
+    private static final AtomicLong SESSION_ID = new AtomicLong(1L);
+    private static final String targetRepo = "target";
+    private static final String shopRepo = "shop";
+
+    private static final String deployRepo = "deployment";
+
+    private static final String customerName = "apache";
+
+    private static final String endpoint = "/repository";
 
     private volatile AuthenticationService m_authenticationService;
     private volatile BundleContext m_context;
@@ -433,6 +433,39 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         finally {
             m_dependenciesResolved.set(false);
         }
+    }
+
+    final void showAddArtifactDialog() {
+        final AddArtifactWindow window = new AddArtifactWindow(m_sessionDir, m_obrUrl, m_repositoryXML) {
+            @Override
+            protected ArtifactRepository getArtifactRepository() {
+                return m_artifactRepository;
+            }
+
+            @Override
+            protected ConnectionFactory getConnectionFactory() {
+                return m_connectionFactory;
+            }
+
+            @Override
+            protected LogService getLogger() {
+                return m_log;
+            }
+        };
+
+        // Open the subwindow by adding it to the parent window
+        window.showWindow(getMainWindow());
+    }
+
+    final void showManageResourceProcessorsDialog() {
+        ManageResourceProcessorWindow window = new ManageResourceProcessorWindow() {
+            @Override
+            protected ArtifactRepository getArtifactRepository() {
+                return m_artifactRepository;
+            }
+        };
+        // Open the subwindow by adding it to the parent window
+        window.showWindow(getMainWindow());
     }
 
     /**
@@ -724,6 +757,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         HorizontalLayout result = new HorizontalLayout();
         result.setSpacing(true);
         result.addComponent(createAddArtifactButton());
+        result.addComponent(createManageResourceProcessorsButton());
         return result;
     }
 
@@ -799,6 +833,18 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         result.setSpacing(true);
         result.addComponent(createAddFeatureButton());
         return result;
+    }
+
+    private Button createManageResourceProcessorsButton() {
+        // Solves ACE-224
+        Button button = new Button("RP");
+        button.addListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent event) {
+                showManageResourceProcessorsDialog();
+            }
+        });
+        return button;
     }
 
     private Button createRegisterTargetsButton() {
@@ -1198,28 +1244,6 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
     private boolean loginAutomatically() {
         setUser(m_userAdmin.getUser("username", m_userName));
         return doLogin();
-    }
-
-    private void showAddArtifactDialog() {
-        final AddArtifactWindow window = new AddArtifactWindow(m_sessionDir, m_obrUrl, m_repositoryXML) {
-            @Override
-            protected ArtifactRepository getArtifactRepository() {
-                return m_artifactRepository;
-            }
-
-            @Override
-            protected ConnectionFactory getConnectionFactory() {
-                return m_connectionFactory;
-            }
-
-            @Override
-            protected LogService getLogger() {
-                return m_log;
-            }
-        };
-
-        // Open the subwindow by adding it to the parent window
-        window.showWindow(getMainWindow());
     }
 
     /**
