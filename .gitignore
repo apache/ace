@@ -1,0 +1,11 @@
+.project
+.classpath
+.settings
+bin
+bin_test
+bundle-cache
+cache
+felix-cache
+generated
+store
+target
