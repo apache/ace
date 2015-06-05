@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.ace.client.repository.Associatable;
 import org.apache.ace.client.repository.Association;
@@ -55,6 +56,7 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
     private final Map<Class, List<Association>> m_associations = new HashMap<Class, List<Association>>();
     private final ChangeNotifier m_notifier;
     private final String m_xmlNode;
+    private static final Pattern VALID_KEY_PATTERN = Pattern.compile("[a-zA-Z]([a-zA-Z0-9_:.-])*");
 
     private volatile boolean m_deleted = false;
     private volatile boolean m_busy = false;
@@ -189,6 +191,7 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         if (value == null || key == null) {
             throw new IllegalArgumentException("Invalid key/value pair: " + key + "/" + value);
         }
+        validateKey(key);
         for (String s : getDefiningKeys()) {
             if (s.equals(key)) {
                 throw new UnsupportedOperationException("The defining attribute " + key + " is not allowed to be changed.");
@@ -235,6 +238,7 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         if (value == null || key == null) {
             throw new IllegalArgumentException("Invalid key/value pair: " + key + "/" + value);
         }
+        validateKey(key);
         String result = null;
         synchronized (m_attributes) {
             ensureCurrent();
@@ -247,6 +251,12 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
             }
         }
         return result;
+    }
+
+    private void validateKey(String key) {
+        if (!VALID_KEY_PATTERN.matcher(key).matches()) {
+            throw new IllegalArgumentException("Invalid key " + key + " does not match regex pattern " + VALID_KEY_PATTERN.pattern());
+        }
     }
 
     @Override
