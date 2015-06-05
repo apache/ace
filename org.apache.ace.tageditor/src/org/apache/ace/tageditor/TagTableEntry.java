@@ -22,6 +22,8 @@ import org.apache.ace.client.repository.RepositoryObject;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
@@ -44,6 +46,7 @@ public class TagTableEntry {
     public TagTableEntry(RepositoryObject repoObject) {
         m_repoObject = repoObject;
         m_keyField.setImmediate(true);
+        m_keyField.setInputPrompt("key");
         m_keyField.setWidth("100%");
         m_keyField.addListener(new ValueChangeListener() {
             public void valueChange(ValueChangeEvent event) {
@@ -52,6 +55,7 @@ public class TagTableEntry {
         });
         m_valueField.setImmediate(true);
         m_valueField.setWidth("100%");
+        m_valueField.setInputPrompt("value");
         m_valueField.addListener(new ValueChangeListener() {
             public void valueChange(ValueChangeEvent event) {
                 valueChanged();
@@ -109,7 +113,16 @@ public class TagTableEntry {
             m_lastKey = (String) m_keyField.getValue();
         }
         else {
-            m_repoObject.addTag(m_lastKey, null);
+            try {
+                m_repoObject.addTag(m_lastKey, null);
+            }
+            catch (IllegalArgumentException e) {
+                m_keyField.setValue("");
+                m_keyField.setInputPrompt("invalid key, try again");
+                m_lastKey = null;
+                m_keyField.focus();
+                return;
+            }
         }
         m_lastKey = (String) m_keyField.getValue();
         set(m_lastKey, (String) m_valueField.getValue());
@@ -122,7 +135,16 @@ public class TagTableEntry {
     private void set(String key, String value) {
         if ((key != null) && (key.trim().length() > 0)) {
             if ((value != null) && (value.trim().length() > 0)) {
-                m_repoObject.addTag(key, value); // TODO changing the tag that often is probably not a good idea (especially if nothing changed)
+                try {
+                    m_repoObject.addTag(key, value); // TODO changing the tag that often is probably not a good idea (especially if nothing changed)
+                }
+                catch (IllegalArgumentException e) {
+                    m_keyField.setValue("");
+                    m_keyField.setInputPrompt("invalid key, try again");
+                    m_keyField.focus();
+                    return;
+                }
+                
                 ChangeListener listener = m_listener;
                 if (listener != null) {
                     listener.changed(this);
