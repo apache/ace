@@ -289,7 +289,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         protected final void installationSuccess(UpdateInfo updateInfo) {
             m_lastVersionSuccessful = true;
             m_failureCount = 0;
-            m_controller.sendDeploymentCompletedEvent(updateInfo, true /* success */);
+            m_controller.sendDeploymentCompletedEvent(updateInfo, true /* success */, null);
         }
 
         /**
@@ -306,7 +306,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
 
             m_lastVersionSuccessful = false;
             m_failureCount++;
-            m_controller.sendDeploymentCompletedEvent(updateInfo, false /* success */);
+            m_controller.sendDeploymentCompletedEvent(updateInfo, false /* success */, exception.getCause());
         }
 
         /**
@@ -322,7 +322,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
 
             m_lastVersionSuccessful = false;
             m_failureCount++;
-            m_controller.sendDeploymentCompletedEvent(updateInfo, false /* success */);
+            m_controller.sendDeploymentCompletedEvent(updateInfo, false /* success */, cause);
         }
 
         protected final DefaultController getController() {
@@ -506,7 +506,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         }
     }
 
-    protected void sendDeploymentCompletedEvent(UpdateInfo updateInfo, boolean success) {
+    protected void sendDeploymentCompletedEvent(UpdateInfo updateInfo, boolean success, Throwable throwable) {
         Map<String, String> eventProps = new HashMap<String, String>();
         eventProps.put("type", updateInfo.m_type);
         eventProps.put("name", getIdentificationHandler().getAgentId());
@@ -514,6 +514,9 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
         eventProps.put("toVersion", updateInfo.m_to.toString());
         eventProps.put("fixPackage", Boolean.toString(updateInfo.m_fixPackage));
         eventProps.put("successful", Boolean.toString(success));
+        if (throwable != null) {
+            eventProps.put("exception", throwable.getMessage());
+        }
 
         getEventsHandler().postEvent(AGENT_INSTALLATION_COMPLETE, eventProps);
     }
