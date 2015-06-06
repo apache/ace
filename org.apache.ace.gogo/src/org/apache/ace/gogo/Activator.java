@@ -20,6 +20,7 @@ package org.apache.ace.gogo;
 
 import java.util.Properties;
 
+import org.apache.ace.gogo.collection.CollectionCommands;
 import org.apache.ace.gogo.execute.ExecuteCommands;
 import org.apache.ace.gogo.execute.ScriptExecutor;
 import org.apache.ace.gogo.log.LogCommands;
@@ -72,6 +73,11 @@ public class Activator extends DependencyActivatorBase {
                 .setService(LogStore.class)
                 .setRequired(true)));
 
+        manager.add(createComponent()
+            .setInterface(Object.class.getName(), createProps(CollectionCommands.SCOPE, CollectionCommands.FUNCTIONS))
+            .setImplementation(CollectionCommands.class)
+        );
+        
         String script = System.getProperty("ace.gogo.script");
         if (script != null) {
             long delay = Long.getLong("ace.gogo.script.delay", 300L);
