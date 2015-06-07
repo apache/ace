@@ -3,7 +3,6 @@
 # the the api package after the fact.
 Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 -runbundles: \
-	org.mockito.mockito-all,\
 	org.apache.ace.agent;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
