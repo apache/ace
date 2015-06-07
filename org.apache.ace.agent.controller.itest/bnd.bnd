@@ -1,7 +1,6 @@
 Test-Cases: org.apache.ace.agent.itest.CustomAgentControllerTest,\
 	org.apache.ace.agent.itest.CustomStandaloneAgentControllerTest
 -runbundles: \
-	org.mockito.mockito-all,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.builder;version=latest,\
 	org.apache.felix.configadmin,\
@@ -38,8 +37,7 @@ Private-Package: \
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.http.jetty,\
 	biz.aQute.bnd,\
-	junit.osgi,\
-	org.mockito.mockito-all	
+	junit.osgi
 -runsystempackages: sun.reflect
 -runproperties: \
 	org.apache.felix.eventadmin.Timeout=0,\
