@@ -63,7 +63,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             getDependencyManager().add(component);
         }
         else {
-            RedirectServlet servlet = (RedirectServlet) component.getService();
+            RedirectServlet servlet = (RedirectServlet) component.getInstance();
             if (servlet != null) {
                 servlet.update(properties);
             }

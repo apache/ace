@@ -41,6 +41,7 @@ import junit.framework.TestCase;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.ComponentDependencyDeclaration;
+import org.apache.felix.dm.ComponentState;
 import org.apache.felix.dm.ComponentStateListener;
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
@@ -77,7 +78,7 @@ public class IntegrationTestBase extends TestCase {
             StringBuilder result = new StringBuilder();
             for (Component component : m_components) {
                 result.append(component).append('\n');
-                for (ComponentDependencyDeclaration dependency : (List<ComponentDependencyDeclaration>) component.getDependencies()) {
+                for (ComponentDependencyDeclaration dependency : component.getComponentDeclaration().getComponentDependencies()) {
                     result.append("  ")
                         .append(dependency.toString())
                         .append(" ")
@@ -89,23 +90,31 @@ public class IntegrationTestBase extends TestCase {
             return result.toString();
         }
 
-        public void started(Component component) {
-            m_components.remove(component);
-            m_latch.countDown();
-        }
-
-        public void starting(Component component) {
-        }
-
-        public void stopped(Component component) {
-        }
-
-        public void stopping(Component component) {
-        }
+//        public void started(Component component) {
+//            m_components.remove(component);
+//            m_latch.countDown();
+//        }
+//
+//        public void starting(Component component) {
+//        }
+//
+//        public void stopped(Component component) {
+//        }
+//
+//        public void stopping(Component component) {
+//        }
 
         public boolean waitForEmpty(long timeout, TimeUnit unit) throws InterruptedException {
             return m_latch.await(timeout, unit);
         }
+
+		@Override
+		public void changed(Component component, ComponentState state) {
+			if (state == ComponentState.TRACKING_OPTIONAL) {
+	            m_components.remove(component);
+	            m_latch.countDown();
+			}
+		}
     }
 
     /**
@@ -580,7 +589,7 @@ public class IntegrationTestBase extends TestCase {
 
         // Register our listener for all the services...
         for (Component component : components) {
-            component.addStateListener(listener);
+            component.add(listener);
         }
 
         // Then give them to the dependency manager...

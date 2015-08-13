@@ -69,7 +69,7 @@ public class RepositoryFactory implements ManagedServiceFactory {
         // remove repository service...
         Component service = m_instances.remove(pid);
         if (service != null) {
-            File repoDir = ((RepositoryImpl) service.getService()).getDir();
+            File repoDir = ((RepositoryImpl) service.getInstance()).getDir();
 
             m_manager.remove(service);
 
@@ -164,7 +164,7 @@ public class RepositoryFactory implements ManagedServiceFactory {
         }
         else {
             // update existing instance...
-            RepositoryImpl store = (RepositoryImpl) oldService.getService();
+            RepositoryImpl store = (RepositoryImpl) oldService.getInstance();
 
             // be a little pedantic about the ignored properties...
             if (!baseDir.equals(store.getDir())) {

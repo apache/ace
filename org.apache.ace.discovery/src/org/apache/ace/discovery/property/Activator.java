@@ -104,7 +104,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             m_manager.add(component);
         }
         else {
-            Object service = component.getService();
+            Object service = component.getInstance();
             if (service instanceof PropertyBasedDiscovery) {
                 PropertyBasedDiscovery identification = (PropertyBasedDiscovery) service;
                 try {

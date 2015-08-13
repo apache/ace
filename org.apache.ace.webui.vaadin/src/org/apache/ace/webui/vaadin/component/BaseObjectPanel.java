@@ -357,7 +357,6 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
         DependencyManager dm = component.getDependencyManager();
         component.add(dm
             .createServiceDependency()
-            .setInstanceBound(true)
             .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + m_extensionPoint + ")")
             .setCallbacks("addExtension", "removeExtension"));
     }

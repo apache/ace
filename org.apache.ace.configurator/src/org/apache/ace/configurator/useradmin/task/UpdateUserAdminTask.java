@@ -84,7 +84,6 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
         comp.add(dm.createServiceDependency()
             .setService(Repository.class, m_repoFilter)
             .setCallbacks("addRepo", "removeRepo")
-            .setInstanceBound(true)
             .setRequired(true)
             );
     }

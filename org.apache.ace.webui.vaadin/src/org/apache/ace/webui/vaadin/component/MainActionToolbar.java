@@ -376,8 +376,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
             .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_MENU + ")")
             .setCallbacks("add", "remove")
             .setRequired(false)
-            .setInstanceBound(true)
-            );
+        );
     }
 
     protected final void remove(ServiceReference ref, UIExtensionFactory factory) {

@@ -524,7 +524,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         component.add(m_manager.createServiceDependency()
             .setService(service)
             .setRequired(true)
-            .setInstanceBound(true));
+        );
     }
 
     private void addListener(final Object implementation, final String... topics) {
@@ -544,7 +544,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         component.add(m_manager.createServiceDependency()
             .setService(service, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
             .setRequired(true)
-            .setInstanceBound(true));
+        );
     }
 
     /**

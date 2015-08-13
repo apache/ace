@@ -61,6 +61,7 @@ import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.RepositoryConstants;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
+import org.apache.felix.dm.ComponentState;
 import org.apache.felix.dm.ComponentStateListener;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -375,19 +376,13 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
                     }
                 }
             });
-        comp.addStateListener(new ComponentStateListener() {
-            public void stopping(Component comp) {
-            }
-
-            public void stopped(Component comp) {
-            }
-
-            public void starting(Component comp) {
-            }
-
-            public void started(Component comp) {
-                startLatch.countDown();
-            }
+        comp.add(new ComponentStateListener() {
+			@Override
+			public void changed(Component component, ComponentState state) {
+				if (state == ComponentState.TRACKING_OPTIONAL) {
+					startLatch.countDown();
+				}
+			}
         });
 
         if (debug) {

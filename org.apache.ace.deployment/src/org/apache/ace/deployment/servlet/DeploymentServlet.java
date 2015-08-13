@@ -199,7 +199,6 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         comp.add(m_dm.createServiceDependency()
             .setService(AuthenticationService.class)
             .setRequired(m_useAuth)
-            .setInstanceBound(true)
             );
     }
 

@@ -196,7 +196,7 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
     protected void init(Component comp) {
         comp.add(m_dm.createServiceDependency()
             .setService(AuthenticationService.class)
-            .setRequired(m_useAuth).setInstanceBound(true));
+            .setRequired(m_useAuth));
     }
 
     @Override

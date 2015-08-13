@@ -84,7 +84,7 @@ public class WorkspaceManagerImpl implements ManagedService, WorkspaceManager {
 
     private void addDependency(Component component, Class<?> service, boolean isRequired) {
         component.add(component.getDependencyManager().createServiceDependency().setService(service)
-                .setRequired(isRequired).setInstanceBound(true));
+                .setRequired(isRequired));
     }
 
     public void destroy() {

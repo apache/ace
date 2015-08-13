@@ -108,12 +108,11 @@ public class WorkspaceImpl implements Workspace {
     private void addSessionDependency(Component component, Class<?> service, boolean isRequired) {
         component.add(m_manager.createServiceDependency()
             .setService(service, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
-            .setRequired(isRequired).setInstanceBound(true));
+            .setRequired(isRequired));
     }
 
     private void addDependency(Component component, Class<?> service, boolean isRequired) {
-        component.add(m_manager.createServiceDependency().setService(service).setRequired(isRequired)
-            .setInstanceBound(true));
+        component.add(m_manager.createServiceDependency().setService(service).setRequired(isRequired));
     }
 
     public void init(Component component) {
