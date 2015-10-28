@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ace.client.repository.Association;
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.helper.ArtifactHelper;
@@ -169,8 +170,7 @@ public interface Workspace {
      * @param rightCardinality
      *            the cardinality of the right-hand side
      */
-    public void createAssocation(String entityType, String leftEntityId, String rightEntityId, String leftCardinality,
-        String rightCardinality);
+    public Association<? extends RepositoryObject, ? extends RepositoryObject> createAssocation(String entityType, String leftEntityId, String rightEntityId, String leftCardinality, String rightCardinality);
 
     /**
      * Get the RepositoryObject that represents the left-hand side of the specified association.
@@ -220,8 +220,6 @@ public interface Workspace {
 
     public List<ArtifactObject> la(String filter) throws Exception;
 
-    public List<ArtifactObject> lr();
-
     /**
      * Creates and optionally uploads an artifact from a given URL.
      * <p>
@@ -236,7 +234,7 @@ public interface Workspace {
      *            in the OBR.
      * @throws Exception
      */
-    public void ca(String url, boolean upload) throws Exception;
+    public ArtifactObject ca(String url, boolean upload) throws Exception;
 
     /**
      * Creates a new bundle artifact.
@@ -250,7 +248,7 @@ public interface Workspace {
      * @param version
      *            the version of the bundle artifact.
      */
-    public void ca(String name, String url, String bsn, String version);
+    public ArtifactObject ca(String name, String url, String bsn, String version);
 
     /**
      * Creates a new bundle artifact.
@@ -258,7 +256,7 @@ public interface Workspace {
      * @param attrs
      *            the attributes of the to-be-created artifact;
      */
-    public void ca(Map<String, String> attrs);
+    public ArtifactObject ca(Map<String, String> attrs);
 
     /**
      * Creates a new artifact.
@@ -268,9 +266,9 @@ public interface Workspace {
      * @param tags
      *            the tags of the to-be-created artifact.
      */
-    public void ca(Map<String, String> attrs, Map<String, String> tags);
+    public ArtifactObject ca(Map<String, String> attrs, Map<String, String> tags);
 
-    public void da(RepositoryObject repositoryObject);
+    public void da(ArtifactObject repositoryObject);
 
     public void da(String filter) throws Exception;
 
@@ -280,12 +278,12 @@ public interface Workspace {
 
     public List<Artifact2FeatureAssociation> la2f(String filter) throws Exception;
 
-    public void ca2f(String left, String right);
+    public Artifact2FeatureAssociation ca2f(String left, String right);
 
-    public void ca2f(String left, String right, String leftCardinality, String rightCardinalty);
+    public Artifact2FeatureAssociation ca2f(String left, String right, String leftCardinality, String rightCardinalty);
 
     public void da2f(Artifact2FeatureAssociation repositoryObject);
-    
+
     public void da2f(String filter) throws Exception;
 
     /*** feature ***/
@@ -294,14 +292,14 @@ public interface Workspace {
 
     public List<FeatureObject> lf(String filter) throws Exception;
 
-    public void cf(String name);
+    public FeatureObject cf(String name);
 
-    public void cf(Map<String, String> attrs);
+    public FeatureObject cf(Map<String, String> attrs);
 
-    public void cf(Map<String, String> attrs, Map<String, String> tags);
+    public FeatureObject cf(Map<String, String> attrs, Map<String, String> tags);
 
     public void df(FeatureObject repositoryObject);
-    
+
     public void df(String filter) throws Exception;
 
     /*** feature to distribution association ***/
@@ -310,12 +308,12 @@ public interface Workspace {
 
     public List<Feature2DistributionAssociation> lf2d(String filter) throws Exception;
 
-    public void cf2d(String left, String right);
+    public Feature2DistributionAssociation cf2d(String left, String right);
 
-    public void cf2d(String left, String right, String leftCardinality, String rightCardinalty);
+    public Feature2DistributionAssociation cf2d(String left, String right, String leftCardinality, String rightCardinalty);
 
     public void df2d(Feature2DistributionAssociation repositoryObject);
-    
+
     public void df2d(String filter) throws Exception;
 
     /*** distribution ***/
@@ -324,14 +322,14 @@ public interface Workspace {
 
     public List<DistributionObject> ld(String filter) throws Exception;
 
-    public void cd(String name);
+    public DistributionObject cd(String name);
 
-    public void cd(Map<String, String> attrs);
+    public DistributionObject cd(Map<String, String> attrs);
 
-    public void cd(Map<String, String> attrs, Map<String, String> tags);
+    public DistributionObject cd(Map<String, String> attrs, Map<String, String> tags);
 
     public void dd(DistributionObject repositoryObject);
-    
+
     public void dd(String filter) throws Exception;
 
     /*** distribution to target association ***/
@@ -340,12 +338,12 @@ public interface Workspace {
 
     public List<Distribution2TargetAssociation> ld2t(String filter) throws Exception;
 
-    public void cd2t(String left, String right);
+    public Distribution2TargetAssociation cd2t(String left, String right);
 
-    public void cd2t(String left, String right, String leftCardinality, String rightCardinalty);
+    public Distribution2TargetAssociation cd2t(String left, String right, String leftCardinality, String rightCardinalty);
 
     public void dd2t(Distribution2TargetAssociation repositoryObject);
-    
+
     public void dd2t(String filter) throws Exception;
 
     /*** target ***/
@@ -354,14 +352,14 @@ public interface Workspace {
 
     public List<StatefulTargetObject> lt(String filter) throws Exception;
 
-    public RepositoryObject ct(String name);
+    public StatefulTargetObject ct(String name);
 
-    public RepositoryObject ct(Map<String, String> attrs);
+    public StatefulTargetObject ct(Map<String, String> attrs);
 
-    public RepositoryObject ct(Map<String, String> attrs, Map<String, String> tags);
+    public StatefulTargetObject ct(Map<String, String> attrs, Map<String, String> tags);
 
     public void dt(StatefulTargetObject repositoryObject);
-    
+
     public void dt(String filter) throws Exception;
 
     /**
@@ -385,8 +383,7 @@ public interface Workspace {
 
     /*** other/generic ***/
 
-    public void cas(String entityType, String leftEntityId, String rightEntityId, String leftCardinality,
-        String rightCardinality);
+    public Association<? extends RepositoryObject, ? extends RepositoryObject> cas(String entityType, String leftEntityId, String rightEntityId, String leftCardinality, String rightCardinality);
 
     public boolean isModified() throws IOException;
 

@@ -236,7 +236,7 @@ public class WorkspaceImpl implements Workspace {
                 else {
                     attributes.put(Association.LEFT_ENDPOINT, left.getAssociationFilter(attributes));
                 }
-            }
+            } 
             if (right != null) {
                 if (right instanceof StatefulTargetObject) {
                     if (((StatefulTargetObject) right).isRegistered()) {
@@ -247,6 +247,17 @@ public class WorkspaceImpl implements Workspace {
                 else {
                     attributes.put(Association.RIGHT_ENDPOINT, right.getAssociationFilter(attributes));
                 }
+            }
+
+            // ACE-523 Allow the same semantics as with createAssocation, ca2f, cf2d & cd2t...
+            leftAttribute = attributes.get(Association.LEFT_CARDINALITY);
+            rightAttribute = attributes.get(Association.RIGHT_CARDINALITY);
+
+            if (leftAttribute != null) {
+                attributes.put(Association.LEFT_CARDINALITY, interpretCardinality(leftAttribute));
+            }
+            if (rightAttribute != null) {
+                attributes.put(Association.RIGHT_CARDINALITY, interpretCardinality(rightAttribute));
             }
         }
     }
@@ -274,12 +285,12 @@ public class WorkspaceImpl implements Workspace {
         updateAssociationAttributes(entityType, repositoryObject);
         updateTags(tags, repositoryObject);
     }
-    
+
     @Override
     public void idp(String dpURL) throws Exception {
         idp(dpURL, true /* autoCommit */);
     }
-    
+
     @Override
     public void idp(String dpURL, boolean autoCommit) throws Exception {
         // Delegate all complexity to a separate helper class...
@@ -352,6 +363,17 @@ public class WorkspaceImpl implements Workspace {
                         right.getAssociationFilter(getAttributes(right)));
                 }
             }
+
+            // ACE-523 Allow the same semantics as with createAssocation, ca2f, cf2d & cd2t...
+            leftAttribute = repositoryObject.getAttribute(Association.LEFT_CARDINALITY);
+            rightAttribute = repositoryObject.getAttribute(Association.RIGHT_CARDINALITY);
+
+            if (leftAttribute != null) {
+                repositoryObject.addAttribute(Association.LEFT_CARDINALITY, interpretCardinality(leftAttribute));
+            }
+            if (rightAttribute != null) {
+                repositoryObject.addAttribute(Association.RIGHT_CARDINALITY, interpretCardinality(rightAttribute));
+            }
         }
     }
 
@@ -365,7 +387,8 @@ public class WorkspaceImpl implements Workspace {
     }
 
     @Override
-    public void createAssocation(String entityType, String leftEntityId, String rightEntityId, String leftCardinality,
+    @SuppressWarnings("unchecked")
+    public Association<? extends RepositoryObject, ? extends RepositoryObject> createAssocation(String entityType, String leftEntityId, String rightEntityId, String leftCardinality,
         String rightCardinality) {
         Map<String, String> attrs = new HashMap<String, String>();
         Map<String, String> tags = new HashMap<String, String>();
@@ -373,7 +396,7 @@ public class WorkspaceImpl implements Workspace {
         attrs.put(Association.LEFT_CARDINALITY, interpretCardinality(leftCardinality));
         attrs.put(Association.RIGHT_ENDPOINT, rightEntityId);
         attrs.put(Association.RIGHT_CARDINALITY, interpretCardinality(rightCardinality));
-        createRepositoryObject(entityType, attrs, tags);
+        return (Association<RepositoryObject, RepositoryObject>) createRepositoryObject(entityType, attrs, tags);
     }
 
     @Override
@@ -486,7 +509,7 @@ public class WorkspaceImpl implements Workspace {
     public List<ArtifactObject> la() {
         return getGenericRepositoryObjects(ARTIFACT);
     }
-    
+
     public List<ArtifactObject> lr() {
         return m_artifactRepository.getResourceProcessors();
     }
@@ -498,8 +521,8 @@ public class WorkspaceImpl implements Workspace {
     }
 
     @Override
-    public void ca(String url, boolean upload) throws Exception {
-        createArtifact(url, upload);
+    public ArtifactObject ca(String url, boolean upload) throws Exception {
+        return createArtifact(url, upload);
     }
 
     public ArtifactObject createArtifact(String url, boolean upload) throws Exception {
@@ -507,35 +530,35 @@ public class WorkspaceImpl implements Workspace {
     }
 
     @Override
-    public void ca(String name, String url, String bsn, String version) {
+    public ArtifactObject ca(String name, String url, String bsn, String version) {
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put(ArtifactObject.KEY_ARTIFACT_NAME, name);
         attrs.put(ArtifactObject.KEY_URL, url);
         attrs.put(ArtifactObject.KEY_MIMETYPE, BundleHelper.MIMETYPE);
         attrs.put("Bundle-SymbolicName", bsn);
         attrs.put("Bundle-Version", version);
-        ca(attrs);
+        return ca(attrs);
     }
 
     @Override
-    public void ca(Map<String, String> attrs) {
-        ca(attrs, new HashMap<String, String>());
+    public ArtifactObject ca(Map<String, String> attrs) {
+        return ca(attrs, new HashMap<String, String>());
     }
 
     @Override
-    public void ca(Map<String, String> attrs, Map<String, String> tags) {
-        createRepositoryObject(ARTIFACT, attrs, tags);
+    public ArtifactObject ca(Map<String, String> attrs, Map<String, String> tags) {
+        return (ArtifactObject) createRepositoryObject(ARTIFACT, attrs, tags);
     }
 
     @Override
-    public void da(RepositoryObject repositoryObject) {
+    public void da(ArtifactObject repositoryObject) {
         deleteRepositoryObject(ARTIFACT, repositoryObject.getDefinition());
     }
-    
+
     @Override
     public void da(String filter) throws Exception {
         for (ArtifactObject object : la(filter)) {
-        	deleteRepositoryObject(ARTIFACT, object.getDefinition());
+            deleteRepositoryObject(ARTIFACT, object.getDefinition());
         }
     }
 
@@ -551,26 +574,26 @@ public class WorkspaceImpl implements Workspace {
     }
 
     @Override
-    public void ca2f(String left, String right) {
-        ca2f(left, right, "1", "1");
+    public Artifact2FeatureAssociation ca2f(String left, String right) {
+        return ca2f(left, right, "1", "1");
     }
 
     @Override
-    public void ca2f(String left, String right, String leftCardinality, String rightCardinalty) {
-        cas(ARTIFACT2FEATURE, left, right, leftCardinality, rightCardinalty);
+    public Artifact2FeatureAssociation ca2f(String left, String right, String leftCardinality, String rightCardinalty) {
+        return (Artifact2FeatureAssociation) cas(ARTIFACT2FEATURE, left, right, leftCardinality, rightCardinalty);
     }
 
     @Override
     public void da2f(Artifact2FeatureAssociation repositoryObject) {
         deleteRepositoryObject(ARTIFACT2FEATURE, repositoryObject.getDefinition());
     }
-    
+
     @Override
     public void da2f(String filter) throws Exception {
         for (Artifact2FeatureAssociation object : la2f(filter)) {
-        	deleteRepositoryObject(ARTIFACT2FEATURE, object.getDefinition());
+            deleteRepositoryObject(ARTIFACT2FEATURE, object.getDefinition());
         }
-    	
+
     }
 
     @Override
@@ -585,20 +608,20 @@ public class WorkspaceImpl implements Workspace {
     }
 
     @Override
-    public void cf(String name) {
+    public FeatureObject cf(String name) {
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put(FeatureObject.KEY_NAME, name);
-        cf(attrs);
+        return cf(attrs);
     }
 
     @Override
-    public void cf(Map<String, String> attrs) {
-        cf(attrs, new HashMap<String, String>());
+    public FeatureObject cf(Map<String, String> attrs) {
+        return cf(attrs, new HashMap<String, String>());
     }
 
     @Override
-    public void cf(Map<String, String> attrs, Map<String, String> tags) {
-        createFeature(attrs, tags);
+    public FeatureObject cf(Map<String, String> attrs, Map<String, String> tags) {
+        return createFeature(attrs, tags);
     }
 
     public FeatureObject createFeature(Map<String, String> attrs, Map<String, String> tags) {
@@ -609,11 +632,11 @@ public class WorkspaceImpl implements Workspace {
     public void df(FeatureObject repositoryObject) {
         deleteRepositoryObject(FEATURE, repositoryObject.getDefinition());
     }
-    
+
     @Override
     public void df(String filter) throws Exception {
         for (FeatureObject object : lf(filter)) {
-        	deleteRepositoryObject(FEATURE, object.getDefinition());
+            deleteRepositoryObject(FEATURE, object.getDefinition());
         }
     }
 
@@ -629,24 +652,24 @@ public class WorkspaceImpl implements Workspace {
     }
 
     @Override
-    public void cf2d(String left, String right) {
-        cf2d(left, right, "1", "1");
+    public Feature2DistributionAssociation cf2d(String left, String right) {
+        return cf2d(left, right, "1", "1");
     }
 
     @Override
-    public void cf2d(String left, String right, String leftCardinality, String rightCardinalty) {
-        cas(FEATURE2DISTRIBUTION, left, right, leftCardinality, rightCardinalty);
+    public Feature2DistributionAssociation cf2d(String left, String right, String leftCardinality, String rightCardinalty) {
+        return (Feature2DistributionAssociation) cas(FEATURE2DISTRIBUTION, left, right, leftCardinality, rightCardinalty);
     }
 
     @Override
     public void df2d(Feature2DistributionAssociation repositoryObject) {
         deleteRepositoryObject(FEATURE2DISTRIBUTION, repositoryObject.getDefinition());
     }
-    
+
     @Override
     public void df2d(String filter) throws Exception {
         for (Feature2DistributionAssociation object : lf2d(filter)) {
-        	deleteRepositoryObject(FEATURE2DISTRIBUTION, object.getDefinition());
+            deleteRepositoryObject(FEATURE2DISTRIBUTION, object.getDefinition());
         }
     }
 
@@ -662,20 +685,20 @@ public class WorkspaceImpl implements Workspace {
     }
 
     @Override
-    public void cd(String name) {
+    public DistributionObject cd(String name) {
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put(DistributionObject.KEY_NAME, name);
-        cd(attrs);
+        return cd(attrs);
     }
 
     @Override
-    public void cd(Map<String, String> attrs) {
-        cd(attrs, new HashMap<String, String>());
+    public DistributionObject cd(Map<String, String> attrs) {
+        return cd(attrs, new HashMap<String, String>());
     }
 
     @Override
-    public void cd(Map<String, String> attrs, Map<String, String> tags) {
-        createDistribution(attrs, tags);
+    public DistributionObject cd(Map<String, String> attrs, Map<String, String> tags) {
+        return createDistribution(attrs, tags);
     }
 
     public DistributionObject createDistribution(Map<String, String> attrs, Map<String, String> tags) {
@@ -690,7 +713,7 @@ public class WorkspaceImpl implements Workspace {
     @Override
     public void dd(String filter) throws Exception {
         for (DistributionObject object : ld(filter)) {
-        	deleteRepositoryObject(DISTRIBUTION, object.getDefinition());
+            deleteRepositoryObject(DISTRIBUTION, object.getDefinition());
         }
     }
 
@@ -706,24 +729,24 @@ public class WorkspaceImpl implements Workspace {
     }
 
     @Override
-    public void cd2t(String left, String right) {
-        cd2t(left, right, "1", "1");
+    public Distribution2TargetAssociation cd2t(String left, String right) {
+        return cd2t(left, right, "1", "1");
     }
 
     @Override
-    public void cd2t(String left, String right, String leftCardinality, String rightCardinalty) {
-        cas(DISTRIBUTION2TARGET, left, right, leftCardinality, rightCardinalty);
+    public Distribution2TargetAssociation cd2t(String left, String right, String leftCardinality, String rightCardinalty) {
+        return (Distribution2TargetAssociation) cas(DISTRIBUTION2TARGET, left, right, leftCardinality, rightCardinalty);
     }
 
     @Override
     public void dd2t(Distribution2TargetAssociation repositoryObject) {
         deleteRepositoryObject(DISTRIBUTION2TARGET, repositoryObject.getDefinition());
     }
-    
+
     @Override
     public void dd2t(String filter) throws Exception {
         for (Distribution2TargetAssociation object : ld2t(filter)) {
-        	deleteRepositoryObject(DISTRIBUTION2TARGET, object.getDefinition());
+            deleteRepositoryObject(DISTRIBUTION2TARGET, object.getDefinition());
         }
     }
 
@@ -739,31 +762,31 @@ public class WorkspaceImpl implements Workspace {
     }
 
     @Override
-    public RepositoryObject ct(String name) {
+    public StatefulTargetObject ct(String name) {
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put(StatefulTargetObject.KEY_ID, name);
         return ct(attrs);
     }
 
     @Override
-    public RepositoryObject ct(Map<String, String> attrs) {
+    public StatefulTargetObject ct(Map<String, String> attrs) {
         return ct(attrs, new HashMap<String, String>());
     }
 
     @Override
-    public RepositoryObject ct(Map<String, String> attrs, Map<String, String> tags) {
-        return createRepositoryObject(TARGET, attrs, tags);
+    public StatefulTargetObject ct(Map<String, String> attrs, Map<String, String> tags) {
+        return (StatefulTargetObject) createRepositoryObject(TARGET, attrs, tags);
     }
 
     @Override
     public void dt(StatefulTargetObject repositoryObject) {
         deleteRepositoryObject(TARGET, repositoryObject.getDefinition());
     }
-    
+
     @Override
     public void dt(String filter) throws Exception {
         for (StatefulTargetObject object : lt(filter)) {
-        	deleteRepositoryObject(TARGET, object.getDefinition());
+            deleteRepositoryObject(TARGET, object.getDefinition());
         }
     }
 
@@ -793,9 +816,8 @@ public class WorkspaceImpl implements Workspace {
     }
 
     @Override
-    public void cas(String entityType, String leftEntityId, String rightEntityId, String leftCardinality,
-        String rightCardinality) {
-        createAssocation(entityType, leftEntityId, rightEntityId, leftCardinality, rightCardinality);
+    public Association<? extends RepositoryObject, ? extends RepositoryObject> cas(String entityType, String leftEntityId, String rightEntityId, String leftCardinality, String rightCardinality) {
+        return createAssocation(entityType, leftEntityId, rightEntityId, leftCardinality, rightCardinality);
     }
 
     private static String interpretCardinality(String cardinality) {
