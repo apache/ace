@@ -1,3 +1,3 @@
--nobundles
+-nobundles: true
 Bundle-Name: Apache ACE Run ServerAllInOne
 Bundle-Description: Bnd run project for an ACE deployment including Server, Client and OBR. This projects does not generate any artifacts.

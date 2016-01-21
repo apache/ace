@@ -1,5 +1,5 @@
--nobundles
--dependson \
+-nobundles: true
+-dependson: \
     org.apache.ace.agent,\
     org.apache.ace.agent.controller.itest,\
     org.apache.ace.agent.itest,\
@@ -48,4 +48,3 @@
     org.apache.ace.useradmin.ui.itest,\
     org.apache.ace.verifier,\
     org.apache.ace.webui.vaadin
-    
