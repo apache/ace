@@ -37,5 +37,8 @@ Bundle-Vendor: The Apache Software Foundation
 # Remove certain generated headers that we don't need
 -removeheaders: Bnd-LastModified,Tool,Created-By,Private-Package
 
+# Fall back to the "old" method of running integration tests.
+-tester: biz.aQute.junit
+
 # Semantic versioning
 #-baseline: *
