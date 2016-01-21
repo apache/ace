@@ -7,7 +7,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	javax.servlet,\
 	com.sun.jersey.client,\
 	com.sun.jersey.core,\
-	gson,\
+	com.google.gson,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.http.listener;version=latest,\
@@ -36,15 +36,11 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.configadmin,\
 	org.apache.felix.eventadmin,\
 	org.apache.felix.http.jetty,\
-	org.apache.felix.dependencymanager.shell,\
 	org.apache.felix.deploymentadmin,\
 	org.apache.felix.prefs,\
 	org.apache.felix.useradmin,\
 	org.apache.felix.useradmin.filestore,\
 	org.apache.felix.log,\
-	org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
@@ -83,9 +79,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 -runproperties: org.apache.felix.log.storeDebug=true,\
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.apache.felix.log.maxSize=1000
-Private-Package: org.apache.ace.client.rest.itest,\
-	com.google.gson,\
-	com.google.gson.*,\
+Private-Package: \
+	org.apache.ace.client.rest.itest,\
+	com.google.gson*,\
 	aQute.*,\
 	org.osgi.service.bindex
 Import-Package: \

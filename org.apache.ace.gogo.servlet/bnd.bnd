@@ -4,7 +4,6 @@
 	org.apache.felix.dependencymanager,\
 	javax.servlet,\
 	org.apache.ace.gogo;version=latest,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.commons.io
+	org.apache.felix.gogo.runtime
 Bundle-Activator: org.apache.ace.gogo.servlet.Activator
 Private-Package: org.apache.ace.gogo.servlet

@@ -23,16 +23,12 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 -runbundles: osgi.cmpn,\
 	org.apache.felix.log,\
 	org.apache.felix.dependencymanager,\
-	org.apache.felix.dependencymanager.shell,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.eventadmin,\
 	org.apache.felix.prefs,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.useradmin,\
 	org.apache.felix.useradmin.filestore,\
-	org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.ace.authentication.processor.basicauth;version=latest,\

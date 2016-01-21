@@ -1,15 +1,12 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
--runbundles: org.apache.ace.deployment.provider.api;version=latest,\
+-runbundles: \
+	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.felix.dependencymanager,\
-	org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell,\
 	org.apache.felix.metatype,\
 	org.apache.felix.log,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.eventadmin,\
-	org.apache.felix.dependencymanager.shell,\
-	com.mongodb,\
+	org.mongodb.mongo-java-driver,\
 	org.amdatu.mongo,\
 	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
@@ -23,7 +20,7 @@ Private-Package: org.apache.ace.log.server.store.tests
 -buildpath: osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\
-	com.mongodb,\
+	org.mongodb.mongo-java-driver,\
 	org.amdatu.mongo,\
 	org.mockito.mockito-all,\
 	org.apache.felix.dependencymanager,\

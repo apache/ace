@@ -19,16 +19,17 @@
 package org.apache.ace.gogo.servlet;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.osgi.service.log.LogService;
@@ -50,14 +51,13 @@ public class ScriptServlet extends HttpServlet {
     private volatile CommandProcessor m_processor;
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        @SuppressWarnings("unchecked")
         Dictionary<String, String> scriptDefinition = toDictionary(req.getParameterMap());
         respondToScriptRequest(resp, scriptDefinition);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String script = IOUtils.toString(req.getInputStream(), "UTF-8");
+        String script = getAsString(req.getInputStream());
         req.getInputStream();
         Dictionary<String, String> scriptDefinition = new Hashtable<String, String>();
         scriptDefinition.put(SCRIPT_KEY, script);
@@ -106,5 +106,14 @@ public class ScriptServlet extends HttpServlet {
             return value.toString();
         }
         return null;
+    }
+    
+    static String getAsString(InputStream is) throws IOException {
+        // See <weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html>
+        try (Scanner scanner = new Scanner(is, "UTF-8")) {
+            scanner.useDelimiter("\\A");
+
+            return scanner.hasNext() ? scanner.next() : null;
+        }
     }
 }

@@ -4,7 +4,7 @@
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.client.repository.api;version=latest,\
 	javax.servlet,\
-	gson;version=1.7.1,\
+	com.google.gson;version=1.7.1,\
 	org.mockito.mockito-all,\
 	org.apache.felix.gogo.command,\
 	org.apache.felix.gogo.shell,\
@@ -12,12 +12,9 @@
 	org.apache.ace.feedback.common;version=latest,\
 	org.apache.ace.client.workspace;version=latest,\
 	org.apache.ace.test;version=latest
-Private-Package: org.apache.ace.client.rest,\
-	com.google.gson,\
-	com.google.gson.annotations,\
-	com.google.gson.internal,\
-	com.google.gson.reflect,\
-	com.google.gson.stream
+Private-Package: \
+	org.apache.ace.client.rest,\
+	com.google.gson*
 Bundle-Activator: org.apache.ace.client.rest.Activator
 Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Client REST

@@ -7,7 +7,7 @@
 	aws-common;version=1.5.0.beta_6,\
 	aws-ec2;version=1.5.0.beta_6,\
 	bcprov;version=1.46.0,\
-	commons-io;version=2.0,\
+	org.apache.commons.io;version=2.0,\
 	ec2;version=1.5.0.beta_6,\
 	com.google.gson;version=2.2,\
 	com.google.guava;version=12.0,\

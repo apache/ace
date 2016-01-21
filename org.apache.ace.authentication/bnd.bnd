@@ -4,7 +4,8 @@
 	org.mockito.mockito-all,\
 	org.apache.felix.dependencymanager,\
 	javax.servlet,\
-	bcprov;version=latest,\
-	commons-codec;version=1.4,\
+	bcprov,\
+	bcpkix,\
+	org.apache.commons.codec,\
 	org.apache.ace.test;version=latest
 -sub: *.bnd

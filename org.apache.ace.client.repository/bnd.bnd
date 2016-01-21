@@ -5,8 +5,8 @@
 	xpp3;version=1.1.4,\
 	xstream;version=1.2.2,\
 	velocity;version=1.6.2,\
-	commons-lang;version=2.4.0,\
-	commons-collections;version=3.2.1,\
+	org.apache.commons.lang;version=2.4.0,\
+	org.apache.commons.collections;version=3.2.1,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.ace.connectionfactory;version=latest,\

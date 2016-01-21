@@ -28,7 +28,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.configadmin,\
 	org.apache.felix.eventadmin,\
 	org.apache.felix.http.jetty,\
-	org.apache.felix.dependencymanager.shell,\
 	org.apache.felix.deploymentadmin,\
 	org.apache.felix.prefs,\
 	org.apache.felix.useradmin,\
@@ -69,9 +68,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
 	org.apache.ace.client.repository.helper.configuration;version=latest,\
 	org.apache.ace.client.repository.impl;version=latest,\
-	org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell,\
 	org.apache.ace.feedback.common;version=latest
 -runproperties: \
 	org.apache.felix.eventadmin.Timeout=0,\

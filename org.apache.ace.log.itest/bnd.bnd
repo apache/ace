@@ -19,7 +19,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.http.jetty,\
-	org.apache.felix.dependencymanager.shell,\
 	org.apache.felix.eventadmin,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.processor.basicauth;version=latest,\

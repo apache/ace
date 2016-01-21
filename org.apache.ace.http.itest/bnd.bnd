@@ -17,7 +17,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 -runbundles: osgi.cmpn,\
 	org.apache.felix.eventadmin,\
 	org.apache.felix.http.jetty,\
-	org.apache.felix.dependencymanager.shell,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
 	org.apache.ace.test;version=latest,\

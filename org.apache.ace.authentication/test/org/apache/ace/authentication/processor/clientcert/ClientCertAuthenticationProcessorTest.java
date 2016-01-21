@@ -231,7 +231,7 @@ public class ClientCertAuthenticationProcessorTest {
         User user = mock(User.class);
         when(user.getName()).thenReturn("bob");
 
-        when(m_userAdmin.getUser(eq(lookupKey), eq("CN=Bob,OU=dev,DC=acme,DC=corp"))).thenReturn(user);
+        when(m_userAdmin.getUser(eq(lookupKey), eq("DC=corp,DC=acme,OU=dev,CN=Bob"))).thenReturn(user);
 
         User result = processor.authenticate(m_userAdmin, m_servletRequest);
         assert result != null : "Expected a valid user to be returned!";
@@ -431,7 +431,7 @@ public class ClientCertAuthenticationProcessorTest {
      */
     private X509Certificate createCertificate(String name, final Date notBefore, final Date notAfter) {
         KeyPair keypair = m_keystore.generateKeyPair();
-        return m_keystore.createCertificate("alias", "cn=" + name, notBefore, notAfter, keypair.getPublic());
+        return m_keystore.createCertificate("cn=" + name, notBefore, notAfter, keypair.getPublic());
     }
 
     /**
@@ -449,11 +449,10 @@ public class ClientCertAuthenticationProcessorTest {
         for (int i = 0; i < result.length; i++) {
             KeyPair certKeyPair = m_keystore.generateKeyPair();
             
-            String alias = String.format("alias%d", i);
             String dn = dns[i];
             int idx = result.length - i - 1;
             
-            result[idx] = m_keystore.createCertificate(signerDN, signerKeyPair.getPrivate(), alias, dn, yesterday(), tomorrow(), certKeyPair.getPublic());
+            result[idx] = m_keystore.createCertificate(signerDN, signerKeyPair.getPrivate(), dn, yesterday(), tomorrow(), certKeyPair.getPublic());
             
             signerDN = result[idx].getSubjectX500Principal();
             signerKeyPair = certKeyPair;

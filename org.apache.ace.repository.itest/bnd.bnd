@@ -24,11 +24,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
-	org.apache.ace.repository.servlet;version=latest,\
-	org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell,\
-	org.apache.felix.dependencymanager.shell
+	org.apache.ace.repository.servlet;version=latest
 Private-Package: org.apache.ace.it.repository
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Repository itest

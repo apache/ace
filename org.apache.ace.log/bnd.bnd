@@ -11,7 +11,7 @@
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.amdatu.mongo,\
-	com.mongodb,\
+	org.mongodb.mongo-java-driver,\
 	org.apache.ace.feedback.common;version=latest
 
 -sub: *.bnd
