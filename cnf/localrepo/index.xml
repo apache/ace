@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<repository increment="1453364002000" name="Local" xmlns="http://www.osgi.org/xmlns/repository/v1.0.0">
+<repository increment="1453365242000" name="Local" xmlns="http://www.osgi.org/xmlns/repository/v1.0.0">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="osgi.identity" value="aws-common"/>
@@ -533,590 +533,911 @@
     <capability namespace="osgi.identity">
       <attribute name="osgi.identity" value="bcprov"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" type="Version" value="1.46.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
     </capability>
     <capability namespace="osgi.content">
-      <attribute name="osgi.content" value="d8e58be65df547400419e184be1ebf9074b6f9e357dcd8fbd78fb44773b7ec23"/>
-      <attribute name="url" value="bcprov/bcprov-1.46.0.jar"/>
-      <attribute name="size" type="Long" value="1878175"/>
+      <attribute name="osgi.content" value="d0ae14598f9c528d2ab7bb8ed00e785a5440f692712cd362d69328aba25efb57"/>
+      <attribute name="url" value="bcprov/bcprov-1.54.0.jar"/>
+      <attribute name="size" type="Long" value="3277268"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
       <attribute name="osgi.wiring.bundle" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
     </capability>
     <capability namespace="osgi.wiring.host">
       <attribute name="osgi.wiring.host" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.util.io,org.bouncycastle.util.encoders,org.bouncycastle.util"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.util"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.anssi"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x9"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.bc"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.bsi"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.cmp"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509,org.bouncycastle.asn1.crmf,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x500"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.crmf,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.cms"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x500"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x500,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.cms.ecc"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.cms,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.cms,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.crmf"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.asn1.x500,org.bouncycastle.asn1.cms,org.bouncycastle.asn1.cmp"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.cmp,org.bouncycastle.asn1.cms,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x500,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.cryptopro"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.crypto.params,org.bouncycastle.math.ec"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.crypto.params"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.dvcs"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.cmp,org.bouncycastle.asn1.cms,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.eac"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.esf"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1,org.bouncycastle.asn1.x500,org.bouncycastle.asn1.ocsp,org.bouncycastle.asn1.oiw,org.bouncycastle.asn1.x509"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.ocsp,org.bouncycastle.asn1.x500,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.ess"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509,org.bouncycastle.asn1.nist"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.gnu"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.iana"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.icao"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x509,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.isismtt"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.isismtt.ocsp"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x509,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.isismtt.x509"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x500,org.bouncycastle.asn1,org.bouncycastle.asn1.x509,org.bouncycastle.asn1.isismtt"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x500,org.bouncycastle.asn1.x509"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.iso"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.kisa"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.microsoft"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.misc"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.mozilla"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x509,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.nist"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x9,org.bouncycastle.asn1.sec,org.bouncycastle.util,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x9"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.ntt"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.ocsp"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x509,org.bouncycastle.asn1,org.bouncycastle.asn1.x500"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x500,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.oiw"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.pkcs"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509,org.bouncycastle.asn1.x500,org.bouncycastle.asn1.oiw"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x500,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.sec"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.util,org.bouncycastle.asn1,org.bouncycastle.asn1.x9,org.bouncycastle.util.encoders,org.bouncycastle.math.ec"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x9"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.smime"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1,org.bouncycastle.asn1.cms,org.bouncycastle.asn1.nist"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.cms"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.teletrust"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x9,org.bouncycastle.util.encoders,org.bouncycastle.math.ec,org.bouncycastle.util,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x9"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.tsp"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509,org.bouncycastle.asn1.cmp,org.bouncycastle.asn1.cms"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.cmp,org.bouncycastle.asn1.cms,org.bouncycastle.asn1.x509"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.ua"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.crypto.params,org.bouncycastle.math.ec"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.util"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.util.encoders,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.x500"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509,org.bouncycastle.asn1.x500.style"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.x500.style"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x500,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.asn1,org.bouncycastle.util.encoders,org.bouncycastle.util"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x500"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.x509"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.crypto.digests,org.bouncycastle.crypto,org.bouncycastle.asn1.x500,org.bouncycastle.util,org.bouncycastle.asn1.pkcs,org.bouncycastle.util.encoders"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x500"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.x509.qualified"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x509,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.x509.sigi"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x500,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x500"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.asn1.x9"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.util.encoders,org.bouncycastle.math.ec,org.bouncycastle.util"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.math.ec"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.util"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto.params"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.agreement"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.crypto.generators,org.bouncycastle.math.ec"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.agreement.kdf"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.asn1,org.bouncycastle.crypto.params,org.bouncycastle.asn1.x509,org.bouncycastle.crypto.generators"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.agreement.srp"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.util"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.digests"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.crypto.util,org.bouncycastle.crypto.engines,org.bouncycastle.util"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.encodings"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.crypto.digests"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.engines"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.crypto.digests,org.bouncycastle.crypto.modes,org.bouncycastle.util"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.examples"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.util.encoders,org.bouncycastle.crypto.engines,org.bouncycastle.crypto.modes,org.bouncycastle.crypto.paddings,org.bouncycastle.crypto.generators"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.generators"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.util,org.bouncycastle.crypto.digests,org.bouncycastle.math.ec,org.bouncycastle.crypto.macs"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.io"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.macs"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.modes,org.bouncycastle.crypto.paddings,org.bouncycastle.crypto.params,org.bouncycastle.crypto.engines"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.modes"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.util,org.bouncycastle.crypto.macs,org.bouncycastle.crypto.modes.gcm,org.bouncycastle.crypto.util"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.modes.gcm"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.util,org.bouncycastle.crypto.util"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.paddings"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params"/>
     </capability>
     <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.params"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.agreement.jpake"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.util,org.bouncycastle.math.ec"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.prng"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.crypto"/>
     </capability>
     <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.signers"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.agreement.kdf"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.asn1,org.bouncycastle.math.ec,org.bouncycastle.crypto.generators,org.bouncycastle.util,org.bouncycastle.crypto.digests,org.bouncycastle.crypto.encodings,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto.engines,org.bouncycastle.asn1.nist,org.bouncycastle.asn1.teletrust"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.crypto"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.agreement.srp"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.commitments"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.digests"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.util"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.ec"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x9,org.bouncycastle.crypto,org.bouncycastle.math.ec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.encodings"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.engines"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.generators,org.bouncycastle.crypto.params"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.examples"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.generators"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.math.ec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.io"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.modes"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.kems"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.math.ec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.macs"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.modes,org.bouncycastle.crypto.paddings"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.modes"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.modes.gcm"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.modes.gcm"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.paddings"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.params"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.crypto,org.bouncycastle.math.ec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.parsers"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.prng"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.crypto.prng.drbg"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.prng.drbg"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.prng,org.bouncycastle.math.ec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.signers"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.crypto,org.bouncycastle.math.ec"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.tls"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x509,org.bouncycastle.asn1,org.bouncycastle.crypto.digests,org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.crypto.agreement,org.bouncycastle.util,org.bouncycastle.crypto.engines,org.bouncycastle.crypto.modes,org.bouncycastle.asn1.x9,org.bouncycastle.asn1.sec,org.bouncycastle.math.ec,org.bouncycastle.crypto.io,org.bouncycastle.crypto.util,org.bouncycastle.crypto.generators,org.bouncycastle.crypto.signers,org.bouncycastle.crypto.macs,org.bouncycastle.asn1.x500,org.bouncycastle.crypto.prng,org.bouncycastle.crypto.encodings,org.bouncycastle.crypto.agreement.srp,org.bouncycastle.util.io"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.ocsp,org.bouncycastle.asn1.x509,org.bouncycastle.crypto,org.bouncycastle.crypto.agreement.srp,org.bouncycastle.crypto.engines,org.bouncycastle.crypto.modes,org.bouncycastle.crypto.params,org.bouncycastle.crypto.prng,org.bouncycastle.math.ec"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.crypto.util"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.oiw,org.bouncycastle.crypto.params,org.bouncycastle.asn1.nist,org.bouncycastle.asn1.sec,org.bouncycastle.asn1.teletrust,org.bouncycastle.asn1,org.bouncycastle.asn1.x9,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.math.ec"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto.params"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.i18n"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
       <directive name="uses" value="org.bouncycastle.i18n.filter"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.i18n.filter"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,javax.crypto.interfaces,org.bouncycastle.asn1.x509,org.bouncycastle.crypto,org.bouncycastle.util"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.io"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.jcajce.provider.config,org.bouncycastle.jcajce.provider.util"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric.dh"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,javax.crypto.interfaces,javax.crypto.spec,org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto,org.bouncycastle.crypto.engines,org.bouncycastle.jcajce.provider.asymmetric.util,org.bouncycastle.jce.interfaces"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric.dsa"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.jcajce.provider.asymmetric.util,org.bouncycastle.jce.interfaces"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric.dstu"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto.params,org.bouncycastle.jcajce.provider.asymmetric.util,org.bouncycastle.jce.interfaces,org.bouncycastle.jce.spec,org.bouncycastle.math.ec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric.ec"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto,org.bouncycastle.crypto.engines,org.bouncycastle.crypto.params,org.bouncycastle.jcajce.provider.asymmetric.util,org.bouncycastle.jcajce.provider.config,org.bouncycastle.jcajce.provider.util,org.bouncycastle.jce.interfaces,org.bouncycastle.jce.spec,org.bouncycastle.math.ec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric.ecgost"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.cryptopro,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto.params,org.bouncycastle.jcajce.provider.asymmetric.util,org.bouncycastle.jce.interfaces,org.bouncycastle.jce.spec,org.bouncycastle.math.ec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric.elgamal"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,javax.crypto.interfaces,javax.crypto.spec,org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.jcajce.provider.asymmetric.util,org.bouncycastle.jcajce.provider.symmetric.util,org.bouncycastle.jce.interfaces,org.bouncycastle.jce.spec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric.gost"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.jcajce.provider.asymmetric.util,org.bouncycastle.jce.interfaces"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric.ies"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric.rsa"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,javax.crypto.spec,org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto,org.bouncycastle.jcajce.provider.asymmetric.util,org.bouncycastle.jce.interfaces"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric.util"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.asn1.x9,org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.jcajce.provider.config,org.bouncycastle.jcajce.provider.util,org.bouncycastle.jce.interfaces,org.bouncycastle.jce.spec,org.bouncycastle.math.ec,org.bouncycastle.math.field"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.asymmetric.x509"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1.x509"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.config"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto.spec,org.bouncycastle.asn1,org.bouncycastle.jcajce,org.bouncycastle.jcajce.provider.util,org.bouncycastle.jce.spec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.digest"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,org.bouncycastle.crypto,org.bouncycastle.jcajce.provider.config,org.bouncycastle.jcajce.provider.symmetric.util"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.keystore"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.jcajce.provider.config,org.bouncycastle.jcajce.provider.util"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.keystore.bc"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,org.bouncycastle.jce.interfaces"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.keystore.pkcs12"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.jce.interfaces"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.symmetric"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,org.bouncycastle.asn1,org.bouncycastle.jcajce.provider.config,org.bouncycastle.jcajce.provider.symmetric.util,org.bouncycastle.jcajce.provider.util"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.symmetric.util"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,javax.crypto.interfaces,javax.crypto.spec,org.bouncycastle.asn1,org.bouncycastle.crypto,org.bouncycastle.crypto.modes"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.provider.util"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto,org.bouncycastle.jcajce.provider.config"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.spec"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,javax.crypto.spec,org.bouncycastle.asn1,org.bouncycastle.asn1.x509"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.jcajce.util"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,org.bouncycastle.asn1"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.jce"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.jce.spec,org.bouncycastle.crypto.params,org.bouncycastle.math.ec,org.bouncycastle.asn1.cryptopro,org.bouncycastle.asn1,org.bouncycastle.jce.provider.asymmetric.ec,org.bouncycastle.jce.provider,org.bouncycastle.asn1.x9,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.asn1.nist,org.bouncycastle.asn1.sec,org.bouncycastle.asn1.teletrust,org.bouncycastle.asn1.oiw,org.bouncycastle.util,javax.security.auth.x500,javax.crypto.spec,javax.crypto,org.bouncycastle.x509"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.jce.examples"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.jce.provider,org.bouncycastle.asn1,org.bouncycastle.jce.interfaces,org.bouncycastle.asn1.pkcs,org.bouncycastle.x509.extension,org.bouncycastle.x509,org.bouncycastle.jce,org.bouncycastle.asn1.x509"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.security.auth.x500,org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x500,org.bouncycastle.asn1.x509,org.bouncycastle.jce.spec,org.bouncycastle.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.jce.exception"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.jce.interfaces"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.jce.spec,org.bouncycastle.math.ec,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto.interfaces,org.bouncycastle.asn1,org.bouncycastle.jce.spec,org.bouncycastle.math.ec"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.jce.netscape"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x509,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.jce.provider"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.jce.exception,org.bouncycastle.asn1.oiw,org.bouncycastle.asn1.iana,org.bouncycastle.asn1.nist,org.bouncycastle.asn1.teletrust,org.bouncycastle.asn1,org.bouncycastle.jce.interfaces,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.bc,org.bouncycastle.asn1.cryptopro,org.bouncycastle.crypto,org.bouncycastle.crypto.engines,org.bouncycastle.crypto.modes,javax.crypto.spec,org.bouncycastle.crypto.params,org.bouncycastle.crypto.paddings,javax.crypto,org.bouncycastle.util,org.bouncycastle.crypto.digests,org.bouncycastle.crypto.generators,org.bouncycastle.x509,org.bouncycastle.jce,org.bouncycastle.asn1.x509,javax.security.auth.x500,org.bouncycastle.asn1.isismtt,javax.crypto.interfaces,org.bouncycastle.jce.spec,org.bouncycastle.asn1.x9,org.bouncycastle.jce.provider.asymmetric.ec,org.bouncycastle.asn1.sec,org.bouncycastle.math.ec,org.bouncycastle.crypto.encodings,org.bouncycastle.crypto.macs,org.bouncycastle.crypto.agreement,org.bouncycastle.crypto.signers,org.bouncycastle.crypto.io,org.bouncycastle.util.io,org.bouncycastle.asn1.util,org.bouncycastle.util.encoders,org.bouncycastle.openssl,org.bouncycastle.x509.util,org.bouncycastle.x509.extension,org.bouncycastle.asn1.misc,javax.naming,javax.naming.directory"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.jce.provider.asymmetric"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x9,org.bouncycastle.asn1.eac,org.bouncycastle.asn1.cryptopro,org.bouncycastle.asn1.teletrust,org.bouncycastle.asn1"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.jce.provider.asymmetric.ec"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.jce.spec,org.bouncycastle.math.ec,org.bouncycastle.crypto.params,org.bouncycastle.jce.provider,org.bouncycastle.asn1.sec,org.bouncycastle.asn1.nist,org.bouncycastle.asn1.teletrust,org.bouncycastle.asn1,org.bouncycastle.jce.interfaces,org.bouncycastle.asn1.x9,org.bouncycastle.asn1.cryptopro,org.bouncycastle.crypto,org.bouncycastle.crypto.agreement,org.bouncycastle.crypto.digests,org.bouncycastle.crypto.agreement.kdf,javax.crypto,javax.crypto.spec,org.bouncycastle.asn1.pkcs,org.bouncycastle.crypto.generators,org.bouncycastle.crypto.signers"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.jce.provider.symmetric"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.jce.provider,org.bouncycastle.crypto.engines,org.bouncycastle.crypto.macs,javax.crypto.spec,org.bouncycastle.crypto.modes,org.bouncycastle.asn1.nist,org.bouncycastle.asn1,org.bouncycastle.asn1.misc,org.bouncycastle.asn1.ntt,org.bouncycastle.crypto.paddings,javax.crypto,org.bouncycastle.crypto.generators,org.bouncycastle.asn1.oiw,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.kisa"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,javax.crypto.interfaces,javax.crypto.spec,javax.security.auth.x500,org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x500,org.bouncycastle.asn1.x509,org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.jcajce,org.bouncycastle.jcajce.provider.config,org.bouncycastle.jcajce.provider.util,org.bouncycastle.jce.exception,org.bouncycastle.jce.interfaces,org.bouncycastle.jce.spec,org.bouncycastle.math.ec,org.bouncycastle.util,org.bouncycastle.x509,org.bouncycastle.x509.util"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.jce.spec"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.math.ec,org.bouncycastle.crypto.engines,org.bouncycastle.jce.interfaces,org.bouncycastle.asn1.cryptopro,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1.cryptopro,org.bouncycastle.jcajce.spec,org.bouncycastle.jce.interfaces,org.bouncycastle.math.ec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.math"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.math.ec"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x9,org.bouncycastle.util"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.math.ec.endo,org.bouncycastle.math.field"/>
     </capability>
     <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.mozilla"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.math.ec.custom.djb"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.x509,org.bouncycastle.asn1.mozilla,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.math.ec"/>
     </capability>
     <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.ocsp"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.math.ec.custom.sec"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.ocsp,org.bouncycastle.asn1.x509,org.bouncycastle.asn1,org.bouncycastle.jce,javax.security.auth.x500,org.bouncycastle.asn1.nist,org.bouncycastle.asn1.teletrust,org.bouncycastle.util,org.bouncycastle.asn1.x9,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.cryptopro,org.bouncycastle.asn1.x500"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.math.ec"/>
     </capability>
     <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.openssl"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.math.ec.endo"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.util.encoders,org.bouncycastle.asn1.cms,org.bouncycastle.util,org.bouncycastle.asn1,org.bouncycastle.util.io.pem,org.bouncycastle.asn1.pkcs,org.bouncycastle.jce,org.bouncycastle.x509,org.bouncycastle.asn1.x509,org.bouncycastle.asn1.x9,org.bouncycastle.asn1.sec,org.bouncycastle.jce.spec,javax.crypto.spec,javax.crypto,org.bouncycastle.crypto.params,org.bouncycastle.asn1.nist,org.bouncycastle.crypto,org.bouncycastle.crypto.generators"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.math.ec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.math.ec.tools"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1.x9"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.math.field"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.math.raw"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.asn1"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509,org.bouncycastle.pqc.crypto.gmss,org.bouncycastle.pqc.crypto.rainbow,org.bouncycastle.pqc.math.linearalgebra"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.crypto"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.crypto.gmss"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.pqc.crypto,org.bouncycastle.pqc.crypto.gmss.util"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.crypto.gmss.util"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.crypto.mceliece"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.pqc.crypto,org.bouncycastle.pqc.math.linearalgebra"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.crypto.rainbow"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.pqc.crypto"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.crypto.rainbow.util"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.jcajce.provider"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.jcajce.provider.config,org.bouncycastle.jcajce.provider.util"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.jcajce.provider.gmss"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto,org.bouncycastle.pqc.crypto.gmss,org.bouncycastle.pqc.jcajce.spec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.jcajce.provider.mceliece"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.pqc.crypto.mceliece,org.bouncycastle.pqc.jcajce.provider.util,org.bouncycastle.pqc.jcajce.spec,org.bouncycastle.pqc.math.linearalgebra"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.jcajce.provider.rainbow"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509,org.bouncycastle.crypto,org.bouncycastle.crypto.params,org.bouncycastle.jcajce.provider.util,org.bouncycastle.pqc.crypto.rainbow,org.bouncycastle.pqc.jcajce.spec"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.jcajce.provider.util"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.crypto,org.bouncycastle.asn1,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.x509"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.jcajce.spec"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.pqc.crypto.gmss,org.bouncycastle.pqc.crypto.rainbow,org.bouncycastle.pqc.math.linearalgebra"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.bouncycastle.pqc.math.linearalgebra"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
+      <attribute name="bundle-symbolic-name" value="bcprov"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.util"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="junit.framework,junit.textui"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.util.encoders"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.util.io"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.util.io.pem"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="junit.framework,junit.textui,org.bouncycastle.util.encoders"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.util.test"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.util"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.voms"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.x509,org.bouncycastle.asn1.x509,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.crypto.prng"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.x509"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.jce,org.bouncycastle.asn1.x509,javax.security.auth.x500,org.bouncycastle.util,org.bouncycastle.asn1,org.bouncycastle.i18n,org.bouncycastle.i18n.filter,org.bouncycastle.jce.provider,org.bouncycastle.asn1.x509.qualified,org.bouncycastle.x509.extension,org.bouncycastle.x509.util,org.bouncycastle.asn1.oiw,org.bouncycastle.asn1.nist,org.bouncycastle.asn1.teletrust,org.bouncycastle.asn1.x9,org.bouncycastle.asn1.pkcs,org.bouncycastle.asn1.cryptopro"/>
-    </capability>
-    <capability namespace="osgi.wiring.package">
-      <attribute name="osgi.wiring.package" value="org.bouncycastle.x509.examples"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
-      <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.asn1.misc,org.bouncycastle.jce.provider,org.bouncycastle.asn1,org.bouncycastle.x509,org.bouncycastle.jce,org.bouncycastle.asn1.x509,javax.security.auth.x500"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="javax.security.auth.x500,org.bouncycastle.asn1,org.bouncycastle.asn1.x509,org.bouncycastle.i18n,org.bouncycastle.jce,org.bouncycastle.util,org.bouncycastle.x509.util"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.x509.extension"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="org.bouncycastle.jce,org.bouncycastle.asn1.x509,org.bouncycastle.asn1"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.asn1,org.bouncycastle.asn1.x509"/>
     </capability>
     <capability namespace="osgi.wiring.package">
       <attribute name="osgi.wiring.package" value="org.bouncycastle.x509.util"/>
-      <attribute name="version" type="Version" value="0.0.0"/>
+      <attribute name="version" type="Version" value="1.54.0"/>
       <attribute name="bundle-symbolic-name" value="bcprov"/>
-      <attribute name="bundle-version" type="Version" value="1.46.0"/>
-      <directive name="uses" value="javax.naming,org.bouncycastle.jce.provider,org.bouncycastle.util,org.bouncycastle.asn1,javax.naming.directory,org.bouncycastle.jce,org.bouncycastle.x509,org.bouncycastle.asn1.x509,javax.security.auth.x500"/>
+      <attribute name="bundle-version" type="Version" value="1.54.0"/>
+      <directive name="uses" value="org.bouncycastle.jce,org.bouncycastle.util,org.bouncycastle.x509"/>
     </capability>
     <requirement namespace="osgi.wiring.package">
       <directive name="filter" value="(osgi.wiring.package=javax.crypto)"/>
@@ -1142,16 +1463,8 @@
       <directive name="filter" value="(osgi.wiring.package=javax.security.auth.x500)"/>
       <directive name="resolution" value="optional"/>
     </requirement>
-    <requirement namespace="osgi.wiring.package">
-      <directive name="filter" value="(osgi.wiring.package=junit.framework)"/>
-      <directive name="resolution" value="optional"/>
-    </requirement>
-    <requirement namespace="osgi.wiring.package">
-      <directive name="filter" value="(osgi.wiring.package=junit.textui)"/>
-      <directive name="resolution" value="optional"/>
-    </requirement>
     <requirement namespace="osgi.ee">
-      <directive name="filter" value="(&amp;(osgi.ee=JavaSE)(version=1.6))"/>
+      <directive name="filter" value="(|(&amp;(osgi.ee=JavaSE)(version=1.5))(&amp;(osgi.ee=JavaSE)(version=1.6))(&amp;(osgi.ee=JavaSE)(version=1.7))(&amp;(osgi.ee=JavaSE)(version=1.8))(&amp;(osgi.ee=JavaSE)(version=1.9)))"/>
     </requirement>
   </resource>
   <resource>
@@ -6430,9 +6743,9 @@
       <attribute name="version" type="Version" value="0.9.8.SNAPSHOT"/>
     </capability>
     <capability namespace="osgi.content">
-      <attribute name="osgi.content" value="d5a6bd0ab04609ce05d22793e83854faf4d0ec448e754d5127972aa3135e0fc9"/>
+      <attribute name="osgi.content" value="737e67d9a28131f89fadcf36a3f5c3d46703b569883954275270bb1239c85412"/>
       <attribute name="url" value="org.apache.felix.deploymentadmin/org.apache.felix.deploymentadmin-0.9.8.jar"/>
-      <attribute name="size" type="Long" value="98316"/>
+      <attribute name="size" type="Long" value="100235"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
@@ -6458,7 +6771,7 @@
       <directive name="uses" value="org.osgi.framework,org.osgi.service.deploymentadmin"/>
     </capability>
     <requirement namespace="osgi.wiring.package">
-      <directive name="filter" value="(&amp;(osgi.wiring.package=org.apache.felix.dm)(version&gt;=4.1.0)(!(version&gt;=5.0.0)))"/>
+      <directive name="filter" value="(&amp;(osgi.wiring.package=org.apache.felix.dm)(version&gt;=3.0.0)(!(version&gt;=4.0.0)))"/>
     </requirement>
     <requirement namespace="osgi.wiring.package">
       <directive name="filter" value="(&amp;(osgi.wiring.package=org.osgi.framework)(version&gt;=1.5.0)(!(version&gt;=2.0.0)))"/>
