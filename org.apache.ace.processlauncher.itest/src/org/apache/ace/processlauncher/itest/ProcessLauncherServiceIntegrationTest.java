@@ -16,84 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.processlauncher.test.osgi;
+package org.apache.ace.processlauncher.itest;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
-import static org.apache.ace.processlauncher.test.impl.TestUtil.getOSName;
-import static org.apache.ace.processlauncher.test.impl.TestUtil.sleep;
-import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.provision;
+import static org.apache.ace.processlauncher.itest.TestUtil.getOSName;
+import static org.apache.ace.processlauncher.itest.TestUtil.sleep;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
-import javax.inject.Inject;
-
-import junit.framework.AssertionFailedError;
-
+import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.processlauncher.LaunchConfiguration;
 import org.apache.ace.processlauncher.ProcessLauncherService;
 import org.apache.ace.processlauncher.ProcessStreamListener;
-import org.apache.ace.processlauncher.impl.ProcessLauncherServiceImpl;
-import org.apache.felix.dm.DependencyManager;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.apache.felix.dm.Component;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
+
+import junit.framework.AssertionFailedError;
 
 /**
  * Integration test for {@link ProcessLauncherService}.
  */
-@RunWith(JUnit4TestRunner.class)
-public class ProcessLauncherServiceIntegrationTest {
+public class ProcessLauncherServiceIntegrationTest extends IntegrationTestBase {
 
-    @Inject
-    private BundleContext m_context;
-    @Inject
+    private final BundleContext m_context = FrameworkUtil.getBundle(getClass()).getBundleContext();
     private ProcessLauncherService m_instance;
-    private DependencyManager m_dependencyManager;
-
-    /**
-     * @return the PAX-exam configuration, never <code>null</code>.
-     */
-    @Configuration
-    public Option[] config() {
-        // Craft the correct options for PAX-URL wrap: to use Bnd and make a correct bundle...
-        String bndOptions =
-            String.format("Bundle-Activator=%1$s.osgi.Activator&" + "Export-Package=%1$s,%1$s.util&"
-                + "Private-Package=%1$s.impl,%1$s.osgi", ProcessLauncherService.class.getPackage().getName());
-
-        return options(cleanCaches(),
-            junitBundles(),
-            provision(mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.log").version("1.0.1")), //
-            provision(mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.dependencymanager")
-                .version("3.0.0")), //
-            provision(mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.configadmin")
-                .version("1.2.8")), //
-            provision("wrap:assembly:./target/classes$" + bndOptions) //
-        );
-    }
-
-    /**
-     * Common set up for each test case.
-     */
-    @Before
-    public void setUp() {
-        m_dependencyManager = new DependencyManager(m_context);
-    }
 
     /**
      * Tests that manually providing a launch configuration to a {@link ProcessLauncherService} will
@@ -101,7 +53,6 @@ public class ProcessLauncherServiceIntegrationTest {
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
     public void testLaunchProcessWithExitValueOneOnUnixBasedHostsOk() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -136,12 +87,11 @@ public class ProcessLauncherServiceIntegrationTest {
     }
 
     /**
-     * Tests that manually providing a launch configuration to a {@link ProcessLauncherServiceImpl}
+     * Tests that manually providing a launch configuration to a {@link ProcessLauncherService}
      * will cause a new process to be started and terminated.
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
     public void testLaunchProcessWithExitValueZeroOnUnixBasedHostsOk() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -181,7 +131,6 @@ public class ProcessLauncherServiceIntegrationTest {
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
     public void testLaunchProcessWithMultipleRegisteredProcessStreamListenerOnUnixBasedHostsOk() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -233,7 +182,6 @@ public class ProcessLauncherServiceIntegrationTest {
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
     public void testLaunchProcessWithoutRegisteredProcessStreamListenerOnUnixBasedHostsFail() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -282,7 +230,6 @@ public class ProcessLauncherServiceIntegrationTest {
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
     public void testLaunchProcessWithRegisteredProcessStreamListenerOnUnixBasedHostsOk() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -347,9 +294,8 @@ public class ProcessLauncherServiceIntegrationTest {
             extraFilter = String.format("%s(%s=%s)", extraFilter, key, value);
             props.setProperty(key, value);
         }
-
-        m_dependencyManager.add(m_dependencyManager.createComponent().setInterface(className, props)
-            .setImplementation(processStreamListener));
+        
+        m_context.registerService(className, processStreamListener, props);
 
         if (extraFilter.trim().isEmpty()) {
             return String.format("(%s=%s)", Constants.OBJECTCLASS, className);
@@ -389,6 +335,15 @@ public class ProcessLauncherServiceIntegrationTest {
         }
 
         return instance;
+    }
+
+    @Override
+    protected Component[] getDependencies() {
+        return new Component[] {
+            createComponent()
+                .setImplementation(this)
+                .add(createServiceDependency().setService(ProcessLauncherService.class).setRequired(true))
+        };
     }
 
     /**

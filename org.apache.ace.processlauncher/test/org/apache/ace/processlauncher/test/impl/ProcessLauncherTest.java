@@ -20,6 +20,13 @@ package org.apache.ace.processlauncher.test.impl;
 
 import static org.apache.ace.processlauncher.test.impl.TestUtil.getOSName;
 import static org.apache.ace.processlauncher.test.impl.TestUtil.sleep;
+import static org.apache.ace.test.utils.TestUtils.UNIT;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,19 +35,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
-import junit.framework.TestCase;
-
 import org.apache.ace.processlauncher.LaunchConfiguration;
 import org.apache.ace.processlauncher.ProcessLifecycleListener;
 import org.apache.ace.processlauncher.ProcessStreamListener;
 import org.apache.ace.processlauncher.impl.LaunchConfigurationImpl;
 import org.apache.ace.processlauncher.impl.ProcessLauncher;
 import org.apache.ace.processlauncher.util.InputStreamRedirector;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link ProcessLauncher}.
  */
-public class ProcessLauncherTest extends TestCase {
+public class ProcessLauncherTest {
 
     /**
      * Tests that an existing executable (Java) can be called with valid arguments and its output
@@ -48,6 +54,7 @@ public class ProcessLauncherTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testCallAlreadyRunningProcessCausesExceptionFail() throws Exception {
         String execName = determineJavaExecutable();
 
@@ -71,6 +78,7 @@ public class ProcessLauncherTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testLifecycleMethodsAreCalledOk() throws Exception {
         String execName = determineJavaExecutable();
 
@@ -95,6 +103,7 @@ public class ProcessLauncherTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testCallCleanupOnRunningProcessFails() throws Exception {
         String execName = determineJavaExecutable();
 
@@ -119,6 +128,7 @@ public class ProcessLauncherTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testCallCleanupOnTerminatedProcessOk() throws Exception {
         String execName = determineJavaExecutable();
 
@@ -139,6 +149,7 @@ public class ProcessLauncherTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testCallExistingExecutableWithoutArgumentOk() throws Exception {
         String execName = determineJavaExecutable();
 
@@ -150,7 +161,7 @@ public class ProcessLauncherTest extends TestCase {
         Integer exitValue = launcher.waitForTermination();
 
         assertNotNull(exitValue);
-        assertEquals(0, exitValue.intValue());
+        assertEquals(1, exitValue.intValue());
         // Both methods should return the same exit value!
         assertEquals(exitValue, launcher.getExitValue());
 
@@ -160,7 +171,7 @@ public class ProcessLauncherTest extends TestCase {
 
         // Make sure the test doesn't fail when the usage text is translated or
         // something...
-        assertTrue(stdout, stdout.contains("Usage: java"));
+        assertTrue(stdout.contains("Usage: java"), stdout);
     }
 
     /**
@@ -169,6 +180,7 @@ public class ProcessLauncherTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testCallExistingExecutableWithUnknownArgumentsOk() throws Exception {
         String execName = determineJavaExecutable();
         String execArgs = "-nonExistingArg";
@@ -190,6 +202,7 @@ public class ProcessLauncherTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testCallExistingExecutableWithValidArgumentOk() throws Exception {
         String execName = determineJavaExecutable();
         String execArgs = "-version";
@@ -210,7 +223,7 @@ public class ProcessLauncherTest extends TestCase {
 
         // Make sure the test doesn't fail when the usage text is translated or
         // something...
-        assertTrue(stdout, stdout.contains("java version"));
+        assertTrue(stdout.contains("java version"), stdout);
     }
 
     /**
@@ -218,6 +231,7 @@ public class ProcessLauncherTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testCallNonExistingExecutableOk() throws Exception {
         String execName = "/path/to/java";
         String execArgs = "-version";
@@ -237,6 +251,7 @@ public class ProcessLauncherTest extends TestCase {
      * Tests that attempting to create a new {@link ProcessLauncher} without a valid launch
      * configuration yields an exception.
      */
+    @Test(groups = { UNIT })
     public void testCreateProcessLauncherWithoutLaunchConfigurationFail() {
         try {
             new ProcessLauncher(null);
@@ -251,6 +266,7 @@ public class ProcessLauncherTest extends TestCase {
      * Tests that attempting to obtain the exit value without a launched process yields a null
      * value.
      */
+    @Test(groups = { UNIT })
     public void testGetExitValueWithoutLaunchedProcessReturnsNull() {
         String execName = determineJavaExecutable();
         String execArgs = "-version";
@@ -266,6 +282,7 @@ public class ProcessLauncherTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testInteractWithProcessOk() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -304,6 +321,7 @@ public class ProcessLauncherTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testInteractWithProcessThroughArgumentsOk() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -341,6 +359,7 @@ public class ProcessLauncherTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testProcessStdinIsProperlyClosedOk() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {

@@ -1,30 +1,167 @@
-<repository>
- <resource id='ant/1.8.4' symbolicname='ant' uri='ant/ant-1.8.4.jar' version='1.8.4'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='ant'/><p n='version' t='version' v='1.8.4'/></capability></resource>
- <resource id='aopalliance/1.0' symbolicname='aopalliance' uri='aopalliance/aopalliance-1.0.jar' version='1.0'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='aopalliance'/><p n='version' t='version' v='1.0'/></capability></resource>
- <resource id='bcprov-jdk14/1.40' symbolicname='bcprov-jdk14' uri='bcprov-jdk14/bcprov-jdk14-1.40.jar' version='1.40'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='bcprov-jdk14'/><p n='version' t='version' v='1.40'/></capability></resource>
- <resource id='commons-codec/1.4' symbolicname='commons-codec' uri='commons-codec/commons-codec-1.4.jar' version='1.4'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='commons-codec'/><p n='version' t='version' v='1.4'/></capability></resource>
- <resource id='commons-collections/3.2.1' symbolicname='commons-collections' uri='commons-collections/commons-collections-3.2.1.jar' version='3.2.1'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='commons-collections'/><p n='version' t='version' v='3.2.1'/></capability></resource>
- <resource id='commons-io/2.0.1' symbolicname='commons-io' uri='commons-io/commons-io-2.0.1.jar' version='2.0.1'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='commons-io'/><p n='version' t='version' v='2.0.1'/></capability></resource>
- <resource id='commons-lang/2.4' symbolicname='commons-lang' uri='commons-lang/commons-lang-2.4.jar' version='2.4'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='commons-lang'/><p n='version' t='version' v='2.4'/></capability></resource>
- <resource id='commons-logging/1.1.1' symbolicname='commons-logging' uri='commons-logging/commons-logging-1.1.1.jar' version='1.1.1'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='commons-logging'/><p n='version' t='version' v='1.1.1'/></capability></resource>
- <resource id='gson/1.7.1' symbolicname='gson' uri='gson/gson-1.7.1.jar' version='1.7.1'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='gson'/><p n='version' t='version' v='1.7.1'/></capability></resource>
- <resource id='javax.inject/1.0.0' symbolicname='javax.inject' uri='javax.inject/javax.inject-1.0.0.jar' version='1.0.0'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='javax.inject'/><p n='version' t='version' v='1.0.0'/></capability></resource>
- <resource id='jsr250-api/1.0' symbolicname='jsr250-api' uri='jsr250-api/jsr250-api-1.0.jar' version='1.0'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='jsr250-api'/><p n='version' t='version' v='1.0'/></capability></resource>
- <resource id='jsr305/1.3.9' symbolicname='jsr305' uri='jsr305/jsr305-1.3.9.jar' version='1.3.9'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='jsr305'/><p n='version' t='version' v='1.3.9'/></capability></resource>
- <resource id='junit/4.8.2' symbolicname='junit' uri='junit/junit-4.8.2.jar' version='4.8.2'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='junit'/><p n='version' t='version' v='4.8.2'/></capability></resource>
- <resource id='kxml2/2.3.0' symbolicname='kxml2' uri='kxml2/kxml2-2.3.0.jar' version='2.3.0'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='kxml2'/><p n='version' t='version' v='2.3.0'/></capability></resource>
- <resource id='oauth/20100527' symbolicname='oauth' uri='oauth/oauth-20100527.jar' version='20100527'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='oauth'/><p n='version' t='version' v='20100527'/></capability></resource>
- <resource id='pax-exam/2.3.0' symbolicname='pax-exam' uri='pax-exam/pax-exam-2.3.0.jar' version='2.3.0'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='pax-exam'/><p n='version' t='version' v='2.3.0'/></capability></resource>
- <resource id='pax-exam-container-native/2.3.0' symbolicname='pax-exam-container-native' uri='pax-exam-container-native/pax-exam-container-native-2.3.0.jar' version='2.3.0'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='pax-exam-container-native'/><p n='version' t='version' v='2.3.0'/></capability></resource>
- <resource id='pax-exam-inject/2.3.0' symbolicname='pax-exam-inject' uri='pax-exam-inject/pax-exam-inject-2.3.0.jar' version='2.3.0'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='pax-exam-inject'/><p n='version' t='version' v='2.3.0'/></capability></resource>
- <resource id='pax-exam-junit4/2.3.0' symbolicname='pax-exam-junit4' uri='pax-exam-junit4/pax-exam-junit4-2.3.0.jar' version='2.3.0'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='pax-exam-junit4'/><p n='version' t='version' v='2.3.0'/></capability></resource>
- <resource id='pax-exam-link-mvn/2.3.0' symbolicname='pax-exam-link-mvn' uri='pax-exam-link-mvn/pax-exam-link-mvn-2.3.0.jar' version='2.3.0'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='pax-exam-link-mvn'/><p n='version' t='version' v='2.3.0'/></capability></resource>
- <resource id='pax-url-aether/1.3.5' symbolicname='pax-url-aether' uri='pax-url-aether/pax-url-aether-1.3.5.jar' version='1.3.5'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='pax-url-aether'/><p n='version' t='version' v='1.3.5'/></capability></resource>
- <resource id='pax-url-assembly/1.3.5' symbolicname='pax-url-assembly' uri='pax-url-assembly/pax-url-assembly-1.3.5.jar' version='1.3.5'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='pax-url-assembly'/><p n='version' t='version' v='1.3.5'/></capability></resource>
- <resource id='pax-url-link/1.3.5' symbolicname='pax-url-link' uri='pax-url-link/pax-url-link-1.3.5.jar' version='1.3.5'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='pax-url-link'/><p n='version' t='version' v='1.3.5'/></capability></resource>
- <resource id='pax-url-wrap/1.3.5' symbolicname='pax-url-wrap' uri='pax-url-wrap/pax-url-wrap-1.3.5.jar' version='1.3.5'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='pax-url-wrap'/><p n='version' t='version' v='1.3.5'/></capability></resource>
- <resource id='testng/6.5.2' symbolicname='testng' uri='testng/testng-6.5.2.jar' version='6.5.2'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='testng'/><p n='version' t='version' v='6.5.2'/></capability></resource>
- <resource id='velocity/1.6.2' symbolicname='velocity' uri='velocity/velocity-1.6.2.jar' version='1.6.2'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='velocity'/><p n='version' t='version' v='1.6.2'/></capability></resource>
- <resource id='xpp3/1.1.4.c' symbolicname='xpp3' uri='xpp3/xpp3-1.1.4.c.jar' version='1.1.4.c'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='xpp3'/><p n='version' t='version' v='1.1.4.c'/></capability></resource>
- <resource id='xstream/1.2.2' symbolicname='xstream' uri='xstream/xstream-1.2.2.jar' version='1.2.2'><capability name='bundle'><p n='manifestversion' v='2'/><p n='symbolicname' v='xstream'/><p n='version' t='version' v='1.2.2'/></capability></resource>
+<?xml version='1.0' encoding='utf-8'?>
+<?xml-stylesheet type='text/xsl' href='http://www.osgi.org/www/obr2html.xsl'?>
+
+<repository lastmodified='20160122145511.091' name='Untitled'>
+  <resource id='Untitled--1059228687/0.0.0' symbolicname='Untitled--1059228687' uri='aopalliance/aopalliance-1.0.jar' version='0.0.0'>
+    <size>
+      4467
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='1'/>
+      <p n='symbolicname' v='Untitled--1059228687'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+  </resource>
+  <resource id='Untitled--1877161092/0.0.0' symbolicname='Untitled--1877161092' uri='oauth/oauth-20100527.jar' version='0.0.0'>
+    <size>
+      44209
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='1'/>
+      <p n='symbolicname' v='Untitled--1877161092'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+  </resource>
+  <resource id='Untitled--767182726/0.0.0' symbolicname='Untitled--767182726' uri='jsr305/jsr305-1.3.9.jar' version='0.0.0'>
+    <size>
+      33015
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='1'/>
+      <p n='symbolicname' v='Untitled--767182726'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+  </resource>
+  <resource id='Untitled--93366089/0.0.0' symbolicname='Untitled--93366089' uri='kxml2/kxml2-2.3.0.jar' version='0.0.0'>
+    <size>
+      43858
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='1'/>
+      <p n='symbolicname' v='Untitled--93366089'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+  </resource>
+  <resource id='Untitled--978492559/0.0.0' symbolicname='Untitled--978492559' uri='ant/ant-1.8.4.jar' version='0.0.0'>
+    <size>
+      1941731
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='1'/>
+      <p n='symbolicname' v='Untitled--978492559'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+  </resource>
+  <resource id='Untitled-170591100/0.0.0' symbolicname='Untitled-170591100' uri='testng/testng-6.5.2.jar' version='0.0.0'>
+    <size>
+      1273045
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='1'/>
+      <p n='symbolicname' v='Untitled-170591100'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+  </resource>
+  <resource id='Untitled-2104301348/0.0.0' symbolicname='Untitled-2104301348' uri='xstream/xstream-1.2.2.jar' version='0.0.0'>
+    <size>
+      373194
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='1'/>
+      <p n='symbolicname' v='Untitled-2104301348'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+  </resource>
+  <resource id='Untitled-494417045/0.0.0' symbolicname='Untitled-494417045' uri='jsr250-api/jsr250-api-1.0.jar' version='0.0.0'>
+    <size>
+      5848
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='1'/>
+      <p n='symbolicname' v='Untitled-494417045'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+  </resource>
+  <resource id='Untitled-522443489/0.0.0' symbolicname='Untitled-522443489' uri='velocity/velocity-1.6.2.jar' version='0.0.0'>
+    <size>
+      420975
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='1'/>
+      <p n='symbolicname' v='Untitled-522443489'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+  </resource>
+  <resource id='Untitled-524384939/0.0.0' symbolicname='Untitled-524384939' uri='bcprov-jdk14/bcprov-jdk14-1.40.jar' version='0.0.0'>
+    <size>
+      1589656
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='1'/>
+      <p n='symbolicname' v='Untitled-524384939'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+  </resource>
+  <resource id='Untitled-876183438/0.0.0' symbolicname='Untitled-876183438' uri='xpp3/xpp3-1.1.4.c.jar' version='0.0.0'>
+    <size>
+      120069
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='1'/>
+      <p n='symbolicname' v='Untitled-876183438'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+  </resource>
+  <resource id='com.google.gson/1.7.0' presentationname='Gson' symbolicname='com.google.gson' uri='gson/gson-1.7.1.jar' version='1.7.0'>
+    <description>
+      Google Gson library
+    </description>
+    <size>
+      173590
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='Gson'/>
+      <p n='symbolicname' v='com.google.gson'/>
+      <p n='version' t='version' v='1.7.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gson'/>
+      <p n='version' t='version' v='1.7.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gson.annotations'/>
+      <p n='version' t='version' v='1.7.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gson.reflect'/>
+      <p n='version' t='version' v='1.7.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gson.stream'/>
+      <p n='version' t='version' v='1.7.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='com.google.gson.internal'/>
+      <p n='version' t='version' v='1.7.1'/>
+    </capability>
+    <require extend='false' filter='(|(ee=J2SE-1.5))' multiple='false' name='ee' optional='false'>
+      Execution Environment (|(ee=J2SE-1.5))
+    </require>
+  </resource>
+  <resource id='javax.inject/1.0.0' presentationname='javax.inject' symbolicname='javax.inject' uri='javax.inject/javax.inject-1.0.0.jar' version='1.0.0'>
+    <size>
+      2954
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='javax.inject'/>
+      <p n='symbolicname' v='javax.inject'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='javax.inject'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+  </resource>
 </repository>

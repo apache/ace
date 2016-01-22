@@ -20,10 +20,7 @@ package org.apache.ace.deployment.streamgenerator.impl;
 
 import static org.apache.ace.test.utils.TestUtils.BROKEN;
 import static org.apache.ace.test.utils.TestUtils.UNIT;
-import static org.ops4j.pax.swissbox.tinybundles.core.TinyBundles.newBundle;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -41,6 +38,7 @@ import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.util.test.TestProvider;
 import org.apache.ace.test.constants.TestConstants;
+import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
@@ -60,23 +58,10 @@ public class StreamTest {
     protected void setUp() throws Exception {
         m_generator = new StreamGeneratorImpl();
         m_provider = new TestProvider();
-        InputStream is = newBundle().build(); // TODO this is a very trivial bundle, put more data in?
-        File temp = File.createTempFile("bundle", "jar");
-        temp.deleteOnExit();
-        FileOutputStream fos = new FileOutputStream(temp);
-        byte[] buf = new byte[4096];
-        int b = is.read(buf);
-        while (b != -1) {
-            fos.write(buf, 0, b);
-            b = is.read(buf);
-        }
-        fos.close();
-        is.close();
-        URL url = temp.toURI().toURL();
-        
-        m_provider.addData("A1.jar", "A1", url, "1.0.0", true);
-        m_provider.addData("A2.jar", "A2", url, "1.0.0", false);
-        m_provider.addData("A3.jar", "A3", url, "1.0.0", true);
+
+        m_provider.addData("A1.jar", "A1", FileUtils.createEmptyBundle(null, "org.apache.ace.test.bundle.A1").toURI().toURL(), "1.0.0", true);
+        m_provider.addData("A2.jar", "A2", FileUtils.createEmptyBundle(null, "org.apache.ace.test.bundle.A2").toURI().toURL(), "1.0.0", false);
+        m_provider.addData("A3.jar", "A3", FileUtils.createEmptyBundle(null, "org.apache.ace.test.bundle.A3").toURI().toURL(), "1.0.0", true);
         TestUtils.configureObject(m_generator, DeploymentProvider.class, m_provider);
         TestUtils.configureObject(m_generator, LogService.class);
         TestUtils.configureObject(m_generator, ConnectionFactory.class, new MockConnectionFactory());

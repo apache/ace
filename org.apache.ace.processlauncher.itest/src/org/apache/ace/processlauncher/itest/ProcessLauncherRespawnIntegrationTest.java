@@ -16,19 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.processlauncher.test.osgi;
+package org.apache.ace.processlauncher.itest;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-import static org.apache.ace.processlauncher.test.impl.TestUtil.getOSName;
-import static org.apache.ace.processlauncher.test.impl.TestUtil.sleep;
-import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.provision;
+import static org.apache.ace.processlauncher.itest.TestUtil.getOSName;
+import static org.apache.ace.processlauncher.itest.TestUtil.sleep;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,73 +27,31 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
-import javax.inject.Inject;
-
-import junit.framework.AssertionFailedError;
-
+import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.processlauncher.LaunchConfiguration;
 import org.apache.ace.processlauncher.ProcessLauncherService;
 import org.apache.ace.processlauncher.ProcessLifecycleListener;
 import org.apache.ace.processlauncher.ProcessStreamListener;
-import org.apache.ace.processlauncher.impl.ProcessLauncherServiceImpl;
-import org.apache.ace.processlauncher.test.impl.TestUtil;
-import org.apache.felix.dm.DependencyManager;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
+
+import junit.framework.AssertionFailedError;
 
 /**
  * Integration test for {@link ProcessLauncherService}.
  */
-@RunWith(JUnit4TestRunner.class)
-public class ProcessLauncherRespawnIntegrationTest {
+public class ProcessLauncherRespawnIntegrationTest extends IntegrationTestBase {
 
-    @Inject
-    private BundleContext m_context;
-    private DependencyManager m_dependencyManager;
-
-    /**
-     * @return the PAX-exam configuration, never <code>null</code>.
-     */
-    @Configuration
-    public Option[] config() {
-        // Craft the correct options for PAX-URL wrap: to use Bnd and make a correct bundle...
-        String bndOptions =
-            String.format("Bundle-Activator=%1$s.osgi.Activator&" + "Export-Package=%1$s,%1$s.util&"
-                + "Private-Package=%1$s.impl,%1$s.osgi", ProcessLauncherService.class.getPackage().getName());
-
-        return options(cleanCaches(),
-            junitBundles(),
-            provision(mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.log").version("1.0.1")), //
-            provision(mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.dependencymanager")
-                .version("3.0.0")), //
-            provision(mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.configadmin")
-                .version("1.2.8")), //
-            provision("wrap:assembly:./target/classes$" + bndOptions) //
-        );
-    }
-
-    /**
-     * Common set up for each test case.
-     */
-    @Before
-    public void setUp() {
-        m_dependencyManager = new DependencyManager(m_context);
-    }
+    private final BundleContext m_context = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
     /**
      * Tests that a new process will be respawned if its exit value is non-equal to two.
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
     public void testRespawnProcessWithExitValueTwoOnUnixBasedHostsOk() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -122,7 +71,6 @@ public class ProcessLauncherRespawnIntegrationTest {
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
     public void testRespawnProcessWithExitValueZeroOnUnixBasedHostsOk() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -143,7 +91,6 @@ public class ProcessLauncherRespawnIntegrationTest {
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
     public void testRespawnProcessWithProcessStreamListenersOnUnixBasedHostsOk() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -171,7 +118,6 @@ public class ProcessLauncherRespawnIntegrationTest {
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
     public void testRespawnProcessWithProcessLifecycleListenersOnUnixBasedHostsOk() throws Exception {
         // Test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -242,7 +188,7 @@ public class ProcessLauncherRespawnIntegrationTest {
             launchConfig.put("executable.processLifecycleListener", lcFilter);
         }
 
-        configureFactory(ProcessLauncherServiceImpl.PID, launchConfig);
+        configureFactory(ProcessLauncherService.PID, launchConfig);
 
         // Wait until the processes are done...
         sleep(1000);

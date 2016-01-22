@@ -1,0 +1,24 @@
+Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
+-buildpath: \
+	${^-buildpath},\
+	org.apache.felix.dependencymanager,\
+	junit.osgi,\
+	osgi.core,\
+	osgi.cmpn,\
+	org.apache.ace.test;version=latest,\
+	org.apache.ace.processlauncher;version=latest
+-runfw: org.apache.felix.framework;version='[4,5)'
+-runvm: -ea
+-runbundles: \
+	osgi.cmpn,\
+	org.apache.felix.log,\
+	org.apache.felix.dependencymanager,\
+	org.apache.felix.configadmin,\
+	org.apache.ace.test;version=latest,\
+	org.apache.ace.processlauncher;version=latest
+Private-Package: org.apache.ace.processlauncher.itest
+Bundle-Version: 1.0.0
+Bundle-Name: Apache ACE ProcessLauncher Integration Test
+Bundle-Description: Registers a service factory and ProcessLauncher service
+Bundle-Category: itest
+-baseline:

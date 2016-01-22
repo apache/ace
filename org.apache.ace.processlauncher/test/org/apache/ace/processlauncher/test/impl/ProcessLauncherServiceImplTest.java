@@ -18,13 +18,16 @@
  */
 package org.apache.ace.processlauncher.test.impl;
 
+import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Dictionary;
 import java.util.Properties;
-
-import junit.framework.TestCase;
 
 import org.apache.ace.processlauncher.impl.LaunchConfigurationFactory;
 import org.apache.ace.processlauncher.impl.ProcessLauncherServiceImpl;
@@ -33,11 +36,13 @@ import org.apache.ace.processlauncher.impl.ProcessManagerImpl;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link ProcessLauncherServiceImpl}.
  */
-public class ProcessLauncherServiceImplTest extends TestCase {
+public class ProcessLauncherServiceImplTest {
 
     private ProcessLauncherServiceImpl m_service;
     private Dictionary<Object, Object> m_launchConfig;
@@ -48,6 +53,7 @@ public class ProcessLauncherServiceImplTest extends TestCase {
      * 
      * @throws ConfigurationException not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testAddConfigurationWorksOk() throws ConfigurationException {
         final String pid = "existing-pid";
 
@@ -62,6 +68,7 @@ public class ProcessLauncherServiceImplTest extends TestCase {
      * 
      * @throws ConfigurationException not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testDeleteExistingConfigurationOk() throws ConfigurationException {
         final String pid = "existing-pid";
 
@@ -75,6 +82,7 @@ public class ProcessLauncherServiceImplTest extends TestCase {
     /**
      * Tests that deleting a non-existing launch configuration doesn't cause an exception.
      */
+    @Test(groups = { UNIT })
     public void testDeleteNonExistingConfigurationOk() {
         m_service.deleted("non-existing-pid");
     }
@@ -82,6 +90,7 @@ public class ProcessLauncherServiceImplTest extends TestCase {
     /**
      * Tests that the getName method doesn't return <code>null</code>.
      */
+    @Test(groups = { UNIT })
     public void testGetNameOk() {
         assertNotNull(m_service.getName());
     }
@@ -91,6 +100,7 @@ public class ProcessLauncherServiceImplTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testGetRunningProcessCountOk() throws Exception {
         final String pid = "existing-pid";
 
@@ -104,6 +114,7 @@ public class ProcessLauncherServiceImplTest extends TestCase {
      * 
      * @throws ConfigurationException not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testReplacingConfigurationWorksOk() throws ConfigurationException {
         final String pid = "existing-pid";
 
@@ -122,6 +133,7 @@ public class ProcessLauncherServiceImplTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testShutdownRemovesAllConfigurationsOk() throws Exception {
         assertEquals(0, m_service.getLaunchConfigurationCount());
 
@@ -141,6 +153,7 @@ public class ProcessLauncherServiceImplTest extends TestCase {
      * 
      * @throws ConfigurationException not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testUpdateConfigurationWorksOk() throws ConfigurationException {
         final String pid = "existing-pid";
 
@@ -158,7 +171,7 @@ public class ProcessLauncherServiceImplTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
-    @Override
+    @BeforeMethod
     protected void setUp() throws Exception {
         m_service = new ProcessLauncherServiceImpl();
         m_service.setLogger(TestUtils.createNullObject(LogService.class));

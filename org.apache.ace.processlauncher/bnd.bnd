@@ -1,25 +1,17 @@
--buildpath: ${^-buildpath},\
+-buildpath: \
+	${^-buildpath},\
 	org.apache.felix.dependencymanager,\
 	org.mockito.mockito-all,\
 	osgi.core,\
 	osgi.cmpn,\
-	junit;version=4.8.2,\
-	javax.inject;version=1.0.0,\
-	org.ops4j.pax.exam;version=2.3.0,\
-	pax-exam-container-native;version=2.3.0,\
-	org.ops4j.pax.exam.inject;version=2.3.0,\
-	pax-exam-junit4;version=2.3.0,\
-	pax-exam-link-mvn;version=2.3.0,\
-	org.ops4j.pax.url.mvn;version=1.3.5,\
-	org.ops4j.pax.url.assembly;version=1.3.5,\
-	org.ops4j.pax.url.link;version=1.3.5,\
-	org.ops4j.pax.url.wrap;version=1.3.5,\
-	slf4j.simple,\
 	org.apache.ace.test;version=latest
-Private-Package: org.apache.ace.processlauncher.osgi,\
+Private-Package: \
+	org.apache.ace.processlauncher.osgi,\
 	org.apache.ace.processlauncher.impl
-Bundle-Activator: org.apache.ace.processlauncher.osgi.Activator
-Export-Package: org.apache.ace.processlauncher,\
+Bundle-Activator: \
+	org.apache.ace.processlauncher.osgi.Activator
+Export-Package: \
+	org.apache.ace.processlauncher,\
 	org.apache.ace.processlauncher.util
 Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE ProcessLauncher

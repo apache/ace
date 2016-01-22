@@ -18,19 +18,27 @@
  */
 package org.apache.ace.processlauncher.test.impl;
 
-import junit.framework.TestCase;
+import static org.apache.ace.test.utils.TestUtils.UNIT;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import org.apache.ace.processlauncher.LaunchConfiguration;
 import org.apache.ace.processlauncher.impl.LaunchConfigurationImpl;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link LaunchConfigurationImpl}.
  */
-public final class LaunchConfigurationTest extends TestCase {
+public final class LaunchConfigurationTest {
 
     /**
      * Test that creating a valid {@link LaunchConfigurationImpl} works.
      */
+    @Test(groups = { UNIT })
     public void testCreateLaunchConfigurationOk() {
         LaunchConfiguration launchConfig = new LaunchConfigurationImpl(1, "/path/to/foo", new String[0], null, false);
         assertNotNull(launchConfig);
@@ -40,6 +48,7 @@ public final class LaunchConfigurationTest extends TestCase {
      * Test that the {@link LaunchConfigurationImpl} constructor validates the executable name
      * properly.
      */
+    @Test(groups = { UNIT })
     public void testCreateLaunchConfigurationWithEmptyExecutableNameFail() {
         try {
             new LaunchConfigurationImpl(1, "", new String[0], null, false);
@@ -54,6 +63,7 @@ public final class LaunchConfigurationTest extends TestCase {
      * Test that the {@link LaunchConfigurationImpl} constructor validates the instance count
      * properly.
      */
+    @Test(groups = { UNIT })
     public void testCreateLaunchConfigurationWithNegativeInstanceCountFail() {
         try {
             new LaunchConfigurationImpl(-1, "/path/to/foo", new String[0], null, false);
@@ -68,6 +78,7 @@ public final class LaunchConfigurationTest extends TestCase {
      * Test that the {@link LaunchConfigurationImpl} constructor validates the executable arguments
      * properly.
      */
+    @Test(groups = { UNIT })
     public void testCreateLaunchConfigurationWithNullExecutableArgsFail() {
         try {
             new LaunchConfigurationImpl(1, "/path/to/foo", null, null, false);
@@ -82,6 +93,7 @@ public final class LaunchConfigurationTest extends TestCase {
      * Test that the {@link LaunchConfigurationImpl} constructor validates the executable name
      * properly.
      */
+    @Test(groups = { UNIT })
     public void testCreateLaunchConfigurationWithNullExecutableNameFail() {
         try {
             new LaunchConfigurationImpl(1, null, new String[0], null, false);
@@ -96,6 +108,7 @@ public final class LaunchConfigurationTest extends TestCase {
      * Test that the {@link LaunchConfigurationImpl} constructor validates the instance count
      * properly.
      */
+    @Test(groups = { UNIT })
     public void testCreateLaunchConfigurationWithZeroInstanceCountFail() {
         try {
             new LaunchConfigurationImpl(0, "/path/to/foo", new String[0], null, false);
@@ -110,6 +123,7 @@ public final class LaunchConfigurationTest extends TestCase {
      * Test that the {@link LaunchConfigurationImpl#getCommandLine()} method works properly when one
      * executable arguments are given.
      */
+    @Test(groups = { UNIT })
     public void testGetCommandLineWithOneArgumentsOk() {
         LaunchConfiguration launchConfig =
             new LaunchConfigurationImpl(1, "/path/to/foo", new String[] { "-bar" }, null, false);
@@ -126,6 +140,7 @@ public final class LaunchConfigurationTest extends TestCase {
      * Test that the {@link LaunchConfigurationImpl#getCommandLine()} method works properly when no
      * executable arguments are given.
      */
+    @Test(groups = { UNIT })
     public void testGetCommandLineWithoutArgumentsOk() {
         LaunchConfiguration launchConfig =
             new LaunchConfigurationImpl(1, "cwd", "/path/to/foo", new String[0], 0, "(foo=bar)", "(qux=quu)", false);
@@ -144,6 +159,7 @@ public final class LaunchConfigurationTest extends TestCase {
      * Test that the {@link LaunchConfigurationImpl#getCommandLine()} method works properly when two
      * executable arguments are given.
      */
+    @Test(groups = { UNIT })
     public void testGetCommandLineWithTwoArgumentsOk() {
         LaunchConfiguration launchConfig =
             new LaunchConfigurationImpl(1, "/path/to/foo", new String[] { "-qux", "-bar" }, null, true);

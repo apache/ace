@@ -21,10 +21,11 @@ package org.apache.ace.processlauncher.test.impl;
 import static org.apache.ace.processlauncher.test.impl.TestUtil.createTempDir;
 import static org.apache.ace.processlauncher.test.impl.TestUtil.getOSName;
 import static org.apache.ace.processlauncher.test.impl.TestUtil.sleep;
+import static org.apache.ace.test.utils.TestUtils.UNIT;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.io.File;
-
-import junit.framework.TestCase;
 
 import org.apache.ace.processlauncher.LaunchConfiguration;
 import org.apache.ace.processlauncher.impl.LaunchConfigurationImpl;
@@ -32,11 +33,13 @@ import org.apache.ace.processlauncher.impl.ProcessManager;
 import org.apache.ace.processlauncher.impl.ProcessManagerImpl;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.log.LogService;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link ProcessManager}.
  */
-public class ProcessManagerImplTest extends TestCase {
+public class ProcessManagerImplTest {
     
     private ProcessManagerImpl m_processManager;
 
@@ -45,6 +48,7 @@ public class ProcessManagerImplTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testLaunchProcessOnUnixDerivativeOk() throws Exception {
         // This test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -77,6 +81,7 @@ public class ProcessManagerImplTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testLaunchProcessOnWindowsOk() throws Exception {
         // This test will only work on Windows!
         if (!getOSName().contains("windows")) {
@@ -109,6 +114,7 @@ public class ProcessManagerImplTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testRespawnProcessOnUnixDerivativeOk() throws Exception {
         // This test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -146,7 +152,7 @@ public class ProcessManagerImplTest extends TestCase {
         assertEquals(processCountBefore, m_processManager.getRunningProcessesCount());
 
         String testResult = TestUtil.slurpFile(tmpFile);
-        assertTrue(testResult, testResult.matches("(?s)^0\n1\n2\n$"));
+        assertTrue(testResult.matches("(?s)^0\n1\n2\n$"), testResult);
     }
 
     /**
@@ -154,6 +160,7 @@ public class ProcessManagerImplTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testShutdownOnUnixDerivativeOk() throws Exception {
         // This test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -187,6 +194,7 @@ public class ProcessManagerImplTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testShutdownOnWindowsOk() throws Exception {
         // This test will only work on Windows!
         if (!getOSName().contains("windows")) {
@@ -220,6 +228,7 @@ public class ProcessManagerImplTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testTerminateProcessOnUnixDerivativeOk() throws Exception {
         // This test will not work on Windows!
         if (getOSName().contains("windows")) {
@@ -252,6 +261,7 @@ public class ProcessManagerImplTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testTerminateProcessOnWindowsOk() throws Exception {
         // This test will not work on Windows!
         if (!getOSName().contains("windows")) {
@@ -282,7 +292,7 @@ public class ProcessManagerImplTest extends TestCase {
     /**
      * Set up for this test case.
      */
-    @Override
+    @BeforeTest
     protected void setUp() {
         m_processManager = new ProcessManagerImpl();
         TestUtils.configureObject(m_processManager, LogService.class);

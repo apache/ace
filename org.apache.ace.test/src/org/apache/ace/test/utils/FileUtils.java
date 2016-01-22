@@ -23,6 +23,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
 public class FileUtils {
 
@@ -42,6 +44,18 @@ public class FileUtils {
         File tempFile = File.createTempFile("test", extension, baseDirectory);
         tempFile.delete();
         return tempFile;
+    }
+
+    public static File createEmptyBundle(File baseDirectory, String bsn) throws IOException {
+        File result = createTempFile(baseDirectory, ".jar");
+
+        Manifest m = new Manifest();
+        m.getMainAttributes().putValue("Bundle-ManifestVersion", "2");
+        m.getMainAttributes().putValue("Bundle-SymbolicName", bsn);
+        
+        try (FileOutputStream fos = new FileOutputStream(result); JarOutputStream jos = new JarOutputStream(fos, m)) {
+        }
+        return result;
     }
 
     public static void copy(File input, File output) throws IOException {

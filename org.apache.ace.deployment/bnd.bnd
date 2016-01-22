@@ -1,11 +1,9 @@
--buildpath: ${^-buildpath},\
+-buildpath: \
+	${^-buildpath},\
 	osgi.core,\
 	osgi.cmpn,\
 	javax.servlet,\
 	org.apache.felix.dependencymanager,\
-	org.ops4j.pax.swissbox.tinybundles,\
-	org.ops4j.base.store,\
-	commons-logging,\
 	com.vaadin,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.identification.api;version=latest,\

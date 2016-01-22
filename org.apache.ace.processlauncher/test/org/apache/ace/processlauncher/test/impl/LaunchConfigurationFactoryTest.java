@@ -18,23 +18,29 @@
  */
 package org.apache.ace.processlauncher.test.impl;
 
-import java.util.Properties;
+import static org.apache.ace.test.utils.TestUtils.UNIT;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.fail;
 
-import junit.framework.TestCase;
+import java.util.Properties;
 
 import org.apache.ace.processlauncher.LaunchConfiguration;
 import org.apache.ace.processlauncher.impl.LaunchConfigurationFactory;
 import org.osgi.service.cm.ConfigurationException;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link LaunchConfigurationFactory}.
  */
-public final class LaunchConfigurationFactoryTest extends TestCase {
+public final class LaunchConfigurationFactoryTest {
 
     private static void assertArrayEquals(Object[] expected, Object[] actual) {
-        assertEquals("Array length mismatch!", expected.length, actual.length);
+        assertEquals(expected.length, actual.length, "Array length mismatch!");
         for (int i = 0; i < expected.length; i++) {
-            assertEquals("Array element (" + i + ") mismatch!", expected[i], actual[i]);
+            assertEquals(expected[i], actual[i], "Array element (" + i + ") mismatch!");
         }
     }
 
@@ -43,6 +49,7 @@ public final class LaunchConfigurationFactoryTest extends TestCase {
      * 
      * @throws Exception not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testCreateLaunchConfigurationBasedOnPropertiesFileOk() throws Exception {
         Properties props = TestUtil.getProperties("launch.properties");
         assertNotNull(props);
@@ -62,6 +69,7 @@ public final class LaunchConfigurationFactoryTest extends TestCase {
      * 
      * @throws ConfigurationException not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testCreateWithCompleteConfigOk() throws ConfigurationException {
         Properties props = new Properties();
         props.put(LaunchConfigurationFactory.INSTANCE_COUNT, "1");
@@ -85,6 +93,7 @@ public final class LaunchConfigurationFactoryTest extends TestCase {
     /**
      * Tests that an incomplete configuration causes an exception.
      */
+    @Test(groups = { UNIT })
     public void testCreateWithEmptyExecutableNameFail() {
         Properties props = new Properties();
         props.put(LaunchConfigurationFactory.INSTANCE_COUNT, "1");
@@ -104,6 +113,7 @@ public final class LaunchConfigurationFactoryTest extends TestCase {
     /**
      * Tests that an incomplete configuration causes an exception.
      */
+    @Test(groups = { UNIT })
     public void testCreateWithInvalidInstanceCountFail() {
         Properties props = new Properties();
         props.put(LaunchConfigurationFactory.INSTANCE_COUNT, "0");
@@ -125,6 +135,7 @@ public final class LaunchConfigurationFactoryTest extends TestCase {
      * 
      * @throws ConfigurationException not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testCreateWithInvalidProcessStreamListenerFilterFail() throws ConfigurationException {
         Properties props = new Properties();
         props.put(LaunchConfigurationFactory.INSTANCE_COUNT, "1");
@@ -167,6 +178,7 @@ public final class LaunchConfigurationFactoryTest extends TestCase {
     /**
      * Tests that an incomplete configuration causes an exception.
      */
+    @Test(groups = { UNIT })
     public void testCreateWithNonNumericInstanceCountFail() {
         Properties props = new Properties();
         props.put(LaunchConfigurationFactory.INSTANCE_COUNT, "foo");
@@ -188,6 +200,7 @@ public final class LaunchConfigurationFactoryTest extends TestCase {
      * 
      * @throws ConfigurationException not part of this test case.
      */
+    @Test(groups = { UNIT })
     public void testCreateWithNullConfigFail() throws ConfigurationException {
         try {
             LaunchConfigurationFactory.create(null);
@@ -201,6 +214,7 @@ public final class LaunchConfigurationFactoryTest extends TestCase {
     /**
      * Tests that an incomplete configuration causes an exception.
      */
+    @Test(groups = { UNIT })
     public void testCreateWithNullExecutableArgumentsFail() {
         Properties props = new Properties();
         props.put(LaunchConfigurationFactory.INSTANCE_COUNT, "1");
@@ -219,6 +233,7 @@ public final class LaunchConfigurationFactoryTest extends TestCase {
     /**
      * Tests that an incomplete configuration causes an exception.
      */
+    @Test(groups = { UNIT })
     public void testCreateWithNullExecutableNameFail() {
         Properties props = new Properties();
         props.put(LaunchConfigurationFactory.INSTANCE_COUNT, "1");
@@ -237,6 +252,7 @@ public final class LaunchConfigurationFactoryTest extends TestCase {
     /**
      * Tests that an incomplete configuration causes an exception.
      */
+    @Test(groups = { UNIT })
     public void testCreateWithNullInstanceCountFail() {
         Properties props = new Properties();
         props.put(LaunchConfigurationFactory.EXECUTABLE_NAME, "/path/to/foo");

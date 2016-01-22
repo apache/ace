@@ -18,14 +18,15 @@
  */
 package org.apache.ace.processlauncher.test.util;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 import static org.apache.ace.processlauncher.test.impl.TestUtil.sleep;
+import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,8 +35,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.ace.processlauncher.util.InputStreamRedirector;
-import org.junit.Test;
 import org.mockito.Mockito;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link InputStreamRedirector}.
@@ -47,7 +48,7 @@ public class InputStreamRedirectorTest {
      * 
      * @throws IOException not part of this test case.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testInputStreamEOFCausesOutputStreamToBeClosedOk() throws IOException {
         InputStream myIS = new ByteArrayInputStream("hello world!".getBytes());
         OutputStream mockOS = mock(OutputStream.class);
@@ -63,7 +64,7 @@ public class InputStreamRedirectorTest {
      * 
      * @throws IOException not part of this test case.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testInputStreamIsVerbatimelyCopiedToOutputStreamOk() throws IOException {
         String input = "hello world!";
 
@@ -81,7 +82,7 @@ public class InputStreamRedirectorTest {
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testInterruptRedirectorOk() throws Exception {
         InputStream myIS = createBlockingInputStream();
         OutputStream myOS = mock(OutputStream.class);
@@ -108,7 +109,7 @@ public class InputStreamRedirectorTest {
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testRecoverFromExceptionInInputStreamWithoutOutputStreamOk() throws Exception {
         InputStream myIS = createExceptionThrowingInputStream();
         ByteArrayOutputStream myOS = new ByteArrayOutputStream();
@@ -130,7 +131,7 @@ public class InputStreamRedirectorTest {
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testRecoverFromExceptionInInputStreamWithOutputStreamOk() throws Exception {
         InputStream myIS = createExceptionThrowingInputStream();
         OutputStream myOS = mock(OutputStream.class);
@@ -148,7 +149,7 @@ public class InputStreamRedirectorTest {
      * 
      * @throws Exception not part of this test case.
      */
-    @Test
+    @Test(groups = { UNIT })
     public void testWithoutOutputStreamOk() throws Exception {
         InputStream myIS = new ByteArrayInputStream("hello world!".getBytes());
 
