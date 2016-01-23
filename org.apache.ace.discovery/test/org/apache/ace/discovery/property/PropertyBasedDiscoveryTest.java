@@ -39,7 +39,7 @@ public class PropertyBasedDiscoveryTest {
     @Test(groups = { UNIT })
     public void discoverWithPropertyUpdate() throws ConfigurationException, URISyntaxException {
         PropertyBasedDiscovery discovery = new PropertyBasedDiscovery();
-        Dictionary dict = new Hashtable();
+        Dictionary<String, Object> dict = new Hashtable<String, Object>();
         dict.put(DiscoveryConstants.DISCOVERY_URL_KEY, "file://local");
         discovery.updated(dict);
         URL url = discovery.discover();

@@ -57,7 +57,7 @@ public class Activator implements BundleActivator {
         context.addFrameworkListener(m_listener);
 
         // listen for deployment events
-        Dictionary dict = new Hashtable();
+        Dictionary<String, Object> dict = new Hashtable<String, Object>();
         dict.put(EventConstants.EVENT_TOPIC, topics);
         context.registerService(EventHandler.class.getName(), m_listener, dict);
 

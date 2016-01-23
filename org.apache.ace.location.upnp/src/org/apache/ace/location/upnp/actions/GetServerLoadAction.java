@@ -64,7 +64,7 @@ public class GetServerLoadAction implements UPnPAction {
 	public Dictionary invoke(Dictionary args) throws Exception {
 		int load = m_locationService.getServerLoad();
 
-		Hashtable result = new Hashtable();
+		Hashtable<String, Object> result = new Hashtable<String, Object>();
 		result.put(RET_TARGET_VALUE, load);
 		return result;
 	}

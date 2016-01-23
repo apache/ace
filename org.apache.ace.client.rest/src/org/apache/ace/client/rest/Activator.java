@@ -18,15 +18,12 @@
  */
 package org.apache.ace.client.rest;
 
-import java.util.Properties;
-
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpSessionListener;
 
 import org.apache.ace.client.workspace.WorkspaceManager;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.service.command.CommandProcessor;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 

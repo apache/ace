@@ -21,6 +21,7 @@ package org.apache.ace.deployment.task;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -125,9 +126,9 @@ public class Activator extends DependencyActivatorBase implements ManagedService
      * @return an array with {@link Component} instances for the different tasks, never <code>null</code>.
      */
     private List<Component> createServices(String ma) {
-        Dictionary updateProperties = new Properties();
-        Dictionary checkProperties = new Properties();
-        Dictionary deploymentProperties = new Properties();
+        Dictionary<String, Object> updateProperties = new Hashtable<String, Object>();
+        Dictionary<String, Object> checkProperties = new Hashtable<String, Object>();
+        Dictionary<String, Object> deploymentProperties = new Hashtable<String, Object>();
         
         String updateSchedulerName = DeploymentUpdateTask.class.getName();
         String updateDescription = "Task that synchronizes the artifacts (bundles, resources) installed on this target with the server.";

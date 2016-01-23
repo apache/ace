@@ -152,7 +152,7 @@ public class LogStoreImpl implements LogStore {
     public synchronized List get(long logID, long from, long to)
             throws IOException {
         Store store = getLog(logID);
-        List result = new ArrayList();
+        List<Event> result = new ArrayList<Event>();
         try {
             if (store.getCurrent() > from) {
                 store.reset();
@@ -437,6 +437,7 @@ public class LogStoreImpl implements LogStore {
             return m_store.getFilePointer() < m_store.length();
         }
 
+        @SuppressWarnings("unused")
         public byte[] read() throws IOException {
             long pos = m_store.getFilePointer();
             try {
@@ -496,6 +497,7 @@ public class LogStoreImpl implements LogStore {
          * @throws java.io.IOException
          *             in case of any IO error or if there is no record left.
          */
+        @SuppressWarnings("unused")
         public void skip() throws IOException {
             long pos = m_store.getFilePointer();
             try {
@@ -525,7 +527,6 @@ public class LogStoreImpl implements LogStore {
             long pos = m_store.getFilePointer();
             try {
                 m_store.seek(m_store.length());
-                long current = m_store.getFilePointer();
                 m_store.writeLong(id);
                 m_store.writeInt(entry.length);
                 m_store.write(entry);

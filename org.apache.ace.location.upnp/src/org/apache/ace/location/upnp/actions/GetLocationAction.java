@@ -63,7 +63,7 @@ public class GetLocationAction implements UPnPAction {
 	public Dictionary invoke(Dictionary args) throws Exception {
 		URL location = m_locationService.getLocation();
 
-		Hashtable result = new Hashtable();
+		Hashtable<String, Object> result = new Hashtable<String, Object>();
 		result.put(RET_TARGET_VALUE, location.toExternalForm());
 		return result;
 	}

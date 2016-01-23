@@ -54,7 +54,6 @@ public class TestWebServer {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
             HttpServletRequest hreq = (HttpServletRequest) req;
             HttpServletResponse hres = (HttpServletResponse) res;

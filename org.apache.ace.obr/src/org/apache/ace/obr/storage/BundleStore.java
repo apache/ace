@@ -3,8 +3,6 @@ package org.apache.ace.obr.storage;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.osgi.service.cm.ManagedService;
-
 import aQute.bnd.annotation.ProviderType;
 
 /*

@@ -65,7 +65,7 @@ public class GetServerTypeAction implements UPnPAction {
 	public Dictionary invoke(Dictionary args) throws Exception {
 		String type = m_locationService.getServerType();
 
-		Hashtable result = new Hashtable();
+		Hashtable<String, Object> result = new Hashtable<String, Object>();
 		result.put(RET_TARGET_VALUE, type);
 		return result;
 	}

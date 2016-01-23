@@ -20,6 +20,7 @@ package org.apache.ace.log.listener;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import org.apache.ace.feedback.AuditEvent;
@@ -54,7 +55,7 @@ public class ListenerImpl implements BundleListener, FrameworkListener, EventHan
     volatile BundleContext m_context;
     volatile Log m_auditLog;
 
-    private final List m_queue = new ArrayList();
+    private final List<Runnable> m_queue = new ArrayList<Runnable>();
 
     public ListenerImpl(BundleContext context, Log log) {
         m_context = context;
@@ -201,7 +202,7 @@ public class ListenerImpl implements BundleListener, FrameworkListener, EventHan
             m_queue.add(new Runnable() {
                 public void run() {
                     int eventType = AuditEvent.DEPLOYMENTADMIN_BASE;
-                    Dictionary props = new Properties();
+                    Dictionary<String, Object> props = new Hashtable<String, Object>();
 
                     String topic = event.getTopic();
 

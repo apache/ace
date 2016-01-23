@@ -19,6 +19,7 @@
 package org.apache.ace.deployment.service.impl;
 
 import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -124,7 +125,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
      * @return a {@link Component} instance for the {@link DeploymentService}, never <code>null</code>.
      */
     private Component createService(String ma) {
-        Dictionary deploymentProperties = new Properties();
+        Dictionary<String, Object> deploymentProperties = new Hashtable<String, Object>();
 
         String identificationFilter = "(" + Constants.OBJECTCLASS + "=" + Identification.class.getName() + ")";
         String discoveryFilter = "(" + Constants.OBJECTCLASS + "=" + Discovery.class.getName() + ")";

@@ -35,7 +35,7 @@ public class ExecuteCommands {
     private volatile CommandProcessor m_processor;
 
     @Descriptor("executes one or more script definition")
-    public void executeAll(CommandSession session, @Descriptor("the script definition(s) to execute, which consists of a map with at least a 'script' key") Map<String, String>... defs) throws Exception {
+    public void executeAll(CommandSession session, @Descriptor("the script definition(s) to execute, which consists of a map with at least a 'script' key") Map<String, String>[] defs) throws Exception {
         if (defs == null || defs.length == 0) {
             throw new IllegalArgumentException("Need at least one script definition!");
         }

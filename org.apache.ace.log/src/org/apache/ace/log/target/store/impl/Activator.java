@@ -41,7 +41,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
 
     private DependencyManager m_manager;
     private BundleContext m_context;
-    private final Map /*<String, Component>*/ m_instances = new HashMap();
+    private final Map<String, Component> m_instances = new HashMap<String, Component>();
     private volatile LogService m_log;
 
     public void init(BundleContext context, DependencyManager manager) throws Exception {

@@ -231,8 +231,9 @@ public class LogStoreImpl implements LogStore, ManagedService {
      * @throws java.io.IOException
      *             in case of any error.
      */
+    @SuppressWarnings("unchecked")
     protected void put(String targetID, Long logID, List<Event> list) throws IOException {
-        if ((list == null) || (list.size() == 0)) {
+        if ((list == null) || list.isEmpty()) {
             // nothing to add, so return
             return;
         }

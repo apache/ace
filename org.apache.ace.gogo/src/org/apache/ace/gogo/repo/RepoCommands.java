@@ -115,8 +115,6 @@ public class RepoCommands {
         List<Resource> resources = findResources(repo, requirement);
 
         for (Resource resource : resources) {
-            String location = getUrl(resources.get(0));
-//            System.out.println("rm " + resource + " => " + location);
             deleteResource(resource);
         }
     }

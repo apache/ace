@@ -20,8 +20,8 @@ package org.apache.ace.log.target;
 
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
@@ -41,7 +41,7 @@ public class LogSyncConfigurator implements ManagedServiceFactory {
     private static final String LOG_NAME = "name";
 
     private DependencyManager m_manager;
-    private final Map /*<String, Component>*/ m_syncInstances = new HashMap();
+    private final Map<String, Component> m_syncInstances = new HashMap<String, Component>();
     private volatile LogService m_log;
     
     public String getName() {
@@ -65,7 +65,7 @@ public class LogSyncConfigurator implements ManagedServiceFactory {
         Component service = (Component) m_syncInstances.get(pid);
         if (service == null) {
             // publish log sync task service
-            Dictionary properties = new Properties();
+            Dictionary<String, Object> properties = new Hashtable<String, Object>();
             String filterString;
             String filterForDiscovery;
             String filterForIdentification;

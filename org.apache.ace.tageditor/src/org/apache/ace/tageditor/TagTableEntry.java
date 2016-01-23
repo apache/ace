@@ -22,12 +22,10 @@ import org.apache.ace.client.repository.RepositoryObject;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Button.ClickEvent;
 
 public class TagTableEntry {
 

@@ -60,6 +60,7 @@ public class DeploymentArtifactCollector extends BaseRepositoryHandler {
      *         The array contains the deployment artifacts per requested version, in the same
      *         order as given in the class constructor.
      */
+    @SuppressWarnings("unchecked")
     public List<XmlDeploymentArtifact>[] getArtifacts() {
         List<XmlDeploymentArtifact>[] result = new List[m_expectedVersions.size()];
         int i = 0;

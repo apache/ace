@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.List;
@@ -137,6 +136,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService, Ht
      * @see javax.servlet.http.HttpServlet#doDelete(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     	HttpSession session = getSession(req);
         String[] pathElements = getPathElements(req);
@@ -190,6 +190,11 @@ public class RESTClientServlet extends HttpServlet implements ManagedService, Ht
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     	HttpSession session = getSession(req);
+        if (session == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+    	
         String[] pathElements = getPathElements(req);
         if (pathElements == null || pathElements.length == 0) {
             // TODO return a list of versions
@@ -252,6 +257,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService, Ht
      * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     	HttpSession session = getSession(req);
         String[] pathElements = getPathElements(req);
@@ -306,6 +312,11 @@ public class RESTClientServlet extends HttpServlet implements ManagedService, Ht
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     	HttpSession session = getSession(req);
+        if (session == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
         String[] pathElements = getPathElements(req);
         if (pathElements == null || pathElements.length != 4 || !WORK_FOLDER.equals(pathElements[0])) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -616,6 +627,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService, Ht
 	}
 
 	@Override
+    @SuppressWarnings("unchecked")
 	public void sessionDestroyed(HttpSessionEvent e) {
 		HttpSession session = e.getSession();
 		if (session != null) {

@@ -78,7 +78,6 @@ public class CustomControllerTest extends BaseAgentTest {
     }
 
     @BeforeMethod
-    @SuppressWarnings("unchecked")
     public void setUpAgain() throws Exception {
         m_dummyInputStream = new FileInputStream(m_dummyFile);
 

@@ -30,9 +30,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -66,7 +66,7 @@ public class DeploymentServiceImpl implements DeploymentService {
      */
     public Version getHighestLocalVersion() {
         Object[] installedPackages = m_deployer.list();
-        List versions = new ArrayList();
+        List<Version> versions = new ArrayList<Version>();
         for (int i = 0; i < installedPackages.length; i++) {
             if (m_deployer.getName(installedPackages[i]).equals(m_identification.getID())) {
                 versions.add(m_deployer.getVersion(installedPackages[i]));
@@ -162,7 +162,7 @@ public class DeploymentServiceImpl implements DeploymentService {
      * @return
      */
     private Event createEvent(String version, URL dataURL) {
-        Dictionary properties = new Properties();
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put("deploymentpackage.url", dataURL.toString());
         properties.put("deploymentpackage.version", version);
         Event event = new Event(TOPIC_DEPLOYMENTPACKAGE_INSTALL, properties);

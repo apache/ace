@@ -36,7 +36,7 @@ public class LogConfigurator implements ManagedServiceFactory {
     private static final String LOG_NAME = "name";
 
     private DependencyManager m_manager;
-    private final Map /*<String, Component>*/ m_logInstances = new HashMap();
+    private final Map<String, Component> m_logInstances = new HashMap<String, Component>();
     private volatile LogService m_log;
     
     public String getName() {
