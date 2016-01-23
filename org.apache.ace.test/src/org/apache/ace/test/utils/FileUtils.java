@@ -23,8 +23,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+
+import org.osgi.framework.Version;
 
 public class FileUtils {
 
@@ -43,18 +46,31 @@ public class FileUtils {
     public static File createTempFile(File baseDirectory, String extension) throws IOException {
         File tempFile = File.createTempFile("test", extension, baseDirectory);
         tempFile.delete();
+        tempFile.deleteOnExit();
         return tempFile;
     }
 
-    public static File createEmptyBundle(File baseDirectory, String bsn) throws IOException {
+    public static File createEmptyBundle(String bsn, Version version, String... headers) throws IOException {
+        return createEmptyBundle(null, bsn, version, headers);
+    }
+    
+    public static File createEmptyBundle(File baseDirectory, String bsn, Version version, String... headers) throws IOException {
+        Manifest m = new Manifest();
+        Attributes mainAttrs = m.getMainAttributes();
+        mainAttrs.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        mainAttrs.putValue("Bundle-ManifestVersion", "2");
+        mainAttrs.putValue("Bundle-SymbolicName", bsn);
+        mainAttrs.putValue("Bundle-Version", version.toString());
+        for (int i = 0; i < headers.length; i += 2) {
+            mainAttrs.putValue(headers[i], headers[i + 1]);
+        }
+
         File result = createTempFile(baseDirectory, ".jar");
 
-        Manifest m = new Manifest();
-        m.getMainAttributes().putValue("Bundle-ManifestVersion", "2");
-        m.getMainAttributes().putValue("Bundle-SymbolicName", bsn);
-        
         try (FileOutputStream fos = new FileOutputStream(result); JarOutputStream jos = new JarOutputStream(fos, m)) {
+            jos.close();
         }
+
         return result;
     }
 

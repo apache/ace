@@ -28,11 +28,11 @@ import static org.apache.ace.client.rest.itest.ClientRestUtils.createDistributio
 import static org.apache.ace.client.rest.itest.ClientRestUtils.createFeature;
 import static org.apache.ace.client.rest.itest.ClientRestUtils.createResourceProcessor;
 import static org.apache.ace.client.rest.itest.ClientRestUtils.createTarget;
-import static org.apache.ace.client.rest.itest.ClientRestUtils.createTmpBundleOnDisk;
 import static org.apache.ace.client.rest.itest.ClientRestUtils.createTmpConfigOnDisk;
 import static org.apache.ace.client.rest.itest.ClientRestUtils.createWorkspace;
 import static org.apache.ace.client.rest.itest.ClientRestUtils.deleteResources;
 import static org.apache.ace.client.rest.itest.ClientRestUtils.ensureCleanStore;
+import static org.apache.ace.test.utils.FileUtils.createEmptyBundle;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +47,7 @@ import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Version;
 import org.osgi.service.log.LogEntry;
 import org.osgi.service.log.LogReaderService;
 import org.osgi.service.useradmin.Role;
@@ -60,7 +61,6 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
 public class RESTClientTest extends IntegrationTestBase {
-
     // From: ConfigurationHelper (somehow directly using them here fails)
     public static final String KEY_FILENAME = "filename";
     public static final String MIMETYPE = "application/xml:osgi-autoconf";
@@ -68,6 +68,7 @@ public class RESTClientTest extends IntegrationTestBase {
 
     private static final String STOREPATH = "generated/store";
     private static final String HOST = "http://localhost:" + TestConstants.PORT;
+    private static final Version V1_0_0 = new Version(1, 0, 0);
 
     private static boolean m_hasBeenSetup = false;
     private static int m_testRunCount = 0;
@@ -148,8 +149,8 @@ public class RESTClientTest extends IntegrationTestBase {
         Gson gson = new Gson();
         try {
             int nr = 20;
-            File b1 = createTmpBundleOnDisk("bar.b1", "1.0.0");
-            File b2 = createTmpBundleOnDisk("bar.b2", "1.0.0");
+            File b1 = createEmptyBundle("bar.b1", V1_0_0);
+            File b2 = createEmptyBundle("bar.b2", V1_0_0);
 
             WebResource w1 = createWorkspace(HOST, client);
             deleteResources(gson, w1);
@@ -192,9 +193,9 @@ public class RESTClientTest extends IntegrationTestBase {
         Client client = createClient();
         Gson gson = new Gson();
         try {
-            File b1 = createTmpBundleOnDisk("foo.b1", "1.0.0");
-            File b2 = createTmpBundleOnDisk("foo.b2", "1.0.0");
-            File b3 = createTmpBundleOnDisk("foo.b3", "1.0.0");
+            File b1 = createEmptyBundle("foo.b1", V1_0_0);
+            File b2 = createEmptyBundle("foo.b2", V1_0_0);
+            File b3 = createEmptyBundle("foo.b3", V1_0_0);
 
             WebResource w1 = createWorkspace(HOST, client);
             deleteResources(gson, w1);
@@ -249,7 +250,7 @@ public class RESTClientTest extends IntegrationTestBase {
         Client client = createClient();
         Gson gson = new Gson();
         try {
-            File bundle = createTmpBundleOnDisk("rp", "1.0.0", BundleHelper.KEY_RESOURCE_PROCESSOR_PID, PROCESSOR, "DeploymentPackage-Customizer", "true");
+            File bundle = createEmptyBundle("rp", V1_0_0, BundleHelper.KEY_RESOURCE_PROCESSOR_PID, PROCESSOR, "DeploymentPackage-Customizer", "true");
             File config = createTmpConfigOnDisk(
                 "<MetaData xmlns='http://www.osgi.org/xmlns/metatype/v1.0.0'>\n" +
                     "  <OCD name='ocd' id='ocd'>\n" +

@@ -28,9 +28,6 @@ import java.io.IOException;
 
 import org.apache.ace.test.utils.FileUtils;
 
-import aQute.bnd.osgi.Builder;
-import aQute.bnd.osgi.Jar;
-
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -162,26 +159,6 @@ public class ClientRestUtils {
             result.append(tags[i] + ": \"" + tags[i + 1] + "\"");
         }
         return createEntity(c, work, "target", "{attributes: {id: \"" + name + "\", autoapprove: \"true\"}, tags: {" + result.toString() + "}}");
-    }
-
-    public static File createTmpBundleOnDisk(String bsn, String v, String... headers) throws Exception {
-        File file = File.createTempFile("bundle", ".jar");
-        file.deleteOnExit();
-        Builder b = new Builder();
-        try {
-            b.setProperty("Bundle-SymbolicName", bsn);
-            b.setProperty("Bundle-Version", v);
-            for (int i = 0; i < headers.length; i += 2) {
-                b.setProperty(headers[i], headers[i + 1]);
-            }
-            Jar jar = b.build();
-            jar.getManifest(); // Not sure whether this is needed...
-            jar.write(file);
-            return file;
-        }
-        finally {
-            b.close();
-        }
     }
 
     public static File createTmpConfigOnDisk(String config) throws Exception {

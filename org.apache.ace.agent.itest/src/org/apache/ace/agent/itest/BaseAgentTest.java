@@ -31,19 +31,17 @@ import org.apache.ace.agent.AgentControl;
 import org.apache.ace.agent.ConfigurationHandler;
 import org.apache.ace.builder.DeploymentPackageBuilder;
 import org.apache.ace.it.IntegrationTestBase;
+import org.apache.ace.test.utils.FileUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
-
-import aQute.bnd.osgi.Builder;
-import aQute.bnd.osgi.Jar;
 
 public abstract class BaseAgentTest extends IntegrationTestBase {
 
     protected static class TestBundle {
         private final File m_file;
 
-        public TestBundle(String name, Version version, String... headers) throws Exception {
-            m_file = createBundle(name, version, headers);
+        public TestBundle(String bsn, Version version, String... headers) throws Exception {
+            m_file = FileUtils.createEmptyBundle(bsn, version, headers);
         }
 
         public File getFile() {
@@ -77,31 +75,6 @@ public abstract class BaseAgentTest extends IntegrationTestBase {
 
         public Version getVersion() {
             return m_version;
-        }
-    }
-
-    protected static File createBundle(String bsn, Version version, String... headers) throws Exception {
-        Builder b = new Builder();
-
-        try {
-            b.setProperty("Bundle-SymbolicName", bsn);
-            b.setProperty("Bundle-Version", version.toString());
-            for (int i = 0; i < headers.length; i += 2) {
-                b.setProperty(headers[i], headers[i + 1]);
-            }
-            b.setProperty("Include-Resource", "bnd.bnd"); // prevent empty jar bug
-
-            Jar jar = b.build();
-            jar.getManifest(); // Not sure whether this is needed...
-
-            File file = File.createTempFile("testbundle", ".jar");
-            file.deleteOnExit();
-
-            jar.write(file);
-            return file;
-        }
-        finally {
-            b.close();
         }
     }
 

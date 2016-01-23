@@ -40,6 +40,7 @@ import org.apache.ace.deployment.util.test.TestProvider;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.test.utils.TestUtils;
+import org.osgi.framework.Version;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 import org.testng.annotations.BeforeTest;
@@ -49,6 +50,7 @@ import org.testng.annotations.Test;
  * Unit tests for the deployment admin stream.
  */
 public class StreamTest {
+    private static final Version V1_0_0 = new Version(1, 0, 0);
     private static final int COPY_BUFFER_SIZE = 4096;
 
     private StreamGeneratorImpl m_generator;
@@ -59,9 +61,9 @@ public class StreamTest {
         m_generator = new StreamGeneratorImpl();
         m_provider = new TestProvider();
 
-        m_provider.addData("A1.jar", "A1", FileUtils.createEmptyBundle(null, "org.apache.ace.test.bundle.A1").toURI().toURL(), "1.0.0", true);
-        m_provider.addData("A2.jar", "A2", FileUtils.createEmptyBundle(null, "org.apache.ace.test.bundle.A2").toURI().toURL(), "1.0.0", false);
-        m_provider.addData("A3.jar", "A3", FileUtils.createEmptyBundle(null, "org.apache.ace.test.bundle.A3").toURI().toURL(), "1.0.0", true);
+        m_provider.addData("A1.jar", "A1", FileUtils.createEmptyBundle("org.apache.ace.test.bundle.A1", V1_0_0).toURI().toURL(), "1.0.0", true);
+        m_provider.addData("A2.jar", "A2", FileUtils.createEmptyBundle("org.apache.ace.test.bundle.A2", V1_0_0).toURI().toURL(), "1.0.0", false);
+        m_provider.addData("A3.jar", "A3", FileUtils.createEmptyBundle("org.apache.ace.test.bundle.A3", V1_0_0).toURI().toURL(), "1.0.0", true);
         TestUtils.configureObject(m_generator, DeploymentProvider.class, m_provider);
         TestUtils.configureObject(m_generator, LogService.class);
         TestUtils.configureObject(m_generator, ConnectionFactory.class, new MockConnectionFactory());

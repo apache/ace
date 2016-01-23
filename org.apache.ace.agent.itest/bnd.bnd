@@ -1,4 +1,3 @@
-Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 -runbundles: \
 	org.apache.ace.agent;version=latest,\
 	org.apache.ace.test;version=latest,\
@@ -9,19 +8,16 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 	org.apache.felix.log,\
 	biz.aQute.bnd,\
 	osgi.cmpn
-Private-Package: \
-	org.apache.ace.agent.itest,\
-	aQute.*
--runee: JavaSE-1.6
+-runee: JavaSE-1.7
 -runvm: -ea
 -runfw: org.apache.felix.framework;version='[4,5)'
--buildpath: osgi.core;version='[4.2,5)',\
+-buildpath: \
+	osgi.core;version='[4.2,5)',\
 	org.apache.ace.agent;version=latest,\
 	org.apache.ace.builder;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.http.jetty,\
-	biz.aQute.bnd,\
 	junit.osgi,\
 	org.mockito.mockito-all	
 -runsystempackages: sun.reflect
@@ -30,12 +26,16 @@ Private-Package: \
 	org.apache.felix.log.storeDebug=true,\
 	org.apache.felix.log.maxSize=1000,\
 	org.osgi.framework.bootdelegation="com.yourkit.*,com.sun.*,sun.*,apple.*,com.apple.*"
-Import-Package: org.apache.ace.agent,\
-	!org.osgi.service.component.annotations,\
-	!org.apache.tools.ant.*,\
-	!aQute.*,\
+
+Private-Package: \
+	org.apache.ace.agent.itest
+Import-Package: \
+	org.apache.ace.agent,\
 	*
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Agent itest
 Bundle-Description: Integration test bundle for the Apache ACE Agent
+
+Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
+
 -baseline:
