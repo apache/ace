@@ -23,7 +23,9 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -46,7 +48,7 @@ import org.osgi.service.useradmin.User;
  * Base class for the repository servlets. Both the repository and the repository replication servlets work in a similar
  * way, so the specifics were factored out of this base class and put in two subclasses.
  */
-public abstract class RepositoryServletBase extends HttpServlet implements ManagedService {
+public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet implements ManagedService {
     /** A boolean denoting whether or not authentication is enabled. */
     private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
     private static final int COPY_BUFFER_SIZE = 1024;
@@ -54,12 +56,60 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
     protected static final String TEXT_MIMETYPE = "text/plain";
     protected static final String BINARY_MIMETYPE = "application/octet-stream";
 
+    private final Class<REPO_TYPE> m_repoType;
     // injected by Dependency Manager
     private volatile DependencyManager m_dm;
     private volatile AuthenticationService m_authService;
     private volatile boolean m_useAuth = false;
     protected volatile BundleContext m_context;
     protected volatile LogService m_log;
+
+    public RepositoryServletBase(Class<REPO_TYPE> repoType) {
+        m_repoType = repoType;
+    }
+
+    public void updated(Dictionary settings) throws ConfigurationException {
+        if (settings != null) {
+            String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
+            if ((useAuthString == null) ||
+                !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
+                throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
+            }
+            boolean useAuth = Boolean.parseBoolean(useAuthString);
+            m_useAuth = useAuth;
+        }
+        else {
+            m_useAuth = false;
+        }
+    }
+
+    /**
+     * Checkout or get data from the repository.
+     * 
+     * @param repo
+     *            the repository service
+     * @param version
+     *            the version to check out.
+     * @return the data
+     * @throws IllegalArgumentException
+     * @throws java.io.IOException
+     */
+    protected abstract InputStream doCheckout(REPO_TYPE repo, long version) throws IllegalArgumentException, IOException;
+
+    /**
+     * Commit or put the data into the repository.
+     * 
+     * @param repo
+     *            the repository service
+     * @param version
+     *            The version to commit
+     * @param data
+     *            The data
+     * @return <code>true</code> if successful
+     * @throws IllegalArgumentException
+     * @throws IOException
+     */
+    protected abstract boolean doCommit(REPO_TYPE repo, long version, InputStream data) throws IllegalArgumentException, IOException;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -106,11 +156,6 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
         }
     }
 
-    /**
-     * Returns the name of the "checkout" command.
-     */
-    protected abstract String getCheckoutCommand();
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String path = request.getPathInfo();
@@ -134,64 +179,31 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
     }
 
     /**
+     * Returns the name of the "checkout" command.
+     */
+    protected abstract String getCheckoutCommand();
+
+    /**
      * Returns the name of the "commit" command.
      */
     protected abstract String getCommitCommand();
 
     /**
-     * Handles a query command and sends back the response.
-     */
-    private void handleQuery(String filter, HttpServletResponse response) throws IOException {
-        try {
-            ServiceReference[] refs = getRepositories(filter);
-            StringBuffer result = new StringBuffer();
-
-            if (refs != null) {
-                for (ServiceReference ref : refs) {
-                    result.append((String) ref.getProperty("customer"));
-                    result.append(',');
-                    result.append((String) ref.getProperty("name"));
-                    result.append(',');
-                    result.append(getRange(ref).toRepresentation());
-                    result.append('\n');
-                }
-            }
-
-            response.setContentType(TEXT_MIMETYPE);
-            response.getWriter().print(result.toString());
-        }
-        catch (IOException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                "Could not retrieve version range for repository: " + e.getMessage());
-        }
-        catch (InvalidSyntaxException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                "Invalid filter syntax: " + e.getMessage());
-        }
-    }
-
-    /**
      * Implement this by asking the right repository for a range of available versions.
      * 
-     * @param ref Reference to the repository service you need to dereference
+     * @param repo
+     *            the repository service
      * @return a sorted range set
-     * @throws IOException If the range cannot be obtained
+     * @throws IOException
+     *             If the range cannot be obtained
      */
-    protected abstract SortedRangeSet getRange(ServiceReference ref) throws IOException;
-
-    /**
-     * Returns a list of repositories that match the specified filter condition.
-     * 
-     * @param filter The filter condition
-     * @return An array of service references
-     * @throws InvalidSyntaxException If the filter condition is invalid
-     */
-    protected abstract ServiceReference[] getRepositories(String filter) throws InvalidSyntaxException;
+    protected abstract SortedRangeSet getRange(REPO_TYPE repo) throws IOException;
 
     /**
      * Called by Dependency Manager upon initialization of this component.
      * 
-     * @param comp the component to initialize, cannot be <code>null</code>.
+     * @param comp
+     *            the component to initialize, cannot be <code>null</code>.
      */
     protected void init(Component comp) {
         comp.add(m_dm.createServiceDependency()
@@ -214,7 +226,8 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
     /**
      * Authenticates, if needed the user with the information from the given request.
      * 
-     * @param request The request to obtain the credentials from, cannot be <code>null</code>.
+     * @param request
+     *            The request to obtain the credentials from, cannot be <code>null</code>.
      * @return <code>true</code> if the authentication was successful, <code>false</code> otherwise.
      */
     private boolean authenticate(HttpServletRequest request) {
@@ -232,103 +245,16 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
     }
 
     /**
-     * Handles a commit command and sends back the response.
-     */
-    private void handleCommit(String customer, String name, long version, InputStream data, HttpServletResponse response) throws IOException {
-        try {
-            ServiceReference[] refs = getRepositories("(&(customer=" + customer + ")(name=" + name + "))");
-
-            if ((refs != null) && (refs.length == 1)) {
-                ServiceReference ref = refs[0];
-                try {
-                    if (!doCommit(ref, version, data)) {
-                        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not commit");
-                    }
-                    else {
-                        response.sendError(HttpServletResponse.SC_OK);
-                    }
-                }
-                catch (IllegalArgumentException e) {
-                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid version");
-                }
-                catch (IllegalStateException e) {
-                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                        "Cannot commit, not the master repository");
-                }
-            }
-        }
-        catch (IOException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "I/O exception: " + e.getMessage());
-        }
-        catch (InvalidSyntaxException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid filter syntax: "
-                + e.getMessage());
-        }
-    }
-
-    /**
-     * Commit or put the data into the repository.
-     * 
-     * @param ref Reference to the repository service
-     * @param version The version
-     * @param data The data
-     * @return <code>true</code> if successful
-     * @throws IllegalArgumentException
-     * @throws IOException
-     */
-    protected abstract boolean doCommit(ServiceReference ref, long version, InputStream data) throws IllegalArgumentException, IOException;
-
-    /**
-     * Handles a checkout command and returns the response.
-     */
-    private void handleCheckout(String customer, String name, long version, HttpServletResponse response) throws IOException {
-        try {
-            ServiceReference[] refs = getRepositories("(&(customer=" + customer + ")(name=" + name + "))");
-            if ((refs != null) && (refs.length == 1)) {
-                ServiceReference ref = refs[0];
-                response.setContentType(BINARY_MIMETYPE);
-                InputStream data = doCheckout(ref, version);
-                if (data == null) {
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Requested version does not exist: "
-                        + version);
-                }
-                else {
-                    copy(data, response.getOutputStream(), name, version);
-                }
-            }
-            else {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND,
-                    ((refs == null) ? "Could not find repository " : "Multiple repositories found ") + " for customer "
-                        + customer + ", name " + name);
-            }
-        }
-        catch (IOException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "I/O exception: " + e.getMessage());
-        }
-        catch (InvalidSyntaxException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid filter syntax: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Checkout or get data from the repository.
-     * 
-     * @param ref reference to the repository service
-     * @param version the version
-     * @return the data
-     * @throws IllegalArgumentException
-     * @throws java.io.IOException
-     */
-    protected abstract InputStream doCheckout(ServiceReference ref, long version) throws IllegalArgumentException, IOException;
-
-    /**
      * Copies data from an input stream to an output stream.
      * 
-     * @param in The input
-     * @param outThe output
+     * @param in
+     *            The input
+     * @param outThe
+     *            output
      * @param version
      * @param name
-     * @throws IOException If copying fails
+     * @throws IOException
+     *             If copying fails
      */
     private void copy(InputStream in, OutputStream out, String name, long version)
         throws IOException {
@@ -341,18 +267,157 @@ public abstract class RepositoryServletBase extends HttpServlet implements Manag
 
     }
 
-    public void updated(Dictionary settings) throws ConfigurationException {
-        if (settings != null) {
-            String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
-            if ((useAuthString == null) ||
-                !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
-                throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
-            }
-            boolean useAuth = Boolean.parseBoolean(useAuthString);
-            m_useAuth = useAuth;
+    /**
+     * Returns a list of repositories that match the specified filter condition.
+     * 
+     * @param filter
+     *            The filter condition
+     * @return An array of service references
+     * @throws InvalidSyntaxException
+     *             If the filter condition is invalid
+     */
+    private List<ServiceReference<REPO_TYPE>> getRepositories(String filter) throws InvalidSyntaxException {
+        List<ServiceReference<REPO_TYPE>> result = new ArrayList<>();
+        result.addAll(m_context.getServiceReferences(m_repoType, filter));
+        return result;
+    }
+
+    /**
+     * Handles a checkout command and returns the response.
+     */
+    private void handleCheckout(String customer, String name, long version, HttpServletResponse response) throws IOException {
+        List<ServiceReference<REPO_TYPE>> refs;
+        try {
+            refs = getRepositories("(&(customer=" + customer + ")(name=" + name + "))");
         }
-        else {
-            m_useAuth = false;
+        catch (InvalidSyntaxException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid filter syntax: " + e.getMessage());
+            return;
+        }
+
+        try {
+            if (refs.size() != 1) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND,
+                    (refs.isEmpty() ? "Could not find repository " : "Multiple repositories found ") + " for customer " + customer + ", name " + name);
+                return;
+            }
+
+            ServiceReference<REPO_TYPE> ref = refs.get(0);
+            if (ref == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find repository for customer " + customer + ", name " + name);
+                return;
+            }
+
+            REPO_TYPE repo = m_context.getService(ref);
+
+            try {
+                response.setContentType(BINARY_MIMETYPE);
+
+                InputStream data = doCheckout(repo, version);
+                if (data == null) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Requested version does not exist: " + version);
+                }
+                else {
+                    copy(data, response.getOutputStream(), name, version);
+                }
+            }
+            finally {
+                m_context.ungetService(ref);
+            }
+        }
+        catch (IOException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "I/O exception: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles a commit command and sends back the response.
+     */
+    private void handleCommit(String customer, String name, long version, InputStream data, HttpServletResponse response) throws IOException {
+        List<ServiceReference<REPO_TYPE>> refs;
+        try {
+            refs = getRepositories("(&(customer=" + customer + ")(name=" + name + "))");
+        }
+        catch (InvalidSyntaxException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid filter syntax: " + e.getMessage());
+            return;
+        }
+
+        try {
+            if (refs.size() != 1) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND,
+                    (refs.isEmpty() ? "Could not find repository " : "Multiple repositories found ") + " for customer " + customer + ", name " + name);
+                return;
+            }
+
+            ServiceReference<REPO_TYPE> ref = refs.get(0);
+            if (ref == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Could not find repository for customer " + customer + ", name " + name);
+                return;
+            }
+
+            REPO_TYPE repo = m_context.getService(ref);
+
+            try {
+                if (!doCommit(repo, version, data)) {
+                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not commit");
+                }
+                else {
+                    response.sendError(HttpServletResponse.SC_OK);
+                }
+            }
+            catch (IllegalArgumentException e) {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid version");
+            }
+            catch (IllegalStateException e) {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Cannot commit, not the master repository");
+            }
+            finally {
+                m_context.ungetService(ref);
+            }
+        }
+        catch (IOException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "I/O exception: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles a query command and sends back the response.
+     */
+    private void handleQuery(String filter, HttpServletResponse response) throws IOException {
+        List<ServiceReference<REPO_TYPE>> refs;
+        try {
+            refs = getRepositories(filter);
+        }
+        catch (InvalidSyntaxException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid filter syntax: " + e.getMessage());
+            return;
+        }
+
+        try {
+            StringBuffer result = new StringBuffer();
+
+            for (ServiceReference<REPO_TYPE> ref : refs) {
+                REPO_TYPE repo = m_context.getService(ref);
+                try {
+                    result.append((String) ref.getProperty("customer"));
+                    result.append(',');
+                    result.append((String) ref.getProperty("name"));
+                    result.append(',');
+                    result.append(getRange(repo).toRepresentation());
+                    result.append('\n');
+                }
+                finally {
+                    m_context.ungetService(ref);
+                }
+            }
+
+            response.setContentType(TEXT_MIMETYPE);
+            response.getWriter().print(result.toString());
+        }
+        catch (IOException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                "Could not retrieve version range for repository: " + e.getMessage());
         }
     }
 }

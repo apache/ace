@@ -229,9 +229,9 @@ public class ListenerImpl implements BundleListener, FrameworkListener, EventHan
                         String deplPackName = (String) event.getProperty("deploymentpackage.name");
 
                         // to retrieve the version, DeploymentAdmin has to be used
-                        ServiceReference ref = m_context.getServiceReference(DeploymentAdmin.class.getName());
+                        ServiceReference<DeploymentAdmin> ref = m_context.getServiceReference(DeploymentAdmin.class);
                         if (ref != null) {
-                            DeploymentAdmin deplAdmin = (DeploymentAdmin) m_context.getService(ref);
+                            DeploymentAdmin deplAdmin = m_context.getService(ref);
                             if (deplAdmin != null) {
                                 DeploymentPackage dp = deplAdmin.getDeploymentPackage(deplPackName);
                                 if (dp != null) {

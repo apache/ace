@@ -25,7 +25,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -200,29 +200,30 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         }
 
         // Get all published ArtifactRecognizers.
-        ServiceReference[] refs = null;
+        List<ServiceReference<ArtifactRecognizer>> refs = new ArrayList<>();
         try {
-            refs = m_context.getServiceReferences(ArtifactRecognizer.class.getName(), null);
+            Collection<ServiceReference<ArtifactRecognizer>> tmpRefs = m_context.getServiceReferences(ArtifactRecognizer.class, null);
+            refs.addAll(tmpRefs);
         }
         catch (InvalidSyntaxException e) {
             // We do not pass in a filter, so this should not happen.
             m_log.log(LogService.LOG_WARNING, "A null filter resulted in an InvalidSyntaxException from getServiceReferences.");
         }
 
-        if (refs == null) {
+        if (refs.isEmpty()) {
             throw new IllegalArgumentException("There are no artifact recognizers available.");
         }
 
         // Sort the references by service ranking.
-        Arrays.sort(refs, Collections.reverseOrder());
+        Collections.sort(refs, Collections.reverseOrder());
 
         ArtifactResource resource = convertToArtifactResource(url);
 
         // Check all referenced services to find one that matches our input.
         ArtifactRecognizer recognizer = null;
         String foundMimetype = null;
-        for (ServiceReference ref : refs) {
-            ArtifactRecognizer candidate = (ArtifactRecognizer) m_context.getService(ref);
+        for (ServiceReference<ArtifactRecognizer> ref : refs) {
+            ArtifactRecognizer candidate = m_context.getService(ref);
             try {
                 if (mimetype != null) {
                     if (candidate.canHandle(mimetype)) {

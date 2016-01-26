@@ -211,7 +211,6 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         }
     }
 
-    @SuppressWarnings("unchecked")
     public List<String> getVersions(String targetId) throws OverloadedException, IllegalArgumentException, IOException {
         try {
             int concurrentUsers = m_usageCounter.incrementAndGet();

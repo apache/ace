@@ -24,13 +24,11 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
- * Keep track of whether the log is available. If available, use the real log,
- * else use the cache version. When the real log becomes available, flush all events
- * from the cache to the real log.
+ * Keep track of whether the log is available. If available, use the real log, else use the cache version. When the real
+ * log becomes available, flush all events from the cache to the real log.
  *
  */
-public class LogTracker implements ServiceTrackerCustomizer {
-
+public class LogTracker implements ServiceTrackerCustomizer<Log, Log> {
     private BundleContext m_context;
     private LogProxy m_proxy;
 
@@ -40,31 +38,32 @@ public class LogTracker implements ServiceTrackerCustomizer {
     }
 
     /**
-     * Called when the log service has been added. As result, the real
-     * log service will be used instead of the cache.
+     * Called when the log service has been added. As result, the real log service will be used instead of the cache.
      */
-    public Object addingService(ServiceReference ref) {
+    @Override
+    public Log addingService(ServiceReference<Log> ref) {
         // get the service based upon the reference, and return it
         // make sure the real Log will be used, and all events in the
         // cache are being flushed to the real Log.
-        Log externalLog = (Log) m_context.getService(ref);
+        Log externalLog = m_context.getService(ref);
         m_proxy.setLog(externalLog);
         return externalLog;
     }
 
     /**
-     * Called when the Log service is not available anymore. As result,
-     * the cache version of the Log will be used until the Log
-     * service is added again.
+     * Called when the Log service is not available anymore. As result, the cache version of the Log will be used until
+     * the Log service is added again.
      */
-    public void removedService(ServiceReference ref, Object log) {
+    @Override
+    public void removedService(ServiceReference<Log> ref, Log log) {
         // make sure the LogCache is used instead of the real Log
         m_proxy.setLog(null);
         // unget the service again
         m_context.ungetService(ref);
     }
 
-    public void modifiedService(ServiceReference ref, Object log) {
+    @Override
+    public void modifiedService(ServiceReference<Log> ref, Log log) {
         // do nothing
     }
 }

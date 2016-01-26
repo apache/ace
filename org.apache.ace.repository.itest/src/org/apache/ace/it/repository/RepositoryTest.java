@@ -36,7 +36,6 @@ import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.test.constants.TestConstants;
-import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
@@ -221,7 +220,7 @@ public class RepositoryTest extends IntegrationTestBase {
 
     /* Configure a new repository instance */
     private void addRepository(String instanceName, String customer, String name, String basedir, String fileextension, String initial, boolean isMaster) throws IOException, InterruptedException, InvalidSyntaxException {
-        ServiceTracker tracker = new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(factory.instance.pid=" + instanceName + ")"), null);
+        ServiceTracker<?, ?> tracker = new ServiceTracker<>(m_bundleContext, m_bundleContext.createFilter("(factory.instance.pid=" + instanceName + ")"), null);
         tracker.open();
 
         // Publish configuration for a repository instance
@@ -253,9 +252,9 @@ public class RepositoryTest extends IntegrationTestBase {
         if ((configs != null) && (configs.length > 0)) {
             final Semaphore sem = new Semaphore(0);
 
-            ServiceTracker tracker = new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(" + Constants.OBJECTCLASS + "=" + Repository.class.getName() + ")"), null) {
+            ServiceTracker<Repository, Repository> tracker = new ServiceTracker<Repository, Repository>(m_bundleContext, Repository.class, null) {
                 @Override
-                public void removedService(ServiceReference reference, Object service) {
+                public void removedService(ServiceReference<Repository> reference, Repository service) {
                     super.removedService(reference, service);
                     // config.length times two because the service tracker also sees added events for each instance
                     if (size() == 0) {
@@ -290,9 +289,9 @@ public class RepositoryTest extends IntegrationTestBase {
 
         if ((configs != null) && (configs.length > 0)) {
             final Semaphore sem = new Semaphore(0);
-            ServiceTracker tracker = new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(factory.instance.pid=" + instanceName + ")"), null) {
+            ServiceTracker<Object, Object> tracker = new ServiceTracker<Object, Object>(m_bundleContext, m_bundleContext.createFilter("(factory.instance.pid=" + instanceName + ")"), null) {
                 @Override
-                public void removedService(ServiceReference reference, Object service) {
+                public void removedService(ServiceReference<Object> reference, Object service) {
                     super.removedService(reference, service);
                     sem.release();
                 }

@@ -162,7 +162,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         props.put("factory.instance.pid", instanceName);
         Configuration config = m_configAdmin.createFactoryConfiguration("org.apache.ace.server.repository.factory", null);
 
-        ServiceTracker tracker = new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(factory.instance.pid=" + instanceName + ")"), null);
+        ServiceTracker<?, ?> tracker = new ServiceTracker<>(m_bundleContext, m_bundleContext.createFilter("(factory.instance.pid=" + instanceName + ")"), null);
         tracker.open();
 
         config.update(props);
@@ -488,11 +488,9 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         if ((configs != null) && (configs.length > 0)) {
             final Semaphore sem = new Semaphore(0);
 
-            ServiceTracker tracker =
-                new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(" + Constants.OBJECTCLASS + "="
-                    + Repository.class.getName() + ")"), null) {
+            ServiceTracker<Repository, Repository> tracker = new ServiceTracker<Repository, Repository>(m_bundleContext, Repository.class, null) {
                     @Override
-                    public void removedService(ServiceReference reference, Object service) {
+                    public void removedService(ServiceReference<Repository> reference, Repository service) {
                         super.removedService(reference, service);
                         // config.length times two because the service tracker also sees added events for each instance
                         if (size() == 0) {

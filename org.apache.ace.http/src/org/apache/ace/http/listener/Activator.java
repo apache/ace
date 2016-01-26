@@ -52,8 +52,8 @@ import org.osgi.service.log.LogService;
 public class Activator extends DependencyActivatorBase {
     private static final String INIT_PREFIX = "init.";
 
-    private final Set<ServiceReference> m_httpServices = new HashSet<ServiceReference>();
-    private final Map<ServiceReference, String> m_servlets = new HashMap<ServiceReference, String>();
+    private final Set<ServiceReference<HttpService>> m_httpServices = new HashSet<>();
+    private final Map<ServiceReference<Servlet>, String> m_servlets = new HashMap<>();
 
     private volatile LogService m_log; // injected
     private BundleContext m_context;
@@ -83,16 +83,16 @@ public class Activator extends DependencyActivatorBase {
      * @param ref
      *            reference to the Servlet
      */
-    public synchronized void addServlet(ServiceReference ref) {
+    public synchronized void addServlet(ServiceReference<Servlet> ref) {
         // register servlet to all HttpServices
         String endpoint = (String) ref.getProperty(HttpConstants.ENDPOINT);
         m_servlets.put(ref, endpoint);
 
-        Servlet servlet = (Servlet) m_context.getService(ref);
+        Servlet servlet = m_context.getService(ref);
         Dictionary<String, Object> initParams = getInitParams(ref);
 
-        for (ServiceReference reference : m_httpServices) {
-            HttpService httpService = (HttpService) m_context.getService(reference);
+        for (ServiceReference<HttpService> reference : m_httpServices) {
+            HttpService httpService = m_context.getService(reference);
             try {
                 if ((httpService != null) && (endpoint != null) && (servlet != null)) {
                     httpService.registerServlet(endpoint, servlet, initParams, null);
@@ -123,7 +123,7 @@ public class Activator extends DependencyActivatorBase {
      * @param ref
      *            reference to the Servlet
      */
-    public synchronized void changeServlet(ServiceReference ref) {
+    public synchronized void changeServlet(ServiceReference<Servlet> ref) {
         removeServlet(ref, m_servlets.get(ref));
         addServlet(ref);
     }
@@ -135,16 +135,16 @@ public class Activator extends DependencyActivatorBase {
      * @param ref
      *            reference to the Servlet
      */
-    public synchronized void removeServlet(ServiceReference ref) {
+    public synchronized void removeServlet(ServiceReference<Servlet> ref) {
         // remove servlet from all HttpServices
         String endpoint = (String) ref.getProperty(HttpConstants.ENDPOINT);
         removeServlet(ref, endpoint);
     }
 
-    private void removeServlet(ServiceReference ref, String endpoint) {
+    private void removeServlet(ServiceReference<Servlet> ref, String endpoint) {
         m_servlets.remove(ref);
-        for (ServiceReference reference : m_httpServices) {
-            HttpService httpService = (HttpService) m_context.getService(reference);
+        for (ServiceReference<HttpService> reference : m_httpServices) {
+            HttpService httpService = m_context.getService(reference);
             if ((httpService != null) && (endpoint != null)) {
                 try {
                     httpService.unregister(endpoint);
@@ -163,11 +163,13 @@ public class Activator extends DependencyActivatorBase {
      * @param ref
      *            reference to the Service
      */
-    public synchronized void addHttpService(ServiceReference ref, HttpService httpService) {
+    public synchronized void addHttpService(ServiceReference<HttpService> ref, HttpService httpService) {
         m_httpServices.add(ref);
+
         // register all servlets to this new HttpService
-        for (ServiceReference reference : m_servlets.keySet()) {
-            Servlet servlet = (Servlet) m_context.getService(reference);
+        for (ServiceReference<Servlet> reference : m_servlets.keySet()) {
+            Servlet servlet = m_context.getService(reference);
+
             String endpoint = (String) reference.getProperty(HttpConstants.ENDPOINT);
             if ((servlet != null) && (endpoint != null)) {
                 Dictionary<String, Object> initParams = getInitParams(reference);
@@ -197,8 +199,8 @@ public class Activator extends DependencyActivatorBase {
 
     @Override
     public synchronized void destroy(BundleContext context, DependencyManager arg1) throws Exception {
-        for (ServiceReference httpRef : m_httpServices) {
-            HttpService httpService = (HttpService) m_context.getService(httpRef);
+        for (ServiceReference<HttpService> httpRef : m_httpServices) {
+            HttpService httpService = m_context.getService(httpRef);
             if (httpService != null) {
                 unregisterEndpoints(httpService);
             }

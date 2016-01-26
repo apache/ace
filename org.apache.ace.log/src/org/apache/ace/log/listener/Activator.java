@@ -27,28 +27,24 @@ import org.osgi.framework.Constants;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
- * Activator for the bundle that listens to all life-cycle events, and logs them to the
- * log service. The BundleEvents, FrameworkEvents and the events related to
- * Deployment Packages are relevant for the audit log.
+ * Activator for the bundle that listens to all life-cycle events, and logs them to the log service. The BundleEvents,
+ * FrameworkEvents and the events related to Deployment Packages are relevant for the audit log.
  * <p>
- * Furthermore this bundle takes care of the situation when the real log is not
- * yet available within the framework, by using a cache that temporarily stores the
- * log entries, and flushing those when the real log service comes up.
- * BundleEvents and Framework events are always available, but events related to
- * Deployment Packages will only be available when the EventAdmin is present.
+ * Furthermore this bundle takes care of the situation when the real log is not yet available within the framework, by
+ * using a cache that temporarily stores the log entries, and flushing those when the real log service comes up.
+ * BundleEvents and Framework events are always available, but events related to Deployment Packages will only be
+ * available when the EventAdmin is present.
  */
 public class Activator implements BundleActivator {
-
     private static final String LOG_NAME = "auditlog";
 
-    private final static String [] topics = new String[] { "org/osgi/service/deployment/*", "org/apache/ace/deployment/*" };
-    private ServiceTracker m_logTracker;
+    private final static String[] topics = new String[] { "org/osgi/service/deployment/*", "org/apache/ace/deployment/*" };
+    private ServiceTracker<Log, Log> m_logTracker;
     private ListenerImpl m_listener;
 
-    public synchronized void start(BundleContext context) throws Exception {
+    public void start(BundleContext context) throws Exception {
         LogProxy logProxy = new LogProxy();
         m_listener = new ListenerImpl(context, logProxy);
         m_listener.startInternal();
@@ -62,12 +58,12 @@ public class Activator implements BundleActivator {
         context.registerService(EventHandler.class.getName(), m_listener, dict);
 
         // keep track of when the real log is available
-        ServiceTrackerCustomizer logTrackerCust = new LogTracker(context, logProxy);
-        m_logTracker = new ServiceTracker(context, context.createFilter("(&(" + Constants.OBJECTCLASS + "=" + Log.class.getName() + ")(name=" + LOG_NAME + "))"), logTrackerCust);
+        LogTracker logTrackerCust = new LogTracker(context, logProxy);
+        m_logTracker = new ServiceTracker<>(context, context.createFilter("(&(" + Constants.OBJECTCLASS + "=" + Log.class.getName() + ")(name=" + LOG_NAME + "))"), logTrackerCust);
         m_logTracker.open();
     }
 
-    public synchronized void stop(BundleContext context) throws Exception {
+    public void stop(BundleContext context) throws Exception {
         // cleanup
         m_logTracker.close();
         context.removeFrameworkListener(m_listener);

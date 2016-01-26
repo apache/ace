@@ -38,7 +38,9 @@ public class RedirectServlet extends HttpServlet {
 	private static final long serialVersionUID = -2218040475620089019L;
 	public static final String REDIRECT_URL_KEY = "org.apache.ace.webui.vaadin.redirect";
     private final Object LOCK = new Object();
-    private volatile ServiceRegistration m_registration;
+    
+    private volatile ServiceRegistration<?> m_registration;
+    
     private String m_redirectURL;
     private String m_sourceURL;
     
@@ -63,7 +65,7 @@ public class RedirectServlet extends HttpServlet {
         }
     }
     
-    public void update(Dictionary properties) throws ConfigurationException {
+    public void update(Dictionary<String, ?> properties) throws ConfigurationException {
         setup(properties);
         m_registration.setProperties(properties);
     }

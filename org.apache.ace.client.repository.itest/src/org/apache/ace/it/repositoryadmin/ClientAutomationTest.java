@@ -96,13 +96,13 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
         int initRepoSize = m_statefulTargetRepository.get().size();
 
         // Get the processauditlog task and run it
-        ServiceTracker tracker = new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(&(" + Constants.OBJECTCLASS + "="
+        ServiceTracker<Runnable, Runnable> tracker = new ServiceTracker<Runnable, Runnable>(
+            m_bundleContext, m_bundleContext.createFilter("(&(" + Constants.OBJECTCLASS + "="
                 + Runnable.class.getName() + ")(" + SchedulerConstants.SCHEDULER_NAME_KEY + "="
                 + "org.apache.ace.client.processauditlog" + "))"), null);
         tracker.open();
 
-        final Runnable processAuditlog = (Runnable) tracker.waitForService(2000);
-
+        final Runnable processAuditlog = tracker.waitForService(2000);
         if (processAuditlog != null) {
             // commit should be called
             runAndWaitForEvent(new Callable<Object>() {

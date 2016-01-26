@@ -269,13 +269,13 @@ public class ProcessLauncherRespawnIntegrationTest extends IntegrationTestBase {
      *         obtained.
      */
     private ConfigurationAdmin getConfigAdmin() {
-        ServiceTracker serviceTracker = new ServiceTracker(m_context, ConfigurationAdmin.class.getName(), null);
+        ServiceTracker<ConfigurationAdmin, ConfigurationAdmin> serviceTracker = new ServiceTracker<>(m_context, ConfigurationAdmin.class, null);
 
         ConfigurationAdmin instance = null;
 
         serviceTracker.open();
         try {
-            instance = (ConfigurationAdmin) serviceTracker.waitForService(2 * 1000);
+            instance = serviceTracker.waitForService(2 * 1000);
 
             if (instance == null) {
                 fail("ConfigurationAdmin service not found!");

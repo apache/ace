@@ -21,7 +21,6 @@ package org.apache.ace.connectionfactory.impl;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Properties;
 
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.osgi.framework.BundleActivator;

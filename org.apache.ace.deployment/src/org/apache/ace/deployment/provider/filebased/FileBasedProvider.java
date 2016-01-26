@@ -183,7 +183,6 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
      * returned. If there are no valid versions, return an empty list. If the target cannot be found, an
      * IllegalArgumentException is thrown. The list will be sorted on version.
      */
-    @SuppressWarnings("unchecked")
     public List<String> getVersions(String targetId) throws OverloadedException, IllegalArgumentException {
         try {
             int concurrentUsers = m_usageCounter.incrementAndGet();

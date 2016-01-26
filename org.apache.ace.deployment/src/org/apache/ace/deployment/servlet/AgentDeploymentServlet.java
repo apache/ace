@@ -293,7 +293,6 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
         }
     }
 
-    @SuppressWarnings("unchecked")
     private List<Version> getVersionsFromOBR(URL obrBaseUrl, String agentID) throws XPathExpressionException, IOException {
         InputStream input = null;
         NodeList resources = getOBRNodeList(input);

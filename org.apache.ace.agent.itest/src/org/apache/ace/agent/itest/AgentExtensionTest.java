@@ -23,7 +23,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Properties;
 
 import org.apache.ace.agent.AgentConstants;
 import org.apache.ace.agent.AgentControl;
