@@ -3,7 +3,7 @@
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	org.mockito.mockito-all,\
-	xpp3;version=1.1.4,\
+	xpp3;version=1.1,\
 	xstream;version=1.2.2,\
 	org.apache.velocity-dep;version=1.7.0,\
 	org.apache.felix.dependencymanager,\
