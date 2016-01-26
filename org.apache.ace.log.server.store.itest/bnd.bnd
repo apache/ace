@@ -16,8 +16,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.feedback.common;version=latest
 Private-Package: org.apache.ace.log.server.store.tests
 -runvm: -ea
--runfw: org.apache.felix.framework;version='[4,5)'
--buildpath: osgi.core,\
+-runfw: org.apache.felix.framework;version='[5.2.0,6)'
+-buildpath: \
+	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	junit.osgi,\
 	org.mongodb.mongo-java-driver,\

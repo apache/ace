@@ -1,5 +1,5 @@
 -buildpath: \
-	osgi.core,\
+	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	junit.osgi,\
 	javax.servlet,\
@@ -27,7 +27,7 @@
 	org.apache.ace.feedback.common;version=latest
 -runee: JavaSE-1.7
 -runvm: -ea
--runfw: org.apache.felix.framework;version='[4,5)'
+-runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runbundles: \
 	osgi.cmpn,\
 	com.sun.jersey.client,\

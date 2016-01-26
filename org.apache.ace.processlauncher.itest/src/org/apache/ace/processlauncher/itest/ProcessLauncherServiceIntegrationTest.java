@@ -24,6 +24,8 @@ import static org.apache.ace.processlauncher.itest.TestUtil.sleep;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.apache.ace.it.IntegrationTestBase;
@@ -286,13 +288,13 @@ public class ProcessLauncherServiceIntegrationTest extends IntegrationTestBase {
         String className = ProcessStreamListener.class.getName();
         String extraFilter = "";
 
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
         for (int i = 0; i < properties.length; i += 2) {
             String key = properties[i];
             String value = properties[i + 1];
 
             extraFilter = String.format("%s(%s=%s)", extraFilter, key, value);
-            props.setProperty(key, value);
+            props.put(key, value);
         }
         
         m_context.registerService(className, processStreamListener, props);

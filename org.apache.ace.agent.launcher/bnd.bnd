@@ -1,5 +1,6 @@
--buildpath: ${^-buildpath},\
-	osgi.core;version='[4.3,5)',\
+-buildpath: \
+	${^-buildpath},\
+	osgi.core;version=6.0.0,\
 	org.apache.commons.cli,\
 	org.apache.ace.agent;version=latest
 -sources: false

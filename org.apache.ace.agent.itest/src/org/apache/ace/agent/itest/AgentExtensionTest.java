@@ -21,6 +21,8 @@ package org.apache.ace.agent.itest;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.apache.ace.agent.AgentConstants;
@@ -82,6 +84,8 @@ public class AgentExtensionTest extends BaseAgentTest {
     }
 
     private ServiceRegistration registerIdentification(final String id, final int rank) {
+        Dictionary<String, Object> props = new Hashtable<>();
+        props.put(Constants.SERVICE_RANKING, rank);
         return m_bundleContext.registerService(IdentificationHandler.class.getName(), new IdentificationHandler() {
             @Override
             public String getAgentId() {
@@ -92,15 +96,12 @@ public class AgentExtensionTest extends BaseAgentTest {
             public String toString() {
                 return id;
             }
-        }, new Properties() {
-            {
-                put(Constants.SERVICE_RANKING, rank);
-            }
-        });
-
+        }, props);
     }
 
     private ServiceRegistration registerDiscovery(final URL url, final int rank) {
+        Dictionary<String, Object> props = new Hashtable<>();
+        props.put(Constants.SERVICE_RANKING, rank);
         return m_bundleContext
             .registerService(DiscoveryHandler.class.getName(), new DiscoveryHandler() {
 
@@ -108,12 +109,7 @@ public class AgentExtensionTest extends BaseAgentTest {
                 public URL getServerUrl() {
                     return url;
                 }
-            }, new Properties() {
-                {
-                    put(Constants.SERVICE_RANKING, rank);
-                }
-            });
-
+            }, props);
     }
 
     private ServiceRegistration registerConnectionHandler() {

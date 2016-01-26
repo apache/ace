@@ -3,11 +3,11 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	${^-buildpath},\
 	org.apache.felix.dependencymanager,\
 	junit.osgi,\
-	osgi.core,\
+	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.processlauncher;version=latest
--runfw: org.apache.felix.framework;version='[4,5)'
+-runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runvm: -ea
 -runbundles: \
 	osgi.cmpn,\

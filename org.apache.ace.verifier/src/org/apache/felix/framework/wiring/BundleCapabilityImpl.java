@@ -133,6 +133,10 @@ public class BundleCapabilityImpl implements BundleCapability
     {
         return m_revision;
     }
+    
+    public BundleRevision getResource() {
+        return getRevision();
+    }
 
     public String getNamespace()
     {

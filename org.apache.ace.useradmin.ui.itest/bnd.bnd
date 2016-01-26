@@ -1,7 +1,7 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 Private-Package: org.apache.ace.useradmin.ui.test
 -runvm: -ea
--runfw: org.apache.felix.framework;version='[4,5)'
+-runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runbundles: osgi.cmpn,\
 	com.vaadin,\
 	org.apache.felix.configadmin,\
@@ -36,7 +36,8 @@ Private-Package: org.apache.ace.useradmin.ui.test
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest
--buildpath: osgi.core;version='[4.1,5)',\
+-buildpath: \
+	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	junit.osgi,\
 	org.mockito.mockito-all,\

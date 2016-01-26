@@ -1,4 +1,4 @@
--runfw: org.apache.felix.framework;version='[4,5)'
+-runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runee: JavaSE-1.6
 -runbundles: org.apache.felix.gogo.command,\
 	org.apache.felix.gogo.runtime,\

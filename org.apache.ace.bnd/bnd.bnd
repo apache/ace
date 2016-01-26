@@ -1,3 +1,4 @@
 -sub: *.bnd
--buildpath: biz.aQute.bnd,\
+-buildpath: \
+	biz.aQute.bnd,\
 	biz.aQute.repository

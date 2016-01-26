@@ -12,14 +12,14 @@
 -runvm: -ea
 -runfw: org.apache.felix.framework;version='[4,5)'
 -buildpath: \
-	osgi.core;version='[4.2,5)',\
+	osgi.core;version=4.2,\
 	org.apache.ace.agent;version=latest,\
 	org.apache.ace.builder;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.http.jetty,\
 	junit.osgi,\
-	org.mockito.mockito-all	
+	org.mockito.mockito-all
 -runsystempackages: sun.reflect
 -runproperties: \
 	org.apache.felix.eventadmin.Timeout=0,\

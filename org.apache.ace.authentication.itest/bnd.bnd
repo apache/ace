@@ -1,6 +1,7 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.AuthenticationTestBase}
--buildpath: junit.osgi,\
-	osgi.core,\
+-buildpath: \
+	junit.osgi,\
+	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
@@ -16,9 +17,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.obr.storage;version=latest,\
-    org.apache.ace.log.api;version=latest,\
+	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest
--runfw: org.apache.felix.framework;version='[4,5)'
+-runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runvm: -ea
 -runbundles: osgi.cmpn,\
 	org.apache.felix.log,\

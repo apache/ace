@@ -37,6 +37,8 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWiring;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
 
 /**
  *
@@ -141,12 +143,26 @@ public class VerifierBundleRevision implements BundleRevision {
 	public List<BundleCapability> getDeclaredCapabilities(String namespace) {
 		return m_declaredCaps;
 	}
+	
+    /**
+     * {@inheritDoc}
+     */
+	public List<Capability> getCapabilities(String namespace) {
+	    return new ArrayList<Capability>(m_declaredCaps);
+	}
 
     /**
      * {@inheritDoc}
      */
 	public List<BundleRequirement> getDeclaredRequirements(String namespace) {
 		return m_declaredReqs;
+	}
+
+    /**
+     * {@inheritDoc}
+     */
+	public List<Requirement> getRequirements(String namespace) {
+	    return new ArrayList<Requirement>(m_declaredReqs);
 	}
 	
     /**

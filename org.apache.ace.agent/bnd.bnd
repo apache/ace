@@ -29,7 +29,8 @@ Export-Package: org.apache.ace.agent,\
 # offline
 #javac.debug:  off
 
--buildpath: ${^-buildpath},\
+-buildpath: \
+	${^-buildpath},\
 	osgi.core;version=4.2,\
 	osgi.cmpn;version=4.2,\
 	javax.servlet;version=2.5,\
@@ -41,10 +42,3 @@ Export-Package: org.apache.ace.agent,\
 	org.apache.ace.feedback.common;version=latest
 
 -sources false
--runfw: org.apache.felix.framework;version='[4,5)'
--runee: JavaSE-1.6
--runbundles: org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell
--runproperties: agent.controller.syncdelay=1,\
-	agent.identification.agentid=demo

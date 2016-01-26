@@ -1,5 +1,6 @@
--buildpath: ${^-buildpath},\
-	osgi.core,\
+-buildpath: \
+	${^-buildpath},\
+	osgi.core;version=4.2,\
 	osgi.cmpn,\
 	junit.osgi,\
 	org.apache.felix.gogo.runtime,\

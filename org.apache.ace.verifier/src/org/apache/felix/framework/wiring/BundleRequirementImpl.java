@@ -83,6 +83,10 @@ public class BundleRequirementImpl implements BundleRequirement
     {
         return m_revision;
     }
+    
+    public BundleRevision getResource() {
+        return getRevision();
+    }
 
     public boolean matches(BundleCapability cap)
     {

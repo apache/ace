@@ -21,6 +21,7 @@ package org.apache.ace.client.automation;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 
@@ -80,7 +81,7 @@ public class AutoTargetOperator implements ManagedService {
             m_reposAdmin.login(loginContext);
 
             // start refresh task
-            Properties props = new Properties();
+            Dictionary<String, Object> props = new Hashtable<>();
             props.put(SchedulerConstants.SCHEDULER_NAME_KEY, SCHEDULER_NAME);
             m_serviceReg = m_bundleContext.registerService(Runnable.class.getName(), m_task, props);
         }

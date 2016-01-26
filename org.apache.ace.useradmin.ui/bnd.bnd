@@ -1,6 +1,7 @@
--buildpath: ${^-buildpath},\
+-buildpath: \
+	${^-buildpath},\
 	org.apache.felix.dependencymanager,\
-	osgi.core,\
+	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	com.vaadin,\
 	org.apache.ace.client.repository.api;version=latest,\

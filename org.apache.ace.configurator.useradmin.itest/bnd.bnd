@@ -1,6 +1,7 @@
 Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
--buildpath: junit.osgi,\
-	osgi.core,\
+-buildpath: \
+	junit.osgi,\
+	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
@@ -14,7 +15,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.feedback.common;version=latest
--runfw: org.apache.felix.framework;version='[4,5)'
+-runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runvm: -ea
 -runbundles: org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\

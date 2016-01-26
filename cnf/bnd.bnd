@@ -1,3 +1,4 @@
 -nobundles: true
--buildpath: biz.aQute.bnd;version=2.2.0,\
+-buildpath: \
+	biz.aQute.bnd;version=2.2.0,\
 	org.osgi.impl.bundle.bindex

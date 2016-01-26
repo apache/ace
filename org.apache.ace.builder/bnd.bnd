@@ -1,4 +1,5 @@
--buildpath: ${^-buildpath},\
+-buildpath: \
+	${^-buildpath},\
 	org.apache.ace.test;version=latest
 Export-Package: org.apache.ace.builder
 Bundle-Version: 2.0.0

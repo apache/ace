@@ -9,6 +9,8 @@
 ## For example, to add one addtional plugin to the list defined in ext/repositories.bnd:
 # -plugin: ${ext.repositories.-plugin}, org.example.MyPlugin
 
+javac.source:          1.7
+javac.target:          1.7
 
 ## If you use git, you might want to uncomment the following lines:
 # Git-Descriptor: ${system-allow-fail;git describe --dirty --always}

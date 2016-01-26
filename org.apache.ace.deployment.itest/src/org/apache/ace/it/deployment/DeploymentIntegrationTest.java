@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -333,7 +335,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
     }
 
     private void executeTest() throws IOException, InterruptedException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(EventConstants.EVENT_TOPIC, "org/osgi/service/deployment/COMPLETE");
         props.put(EventConstants.EVENT_FILTER, "(successful=true)");
 
@@ -387,7 +389,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
     }
 
     private void registerDeploymentAdminProxy(DeploymentAdmin proxy) {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(org.osgi.framework.Constants.SERVICE_RANKING, 1);
         m_deploymentAdminProxyReg = m_bundleContext.registerService(DeploymentAdmin.class.getName(), proxy, props);
     }
