@@ -1,0 +1,118 @@
+
+
+
+Apache Ace Release Guide 
+This document describes how to do a source release. It is based on the Release FAQ [1]
+
+Prerequisites
+=============
+
+To create a release you must:
+
+* Have Subversion installed on your system;
+* Have gpg installed on your system;
+* Have a public key added to the keys file, and committed to [2] 
+* If you are using an http proxy, configure the following:
+
+  export GRADLE_OPTS="-Dhttps.proxyHost=www.somehost.org -Dhttps.proxyPort=8080"
+
+Before you can start staging a release candidate, you must:
+
+* make sure there are no dependencies on snapshots/unreleased versions;
+* increment the version parameter in build/build.gradle, if not already done, and commit.
+* under bndtools, release (only) the bundles that needs to be released (using "Release workspace bundles" menu).
+* create a tagged version of the sources in preparation of the release candidate.
+
+Release only the necessary bundles
+===================================
+
+Click on the bndtools "Release workspace bundles", and release the bundles that have been modified and need to be released.
+Don't release other unmodified bundles.
+Once done, under the shell prompt, go to the "cnf/releaserepo/" directory, svn remove the previous old released bundles,
+and svn add the new released bundles.
+refresh the repositories under bndtools, and commit.  
+
+Create a tagged version
+=======================
+
+Creating a tagged version of the sources can be done directly through svn (replace r<n> by the actual release number, like "r1"):
+
+svn copy https://svn.apache.org/repos/asf/ace/trunk https://svn.apache.org/repos/asf/ace/releases/<version> -m "Release of Apache Ace <version>"
+
+Staging a release candidate
+===========================
+
+Staging a release starts by checking out a tagged version of the sources (replace <version> by the actual release version, like "2.0.0"):
+
+svn co https://svn.apache.org/repos/asf/ace/releases/<version> apache-ace-<version>
+
+The next step is to build/test the software and create the release/staging/ directory (where the source/jars will be packaged):
+(replace <version> by the actual release number, like "2.0.0")
+
+Use a Java6 JDK
+
+$ cd apache-ace-<version>
+$ ./gradlew rat 
+$ ./gradlew build
+
+create the staging:
+
+$ ./gradlew makeStaging (this will create ./build/staging/ directory containing the signed release archives)
+
+You can upload the archives and the signatures to our development area, which we use to stage this release candidate. This development area can be found at 
+https://dist.apache.org/repos/dist/dev/ace and adding files to it can be done using "svnpubsub" which is taken care of by the following target:
+
+$ ./gradlew commitToStaging
+
+Voting on the release
+=====================
+
+Start a vote on the dev@ace.apache.org list, for example (be sure to replace <version> with the correct release number, like "1.0.0"):
+
+>>>
+To: "Ace Developers List" <dev@ace.apache.org>
+Subject: [VOTE] Release of Apache Ace release r<n>
+
+Hi,
+
+We solved N issues in this release:
+http://issues.apache.org/jira/...
+
+There are still some outstanding issues:
+http://issues.apache.org/jira/...
+
+Staging repository:
+https://dist.apache.org/repos/dist/dev/ace/apache-ace-<version>/
+
+You can use this UNIX script to download the release and verify the signatures:
+http://svn.apache.org/repos/asf/ace/trunk/build/check_staged_release.sh
+
+Usage:
+sh check_staged_ace_release.sh <version> /tmp/ace-staging
+
+This script, unlike the original Felix check_staged_release.sh, will download staging from https://dist.apache.org/repos/dist/dev/ace instead of http://repository.apache.org/content/repositories.
+
+
+Please vote to approve this release:
+
+[ ] +1 Approve the release
+[ ] -1 Veto the release (please provide specific comments)
+
+This vote will be open for 72 hours.
+<<<
+
+Promoting the release:
+=====================
+
+Move the artifacts from the development area to the final release location at 
+https://dist.apache.org/repos/dist/release/ace by invoking the following target:
+
+$ ./gradlew promoteToRelease
+
+Cancelling the release
+======================
+
+$ ./gradlew deleteFromStaging
+
+[1] http://www.apache.org/dev/release.html
+[2] http://www.apache.org/dist/ace/KEYS
