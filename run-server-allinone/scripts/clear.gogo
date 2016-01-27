@@ -1,3 +1,4 @@
+# Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 #
 # Clears a complete workspace, removing all the artifacts it finds. Does not
 # attempt to delete anything from an OBR, just all the metadata in ACE.

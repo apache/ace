@@ -1,3 +1,5 @@
+# Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
+
 Export-Package: org.apache.ace.client.repository,\
 	org.apache.ace.client.repository.helper,\
 	org.apache.ace.client.repository.helper.bundle,\

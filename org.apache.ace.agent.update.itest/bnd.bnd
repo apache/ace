@@ -1,3 +1,5 @@
+# Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
+#
 # NOTE: This test is stored in a seperate from the main agent itest project because 
 # it updates the agent bundle. This causes problems if other tests try to wire to
 # the the api package after the fact.

@@ -1,3 +1,5 @@
+# Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
+
 Private-Package: org.apache.ace.obr.metadata.bindex,\
 	org.kxml2.io,\
 	org.kxml2.kdom,\

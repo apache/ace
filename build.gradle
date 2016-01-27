@@ -1,4 +1,6 @@
 /*
+ * Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
+ *
  * Master Gradle build script
  *
  * Depends on bndPlugin property set by settings.gradle.
