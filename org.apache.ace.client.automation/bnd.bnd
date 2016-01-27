@@ -9,6 +9,6 @@
 	org.apache.ace.client.repository.api;version=latest
 Private-Package: org.apache.ace.client.automation
 Bundle-Activator: org.apache.ace.client.automation.Activator
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Name: Apache ACE Client Automation
 Bundle-Description: Provides automation tasks for the Apache ACE client

@@ -9,10 +9,12 @@ Bundle-Description: Standalone launcher that start a Felix framework with an emb
 # Include the felix defaults
 felix.version=5.2.0
 
-Include-Resource: @${repo;org.apache.felix.framework;${felix.version}}!/default.properties,\
+-includeresource: \
+	@${repo;org.apache.felix.framework;${felix.version}}!/default.properties,\
     @${repo;org.apache.felix.framework;${felix.version}}!/META-INF/services/*,\
     @${repo;org.apache.felix.framework;${felix.version}}!/org/*,\
 	${repo;org.apache.ace.agent;latest},\
+	@${repo;org.apache.ace.agent;latest}!/OSGI-OPT/*,\
 	META-INF/services/org.apache.ace.agent.launcher.BundleProvider=resources/org.apache.ace.agent.launcher.BundleProvider
   
 Private-Package: org.apache.ace.agent.launcher,\

@@ -3,7 +3,7 @@
 Private-Package: org.apache.ace.feedback.util
 Export-Package: org.apache.ace.feedback
 
-Bundle-Version: 1.0.0
+Bundle-Version: 1.1.0
 Bundle-Name: Apache ACE Feedback API
 Bundle-Description: Provides the Apache ACE Feedback API packages
 -buildpath: \

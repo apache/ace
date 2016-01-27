@@ -14,7 +14,7 @@
 
 Bundle-Name: Apache ACE Gogo commands
 Bundle-Description: Provides Gogo commands for working with ACE	
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Activator: org.apache.ace.gogo.Activator
 Private-Package: org.apache.ace.bnd.repository,\
 	org.apache.ace.gogo,\

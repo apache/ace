@@ -39,6 +39,6 @@ Import-Package: !javax.servlet,\
 	!org.apache.commons.logging,\
 	!org.apache.oro.text.perl,\
 	*
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Name: Apache ACE Client Repository Helper Base
 Bundle-Description: Provides the base implementation for Apache ACE repository helpers

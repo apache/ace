@@ -7,6 +7,6 @@
 	org.apache.felix.dependencymanager
 Private-Package: org.apache.ace.consolelogger
 Bundle-Activator: org.apache.ace.consolelogger.Activator
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Name: Apache ACE ConsoleLogger
 Bundle-Description: Registers a component that writes log message to the console

@@ -1,6 +1,6 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
 Export-Package: org.apache.ace.deployment.provider.impl
-Bundle-Version: 2.0.0
+Bundle-Version: 2.0.1
 Bundle-Name: Apache ACE Deployment Base
 Bundle-Description: Provides the Deployemnt Base packages

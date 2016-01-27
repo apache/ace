@@ -1,6 +1,6 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Private-Package: org.apache.ace.log.server.task
 Bundle-Activator: org.apache.ace.log.server.task.Activator
 Bundle-Name: Apache ACE Log Server Task

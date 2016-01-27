@@ -42,5 +42,3 @@ Export-Package: org.apache.ace.agent,\
 	org.apache.felix.http.jetty;version=2.2.1,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest
-
--sources false

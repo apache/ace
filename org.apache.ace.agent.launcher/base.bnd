@@ -7,7 +7,9 @@ Bundle-Name: Apache ACE Agent launcher
 Bundle-Description: Standalone launcher that start an OSGi framework with an embedded ACE Agent
 
 # Include the felix defaults
-Include-Resource: ${repo;org.apache.ace.agent;latest},\
+-includeresource: \
+	${repo;org.apache.ace.agent;latest},\
+	@${repo;org.apache.ace.agent;latest}!/OSGI-OPT/*,\
 	META-INF/services/org.apache.ace.agent.launcher.BundleProvider=resources/org.apache.ace.agent.launcher.BundleProvider
   
 Private-Package: org.apache.ace.agent.launcher,\

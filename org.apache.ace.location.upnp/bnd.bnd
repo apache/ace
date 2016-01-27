@@ -7,7 +7,7 @@
 	org.apache.felix.dependencymanager,\
 	javax.servlet
 Export-Package: org.apache.ace.location
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Name: Apache ACE Location UPnP
 Bundle-Description: Registers a UPnP based Location service
 Private-Package: org.apache.ace.location.upnp,\

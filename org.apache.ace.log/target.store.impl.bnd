@@ -3,6 +3,6 @@
 Private-Package: org.apache.ace.log.target.store.impl
 Bundle-Activator: org.apache.ace.log.target.store.impl.Activator
 Export-Package: org.apache.ace.log.target.store
-Bundle-Version: 2.0.0
+Bundle-Version: 2.0.1
 Bundle-Name: Apache ACE Log Target Store
 Bundle-Description: Registers a service factory for target log stores

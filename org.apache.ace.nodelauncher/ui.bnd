@@ -2,6 +2,6 @@
 
 Bundle-Activator: org.apache.ace.nodelauncher.ui.Activator
 Private-Package: org.apache.ace.nodelauncher.ui
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Name: Apache ACE NodeLauncher UI
 Bundle-Description: Registers an ACE webui extensions that add Nodelauncher controls

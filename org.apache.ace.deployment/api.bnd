@@ -1,6 +1,6 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
 Export-Package: org.apache.ace.deployment
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Deployment API
 Bundle-Description: Provides the Apache ACE deployment API

@@ -10,6 +10,6 @@
 	org.apache.ace.webui.vaadin;version=latest
 Private-Package: org.apache.ace.tageditor
 Bundle-Activator: org.apache.ace.tageditor.Activator
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Name: Apache ACE TagEditorUI
 Bundle-Description: Registers an ACE webui extension for editing tags

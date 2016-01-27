@@ -2,6 +2,6 @@
 
 Private-Package: org.apache.ace.deployment.deploymentadmin
 Bundle-Activator: org.apache.ace.deployment.deploymentadmin.Activator
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Name: Apache ACE Deployment DeploymentAdmin
 Bundle-Description: Registers the DeplouymentAdmin service

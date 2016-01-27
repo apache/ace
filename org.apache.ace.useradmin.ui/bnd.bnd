@@ -13,7 +13,7 @@
 	javax.servlet,\
 	org.apache.ace.webui.vaadin;version=latest
 Bundle-Activator: org.apache.ace.useradmin.ui.osgi.Activator
-Bundle-Version: 2.0.0
+Bundle-Version: 2.0.1
 Private-Package: org.apache.ace.useradmin.ui.osgi,\
 	org.apache.ace.useradmin.ui.vaadin,\
 	org.apache.ace.useradmin.ui.editor.impl
