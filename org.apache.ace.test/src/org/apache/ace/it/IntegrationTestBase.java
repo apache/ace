@@ -19,7 +19,7 @@
 package org.apache.ace.it;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.ace.test.utils.Util.properties;
+import static org.apache.ace.test.utils.Util.dictionary;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,6 +29,7 @@ import java.net.ConnectException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,31 +91,16 @@ public class IntegrationTestBase extends TestCase {
             return result.toString();
         }
 
-//        public void started(Component component) {
-//            m_components.remove(component);
-//            m_latch.countDown();
-//        }
-//
-//        public void starting(Component component) {
-//        }
-//
-//        public void stopped(Component component) {
-//        }
-//
-//        public void stopping(Component component) {
-//        }
-
         public boolean waitForEmpty(long timeout, TimeUnit unit) throws InterruptedException {
             return m_latch.await(timeout, unit);
         }
 
-		@Override
-		public void changed(Component component, ComponentState state) {
-			if (state == ComponentState.TRACKING_OPTIONAL) {
-	            m_components.remove(component);
-	            m_latch.countDown();
-			}
-		}
+        @Override
+        public void changed(Component component, ComponentState state) {
+            if (state == ComponentState.TRACKING_OPTIONAL && m_components.remove(component)) {
+                m_latch.countDown();
+            }
+        }
     }
 
     /**
@@ -155,12 +141,14 @@ public class IntegrationTestBase extends TestCase {
                 tearDown();
             }
             catch (Throwable tearingDown) {
-                if (exception == null)
+                if (exception == null) {
                     exception = tearingDown;
+                }
             }
         }
-        if (exception != null)
+        if (exception != null) {
             throw exception;
+        }
     }
 
     /**
@@ -177,7 +165,7 @@ public class IntegrationTestBase extends TestCase {
      *            the configuration key/values (as pairs).
      */
     protected void configure(String pid, String... configuration) throws IOException {
-        Properties props = properties(configuration);
+        Dictionary<String, Object> props = dictionary(configuration);
         Configuration config = getConfiguration(pid);
         config.update(props);
         m_trackedConfigurations.add(config);
@@ -198,7 +186,7 @@ public class IntegrationTestBase extends TestCase {
      * @return The PID of newly created configuration.
      */
     protected String configureFactory(String factoryPid, String... configuration) throws IOException {
-        Properties props = properties(configuration);
+        Dictionary<String, Object> props = dictionary(configuration);
         Configuration config = createFactoryConfiguration(factoryPid);
         config.update(props);
         m_trackedConfigurations.add(config);
@@ -225,7 +213,7 @@ public class IntegrationTestBase extends TestCase {
         final String expectedPort = Integer.toString(port);
 
         // Do not track this configuration (yet)...
-        Properties props = properties(configuration);
+        Dictionary<String, Object> props = dictionary(configuration);
         props.put(portProperty, expectedPort);
 
         Configuration config = getConfiguration(httpPID);
@@ -613,6 +601,9 @@ public class IntegrationTestBase extends TestCase {
             if (!listener.waitForEmpty(SERVICE_TIMEOUT, SECONDS)) {
                 fail("Not all components were started. Still missing the following:\n" + listener.componentsString());
             }
+            
+            // XXX it appears we run into race conditions between the setup and configuration of our services, use a little delay to get things settled seems to help here...
+            TimeUnit.MILLISECONDS.sleep(100);
 
             configureAdditionalServices();
         }

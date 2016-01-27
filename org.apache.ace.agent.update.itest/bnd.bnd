@@ -8,20 +8,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 	org.apache.ace.agent;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
-	osgi.cmpn,\
-	org.apache.felix.http.jetty,\
-	org.apache.ace.deployment.servlet;version=latest,\
-	org.apache.ace.deployment.api;version=latest,\
-	org.apache.ace.deployment.streamgenerator;version=latest,\
-	org.apache.ace.authentication.api;version=latest,\
-	org.apache.ace.connectionfactory;version=latest,\
-	org.apache.ace.deployment.provider.api;version=latest,\
-	org.apache.ace.deployment.provider.filebased;version=latest,\
 	org.apache.felix.configadmin,\
-	org.apache.ace.http.listener;version=latest,\
-	biz.aQute.bnd,\
-	org.apache.ace.builder;version=latest,\
-	org.apache.ace.log.api;version=latest
+	org.apache.felix.http.jetty;version='[2.2,3)',\
+	osgi.cmpn
 Private-Package: org.apache.ace.agent.itest
 -runee: JavaSE-1.6
 -runvm: -ea
@@ -31,8 +20,8 @@ Private-Package: org.apache.ace.agent.itest
 	org.apache.ace.agent;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
-	org.apache.felix.http.jetty,\
-	biz.aQute.bnd,\
+	org.apache.felix.http.jetty;version='[2.2,3)',\
+	javax.servlet,\
 	junit.osgi,\
 	org.mockito.mockito-all
 -runsystempackages: sun.reflect

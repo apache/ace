@@ -64,19 +64,19 @@ public class DependencyTrackerImpl {
     /**
      * Represents an actual dependency on an OSGi service.
      */
-    private static class ServiceDependency {
+    private static class ServiceDependency<T> {
         private final DependencyTrackerImpl m_manager;
         private final DependencyCallback m_calback;
-        private final ServiceTracker m_tracker;
+        private final ServiceTracker<T, T> m_tracker;
         // the actual tracked service...
-        private final AtomicReference<Object> m_serviceRef;
+        private final AtomicReference<T> m_serviceRef;
 
         public ServiceDependency(DependencyTrackerImpl manager, String filterString, DependencyCallback callback) throws Exception {
             m_manager = manager;
             m_calback = callback;
 
-            m_tracker = new ServiceDependencyTracker(this, manager.getBundleContext(), FrameworkUtil.createFilter(filterString));
-            m_serviceRef = new AtomicReference<Object>();
+            m_tracker = new ServiceDependencyTracker<T>(this, manager.getBundleContext(), FrameworkUtil.createFilter(filterString));
+            m_serviceRef = new AtomicReference<T>();
         }
 
         public Object getService() {
@@ -95,9 +95,9 @@ public class DependencyTrackerImpl {
             m_tracker.close();
         }
 
-        void changed(ServiceReference ref) {
-            Object service = (ref == null) ? null : m_manager.getBundleContext().getService(ref);
-            Object oldService;
+        void changed(ServiceReference<T> ref) {
+            T service = (ref == null) ? null : m_manager.getBundleContext().getService(ref);
+            T oldService;
             do {
                 oldService = m_serviceRef.get();
             }
@@ -118,18 +118,18 @@ public class DependencyTrackerImpl {
      * Tracker customizer that calls AgentContextDependency#changed with the highest matching service whenever something
      * changes.
      */
-    private static class ServiceDependencyTracker extends ServiceTracker {
-        private final CopyOnWriteArrayList<ServiceReference> m_trackedServiceRefs;
+    private static class ServiceDependencyTracker<T> extends ServiceTracker<T, T> {
+        private final CopyOnWriteArrayList<ServiceReference<T>> m_trackedServiceRefs;
         private final ServiceDependency m_dependency;
 
         public ServiceDependencyTracker(ServiceDependency dependency, BundleContext context, Filter filter) {
             super(context, filter, null);
             m_dependency = dependency;
-            m_trackedServiceRefs = new CopyOnWriteArrayList<ServiceReference>();
+            m_trackedServiceRefs = new CopyOnWriteArrayList<ServiceReference<T>>();
         }
 
         @Override
-        public Object addingService(ServiceReference reference) {
+        public T addingService(ServiceReference<T> reference) {
             if (m_trackedServiceRefs.addIfAbsent(reference)) {
                 checkForUpdate();
             }
@@ -137,12 +137,12 @@ public class DependencyTrackerImpl {
         }
 
         @Override
-        public void modifiedService(ServiceReference reference, Object service) {
+        public void modifiedService(ServiceReference<T> reference, T service) {
             checkForUpdate();
         }
 
         @Override
-        public void removedService(ServiceReference reference, Object service) {
+        public void removedService(ServiceReference<T> reference, T service) {
             if (m_trackedServiceRefs.remove(reference)) {
                 checkForUpdate();
             }

@@ -5,8 +5,8 @@ Bundle-Version: 1.0.0
 	${^-buildpath},\
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
+	org.apache.felix.http.servlet-api,\
 	org.apache.felix.dependencymanager,\
-	javax.servlet,\
 	org.apache.ace.gogo;version=latest,\
 	org.apache.felix.gogo.runtime
 Bundle-Activator: org.apache.ace.gogo.servlet.Activator

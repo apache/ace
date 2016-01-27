@@ -13,12 +13,13 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
-	javax.servlet,\
+	org.apache.felix.http.servlet-api,\
 	org.apache.ace.feedback.common;version=latest
 -runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runvm: -ea
 -runbundles: osgi.cmpn,\
 	org.apache.felix.eventadmin,\
+	org.apache.felix.http.servlet-api,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\

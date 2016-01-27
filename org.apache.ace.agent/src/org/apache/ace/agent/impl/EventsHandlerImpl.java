@@ -39,7 +39,7 @@ public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
     private final CopyOnWriteArrayList<EventListener> m_listeners = new CopyOnWriteArrayList<EventListener>();
     private final BundleContext m_bundleContext;
     //
-    private volatile ServiceTracker m_tracker;
+    private volatile ServiceTracker<EventListener, EventListener> m_tracker;
 
     public EventsHandlerImpl(BundleContext bundleContext) throws Exception {
         super("events");
@@ -97,21 +97,21 @@ public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
 
     @Override
     protected void onInit() throws Exception {
-        m_tracker = new ServiceTracker(m_bundleContext, EventListener.class.getName(), new ServiceTrackerCustomizer() {
+        m_tracker = new ServiceTracker<>(m_bundleContext, EventListener.class, new ServiceTrackerCustomizer<EventListener, EventListener>() {
             @Override
-            public Object addingService(ServiceReference reference) {
-                Object service = m_bundleContext.getService(reference);
-                addListener((EventListener) service);
+            public EventListener addingService(ServiceReference<EventListener> reference) {
+                EventListener service = m_bundleContext.getService(reference);
+                addListener(service);
                 return service;
             }
 
             @Override
-            public void modifiedService(ServiceReference reference, Object service) {
+            public void modifiedService(ServiceReference<EventListener> reference, EventListener service) {
             }
 
             @Override
-            public void removedService(ServiceReference reference, Object service) {
-                removeListener((EventListener) service);
+            public void removedService(ServiceReference<EventListener> reference, EventListener service) {
+                removeListener(service);
             }
         });
         m_tracker.open();

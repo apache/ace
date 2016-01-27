@@ -6,9 +6,8 @@ Test-Cases: org.apache.ace.agent.itest.CustomAgentControllerTest,\
 	org.apache.ace.builder;version=latest,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.dependencymanager,\
-	org.apache.felix.http.jetty,\
+	org.apache.felix.http.jetty;version='[2.2,3)',\
 	org.apache.felix.log,\
-	biz.aQute.bnd,\
 	osgi.cmpn
 Private-Package: \
 	org.apache.ace.range,\
@@ -22,19 +21,18 @@ Private-Package: \
 	org.apache.felix.deploymentadmin.spi,\
 	org.osgi.service.event,\
 	org.osgi.service.log,\
-	org.osgi.util.tracker,\
-	aQute.*
+	org.osgi.util.tracker
 -runee: JavaSE-1.6
 -runvm: -ea
 -runfw: org.apache.felix.framework;version='[4,5)'
 -buildpath: \
-	osgi.core;version=4.2,\
+	osgi.core;version=4.3,\
 	org.apache.ace.agent;version=latest,\
 	org.apache.ace.builder;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
-	org.apache.felix.http.jetty,\
-	biz.aQute.bnd,\
+	org.apache.felix.http.jetty;version='[2.2,3)',\
+	javax.servlet,\
 	junit.osgi
 -runsystempackages: sun.reflect
 -runproperties: \

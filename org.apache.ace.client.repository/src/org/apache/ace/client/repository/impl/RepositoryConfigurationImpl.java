@@ -183,7 +183,7 @@ final class RepositoryConfigurationImpl implements RepositoryConfiguration {
      *            the dictionary with the new configuration options, can be <code>null</code> in case the default values
      *            should be used.
      */
-    public void update(Dictionary<String, Object> dict) {
+    public void update(Dictionary<String, ?> dict) {
         Lock lock = m_lock.writeLock();
         lock.lock();
         try {

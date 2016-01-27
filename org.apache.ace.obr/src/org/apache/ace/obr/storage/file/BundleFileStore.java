@@ -49,10 +49,10 @@ import org.osgi.service.log.LogService;
  * absolute path).
  */
 public class BundleFileStore implements BundleStore, ManagedService {
-
-    private static int BUFFER_SIZE = 8 * 1024;
     private static final String REPOSITORY_XML = "repository.xml";
+    private static int BUFFER_SIZE = 8 * 1024;
 
+    private final Object m_lock = new Object();
     // injected by dependencymanager
     private volatile MetadataGenerator m_metadata;
     private volatile LogService m_log;
@@ -67,8 +67,9 @@ public class BundleFileStore implements BundleStore, ManagedService {
      *             If there is a problem synchronizing the meta-data.
      */
     public void synchronizeMetadata() throws IOException {
-        File dir = m_dir;
-        synchronized (REPOSITORY_XML) {
+        synchronized (m_lock) {
+            File dir = m_dir;
+
             if (m_dirChecksum == null || !m_dirChecksum.equals(getDirChecksum(dir))) {
                 m_metadata.generateMetadata(dir);
                 m_dirChecksum = getDirChecksum(dir);
@@ -80,6 +81,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
         if (REPOSITORY_XML.equals(fileName)) {
             synchronizeMetadata();
         }
+
         FileInputStream result = null;
         try {
             result = new FileInputStream(createFile(fileName));
@@ -87,11 +89,11 @@ public class BundleFileStore implements BundleStore, ManagedService {
         catch (FileNotFoundException e) {
             // Resource does not exist; notify caller by returning null...
         }
+
         return result;
     }
 
     public String put(InputStream data, String fileName, boolean replace) throws IOException {
-
         if (fileName == null) {
             fileName = "";
         }
@@ -102,21 +104,24 @@ public class BundleFileStore implements BundleStore, ManagedService {
             metaData = ResourceMetaData.getArtifactMetaData(fileName);
         }
         if (metaData == null) {
+            tempFile.delete();
             throw new IOException("Not a valid bundle and no filename found (filename = " + fileName + ")");
         }
 
         File storeLocation = getResourceFile(metaData);
         if (storeLocation == null) {
-            throw new IOException("Failed to store resource (filename = " +  fileName  + ")");
+            tempFile.delete();
+            throw new IOException("Failed to store resource (filename = " + fileName + ")");
         }
+
         if (storeLocation.exists()) {
-        	if (replace || compare(storeLocation, tempFile)) {
-        		m_log.log(LogService.LOG_DEBUG, "Exact same resource already existed in OBR (filename = " +  fileName  + ")");
-        	}
-        	else {
-        		m_log.log(LogService.LOG_ERROR, "Different resource with same name already existed in OBR (filename = " +  fileName  + ")");
-        		return null;
-        	}
+            if (replace || compare(storeLocation, tempFile)) {
+                m_log.log(LogService.LOG_DEBUG, "Exact same resource already existed in OBR (filename = " + fileName + ")");
+            }
+            else {
+                m_log.log(LogService.LOG_ERROR, "Different resource with same name already existed in OBR (filename = " + fileName + ")");
+                return null;
+            }
         }
 
         moveFile(tempFile, storeLocation);
@@ -130,42 +135,49 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
     /** Compares the contents of two files, returns <code>true</code> if they're exactly the same. */
     private boolean compare(File first, File second) throws IOException {
-    	BufferedInputStream bis = new BufferedInputStream(new FileInputStream(first));
-    	BufferedInputStream bis2 = new BufferedInputStream(new FileInputStream(second));
-    	int b1, b2;
-    	try {
-	    	do {
-	    		b1 = bis.read();
-	    		b2 = bis2.read();
-	    		if (b1 != b2) {
-	    			return false;
-	    		}
-	    	}
-	    	while (b1 != -1 && b2 != -1);
-	    	return (b1 == b2);
-    	}
-    	finally {
-    		if (bis != null) {
-    			try {
-    				bis.close();
-    			}
-    			catch (IOException e) {}
-    		}
-    		if (bis2 != null) {
-    			try {
-    				bis2.close();
-    			}
-    			catch (IOException e) {}
-    		}
-    	}
-	}
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(first));
+        BufferedInputStream bis2 = new BufferedInputStream(new FileInputStream(second));
+        int b1, b2;
+        try {
+            do {
+                b1 = bis.read();
+                b2 = bis2.read();
+                if (b1 != b2) {
+                    return false;
+                }
+            }
+            while (b1 != -1 && b2 != -1);
+            return (b1 == b2);
+        }
+        finally {
+            if (bis != null) {
+                try {
+                    bis.close();
+                }
+                catch (IOException e) {
+                }
+            }
+            if (bis2 != null) {
+                try {
+                    bis2.close();
+                }
+                catch (IOException e) {
+                }
+            }
+        }
+    }
 
-	public boolean remove(String fileName) throws IOException {
+    public boolean remove(String fileName) throws IOException {
+        File dir;
+        synchronized (m_lock) {
+            dir = m_dir;
+        }
+
         File file = createFile(fileName);
         if (file.exists()) {
             if (file.delete()) {
                 // deleting empty parent dirs
-                while ((file = file.getParentFile()) != null && !file.equals(m_dir) && file.list().length == 0) {
+                while ((file = file.getParentFile()) != null && !file.equals(dir) && file.list().length == 0) {
                     file.delete();
                 }
                 return true;
@@ -195,8 +207,10 @@ public class BundleFileStore implements BundleStore, ManagedService {
                     throw new ConfigurationException(OBRFileStoreConstants.FILE_LOCATION_KEY, "Is not a directory: " + newDir);
                 }
 
-                m_dir = newDir;
-                m_dirChecksum = "";
+                synchronized (m_lock) {
+                    m_dir = newDir;
+                    m_dirChecksum = "";
+                }
             }
         }
     }
@@ -289,7 +303,6 @@ public class BundleFileStore implements BundleStore, ManagedService {
      *             in case of I/O problems.
      */
     private File getResourceFile(ResourceMetaData metaData) throws IOException {
-
         File resourceDirectory = getWorkingDir();
         String[] dirs = split(metaData.getSymbolicName());
         for (int i = 0; i < (dirs.length - 1); i++) {
@@ -311,12 +324,13 @@ public class BundleFileStore implements BundleStore, ManagedService {
         }
         return new File(resourceDirectory, name);
     }
-    
+
     /**
-     * Splits a name into parts, breaking at all dots as long as what's behind the dot resembles a
-     * Java package name (ie. it starts with a lowercase character).
+     * Splits a name into parts, breaking at all dots as long as what's behind the dot resembles a Java package name
+     * (ie. it starts with a lowercase character).
      * 
-     * @param name the name to split
+     * @param name
+     *            the name to split
      * @return an array of parts
      */
     public static String[] split(String name) {
@@ -342,7 +356,9 @@ public class BundleFileStore implements BundleStore, ManagedService {
      * @return the working directory of this file store.
      */
     private File getWorkingDir() {
-        return m_dir;
+        synchronized (m_lock) {
+            return m_dir;
+        }
     }
 
     /**

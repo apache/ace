@@ -768,10 +768,10 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     private void waitForInstalledVersion(Version version) throws Exception {
-        ServiceReference reference = m_bundleContext.getServiceReference(AgentControl.class.getName());
+        ServiceReference<AgentControl> reference = m_bundleContext.getServiceReference(AgentControl.class);
 
         try {
-            AgentControl control = (AgentControl) m_bundleContext.getService(reference);
+            AgentControl control = m_bundleContext.getService(reference);
             DeploymentHandler deploymentHandler = control.getDeploymentHandler();
 
             int timeout = 100;

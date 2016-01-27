@@ -9,7 +9,7 @@
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
-	javax.servlet,\
+	org.apache.felix.http.servlet-api,\
 	osgi.core;version=6.0.0
 Private-Package: org.apache.ace.webui.domain,\
 	org.apache.ace.webui.vaadin,\

@@ -29,6 +29,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * This class serves as a minimal example of our integration tests. Also, if this test fails, something is likely
  * wrong with the environment
  */
+@SuppressWarnings("deprecation")
 public class ExampleTest extends IntegrationTestBase {
 
 //    @Configuration

@@ -48,11 +48,13 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     public void destroy(BundleContext context, DependencyManager manager) throws Exception {
     }
     
+    @Override
     public String getName() {
         return "Http Redirector";
     }
 
-    public void updated(String pid, Dictionary properties) throws ConfigurationException {
+    @Override
+    public void updated(String pid, Dictionary<String, ?> properties) throws ConfigurationException {
         Component component = m_servlets.get(pid);
         if (component == null) {
             component = getDependencyManager().createComponent()
@@ -70,6 +72,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         }
     }
 
+    @Override
     public void deleted(String pid) {
         Component component = m_servlets.remove(pid);
         if (component != null) {

@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -443,6 +444,16 @@ public class DeploymentServletTest {
                     @Override
                     public void write(int b) throws IOException {
                         m_responseOutputStream.write(b);
+                    }
+
+                    @Override
+                    public boolean isReady() {
+                        return true;
+                    }
+
+                    @Override
+                    public void setWriteListener(WriteListener l) {
+                        // nop
                     }
                 };
             }

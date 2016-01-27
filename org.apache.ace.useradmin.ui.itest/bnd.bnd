@@ -9,6 +9,7 @@ Private-Package: org.apache.ace.useradmin.ui.test
 	org.apache.felix.configadmin,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.eventadmin,\
+	org.apache.felix.http.servlet-api,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.log,\
 	org.apache.felix.prefs,\

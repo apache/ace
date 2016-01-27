@@ -28,7 +28,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Properties;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -224,7 +225,7 @@ public class RepositoryTest extends IntegrationTestBase {
         tracker.open();
 
         // Publish configuration for a repository instance
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(REPOSITORY_CUSTOMER, customer);
         props.put(REPOSITORY_NAME, name);
         props.put(REPOSITORY_BASE_DIR, basedir == null ? "" : basedir);

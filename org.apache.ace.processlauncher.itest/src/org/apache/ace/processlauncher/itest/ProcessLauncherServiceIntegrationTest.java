@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Properties;
 
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.processlauncher.LaunchConfiguration;
@@ -61,7 +60,7 @@ public class ProcessLauncherServiceIntegrationTest extends IntegrationTestBase {
             return;
         }
 
-        Properties launchConfig = new Properties();
+        Dictionary<String, Object> launchConfig = new Hashtable<>();
         launchConfig.put("instance.count", "2");
         launchConfig.put("executable.name", "/bin/sh");
         launchConfig.put("executable.args", "-c sleep\\ 1\\ &&\\ exit\\ 1");
@@ -100,7 +99,7 @@ public class ProcessLauncherServiceIntegrationTest extends IntegrationTestBase {
             return;
         }
 
-        Properties launchConfig = new Properties();
+        Dictionary<String, Object> launchConfig = new Hashtable<>();
         launchConfig.put("instance.count", "2");
         launchConfig.put("executable.name", "/bin/sh");
         launchConfig.put("executable.args", "-c sleep\\ 1\\ &&\\ exit\\ 0");
@@ -144,7 +143,7 @@ public class ProcessLauncherServiceIntegrationTest extends IntegrationTestBase {
         TestProcessStreamListener psl2 = new TestProcessStreamListener();
         String filter = registerProcessStreamListener(psl2, "qux", "quu");
 
-        Properties launchConfig = new Properties();
+        Dictionary<String, Object> launchConfig = new Hashtable<>();
         launchConfig.put("instance.count", "1");
         launchConfig.put("executable.name", "/bin/sh");
         launchConfig.put("executable.args", "-c sleep\\ 1\\ &&\\ exit\\ 0");
@@ -194,7 +193,7 @@ public class ProcessLauncherServiceIntegrationTest extends IntegrationTestBase {
         String filter =
             String.format("(&(%s=%s)(qux=quu))", Constants.OBJECTCLASS, ProcessStreamListener.class.getName());
 
-        Properties launchConfig = new Properties();
+        Dictionary<String, Object> launchConfig = new Hashtable<>();
         launchConfig.put("instance.count", "1");
         launchConfig.put("executable.name", "/bin/sh");
         launchConfig.put("executable.args", "-c sleep\\ 1\\ &&\\ exit\\ 0");
@@ -241,7 +240,7 @@ public class ProcessLauncherServiceIntegrationTest extends IntegrationTestBase {
         TestProcessStreamListener psl = new TestProcessStreamListener();
         String filter = registerProcessStreamListener(psl, "foo", "bar");
 
-        Properties launchConfig = new Properties();
+        Dictionary<String, Object> launchConfig = new Hashtable<>();
         launchConfig.put("instance.count", "1");
         launchConfig.put("executable.name", "/bin/sh");
         launchConfig.put("executable.args", "-c sleep\\ 1\\ &&\\ exit\\ 0");
@@ -358,7 +357,7 @@ public class ProcessLauncherServiceIntegrationTest extends IntegrationTestBase {
      * @throws AssertionFailedError in case the {@link ConfigurationAdmin} service couldn't be
      *         obtained.
      */
-    private String configureFactory(String factoryPid, Properties properties) throws IOException {
+    private String configureFactory(String factoryPid, Dictionary<String, Object> properties) throws IOException {
         assertNotNull("Parameter factoryPid cannot be null!", factoryPid);
 
         org.osgi.service.cm.Configuration config = getConfigAdmin().createFactoryConfiguration(factoryPid, null);

@@ -20,8 +20,9 @@
 package org.apache.ace.it.repositoryadmin;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
@@ -52,7 +53,7 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
         addRepository("deploymentInstance", "apache", "deployment", true);
 
         // configure automation bundle; new configuration properties; bundle will start
-        final Properties props = new Properties();
+        final Dictionary<String, Object> props = new Hashtable<>();
         props.put("registerTargetFilter", "(id=anotherTarget*)");
         props.put("approveTargetFilter", "(id=DO_NOTHING)");
         props.put("autoApproveTargetFilter", "(id=anotherTarget*)");

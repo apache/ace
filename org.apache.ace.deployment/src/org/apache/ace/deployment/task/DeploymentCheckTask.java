@@ -20,7 +20,7 @@ package org.apache.ace.deployment.task;
 
 import java.net.MalformedURLException;
 import java.util.Dictionary;
-import java.util.Properties;
+import java.util.Hashtable;
 
 import org.apache.ace.deployment.service.DeploymentService;
 import org.osgi.framework.Version;
@@ -78,10 +78,9 @@ public class DeploymentCheckTask implements Runnable {
      * @return a new {@link Event} instance, never <code>null</code>.
      */
     private Event createEvent(Version localVersion, Version remoteVersion) {
-        Properties properties = new Properties();
+        Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("deploymentpackage.localversion", ((localVersion == null) ? Version.emptyVersion : localVersion));
         properties.put("deploymentpackage.remoteversion", remoteVersion);
-
-        return new Event(TOPIC_UPDATE_AVAILABLE, (Dictionary) properties);
+        return new Event(TOPIC_UPDATE_AVAILABLE, properties);
     }
 }

@@ -31,8 +31,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Random;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -70,12 +72,12 @@ public class BundleServletTest {
             public String getScheme() {
                 return "http";
             }
-            
+
             @SuppressWarnings("unused")
             public String getServerName() {
                 return "localhost";
             }
-            
+
             @SuppressWarnings("unused")
             public int getServerPort() {
                 return 9999;
@@ -100,6 +102,7 @@ public class BundleServletTest {
             public ServletInputStream getInputStream() {
                 return new ServletInputStream() {
                     int i = 0;
+
                     @Override
                     public int read() throws IOException {
                         if (i == 0) {
@@ -111,6 +114,20 @@ public class BundleServletTest {
                         }
                     }
 
+                    @Override
+                    public boolean isFinished() {
+                        return i > 0;
+                    }
+
+                    @Override
+                    public boolean isReady() {
+                        return true;
+                    }
+
+                    @Override
+                    public void setReadListener(ReadListener l) {
+                        // nop
+                    }
                 };
             }
         });
@@ -130,6 +147,16 @@ public class BundleServletTest {
                         for (int i = 0; i < s.length(); i++) {
                             m_byteStream.write(s.charAt(i));
                         }
+                    }
+
+                    @Override
+                    public boolean isReady() {
+                        return true;
+                    }
+
+                    @Override
+                    public void setWriteListener(WriteListener l) {
+                        // nop
                     }
                 };
             }
@@ -252,7 +279,8 @@ public class BundleServletTest {
                 if (inStream != null) {
                     inStream.close();
                 }
-            } finally {
+            }
+            finally {
                 if (outStream != null) {
                     outStream.close();
                 }

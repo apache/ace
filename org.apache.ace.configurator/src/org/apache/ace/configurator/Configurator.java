@@ -23,11 +23,14 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -199,11 +202,10 @@ public class Configurator implements Runnable {
      * lastModified date has changed.
      */
     private void processConfigFile(File configFile, String factoryPid) {
-        InputStream in = null;
-        try {
-            in = new FileInputStream(configFile);
+        try (InputStream in  = new FileInputStream(configFile)) {
             Properties properties = new Properties();
             properties.load(in);
+
             String pid = parsePid(configFile);
             properties = substVars(properties);
             configure(pid, factoryPid, properties);
@@ -211,39 +213,32 @@ public class Configurator implements Runnable {
         catch (IOException ex) {
             m_log.log(LogService.LOG_ERROR, "Unable to read configuration from file: " + configFile.getAbsolutePath(), ex);
         }
-        finally {
-            if (in != null) {
-                try {
-                    in.close();
-                }
-                catch (Exception ex) {
-                    // Not much we can do
-                }
-            }
-        }
     }
 
     private void configure(String pid, String factoryPid, Properties properties) {
         try {
             Configuration config = getConfiguration(pid, factoryPid);
-            Dictionary oldProps = config.getProperties();
-            if (!m_reconfig) {
-                if (oldProps != null) {
-                    Enumeration keys = oldProps.keys();
-                    while (keys.hasMoreElements()) {
-                        String key = (String) keys.nextElement();
-                        if (properties.containsKey(key)) {
-                            properties.put(key, oldProps.get(key));
-                            m_log.log(LogService.LOG_DEBUG, "Using previously configured value for bundle=" + pid + " key=" + key);
-                        }
-                    }
+
+            Dictionary<String, Object> props = config.getProperties();
+            if (props == null) {
+                props = new Hashtable<>();
+            }
+
+            List<String> curKeys = Collections.list(props.keys());
+            for (Object key : properties.keySet()) {
+                if (curKeys.contains(key) && !m_reconfig) {
+                    m_log.log(LogService.LOG_DEBUG, "Using previously configured value for bundle=" + pid + " key=" + key);
+                } else {
+                    props.put((String) key, properties.get(key));
                 }
             }
+
             if (factoryPid != null) {
-                properties.put(FACTORY_INSTANCE_KEY, factoryPid + "_" + pid);
+                props.put(FACTORY_INSTANCE_KEY, factoryPid + "_" + pid);
             }
-            config.update(properties);
-            m_log.log(LogService.LOG_DEBUG, "Updated configuration for pid '" + pid + "' (" + properties + ")");
+
+            config.update(props);
+            m_log.log(LogService.LOG_DEBUG, "Updated configuration for pid '" + pid + "' (" + props + ")");
         }
         catch (IOException ex) {
             m_log.log(LogService.LOG_ERROR, "Unable to update configuration for pid '" + pid + "'", ex);

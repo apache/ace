@@ -1,6 +1,6 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
-Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.AuthenticationTestBase}
+Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 -buildpath: \
 	junit.osgi,\
 	osgi.core;version=6.0.0,\
@@ -29,6 +29,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.felix.configadmin,\
 	org.apache.felix.eventadmin,\
 	org.apache.felix.prefs,\
+	org.apache.felix.http.servlet-api,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.useradmin,\
 	org.apache.felix.useradmin.filestore,\
@@ -69,11 +70,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.authentication.Authenti
 	org.apache.ace.feedback.common;version=latest
 Private-Package: org.apache.ace.it.authentication
 Bundle-Version: 1.0.0
--runrepos: Local,\
-	Bndtools Hub,\
-	Library Repository,\
-	Release,\
-	Workspace
 Bundle-Name: Apache ACE Authentication itest
 Bundle-Category: itest
 Bundle-Description: Integration tests for Apache ACE Authentication

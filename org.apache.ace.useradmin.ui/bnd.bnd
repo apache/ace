@@ -10,7 +10,7 @@
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
-	javax.servlet,\
+	org.apache.felix.http.servlet-api,\
 	org.apache.ace.webui.vaadin;version=latest
 Bundle-Activator: org.apache.ace.useradmin.ui.osgi.Activator
 Bundle-Version: 2.0.1

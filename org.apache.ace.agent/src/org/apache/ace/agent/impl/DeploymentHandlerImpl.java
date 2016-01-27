@@ -47,6 +47,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 import org.osgi.service.packageadmin.PackageAdmin;
 
+@SuppressWarnings("deprecation")
 public class DeploymentHandlerImpl extends UpdateHandlerBase implements DeploymentHandler {
 
     /**
@@ -85,7 +86,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
         private void invokeExternalEventAdmin(String method, Event event) {
             try {
                 // try to find an EventAdmin service
-                ServiceReference[] refs = m_context.getAllServiceReferences(EventAdmin.class.getName(), null);
+                ServiceReference<?>[] refs = m_context.getAllServiceReferences(EventAdmin.class.getName(), null);
                 if (refs != null && refs.length > 0) {
                     // if we've found one (or more) we pick the first match
                     Object svc = m_context.getService(refs[0]);

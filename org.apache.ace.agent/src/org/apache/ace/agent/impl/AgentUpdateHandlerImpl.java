@@ -98,8 +98,10 @@ public class AgentUpdateHandlerImpl extends UpdateHandlerBase implements AgentUp
             InputStream currentBundleVersion = getInputStream(m_bundleContext.getBundle().getVersion(), false /* fixPackage */);
             Bundle bundle = m_bundleContext.installBundle("agent-updater", generateBundle());
             bundle.start();
-            ServiceTracker st = new ServiceTracker(m_bundleContext, m_bundleContext.createFilter("(" + Constants.OBJECTCLASS + "=org.apache.ace.agent.updater.Activator)"), null);
+
+            ServiceTracker<Object, Object> st = new ServiceTracker<>(m_bundleContext, m_bundleContext.createFilter("(" + Constants.OBJECTCLASS + "=org.apache.ace.agent.updater.Activator)"), null);
             st.open(true);
+
             Object service = st.waitForService(TIMEOUT);
             if (service != null) {
                 Method method = service.getClass().getMethod("update", Bundle.class, InputStream.class, InputStream.class);

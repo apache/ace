@@ -155,7 +155,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
     protected final void addRepository(String instanceName, String customer, String name, boolean isMaster) throws IOException,
         InterruptedException, InvalidSyntaxException {
         // Publish configuration for a repository instance
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(RepositoryConstants.REPOSITORY_CUSTOMER, customer);
         props.put(RepositoryConstants.REPOSITORY_NAME, name);
         props.put(RepositoryConstants.REPOSITORY_MASTER, String.valueOf(isMaster));
@@ -305,11 +305,12 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         // This is a little ugly: we cannot just delete the configuration, since that will result in a
         // sharing violation between this bundle and the servlet bundle. In stead, we make the servlet
         // use an invalid endpoint.
-        Properties propsServlet = new Properties();
+        Dictionary<String, Object> propsServlet = new Hashtable<>();
         propsServlet.put(HttpConstants.ENDPOINT, endpoint + "invalid");
         propsServlet.put("OBRInstance", "singleOBRServlet");
         propsServlet.put("authentication.enabled", "false");
         Configuration configServlet = m_configAdmin.getConfiguration("org.apache.ace.obr.servlet");
+
         configServlet.update(propsServlet);
 
         URL url = new URL("http://localhost:" + TestConstants.PORT + "/" + endpoint + "/repository.xml");

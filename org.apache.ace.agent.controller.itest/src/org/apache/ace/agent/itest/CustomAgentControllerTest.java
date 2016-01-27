@@ -110,9 +110,9 @@ public class CustomAgentControllerTest extends BaseAgentControllerTest {
         public void start(AgentContext agentContext) throws Exception {
             logInfo("Custom controller running...");
 
-            ServiceReference serviceRef = m_bundleContext.getServiceReference(AgentUser.class.getName());
+            ServiceReference<AgentUser> serviceRef = m_bundleContext.getServiceReference(AgentUser.class);
             if (serviceRef != null) {
-                m_agentUser = (AgentUser) m_bundleContext.getService(serviceRef);
+                m_agentUser = m_bundleContext.getService(serviceRef);
             }
             else {
                 throw new IllegalStateException("No agent user service registered?!");

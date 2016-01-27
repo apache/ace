@@ -28,8 +28,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
@@ -246,6 +248,16 @@ public class LogServletTest {
         @Override
         public void write(int arg0) throws IOException {
         }
+
+        @Override
+        public boolean isReady() {
+            return true;
+        }
+
+        @Override
+        public void setWriteListener(WriteListener l) {
+            // nop
+        }
     }
 
     private class MockServletInputStream extends ServletInputStream {
@@ -264,6 +276,21 @@ public class LogServletTest {
 
         public void setBytes(byte[] bytes) {
             m_bytes = bytes;
+        }
+
+        @Override
+        public boolean isFinished() {
+            return i >= m_bytes.length;
+        }
+
+        @Override
+        public boolean isReady() {
+            return true;
+        }
+
+        @Override
+        public void setReadListener(ReadListener l) {
+            // nop
         }
     }
 }

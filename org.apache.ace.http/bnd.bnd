@@ -5,5 +5,5 @@
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
-	javax.servlet
+	org.apache.felix.http.servlet-api
 -sub: *.bnd

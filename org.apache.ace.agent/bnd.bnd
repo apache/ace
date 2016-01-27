@@ -33,12 +33,12 @@ Export-Package: org.apache.ace.agent,\
 
 -buildpath: \
 	${^-buildpath},\
-	osgi.core;version=4.2,\
-	osgi.cmpn;version=4.2,\
-	javax.servlet;version=2.5,\
-	org.apache.felix.deploymentadmin;version='[0.9.8,1.0)',\
+	osgi.core;version=4.3,\
+	osgi.cmpn;version=4.3,\
 	org.easymock,\
+	javax.servlet,\
+	org.apache.felix.http.jetty;version='[2.2,3)',\
+	org.apache.felix.deploymentadmin,\
 	org.apache.ace.test;version=latest,\
-	org.apache.felix.http.jetty;version=2.2.1,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest

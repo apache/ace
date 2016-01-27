@@ -4,7 +4,7 @@
 	${^-buildpath},\
 	osgi.core;version=6.0.0,\
 	osgi.cmpn;version=4.3.1,\
-	javax.servlet,\
+	org.apache.felix.http.servlet-api,\
 	org.apache.felix.dependencymanager,\
 	com.vaadin,\
 	org.apache.ace.authentication.api;version=latest,\

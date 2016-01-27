@@ -5,7 +5,7 @@
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
-	javax.servlet,\
+	org.apache.felix.http.servlet-api,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\

@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.apache.ace.it.IntegrationTestBase;
@@ -174,7 +176,7 @@ public class ProcessLauncherRespawnIntegrationTest extends IntegrationTestBase {
             String.format("-c L=$(cat\\ %1$s\\ |\\ wc\\ -l)\\ &&\\ echo\\ $L\\ >>\\ %1$s\\ &&\\ exit\\ $((%2$d-$L))",
                 tmpFilename, count);
 
-        Properties launchConfig = new Properties();
+        Dictionary<String, Object> launchConfig = new Hashtable<>();
         launchConfig.put("instance.count", "1");
         launchConfig.put("executable.name", "/bin/bash");
         launchConfig.put("executable.args", args);
@@ -305,7 +307,7 @@ public class ProcessLauncherRespawnIntegrationTest extends IntegrationTestBase {
      * @throws AssertionFailedError in case the {@link ConfigurationAdmin} service couldn't be
      *         obtained.
      */
-    private String configureFactory(String factoryPid, Properties properties) throws IOException {
+    private String configureFactory(String factoryPid, Dictionary<String, Object> properties) throws IOException {
         assertNotNull("Parameter factoryPid cannot be null!", factoryPid);
 
         org.osgi.service.cm.Configuration config = getConfigAdmin().createFactoryConfiguration(factoryPid, null);

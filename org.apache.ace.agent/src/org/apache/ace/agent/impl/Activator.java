@@ -46,6 +46,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 /**
  * Bundle activator for ACE management agent.
  */
+@SuppressWarnings("deprecation")
 public class Activator implements BundleActivator, LifecycleCallback {
     // managed state
     private volatile AgentContextImpl m_agentContext;

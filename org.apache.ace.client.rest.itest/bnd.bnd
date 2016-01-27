@@ -4,10 +4,10 @@
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	junit.osgi,\
-	javax.servlet,\
 	com.sun.jersey.client,\
 	com.sun.jersey.core,\
 	com.google.gson,\
+	org.apache.felix.http.servlet-api,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.http.listener;version=latest,\
@@ -37,6 +37,7 @@
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.eventadmin,\
+	org.apache.felix.http.servlet-api,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.deploymentadmin,\
 	org.apache.felix.prefs,\

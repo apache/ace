@@ -18,6 +18,8 @@
  */
 package org.apache.ace.test.utils;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Properties;
 
 public class Util {
@@ -30,6 +32,20 @@ public class Util {
      */
     public static Properties properties(String... values) {
         Properties props = new Properties();
+        for (int i = 0; i < values.length; i += 2) {
+            props.put(values[i], values[i+1]);
+        }
+        return props;
+    }
+
+    /**
+     * Creates a Dictionary object from a list of key-value pairs, e.g.
+     * <pre>
+     * properties("key", "value", "key2", "value2");
+     * </pre>
+     */
+    public static Dictionary<String, Object> dictionary(String... values) {
+        Dictionary<String, Object>  props = new Hashtable<>();
         for (int i = 0; i < values.length; i += 2) {
             props.put(values[i], values[i+1]);
         }

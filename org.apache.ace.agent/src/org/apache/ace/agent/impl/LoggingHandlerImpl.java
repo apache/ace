@@ -124,7 +124,7 @@ public class LoggingHandlerImpl extends ComponentBase implements LoggingHandler,
      */
     private boolean invokeExternalLogService(Levels logLevel, String message, Throwable exception) {
         try {
-            ServiceReference[] refs = m_context.getAllServiceReferences(LogService.class.getName(), null);
+            ServiceReference<?>[] refs = m_context.getAllServiceReferences(LogService.class.getName(), null);
             if (refs != null && refs.length > 0) {
                 // if we've found one (or more) we pick the first match
                 Object svc = m_context.getService(refs[0]);

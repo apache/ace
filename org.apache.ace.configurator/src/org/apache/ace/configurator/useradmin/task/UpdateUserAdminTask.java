@@ -178,10 +178,12 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
      *            the remote repository to remove, cannot be <code>null</code>.
      */
     final void removeRepo(Repository remoteRepo) {
-        // Ensure the latest version is properly stored...
-        saveVersion(m_properties, m_repo.getMostRecentVersion());
-
-        m_repo = null;
+        if (m_repo != null) {
+            // Ensure the latest version is properly stored...
+            saveVersion(m_properties, m_repo.getMostRecentVersion());
+            
+            m_repo = null;
+        }
     }
 
     private File getFile(String name) {

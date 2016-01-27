@@ -170,7 +170,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
     }
 
     @Override
-    public void updated(Dictionary properties) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
         m_repoConfiguration.update(properties);
     }
 

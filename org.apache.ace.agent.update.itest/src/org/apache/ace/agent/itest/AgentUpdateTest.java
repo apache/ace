@@ -60,6 +60,30 @@ import org.osgi.service.http.HttpService;
  * </ul>
  */
 public class AgentUpdateTest extends IntegrationTestBase {
+    final class DummyAgentVersionServlet extends HttpServlet {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            final AgentUpdateOBRServlet servlet = AgentUpdateTest.this.m_servlet;
+            final String path = "/defaultTargetID/org.apache.ace.agent/versions/";
+
+            String pathInfo = req.getPathInfo();
+            if (path.equals(pathInfo)) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().println(servlet.m_currentVersion);
+                resp.getWriter().println(servlet.m_nextVersion);
+            }
+            else if (pathInfo.startsWith(path)) {
+                String version = pathInfo.substring(path.length());
+                resp.sendRedirect("/obr/" + version + ".jar");
+            }
+            else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            }
+        }
+    }
+
     private static class DummyAuditLogServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
 
@@ -84,20 +108,20 @@ public class AgentUpdateTest extends IntegrationTestBase {
         }
     }
 
-    private static class AgentUpdateOBRServlet extends HttpServlet {
+    static class AgentUpdateOBRServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
-        
-        private final String m_currentVersion;
-        private final String m_nextVersion;
 
-        private Phase m_phase;
-        private CountDownLatch m_latch;
-        
+        final String m_currentVersion;
+        final String m_nextVersion;
+
+        volatile Phase m_phase;
+        volatile CountDownLatch m_latch;
+
         public AgentUpdateOBRServlet(Version currentVersion) {
-        	m_currentVersion = currentVersion.toString();
-        	// Determine the next version we want to update to...
-        	m_nextVersion = new Version(currentVersion.getMajor(), currentVersion.getMinor(), currentVersion.getMicro() + 1).toString();
-		}
+            m_currentVersion = currentVersion.toString();
+            // Determine the next version we want to update to...
+            m_nextVersion = new Version(currentVersion.getMajor(), currentVersion.getMinor(), currentVersion.getMicro() + 1).toString();
+        }
 
         public synchronized CountDownLatch setPhase(Phase phase, CountDownLatch latch) {
             m_phase = phase;
@@ -105,9 +129,9 @@ public class AgentUpdateTest extends IntegrationTestBase {
             System.out.printf("Updating in phase: %s (from v%s to v%s)...%n", phase, m_currentVersion, m_nextVersion);
             return latch;
         }
-        
+
         public Version getNextAgentVersion() {
-        	return new Version(m_nextVersion);
+            return new Version(m_nextVersion);
         }
 
         @Override
@@ -121,8 +145,8 @@ public class AgentUpdateTest extends IntegrationTestBase {
                 w.println("</repository>");
             }
             else {
-            	String currentAgentJAR = m_currentVersion + ".jar";
-            	String nextAgentJAR = m_nextVersion + ".jar";
+                String currentAgentJAR = m_currentVersion + ".jar";
+                String nextAgentJAR = m_nextVersion + ".jar";
 
                 if (path.endsWith(currentAgentJAR)) {
                     write(getBundle(), m_currentVersion, resp.getOutputStream());
@@ -213,10 +237,10 @@ public class AgentUpdateTest extends IntegrationTestBase {
         while (timeout-- > 0) {
             Version agentVersion = getCurrentAgentVersion();
             if (agentVersion.equals(m_servlet.getNextAgentVersion())) {
-            	return;
+                return;
             }
 
-            Thread.sleep(200);
+            Thread.sleep(100);
         }
         fail("Timed out waiting for update with new agent.");
     }
@@ -239,9 +263,9 @@ public class AgentUpdateTest extends IntegrationTestBase {
 
     @Override
     protected void configureAdditionalServices() throws Exception {
-    	// We need to know the *current* version of the agent, as we're trying to get it updated to a later version!
-    	Version currentAgentVersion = getCurrentAgentVersion();
-    	
+        // We need to know the *current* version of the agent, as we're trying to get it updated to a later version!
+        Version currentAgentVersion = getCurrentAgentVersion();
+
         m_servlet = new AgentUpdateOBRServlet(currentAgentVersion);
 
         String url = String.format("http://localhost:%d/obr", TestConstants.PORT);
@@ -250,6 +274,7 @@ public class AgentUpdateTest extends IntegrationTestBase {
         m_http.registerServlet("/obr", m_servlet, null, null);
         m_http.registerServlet("/auditlog", new DummyAuditLogServlet(), null, null);
         m_http.registerServlet("/deployment", new DeploymentServlet(), null, null);
+        m_http.registerServlet("/agent", new DummyAgentVersionServlet(), null, null);
 
         NetUtils.waitForURL(url, 200, 10000);
     }
@@ -258,6 +283,8 @@ public class AgentUpdateTest extends IntegrationTestBase {
     protected void doTearDown() throws Exception {
         m_http.unregister("/obr");
         m_http.unregister("/auditlog");
+        m_http.unregister("/deployment");
+        m_http.unregister("/agent");
     }
 
     @Override
@@ -268,16 +295,16 @@ public class AgentUpdateTest extends IntegrationTestBase {
                 .add(createServiceDependency().setService(HttpService.class).setRequired(true))
         };
     }
-    
+
     private Version getCurrentAgentVersion() {
-    	Bundle agent = null;
-    	for (Bundle bundle : m_bundleContext.getBundles()) {
-    		if ("org.apache.ace.agent".equals(bundle.getSymbolicName())) {
-    			agent = bundle;
-    			break;
-    		}
-    	}
-    	assertNotNull("Agent bundle not found?!", agent);
-    	return agent.getVersion();
+        Bundle agent = null;
+        for (Bundle bundle : m_bundleContext.getBundles()) {
+            if ("org.apache.ace.agent".equals(bundle.getSymbolicName())) {
+                agent = bundle;
+                break;
+            }
+        }
+        assertNotNull("Agent bundle not found?!", agent);
+        return agent.getVersion();
     }
 }

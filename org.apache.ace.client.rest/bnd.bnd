@@ -4,9 +4,9 @@
 	${^-buildpath},\
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
+	org.apache.felix.http.servlet-api,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.client.repository.api;version=latest,\
-	javax.servlet,\
 	com.google.gson;version=1.7.1,\
 	org.mockito.mockito-all,\
 	org.apache.felix.gogo.command,\

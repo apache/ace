@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
@@ -106,6 +107,16 @@ public class ContentRangeResponseWrapper extends HttpServletResponseWrapper {
             @Override
             public void close() throws IOException {
                 delegate.close();
+            }
+
+            @Override
+            public boolean isReady() {
+                return delegate.isReady();
+            }
+
+            @Override
+            public void setWriteListener(WriteListener l) {
+                delegate.setWriteListener(l);
             }
         };
     }

@@ -5,9 +5,8 @@
 	org.apache.ace.builder;version=latest,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.dependencymanager,\
-	org.apache.felix.http.jetty,\
+	org.apache.felix.http.jetty;version='[2.2,3)',\
 	org.apache.felix.log,\
-	biz.aQute.bnd,\
 	osgi.cmpn
 -runee: JavaSE-1.7
 -runvm: -ea
@@ -18,7 +17,8 @@
 	org.apache.ace.builder;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
-	org.apache.felix.http.jetty,\
+	org.apache.felix.http.jetty;version='[2.2,3)',\
+	javax.servlet,\
 	junit.osgi,\
 	org.mockito.mockito-all
 -runsystempackages: sun.reflect

@@ -6,7 +6,7 @@
 	osgi.cmpn,\
 	org.mockito.mockito-all,\
 	org.apache.felix.dependencymanager,\
-	javax.servlet,\
+	org.apache.felix.http.servlet-api,\
 	bcprov,\
 	bcpkix,\
 	org.apache.commons.codec,\

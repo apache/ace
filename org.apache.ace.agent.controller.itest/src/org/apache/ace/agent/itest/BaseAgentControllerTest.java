@@ -22,6 +22,7 @@ import org.apache.ace.agent.DeploymentHandler;
 import org.apache.ace.builder.DeploymentPackageBuilder;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.test.constants.TestConstants;
+import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Bundle;
@@ -29,9 +30,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 import org.osgi.service.http.HttpService;
-
-import aQute.bnd.osgi.Builder;
-import aQute.bnd.osgi.Jar;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -401,28 +399,7 @@ public abstract class BaseAgentControllerTest extends IntegrationTestBase {
     }
 
     protected static File createBundle(String bsn, Version version, String... headers) throws Exception {
-        Builder b = new Builder();
-
-        try {
-            b.setProperty("Bundle-SymbolicName", bsn);
-            b.setProperty("Bundle-Version", version.toString());
-            for (int i = 0; i < headers.length; i += 2) {
-                b.setProperty(headers[i], headers[i + 1]);
-            }
-            b.setProperty("Include-Resource", "bnd.bnd"); // prevent empty jar bug
-
-            Jar jar = b.build();
-            jar.getManifest(); // Not sure whether this is needed...
-
-            File file = File.createTempFile("testbundle", ".jar");
-            file.deleteOnExit();
-
-            jar.write(file);
-            return file;
-        }
-        finally {
-            b.close();
-        }
+        return FileUtils.createEmptyBundle(bsn, version, headers);
     }
 
     protected static File createPackage(String name, Version version, File... bundles) throws Exception {

@@ -148,11 +148,13 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
 
     @Override
     public void doTearDown() throws Exception {
-        FileUtils.removeDirectoryWithContent(m_storeLocation);
-        Configuration configuration = getConfiguration(m_authConfigPID);
-        if (configuration != null) {
-            configuration.delete();
+        if (m_authConfigPID != null) {
+            Configuration configuration = getConfiguration(m_authConfigPID);
+            if (configuration != null) {
+                configuration.delete();
+            }
         }
+        FileUtils.removeDirectoryWithContent(m_storeLocation);
     }
 
     /**

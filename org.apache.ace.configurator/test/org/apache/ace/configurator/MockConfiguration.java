@@ -25,9 +25,9 @@ import org.osgi.service.cm.Configuration;
 
 public class MockConfiguration implements Configuration {
     private final MockConfigAdmin m_ca;
-    private Dictionary m_properties = null;
+    private Dictionary<String, Object> m_properties = null;
     private boolean m_isDeleted = false;
-    
+
     public MockConfiguration(MockConfigAdmin ca) {
         m_ca = ca;
     }
@@ -49,7 +49,7 @@ public class MockConfiguration implements Configuration {
         return null;
     }
 
-    public synchronized Dictionary getProperties() {
+    public synchronized Dictionary<String, Object> getProperties() {
         return m_properties;
     }
 
@@ -64,8 +64,9 @@ public class MockConfiguration implements Configuration {
         m_ca.configUpdated(this);
     }
 
-    public synchronized void update(Dictionary newConfiguration) throws IOException {
-        m_properties = newConfiguration;
+    @SuppressWarnings("unchecked")
+    public synchronized void update(Dictionary<String, ?> newConfiguration) throws IOException {
+        m_properties = (Dictionary<String, Object>) newConfiguration;
         m_ca.configUpdated(this);
     }
 }
