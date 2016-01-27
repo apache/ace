@@ -223,9 +223,34 @@ task stageBin(type: Zip) {
 	into "${archivesBaseName}-${version}"
 }
 
+task stageMaven(type: Zip) {
+	description = 'Create an archive in the local staging folder containing artifacts that can be uploaded to a maven repo'
+	
+	classifier = 'maven'
+	destinationDir = file('staging')
+	
+	with([
+	    // LICENSE, NOTICE, README
+	    copySpec {
+	    	from 'resources/bin'
+	    },
+	    // agent
+		copySpec {
+			from '../org.apache.ace.agent/generated'
+			into 'org.apache.ace.agent'
+			include('org.apache.ace.agent.pom', 
+					'org.apache.ace.agent.jar', 
+					'org.apache.ace.agent-sources.jar', 
+					'org.apache.ace.agent-javadoc.jar')
+		}
+	] as CopySpec[]);
+	into "${archivesBaseName}-${version}-maven"	 
+}
+
+
 task signStaging() {
     description = 'Signs the local staging distribution.'
-    dependsOn = ['stageSrc', 'stageDeps', 'stageBin' ]
+    dependsOn = ['stageSrc', 'stageDeps', 'stageBin', 'stageMaven' ]
     
     doLast {
 		fileTree("staging").visit { FileVisitDetails details -> 
