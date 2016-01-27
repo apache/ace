@@ -603,7 +603,7 @@ public class IntegrationTestBase extends TestCase {
             }
             
             // XXX it appears we run into race conditions between the setup and configuration of our services, use a little delay to get things settled seems to help here...
-            TimeUnit.MILLISECONDS.sleep(100);
+            TimeUnit.MILLISECONDS.sleep(500);
 
             configureAdditionalServices();
         }
