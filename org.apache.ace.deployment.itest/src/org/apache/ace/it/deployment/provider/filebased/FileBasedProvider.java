@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.deployment.provider.filebased;
+package org.apache.ace.it.deployment.provider.filebased;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -375,7 +375,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
     /**
      * Update the configuration for this bundle. It checks if the basedirectory exists and is a directory.
      */
-    public void updated(Dictionary settings) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> settings) throws ConfigurationException {
         if (settings != null) {
             String maximumNumberOfUsers = (String) settings.get(MAXIMUM_NUMBER_OF_USERS);
             if (maximumNumberOfUsers != null) {
@@ -405,7 +405,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
     /**
      * Convenience method for getting settings from a configuration dictionary.
      */
-    private String getNotNull(Dictionary settings, String id, String errorMessage) throws ConfigurationException {
+    private String getNotNull(Dictionary<String, ?> settings, String id, String errorMessage) throws ConfigurationException {
         String result = (String) settings.get(id);
         if (result == null) {
             throw new ConfigurationException(id, errorMessage);

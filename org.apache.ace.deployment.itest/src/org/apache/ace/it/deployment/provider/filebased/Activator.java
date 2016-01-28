@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.deployment.provider.filebased;
+package org.apache.ace.it.deployment.provider.filebased;
 
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.felix.dm.DependencyActivatorBase;

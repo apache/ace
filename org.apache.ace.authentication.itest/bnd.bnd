@@ -11,7 +11,6 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
-	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\

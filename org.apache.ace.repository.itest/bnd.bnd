@@ -9,7 +9,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
-	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlet;version=latest,\
 	org.apache.felix.dependencymanager
 -runfw: org.apache.felix.framework;version='[5.2.0,6)'

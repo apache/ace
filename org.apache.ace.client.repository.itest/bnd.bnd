@@ -16,10 +16,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.identification.property;version=latest,\
 	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.deployment.servlet;version=latest,\
-	org.apache.ace.deployment.provider.filebased;version=latest,\
 	org.apache.ace.obr.storage;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
-	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
@@ -44,7 +42,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
-	org.apache.ace.deployment.provider.filebased;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\

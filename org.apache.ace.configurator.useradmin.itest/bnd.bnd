@@ -15,7 +15,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
-	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.feedback.common;version=latest
 -runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runvm: -ea
