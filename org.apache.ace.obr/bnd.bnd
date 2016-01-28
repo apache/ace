@@ -3,6 +3,7 @@
 -sub: *.bnd
 -buildpath: \
 	${^-buildpath},\
+	${testng},\
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\

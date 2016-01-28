@@ -2,6 +2,7 @@
 
 -buildpath: \
 	${^-buildpath},\
+	${testng},\
 	osgi.core;version=6.0.0,\
 	org.apache.commons.cli,\
 	org.apache.ace.agent;version=latest

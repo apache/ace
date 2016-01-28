@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<repository increment="1453970219000" name="Local" xmlns="http://www.osgi.org/xmlns/repository/v1.0.0">
+<repository increment="1453997711000" name="Local" xmlns="http://www.osgi.org/xmlns/repository/v1.0.0">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="osgi.identity" value="bcpkix"/>
@@ -1788,6 +1788,77 @@
     </requirement>
     <requirement namespace="osgi.wiring.package">
       <directive name="filter" value="(&amp;(osgi.wiring.package=org.osgi.service.log)(version&gt;=1.3.0)(!(version&gt;=1.4.0)))"/>
+    </requirement>
+  </resource>
+  <resource>
+    <capability namespace="osgi.identity">
+      <attribute name="osgi.identity" value="com.beust.jcommander"/>
+      <attribute name="type" value="osgi.bundle"/>
+      <attribute name="version" type="Version" value="1.48.0"/>
+    </capability>
+    <capability namespace="osgi.content">
+      <attribute name="osgi.content" value="a7313fcfde070930e40ec79edf3c5948cf34e4f0d25cb3a09f9963d8bdd84113"/>
+      <attribute name="url" value="com.beust.jcommander/com.beust.jcommander-1.48.0.jar"/>
+      <attribute name="size" type="Long" value="63504"/>
+      <attribute name="mime" value="application/vnd.osgi.bundle"/>
+    </capability>
+    <capability namespace="osgi.wiring.bundle">
+      <attribute name="osgi.wiring.bundle" value="com.beust.jcommander"/>
+      <attribute name="bundle-version" type="Version" value="1.48.0"/>
+    </capability>
+    <capability namespace="osgi.wiring.host">
+      <attribute name="osgi.wiring.host" value="com.beust.jcommander"/>
+      <attribute name="bundle-version" type="Version" value="1.48.0"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="com.beust.jcommander"/>
+      <attribute name="version" type="Version" value="1.48.0"/>
+      <attribute name="bundle-symbolic-name" value="com.beust.jcommander"/>
+      <attribute name="bundle-version" type="Version" value="1.48.0"/>
+      <directive name="uses" value="com.beust.jcommander.internal,com.beust.jcommander.converters,com.beust.jcommander.validators"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="com.beust.jcommander.converters"/>
+      <attribute name="version" type="Version" value="1.48.0"/>
+      <attribute name="bundle-symbolic-name" value="com.beust.jcommander"/>
+      <attribute name="bundle-version" type="Version" value="1.48.0"/>
+      <directive name="uses" value="com.beust.jcommander"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="com.beust.jcommander.defaultprovider"/>
+      <attribute name="version" type="Version" value="1.48.0"/>
+      <attribute name="bundle-symbolic-name" value="com.beust.jcommander"/>
+      <attribute name="bundle-version" type="Version" value="1.48.0"/>
+      <directive name="uses" value="com.beust.jcommander"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="com.beust.jcommander.internal"/>
+      <attribute name="version" type="Version" value="1.48.0"/>
+      <attribute name="bundle-symbolic-name" value="com.beust.jcommander"/>
+      <attribute name="bundle-version" type="Version" value="1.48.0"/>
+      <directive name="uses" value="com.beust.jcommander,com.beust.jcommander.converters"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="com.beust.jcommander.validators"/>
+      <attribute name="version" type="Version" value="1.48.0"/>
+      <attribute name="bundle-symbolic-name" value="com.beust.jcommander"/>
+      <attribute name="bundle-version" type="Version" value="1.48.0"/>
+      <directive name="uses" value="com.beust.jcommander"/>
+    </capability>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=com.beust.jcommander)(version&gt;=1.48.0))"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=com.beust.jcommander.converters)(version&gt;=1.48.0))"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=com.beust.jcommander.defaultprovider)(version&gt;=1.48.0))"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=com.beust.jcommander.internal)(version&gt;=1.48.0))"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=com.beust.jcommander.validators)(version&gt;=1.48.0))"/>
     </requirement>
   </resource>
   <resource>
@@ -6745,6 +6816,284 @@
     </requirement>
     <requirement namespace="osgi.ee">
       <directive name="filter" value="(&amp;(osgi.ee=JavaSE)(version=1.5))"/>
+    </requirement>
+  </resource>
+  <resource>
+    <capability namespace="osgi.identity">
+      <attribute name="osgi.identity" value="org.testng"/>
+      <attribute name="type" value="osgi.bundle"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+    </capability>
+    <capability namespace="osgi.content">
+      <attribute name="osgi.content" value="240ae7bbcf066aadff967b42a27a697693bf5a4e6a5ff4bf339b6bfe371288e4"/>
+      <attribute name="url" value="org.testng/org.testng-6.9.10.jar"/>
+      <attribute name="size" type="Long" value="870504"/>
+      <attribute name="mime" value="application/vnd.osgi.bundle"/>
+    </capability>
+    <capability namespace="osgi.wiring.bundle">
+      <attribute name="osgi.wiring.bundle" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+    </capability>
+    <capability namespace="osgi.wiring.host">
+      <attribute name="osgi.wiring.host" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="com.beust.testng"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="org.testng"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="com.beust.jcommander,com.beust.jcommander.converters,com.google.inject,javax.xml.parsers,org.apache.tools.ant,org.apache.tools.ant.taskdefs,org.apache.tools.ant.types,org.testng.annotations,org.testng.internal,org.testng.internal.annotations,org.testng.internal.junit,org.testng.internal.thread.graph,org.testng.xml,org.xml.sax"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.annotations"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="com.google.inject,org.testng,org.testng.internal.annotations"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.asserts"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.collections"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.internal"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="com.google.inject,org.testng,org.testng.annotations,org.testng.collections,org.testng.internal.annotations,org.testng.internal.thread,org.testng.internal.thread.graph,org.testng.junit,org.testng.reporters,org.testng.xml"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.internal.annotations"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="org.testng,org.testng.annotations,org.testng.xml"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.internal.collections"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.internal.invokers"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="org.testng"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.internal.junit"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.internal.remote"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="org.testng.remote"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.internal.thread"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.internal.thread.graph"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="org.testng,org.testng.internal"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.junit"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="junit.framework,org.junit.runner,org.testng,org.testng.internal,org.testng.internal.annotations,org.testng.xml"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.log"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.log4testng"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.mustache"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.remote"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="com.beust.jcommander,org.testng,org.testng.internal,org.testng.internal.remote,org.testng.remote.adapter,org.testng.xml"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.remote.adapter"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="org.testng,org.testng.xml"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.remote.strprotocol"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="org.testng,org.testng.internal,org.testng.xml"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.reporters"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="org.testng,org.testng.internal,org.testng.xml"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.reporters.jq"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="org.testng,org.testng.reporters,org.testng.xml"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.reporters.util"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="org.testng"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.util"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="org.testng"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.xml"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="javax.xml.parsers,org.testng,org.testng.remote.strprotocol,org.testng.reporters,org.testng.xml.dom,org.xml.sax,org.xml.sax.helpers"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <attribute name="osgi.wiring.package" value="org.testng.xml.dom"/>
+      <attribute name="version" type="Version" value="6.9.10"/>
+      <attribute name="bundle-symbolic-name" value="org.testng"/>
+      <attribute name="bundle-version" type="Version" value="6.9.10"/>
+      <directive name="uses" value="javax.xml.parsers,javax.xml.xpath,org.testng,org.testng.internal.collections,org.testng.xml,org.w3c.dom,org.xml.sax"/>
+    </capability>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=bsh)(version&gt;=2.0.0)(!(version&gt;=3.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=com.beust.jcommander)(version&gt;=1.7.0)(!(version&gt;=3.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=com.beust.jcommander.converters)(version&gt;=1.7.0)(!(version&gt;=3.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=com.google.inject)(version&gt;=1.2.0)(!(version&gt;=1.3.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=junit.framework)(version&gt;=3.8.1)(!(version&gt;=5.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(osgi.wiring.package=org.junit)"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(osgi.wiring.package=org.junit.runner)"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(osgi.wiring.package=org.junit.runner.manipulation)"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(osgi.wiring.package=org.junit.runner.notification)"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=org.apache.tools.ant)(version&gt;=1.7.0)(!(version&gt;=2.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=org.apache.tools.ant.taskdefs)(version&gt;=1.7.0)(!(version&gt;=2.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=org.apache.tools.ant.types)(version&gt;=1.7.0)(!(version&gt;=2.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=org.apache.tools.ant.types.resources)(version&gt;=1.7.0)(!(version&gt;=2.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=org.apache.tools.ant.types.selectors)(version&gt;=1.7.0)(!(version&gt;=2.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=org.yaml.snakeyaml)(version&gt;=1.6.0)(!(version&gt;=2.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=org.yaml.snakeyaml.constructor)(version&gt;=1.6.0)(!(version&gt;=2.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=org.yaml.snakeyaml.nodes)(version&gt;=1.6.0)(!(version&gt;=2.0.0)))"/>
+      <directive name="resolution" value="optional"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(osgi.wiring.package=javax.xml.parsers)"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(osgi.wiring.package=javax.xml.xpath)"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(osgi.wiring.package=org.w3c.dom)"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(osgi.wiring.package=org.xml.sax)"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(osgi.wiring.package=org.xml.sax.helpers)"/>
     </requirement>
   </resource>
   <resource>

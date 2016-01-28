@@ -2,7 +2,9 @@
 
 -buildpath: \
 	${^-buildpath},\
+	${testng},\
 	org.apache.ace.test;version=latest
+
 Export-Package: org.apache.ace.builder
 Bundle-Version: 2.0.1
 Bundle-Name: Apache ACE Builder
