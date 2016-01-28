@@ -25,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.ConnectException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,8 +35,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import junit.framework.TestCase;
 
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
@@ -58,6 +55,8 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
+
+import junit.framework.TestCase;
 
 /**
  * Base class for integration tests. There is no technical reason to use this, but it might make your life easier.<br>
@@ -227,17 +226,16 @@ public class IntegrationTestBase extends TestCase {
         do {
             Thread.sleep(50);
 
-            try {
-                InputStream is = url.openStream();
+            try (InputStream is = url.openStream()) {
                 is.close();
                 ready = true;
-            }
-            catch (ConnectException exception) {
-                // Not there yet...
             }
             catch (FileNotFoundException exception) {
                 // Ok; expected...
                 ready = true;
+            }
+            catch (IOException exception) {
+                // Not there yet...
             }
         }
         while (!ready && tries-- > 0);
