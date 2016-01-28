@@ -6,7 +6,6 @@
     org.apache.ace.agent.itest,\
     org.apache.ace.agent.launcher,\
     org.apache.ace.agent.update.itest,\
-    org.apache.ace.ant.tasks,\
     org.apache.ace.authentication,\
     org.apache.ace.authentication.itest,\
     org.apache.ace.bnd,\
@@ -29,14 +28,10 @@
     org.apache.ace.http,\
     org.apache.ace.http.itest,\
     org.apache.ace.identification,\
-    org.apache.ace.location.upnp,\
     org.apache.ace.log,\
     org.apache.ace.log.itest,\
-    org.apache.ace.log.server.store.itest,\
     org.apache.ace.log.server.ui,\
-    org.apache.ace.nodelauncher,\
     org.apache.ace.obr,\
-    org.apache.ace.processlauncher,\
     org.apache.ace.range.api,\
     org.apache.ace.repository,\
     org.apache.ace.repository.itest,\
