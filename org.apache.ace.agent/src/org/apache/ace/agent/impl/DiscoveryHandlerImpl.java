@@ -100,13 +100,17 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
     DiscoveryHandlerImpl(String[] serverURLs, boolean checkServerURLs) {
         super("discovery");
         m_defaultServerURLs = m_serverURLs = Arrays.asList(serverURLs);
-        m_defaultCheckURLs = m_checkURLs = checkServerURLs;
+        // ACE-520 - checking URLs only makes sense if there is more than one URL available...
+        m_defaultCheckURLs = m_checkURLs = checkServerURLs && m_defaultServerURLs.size() > 1;
     }
 
     @Override
     protected void onInit() throws Exception {
         String urls = getConfigurationHandler().get(CONFIG_DISCOVERY_SERVERURLS, mergeUrls(m_defaultServerURLs));
+        boolean checkServerURLs = getConfigurationHandler().getBoolean(CONFIG_DISCOVERY_CHECKING, DEFAULT_CHECK_SERVER_URLS);
         m_defaultServerURLs = m_serverURLs = splitUrls(urls);
+        // ACE-520 - checking URLs only makes sense if there is more than one URL available...
+        m_defaultCheckURLs = m_checkURLs = checkServerURLs && m_defaultServerURLs.size() > 1;
         getEventsHandler().addListener(this);
     }
 
@@ -139,6 +143,8 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
         else {
             checkURLs = m_defaultCheckURLs;
         }
+        // ACE-520 - checking URLs only makes sense if there is more than one URL available...
+        checkURLs &= serverURLs.size() > 1;
 
         List<String> oldServerURLs = m_serverURLs;
         boolean oldCheckURLs = m_checkURLs;
