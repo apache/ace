@@ -1,9 +1,0 @@
-# Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
-
--buildpath: \
-	ant;version=latest,\
-	org.apache.ace.builder;version=latest
-Export-Package: org.apache.ace.ant.deploymentpackage
-Bundle-Version: 1.0.2
-Bundle-Name: Apache ACE Ant Tasks
-Bundle-Description: Ant tasks providing offline support for deploymentpackage creation
