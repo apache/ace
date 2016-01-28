@@ -46,6 +46,8 @@ import org.osgi.util.tracker.ServiceTracker;
  * Integration test for our repositories, and the replication thereof.
  */
 public class RepositoryTest extends IntegrationTestBase {
+    private static final String REPOSITORY_FACTORY_PID = "org.apache.ace.server.repository.factory";
+
     private static final String REPOSITORY_NAME = "name";
     private static final String REPOSITORY_CUSTOMER = "customer";
     private static final String REPOSITORY_MASTER = "master";
@@ -169,6 +171,49 @@ public class RepositoryTest extends IntegrationTestBase {
         removeRepository("testInstance");
     }
 
+    /**
+     * ACE-425
+     */
+    public void testCannotAddDuplicateRepository() throws Exception {
+        String customer = "apache";
+        String name = "testRepo";
+
+        int initialSize = countServices(Repository.class);
+
+        // Publish configuration for a repository instance
+        Dictionary<String, Object> props = new Hashtable<>();
+        props.put(REPOSITORY_CUSTOMER, customer);
+        props.put(REPOSITORY_NAME, name);
+        props.put(REPOSITORY_BASE_DIR, "");
+        props.put(REPOSITORY_FILE_EXTENSION, "");
+        props.put(REPOSITORY_MASTER, "true");
+        props.put("factory.instance.pid", "instance1");
+
+        Configuration config1 = createFactoryConfiguration(REPOSITORY_FACTORY_PID);
+        config1.update(props); // should succeed.
+
+        Thread.sleep(500);
+
+        assertEquals(initialSize + 1, countServices(Repository.class));
+
+        props.put(REPOSITORY_FILE_EXTENSION, ".gz");
+        config1.update(props); // still should succeed.
+
+        Thread.sleep(500);
+
+        // Not updated...
+        assertEquals(initialSize + 1, countServices(Repository.class));
+
+        Configuration config2 = createFactoryConfiguration(REPOSITORY_FACTORY_PID);
+        props.put("factory.instance.pid", "instance2");
+        config2.update(props); // should fail.
+
+        Thread.sleep(500);
+
+        // Not updated...
+        assertEquals(initialSize + 1, countServices(Repository.class));
+    }
+
     public void testInitialContent() throws Exception {
         addRepository("testInstance", "apache", "test", null, null, "somecontent", true);
 
@@ -235,7 +280,7 @@ public class RepositoryTest extends IntegrationTestBase {
             props.put(REPOSITORY_INITIAL_CONTENT, initial);
         }
         props.put("factory.instance.pid", instanceName);
-        Configuration config = createFactoryConfiguration("org.apache.ace.server.repository.factory");
+        Configuration config = createFactoryConfiguration(REPOSITORY_FACTORY_PID);
         config.update(props);
 
         try {
@@ -280,14 +325,7 @@ public class RepositoryTest extends IntegrationTestBase {
     }
 
     private void removeRepository(String instanceName) throws IOException, InterruptedException, InvalidSyntaxException {
-        Configuration[] configs = null;
-        try {
-            configs = listConfigurations("(factory.instance.pid=" + instanceName + ")");
-        }
-        catch (InvalidSyntaxException e) {
-            // should not happen
-        }
-
+        Configuration[] configs = listConfigurations("(factory.instance.pid=" + instanceName + ")");
         if ((configs != null) && (configs.length > 0)) {
             final Semaphore sem = new Semaphore(0);
             ServiceTracker<Object, Object> tracker = new ServiceTracker<Object, Object>(m_bundleContext, m_bundleContext.createFilter("(factory.instance.pid=" + instanceName + ")"), null) {

@@ -556,6 +556,33 @@ public class IntegrationTestBase extends TestCase {
     }
 
     /**
+     * @param filter
+     * @return the number of configurations that match the given filter, &gt;= 0.
+     */
+    protected int countConfigurations(String filter) throws IOException, InvalidSyntaxException {
+        ConfigurationAdmin admin = getService(ConfigurationAdmin.class);
+        Configuration[] configs = admin.listConfigurations(filter);
+        return configs == null ? 0 : configs.length;
+    }
+
+    /**
+     * @param type
+     * @return the number of services are registered with the given type, &gt;= 0.
+     */
+    protected int countServices(Class<?> type) throws IOException, InvalidSyntaxException {
+        return countServices(String.format("(%s=%s)", Constants.OBJECTCLASS, type.getName()));
+    }
+    
+    /**
+     * @param filter
+     * @return the number of services that match the given filter, &gt;= 0.
+     */
+    protected int countServices(String filter) throws IOException, InvalidSyntaxException {
+        ServiceReference<?>[] serviceRefs = m_bundleContext.getServiceReferences((String) null, filter);
+        return serviceRefs == null ? 0 : serviceRefs.length;
+    }
+
+    /**
      * Sets whether or not any of the tracked configurations should be automatically be deleted when ending a test.
      * 
      * @param aClean

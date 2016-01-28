@@ -30,6 +30,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -41,9 +43,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.log.LogService;
-import org.osgi.service.prefs.BackingStoreException;
-import org.osgi.service.prefs.Preferences;
-import org.osgi.service.prefs.PreferencesService;
 
 /**
  * A <code>ManagedServiceFactory</code> responsible for creating a (<code>Replication</code>)<code>Repository</code>
@@ -51,14 +50,56 @@ import org.osgi.service.prefs.PreferencesService;
  */
 public class RepositoryFactory implements ManagedServiceFactory {
 
+    public static class Entry {
+        private final String m_customer;
+        private final String m_name;
+
+        public Entry(String customer, String name) {
+            m_customer = customer;
+            m_name = name;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            Entry other = (Entry) obj;
+            if (!m_customer.equals(other.m_customer)) {
+                return false;
+            }
+            if (!m_name.equals(other.m_name)) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 37;
+            int result = 1;
+            result = prime * result + ((m_customer == null) ? 0 : m_customer.hashCode());
+            result = prime * result + ((m_name == null) ? 0 : m_name.hashCode());
+            return result;
+        }
+        
+        @Override
+        public String toString() {
+            return String.format("%s :: %s", m_customer, m_name);
+        }
+    }
+
     private final ConcurrentMap<String, Component> m_instances = new ConcurrentHashMap<String, Component>();
+    private final ConcurrentMap<Entry, String> m_index = new ConcurrentHashMap<>();
     private final DependencyManager m_manager;
 
     /* injected by dependency manager */
     private volatile LogService m_log;
     private volatile BundleContext m_context;
-    private volatile PreferencesService m_prefsService;
-
+    // locally managed
     private File m_tempDir;
 
     public RepositoryFactory(DependencyManager manager) {
@@ -69,13 +110,21 @@ public class RepositoryFactory implements ManagedServiceFactory {
         // remove repository service...
         Component service = m_instances.remove(pid);
         if (service != null) {
-            File repoDir = ((RepositoryImpl) service.getInstance()).getDir();
+            RepositoryImpl repository = (RepositoryImpl) service.getInstance();
+            File repoDir = repository.getDir();
 
             m_manager.remove(service);
+            
+            // update our local index...
+            Map<Entry, String> index = new HashMap<>(m_index);
+            for (Map.Entry<Entry, String> entry : index.entrySet()) {
+                if (pid.equals(entry.getValue())) {
+                    m_index.remove(entry.getKey(), entry.getValue());
+                }
+            }
 
             // remove persisted data...
             deleteRepositoryStore(pid, repoDir);
-            deleteRepositoryPrefs(pid);
         }
     }
 
@@ -84,7 +133,10 @@ public class RepositoryFactory implements ManagedServiceFactory {
         return "RepositoryFactory";
     }
 
-    public void init() {
+    /**
+     * Called by Felix DM.
+     */
+    public void init() throws IOException {
         m_tempDir = ensureDirectoryAvailable(m_context.getDataFile("tmp"));
     }
 
@@ -112,6 +164,13 @@ public class RepositoryFactory implements ManagedServiceFactory {
         String name = (String) dict.get(REPOSITORY_NAME);
         if ((name == null) || "".equals(name)) {
             throw new ConfigurationException(REPOSITORY_NAME, "Repository name has to be specified.");
+        }
+        
+        // Check whether the combination of customer and name is unique...
+        Entry newEntry = new Entry(customer, name);
+        String oldPid = m_index.putIfAbsent(newEntry, pid);
+        if (oldPid != null && !pid.equals(oldPid)) {
+            throw new ConfigurationException(null, "Name and customer combination already exists");
         }
 
         String master = (String) dict.get(REPOSITORY_MASTER);
@@ -158,8 +217,6 @@ public class RepositoryFactory implements ManagedServiceFactory {
         Component oldService = m_instances.putIfAbsent(pid, service);
         if (oldService == null) {
             // new instance...
-            createRepositoryPrefs(pid, customer, name);
-
             m_manager.add(service);
         }
         else {
@@ -178,36 +235,6 @@ public class RepositoryFactory implements ManagedServiceFactory {
         }
     }
 
-    private void createRepositoryPrefs(String pid, String customer, String name) throws ConfigurationException {
-        Preferences systemPrefs = m_prefsService.getSystemPreferences();
-
-        String[] nodes;
-        try {
-            nodes = systemPrefs.childrenNames();
-        }
-        catch (BackingStoreException e) {
-            throw new ConfigurationException(null, "Internal error while validating configuration.");
-        }
-        for (String nodeName : nodes) {
-            if (pid.equals(nodeName)) {
-                // avoid failing on our own node (in case we're updating)...
-                continue;
-            }
-
-            Preferences prefs = systemPrefs.node(nodeName);
-            String repoName = prefs.get(REPOSITORY_NAME, "");
-            String repoCustomer = prefs.get(REPOSITORY_CUSTOMER, "");
-
-            if (name.equalsIgnoreCase(repoName) && name.equalsIgnoreCase(repoCustomer)) {
-                throw new ConfigurationException(null, "Name and customer combination already exists");
-            }
-        }
-
-        Preferences node = systemPrefs.node(pid);
-        node.put(REPOSITORY_NAME, name);
-        node.put(REPOSITORY_CUSTOMER, customer);
-    }
-
     private RepositoryImpl createRepositoryStore(String pid, File baseDir, boolean isMaster, long limitValue, String fileExtension, String initialContents) {
         File dir = ensureDirectoryAvailable(new File(baseDir, pid));
         RepositoryImpl store = new RepositoryImpl(dir, m_tempDir, fileExtension, isMaster, limitValue);
@@ -223,18 +250,6 @@ public class RepositoryFactory implements ManagedServiceFactory {
             }
         }
         return store;
-    }
-
-    private void deleteRepositoryPrefs(String pid) {
-        try {
-            Preferences prefs = m_prefsService.getSystemPreferences();
-
-            prefs.node(pid).removeNode();
-            prefs.sync();
-        }
-        catch (BackingStoreException e) {
-            // Not much we can do
-        }
     }
 
     private void deleteRepositoryStore(String pid, File repoDir) {
