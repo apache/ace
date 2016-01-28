@@ -8,6 +8,7 @@ Bundle-Version: 1.0.0
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.gogo;version=latest,\
-	org.apache.felix.gogo.runtime
+	org.apache.felix.gogo.runtime,\
+	org.apache.ace.authentication.api;version=latest
 Bundle-Activator: org.apache.ace.gogo.servlet.Activator
 Private-Package: org.apache.ace.gogo.servlet

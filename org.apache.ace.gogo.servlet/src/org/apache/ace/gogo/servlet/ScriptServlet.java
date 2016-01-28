@@ -18,6 +18,8 @@
  */
 package org.apache.ace.gogo.servlet;
 
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Dictionary;
@@ -30,9 +32,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
+import org.osgi.service.useradmin.User;
 
 /**
  * Servlet that can execute a Gogo script provided by the caller. Note that this is a generic service that is not
@@ -44,12 +50,19 @@ import org.osgi.service.log.LogService;
  * 
  * Motivation: provide the ability to script client calls to an ACE server for various automation purposes.
  */
-public class ScriptServlet extends HttpServlet {
+public class ScriptServlet extends HttpServlet implements ManagedService {
     private static final long serialVersionUID = -7838800050936438994L;
     private static final String SCRIPT_KEY = "script";
+    /** A boolean denoting whether or not authentication is enabled. */
+    private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
+    
     private volatile LogService m_logger;
     private volatile CommandProcessor m_processor;
+    private volatile AuthenticationService m_authService;
+    
+    private boolean m_useAuth = false;
 
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Dictionary<String, String> scriptDefinition = toDictionary(req.getParameterMap());
         respondToScriptRequest(resp, scriptDefinition);
@@ -62,6 +75,33 @@ public class ScriptServlet extends HttpServlet {
         Dictionary<String, String> scriptDefinition = new Hashtable<String, String>();
         scriptDefinition.put(SCRIPT_KEY, script);
         respondToScriptRequest(resp, scriptDefinition);
+    }
+    
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (!authenticate(req)) {
+            // Authentication failed; don't proceed with the original request...
+            resp.sendError(SC_UNAUTHORIZED);
+        } else {
+            // Authentication successful, proceed with original request...
+            super.service(req, resp);
+        }
+    }
+    /**
+     * Authenticates, if needed the user with the information from the given request.
+     * 
+     * @param request the request to obtain the credentials from, cannot be <code>null</code>.
+     * @return <code>true</code> if the authentication was successful, <code>false</code> otherwise.
+     */
+    private boolean authenticate(HttpServletRequest request) {
+        if (m_useAuth) {
+            User user = m_authService.authenticate(request);
+            if (user == null) {
+                m_logger.log(LogService.LOG_INFO, "Authentication failure!");
+            }
+            return (user != null);
+        }
+        return true;
     }
 
     private void respondToScriptRequest(HttpServletResponse resp, Dictionary<String, String> scriptDefinition) throws IOException {
@@ -114,6 +154,19 @@ public class ScriptServlet extends HttpServlet {
             scanner.useDelimiter("\\A");
 
             return scanner.hasNext() ? scanner.next() : null;
+        }
+    }
+    
+    @Override
+    public void updated(Dictionary<String, ?> settings) throws ConfigurationException {
+        if (settings != null) {
+            String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
+            if (useAuthString == null
+                || !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
+                throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
+            }
+            boolean useAuth = Boolean.parseBoolean(useAuthString);
+            m_useAuth = useAuth;
         }
     }
 }
