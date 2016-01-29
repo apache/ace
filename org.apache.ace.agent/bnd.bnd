@@ -26,10 +26,10 @@ Export-Package: org.apache.ace.agent,\
 	org.osgi.service.deploymentadmin;-split-package:=merge-last,\
 	org.osgi.service.deploymentadmin.spi;-split-package:=merge-last
 
-mavenGroup: org.apache.ace
+mavenGroupId: org.apache.ace
 
 -pom: \
-	groupid=${mavenGroup},\
+	groupid=${mavenGroupId},\
 	version=${Bundle-Version}
 
 # Keeping the agent as lean as possible. Remove debug when compiling
