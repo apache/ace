@@ -37,7 +37,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
-	org.apache.ace.repository.servlet;version=latest,\
+	org.apache.ace.repository.servlets;version=latest,\
 	org.apache.ace.configurator.useradmin.task;version=latest,\
 	org.apache.ace.feedback.common;version=latest
 Private-Package: org.apache.ace.it.useradminconfigurator

@@ -57,7 +57,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.ext;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
-	org.apache.ace.repository.servlet;version=latest,\
+	org.apache.ace.repository.servlets;version=latest,\
 	org.apache.ace.repository.task;version=latest,\
 	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.scheduler.api;version=latest,\

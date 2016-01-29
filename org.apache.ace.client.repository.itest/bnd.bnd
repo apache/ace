@@ -59,7 +59,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.log.server.store.file;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
-	org.apache.ace.repository.servlet;version=latest,\
+	org.apache.ace.repository.servlets;version=latest,\
 	org.apache.ace.obr.metadata;version=latest,\
 	org.apache.ace.obr.servlet;version=latest,\
 	org.apache.ace.obr.storage;version=latest,\

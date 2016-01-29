@@ -50,7 +50,7 @@
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
-	org.apache.ace.repository.servlet;version=latest,\
+	org.apache.ace.repository.servlets;version=latest,\
 	org.apache.ace.resourceprocessor.useradmin;version=latest,\
 	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.tageditor;version=latest,\
