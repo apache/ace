@@ -23,7 +23,7 @@
 import aQute.bnd.build.Workspace
 
 // Our release number, which has to be monotonically incremented each time we make a new release.
-version = '2.0.1'
+version = '2.1.0'
 
 // Base name for release archives Full name will be ${archivesBaseName}-${version}-${classifier} (e.g. apache-ace-2.0.1-src) 
 archivesBaseName = "apache-ace"
@@ -55,7 +55,7 @@ rat {
     '**/*.ipr',
     '**/build.xml',
     '**/DEPENDENCIES',
-    '**/README',
+    '**/README*',
     '**/.gitignore',
     '**/generated/**',
     '**/packageinfo',
@@ -94,9 +94,9 @@ task stageSrc(type: Zip) {
 					'*/resources/**',
 					'*/*.bnd',
 					'*/*.bndrun',
-					'*/*build*.xml',
 					'run-*/conf/**',
 					'cnf/ext/**',
+					'cnf/gradle/*.gradle',
 					'build.gradle',
 					'settings.gradle',
 					'gradle.properties')
@@ -118,14 +118,17 @@ task stageDeps(type: Zip) {
 	    },
 	    // cnf
 		copySpec {
-			from '../cnf'
+			from '..'
 			into 'cnf'
-			include('buildrepo/**', 
-					'localrepo/**', 
-					'releaserepo/**', 
-					'lib/**', 
-					'plugins/**', 
-					'ecj/**')
+			include('cnf/buildrepo/**', 
+					'cnf/localrepo/**', 
+					'cnf/releaserepo/**', 
+					'cnf/lib/**', 
+					'cnf/plugins/**',
+					'cnf/gradle/*.jar',
+					'gradlew',
+					'gradlew.bat',
+					'gradle/*')
 		}
 	] as CopySpec[]);
 	into "${archivesBaseName}-${version}-src"	 
@@ -134,15 +137,15 @@ task stageDeps(type: Zip) {
 def aceLauncherCopySpec = copySpec {
 		from '../org.apache.ace.agent.launcher/generated/org.apache.ace.agent.launcher.felix.jar'
 		rename('org.apache.ace.agent.launcher.felix.jar', 'ace-launcher.jar')
-	  }
+}
 
 def obrContentsCopySpec = [ 
 		aceLauncherCopySpec, 
 		copySpec {
-			from '../cnf/localrepo/org.apache.felix.deployment.rp.autoconf/org.apache.felix.deployment.rp.autoconf-0.1.5.jar'
+			from '../cnf/localrepo/org.apache.felix.deployment.rp.autoconf/org.apache.felix.deployment.rp.autoconf-0.1.8.jar'
 		}
-	] as CopySpec[];
-	
+] as CopySpec[];
+
 task stageBin(type: Zip) {
 	description = 'Create a binary release archive in the local staging folder'
 	classifier = 'bin'
@@ -247,10 +250,9 @@ task stageMaven(type: Zip) {
 	into "${archivesBaseName}-${version}-maven"	 
 }
 
-
 task signStaging() {
     description = 'Signs the local staging distribution.'
-    dependsOn = ['stageSrc', 'stageDeps', 'stageBin', 'stageMaven' ]
+    dependsOn = ['stageSrc', 'stageDeps', 'stageBin', 'stageMaven']
     
     doLast {
 		fileTree("staging").visit { FileVisitDetails details -> 
@@ -262,13 +264,13 @@ task signStaging() {
 		    	ant.arg(line: "--detach-sig")
 		    	ant.arg(line: details.file.name)
 			}
-	
+
 			ant.exec(executable: 'gpg', dir: 'staging', output: "staging/" + details.file.name + ".md5") { 
 		    	ant.arg(line: '--print-md')
 		    	ant.arg(line: 'MD5')
 		    	ant.arg(line: details.file.name)
 			}
-	
+
 			ant.exec(executable: 'gpg', dir: 'staging', output: "staging/" + details.file.name + ".sha") {
 		    	ant.arg(line: '--print-md')
 		    	ant.arg(line: 'SHA512')
@@ -319,7 +321,7 @@ task deleteFromStaging() {
     doLast {
 	    getProject().exec { 
 	    	commandLine 'svn',
-			'delete', svnStagingPath+"/${archivesBaseName}-${version}/",
+			'delete', svnStagingPath + "/${archivesBaseName}-${version}/",
 			"-m", "Removing Apache Ace release ${version} from staging."
 	    }
     }
