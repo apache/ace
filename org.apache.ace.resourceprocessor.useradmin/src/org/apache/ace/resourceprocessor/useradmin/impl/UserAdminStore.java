@@ -53,9 +53,9 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
     private class ProcessRole {
         private final int m_type;
         private final String m_name;
-        private final Map<String, Object> m_properties = new HashMap<String, Object>();
-        private final Map<String, Object> m_credentials = new HashMap<String, Object>();
-        private final List<String> m_memberOf = new ArrayList<String>();
+        private final Map<String, Object> m_properties = new HashMap<>();
+        private final Map<String, Object> m_credentials = new HashMap<>();
+        private final List<String> m_memberOf = new ArrayList<>();
 
         ProcessRole(String name, int type) {
             m_name = name;
@@ -90,8 +90,8 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
     private volatile LogService m_log;
     private volatile List<String> m_installedUsers;
 
-    private List<ProcessRole> m_toInstall = new ArrayList<ProcessRole>();
-    private List<ProcessRole> m_toRemove = new ArrayList<ProcessRole>();
+    private List<ProcessRole> m_toInstall = new ArrayList<>();
+    private List<ProcessRole> m_toRemove = new ArrayList<>();
     private boolean m_clear;
 
 
@@ -101,7 +101,7 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
 
     @Override
     public void begin() {
-        m_installedUsers = new ArrayList<String>();
+        m_installedUsers = new ArrayList<>();
     }
 
     @Override
@@ -257,7 +257,7 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
      * @return A list of ProcessRoles.
      */
     private List<ProcessRole> getRoles(Document doc) {
-        List<ProcessRole> result = new ArrayList<ProcessRole>();
+        List<ProcessRole> result = new ArrayList<>();
         for (Node node = doc.getFirstChild().getFirstChild(); node != null; node = node.getNextSibling()) {
             if (!node.getNodeName().equals("#text")) {
                 result.add(getRole(node));
@@ -279,7 +279,7 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
      * Helper that finds all groups this role is a member of.
      */
     private Group[] memberOf(Role r) {
-        List<Group> result = new ArrayList<Group>();
+        List<Group> result = new ArrayList<>();
         Role[] roles = null;
         try {
             roles = m_userAdmin.getRoles(null);

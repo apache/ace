@@ -113,7 +113,7 @@ public class FeedbackStoreManagerTest extends BaseAgentTest {
         assertEquals(feedbackStoreManager.getHighestEventID(storeID), 0);
         // absolutely exceed the set filesize for this store
         for (int i = 0; i < recordCount; i++) {
-            HashMap<String, String> eventProps = new HashMap<String, String>();
+            HashMap<String, String> eventProps = new HashMap<>();
             eventProps.put("key", "value" + i);
             feedbackStoreManager.write(i, eventProps);
         }

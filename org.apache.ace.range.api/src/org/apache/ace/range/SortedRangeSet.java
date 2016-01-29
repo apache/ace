@@ -42,7 +42,7 @@ public class SortedRangeSet {
         }
     };
 
-    private List<Range> m_ranges = new ArrayList<Range>();
+    private List<Range> m_ranges = new ArrayList<>();
 
     /**
      * Creates a new instance from a string representation.

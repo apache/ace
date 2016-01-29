@@ -40,7 +40,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
 
     private static final String LOG_NAME = "name";
     private DependencyManager m_manager;
-    private final Map<String, Component> m_instances = new HashMap<String, Component>();
+    private final Map<String, Component> m_instances = new HashMap<>();
     private BundleContext m_context;
     private volatile LogService m_log;
 

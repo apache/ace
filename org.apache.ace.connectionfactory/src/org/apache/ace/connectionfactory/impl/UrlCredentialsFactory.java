@@ -92,7 +92,7 @@ final class UrlCredentialsFactory {
      * @param props the properties to take the access credentials from.
      * @throws MissingValueException in case the given properties is missing values.
      */
-    public static UrlCredentials getCredentials(Dictionary props) throws MissingValueException {
+    public static UrlCredentials getCredentials(Dictionary<String, ?> props) throws MissingValueException {
         return getCredentials(props, "");
     }
     
@@ -101,7 +101,7 @@ final class UrlCredentialsFactory {
      * @param prefix the prefix to use to lookup the correct values in the given dictionary.
      * @throws MissingValueException in case the given properties is missing values.
      */
-    public static UrlCredentials getCredentials(Dictionary props, String prefix) throws MissingValueException {
+    public static UrlCredentials getCredentials(Dictionary<String, ?> props, String prefix) throws MissingValueException {
         if (props == null) {
             throw new IllegalArgumentException("Properties cannot be null!");
         }
@@ -195,7 +195,7 @@ final class UrlCredentialsFactory {
         return new UrlCredentials(type, baseURL, creds);
     }
 
-    private static String getStringProperty(Dictionary dict, String key) {
+    private static String getStringProperty(Dictionary<String, ?> dict, String key) {
         Object value = dict.get(key);
         if (value instanceof String) {
             return (String) value;
@@ -205,7 +205,7 @@ final class UrlCredentialsFactory {
         return null;
     }
 
-    private static String getStringProperty(Dictionary dict, String key, String defaultValue) {
+    private static String getStringProperty(Dictionary<String, ?> dict, String key, String defaultValue) {
         String value = getStringProperty(dict, key);
         return (value == null) ? defaultValue : value;
     }

@@ -138,7 +138,7 @@ public class LogIntegrationTest extends IntegrationTestBase {
 
     private void doTestServlet() throws Exception {
         // prepare the store
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         events.add(new Event("42", 1, 1, 1, 1));
         events.add(new Event("47", 1, 1, 1, 1));
         events.add(new Event("47", 2, 1, 1, 1));

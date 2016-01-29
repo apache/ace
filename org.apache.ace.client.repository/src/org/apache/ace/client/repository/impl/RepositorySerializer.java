@@ -39,7 +39,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * xstream's writer in a delegate object, so this will not require changes to the repositories and objects.
  */
 class RepositorySerializer implements Converter {
-    private final Map<String, ObjectRepositoryImpl> m_tagToRepo = new HashMap<String, ObjectRepositoryImpl>();
+    private final Map<String, ObjectRepositoryImpl> m_tagToRepo = new HashMap<>();
 
     private final RepositorySet m_set;
 

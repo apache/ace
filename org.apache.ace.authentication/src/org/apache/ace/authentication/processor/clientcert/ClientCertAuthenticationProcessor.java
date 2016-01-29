@@ -140,7 +140,7 @@ public class ClientCertAuthenticationProcessor implements AuthenticationProcesso
     /**
      * {@inheritDoc}
      */
-    public void updated(Dictionary dictionary) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> dictionary) throws ConfigurationException {
         if (dictionary != null) {
             String usernameLookupKey = (String) dictionary.get(PROPERTY_USERNAME_LOOKUPKEY);
             if (usernameLookupKey == null || "".equals(usernameLookupKey.trim())) {

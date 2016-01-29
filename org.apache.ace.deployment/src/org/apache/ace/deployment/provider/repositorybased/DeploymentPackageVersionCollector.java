@@ -36,7 +36,7 @@ public class DeploymentPackageVersionCollector extends BaseRepositoryHandler {
     public DeploymentPackageVersionCollector(String targetID) {
         super(targetID);
 
-        m_versions = new ArrayList<Version>();
+        m_versions = new ArrayList<>();
     }
 
     /**

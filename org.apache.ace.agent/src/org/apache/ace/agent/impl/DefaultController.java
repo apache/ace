@@ -507,7 +507,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
     }
 
     protected void sendDeploymentCompletedEvent(UpdateInfo updateInfo, boolean success, Throwable throwable) {
-        Map<String, String> eventProps = new HashMap<String, String>();
+        Map<String, String> eventProps = new HashMap<>();
         eventProps.put("type", updateInfo.m_type);
         eventProps.put("name", getIdentificationHandler().getAgentId());
         eventProps.put("fromVersion", updateInfo.m_from.toString());
@@ -522,7 +522,7 @@ public class DefaultController extends ComponentBase implements Runnable, EventL
     }
 
     protected void sendDeploymentInstallEvent(UpdateInfo updateInfo) {
-        Map<String, String> eventProps = new HashMap<String, String>();
+        Map<String, String> eventProps = new HashMap<>();
         eventProps.put("type", updateInfo.m_type);
         eventProps.put("name", getIdentificationHandler().getAgentId());
         eventProps.put("fromVersion", updateInfo.m_from.toString());

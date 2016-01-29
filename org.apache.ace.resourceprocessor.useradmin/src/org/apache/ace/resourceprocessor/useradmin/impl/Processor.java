@@ -54,8 +54,8 @@ public class Processor implements ResourceProcessor {
             throw new IllegalArgumentException("This resource processor is currently processing another deployment session, installing deploymentpackage" + m_session.getTargetDeploymentPackage().getName());
         }
         m_session = session;
-        m_toInstall = new ArrayList<String>();
-        m_toRemove = new ArrayList<String>();
+        m_toInstall = new ArrayList<>();
+        m_toRemove = new ArrayList<>();
 
         String fromSource = session.getSourceDeploymentPackage().getName();
         String fromTarget = session.getTargetDeploymentPackage().getName();

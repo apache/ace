@@ -106,7 +106,7 @@ public class StreamGeneratorImpl implements StreamGenerator {
             m_readBuffer = new byte[bufferSize];
         }
 
-        private static final ThreadLocal<SoftReference<DeploymentPackageStream>> m_cache = new ThreadLocal<SoftReference<DeploymentPackageStream>>();
+        private static final ThreadLocal<SoftReference<DeploymentPackageStream>> m_cache = new ThreadLocal<>();
 
         static DeploymentPackageStream createStreamForThread(ConnectionFactory connectionFactory, Manifest man, Iterator<ArtifactData> iter, boolean fixpack) throws IOException {
             SoftReference<DeploymentPackageStream> ref = m_cache.get();
@@ -117,7 +117,7 @@ public class StreamGeneratorImpl implements StreamGenerator {
 
             if (dps == null) {
                 dps = new DeploymentPackageStream(connectionFactory);
-                m_cache.set(new SoftReference<DeploymentPackageStream>(dps));
+                m_cache.set(new SoftReference<>(dps));
             }
 
             if (dps.isInUse()) {

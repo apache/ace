@@ -49,11 +49,11 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * filter.
  */
 public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary<String, Object> implements RepositoryObject, EventHandler {
-    private final Map<String, String> m_attributes = new HashMap<String, String>();
-    private final Map<String, String> m_tags = new HashMap<String, String>();
+    private final Map<String, String> m_attributes = new HashMap<>();
+    private final Map<String, String> m_tags = new HashMap<>();
     /** see ACE-463 */
-    private final Set<String> m_mergedAttrTags = new HashSet<String>();
-    private final Map<Class, List<Association>> m_associations = new HashMap<Class, List<Association>>();
+    private final Set<String> m_mergedAttrTags = new HashSet<>();
+    private final Map<Class, List<Association>> m_associations = new HashMap<>();
     private final ChangeNotifier m_notifier;
     private final String m_xmlNode;
     private static final Pattern VALID_KEY_PATTERN = Pattern.compile("[a-zA-Z]([a-zA-Z0-9_:.-])*");
@@ -291,7 +291,7 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
 
     public Enumeration<String> getAttributeKeys() {
         synchronized (m_attributes) {
-            return new KeysEnumeration(new HashSet<String>(m_attributes.keySet()).iterator());
+            return new KeysEnumeration(new HashSet<>(m_attributes.keySet()).iterator());
         }
     }
 
@@ -301,7 +301,7 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
 
     public Enumeration<String> getTagKeys() {
         synchronized (m_attributes) {
-            return new KeysEnumeration(new HashSet<String>(m_tags.keySet()).iterator());
+            return new KeysEnumeration(new HashSet<>(m_tags.keySet()).iterator());
         }
     }
 
@@ -309,7 +309,7 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
         synchronized (m_associations) {
             List<Association> associations = m_associations.get(clazz);
             if (associations == null) {
-                associations = new ArrayList<Association>();
+                associations = new ArrayList<>();
                 m_associations.put(clazz, associations);
             }
             associations.add(association);
@@ -327,7 +327,7 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
 
     public <A extends Associatable> List<A> getAssociations(Class<A> clazz) {
         synchronized (m_associations) {
-            List<A> result = new ArrayList<A>();
+            List<A> result = new ArrayList<>();
             List<Association> associations = m_associations.get(clazz);
             if (associations != null) {
                 for (Association association : associations) {
@@ -362,7 +362,7 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
 
     @SuppressWarnings("unchecked")
     public <TA extends Associatable, A extends Association> List<A> getAssociationsWith(Associatable other, Class<TA> clazz, Class<A> associationType) {
-        List<A> result = new ArrayList<A>();
+        List<A> result = new ArrayList<>();
         synchronized (m_associations) {
             if (other == null) {
                 return result;
@@ -476,7 +476,7 @@ public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary
 
     static Map<String, String> readMap(HierarchicalStreamReader reader) {
         reader.moveDown();
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         while (reader.hasMoreChildren()) {
             reader.moveDown();
             result.put(reader.getNodeName(), reader.getValue());

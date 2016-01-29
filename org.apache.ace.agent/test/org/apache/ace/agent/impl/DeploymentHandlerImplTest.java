@@ -68,7 +68,7 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
     static class TestDeploymentServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
 
-        private Map<String, File> m_packages = new HashMap<String, File>();
+        private Map<String, File> m_packages = new HashMap<>();
 
         @SuppressWarnings("deprecation")
         @Override
@@ -196,7 +196,7 @@ public class DeploymentHandlerImplTest extends BaseAgentTest {
     @Test
     public void testAvailableVersions() throws Exception {
         DeploymentHandler deploymentHandler = m_agentContext.getHandler(DeploymentHandler.class);
-        SortedSet<Version> expected = new TreeSet<Version>();
+        SortedSet<Version> expected = new TreeSet<>();
         expected.add(m_version1);
         expected.add(m_version2);
         expected.add(m_version3);

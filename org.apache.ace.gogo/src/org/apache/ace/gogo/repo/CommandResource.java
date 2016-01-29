@@ -28,7 +28,7 @@ import org.osgi.resource.Resource;
 public class CommandResource {
 
     public static List<CommandResource> wrap(CommandRepo repo, List<Resource> resources) {
-        List<CommandResource> commandResources = new LinkedList<CommandResource>();
+        List<CommandResource> commandResources = new LinkedList<>();
         for (Resource resource : resources) {
             commandResources.add(new CommandResource(repo, resource));
         }

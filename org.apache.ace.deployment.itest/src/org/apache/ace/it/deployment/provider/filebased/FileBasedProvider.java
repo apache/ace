@@ -189,7 +189,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
             if (m_maximumNumberOfUsers != 0  && m_maximumNumberOfUsers < concurrentUsers) {
                 throw new OverloadedException("Too many users, maximum allowed = " + m_maximumNumberOfUsers + ", current = " + concurrentUsers,  (concurrentUsers - m_maximumNumberOfUsers) * BACKOFF_TIME_PER_USER);
             }
-            List<Version> versionList = new ArrayList<Version>();
+            List<Version> versionList = new ArrayList<>();
             File targetDirectory = new File(m_baseDirectory.getAbsolutePath(), targetId);
             if (targetDirectory.isDirectory()) {
                 getVersions(targetId, versionList, targetDirectory);
@@ -201,7 +201,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
     
             // now sort the list of versions and convert all values to strings.
             Collections.sort(versionList);
-            List<String> stringVersionList = new ArrayList<String>();
+            List<String> stringVersionList = new ArrayList<>();
             Iterator<Version> it = versionList.iterator();
             while (it.hasNext()) {
                 String version = (it.next()).toString();
@@ -227,7 +227,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
         else {
             versionDirectory = findMatchingVersionDirectory(m_defaultDirectory, version);
         }
-        List<ArtifactData> bundleData = new ArrayList<ArtifactData>();
+        List<ArtifactData> bundleData = new ArrayList<>();
 
         JarInputStream jarInputStream = null;
 

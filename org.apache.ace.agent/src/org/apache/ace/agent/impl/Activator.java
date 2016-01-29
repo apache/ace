@@ -51,7 +51,7 @@ public class Activator implements BundleActivator, LifecycleCallback {
     // managed state
     private volatile AgentContextImpl m_agentContext;
     private volatile ScheduledExecutorService m_executorService;
-    private volatile ServiceRegistration m_agentControlRegistration;
+    private volatile ServiceRegistration<?> m_agentControlRegistration;
     private volatile DependencyTrackerImpl m_dependencyTracker;
     private volatile Object m_controller;
 

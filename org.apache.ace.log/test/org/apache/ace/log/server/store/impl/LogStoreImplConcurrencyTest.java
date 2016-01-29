@@ -59,7 +59,7 @@ public class LogStoreImplConcurrencyTest {
         private final CountDownLatch m_start;
         private final CountDownLatch m_stop;
         private final LogStoreImpl m_store;
-        private final ConcurrentMap<Long, Boolean> m_seen = new ConcurrentHashMap<Long, Boolean>();
+        private final ConcurrentMap<Long, Boolean> m_seen = new ConcurrentHashMap<>();
         private final int m_count;
 
         public Reader(LogStoreImpl store, CountDownLatch start, CountDownLatch stop, int count) {
@@ -121,7 +121,7 @@ public class LogStoreImplConcurrencyTest {
         private final CountDownLatch m_start;
         private final CountDownLatch m_stop;
         private final LogStoreImpl m_store;
-        private final ConcurrentMap<Long, Event> m_written = new ConcurrentHashMap<Long, Event>();
+        private final ConcurrentMap<Long, Event> m_written = new ConcurrentHashMap<>();
         private final int m_count;
         private final int m_initValue;
         private final int m_stepSize;
@@ -373,7 +373,7 @@ public class LogStoreImplConcurrencyTest {
         m_baseDir.mkdirs();
         
         m_executor = Executors.newCachedThreadPool();
-        m_completionService = new ExecutorCompletionService<Boolean>(m_executor);
+        m_completionService = new ExecutorCompletionService<>(m_executor);
     }
     
     @AfterMethod(alwaysRun = true)

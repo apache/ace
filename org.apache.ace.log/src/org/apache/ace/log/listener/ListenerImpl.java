@@ -55,7 +55,7 @@ public class ListenerImpl implements BundleListener, FrameworkListener, EventHan
     volatile BundleContext m_context;
     volatile Log m_auditLog;
 
-    private final List<Runnable> m_queue = new ArrayList<Runnable>();
+    private final List<Runnable> m_queue = new ArrayList<>();
 
     public ListenerImpl(BundleContext context, Log log) {
         m_context = context;
@@ -202,7 +202,7 @@ public class ListenerImpl implements BundleListener, FrameworkListener, EventHan
             m_queue.add(new Runnable() {
                 public void run() {
                     int eventType = AuditEvent.DEPLOYMENTADMIN_BASE;
-                    Dictionary<String, Object> props = new Hashtable<String, Object>();
+                    Dictionary<String, Object> props = new Hashtable<>();
 
                     String topic = event.getTopic();
 

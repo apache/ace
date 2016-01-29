@@ -139,18 +139,18 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         m_dependencyManager.add(myHelperService);
 
         // Empty tag map to be reused througout test
-        final Map<String, String> tags = new HashMap<String, String>();
+        final Map<String, String> tags = new HashMap<>();
 
         // First, create a bundle and two artifacts, but do not provide a processor for the artifacts.
         ArtifactObject b1 = createBasicBundleObject("bundle1");
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(ArtifactObject.KEY_URL, "http://myobject");
         attr.put(ArtifactObject.KEY_PROCESSOR_PID, "my.processor.pid");
         attr.put(ArtifactHelper.KEY_MIMETYPE, "mymime");
 
         ArtifactObject a1 = m_artifactRepository.create(attr, tags);
 
-        attr = new HashMap<String, String>();
+        attr = new HashMap<>();
         attr.put(ArtifactObject.KEY_URL, "http://myotherobject");
         attr.put(ArtifactObject.KEY_PROCESSOR_PID, "my.processor.pid");
         attr.put(ArtifactObject.KEY_RESOURCE_ID, "mymime");
@@ -161,7 +161,7 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         FeatureObject g = createBasicFeatureObject("feature");
         DistributionObject l = createBasicDistributionObject("distribution");
 
-        attr = new HashMap<String, String>();
+        attr = new HashMap<>();
         attr.put(TargetObject.KEY_ID, "myTarget");
 
         StatefulTargetObject sgo = m_statefulTargetRepository.preregister(attr, tags);
@@ -184,7 +184,7 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         assertEquals("Store state for target should still be new, because the resource processor is missing.", StoreState.New, sgo.getStoreState());
         
         // Now, add a processor for the artifact.
-        attr = new HashMap<String, String>();
+        attr = new HashMap<>();
         attr.put(ArtifactObject.KEY_URL, "http://myprocessor");
         attr.put(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, "my.processor.pid");
         attr.put(BundleHelper.KEY_SYMBOLICNAME, "my.processor.bundle");
@@ -226,7 +226,7 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         // Now, add a new version of the processor (ACE-373)
         assertFalse("There should be no changes.", sgo.needsApprove());
 
-        attr = new HashMap<String, String>();
+        attr = new HashMap<>();
         attr.put(ArtifactObject.KEY_URL, "http://myprocessor/v2");
         attr.put(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, "my.processor.pid");
         attr.put(BundleHelper.KEY_SYMBOLICNAME, "my.processor.bundle");
@@ -284,7 +284,7 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
 
         assertFalse("There should be no changes.", sgo.needsApprove());
 
-        attr = new HashMap<String, String>();
+        attr = new HashMap<>();
         attr.put(ArtifactObject.KEY_URL, "http://myprocessor/v1.5");
         attr.put(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, "my.processor.pid");
         attr.put(BundleHelper.KEY_SYMBOLICNAME, "my.processor.bundle");

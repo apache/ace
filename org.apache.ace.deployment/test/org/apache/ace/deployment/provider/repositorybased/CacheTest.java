@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 public class CacheTest {
 	@Test(groups = { UNIT })
 	public void testFillCacheToLimitAndCheckIfEverythingFits() {
-		LRUMap<String, String> map = new LRUMap<String, String>();
+		LRUMap<String, String> map = new LRUMap<>();
 		for (int i = 0; i < 1024; i++) {
 			String key = "" + i;
 			map.put(key, key);
@@ -39,7 +39,7 @@ public class CacheTest {
 
 	@Test(groups = { UNIT })
 	public void testOverflowCacheAndValidateOldestElementDisappears() {
-		LRUMap<String, String> map = new LRUMap<String, String>();
+		LRUMap<String, String> map = new LRUMap<>();
 		// add one too many
 		for (int i = 0; i < 1025; i++) {
 			String key = "" + i;

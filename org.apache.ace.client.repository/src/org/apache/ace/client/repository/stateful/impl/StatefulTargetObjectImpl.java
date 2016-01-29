@@ -55,9 +55,9 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
     private final StatefulTargetRepositoryImpl m_repository;
     private final Object m_lock = new Object();
     private TargetObject m_targetObject;
-    private List<Descriptor> m_processedAuditEvents = new ArrayList<Descriptor>();
+    private List<Descriptor> m_processedAuditEvents = new ArrayList<>();
     private Map<String, String> m_processedTargetProperties;
-    private Map<String, String> m_attributes = new HashMap<String, String>();
+    private Map<String, String> m_attributes = new HashMap<>();
     /** This boolean is used to suppress STATUS_CHANGED events during the creation of the object. */
     private boolean m_inConstructor = true;
     /** Boolean to ensure we don't recursively enter the determineProvisioningState() method. */
@@ -248,7 +248,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
 
     private void determineStoreState(DeploymentVersionObject deploymentVersionObject) {
         synchronized (m_lock) {
-            SortedSet<String> fromShop = new TreeSet<String>();
+            SortedSet<String> fromShop = new TreeSet<>();
             ArtifactObject[] artifactsFromShop = m_repository.getNecessaryArtifacts(getID());
             DeploymentVersionObject mostRecentVersion;
             if (deploymentVersionObject == null) {
@@ -271,7 +271,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
                 fromShop.add(ao.getURL());
             }
 
-            SortedSet<String> fromDeployment = new TreeSet<String>();
+            SortedSet<String> fromDeployment = new TreeSet<>();
             for (DeploymentArtifact da : getArtifactsFromDeployment()) {
                 fromDeployment.add(da.getDirective(DeploymentArtifact.DIRECTIVE_KEY_BASEURL));
             }
@@ -390,7 +390,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
             m_processedTargetProperties = null;
             // clear "old" tags starting with the prefix
             Enumeration<String> keys = m_targetObject.getTagKeys();
-            ArrayList<String> keysToDelete = new ArrayList<String>();
+            ArrayList<String> keysToDelete = new ArrayList<>();
             while (keys.hasMoreElements()) {
                 String key = keys.nextElement();
                 if (key.startsWith(TARGETPROPERTIES_PREFIX)) {
@@ -567,7 +567,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
 
     public Enumeration<String> getAttributeKeys() {
         synchronized (m_lock) {
-            List<String> statusKeys = new ArrayList<String>();
+            List<String> statusKeys = new ArrayList<>();
             for (String s : KEYS_ALL) {
                 statusKeys.add(s);
             }
@@ -575,7 +575,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
             if (m_targetObject != null) {
                 attributeKeys = m_targetObject.getAttributeKeys();
             }
-            return new ExtendedEnumeration<String>(attributeKeys, statusKeys, true);
+            return new ExtendedEnumeration<>(attributeKeys, statusKeys, true);
         }
     }
 
@@ -710,7 +710,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
 
         @Override
         public Enumeration<Object> elements() {
-            List<Object> statusVals = new ArrayList<Object>();
+            List<Object> statusVals = new ArrayList<>();
             for (String key : KEYS_ALL) {
                 statusVals.add(getStatusAttribute(key));
             }
@@ -718,7 +718,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
             if (m_dict != null) {
                 attributeVals = m_dict.elements();
             }
-            return new ExtendedEnumeration<Object>(attributeVals, statusVals, true);
+            return new ExtendedEnumeration<>(attributeVals, statusVals, true);
         }
 
         @Override
@@ -753,7 +753,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
 
         @Override
         public Enumeration<String> keys() {
-            List<String> statusKeys = new ArrayList<String>();
+            List<String> statusKeys = new ArrayList<>();
             for (String key : KEYS_ALL) {
                 statusKeys.add(key);
             }
@@ -761,7 +761,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
             if (m_dict != null) {
                 attributeKeys = m_dict.keys();
             }
-            return new ExtendedEnumeration<String>(attributeKeys, statusKeys, false);
+            return new ExtendedEnumeration<>(attributeKeys, statusKeys, false);
         }
 
         @Override
@@ -794,7 +794,6 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
         return Integer.MAX_VALUE;
     }
 
-    @SuppressWarnings("rawtypes")
     public Comparator getComparator() {
         return null;
     }

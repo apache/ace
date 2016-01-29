@@ -45,7 +45,7 @@ import org.testng.annotations.AfterClass;
  * Simple base class.
  */
 public abstract class BaseAgentTest {
-    private final Set<Object> m_mocks = new HashSet<Object>();
+    private final Set<Object> m_mocks = new HashSet<>();
     private File m_contextDir;
     
     protected <T> T addTestMock(Class<T> clazz) {
@@ -65,7 +65,7 @@ public abstract class BaseAgentTest {
     }
 
     protected void configureAgent(ConfigurationHandler handler, String... configuration) {
-        Map<String, String> config = new HashMap<String, String>();
+        Map<String, String> config = new HashMap<>();
         for (int i = 0; i < configuration.length; i += 2) {
             config.put(configuration[i], configuration[i + 1]);
         }

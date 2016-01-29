@@ -38,7 +38,7 @@ public class DeploymentArtifactImpl implements DeploymentArtifact {
 
     private final String m_url;
     private final long m_size;
-    private final Map<String, String> m_directives = new HashMap<String, String>();
+    private final Map<String, String> m_directives = new HashMap<>();
 
     /**
      * Creates a new DeploymentArtifactImpl.

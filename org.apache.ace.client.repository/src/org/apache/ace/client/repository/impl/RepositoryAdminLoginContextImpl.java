@@ -40,7 +40,7 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
 
     private final String m_sessionid;
     private final User m_user;
-    private final List<RepositorySetDescriptor> m_descriptors = new ArrayList<RepositorySetDescriptor>();
+    private final List<RepositorySetDescriptor> m_descriptors = new ArrayList<>();
 
     RepositoryAdminLoginContextImpl(User user, String sessionid) {
         m_user = user;
@@ -99,7 +99,7 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
     public List<RepositorySetDescriptor> getDescriptors() {
         List<RepositorySetDescriptor> result;
         synchronized (m_descriptors) {
-            result = new ArrayList<RepositorySetDescriptor>(m_descriptors);
+            result = new ArrayList<>(m_descriptors);
         }
         return result;
     }
@@ -119,8 +119,8 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
      *            the to-be-added repository set descriptor, cannot be <code>null</code>.
      */
     private void checkConsistency(RepositorySetDescriptor descriptor) {
-        List<Class<? extends ObjectRepository>> seenClasses = new ArrayList<Class<? extends ObjectRepository>>();
-        List<String> seenNames = new ArrayList<String>();
+        List<Class<? extends ObjectRepository>> seenClasses = new ArrayList<>();
+        List<String> seenNames = new ArrayList<>();
 
         // Presumption: initially we start out without any duplication...
         for (RepositorySetDescriptor rsd : getDescriptors()) {

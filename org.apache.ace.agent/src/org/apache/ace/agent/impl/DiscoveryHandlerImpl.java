@@ -81,7 +81,7 @@ public class DiscoveryHandlerImpl extends ComponentBase implements DiscoveryHand
 
     private static final boolean DEFAULT_CHECK_SERVER_URLS = true;
     private static final long DEFAULT_CACHE_MILLISECONDS = 30000;
-    private final Map<String, CheckedURL> m_checkedURLs = new HashMap<String, CheckedURL>();
+    private final Map<String, CheckedURL> m_checkedURLs = new HashMap<>();
 
     private List<String> m_defaultServerURLs;
     private boolean m_defaultCheckURLs;

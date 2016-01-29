@@ -66,7 +66,7 @@ public class DeploymentServiceImpl implements DeploymentService {
      */
     public Version getHighestLocalVersion() {
         Object[] installedPackages = m_deployer.list();
-        List<Version> versions = new ArrayList<Version>();
+        List<Version> versions = new ArrayList<>();
         for (int i = 0; i < installedPackages.length; i++) {
             if (m_deployer.getName(installedPackages[i]).equals(m_identification.getID())) {
                 versions.add(m_deployer.getVersion(installedPackages[i]));
@@ -162,7 +162,7 @@ public class DeploymentServiceImpl implements DeploymentService {
      * @return
      */
     private Event createEvent(String version, URL dataURL) {
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("deploymentpackage.url", dataURL.toString());
         properties.put("deploymentpackage.version", version);
         Event event = new Event(TOPIC_DEPLOYMENTPACKAGE_INSTALL, properties);
@@ -215,7 +215,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         }
             
         final File[] files = file.listFiles();
-        SortedSet<Version> versions = new TreeSet<Version>();
+        SortedSet<Version> versions = new TreeSet<>();
         for (File f : files) {
             try {
                 Version version = Version.parseVersion(f.getName());
@@ -238,7 +238,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         BufferedReader bufReader = null;
         try {
             bufReader = new BufferedReader(new InputStreamReader(getContents(url)));
-            SortedSet<Version> versions = new TreeSet<Version>();
+            SortedSet<Version> versions = new TreeSet<>();
             
             String versionString;
             while ((versionString = bufReader.readLine()) != null) {

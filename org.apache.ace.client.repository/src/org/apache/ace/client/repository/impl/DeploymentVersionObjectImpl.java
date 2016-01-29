@@ -106,7 +106,7 @@ public class DeploymentVersionObjectImpl extends RepositoryObjectImpl<Deployment
 
     @Override
     protected void readCustom(HierarchicalStreamReader reader) {
-        List<DeploymentArtifact> result = new ArrayList<DeploymentArtifact>();
+        List<DeploymentArtifact> result = new ArrayList<>();
         reader.moveDown();
         while (reader.hasMoreChildren()) {
             reader.moveDown();

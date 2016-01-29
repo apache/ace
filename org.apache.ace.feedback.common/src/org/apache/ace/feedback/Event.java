@@ -30,7 +30,7 @@ import org.apache.ace.feedback.util.Codec;
 /**
  * Event from specific target (in a specific store).
  */
-public class Event implements Comparable {
+public class Event implements Comparable<Object> {
     private final String m_targetID;
     private final long m_storeID;
     private final long m_id;
@@ -57,7 +57,7 @@ public class Event implements Comparable {
         m_id = id;
         m_time = time;
         m_type = type;
-        m_properties = new HashMap<String, String>();
+        m_properties = new HashMap<>();
 
         Enumeration<String> keys = dictionary.keys();
         while (keys.hasMoreElements()) {
@@ -82,7 +82,7 @@ public class Event implements Comparable {
             m_id = Long.parseLong(st.nextToken());
             m_time = Long.parseLong(st.nextToken());
             m_type = Integer.parseInt(st.nextToken());
-            m_properties = new HashMap<String, String>();
+            m_properties = new HashMap<>();
             while (st.hasMoreTokens()) {
                 m_properties.put(st.nextToken(), Codec.decode(st.nextToken()));
             }

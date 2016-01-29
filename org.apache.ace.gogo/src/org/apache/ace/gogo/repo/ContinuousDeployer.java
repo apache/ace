@@ -66,7 +66,7 @@ public class ContinuousDeployer {
      */
     public List<Resource> deployResources() throws Exception {
         List<Resource> developmentResources = findResources(m_developmentRepo, "*", "*");
-        List<Resource> deployedResources = new ArrayList<Resource>();
+        List<Resource> deployedResources = new ArrayList<>();
         for (Resource developmentResource : developmentResources) {
             deployedResources.add(deployResource(developmentResource));
         }

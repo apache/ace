@@ -53,7 +53,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
     public ConfigurationHandlerImpl(BundleContext context) {
         super("configuration");
         m_context = context;
-        m_configProps = new ConcurrentHashMap<Object, Object>();
+        m_configProps = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -118,7 +118,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
 
     @Override
     public Set<String> keySet() {
-        Set<String> keySet = new HashSet<String>();
+        Set<String> keySet = new HashSet<>();
         for (Object key : m_configProps.keySet()) {
             keySet.add((String) key);
         }
@@ -194,7 +194,7 @@ public class ConfigurationHandlerImpl extends ComponentBase implements Configura
      *         system properties, never <code>null</code>.
      */
     private Map<String, String> getConfigurationSnapshot() {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
 
         // First copy all agent-related system properties, as they can be overridden by local configuration options...
         Properties sysProps = System.getProperties();

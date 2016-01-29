@@ -88,7 +88,7 @@ public class Launcher implements PropertyProvider {
         addOption(options, 'h', "help", "prints this message");
 
         // Start from scratch...
-        Map<String, String> config = new HashMap<String, String>();
+        Map<String, String> config = new HashMap<>();
 
         CommandLineParser parser = new BasicParser();
         CommandLine command = parser.parse(options, args, false /* stopAtNonOption */);
@@ -213,7 +213,7 @@ public class Launcher implements PropertyProvider {
 
     private Bundle[] installBundles(BundleContext context, BundleProvider bundleProvider) throws BundleException, IOException {
         URL[] bundles = bundleProvider.getBundles(this);
-        List<Bundle> result = new ArrayList<Bundle>(bundles.length);
+        List<Bundle> result = new ArrayList<>(bundles.length);
         for (URL bundle : bundles) {
             logVerbose("- installing:\t%s%n", bundle.getFile());
 
@@ -246,7 +246,7 @@ public class Launcher implements PropertyProvider {
     private BundleProvider[] loadBundleProviders() throws Exception {
         ServiceLoader<BundleProvider> bundleFactoryLoader = ServiceLoader.load(BundleProvider.class);
         Iterator<BundleProvider> bundleFactoryIterator = bundleFactoryLoader.iterator();
-        List<BundleProvider> bundleFactoryList = new ArrayList<BundleProvider>();
+        List<BundleProvider> bundleFactoryList = new ArrayList<>();
         while (bundleFactoryIterator.hasNext()) {
             bundleFactoryList.add(bundleFactoryIterator.next());
         }

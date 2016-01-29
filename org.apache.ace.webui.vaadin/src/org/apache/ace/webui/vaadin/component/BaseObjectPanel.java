@@ -134,7 +134,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
 
         public UIExtensionFactoryHolder(ServiceReference serviceRef, UIExtensionFactory extensionFactory) {
             m_serviceRef = serviceRef;
-            m_extensionFactory = new WeakReference<UIExtensionFactory>(extensionFactory);
+            m_extensionFactory = new WeakReference<>(extensionFactory);
         }
 
         /**
@@ -222,7 +222,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
 
         m_associations = associations;
         m_associationManager = associationRemover;
-        m_extensionFactories = new ArrayList<UIExtensionFactoryHolder>();
+        m_extensionFactories = new ArrayList<>();
         m_extensionPoint = extensionPoint;
         m_entityType = entityType;
 
@@ -442,8 +442,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * Recalculates all relations.
      */
     final void recalculateRelations(Direction direction) {
-        Set<String> associated = new HashSet<String>();
-        Set<String> related = new HashSet<String>();
+        Set<String> associated = new HashSet<>();
+        Set<String> related = new HashSet<>();
         collectRelations(direction, associated, related);
 
         m_associations.updateRelations(associated, related);
@@ -545,7 +545,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      */
     protected final void collectRelations(Direction direction, Collection<String> associated, Collection<String> related) {
         Set<?> value = (Set<?>) getValue();
-        List<REPO_OBJ> selection = new ArrayList<REPO_OBJ>();
+        List<REPO_OBJ> selection = new ArrayList<>();
         for (Object itemID : value) {
             REPO_OBJ obj = getFromId(itemID);
             if (obj != null) {
@@ -1050,7 +1050,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
             Collections.sort(m_extensionFactories);
 
             // Walk through the holders and fetch the extension factories one by one...
-            extensions = new ArrayList<UIExtensionFactory>(m_extensionFactories.size());
+            extensions = new ArrayList<>(m_extensionFactories.size());
             for (UIExtensionFactoryHolder holder : m_extensionFactories) {
                 UIExtensionFactory extensionFactory = holder.getUIExtensionFactory();
                 // Make sure only to use non-GCd factories...

@@ -54,7 +54,7 @@ final class ResettableTimer {
         m_timeout = timeout;
         m_timeUnit = unit;
 
-        m_futureRef = new AtomicReference<ScheduledFuture<?>>();
+        m_futureRef = new AtomicReference<>();
     }
 
     /**

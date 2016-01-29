@@ -31,7 +31,7 @@ public abstract class MockConfigAdmin implements ConfigurationAdmin {
     private final Map<String, Configuration> m_configs;
 
     public MockConfigAdmin() {
-        m_configs = new HashMap<String, Configuration>();
+        m_configs = new HashMap<>();
     }
 
     public Configuration createFactoryConfiguration(String factoryPID) throws IOException {

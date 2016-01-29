@@ -209,7 +209,7 @@ public class AuthenticationServiceImplTest {
      * @param authProcessor
      */
     private void registerAuthProcessor(AuthenticationServiceImpl authService, AuthenticationProcessor authProcessor) {
-        ServiceReference sr = mock(ServiceReference.class);
+        ServiceReference<AuthenticationProcessor> sr = mock(ServiceReference.class);
         authService.addAuthenticationProcessor(sr, authProcessor);
     }
 }

@@ -49,7 +49,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     private static final String MA_NAME = "ma";
     private static final String DEFAULT_MA_NAME = null;
 
-    private final Map<String, Component> m_instances = new ConcurrentHashMap<String, Component>();
+    private final Map<String, Component> m_instances = new ConcurrentHashMap<>();
 
     private volatile DependencyManager m_manager;
 
@@ -125,7 +125,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
      * @return a {@link Component} instance for the {@link DeploymentService}, never <code>null</code>.
      */
     private Component createService(String ma) {
-        Dictionary<String, Object> deploymentProperties = new Hashtable<String, Object>();
+        Dictionary<String, Object> deploymentProperties = new Hashtable<>();
 
         String identificationFilter = "(" + Constants.OBJECTCLASS + "=" + Identification.class.getName() + ")";
         String discoveryFilter = "(" + Constants.OBJECTCLASS + "=" + Discovery.class.getName() + ")";

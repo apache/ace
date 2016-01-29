@@ -75,8 +75,8 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
             throw new RuntimeException("Failed to create VelocityArtifactPreprocessor instance!", e);
         }
 
-        m_cachedArtifacts = new ConcurrentHashMap<String, Reference<byte[]>>();
-        m_cachedHashes = new ConcurrentHashMap<String, Reference<String>>();
+        m_cachedArtifacts = new ConcurrentHashMap<>();
+        m_cachedHashes = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -226,7 +226,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
         if (hash == null) {
             try {
                 hash = hash(getBytesFromUrl(getFullUrl(url, target, version)));
-                m_cachedHashes.put(key, new SoftReference<String>(hash));
+                m_cachedHashes.put(key, new SoftReference<>(hash));
             }
             catch (IOException e) {
                 return null;
@@ -254,7 +254,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
      */
     private void setHashForVersion(String url, String target, String version, String hash) {
         String key = createHashKey(url, target, version);
-        m_cachedHashes.put(key, new WeakReference<String>(hash));
+        m_cachedHashes.put(key, new WeakReference<>(hash));
     }
 
     /**
@@ -315,7 +315,7 @@ public class VelocityArtifactPreprocessor extends ArtifactPreprocessorBase {
                 baos.write(buf, 0, count);
             }
             result = baos.toByteArray();
-            m_cachedArtifacts.put(url, new SoftReference<byte[]>(result));
+            m_cachedArtifacts.put(url, new SoftReference<>(result));
         }
         finally {
             silentlyClose(in);

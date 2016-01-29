@@ -85,7 +85,7 @@ public class RepositoryObjectImplTest {
     }
 
     private void assertKeysContain(Enumeration<String> enumerator, String... expectedKeys) {
-        List<String> expected = new ArrayList<String>(Arrays.asList(expectedKeys));
+        List<String> expected = new ArrayList<>(Arrays.asList(expectedKeys));
 
         while (enumerator.hasMoreElements()) {
             String key = enumerator.nextElement();
@@ -96,7 +96,7 @@ public class RepositoryObjectImplTest {
     }
 
     private Map<String, String> createMap(String... entries) {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         for (int i = 0; i < entries.length; i += 2) {
             result.put(entries[i], entries[i + 1]);
         }

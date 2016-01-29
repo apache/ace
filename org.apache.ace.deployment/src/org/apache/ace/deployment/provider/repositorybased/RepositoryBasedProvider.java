@@ -128,7 +128,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
 
     public RepositoryBasedProvider() {
         m_saxParserFactory = SAXParserFactory.newInstance();
-        m_cachedVersionLists = new LRUMap<String, List<String>>();
+        m_cachedVersionLists = new LRUMap<>();
     }
 
     public List<ArtifactData> getBundleData(String targetId, String version) throws OverloadedException, IllegalArgumentException, IOException {
@@ -229,7 +229,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
                 m_cachedVersionLists.clear();
             }
 
-            List<String> stringVersionList = new ArrayList<String>();
+            List<String> stringVersionList = new ArrayList<>();
             InputStream input = null;
 
             try {
@@ -291,7 +291,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
      * @return A list of ArtifactData object representing this version.
      */
     private List<ArtifactData> getAllArtifactData(List<XmlDeploymentArtifact> deploymentArtifacts) throws IllegalArgumentException {
-        List<ArtifactData> result = new ArrayList<ArtifactData>();
+        List<ArtifactData> result = new ArrayList<>();
 
         // get the bundledata for each URL
         for (XmlDeploymentArtifact pair : deploymentArtifacts) {

@@ -325,7 +325,7 @@ public class BundleInfo {
 	}
 
 	void doImports(ResourceImpl resource) {
-		List<RequirementImpl> requirements = new ArrayList<RequirementImpl>();
+		List<RequirementImpl> requirements = new ArrayList<>();
 		List packages = manifest.getImports();
 		if (packages == null)
 			return;
@@ -398,7 +398,7 @@ public class BundleInfo {
 
 	Set doImportPackageAttributes(RequirementImpl req, StringBuffer filter,
 			Map attributes) {
-		HashSet<String> set = new HashSet<String>();
+		HashSet<String> set = new HashSet<>();
 
 		if (attributes != null)
 			for (Iterator i = attributes.keySet().iterator(); i.hasNext();) {
@@ -449,7 +449,7 @@ public class BundleInfo {
 	}
 
 	void doExports(ResourceImpl resource) {
-		List<CapabilityImpl> capabilities = new ArrayList<CapabilityImpl>();
+		List<CapabilityImpl> capabilities = new ArrayList<>();
 		List packages = manifest.getExports();
 		if (packages != null) {
 			for (Iterator i = packages.iterator(); i.hasNext();) {

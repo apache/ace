@@ -73,7 +73,7 @@ public class QueueCommands {
     public final static String SCOPE = "queue";
     public final static String[] FUNCTIONS = new String[] { "put", "get", "contains" };
 
-    private final BlockingQueue<Dictionary<String, String>> m_queue = new LinkedBlockingQueue<Dictionary<String, String>>();
+    private final BlockingQueue<Dictionary<String, String>> m_queue = new LinkedBlockingQueue<>();
 
     @Descriptor("puts a new script definition on the queue")
     public void put(@Descriptor("the script definition to put onto the queue, which consists of a map with at least a 'script' key") Map<String, String> def) throws Exception {
@@ -94,7 +94,7 @@ public class QueueCommands {
 
     @Descriptor("returns whether anything is present on the queue matchin a given filter definition")
     public boolean contains(@Descriptor("Represents an OSGi-filter to search with") String filter) throws Exception {
-        List<Dictionary<String, String>> copy = new ArrayList<Dictionary<String, String>>(m_queue);
+        List<Dictionary<String, String>> copy = new ArrayList<>(m_queue);
         if (filter == null || "".equals(filter.trim())) {
             return !copy.isEmpty();
         }
@@ -117,9 +117,9 @@ public class QueueCommands {
 
     @Descriptor("returns the script definition from the queue matching a given filter, if available")
     public Map<String, String>[] get(@Descriptor("Represents an OSGi-filter to match against the script definitions") String filter) throws Exception {
-        List<Dictionary<String, String>> copy = new ArrayList<Dictionary<String, String>>(m_queue);
+        List<Dictionary<String, String>> copy = new ArrayList<>(m_queue);
 
-        List<Map<String, String>> result = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> result = new ArrayList<>();
 
         Filter f = FrameworkUtil.createFilter(filter);
         for (Dictionary<String, String> entry : copy) {
@@ -133,7 +133,7 @@ public class QueueCommands {
     }
 
     private static Dictionary<String, String> toDictionary(Map<String, String> map) {
-        Dictionary<String, String> result = new Hashtable<String, String>();
+        Dictionary<String, String> result = new Hashtable<>();
         for (Map.Entry<String, String> entry : map.entrySet()) {
             result.put(entry.getKey(), entry.getValue());
         }
@@ -141,7 +141,7 @@ public class QueueCommands {
     }
 
     private static Map<String, String> toMap(Dictionary<String, String> dict) {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         Enumeration<String> keys = dict.keys();
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();

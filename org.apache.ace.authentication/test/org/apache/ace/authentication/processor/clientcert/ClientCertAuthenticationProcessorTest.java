@@ -33,12 +33,12 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Properties;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.ace.authentication.processor.clientcert.ClientCertAuthenticationProcessor;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
@@ -218,7 +218,8 @@ public class ClientCertAuthenticationProcessorTest {
         final String lookupKey = "anyKey";
         final String matchPolicy = "dn";
 
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_USERNAME_LOOKUPKEY, lookupKey);
         props.put(PROPERTY_USERNAME_MATCH_POLICY, matchPolicy);
         props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
@@ -312,7 +313,8 @@ public class ClientCertAuthenticationProcessorTest {
         final String lookupKey = "anyKey";
         final String matchPolicy = "cn";
 
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_USERNAME_LOOKUPKEY, lookupKey);
         props.put(PROPERTY_USERNAME_MATCH_POLICY, matchPolicy);
         props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
@@ -342,7 +344,8 @@ public class ClientCertAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyMatchPolicy() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_USERNAME_LOOKUPKEY, "foo");
         props.put(PROPERTY_USERNAME_MATCH_POLICY, "");
         props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
@@ -355,7 +358,8 @@ public class ClientCertAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyLookupKey() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_USERNAME_LOOKUPKEY, "");
         props.put(PROPERTY_USERNAME_MATCH_POLICY, "foo");
         props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
@@ -368,7 +372,8 @@ public class ClientCertAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyVerifyCertValidity() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_USERNAME_LOOKUPKEY, "foo");
         props.put(PROPERTY_USERNAME_MATCH_POLICY, "bar");
         props.put(PROPERTY_VERIFY_CERT_VALIDITY, "");
@@ -381,7 +386,8 @@ public class ClientCertAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingMatchPolicy() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_USERNAME_LOOKUPKEY, "foo");
         props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
 
@@ -393,7 +399,8 @@ public class ClientCertAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingUsernameLookupKey() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_USERNAME_MATCH_POLICY, "foo");
         props.put(PROPERTY_VERIFY_CERT_VALIDITY, "true");
 
@@ -405,7 +412,8 @@ public class ClientCertAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingVerifyCertValidity() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_USERNAME_LOOKUPKEY, "foo");
         props.put(PROPERTY_USERNAME_MATCH_POLICY, "foo");
 

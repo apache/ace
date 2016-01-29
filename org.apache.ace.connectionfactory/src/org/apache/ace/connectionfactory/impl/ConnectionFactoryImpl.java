@@ -55,7 +55,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
      * Creates a new {@link ConnectionFactoryImpl}.
      */
     public ConnectionFactoryImpl() {
-        m_credentialMapping = new HashMap<String, UrlCredentials>();
+        m_credentialMapping = new HashMap<>();
     }
 
     /**
@@ -117,7 +117,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
     /**
      * {@inheritDoc}
      */
-    public void updated(String pid, Dictionary properties) throws ConfigurationException {
+    public void updated(String pid, Dictionary<String, ?> properties) throws ConfigurationException {
         UrlCredentials creds;
         synchronized (m_credentialMapping) {
             creds = m_credentialMapping.get(pid);
@@ -138,14 +138,15 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
     /**
      * Returns the credentials to access the given URL.
      * 
-     * @param url the URL to find the credentials for, cannot be <code>null</code>.
-     * @return a {@link UrlCredentials} instance for the given URL, or <code>null</code>
-     *         if none were found, or if none were necessary.
+     * @param url
+     *            the URL to find the credentials for, cannot be <code>null</code>.
+     * @return a {@link UrlCredentials} instance for the given URL, or <code>null</code> if none were found, or if none
+     *         were necessary.
      */
     final UrlCredentials getCredentials(URL url) {
         Collection<UrlCredentials> creds;
         synchronized (m_credentialMapping) {
-            creds = new ArrayList<UrlCredentials>(m_credentialMapping.values());
+            creds = new ArrayList<>(m_credentialMapping.values());
         }
 
         for (UrlCredentials c : creds) {
@@ -160,8 +161,10 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
     /**
      * Returns the authorization header for HTTP Basic Authentication.
      * 
-     * @param values the credential values to supply, cannot be <code>null</code> and should be an array of two elements.
-     * @return a string that denotes the basic authentication header ("Basic " + encoded credentials), never <code>null</code>.
+     * @param values
+     *            the credential values to supply, cannot be <code>null</code> and should be an array of two elements.
+     * @return a string that denotes the basic authentication header ("Basic " + encoded credentials), never
+     *         <code>null</code>.
      */
     final String getBasicAuthCredentials(Object[] values) {
         if ((values == null) || values.length < 2) {
@@ -189,8 +192,10 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
     /**
      * Applies basic authentication to the given connection, if it is a {@link HttpURLConnection}.
      * 
-     * @param conn the connection to apply basic authentication to;
-     * @param values the credentials to apply.
+     * @param conn
+     *            the connection to apply basic authentication to;
+     * @param values
+     *            the credentials to apply.
      */
     private void applyBasicAuthentication(URLConnection conn, Object[] values) {
         if (conn instanceof HttpURLConnection) {
@@ -201,8 +206,10 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
     /**
      * Applies the use of client certificates to the given connection, if it a {@link HttpsURLConnection}.
      * 
-     * @param conn the connection to apply client certs to;
-     * @param values the credentials to apply.
+     * @param conn
+     *            the connection to apply client certs to;
+     * @param values
+     *            the credentials to apply.
      */
     private void applyClientCertificate(URLConnection conn, Object[] values) {
         if (conn instanceof HttpsURLConnection) {
@@ -213,9 +220,12 @@ public class ConnectionFactoryImpl implements ConnectionFactory, ManagedServiceF
     /**
      * Supplies the actual credentials to the given {@link URLConnection}.
      * 
-     * @param conn the connection to supply the credentials to, cannot be <code>null</code>;
-     * @param urlCreds the URL credentials to supply, cannot be <code>null</code>.
-     * @throws IOException in case of I/O problems.
+     * @param conn
+     *            the connection to supply the credentials to, cannot be <code>null</code>;
+     * @param urlCreds
+     *            the URL credentials to supply, cannot be <code>null</code>.
+     * @throws IOException
+     *             in case of I/O problems.
      */
     private void supplyCredentials(URLConnection conn, UrlCredentials urlCreds) throws IOException {
         final AuthType type = urlCreds.getType();

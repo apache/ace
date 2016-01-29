@@ -126,7 +126,7 @@ public class ArtifactTest {
     }
 
     private ArtifactObject createArtifact(String mimetype, String URL, String symbolicName, String processorPID, String size) {
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put(ArtifactObject.KEY_MIMETYPE, mimetype);
         attributes.put(ArtifactObject.KEY_URL, URL);
         if (size != null) {
@@ -139,7 +139,7 @@ public class ArtifactTest {
             attributes.put(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, processorPID);
         }
 
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
         return m_artifactRepository.create(attributes, tags);
     }
 }

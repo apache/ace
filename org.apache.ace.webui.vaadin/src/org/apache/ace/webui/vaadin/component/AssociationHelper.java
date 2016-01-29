@@ -26,8 +26,8 @@ import java.util.Set;
 import com.vaadin.ui.Table;
 
 public class AssociationHelper {
-    private Set<String> m_associatedItems = new HashSet<String>();
-    private Set<String> m_relatedItems = new HashSet<String>();
+    private Set<String> m_associatedItems = new HashSet<>();
+    private Set<String> m_relatedItems = new HashSet<>();
     private Table m_activeTable;
 
     public void addAssociated(Collection<String> associated) {

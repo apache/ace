@@ -378,7 +378,7 @@ public class WorkspaceImpl implements Workspace {
     }
 
     private Map<String, String> getAttributes(RepositoryObject object) {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         for (Enumeration<String> keys = object.getAttributeKeys(); keys.hasMoreElements();) {
             String key = keys.nextElement();
             result.put(key, object.getAttribute(key));
@@ -390,8 +390,8 @@ public class WorkspaceImpl implements Workspace {
     @SuppressWarnings("unchecked")
     public Association<? extends RepositoryObject, ? extends RepositoryObject> createAssocation(String entityType, String leftEntityId, String rightEntityId, String leftCardinality,
         String rightCardinality) {
-        Map<String, String> attrs = new HashMap<String, String>();
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> attrs = new HashMap<>();
+        Map<String, String> tags = new HashMap<>();
         attrs.put(Association.LEFT_ENDPOINT, leftEntityId);
         attrs.put(Association.LEFT_CARDINALITY, interpretCardinality(leftCardinality));
         attrs.put(Association.RIGHT_ENDPOINT, rightEntityId);
@@ -496,7 +496,7 @@ public class WorkspaceImpl implements Workspace {
     public List<ArtifactObject> lrp(String filter) throws Exception {
         Filter f = m_context.createFilter(filter);
         List<ArtifactObject> rps = m_artifactRepository.getResourceProcessors();
-        List<ArtifactObject> res = new LinkedList<ArtifactObject>();
+        List<ArtifactObject> res = new LinkedList<>();
         for (ArtifactObject rp : rps) {
             if (f.matchCase(rp.getDictionary())) {
                 res.add(rp);
@@ -531,7 +531,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public ArtifactObject ca(String name, String url, String bsn, String version) {
-        Map<String, String> attrs = new HashMap<String, String>();
+        Map<String, String> attrs = new HashMap<>();
         attrs.put(ArtifactObject.KEY_ARTIFACT_NAME, name);
         attrs.put(ArtifactObject.KEY_URL, url);
         attrs.put(ArtifactObject.KEY_MIMETYPE, BundleHelper.MIMETYPE);
@@ -609,7 +609,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public FeatureObject cf(String name) {
-        Map<String, String> attrs = new HashMap<String, String>();
+        Map<String, String> attrs = new HashMap<>();
         attrs.put(FeatureObject.KEY_NAME, name);
         return cf(attrs);
     }
@@ -686,7 +686,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public DistributionObject cd(String name) {
-        Map<String, String> attrs = new HashMap<String, String>();
+        Map<String, String> attrs = new HashMap<>();
         attrs.put(DistributionObject.KEY_NAME, name);
         return cd(attrs);
     }
@@ -763,7 +763,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public StatefulTargetObject ct(String name) {
-        Map<String, String> attrs = new HashMap<String, String>();
+        Map<String, String> attrs = new HashMap<>();
         attrs.put(StatefulTargetObject.KEY_ID, name);
         return ct(attrs);
     }

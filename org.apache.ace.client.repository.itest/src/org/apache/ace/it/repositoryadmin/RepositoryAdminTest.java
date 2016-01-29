@@ -61,7 +61,7 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
 
         final Artifact2FeatureAssociation bg = runAndWaitForEvent(new Callable<Artifact2FeatureAssociation>() {
             public Artifact2FeatureAssociation call() throws Exception {
-                Map<String, String> properties = new HashMap<String, String>();
+                Map<String, String> properties = new HashMap<>();
                 properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "[1,3)");
                 return m_artifact2featureRepository.create(b1, properties, g1, null);
             }
@@ -192,7 +192,7 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
 
         sgo.approve();
 
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         runAndWaitForEvent(new Callable<Void>() {
             public Void call() throws Exception {
                 m_repositoryAdmin.commit();
@@ -486,7 +486,7 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
             // expected
         }
 
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         runAndWaitForEvent(new Callable<Object>() {
             public Object call() throws Exception {
                 m_repositoryAdmin.checkout();

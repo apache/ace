@@ -105,14 +105,14 @@ class Candidates
     **/
     public Candidates()
     {
-        m_mandatoryRevisions = new HashSet<BundleRevision>();
-        m_involvedRevisions = new HashSet<BundleRevision>();
-        m_dependentMap = new HashMap<BundleCapability, Set<BundleRequirement>>();
-        m_candidateMap = new HashMap<BundleRequirement, SortedSet<BundleCapability>>();
+        m_mandatoryRevisions = new HashSet<>();
+        m_involvedRevisions = new HashSet<>();
+        m_dependentMap = new HashMap<>();
+        m_candidateMap = new HashMap<>();
         m_hostFragments =
-            new HashMap<BundleCapability, Map<String, Map<Version, List<BundleRequirement>>>>();
-        m_allWrappedHosts = new HashMap<BundleRevision, HostBundleRevision>();
-        m_populateResultCache = new HashMap<BundleRevision, Object>();
+            new HashMap<>();
+        m_allWrappedHosts = new HashMap<>();
+        m_populateResultCache = new HashMap<>();
     }
 
     /**
@@ -305,7 +305,7 @@ class Candidates
                 {
                     if (fragmentCands == null)
                     {
-                        fragmentCands = new HashSet<BundleCapability>();
+                        fragmentCands = new HashSet<>();
                     }
                     fragmentCands.add(candCap);
                 }
@@ -471,7 +471,7 @@ class Candidates
         // Create a local map for populating candidates first, just in case
         // the revision is not resolvable.
         Map<BundleRequirement, SortedSet<BundleCapability>> localCandidateMap =
-            new HashMap<BundleRequirement, SortedSet<BundleCapability>>();
+            new HashMap<>();
         // Add the discovered host candidates to the local candidate map.
         localCandidateMap.put(hostReq, hosts);
         // Add these value to the result cache so we know we are
@@ -624,7 +624,7 @@ class Candidates
             init = true;
         }
 
-        final Map<String, BundleRevision> singletons = new HashMap<String, BundleRevision>();
+        final Map<String, BundleRevision> singletons = new HashMap<>();
 
         for (Iterator<BundleRevision> it = m_involvedRevisions.iterator(); it.hasNext(); )
         {
@@ -723,8 +723,8 @@ class Candidates
         //      with host's attached fragment capabilities.
 
         // Steps 1 and 2
-        List<HostBundleRevision> hostRevisions = new ArrayList<HostBundleRevision>();
-        List<BundleRevision> unselectedFragments = new ArrayList<BundleRevision>();
+        List<HostBundleRevision> hostRevisions = new ArrayList<>();
+        List<BundleRevision> unselectedFragments = new ArrayList<>();
         for (Entry<BundleCapability, Map<String, Map<Version, List<BundleRequirement>>>>
             hostEntry : m_hostFragments.entrySet())
         {
@@ -732,7 +732,7 @@ class Candidates
             BundleCapability hostCap = hostEntry.getKey();
             Map<String, Map<Version, List<BundleRequirement>>> fragments
                 = hostEntry.getValue();
-            List<BundleRevision> selectedFragments = new ArrayList<BundleRevision>();
+            List<BundleRevision> selectedFragments = new ArrayList<>();
             for (Entry<String, Map<Version, List<BundleRequirement>>> fragEntry
                 : fragments.entrySet())
             {
@@ -804,7 +804,7 @@ class Candidates
                     Set<BundleRequirement> dependents = m_dependentMap.get(origCap);
                     if (dependents != null)
                     {
-                        dependents = new HashSet<BundleRequirement>(dependents);
+                        dependents = new HashSet<>(dependents);
                         m_dependentMap.put(c, dependents);
                         for (BundleRequirement r : dependents)
                         {
@@ -824,7 +824,7 @@ class Candidates
                 SortedSet<BundleCapability> cands = m_candidateMap.get(origReq);
                 if (cands != null)
                 {
-                    m_candidateMap.put(r, new TreeSet<BundleCapability>(cands));
+                    m_candidateMap.put(r, new TreeSet<>(cands));
                     for (BundleCapability cand : cands)
                     {
                         Set<BundleRequirement> dependents = m_dependentMap.get(cand);
@@ -860,7 +860,7 @@ class Candidates
                 Set<BundleRequirement> dependents = m_dependentMap.get(cap);
                 if (dependents == null)
                 {
-                    dependents = new HashSet<BundleRequirement>();
+                    dependents = new HashSet<>();
                     m_dependentMap.put(cap, dependents);
                 }
                 dependents.add(req);
@@ -872,7 +872,7 @@ class Candidates
                         fragments = m_hostFragments.get(cap);
                     if (fragments == null)
                     {
-                        fragments = new HashMap<String, Map<Version, List<BundleRequirement>>>();
+                        fragments = new HashMap<>();
                         m_hostFragments.put(cap, fragments);
                     }
                     Map<Version, List<BundleRequirement>> fragmentVersions =
@@ -880,13 +880,13 @@ class Candidates
                     if (fragmentVersions == null)
                     {
                         fragmentVersions =
-                            new TreeMap<Version, List<BundleRequirement>>(Collections.reverseOrder());
+                            new TreeMap<>(Collections.reverseOrder());
                         fragments.put(req.getRevision().getSymbolicName(), fragmentVersions);
                     }
                     List<BundleRequirement> actual = fragmentVersions.get(req.getRevision().getVersion());
                     if (actual == null)
                     {
-                        actual = new ArrayList<BundleRequirement>();
+                        actual = new ArrayList<>();
                         fragmentVersions.put(req.getRevision().getVersion(), actual);
                     }
                     actual.add(req);
@@ -908,7 +908,7 @@ class Candidates
         // Add removal reason to result cache.
         m_populateResultCache.put(revision, ex);
         // Remove from dependents.
-        Set<BundleRevision> unresolvedRevisions = new HashSet<BundleRevision>();
+        Set<BundleRevision> unresolvedRevisions = new HashSet<>();
         remove(revision, unresolvedRevisions);
         // Remove dependents that failed as a result of removing revision.
         while (!unresolvedRevisions.isEmpty())
@@ -1041,20 +1041,20 @@ class Candidates
     public Candidates copy()
     {
         Map<BundleCapability, Set<BundleRequirement>> dependentMap =
-            new HashMap<BundleCapability, Set<BundleRequirement>>();
+            new HashMap<>();
         for (Entry<BundleCapability, Set<BundleRequirement>> entry : m_dependentMap.entrySet())
         {
-            Set<BundleRequirement> dependents = new HashSet<BundleRequirement>(entry.getValue());
+            Set<BundleRequirement> dependents = new HashSet<>(entry.getValue());
             dependentMap.put(entry.getKey(), dependents);
         }
 
         Map<BundleRequirement, SortedSet<BundleCapability>> candidateMap =
-            new HashMap<BundleRequirement, SortedSet<BundleCapability>>();
+            new HashMap<>();
         for (Entry<BundleRequirement, SortedSet<BundleCapability>> entry
             : m_candidateMap.entrySet())
         {
             SortedSet<BundleCapability> candidates =
-                new TreeSet<BundleCapability>(entry.getValue());
+                new TreeSet<>(entry.getValue());
             candidateMap.put(entry.getKey(), candidates);
         }
 
@@ -1067,7 +1067,7 @@ class Candidates
     public void dump()
     {
         // Create set of all revisions from requirements.
-        Set<BundleRevision> revisions = new HashSet<BundleRevision>();
+        Set<BundleRevision> revisions = new HashSet<>();
         for (Entry<BundleRequirement, SortedSet<BundleCapability>> entry
             : m_candidateMap.entrySet())
         {

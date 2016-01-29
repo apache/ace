@@ -107,7 +107,7 @@ public class EventTest {
     }
 
     private Dictionary<String, String> createDict(String... entries) {
-        Dictionary<String, String> result = new Hashtable<String, String>();
+        Dictionary<String, String> result = new Hashtable<>();
         for (int i = 0; i < entries.length; i += 2) {
             result.put(entries[i], entries[i + 1]);
         }
@@ -115,7 +115,7 @@ public class EventTest {
     }
 
     private Map<String, String> createMap(String... entries) {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         for (int i = 0; i < entries.length; i += 2) {
             result.put(entries[i], entries[i + 1]);
         }

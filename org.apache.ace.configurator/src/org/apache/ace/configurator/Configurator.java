@@ -25,11 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -70,8 +68,8 @@ public class Configurator implements Runnable {
 
     private final File m_configDir;
     private final long m_pollInterval;
-    private final Map<String, Long> m_checksums = new HashMap<String, Long>();
-    private final Map<String, Map<String, Long>> m_foundFactories = new HashMap<String, Map<String, Long>>();
+    private final Map<String, Long> m_checksums = new HashMap<>();
+    private final Map<String, Map<String, Long>> m_foundFactories = new HashMap<>();
     private final boolean m_reconfig;
 
     private Thread m_configThread;
@@ -142,7 +140,7 @@ public class Configurator implements Runnable {
      * the size of the new configuration has changed.
      */
     private void doConfigs() {
-        Set<String> pids = new HashSet<String>(m_checksums.keySet());
+        Set<String> pids = new HashSet<>(m_checksums.keySet());
 
         File[] files = m_configDir.listFiles(FILENAME_FILTER);
         for (int i = 0; (files != null) && (i < files.length); i++) {
@@ -162,8 +160,7 @@ public class Configurator implements Runnable {
                 pids.remove(pid);
             }
         }
-        for (Iterator e = pids.iterator(); e.hasNext();) {
-            String pid = (String) e.next();
+        for (String pid : pids) {
             deleteConfig(pid, null);
             m_checksums.remove(pid);
         }
@@ -174,7 +171,7 @@ public class Configurator implements Runnable {
             m_foundFactories.put(factoryPid, new HashMap<String, Long>());
         }
         Map<String, Long> instances = m_foundFactories.get(factoryPid);
-        Set<String> instancesPids = new HashSet<String>(instances.keySet());
+        Set<String> instancesPids = new HashSet<>(instances.keySet());
 
         for (int j = 0; j < newInstances.length; j++) {
             File instanceConfigFile = newInstances[j];
@@ -189,8 +186,7 @@ public class Configurator implements Runnable {
             instancesPids.remove(instancePid);
         }
 
-        for (Iterator e = instancesPids.iterator(); e.hasNext();) {
-            String instancePid = (String) e.next();
+        for (String instancePid : instancesPids) {
             deleteConfig(instancePid, factoryPid);
             instances.remove(instancePid);
         }
@@ -303,9 +299,9 @@ public class Configurator implements Runnable {
      * @return Same set of properties with all variables substituted.
      */
     private Properties substVars(Properties properties) {
-        for (Enumeration propertyKeys = properties.propertyNames(); propertyKeys.hasMoreElements();) {
-            String name = (String) propertyKeys.nextElement();
-            String value = properties.getProperty(name);
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            String name = (String) entry.getKey();
+            String value = (String) entry.getValue();
             properties.setProperty(name, substVars(value, name, null, properties));
         }
         return properties;
@@ -336,7 +332,7 @@ public class Configurator implements Runnable {
         // If there is currently no cycle map, then create
         // one for detecting cycles for this invocation.
         if (cycleMap == null) {
-            cycleMap = new HashMap<String, String>();
+            cycleMap = new HashMap<>();
         }
 
         // Put the current key in the cycle map.

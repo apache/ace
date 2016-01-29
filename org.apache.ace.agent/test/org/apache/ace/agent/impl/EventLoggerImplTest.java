@@ -65,7 +65,7 @@ public class EventLoggerImplTest extends BaseAgentTest {
 
     static class TestFeedbackHandler implements FeedbackHandler {
 
-        Map<String, FeedbackChannel> channels = new HashMap<String, FeedbackChannel>();
+        Map<String, FeedbackChannel> channels = new HashMap<>();
 
         TestFeedbackHandler() {
             channels.put("auditlog", new TestFeedbackChannel());

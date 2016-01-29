@@ -100,7 +100,7 @@ public abstract class EditWindow extends Window {
         tabs.setWidth("100%");
         tabs.setVisible(!factories.isEmpty());
 
-        Map<String, Object> context = new HashMap<String, Object>();
+        Map<String, Object> context = new HashMap<>();
         context.put("object", object);
         populateContext(context);
 

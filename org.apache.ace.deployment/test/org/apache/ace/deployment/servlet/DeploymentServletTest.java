@@ -349,7 +349,7 @@ public class DeploymentServletTest {
 
     @BeforeMethod(alwaysRun = true)
     protected void setUp() throws Exception {
-        final Map<String, List<String>> providerVersions = new HashMap<String, List<String>>();
+        final Map<String, List<String>> providerVersions = new HashMap<>();
         providerVersions.put("existing", Arrays.asList("2.0.0"));
 
         final ArtifactData artifactData = createMock(ArtifactData.class);
@@ -501,7 +501,7 @@ public class DeploymentServletTest {
         m_generatorToVersion = null;
 
         m_responseStatus = HttpServletResponse.SC_OK;
-        m_responseHeaders = new HashMap<String, String>();
+        m_responseHeaders = new HashMap<>();
         m_requestRangeHeader = null;
         m_responseOutputStream = new ByteArrayOutputStream();
     }

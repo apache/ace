@@ -311,7 +311,7 @@ public class ACEVerifierExtension implements UIExtensionFactory {
     private Map<String, String> getManifestEntries(final Manifest manifest) {
         Attributes attributes = manifest.getMainAttributes();
 
-        Map<String, String> entries = new HashMap<String, String>();
+        Map<String, String> entries = new HashMap<>();
         for (Map.Entry<Object, Object> entry : attributes.entrySet()) {
             entries.put(entry.getKey().toString(), entry.getValue().toString());
         }
@@ -325,7 +325,7 @@ public class ACEVerifierExtension implements UIExtensionFactory {
     private Map<String, String> getManifestEntries(String manifestText) {
         StringTokenizer tok = new StringTokenizer(manifestText, ":\n");
 
-        Map<String, String> manMap = new HashMap<String, String>();
+        Map<String, String> manMap = new HashMap<>();
         while (tok.hasMoreTokens()) {
             manMap.put(tok.nextToken(), tok.nextToken());
         }

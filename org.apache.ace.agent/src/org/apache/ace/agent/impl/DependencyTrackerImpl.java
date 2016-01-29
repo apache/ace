@@ -75,8 +75,8 @@ public class DependencyTrackerImpl {
             m_manager = manager;
             m_calback = callback;
 
-            m_tracker = new ServiceDependencyTracker<T>(this, manager.getBundleContext(), FrameworkUtil.createFilter(filterString));
-            m_serviceRef = new AtomicReference<T>();
+            m_tracker = new ServiceDependencyTracker<>(this, manager.getBundleContext(), FrameworkUtil.createFilter(filterString));
+            m_serviceRef = new AtomicReference<>();
         }
 
         public Object getService() {
@@ -120,12 +120,12 @@ public class DependencyTrackerImpl {
      */
     private static class ServiceDependencyTracker<T> extends ServiceTracker<T, T> {
         private final CopyOnWriteArrayList<ServiceReference<T>> m_trackedServiceRefs;
-        private final ServiceDependency m_dependency;
+        private final ServiceDependency<T> m_dependency;
 
-        public ServiceDependencyTracker(ServiceDependency dependency, BundleContext context, Filter filter) {
+        public ServiceDependencyTracker(ServiceDependency<T> dependency, BundleContext context, Filter filter) {
             super(context, filter, null);
             m_dependency = dependency;
-            m_trackedServiceRefs = new CopyOnWriteArrayList<ServiceReference<T>>();
+            m_trackedServiceRefs = new CopyOnWriteArrayList<>();
         }
 
         @Override
@@ -149,8 +149,8 @@ public class DependencyTrackerImpl {
         }
 
         private void checkForUpdate() {
-            ServiceReference highestReference = null;
-            for (ServiceReference reference : m_trackedServiceRefs) {
+            ServiceReference<T> highestReference = null;
+            for (ServiceReference<T> reference : m_trackedServiceRefs) {
                 if (highestReference == null || highestReference.compareTo(reference) < 1) {
                     highestReference = reference;
                 }
@@ -162,7 +162,7 @@ public class DependencyTrackerImpl {
 
     private final BundleContext m_bundleContext;
     private final LifecycleCallback m_callback;
-    private final CopyOnWriteArrayList<ServiceDependency> m_dependencies;
+    private final CopyOnWriteArrayList<ServiceDependency<?>> m_dependencies;
     private final AtomicBoolean m_tracking;
     private final AtomicBoolean m_started;
 
@@ -178,7 +178,7 @@ public class DependencyTrackerImpl {
         m_bundleContext = bundleContext;
         m_callback = callback;
 
-        m_dependencies = new CopyOnWriteArrayList<ServiceDependency>();
+        m_dependencies = new CopyOnWriteArrayList<>();
         m_tracking = new AtomicBoolean(false);
         m_started = new AtomicBoolean(false);
     }
@@ -203,7 +203,7 @@ public class DependencyTrackerImpl {
             filter = String.format("(&%s%s)", filter, extraFilter);
         }
 
-        m_dependencies.addIfAbsent(new ServiceDependency(this, filter, callback));
+        m_dependencies.addIfAbsent(new ServiceDependency<>(this, filter, callback));
     }
 
     public BundleContext getBundleContext() {
@@ -224,7 +224,7 @@ public class DependencyTrackerImpl {
             throw new IllegalStateException("Already started tracking!");
         }
 
-        for (ServiceDependency dependency : m_dependencies) {
+        for (ServiceDependency<?> dependency : m_dependencies) {
             dependency.startTracking();
         }
     }
@@ -242,7 +242,7 @@ public class DependencyTrackerImpl {
             throw new IllegalStateException("Did not start tracking yet");
         }
 
-        for (ServiceDependency dependency : m_dependencies) {
+        for (ServiceDependency<?> dependency : m_dependencies) {
             dependency.stopTracking();
         }
     }
@@ -264,7 +264,7 @@ public class DependencyTrackerImpl {
      * @return <code>true</code> if all dependencies are available, <code>false</code> otherwise.
      */
     final boolean allDependenciesAvailable() {
-        for (ServiceDependency dependency : m_dependencies) {
+        for (ServiceDependency<?> dependency : m_dependencies) {
             if (!dependency.isServiceAvailable()) {
                 return false;
             }

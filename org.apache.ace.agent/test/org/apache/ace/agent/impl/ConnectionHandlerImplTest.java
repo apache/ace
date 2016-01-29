@@ -106,7 +106,7 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
 
     @Test
     public void testBasicAuthFORBIDDEN() throws Exception {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         props.put(AgentConstants.CONFIG_CONNECTION_AUTHTYPE, Types.NONE.name());
 
         ConfigurationHandler configurationHandler = m_agentContext.getHandler(ConfigurationHandler.class);
@@ -120,7 +120,7 @@ public class ConnectionHandlerImplTest extends BaseAgentTest {
 
     @Test
     public void testBasicAuthOK() throws Exception {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         props.put(AgentConstants.CONFIG_CONNECTION_AUTHTYPE, Types.BASIC.name());
         props.put(AgentConstants.CONFIG_CONNECTION_USERNAME, USERNAME);
         props.put(AgentConstants.CONFIG_CONNECTION_PASSWORD, PASSWORD);

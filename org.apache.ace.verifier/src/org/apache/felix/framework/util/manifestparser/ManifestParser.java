@@ -121,7 +121,7 @@ public class ManifestParser
                 if (!attachment.equalsIgnoreCase(Constants.FRAGMENT_ATTACHMENT_NEVER))
                 {
                     Map<String, Object> hostAttrs =
-                        new HashMap<String, Object>(bundleCap.getAttributes());
+                        new HashMap<>(bundleCap.getAttributes());
                     Object value = hostAttrs.remove(BundleRevision.BUNDLE_NAMESPACE);
                     hostAttrs.put(BundleRevision.HOST_NAMESPACE, value);
                     capList.add(new BundleCapabilityImpl(
@@ -142,7 +142,7 @@ public class ManifestParser
             if (isSingleton(bundleCap))
             {
                 Map<String, Object> singletonAttrs =
-                    new HashMap<String, Object>(bundleCap.getAttributes());
+                    new HashMap<>(bundleCap.getAttributes());
                 Object value = singletonAttrs.remove(BundleRevision.BUNDLE_NAMESPACE);
                 singletonAttrs.put(BundleCapabilityImpl.SINGLETON_NAMESPACE, value);
                 capList.add(new BundleCapabilityImpl(
@@ -233,7 +233,7 @@ public class ManifestParser
             importReqs.addAll(convertImports(implicitClauses, owner));
 
             List<ParsedHeaderClause> allImportClauses =
-                new ArrayList<ParsedHeaderClause>(implicitClauses.size() + importClauses.size());
+                new ArrayList<>(implicitClauses.size() + importClauses.size());
             allImportClauses.addAll(importClauses);
             allImportClauses.addAll(implicitClauses);
 
@@ -443,7 +443,7 @@ public class ManifestParser
                 // more efficient.
 // TODO: OSGi R4.3 - This is ordering is kind of hacky.
                 // Prepend the package name to the array of attributes.
-                Map<String, Object> newAttrs = new LinkedHashMap<String, Object>(attrs.size() + 1);
+                Map<String, Object> newAttrs = new LinkedHashMap<>(attrs.size() + 1);
                 // We want this first from an indexing perspective.
                 newAttrs.put(
                     BundleRevision.PACKAGE_NAMESPACE,
@@ -460,7 +460,7 @@ public class ManifestParser
                 // Inject filter directive.
 // TODO: OSGi R4.3 - Can we insert this on demand somehow?
                 Map<String, String> dirs = clause.m_dirs;
-                Map<String, String> newDirs = new HashMap<String, String>(dirs.size() + 1);
+                Map<String, String> newDirs = new HashMap<>(dirs.size() + 1);
                 newDirs.putAll(dirs);
                 newDirs.put(
                     Constants.FILTER_DIRECTIVE,
@@ -662,7 +662,7 @@ public class ManifestParser
 
                         List<String> tokens = parseDelimitedString(
                             clause.m_attrs.get(entry.getKey()).toString(), ",", false);
-                        List<Object> values = new ArrayList<Object>(tokens.size());
+                        List<Object> values = new ArrayList<>(tokens.size());
                         for (String token : tokens)
                         {
                             if (listType.equals("String"))
@@ -864,7 +864,7 @@ public class ManifestParser
             {
                 // Prepend the package name to the array of attributes.
                 Map<String, Object> attrs = clause.m_attrs;
-                Map<String, Object> newAttrs = new HashMap<String, Object>(attrs.size() + 1);
+                Map<String, Object> newAttrs = new HashMap<>(attrs.size() + 1);
                 newAttrs.putAll(attrs);
                 newAttrs.put(
                     BundleRevision.PACKAGE_NAMESPACE,
@@ -975,7 +975,7 @@ public class ManifestParser
             if (clause != null)
             {
                 String[] entries = clause.getLibraryEntries();
-                libs = new ArrayList<R4Library>(entries.length);
+                libs = new ArrayList<>(entries.length);
                 int current = 0;
                 for (int i = 0; i < entries.length; i++)
                 {
@@ -998,7 +998,7 @@ public class ManifestParser
         }
         catch (Exception ex)
         {
-            libs = new ArrayList<R4Library>(0);
+            libs = new ArrayList<>(0);
         }
         return libs;
     }
@@ -1181,7 +1181,7 @@ public class ManifestParser
                 .get(BundleRevision.PACKAGE_NAMESPACE)) == null)
             {
                 // Convert Version to VersionRange.
-                Map<String, Object> attrs = new HashMap<String, Object>();
+                Map<String, Object> attrs = new HashMap<>();
                 Object version = exports.get(i).getAttributes().get(Constants.VERSION_ATTRIBUTE);
                 if (version != null)
                 {
@@ -1223,7 +1223,7 @@ public class ManifestParser
         }
         for (int i = 0; i < exports.size(); i++)
         {
-            Map<String, String> dirs = new HashMap<String, String>(1);
+            Map<String, String> dirs = new HashMap<>(1);
             dirs.put(Constants.USES_DIRECTIVE, usesValue);
             exports.set(i, new BundleCapabilityImpl(
                 exports.get(i).getRevision(),
@@ -1361,7 +1361,7 @@ public class ManifestParser
 // TODO: OSGi R4.3 - This is ordering is kind of hacky.
                 // Prepend the host symbolic name to the map of attributes.
                 Map<String, Object> attrs = clauses.get(0).m_attrs;
-                Map<String, Object> newAttrs = new LinkedHashMap<String, Object>(attrs.size() + 1);
+                Map<String, Object> newAttrs = new LinkedHashMap<>(attrs.size() + 1);
                 // We want this first from an indexing perspective.
                 newAttrs.put(
                     BundleRevision.HOST_NAMESPACE,
@@ -1378,7 +1378,7 @@ public class ManifestParser
                 // Inject filter directive.
 // TODO: OSGi R4.3 - Can we insert this on demand somehow?
                 Map<String, String> dirs = clauses.get(0).m_dirs;
-                Map<String, String> newDirs = new HashMap<String, String>(dirs.size() + 1);
+                Map<String, String> newDirs = new HashMap<>(dirs.size() + 1);
                 newDirs.putAll(dirs);
                 newDirs.put(
                     Constants.FILTER_DIRECTIVE,
@@ -1463,7 +1463,7 @@ public class ManifestParser
                 // more efficient.
 // TODO: OSGi R4.3 - This is ordering is kind of hacky.
                 // Prepend the symbolic name to the array of attributes.
-                Map<String, Object> newAttrs = new LinkedHashMap<String, Object>(attrs.size() + 1);
+                Map<String, Object> newAttrs = new LinkedHashMap<>(attrs.size() + 1);
                 // We want this first from an indexing perspective.
                 newAttrs.put(
                     BundleRevision.BUNDLE_NAMESPACE,
@@ -1480,7 +1480,7 @@ public class ManifestParser
                 // Inject filter directive.
 // TODO: OSGi R4.3 - Can we insert this on demand somehow?
                 Map<String, String> dirs = clause.m_dirs;
-                Map<String, String> newDirs = new HashMap<String, String>(dirs.size() + 1);
+                Map<String, String> newDirs = new HashMap<>(dirs.size() + 1);
                 newDirs.putAll(dirs);
                 newDirs.put(
                     Constants.FILTER_DIRECTIVE,
@@ -1594,7 +1594,7 @@ public class ManifestParser
 
     private static List<ParsedHeaderClause> parseStandardHeader(String header)
     {
-        List<ParsedHeaderClause> clauses = new ArrayList<ParsedHeaderClause>();
+        List<ParsedHeaderClause> clauses = new ArrayList<>();
         if (header != null)
         {
             int[] startIdx = new int[1];
@@ -1961,7 +1961,7 @@ public class ManifestParser
     {
         if (libStrs == null)
         {
-            return new ArrayList<R4LibraryClause>(0);
+            return new ArrayList<>(0);
         }
 
         List<R4LibraryClause> libList = new ArrayList(libStrs.size());

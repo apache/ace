@@ -196,7 +196,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     private Component m_component;
 
-    private final List<Component> m_eventHandlers = new ArrayList<Component>();
+    private final List<Component> m_eventHandlers = new ArrayList<>();
 
     private GridLayout m_mainToolbar;
 
@@ -477,10 +477,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      *            the description of the new distribution.
      */
     protected DistributionObject createDistribution(String name, String description) {
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put(DistributionObject.KEY_NAME, name);
         attributes.put(DistributionObject.KEY_DESCRIPTION, description);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
         return m_distributionRepository.create(attributes, tags);
     }
 
@@ -493,10 +493,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      *            the description of the new feature.
      */
     protected FeatureObject createFeature(String name, String description) {
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put(FeatureObject.KEY_NAME, name);
         attributes.put(FeatureObject.KEY_DESCRIPTION, description);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
         return m_featureRepository.create(attributes, tags);
     }
 
@@ -507,10 +507,10 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
      *            the name of the new target;
      */
     protected StatefulTargetObject createTarget(String name) {
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put(StatefulTargetObject.KEY_ID, name);
         attributes.put(TargetObject.KEY_AUTO_APPROVE, "true");
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
         return m_statefulTargetRepository.preregister(attributes, tags);
     }
 
@@ -1054,7 +1054,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
             protected void artifactsUploaded(List<UploadHandle> uploadedArtifacts) {
                 StringBuilder failedMsg = new StringBuilder();
                 StringBuilder successMsg = new StringBuilder();
-                Set<String> selection = new HashSet<String>();
+                Set<String> selection = new HashSet<>();
 
                 for (UploadHandle handle : uploadedArtifacts) {
                     if (!handle.isSuccessful()) {

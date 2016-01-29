@@ -92,8 +92,8 @@ public class TestUtils {
      * @param iface the service interface
      * @param instance the implementation
      */
-    public static void configureObject(Object object, Class iface, Object instance) {
-        Class serviceClazz = object.getClass();
+    public static void configureObject(Object object, @SuppressWarnings("rawtypes") Class iface, Object instance) {
+        Class<?> serviceClazz = object.getClass();
 
         while (serviceClazz != null) {
             Field[] fields = serviceClazz.getDeclaredFields();
@@ -117,24 +117,18 @@ public class TestUtils {
 
     static class NullObject implements InvocationHandler {
         private static final Boolean DEFAULT_BOOLEAN = Boolean.FALSE;
-
         private static final Byte DEFAULT_BYTE = new Byte((byte) 0);
-
         private static final Short DEFAULT_SHORT = new Short((short) 0);
-
         private static final Integer DEFAULT_INT = new Integer(0);
-
         private static final Long DEFAULT_LONG = new Long(0);
-
         private static final Float DEFAULT_FLOAT = new Float(0.0f);
-
         private static final Double DEFAULT_DOUBLE = new Double(0.0);
 
         /**
          * Invokes a method on this null object. The method will return a default value without doing anything.
          */
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            Class returnType = method.getReturnType();
+            Class<?> returnType = method.getReturnType();
             if (returnType.equals(Boolean.class) || returnType.equals(Boolean.TYPE)) {
                 return DEFAULT_BOOLEAN;
             }

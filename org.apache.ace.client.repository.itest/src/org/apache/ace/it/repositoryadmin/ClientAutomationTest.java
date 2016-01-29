@@ -89,7 +89,7 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
     }
 
     private void doAutoTargetReg() throws Exception {
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         events.add(new Event("anotherTarget", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         // fill auditlog; no install data
         m_auditLogStore.put(events);
@@ -97,7 +97,7 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
         int initRepoSize = m_statefulTargetRepository.get().size();
 
         // Get the processauditlog task and run it
-        ServiceTracker<Runnable, Runnable> tracker = new ServiceTracker<Runnable, Runnable>(
+        ServiceTracker<Runnable, Runnable> tracker = new ServiceTracker<>(
             m_bundleContext, m_bundleContext.createFilter("(&(" + Constants.OBJECTCLASS + "="
                 + Runnable.class.getName() + ")(" + SchedulerConstants.SCHEDULER_NAME_KEY + "="
                 + "org.apache.ace.client.processauditlog" + "))"), null);

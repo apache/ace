@@ -33,9 +33,9 @@ import org.osgi.framework.wiring.BundleRevision;
  * Provides the results of a verification.
  */
 final class VerificationResult {
-    private final Set<String> m_customizers = new HashSet<String>();
-    private final Set<String> m_processors = new HashSet<String>();
-    private final Set<BundleRevision> m_bundles = new HashSet<BundleRevision>();
+    private final Set<String> m_customizers = new HashSet<>();
+    private final Set<String> m_processors = new HashSet<>();
+    private final Set<BundleRevision> m_bundles = new HashSet<>();
     private final ByteArrayOutputStream m_output = new ByteArrayOutputStream();
     
     final PrintStream m_out = new PrintStream(m_output);

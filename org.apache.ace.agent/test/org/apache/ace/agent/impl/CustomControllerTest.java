@@ -52,7 +52,7 @@ public class CustomControllerTest extends BaseAgentTest {
     Version m_version1 = Version.parseVersion("1.0.0");
     Version m_version2 = Version.parseVersion("2.0.0");
     Version m_version3 = Version.parseVersion("3.0.0");
-    SortedSet<Version> m_availableVersions = new TreeSet<Version>();
+    SortedSet<Version> m_availableVersions = new TreeSet<>();
 
     File m_workDir;
     File m_dummyFile;

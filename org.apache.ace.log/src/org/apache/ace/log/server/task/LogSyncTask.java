@@ -177,7 +177,7 @@ public class LogSyncTask implements Runnable, LogSync {
          * For each local descriptor, we try to find a matching remote one. If so, we will synchronize all events that
          * the remote does not have. If we do not find a matching one at all, we send the complete local log.
          */
-        List<Descriptor> result = new ArrayList<Descriptor>();
+        List<Descriptor> result = new ArrayList<>();
         for (Descriptor s : source) {
             Descriptor diffs = s;
             for (Descriptor d : destination) {
@@ -301,7 +301,7 @@ public class LogSyncTask implements Runnable, LogSync {
     }
 
     protected List<Descriptor> getRanges(URL host) throws IOException {
-        List<Descriptor> result = new ArrayList<Descriptor>();
+        List<Descriptor> result = new ArrayList<>();
 
         URLConnection queryConnection = null;
         InputStream queryInput = null;
@@ -332,7 +332,7 @@ public class LogSyncTask implements Runnable, LogSync {
 
     protected void readLogs(BufferedReader reader) {
         try {
-            List<Event> events = new ArrayList<Event>();
+            List<Event> events = new ArrayList<>();
 
             String eventString = null;
             while ((eventString = reader.readLine()) != null) {

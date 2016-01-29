@@ -77,7 +77,7 @@ public class BundleCapabilityImpl implements BundleCapability
         if (value != null)
         {
             List<String> filters = ManifestParser.parseDelimitedString(value, ",");
-            m_includeFilter = new ArrayList<List<String>>(filters.size());
+            m_includeFilter = new ArrayList<>(filters.size());
             for (int filterIdx = 0; filterIdx < filters.size(); filterIdx++)
             {
                 List<String> substrings = SimpleFilter.parseSubstring(filters.get(filterIdx));
@@ -93,7 +93,7 @@ public class BundleCapabilityImpl implements BundleCapability
         if (value != null)
         {
             List<String> filters = ManifestParser.parseDelimitedString(value, ",");
-            m_excludeFilter = new ArrayList<List<String>>(filters.size());
+            m_excludeFilter = new ArrayList<>(filters.size());
             for (int filterIdx = 0; filterIdx < filters.size(); filterIdx++)
             {
                 List<String> substrings = SimpleFilter.parseSubstring(filters.get(filterIdx));
@@ -110,7 +110,7 @@ public class BundleCapabilityImpl implements BundleCapability
         if (value != null)
         {
             List<String> names = ManifestParser.parseDelimitedString(value, ",");
-            mandatory = new HashSet<String>(names.size());
+            mandatory = new HashSet<>(names.size());
             for (String name : names)
             {
                 // If attribute exists, then record it as mandatory.

@@ -46,7 +46,7 @@ import org.osgi.service.log.LogService;
  * stuff out.
  */
 public class RepositoryReplicationTask implements Runnable {
-    private final ConcurrentMap<ServiceReference, RepositoryReplication> m_replicators = new ConcurrentHashMap<ServiceReference, RepositoryReplication>();
+    private final ConcurrentMap<ServiceReference, RepositoryReplication> m_replicators = new ConcurrentHashMap<>();
 
     private volatile Discovery m_discovery;
     private volatile ConnectionFactory m_connectionFactory;
@@ -75,7 +75,7 @@ public class RepositoryReplicationTask implements Runnable {
      */
     public void run() {
         // Take a snapshot of the current available replicators...
-        Map<ServiceReference, RepositoryReplication> replicators = new HashMap<ServiceReference, RepositoryReplication>(m_replicators);
+        Map<ServiceReference, RepositoryReplication> replicators = new HashMap<>(m_replicators);
 
         // The URL to the server to replicate...
         URL master = m_discovery.discover();

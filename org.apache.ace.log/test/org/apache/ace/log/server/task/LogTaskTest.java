@@ -36,7 +36,7 @@ import org.testng.annotations.Test;
 public class LogTaskTest {
 
     private static class MockLogSyncTask extends LogSyncTask {
-        public List<Descriptor> m_calledWith = new ArrayList<Descriptor>();
+        public List<Descriptor> m_calledWith = new ArrayList<>();
 
         public MockLogSyncTask(String endpoint, String name) {
             super(endpoint, name, LogSyncTask.Mode.PUSH, LogSyncTask.Mode.NONE);
@@ -62,8 +62,8 @@ public class LogTaskTest {
     @Test(groups = { UNIT })
     public void testDeltaComputation() throws IOException {
         // TODO: Test the new LogDescriptor.
-        List<Descriptor> src = new ArrayList<Descriptor>();
-        List<Descriptor> dest = new ArrayList<Descriptor>();
+        List<Descriptor> src = new ArrayList<>();
+        List<Descriptor> dest = new ArrayList<>();
 
         String targetID = "targetID";
         MockLogSyncTask task = new MockLogSyncTask("mocklog", "mocklog");

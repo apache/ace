@@ -37,7 +37,7 @@ import org.osgi.service.log.LogService;
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
     private static final String MA_NAME = "ma";
     private DependencyManager m_manager;
-    private final Map<String, Component> m_instances = new HashMap<String, Component>();
+    private final Map<String, Component> m_instances = new HashMap<>();
     
     public synchronized void init(BundleContext context, DependencyManager manager) throws Exception {
         m_manager = manager;

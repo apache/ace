@@ -152,7 +152,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
 
     @Override
     protected List<String> getResponse(String request) throws IOException {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         InputStream in = null;
         try {
             in = m_connectionFactory.createConnection(new URL(request)).getInputStream();
@@ -197,7 +197,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
             String tid2 = "47";
 
             // prepare the store
-            List<Event> events = new ArrayList<Event>();
+            List<Event> events = new ArrayList<>();
             events.add(new Event(tid1, 1, 1, 1, 1));
             events.add(new Event(tid2, 1, 1, 1, 1));
             m_serverStore.put(events);

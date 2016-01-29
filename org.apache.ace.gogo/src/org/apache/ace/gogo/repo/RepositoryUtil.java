@@ -54,7 +54,7 @@ import aQute.bnd.service.Strategy;
 public class RepositoryUtil {
 
     public static AceObrRepository createRepository(String type, String location) throws Exception {
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
         properties.put(AceObrRepository.PROP_REPO_TYPE, type);
         properties.put(AceObrRepository.PROP_LOCATIONS, location);
         AceObrRepository repository = new AceObrRepository();
@@ -70,8 +70,8 @@ public class RepositoryUtil {
         }
 
         File indexFile = new File(rootDir, "index.xml");
-        Set<File> files = new HashSet<File>();
-        Stack<File> dirs = new Stack<File>();
+        Set<File> files = new HashSet<>();
+        Stack<File> dirs = new Stack<>();
         dirs.push(rootDir);
         while (!dirs.isEmpty()) {
             File dir = dirs.pop();
@@ -86,7 +86,7 @@ public class RepositoryUtil {
         }
 
         RepoIndex indexer = new RepoIndex();
-        Map<String, String> config = new HashMap<String, String>();
+        Map<String, String> config = new HashMap<>();
         config.put(ResourceIndexer.REPOSITORY_NAME, "empty");
         config.put(ResourceIndexer.PRETTY, "true");
         config.put(ResourceIndexer.ROOT_URL, rootDir.getAbsoluteFile().toURI().toURL().toString());
@@ -203,7 +203,7 @@ public class RepositoryUtil {
 
     public static List<Resource> copyResources(AbstractIndexedRepo sourceRepo, AbstractIndexedRepo targetRepo, Requirement requirement) throws Exception {
         List<Resource> sourceResources = findResources(sourceRepo, requirement);
-        List<Resource> targetResources = new ArrayList<Resource>();
+        List<Resource> targetResources = new ArrayList<>();
         for (Resource resource : sourceResources) {
             targetResources.add(copyResource(sourceRepo, targetRepo, resource));
         }
@@ -211,7 +211,7 @@ public class RepositoryUtil {
     }
 
     public static List<Resource> copyResources(AbstractIndexedRepo sourceRepo, AbstractIndexedRepo targetRepo, List<Resource> resources) throws Exception {
-        List<Resource> targetResources = new LinkedList<Resource>();
+        List<Resource> targetResources = new LinkedList<>();
         for (Resource resource : resources) {
             Resource targetResource = copyResource(sourceRepo, targetRepo, resource);
             targetResources.add(targetResource);
@@ -297,7 +297,7 @@ public class RepositoryUtil {
         if (sourceResources.isEmpty() || sourceResources.get(requirement).isEmpty()) {
             return Collections.emptyList();
         }
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         Iterator<Capability> capabilities = sourceResources.get(requirement).iterator();
         while (capabilities.hasNext()) {
             Capability capability = capabilities.next();
@@ -315,7 +315,7 @@ public class RepositoryUtil {
     }
 
     public static List<Version> getVersions(List<Resource> resources) {
-        List<Version> versions = new ArrayList<Version>();
+        List<Version> versions = new ArrayList<>();
         for (Resource resource : resources) {
             versions.add(getVersion(resource));
         }

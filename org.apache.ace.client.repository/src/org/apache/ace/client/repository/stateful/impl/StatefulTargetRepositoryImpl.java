@@ -79,8 +79,8 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     private LogService m_log; /* Injected by dependency manager */
     private BundleHelper m_bundleHelper; /* Injected by dependency manager */
     // TODO: Make the concurrencyLevel of this concurrent hashmap settable?
-    private Map<String, StatefulTargetObjectImpl> m_repository = new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
-    private Map<String, StatefulTargetObjectImpl> m_index = new ConcurrentHashMap<String, StatefulTargetObjectImpl>();
+    private Map<String, StatefulTargetObjectImpl> m_repository = new ConcurrentHashMap<>();
+    private Map<String, StatefulTargetObjectImpl> m_index = new ConcurrentHashMap<>();
 
     private final String m_sessionID;
     private final RepositoryConfiguration m_repoConfig;
@@ -98,7 +98,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
 
     public List<StatefulTargetObject> get() {
         synchronized (m_repository) {
-            List<StatefulTargetObject> result = new ArrayList<StatefulTargetObject>();
+            List<StatefulTargetObject> result = new ArrayList<>();
             for (StatefulTargetObjectImpl sgoi : m_repository.values()) {
                 result.add(sgoi);
             }
@@ -108,7 +108,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
 
     public List<StatefulTargetObject> get(Filter filter) {
         synchronized (m_repository) {
-            List<StatefulTargetObject> result = new ArrayList<StatefulTargetObject>();
+            List<StatefulTargetObject> result = new ArrayList<>();
             for (StatefulTargetObject entry : m_repository.values()) {
                 if (filter.matchCase(entry.getDictionary())) {
                     result.add(entry);
@@ -273,7 +273,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      * @return A list of LogDescriptors, in no particular order.
      */
     List<Descriptor> getAllDescriptors(String targetID) {
-        List<Descriptor> result = new ArrayList<Descriptor>();
+        List<Descriptor> result = new ArrayList<>();
         try {
             List<Descriptor> descriptors = m_auditLogStore.getDescriptors(targetID);
             if (descriptors != null) {
@@ -300,7 +300,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      */
     List<Event> getAuditEvents(List<Descriptor> events) {
         // Get all events from the audit log store, if possible.
-        List<Event> result = new ArrayList<Event>();
+        List<Event> result = new ArrayList<>();
         for (Descriptor l : events) {
             try {
                 result.addAll(m_auditLogStore.get(l));
@@ -316,7 +316,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     }
 
     List<Descriptor> diffLogDescriptorLists(List<Descriptor> all, List<Descriptor> seen) {
-        List<Descriptor> descriptors = new ArrayList<Descriptor>();
+        List<Descriptor> descriptors = new ArrayList<>();
 
         // Find out what events should be returned
         for (Descriptor s : all) {
@@ -347,9 +347,9 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      *            A string representing the ID of the new target.
      */
     void register(String targetID) {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(TargetObject.KEY_ID, targetID);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
         m_targetRepository.create(attr, tags);
         getStatefulTargetObject(targetID).updateTargetObject(false);
     }
@@ -393,7 +393,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      */
     private void populate() {
         synchronized (m_repository) {
-            List<StatefulTargetObjectImpl> touched = new ArrayList<StatefulTargetObjectImpl>();
+            List<StatefulTargetObjectImpl> touched = new ArrayList<>();
             touched.addAll(parseTargetRepository());
             if (isShowUnregisteredTargets()) {
                 touched.addAll(parseAuditLog());
@@ -401,7 +401,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
 
             // Now, it is possible we have not touched all objects. Find out which these are, and make
             // them check whether they should still exist.
-            List<StatefulTargetObjectImpl> all = new ArrayList<StatefulTargetObjectImpl>(m_repository.values());
+            List<StatefulTargetObjectImpl> all = new ArrayList<>(m_repository.values());
             all.removeAll(touched);
             for (StatefulTargetObjectImpl stoi : all) {
                 stoi.updateTargetObject(false);
@@ -426,7 +426,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      * @return A list of all the target objects that have been touched by this action.
      */
     private List<StatefulTargetObjectImpl> parseTargetRepository() {
-        List<StatefulTargetObjectImpl> result = new ArrayList<StatefulTargetObjectImpl>();
+        List<StatefulTargetObjectImpl> result = new ArrayList<>();
         for (TargetObject to : m_targetRepository.get()) {
             StatefulTargetObjectImpl stoi = getStatefulTargetObject(to.getID());
             if (stoi == null) {
@@ -447,7 +447,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      *            states whether the objects which are 'touched' by this actions should verify their existence.
      */
     private List<StatefulTargetObjectImpl> parseAuditLog() {
-        List<StatefulTargetObjectImpl> result = new ArrayList<StatefulTargetObjectImpl>();
+        List<StatefulTargetObjectImpl> result = new ArrayList<>();
         List<Descriptor> descriptors = null;
         try {
             descriptors = m_auditLogStore.getDescriptors();
@@ -460,7 +460,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
             return result;
         }
 
-        Set<String> targetIDs = new HashSet<String>();
+        Set<String> targetIDs = new HashSet<>();
         for (Descriptor l : descriptors) {
             targetIDs.add(l.getTargetID());
         }
@@ -521,10 +521,10 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
     DeploymentArtifact[] getNecessaryDeploymentArtifacts(String targetID, String version) throws IOException {
         TargetObject to = getTargetObject(targetID);
 
-        Map<ArtifactObject, String> bundles = new HashMap<ArtifactObject, String>();
-        Map<ArtifactObject, String> artifacts = new HashMap<ArtifactObject, String>();
+        Map<ArtifactObject, String> bundles = new HashMap<>();
+        Map<ArtifactObject, String> artifacts = new HashMap<>();
         Map<ArtifactObject, Map<FeatureObject, List<DistributionObject>>> path =
-            new HashMap<ArtifactObject, Map<FeatureObject, List<DistributionObject>>>();
+            new HashMap<>();
 
         // First, find all basic bundles and artifacts. An while we're traversing the
         // tree of objects, build the tree of properties.
@@ -540,12 +540,12 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
                         }
                         Map<FeatureObject, List<DistributionObject>> featureToDistribution = path.get(artifact);
                         if (featureToDistribution == null) {
-                            featureToDistribution = new HashMap<FeatureObject, List<DistributionObject>>();
+                            featureToDistribution = new HashMap<>();
                             path.put(artifact, featureToDistribution);
                         }
                         List<DistributionObject> distributions = featureToDistribution.get(feature);
                         if (distributions == null) {
-                            distributions = new ArrayList<DistributionObject>();
+                            distributions = new ArrayList<>();
                             featureToDistribution.put(feature, distributions);
                         }
                         distributions.add(distribution);
@@ -569,10 +569,10 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
             }
         }
 
-        List<DeploymentArtifact> result = new ArrayList<DeploymentArtifact>();
+        List<DeploymentArtifact> result = new ArrayList<>();
 
         for (ArtifactObject bundle : bundles.keySet()) {
-            Map<String, String> directives = new HashMap<String, String>();
+            Map<String, String> directives = new HashMap<>();
             if (m_bundleHelper.isResourceProcessor(bundle)) {
                 // it's a resource processor, mark it as such.
                 directives.put(DeploymentArtifact.DIRECTIVE_ISCUSTOMIZER, "true");
@@ -594,7 +594,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
         }
 
         for (ArtifactObject artifact : artifacts.keySet()) {
-            Map<String, String> directives = new HashMap<String, String>();
+            Map<String, String> directives = new HashMap<>();
             directives.put(DeploymentArtifact.DIRECTIVE_KEY_PROCESSORID, artifact.getProcessorPID());
             directives.put(DeploymentArtifact.DIRECTIVE_KEY_BASEURL, artifact.getURL());
             if (artifact.getResourceId() != null) {
@@ -619,7 +619,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      * @return a map of all resource processors, indexed by processor ID
      */
     private Map<String, ArtifactObject> getAllProcessors() {
-        Map<String, ArtifactObject> allProcessors = new HashMap<String, ArtifactObject>();
+        Map<String, ArtifactObject> allProcessors = new HashMap<>();
         for (ArtifactObject processorBundle : m_artifactRepository.getResourceProcessors()) {
             String pid = m_bundleHelper.getResourceProcessorPIDs(processorBundle);
             ArtifactObject existingProcessorBundle = allProcessors.get(pid);
@@ -664,7 +664,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      */
     // TODO this method strongly resembles part of getNecessaryDeploymentArtifacts(), merge code?!
     ArtifactObject[] getNecessaryArtifacts(String targetID) {
-        List<ArtifactObject> result = new ArrayList<ArtifactObject>();
+        List<ArtifactObject> result = new ArrayList<>();
         TargetObject to = getTargetObject(targetID);
 
         Map<String, ArtifactObject> allProcessors = getAllProcessors();
@@ -706,9 +706,9 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      *             When there is a problem determining the artifacts to be deployed.
      */
     DeploymentVersionObject generateDeploymentVersion(String targetID) throws IOException {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(DeploymentVersionObject.KEY_TARGETID, targetID);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
         DeploymentVersionObject mostRecentDeploymentVersion = getMostRecentDeploymentVersion(targetID);
         String nextVersion;
@@ -870,7 +870,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
             }
         }
         else if (entity instanceof ArtifactObject) {
-            List<ArtifactObject> reachableArtifacts = new ArrayList<ArtifactObject>();
+            List<ArtifactObject> reachableArtifacts = new ArrayList<>();
             for (DistributionObject dist : target.getDistributions()) {
                 for (FeatureObject feat : dist.getFeatures()) {
                     if (feat.isAssociated(entity, ArtifactObject.class)) {

@@ -92,7 +92,7 @@ public class RepositoryFactory implements ManagedServiceFactory {
         }
     }
 
-    private final ConcurrentMap<String, Component> m_instances = new ConcurrentHashMap<String, Component>();
+    private final ConcurrentMap<String, Component> m_instances = new ConcurrentHashMap<>();
     private final ConcurrentMap<Entry, String> m_index = new ConcurrentHashMap<>();
     private final DependencyManager m_manager;
 

@@ -73,8 +73,8 @@ public class WorkspaceManagerImpl implements ManagedService, WorkspaceManager {
     private String m_serverUser;
 
     public WorkspaceManagerImpl() {
-        m_workspaces = new HashMap<String, Workspace>();
-        m_workspaceComponents = new HashMap<String, Component>();
+        m_workspaces = new HashMap<>();
+        m_workspaceComponents = new HashMap<>();
     }
 
     public void init(Component component) {

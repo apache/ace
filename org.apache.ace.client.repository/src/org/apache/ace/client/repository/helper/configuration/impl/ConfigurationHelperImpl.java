@@ -151,7 +151,7 @@ public class ConfigurationHelperImpl implements ArtifactRecognizer, Configuratio
     }
 
     public Map<String, String> extractMetaData(ArtifactResource artifact) throws IllegalArgumentException {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put(ArtifactObject.KEY_PROCESSOR_PID, PROCESSOR);
         result.put(ArtifactObject.KEY_MIMETYPE, MIMETYPE);
         String name = new File(artifact.getURL().getFile()).getName();

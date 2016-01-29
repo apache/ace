@@ -51,7 +51,7 @@ abstract class UpdateHandlerBase extends ComponentBase implements UpdateHandler 
     }
 
     protected SortedSet<Version> getAvailableVersions(URL endpoint) throws RetryAfterException, IOException {
-        SortedSet<Version> versions = new TreeSet<Version>();
+        SortedSet<Version> versions = new TreeSet<>();
         URLConnection connection = null;
         BufferedReader reader = null;
         try {

@@ -68,7 +68,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
     private volatile LogService m_log;
     private volatile ConnectionFactory m_connectionFactory;
 
-    private final Map<String, ArtifactHelper> m_helpers = new HashMap<String, ArtifactHelper>();
+    private final Map<String, ArtifactHelper> m_helpers = new HashMap<>();
 
     public ArtifactRepositoryImpl(ChangeNotifier notifier, RepositoryConfiguration repoConfig) {
         super(notifier, XML_NODE, repoConfig);
@@ -81,7 +81,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         catch (InvalidSyntaxException e) {
             m_log.log(LogService.LOG_ERROR, "getResourceProcessors' filter returned an InvalidSyntaxException.", e);
         }
-        return new ArrayList<ArtifactObject>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         catch (InvalidSyntaxException e) {
             m_log.log(LogService.LOG_ERROR, "Extending " + filter.toString() + " resulted in an InvalidSyntaxException.", e);
         }
-        return new ArrayList<ArtifactObject>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         catch (InvalidSyntaxException e) {
             m_log.log(LogService.LOG_ERROR, "get's filter returned an InvalidSyntaxException.", e);
         }
-        return new ArrayList<ArtifactObject>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -250,7 +250,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         }
 
         // Package the results in the map.
-        Map<Class<?>, Object> result = new HashMap<Class<?>, Object>();
+        Map<Class<?>, Object> result = new HashMap<>();
         result.put(ArtifactRecognizer.class, recognizer);
         if (mimetype == null) {
             result.put(ArtifactHelper.class, getHelper(foundMimetype));
@@ -317,7 +317,7 @@ public class ArtifactRepositoryImpl extends ObjectRepositoryImpl<ArtifactObjectI
         ArtifactResource resource = convertToArtifactResource(artifact);
 
         Map<String, String> attributes = recognizer.extractMetaData(resource);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
         helper.checkAttributes(attributes);
         attributes.put(ArtifactObject.KEY_ARTIFACT_DESCRIPTION, "");

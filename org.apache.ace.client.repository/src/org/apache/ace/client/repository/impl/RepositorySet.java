@@ -81,7 +81,7 @@ class RepositorySet {
      * </ul>
      */
     RepositorySet(ChangeNotifier notifier, LogService log, User user, Preferences prefs, ObjectRepositoryImpl[] repos, CachedRepository repository, String name, boolean writeAccess) {
-        m_workingState = new ConcurrentHashMap<RepositoryObject, WorkingState>();
+        m_workingState = new ConcurrentHashMap<>();
         m_notifier = notifier;
         m_log = log;
         m_user = user;
@@ -151,7 +151,7 @@ class RepositorySet {
     @SuppressWarnings("unchecked")
     void loadPreferences() {
         Preferences workingNode = m_prefs.node(PREFS_LOCAL_WORKING_STATE);
-        Map<String, WorkingState> entries = new HashMap<String, WorkingState>();
+        Map<String, WorkingState> entries = new HashMap<>();
         // First, get all nodes and their workingstate.
         try {
             String defaultWorkingState = WorkingState.Unchanged.toString();
@@ -281,7 +281,7 @@ class RepositorySet {
         if (m_modifiedHandler != null) {
             throw new IllegalStateException("A handler is already registered; only one can be used at a time.");
         }
-        Dictionary<String, Object> topic = new Hashtable<String, Object>();
+        Dictionary<String, Object> topic = new Hashtable<>();
         topic.put(EventConstants.EVENT_TOPIC, topics);
         topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + sessionID + ")");
         m_modifiedHandler = context.registerService(EventHandler.class.getName(), new ModifiedHandler(), topic);

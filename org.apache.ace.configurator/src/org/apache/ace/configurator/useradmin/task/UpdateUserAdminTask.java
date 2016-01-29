@@ -138,7 +138,7 @@ public class UpdateUserAdminTask implements Runnable, ManagedService {
         run();
     }
 
-    public void updated(Dictionary dict) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> dict) throws ConfigurationException {
         if (dict != null) {
             String customer = (String) dict.get(KEY_REPOSITORY_CUSTOMER);
             if (customer == null) {

@@ -56,7 +56,7 @@ public class ConfiguratorTest {
         Properties initialConfiguration = createProperties();
         saveConfiguration(pid, initialConfiguration);
 
-        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        Dictionary<String, ?> configuration = getAndWaitForConfigurationUpdate(pid);
         assertNotNull(configuration, "No configuration received from configurator");
         assertEquals(createProperties(), configuration, "Configuration content is unexpected");
     }
@@ -69,7 +69,7 @@ public class ConfiguratorTest {
         Properties props = createProperties();
         saveConfiguration(pid, "testFactory", props);
 
-        Dictionary configuration = getAndWaitForConfigurationUpdate(factoryPID);
+        Dictionary<String, ?> configuration = getAndWaitForConfigurationUpdate(factoryPID);
         assertNotNull(configuration, "No configuration received from configurator");
         assertEquals(configuration.remove("factory.instance.pid"), "testFactory_test-add", "Incorrect factory instance pid was added to the configuration");
         assertEquals(createProperties(), configuration, "Configuration content is unexpected");
@@ -83,7 +83,7 @@ public class ConfiguratorTest {
         Properties initialConfiguration = createProperties();
         saveConfiguration(pid, initialConfiguration);
 
-        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        Dictionary<String, ?> configuration = getAndWaitForConfigurationUpdate(pid);
         assertNotNull(configuration, "No configuration received from configurator");
         assertEquals(initialConfiguration, configuration);
 
@@ -106,7 +106,7 @@ public class ConfiguratorTest {
         initialConfigurationValues.putAll(configurationValues);
         saveConfiguration(pid, configurationValues);
 
-        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        Dictionary<String, ?> configuration = getAndWaitForConfigurationUpdate(pid);
         assertNotNull(configuration, "No configuration received from configurator");
         assertEquals(configurationValues, configuration);
 
@@ -128,7 +128,7 @@ public class ConfiguratorTest {
         Properties configurationValues = createProperties();
         saveConfiguration(pid, configurationValues);
 
-        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        Dictionary<String, ?> configuration = getAndWaitForConfigurationUpdate(pid);
         assertNotNull(configuration, "No configuration received from configurator");
         assertEquals(configurationValues, configuration);
 
@@ -157,7 +157,7 @@ public class ConfiguratorTest {
         initial.put("key3", "${qux} ${quu.${bar}} ${baz.${bar}}");
         saveConfiguration(pid, initial);
 
-        Dictionary config = getAndWaitForConfigurationUpdate(pid);
+        Dictionary<String, ?> config = getAndWaitForConfigurationUpdate(pid);
         assertNotNull(config, "No configuration received from configurator");
         assertEquals(config.get("key1"), "leading text middle word trailing", "Substitution failed!");
         assertEquals(config.get("key2"), "%d{ISO8601} | %-5.5p | %C | %X{bundle.name} | %m%n", "Substitution failed!");
@@ -172,7 +172,7 @@ public class ConfiguratorTest {
         initialConfiguration.put("subst", "${contextProp}");
         saveConfiguration(pid, initialConfiguration);
 
-        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        Dictionary<String, ?> configuration = getAndWaitForConfigurationUpdate(pid);
         assertNotNull(configuration, "No configuration received from configurator");
         assertEquals(configuration.get("subst"), "contextVal", "Substitution failed");
     }
@@ -185,7 +185,7 @@ public class ConfiguratorTest {
         Properties initialConfiguration = createProperties();
         saveConfiguration(pid, initialConfiguration);
 
-        Dictionary configuration = getAndWaitForConfigurationUpdate(pid);
+        Dictionary<String, ?> configuration = getAndWaitForConfigurationUpdate(pid);
         assertNotNull(configuration, "No configuration received from configurator");
         assertEquals(createProperties(), configuration);
 
@@ -276,7 +276,7 @@ public class ConfiguratorTest {
      * Get the configuration and if it not available yet wait for it. If there is still no configuration after the wait
      * time, null is returned.
      */
-    private Dictionary getAndWaitForConfigurationUpdate(String pid) throws Exception {
+    private Dictionary<String, ?> getAndWaitForConfigurationUpdate(String pid) throws Exception {
         assertTrue(m_updateLatch.await(2, TimeUnit.SECONDS));
 
         return m_configAdmin.getConfiguration(pid).getProperties();

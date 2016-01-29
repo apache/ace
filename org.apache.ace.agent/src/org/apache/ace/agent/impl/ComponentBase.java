@@ -45,7 +45,7 @@ public abstract class ComponentBase implements AgentContextAware {
 
     public ComponentBase(String handlerIdentifier) {
         m_identifier = handlerIdentifier;
-        m_contextRef = new AtomicReference<AgentContext>();
+        m_contextRef = new AtomicReference<>();
     }
 
     @Override

@@ -21,7 +21,8 @@ package org.apache.ace.connectionfactory.impl;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
-import java.util.Properties;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.apache.ace.connectionfactory.impl.UrlCredentialsFactory.MissingValueException;
 import org.testng.annotations.Test;
@@ -38,7 +39,8 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryBasicTypeMissingPasswordFail() {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, AUTH_BASE_URL);
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "basic");
         props.put(UrlCredentialsFactory.KEY_AUTH_USER_NAME, "bar");
@@ -51,7 +53,8 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryClientCertTypeMissingKeystorePasswordFail() {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, AUTH_BASE_URL);
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "client_cert");
         props.put(UrlCredentialsFactory.KEY_AUTH_TRUSTSTORE_FILE, "bar");
@@ -66,7 +69,8 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryClientCertTypeMissingKeystoreFileFail() {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, AUTH_BASE_URL);
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "client_cert");
         props.put(UrlCredentialsFactory.KEY_AUTH_TRUSTSTORE_FILE, "bar");
@@ -81,7 +85,8 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT })
     public void testGetCredentialsWithDictionaryClientCertTypeOk() {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, AUTH_BASE_URL);
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "client_cert");
         props.put(UrlCredentialsFactory.KEY_AUTH_TRUSTSTORE_FILE, "foo");
@@ -102,7 +107,8 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryClientCertTypeMissingTruststorePasswordFail() {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, AUTH_BASE_URL);
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "client_cert");
         props.put(UrlCredentialsFactory.KEY_AUTH_KEYSTORE_FILE, "bar");
@@ -117,7 +123,8 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryClientCertTypeMissingTruststoreFileFail() {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, AUTH_BASE_URL);
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "client_cert");
         props.put(UrlCredentialsFactory.KEY_AUTH_KEYSTORE_FILE, "bar");
@@ -132,7 +139,8 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryBasicTypeMissingUserNameFail() {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, AUTH_BASE_URL);
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "basic");
         props.put(UrlCredentialsFactory.KEY_AUTH_USER_PASSWORD, "bar");
@@ -145,7 +153,8 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT })
     public void testGetCredentialsWithDictionaryBasicTypeOk() {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, AUTH_BASE_URL);
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "basic");
         props.put(UrlCredentialsFactory.KEY_AUTH_USER_NAME, "foo");
@@ -159,7 +168,8 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testGetCredentialsWithDictionaryInvalidAuthTypeFail() {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, AUTH_BASE_URL);
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "nonsense");
 
@@ -171,7 +181,8 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryMissingBaseUrlFail() {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "none");
 
         UrlCredentialsFactory.getCredentials(props);
@@ -190,7 +201,7 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
     public void testGetCredentialsWithNullPrefixFail() {
-        UrlCredentialsFactory.getCredentials(new Properties(), null);
+        UrlCredentialsFactory.getCredentials(new Hashtable<String, Object>(), null);
     }
 
     /**
@@ -198,7 +209,8 @@ public class UrlCredentialsFactoryTest {
      */
     @Test(groups = { UNIT })
     public void testGetCredentialsWithValidDictionaryOk() {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, AUTH_BASE_URL);
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "none");
 

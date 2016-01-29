@@ -296,7 +296,7 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
     private List<Version> getVersionsFromOBR(URL obrBaseUrl, String agentID) throws XPathExpressionException, IOException {
         InputStream input = null;
         NodeList resources = getOBRNodeList(input);
-        List<Version> obrList = new ArrayList<Version>();
+        List<Version> obrList = new ArrayList<>();
         for (int nResource = 0; nResource < resources.getLength(); nResource++) {
             Node resource = resources.item(nResource);
             NamedNodeMap attr = resource.getAttributes();

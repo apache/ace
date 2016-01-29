@@ -66,7 +66,7 @@ abstract class AddArtifactWindow extends Window {
     private final File m_sessionDir;
     private final URL m_obrUrl;
 
-    private final List<File> m_uploadedArtifacts = new ArrayList<File>();
+    private final List<File> m_uploadedArtifacts = new ArrayList<>();
     private final Button m_searchButton;
     private final Button m_addButton;
     private final Table m_artifactsTable;
@@ -235,7 +235,7 @@ abstract class AddArtifactWindow extends Window {
      * @return the imported artifacts, never <code>null</code>.
      */
     final List<ArtifactObject> importLocalBundles(final Table artifacts) {
-        final List<ArtifactObject> added = new ArrayList<ArtifactObject>();
+        final List<ArtifactObject> added = new ArrayList<>();
 
         Set<?> selectedItems = (Set<?>) artifacts.getValue();
         if (selectedItems != null && !selectedItems.isEmpty()) {
@@ -268,7 +268,7 @@ abstract class AddArtifactWindow extends Window {
      * @return the list of imported bundles.
      */
     final List<ArtifactObject> importRemoteBundles(List<File> uploadedArtifacts) {
-        List<ArtifactObject> added = new ArrayList<ArtifactObject>();
+        List<ArtifactObject> added = new ArrayList<>();
 
         StringBuffer errors = new StringBuffer();
         int failedImports = 0;
@@ -398,7 +398,7 @@ abstract class AddArtifactWindow extends Window {
         // retrieve the repository.xml as a stream
         List<OBREntry> obrList = OBRUtil.getAvailableOBREntries(getConnectionFactory(), getArtifactRepository(), obrBaseUrl, m_repositoryXML);
         if (obrList.isEmpty()) {
-            logError("No new data in OBR.");
+            logDebug("No new data in OBR.");
             return;
         }
 
@@ -412,7 +412,7 @@ abstract class AddArtifactWindow extends Window {
     }
 
     /**
-     * Logs a given message at the error level.
+     * Logs a given message at the debug level.
      * <p>
      * If there's no log service present, this method will silently ignore the log statement.
      * </p>
@@ -420,10 +420,10 @@ abstract class AddArtifactWindow extends Window {
      * @param aMessage
      *            the message to log.
      */
-    private void logError(String aMessage) {
+    private void logDebug(String aMessage) {
         LogService logger = getLogger();
         if (logger != null) {
-            logger.log(LogService.LOG_ERROR, aMessage);
+            logger.log(LogService.LOG_DEBUG, aMessage);
         }
     }
 

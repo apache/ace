@@ -31,7 +31,7 @@ import org.apache.ace.log.Log;
  */
 public class LogCache implements Log {
 
-    private final List<LogEntry> m_logEntries = new ArrayList<LogEntry>();
+    private final List<LogEntry> m_logEntries = new ArrayList<>();
 
     /**
      * Log the entry in the cache for flushing to the real log service later on.

@@ -43,7 +43,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     private static final String KEY_MODE_LOWEST_IDS = "mode-lowest-ids";
     private static final String KEY_TARGETID = "tid";
     
-    private final Map<String, Component> m_instances = new HashMap<String, Component>();
+    private final Map<String, Component> m_instances = new HashMap<>();
     private volatile DependencyManager m_manager;
 
     @Override

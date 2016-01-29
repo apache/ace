@@ -43,7 +43,7 @@ public class FeedbackStoreTest {
         private final CountDownLatch m_start;
         private final CountDownLatch m_stop;
         private final FeedbackStore m_store;
-        private final ConcurrentMap<Long, Boolean> m_seen = new ConcurrentHashMap<Long, Boolean>();
+        private final ConcurrentMap<Long, Boolean> m_seen = new ConcurrentHashMap<>();
         private final int m_count;
 
         public Reader(FeedbackStore store, CountDownLatch start, CountDownLatch stop, int count) {
@@ -104,7 +104,7 @@ public class FeedbackStoreTest {
         private final CountDownLatch m_start;
         private final CountDownLatch m_stop;
         private final FeedbackStore m_store;
-        private final ConcurrentMap<Long, byte[]> m_written = new ConcurrentHashMap<Long, byte[]>();
+        private final ConcurrentMap<Long, byte[]> m_written = new ConcurrentHashMap<>();
         private final int m_count;
         private final int m_initValue;
         private final int m_stepSize;

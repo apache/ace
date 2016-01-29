@@ -142,18 +142,18 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
     public static final String STOP_UNAFFECTED_BUNDLES = "org.apache.felix.deploymentadmin.stopUnaffectedBundles";
 
     private final Semaphore m_semaphore = new Semaphore(0);
-    private final ConcurrentMap<Integer, CopyOnWriteArrayList<Bundle>> m_events = new ConcurrentHashMap<Integer, CopyOnWriteArrayList<Bundle>>();
+    private final ConcurrentMap<Integer, CopyOnWriteArrayList<Bundle>> m_events = new ConcurrentHashMap<>();
 
     private volatile ConfigurationAdmin m_config;
     private volatile DeploymentAdmin m_deployment;
     private volatile File m_tempDir;
-    private volatile ServiceRegistration m_deploymentAdminProxyReg;
+    private volatile ServiceRegistration<DeploymentAdmin> m_deploymentAdminProxyReg;
 
     @Override
     public void bundleChanged(BundleEvent event) {
         System.out.println("Bundle Event: " + event);
         Integer eventType = Integer.valueOf(event.getType());
-        CopyOnWriteArrayList<Bundle> bundles = new CopyOnWriteArrayList<Bundle>();
+        CopyOnWriteArrayList<Bundle> bundles = new CopyOnWriteArrayList<>();
         CopyOnWriteArrayList<Bundle> oldBundles = m_events.putIfAbsent(eventType, bundles);
         if (oldBundles != null) {
             bundles = oldBundles;
@@ -339,7 +339,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
         props.put(EventConstants.EVENT_FILTER, "(successful=true)");
 
         m_bundleContext.addBundleListener(this);
-        ServiceRegistration reg = m_bundleContext.registerService(EventHandler.class.getName(), this, props);
+        ServiceRegistration<EventHandler> reg = m_bundleContext.registerService(EventHandler.class, this, props);
 
         try {
             configureTarget();
@@ -390,7 +390,7 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
     private void registerDeploymentAdminProxy(DeploymentAdmin proxy) {
         Dictionary<String, Object> props = new Hashtable<>();
         props.put(org.osgi.framework.Constants.SERVICE_RANKING, 1);
-        m_deploymentAdminProxyReg = m_bundleContext.registerService(DeploymentAdmin.class.getName(), proxy, props);
+        m_deploymentAdminProxyReg = m_bundleContext.registerService(DeploymentAdmin.class, proxy, props);
     }
 
     private void unconfigureServer() throws IOException {

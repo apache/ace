@@ -228,7 +228,7 @@ public class StreamTest {
         assert att.getValue("DeploymentPackage-SymbolicName").equals("test");
         assert att.getValue("DeploymentPackage-Version").equals("1.0.0");
         assert (fixPackage && att.getValue("DeploymentPackage-FixPack").equals("[0.0.0,1.0.0)")) || (att.getValue("DeploymentPackage-FixPack") == null);
-        HashSet<String> names = new HashSet<String>();
+        HashSet<String> names = new HashSet<>();
         JarEntry e = jis.getNextJarEntry();
         while (e != null) {
             String name = e.getName();

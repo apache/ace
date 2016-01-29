@@ -66,7 +66,7 @@ import junit.framework.TestCase;
  */
 public class IntegrationTestBase extends TestCase {
     private static class ComponentCounter implements ComponentStateListener {
-        private final List<Component> m_components = new ArrayList<Component>();
+        private final List<Component> m_components = new ArrayList<>();
         private final CountDownLatch m_latch;
 
         public ComponentCounter(Component[] components) {
@@ -107,8 +107,8 @@ public class IntegrationTestBase extends TestCase {
      */
     private static final int SERVICE_TIMEOUT = 15;
 
-    private final Map<String, ServiceTracker> m_trackedServices = new HashMap<String, ServiceTracker>();
-    private final List<Configuration> m_trackedConfigurations = new ArrayList<Configuration>();
+    private final Map<String, ServiceTracker<?, ?>> m_trackedServices = new HashMap<>();
+    private final List<Configuration> m_trackedConfigurations = new ArrayList<>();
 
     private boolean m_cleanConfigurations = true;
     private boolean m_closeServiceTrackers = true;
@@ -429,7 +429,7 @@ public class IntegrationTestBase extends TestCase {
      *             in case accessing the requested URL failed.
      */
     protected List<String> getResponse(URL requestURL) throws IOException {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         InputStream in = null;
         try {
             in = requestURL.openConnection().getInputStream();
@@ -498,9 +498,9 @@ public class IntegrationTestBase extends TestCase {
             filterString = String.format("(%s=%s)", Constants.OBJECTCLASS, serviceClass.getName());
         }
 
-        ServiceTracker serviceTracker = m_trackedServices.get(filterString);
+        ServiceTracker<?, ?> serviceTracker = m_trackedServices.get(filterString);
         if (serviceTracker == null) {
-            serviceTracker = new ServiceTracker(m_bundleContext, FrameworkUtil.createFilter(filterString), null);
+            serviceTracker = new ServiceTracker<>(m_bundleContext, FrameworkUtil.createFilter(filterString), null);
             serviceTracker.open();
 
             m_trackedServices.put(filterString, serviceTracker);
@@ -655,7 +655,7 @@ public class IntegrationTestBase extends TestCase {
                 m_trackedConfigurations.clear();
             }
             if (m_closeServiceTrackers) {
-                for (ServiceTracker st : m_trackedServices.values()) {
+                for (ServiceTracker<?, ?> st : m_trackedServices.values()) {
                     try {
                         st.close();
                     }

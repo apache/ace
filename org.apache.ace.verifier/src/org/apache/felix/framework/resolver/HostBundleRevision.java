@@ -69,7 +69,7 @@ class HostBundleRevision implements BundleRevision
     {
         if (m_cachedCapabilities == null)
         {
-            List<BundleCapability> caps = new ArrayList<BundleCapability>();
+            List<BundleCapability> caps = new ArrayList<>();
 
             // Wrap host capabilities.
             for (BundleCapability cap : m_host.getDeclaredCapabilities(null))
@@ -96,14 +96,14 @@ class HostBundleRevision implements BundleRevision
     }
 
     public List<Capability> getCapabilities(String namespace) {
-        return new ArrayList<Capability>(getCapabilities(namespace));
+        return new ArrayList<>(getCapabilities(namespace));
     }
     
     public List<BundleRequirement> getDeclaredRequirements(String namespace)
     {
         if (m_cachedRequirements == null)
         {
-            List<BundleRequirement> reqs = new ArrayList<BundleRequirement>();
+            List<BundleRequirement> reqs = new ArrayList<>();
 
             // Wrap host requirements.
             for (BundleRequirement req : m_host.getDeclaredRequirements(null))

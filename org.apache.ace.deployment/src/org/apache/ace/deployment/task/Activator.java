@@ -45,7 +45,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     private static final String MA_NAME = "ma";
     private static final String DEFAULT_INTERVAL = "5000";
 
-    private final Map<String, List<Component>> m_instances = new HashMap<String, List<Component>>();
+    private final Map<String, List<Component>> m_instances = new HashMap<>();
 
     private volatile DependencyManager m_manager;
 
@@ -126,9 +126,9 @@ public class Activator extends DependencyActivatorBase implements ManagedService
      * @return an array with {@link Component} instances for the different tasks, never <code>null</code>.
      */
     private List<Component> createServices(String ma) {
-        Dictionary<String, Object> updateProperties = new Hashtable<String, Object>();
-        Dictionary<String, Object> checkProperties = new Hashtable<String, Object>();
-        Dictionary<String, Object> deploymentProperties = new Hashtable<String, Object>();
+        Dictionary<String, Object> updateProperties = new Hashtable<>();
+        Dictionary<String, Object> checkProperties = new Hashtable<>();
+        Dictionary<String, Object> deploymentProperties = new Hashtable<>();
         
         String updateSchedulerName = DeploymentUpdateTask.class.getName();
         String updateDescription = "Task that synchronizes the artifacts (bundles, resources) installed on this target with the server.";
@@ -155,7 +155,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             deploymentProperties.put(MA_NAME, ma);
         }
 
-        List<Component> result = new ArrayList<Component>();
+        List<Component> result = new ArrayList<>();
 
         updateProperties.put(SchedulerConstants.SCHEDULER_NAME_KEY, updateSchedulerName);
         updateProperties.put(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY, updateDescription);

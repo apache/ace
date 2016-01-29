@@ -147,7 +147,7 @@ public class UserEditorImpl implements UserEditor {
 
     @Override
     public List<UserDTO> getData() {
-        List<UserDTO> tempData = new ArrayList<UserDTO>();
+        List<UserDTO> tempData = new ArrayList<>();
         try {
             Role[] roles = m_useradmin.getRoles(null);
             if (roles != null) {
@@ -190,7 +190,7 @@ public class UserEditorImpl implements UserEditor {
 
     @Override
     public List<Group> getGroups() {
-        List<Group> tempGroups = new ArrayList<Group>();
+        List<Group> tempGroups = new ArrayList<>();
         try {
             Role[] roles = m_useradmin.getRoles("(type=userGroup)");
             if (roles != null) {
@@ -214,7 +214,7 @@ public class UserEditorImpl implements UserEditor {
 
     @Override
     public List<User> getUsers() {
-        List<User> tempUsers = new ArrayList<User>();
+        List<User> tempUsers = new ArrayList<>();
         try {
             Role[] roles = m_useradmin.getRoles(null);
             if (roles != null) {

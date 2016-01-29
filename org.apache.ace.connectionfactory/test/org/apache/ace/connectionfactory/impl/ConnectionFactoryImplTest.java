@@ -24,7 +24,8 @@ import static org.apache.ace.test.utils.TestUtils.UNIT;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Properties;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.apache.ace.test.constants.TestConstants;
 import org.testng.annotations.Test;
@@ -77,7 +78,7 @@ public class ConnectionFactoryImplTest {
     public void testDeleted() throws Exception {
         ConnectionFactoryImpl connFactory = new ConnectionFactoryImpl();
 
-        Properties props = createBasicAuthConfig(TEST_URL.toExternalForm());
+        Dictionary<String, ?> props = createBasicAuthConfig(TEST_URL.toExternalForm());
 
         connFactory.updated("pid1", props);
         
@@ -97,7 +98,7 @@ public class ConnectionFactoryImplTest {
     public void testGetBasicAuthCredentialsOk() throws Exception {
         ConnectionFactoryImpl connFactory = new ConnectionFactoryImpl();
 
-        Properties props = createBasicAuthConfig(TEST_URL.toExternalForm());
+        Dictionary<String, ?> props = createBasicAuthConfig(TEST_URL.toExternalForm());
 
         connFactory.updated("pid1", props);
 
@@ -120,7 +121,7 @@ public class ConnectionFactoryImplTest {
         UrlCredentials credentials = connFactory.getCredentials(TEST_URL);
         assert credentials == null : "Expected no credentials to be found!";
         
-        Properties props = createBasicAuthConfig(TEST_URL.toExternalForm());
+        Dictionary<String, ?> props = createBasicAuthConfig(TEST_URL.toExternalForm());
 
         connFactory.updated("pid1", props);
         
@@ -135,7 +136,7 @@ public class ConnectionFactoryImplTest {
     public void testUpdatedUpdatesCredentialsOk() throws Exception {
         ConnectionFactoryImpl connFactory = new ConnectionFactoryImpl();
 
-        Properties props = createBasicAuthConfig(TEST_URL.toExternalForm());
+        Dictionary<String, Object> props = createBasicAuthConfig(TEST_URL.toExternalForm());
 
         connFactory.updated("pid1", props);
         
@@ -159,8 +160,8 @@ public class ConnectionFactoryImplTest {
     /**
      * @return a dictionary containing a configuration for basic authentication, never <code>null</code>.
      */
-    private Properties createBasicAuthConfig(String url) {
-        Properties props = new Properties();
+    private Dictionary<String, Object> createBasicAuthConfig(String url) {
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(UrlCredentialsFactory.KEY_AUTH_BASE_URL, url);
         props.put(UrlCredentialsFactory.KEY_AUTH_TYPE, "basic");
         props.put(UrlCredentialsFactory.KEY_AUTH_USER_NAME, "foo");

@@ -84,7 +84,7 @@ public class RepositoryPropertyResolver implements PropertyResolver {
         else if (ob instanceof FeatureObject) {
             return ((FeatureObject) ob).getArtifacts();
         }
-        return new ArrayList<RepositoryObject>();
+        return new ArrayList<>();
     }
 
     private String findKeyInObject(RepositoryObject ro, String key) {

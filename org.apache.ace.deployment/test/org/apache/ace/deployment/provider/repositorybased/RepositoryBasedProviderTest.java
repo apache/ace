@@ -179,13 +179,13 @@ public class RepositoryBasedProviderTest {
         BUNDLE3_2 = generateBundle(FileUtils.createTempFile(m_tempDirectory), null, "Bundle3", "3.0.0", null);
         BUNDLE4_2 = generateBundle(FileUtils.createTempFile(m_tempDirectory), null, "Bundle4", "5.0.0", null);
 
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(DIRECTIVE_ISCUSTOMIZER, "true");
         RESOURCEPROCESSOR1 = generateBundle(FileUtils.createTempFile(m_tempDirectory), attr, "Autoconf", "1.0.0", null);
-        attr = new HashMap<String, String>();
+        attr = new HashMap<>();
         attr.put(DIRECTIVE_KEY_PROCESSORID, "my.processor.pid");
         ARTIFACT1 = new ArtifactDataImpl(FileUtils.createTempFile(m_tempDirectory).toURI().toURL(), attr, false);
-        attr = new HashMap<String, String>();
+        attr = new HashMap<>();
         attr.put(DIRECTIVE_KEY_PROCESSORID, "my.processor.pid");
         attr.put(DIRECTIVE_KEY_RESOURCE_ID, "Artifact2");
         ARTIFACT2 = new ArtifactDataImpl(FileUtils.createTempFile(m_tempDirectory).toURI().toURL(), attr, false);

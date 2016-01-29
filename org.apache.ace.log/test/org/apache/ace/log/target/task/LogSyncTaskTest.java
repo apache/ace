@@ -81,7 +81,7 @@ public class LogSyncTaskTest {
     public synchronized void synchronizeLog() throws Exception {
         final Descriptor range = new Descriptor(TARGET_ID, 1, new SortedRangeSet(new long[] {0}));
         final Event event = new Event(TARGET_ID, 1, 1, 1, 1);
-        final List<Event> events = new ArrayList<Event>();
+        final List<Event> events = new ArrayList<>();
         events.add(event);
 
         InputStream input = new InputStream() {

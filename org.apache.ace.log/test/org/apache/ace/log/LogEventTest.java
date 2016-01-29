@@ -32,7 +32,7 @@ public class LogEventTest {
     public void serializeLogEvent() {
         Event e = new Event("gwid", 1, 2, 3, AuditEvent.FRAMEWORK_STARTED);
         assert e.toRepresentation().equals("gwid,1,2,3," + AuditEvent.FRAMEWORK_STARTED);
-        Map<String, String> p = new HashMap<String, String>();
+        Map<String, String> p = new HashMap<>();
         p.put(AuditEvent.KEY_ID, "my first value");
         e = new Event("gwid", 1, 2, 3, AuditEvent.BUNDLE_INSTALLED, p);
         assert e.toRepresentation().equals("gwid,1,2,3," + AuditEvent.BUNDLE_INSTALLED + "," + AuditEvent.KEY_ID + ",my first value");

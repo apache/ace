@@ -54,8 +54,8 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
     // for thread-safety
     protected final ReadWriteLock m_lock = new ReentrantReadWriteLock();
 
-    private final List<T> m_repo = new ArrayList<T>();
-    private final Map<String, T> m_index = new HashMap<String, T>();
+    private final List<T> m_repo = new ArrayList<>();
+    private final Map<String, T> m_index = new HashMap<>();
     private final ChangeNotifier m_notifier;
     private final String m_xmlNode;
     private final RepositoryConfiguration m_repoConfig;
@@ -96,7 +96,7 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         Lock readLock = m_lock.readLock();
         readLock.lock();
         try {
-            return new ArrayList<T>(m_repo);
+            return new ArrayList<>(m_repo);
         }
         finally {
             readLock.unlock();
@@ -107,7 +107,7 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         Lock readLock = m_lock.readLock();
         readLock.lock();
         try {
-            List<T> result = new ArrayList<T>();
+            List<T> result = new ArrayList<>();
             for (T entry : m_repo) {
                 if (filter.matchCase(entry.getDictionary())) {
                     result.add(entry);

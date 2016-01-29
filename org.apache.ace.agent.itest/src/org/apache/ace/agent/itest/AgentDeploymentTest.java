@@ -95,7 +95,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
 
         private static final String BACKOFF_TIME = "1";
 
-        private final Map<String, TestPackage> m_packages = new HashMap<String, TestPackage>();
+        private final Map<String, TestPackage> m_packages = new HashMap<>();
         private final String m_agentId;
         private Failure m_failure;
 
@@ -256,7 +256,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
             return true;
         }
 
-        private final Map<String, List<Map<String, String>>> m_topics = new HashMap<String, List<Map<String, String>>>();
+        private final Map<String, List<Map<String, String>>> m_topics = new HashMap<>();
 
         public boolean containsTopic(String topic) {
             synchronized (m_topics) {
@@ -282,7 +282,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
         public Map<String, List<Map<String, String>>> getTopics() {
             Map<String, List<Map<String, String>>> result;
             synchronized (m_topics) {
-                result = new HashMap<String, List<Map<String, String>>>(m_topics);
+                result = new HashMap<>(m_topics);
             }
             return result;
         }
@@ -296,7 +296,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
             synchronized (m_topics) {
                 List<Map<String, String>> payloads = m_topics.get(topic);
                 if (payloads == null) {
-                    payloads = new ArrayList<Map<String, String>>();
+                    payloads = new ArrayList<>();
                     m_topics.put(topic, payloads);
                 }
                 payloads.add(payload);
@@ -662,7 +662,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     private Map<String, String> createAgentConfiguration(boolean useStreaming, int syncInterval) {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         props.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, String.format("http://localhost:%d/", TestConstants.PORT));
         props.put(AgentConstants.CONFIG_IDENTIFICATION_AGENTID, AGENT_ID);
         props.put(AgentConstants.CONFIG_LOGGING_LEVEL, LOGLEVEL.name());
@@ -753,7 +753,7 @@ public class AgentDeploymentTest extends BaseAgentTest {
     }
 
     private void waitForEventReceived(String topic, String... properties) throws Exception {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         for (int i = 0; i < properties.length; i += 2) {
             props.put(properties[i], properties[i + 1]);
         }

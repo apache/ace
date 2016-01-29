@@ -125,7 +125,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     public RepositoryAdminImpl(String sessionID, RepositoryConfiguration repoConfig) {
         m_sessionID = sessionID;
         m_repositoryConfig = repoConfig;
-        m_preCommitMembers = new ArrayList<PreCommitMember>();
+        m_preCommitMembers = new ArrayList<>();
         m_sessionProps = new Properties();
         m_sessionProps.put(SessionFactory.SERVICE_SID, sessionID);
         m_changeNotifierManager = new ChangeNotifierManager();
@@ -210,7 +210,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         m_dm.add(artifactRepoService);
         m_dm.add(artifactHandlerService);
 
-        m_services = new ArrayList<Component[]>();
+        m_services = new ArrayList<>();
         m_services.add(new Component[] { artifactRepoService, artifactHandlerService });
 
         // register all repositories are services. Keep the service objects around, we need them to pull the services
@@ -227,7 +227,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         m_services.add(registerRepository(DeploymentVersionRepository.class, m_deploymentVersionRepositoryImpl, new String[] {}));
 
         // prepare the results.
-        Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> result = new HashMap<Class<? extends ObjectRepository>, ObjectRepositoryImpl>();
+        Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> result = new HashMap<>();
 
         result.put(ArtifactRepository.class, m_artifactRepositoryImpl);
         result.put(Artifact2FeatureAssociationRepository.class, m_artifact2FeatureAssociationRepositoryImpl);

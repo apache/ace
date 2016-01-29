@@ -92,8 +92,8 @@ class DPHelper {
     }
 
     protected void importDeploymentPackage(JarInputStream is, boolean autoCommit) throws Exception {
-        Map<ArtifactObject, FeatureObject> a2fMap = new HashMap<ArtifactObject, FeatureObject>();
-        Map<FeatureObject, DistributionObject> f2dMap = new HashMap<FeatureObject, DistributionObject>();
+        Map<ArtifactObject, FeatureObject> a2fMap = new HashMap<>();
+        Map<FeatureObject, DistributionObject> f2dMap = new HashMap<>();
 
         // Upload all (new) artifact...
         JarEntry jarEntry;

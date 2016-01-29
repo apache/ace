@@ -96,7 +96,7 @@ public class Index
      * @throws Exception
      */
     public static void main(String args[]) throws Exception {
-        Set<ResourceImpl> resources = new HashSet<ResourceImpl>();
+        Set<ResourceImpl> resources = new HashSet<>();
         root = rootFile.toURI().toURL().toString();
         repository = new RepositoryImpl(rootFile.toURI().toURL());
 
@@ -135,7 +135,7 @@ public class Index
             }
         }
 
-        List<ResourceImpl> sorted = new ArrayList<ResourceImpl>(resources);
+        List<ResourceImpl> sorted = new ArrayList<>(resources);
         Collections.sort(sorted, new Comparator<ResourceImpl>() {
             public int compare(ResourceImpl r1, ResourceImpl r2) {
                 String s1 = getName(r1);

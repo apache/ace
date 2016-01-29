@@ -116,7 +116,7 @@ public abstract class BaseAgentControllerTest extends IntegrationTestBase {
     public static class StubDeploymentServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
 
-        private final Map<String, TestPackage> m_packages = new HashMap<String, TestPackage>();
+        private final Map<String, TestPackage> m_packages = new HashMap<>();
         private final String m_agentId;
 
         public StubDeploymentServlet(String agentId, TestPackage... testPackages) {
@@ -314,7 +314,7 @@ public abstract class BaseAgentControllerTest extends IntegrationTestBase {
     }
 
     protected void configureAgent(ConfigurationHandler handler, String... configuration) {
-        Map<String, String> config = new HashMap<String, String>();
+        Map<String, String> config = new HashMap<>();
         for (int i = 0; i < configuration.length; i += 2) {
             config.put(configuration[i], configuration[i + 1]);
         }

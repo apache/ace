@@ -33,9 +33,6 @@ subprojects {
   if (bndProject != null) {
     plugins.apply 'biz.aQute.bnd'
     
-    dependencies {
-      testCompile files("${rootDir}/cnf/lib/testng/testng-6.5.2.jar");
-    }
     test {
       useTestNG()
     }

@@ -250,7 +250,7 @@ class BaseRepositoryHandler extends DefaultHandler {
         private XmlDeploymentArtifact(URL url, long size) {
             m_url = url;
             m_size = size;
-            m_directives = new HashMap<String, String>();
+            m_directives = new HashMap<>();
         }
 
         public long getSize() {

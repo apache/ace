@@ -38,7 +38,7 @@ public class Activator extends DependencyActivatorBase {
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        Dictionary<String, String> props = new Hashtable<String, String>();
+        Dictionary<String, String> props = new Hashtable<>();
         props.put(ArtifactObject.KEY_MIMETYPE, ConfigurationHelper.MIMETYPE);
 
         ConfigurationHelperImpl helperImpl = new ConfigurationHelperImpl();

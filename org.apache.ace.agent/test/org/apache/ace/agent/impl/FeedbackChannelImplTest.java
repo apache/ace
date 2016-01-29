@@ -61,7 +61,7 @@ public class FeedbackChannelImplTest extends BaseAgentTest {
     static class TestSendFeedbackServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
 
-        List<Event> m_events = new ArrayList<Event>();
+        List<Event> m_events = new ArrayList<>();
 
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

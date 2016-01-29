@@ -304,7 +304,7 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
      */
     private Map<String, String> extractLocalizedHeaders(ArtifactResource artifact) throws IOException {
 
-        Map<String, String> localizedHeaders = new HashMap<String, String>();
+        Map<String, String> localizedHeaders = new HashMap<>();
         JarInputStream jarInputStream = null;
         try {
             jarInputStream = new JarInputStream(artifact.openStream());
@@ -367,7 +367,7 @@ public class BundleHelperImpl implements ArtifactRecognizer, BundleHelper {
             localizationBaseName = Constants.BUNDLE_LOCALIZATION_DEFAULT_BASENAME;
         }
 
-        List<String> localeEntryNames = new ArrayList<String>();
+        List<String> localeEntryNames = new ArrayList<>();
         for (Locale locale : MANIFEST_LOCALIZATION_LOCALES) {
             localeEntryNames.add(localizationBaseName + "_" + locale.toString() + ".properties");
         }

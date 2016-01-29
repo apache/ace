@@ -60,7 +60,7 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
 
         m_bundleContext = bundleContext;
         m_isStarted = new AtomicBoolean(false);
-        m_excludeEventList = new HashSet<Integer>();
+        m_excludeEventList = new HashSet<>();
     }
 
     @Override
@@ -96,7 +96,7 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
             String excludeEventsString = payload.get(CONFIG_LOGGING_EXCLUDE_EVENTS);
             if (excludeEventsString != null && !"".equals(excludeEventsString.trim())) {
                 logDebug(CONFIG_LOGGING_EXCLUDE_EVENTS + " configuration changed to " + excludeEventsString);
-                Set<Integer> excludeEvents = new HashSet<Integer>();
+                Set<Integer> excludeEvents = new HashSet<>();
                 for(String s:excludeEventsString.trim().split("\\s*,\\s*")) {
                     try {
                         excludeEvents.add(Integer.parseInt(s));
@@ -113,7 +113,7 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
         }
         
         int eventType = AuditEvent.DEPLOYMENTADMIN_BASE;
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
 
         if (TOPIC_INSTALL.equals(topic)) {
             String deplPackName = payload.get("deploymentpackage.name");
@@ -141,7 +141,7 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
         }
 
         int eventType = AuditEvent.BUNDLE_BASE;
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         Bundle bundle = event.getBundle();
         props.put(AuditEvent.KEY_ID, Long.toString(bundle.getBundleId()));
 
@@ -196,7 +196,7 @@ public class EventLoggerImpl extends ComponentBase implements BundleListener, Fr
             return;
         }
         int eventType = AuditEvent.FRAMEWORK_BASE;
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         Bundle bundle = event.getBundle();
 
         if (bundle != null) {

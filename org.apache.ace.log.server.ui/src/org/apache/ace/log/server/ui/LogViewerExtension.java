@@ -73,7 +73,7 @@ public class LogViewerExtension implements UIExtensionFactory {
     /**
      * contains a mapping of event type to a string representation of that type.
      */
-    private final Map<Integer, String> m_eventTypeMapping = new HashMap<Integer, String>();
+    private final Map<Integer, String> m_eventTypeMapping = new HashMap<>();
 
     /**
      * {@inheritDoc}

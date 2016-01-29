@@ -68,12 +68,12 @@ public class ServerLogStoreTester {
     @SuppressWarnings("serial")
     @Test(groups = { UNIT })
     public void testLog() throws IOException {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         props.put("test", "bar");
 
         List<Descriptor> ranges = m_logStore.getDescriptors();
         assert ranges.isEmpty() : "New store should have no ranges.";
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         for (String target : new String[] { "g1", "g2", "g3" }) {
             for (long log : new long[] { 1, 2, 3, 5 }) {
                 for (long id : new long[] { 1, 2, 3, 20 }) {
@@ -85,11 +85,11 @@ public class ServerLogStoreTester {
         assert m_logStore.getDescriptors().size() == 3 * 4 : "Incorrect amount of ranges returned from store";
         List<Event> stored = getStoredEvents();
 
-        Set<String> in = new HashSet<String>();
+        Set<String> in = new HashSet<>();
         for (Event event : events) {
             in.add(event.toRepresentation());
         }
-        Set<String> out = new HashSet<String>();
+        Set<String> out = new HashSet<>();
         for (Event event : stored) {
             out.add(event.toRepresentation());
         }
@@ -99,13 +99,13 @@ public class ServerLogStoreTester {
     @SuppressWarnings("serial")
     @Test(groups = { UNIT })
     public void testLogOutOfOrder() throws IOException {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         props.put("test", "bar");
 
         List<Descriptor> ranges = m_logStore.getDescriptors();
         assert ranges.isEmpty() : "New store should have no ranges.";
 
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         events.add(new Event("t1", 1, 2, 2, AuditEvent.FRAMEWORK_STARTED, props));
         events.add(new Event("t1", 1, 3, 3, AuditEvent.FRAMEWORK_STARTED, props));
         events.add(new Event("t1", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED, props));
@@ -113,7 +113,7 @@ public class ServerLogStoreTester {
         assert m_logStore.getDescriptors().size() == 1 : "Incorrect amount of ranges returned from store";
         List<Event> stored = getStoredEvents();
 
-        Set<String> out = new HashSet<String>();
+        Set<String> out = new HashSet<>();
         for (Event event : stored) {
             out.add(event.toRepresentation());
         }
@@ -123,13 +123,13 @@ public class ServerLogStoreTester {
     @SuppressWarnings("serial")
     @Test(groups = { UNIT })
     public void testLogOutOfOrderOneByOne() throws IOException {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         props.put("test", "bar");
 
         List<Descriptor> ranges = m_logStore.getDescriptors();
         assert ranges.isEmpty() : "New store should have no ranges.";
 
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         events.add(new Event("t1", 1, 2, 2, AuditEvent.FRAMEWORK_STARTED, props));
         m_logStore.put(events);
         events.clear();
@@ -141,7 +141,7 @@ public class ServerLogStoreTester {
         assert m_logStore.getDescriptors().size() == 1 : "Incorrect amount of ranges returned from store";
         List<Event> stored = getStoredEvents();
 
-        Set<String> out = new HashSet<String>();
+        Set<String> out = new HashSet<>();
         for (Event event : stored) {
             out.add(event.toRepresentation());
         }
@@ -152,12 +152,12 @@ public class ServerLogStoreTester {
     @SuppressWarnings("serial")
     @Test(groups = { UNIT })
     public void testLogLowestID() throws IOException {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         props.put("test", "bar");
 
         List<Descriptor> ranges = m_logStore.getDescriptors();
         assert ranges.isEmpty() : "New store should have no ranges.";
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
 
         assert 0 == m_logStore.getLowestID("target", 1) : "Lowest ID should be 0 by default, not: " + m_logStore.getLowestID("target", 1);
         m_logStore.setLowestID("target", 1, 10);
@@ -245,7 +245,7 @@ public class ServerLogStoreTester {
     }
     
     private List<Event> getStoredEvents() throws IOException {
-		List<Event> stored = new ArrayList<Event>();
+		List<Event> stored = new ArrayList<>();
         for (Descriptor range : m_logStore.getDescriptors()) {
             System.out.println("TID: " + range.getTargetID());
             for (Descriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
@@ -289,7 +289,7 @@ public class ServerLogStoreTester {
     public void testLogWithSpecialCharacters() throws IOException {
         String targetID = "myta\0rget";
         Event event = new Event(targetID, 1, 1, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED);
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         events.add(event);
         m_logStore.put(events);
         assert m_logStore.getDescriptors().size() == 1 : "Incorrect amount of ranges returned from store: expected 1, found " + m_logStore.getDescriptors().size();
@@ -303,7 +303,7 @@ public class ServerLogStoreTester {
         settings.put(MAXIMUM_NUMBER_OF_EVENTS, "1");
         m_logStore.updated(settings);
         
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         for (String target : new String[] { "target"}) {
             for (long log : new long[] { 1 }) {
                 for (long id : new long[] { 1, 2 }) {
@@ -332,7 +332,7 @@ public class ServerLogStoreTester {
         settings.put(MAXIMUM_NUMBER_OF_EVENTS, "1");
         m_logStore.updated(settings);
         
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         for (String target : new String[] { "target"}) {
             for (long log : new long[] { 1,2 }) {
                 for (long id : new long[] { 1, 2 }) {
@@ -356,7 +356,7 @@ public class ServerLogStoreTester {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test(groups = { TestUtils.UNIT })
     public void testClean() throws Exception {
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         for (String target : new String[] { "target"}) {
             for (long log : new long[] { 1, 2 }) {
                 for (long id : new long[] { 1, 2, 3, 4 }) {
@@ -389,7 +389,7 @@ public class ServerLogStoreTester {
     @Test(groups = { UNIT })
     public void testConcurrentLog() throws IOException, InterruptedException {
         ExecutorService es = Executors.newFixedThreadPool(8);
-        final Map<String, String> props = new HashMap<String, String>();
+        final Map<String, String> props = new HashMap<>();
         props.put("test", "bar");
 
         List<Descriptor> ranges = m_logStore.getDescriptors();
@@ -403,7 +403,7 @@ public class ServerLogStoreTester {
                     es.execute(new Runnable() {
                         @Override
                         public void run() {
-                            List<Event> list = new ArrayList<Event>();
+                            List<Event> list = new ArrayList<>();
                             list.add(new Event(t, l, i, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, props));
                             try {
                                 m_logStore.put(list);
@@ -424,7 +424,7 @@ public class ServerLogStoreTester {
         assert size == 3 * 4 : "Incorrect amount of ranges returned from store: " + size;
         List<Event> stored = getStoredEvents();
 
-        Set<String> out = new HashSet<String>();
+        Set<String> out = new HashSet<>();
         for (Event event : stored) {
             out.add(event.toRepresentation());
         }

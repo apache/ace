@@ -86,7 +86,7 @@ public class TestWebServer {
     static class ResponseInfoCollector extends HttpServletResponseWrapper {
         long statusCode;
         String statusMessage = "";
-        Map<String, String> headers = new HashMap<String, String>();
+        Map<String, String> headers = new HashMap<>();
 
         public ResponseInfoCollector(HttpServletResponse response) {
             super(response);

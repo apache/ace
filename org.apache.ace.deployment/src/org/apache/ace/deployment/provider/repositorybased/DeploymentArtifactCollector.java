@@ -41,9 +41,9 @@ public class DeploymentArtifactCollector extends BaseRepositoryHandler {
     public DeploymentArtifactCollector(String targetID, String... versions) {
         super(targetID);
 
-        m_artifacts = new HashMap<Version, List<XmlDeploymentArtifact>>();
+        m_artifacts = new HashMap<>();
 
-        m_expectedVersions = new ArrayList<Version>(versions.length);
+        m_expectedVersions = new ArrayList<>(versions.length);
         for (int i = 0; i < versions.length; i++) {
             Version v = parseVersion(versions[i]);
             if (Version.emptyVersion.equals(v)) {
@@ -79,7 +79,7 @@ public class DeploymentArtifactCollector extends BaseRepositoryHandler {
         if (m_expectedVersions.contains(version)) {
             List<XmlDeploymentArtifact> artifacts = m_artifacts.get(version);
             if (artifacts == null) {
-                artifacts = new ArrayList<XmlDeploymentArtifact>();
+                artifacts = new ArrayList<>();
                 m_artifacts.put(version, artifacts);
             }
         }

@@ -190,10 +190,10 @@ public class LogServletTest {
     }
 
     private class MockLogStore implements LogStore {
-        public List<Event> m_events = new ArrayList<Event>();
+        public List<Event> m_events = new ArrayList<>();
 
         public List<Event> get(Descriptor range) {
-            List<Event> events = new ArrayList<Event>();
+            List<Event> events = new ArrayList<>();
             if (range.getRangeSet().contains(1)) {
                 events.add(m_event1);
             }
@@ -203,12 +203,12 @@ public class LogServletTest {
             return events;
         }
         public List<Descriptor> getDescriptors(String targetID) {
-        	List<Descriptor> ranges = new ArrayList<Descriptor>();
+        	List<Descriptor> ranges = new ArrayList<>();
             ranges.add(m_range);
             return ranges;
         }
         public List<Descriptor> getDescriptors() {
-            List<Descriptor> ranges = new ArrayList<Descriptor>();
+            List<Descriptor> ranges = new ArrayList<>();
             ranges.add(m_range);
             return ranges;
         }

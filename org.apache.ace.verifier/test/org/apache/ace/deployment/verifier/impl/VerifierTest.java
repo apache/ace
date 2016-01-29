@@ -67,7 +67,7 @@ public class VerifierTest {
                 ex.printStackTrace();
             }
         });
-        Set<BundleRevision> bundles = new HashSet<BundleRevision>();
+        Set<BundleRevision> bundles = new HashSet<>();
         bundles.add(env.addBundle(0, new HashMap<String, String>() {
             {
                 put(Constants.BUNDLE_MANIFESTVERSION, "2");
@@ -121,7 +121,7 @@ public class VerifierTest {
                 ex.printStackTrace();
             }
         });
-        Set<BundleRevision> bundles = new HashSet<BundleRevision>();
+        Set<BundleRevision> bundles = new HashSet<>();
         bundles.add(env.addBundle(0, new HashMap<String, String>() {
             {
                 put(Constants.BUNDLE_MANIFESTVERSION, "2");

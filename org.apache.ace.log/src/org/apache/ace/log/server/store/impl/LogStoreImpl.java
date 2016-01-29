@@ -62,9 +62,9 @@ public class LogStoreImpl implements LogStore, ManagedService {
     private final String m_name;
     private int m_maxEvents = 0;
 
-    private final ConcurrentMap<String, Set<Long>> m_locks = new ConcurrentHashMap<String, Set<Long>>();
-    private final Map<String, Long> m_fileToHighestID = new HashMap<String, Long>();
-    private final Map<String, Long> m_fileToLowestID = new HashMap<String, Long>();
+    private final ConcurrentMap<String, Set<Long>> m_locks = new ConcurrentHashMap<>();
+    private final Map<String, Long> m_fileToHighestID = new HashMap<>();
+    private final Map<String, Long> m_fileToLowestID = new HashMap<>();
 
     public LogStoreImpl(File baseDir, String name) {
         m_name = name;
@@ -101,7 +101,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
      *             if anything goes wrong
      */
     private List<Event> getInternal(Descriptor descriptor) throws IOException {
-        final List<Event> result = new ArrayList<Event>();
+        final List<Event> result = new ArrayList<>();
         final SortedRangeSet set = descriptor.getRangeSet();
         BufferedReader in = null;
         try {
@@ -183,7 +183,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
 
     public List<Descriptor> getDescriptors(String targetID) throws IOException {
         File dir = getTargetDirectory(targetID);
-        List<Descriptor> result = new ArrayList<Descriptor>();
+        List<Descriptor> result = new ArrayList<>();
         if (!dir.isDirectory()) {
             return result;
         }
@@ -196,7 +196,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
     }
 
 	public List<Descriptor> getDescriptors() throws IOException {
-        List<Descriptor> result = new ArrayList<Descriptor>();
+        List<Descriptor> result = new ArrayList<>();
         for (String name : notNull(m_dir.list())) {
             result.addAll(getDescriptors(filenameToTargetID(name)));
         }
@@ -231,7 +231,6 @@ public class LogStoreImpl implements LogStore, ManagedService {
      * @throws java.io.IOException
      *             in case of any error.
      */
-    @SuppressWarnings("unchecked")
     protected void put(String targetID, Long logID, List<Event> list) throws IOException {
         if ((list == null) || list.isEmpty()) {
             // nothing to add, so return
@@ -301,7 +300,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
                     high = Long.MAX_VALUE;
                 }
                 // send (eventadmin)event about a new (log)event being stored
-                Dictionary<String, Object> props = new Hashtable<String, Object>();
+                Dictionary<String, Object> props = new Hashtable<>();
                 props.put(LogStore.EVENT_PROP_LOGNAME, m_name);
                 props.put(LogStore.EVENT_PROP_LOG_EVENT, event);
                 m_eventAdmin.postEvent(new org.osgi.service.event.Event(LogStore.EVENT_TOPIC, props));
@@ -353,18 +352,18 @@ public class LogStoreImpl implements LogStore, ManagedService {
      */
     @SuppressWarnings("boxing")
     protected Map<String, Map<Long, List<Event>>> sort(List<Event> events) {
-        Map<String, Map<Long, List<Event>>> result = new HashMap<String, Map<Long, List<Event>>>();
+        Map<String, Map<Long, List<Event>>> result = new HashMap<>();
         for (Event event : events) {
             Map<Long, List<Event>> target = result.get(event.getTargetID());
 
             if (target == null) {
-                target = new HashMap<Long, List<Event>>();
+                target = new HashMap<>();
                 result.put(event.getTargetID(), target);
             }
 
             List<Event> list = target.get(event.getStoreID());
             if (list == null) {
-                list = new ArrayList<Event>();
+                list = new ArrayList<>();
                 target.put(event.getStoreID(), list);
             }
 
@@ -444,11 +443,11 @@ public class LogStoreImpl implements LogStore, ManagedService {
             return;
         }
         // create a list of unique targets and their logs
-        Map<String, Set<Long>> allTargetsAndLogs = new HashMap<String, Set<Long>>();
+        Map<String, Set<Long>> allTargetsAndLogs = new HashMap<>();
         for (Descriptor descriptor : getDescriptors()) {
             Set<Long> logs = allTargetsAndLogs.get(descriptor.getTargetID());
             if (logs == null) {
-                logs = new HashSet<Long>();
+                logs = new HashSet<>();
                 allTargetsAndLogs.put(descriptor.getTargetID(), logs);
             }
             logs.add(descriptor.getStoreID());
@@ -477,7 +476,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
     }
 
     private void obtainLock(String targetID, long logID) throws IOException {
-        Set<Long> newLockedLogs = new HashSet<Long>();
+        Set<Long> newLockedLogs = new HashSet<>();
         Set<Long> lockedLogs = m_locks.putIfAbsent(targetID, newLockedLogs);
         if (lockedLogs == null) {
             lockedLogs = newLockedLogs;
@@ -529,7 +528,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
     
     @Override
     public Event put(String targetID, int type, Dictionary dict) throws IOException {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         Enumeration keys = dict.keys();
         while (keys.hasMoreElements()) {
             String key = (String) keys.nextElement();

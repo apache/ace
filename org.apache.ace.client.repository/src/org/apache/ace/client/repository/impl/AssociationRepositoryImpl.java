@@ -53,7 +53,7 @@ public abstract class AssociationRepositoryImpl<L extends RepositoryObject, R ex
         synchronized (m_lock) {
             T association = null;
             try {
-                Map<String, String> attributes = new HashMap<String, String>();
+                Map<String, String> attributes = new HashMap<>();
                 attributes.put(Association.LEFT_ENDPOINT, left);
                 attributes.put(Association.RIGHT_ENDPOINT, right);
                 attributes.put(Association.LEFT_CARDINALITY, "" + leftCardinality);

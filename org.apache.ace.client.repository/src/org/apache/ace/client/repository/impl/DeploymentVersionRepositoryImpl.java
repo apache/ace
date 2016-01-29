@@ -86,7 +86,7 @@ public class DeploymentVersionRepositoryImpl extends ObjectRepositoryImpl<Deploy
         }
         catch (InvalidSyntaxException e) {
             // Too bad, probably an illegal targetID.
-            result = new ArrayList<DeploymentVersionObject>();
+            result = new ArrayList<>();
         }
         return result;
     }
@@ -131,12 +131,12 @@ public class DeploymentVersionRepositoryImpl extends ObjectRepositoryImpl<Deploy
      * @return an index of deployment versions (sorted!) per target, never <code>null</code>.
      */
     private Map<String, SortedSet<DeploymentVersionObject>> createDeploymentVersionIndex() {
-        Map<String, SortedSet<DeploymentVersionObject>> index = new HashMap<String, SortedSet<DeploymentVersionObject>>();
+        Map<String, SortedSet<DeploymentVersionObject>> index = new HashMap<>();
         for (DeploymentVersionObject dvo : get()) {
             SortedSet<DeploymentVersionObject> versions = index.get(dvo.getTargetID());
             if (versions == null) {
                 // store all DeploymentVersions in ascending order (oldest version first)...
-                versions = new TreeSet<DeploymentVersionObject>(this.versionComparator);
+                versions = new TreeSet<>(this.versionComparator);
                 index.put(dvo.getTargetID(), versions);
             }
             versions.add(dvo);

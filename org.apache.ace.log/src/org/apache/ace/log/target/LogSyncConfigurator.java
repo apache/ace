@@ -41,7 +41,7 @@ public class LogSyncConfigurator implements ManagedServiceFactory {
     private static final String LOG_NAME = "name";
 
     private DependencyManager m_manager;
-    private final Map<String, Component> m_syncInstances = new HashMap<String, Component>();
+    private final Map<String, Component> m_syncInstances = new HashMap<>();
     private volatile LogService m_log;
     
     public String getName() {
@@ -65,7 +65,7 @@ public class LogSyncConfigurator implements ManagedServiceFactory {
         Component service = (Component) m_syncInstances.get(pid);
         if (service == null) {
             // publish log sync task service
-            Dictionary<String, Object> properties = new Hashtable<String, Object>();
+            Dictionary<String, Object> properties = new Hashtable<>();
             String filterString;
             String filterForDiscovery;
             String filterForIdentification;

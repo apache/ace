@@ -86,7 +86,7 @@ public class VerifierBundleRevision implements BundleRevision {
             return Collections.emptyList();
         }
 
-        List<BundleCapability> aliasCaps = new ArrayList<BundleCapability>(capabilities);
+        List<BundleCapability> aliasCaps = new ArrayList<>(capabilities);
 
         for (int capIdx = 0; capIdx < aliasCaps.size(); capIdx++)
         {
@@ -102,7 +102,7 @@ public class VerifierBundleRevision implements BundleRevision {
                 if (Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE.equalsIgnoreCase(entry.getKey()))
                 {
                     // Make a copy of the attribute array.
-                    Map<String, Object> aliasAttrs = new HashMap<String, Object>(attributes);
+                    Map<String, Object> aliasAttrs = new HashMap<>(attributes);
                     // Add the aliased value.
                     aliasAttrs.put(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE, new String[] { (String) entry.getValue(), Constants.SYSTEM_BUNDLE_SYMBOLICNAME });
                     // Create the aliased capability to replace the old capability.

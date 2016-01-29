@@ -91,7 +91,7 @@ public class ACETagEditorExtension implements UIExtensionFactory {
         table.setColumnExpandRatio("Value", 1.0f);
         table.setColumnExpandRatio("Remove", 0.2f);
 
-        final Map<Object, TagTableEntry> idToKey = new HashMap<Object, TagTableEntry>();
+        final Map<Object, TagTableEntry> idToKey = new HashMap<>();
         Enumeration<String> keys = object.getTagKeys();
         while (keys.hasMoreElements()) {
             String keyString = keys.nextElement();

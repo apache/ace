@@ -38,7 +38,7 @@ import org.apache.ace.agent.FeedbackHandler;
  */
 public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandler, EventListener {
     private static Set<String> split(String value) {
-        Set<String> trimmedValues = new HashSet<String>();
+        Set<String> trimmedValues = new HashSet<>();
         if (value != null) {
             String[] rawValues = value.split(",");
             for (String rawValue : rawValues) {
@@ -53,7 +53,7 @@ public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandle
     public FeedbackHandlerImpl() {
         super("feedback");
 
-        m_channels = new ConcurrentHashMap<String, FeedbackChannelImpl>();
+        m_channels = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class FeedbackHandlerImpl extends ComponentBase implements FeedbackHandle
         if (EVENT_AGENT_CONFIG_CHANGED.equals(topic)) {
             String value = payload.get(CONFIG_FEEDBACK_CHANNELS);
             if (value != null && !"".equals(value.trim())) {
-                Set<String> seen = new HashSet<String>(m_channels.keySet());
+                Set<String> seen = new HashSet<>(m_channels.keySet());
 
                 Set<String> channelNames = split(value);
                 if (channelNames.containsAll(seen) && seen.containsAll(channelNames)) {

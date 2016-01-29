@@ -146,7 +146,7 @@ public final class OBRUtil {
     private static List<OBREntry> getUsedOBRArtifacts(ArtifactRepository artifactRepository, URL obrBaseUrl) throws IOException {
         final String baseURL = obrBaseUrl.toExternalForm();
 
-        List<OBREntry> fromRepository = new ArrayList<OBREntry>();
+        List<OBREntry> fromRepository = new ArrayList<>();
 
         List<ArtifactObject> artifactObjects = artifactRepository.get();
         artifactObjects.addAll(artifactRepository.getResourceProcessors());
@@ -200,7 +200,7 @@ public final class OBRUtil {
             }
         }
 
-        List<OBREntry> obrList = new ArrayList<OBREntry>();
+        List<OBREntry> obrList = new ArrayList<>();
         for (int nResource = 0; nResource < resources.getLength(); nResource++) {
             Node resource = resources.item(nResource);
             NamedNodeMap attr = resource.getAttributes();

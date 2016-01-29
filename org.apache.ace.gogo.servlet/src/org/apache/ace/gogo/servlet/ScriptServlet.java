@@ -72,7 +72,7 @@ public class ScriptServlet extends HttpServlet implements ManagedService {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String script = getAsString(req.getInputStream());
         req.getInputStream();
-        Dictionary<String, String> scriptDefinition = new Hashtable<String, String>();
+        Dictionary<String, String> scriptDefinition = new Hashtable<>();
         scriptDefinition.put(SCRIPT_KEY, script);
         respondToScriptRequest(resp, scriptDefinition);
     }
@@ -131,7 +131,7 @@ public class ScriptServlet extends HttpServlet implements ManagedService {
     }
 
     private Dictionary<String, String> toDictionary(Map<String, ?> map) {
-        Dictionary<String, String> result = new Hashtable<String, String>();
+        Dictionary<String, String> result = new Hashtable<>();
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             result.put(entry.getKey(), toString(entry.getValue()));
         }

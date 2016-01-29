@@ -152,7 +152,7 @@ public class LogStoreImpl implements LogStore {
     public synchronized List get(long logID, long from, long to)
             throws IOException {
         Store store = getLog(logID);
-        List<Event> result = new ArrayList<Event>();
+        List<Event> result = new ArrayList<>();
         try {
             if (store.getCurrent() > from) {
                 store.reset();
@@ -256,7 +256,7 @@ public class LogStoreImpl implements LogStore {
      */
     public synchronized Event put(int type, Dictionary dict) throws IOException {
         try {
-            Map<String, String> props = new HashMap<String, String>();
+            Map<String, String> props = new HashMap<>();
             Enumeration keys = dict.keys();
             while (keys.hasMoreElements()) {
                 String key = (String) keys.nextElement();

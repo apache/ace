@@ -102,8 +102,8 @@ public class UploadHelper {
      */
     static abstract class GenericUploadHandler implements Upload.SucceededListener,
         Upload.FailedListener, Upload.Receiver, Upload.FinishedListener, Upload.ProgressListener {
-        private final Map<String, UploadHandleImpl> m_uploads = new ConcurrentHashMap<String, UploadHandleImpl>();
-        private final List<UploadHandle> m_completed = new CopyOnWriteArrayList<UploadHandle>();
+        private final Map<String, UploadHandleImpl> m_uploads = new ConcurrentHashMap<>();
+        private final List<UploadHandle> m_completed = new CopyOnWriteArrayList<>();
         private final File m_sessionDir;
 
         /**

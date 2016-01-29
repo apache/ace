@@ -125,7 +125,7 @@ public abstract class BaseAgentTest extends IntegrationTestBase {
         // System.out.println("BaseAgentTest: Cleaning bundle data dir (" + dataDir + ")");
         cleanDir(dataDir);
         // System.out.println("BaseAgentTest: Cleaning system properties");
-        Set<String> keysBeRemoved = new HashSet<String>();
+        Set<String> keysBeRemoved = new HashSet<>();
         for (Object key : System.getProperties().keySet()) {
             if (key instanceof String && ((String) key).startsWith(AgentConstants.CONFIG_KEY_NAMESPACE)) {
                 keysBeRemoved.add((String) key);
@@ -139,7 +139,7 @@ public abstract class BaseAgentTest extends IntegrationTestBase {
     }
 
     protected void configureAgent(ConfigurationHandler handler, String... configuration) {
-        Map<String, String> config = new HashMap<String, String>();
+        Map<String, String> config = new HashMap<>();
         for (int i = 0; i < configuration.length; i += 2) {
             config.put(configuration[i], configuration[i + 1]);
         }

@@ -49,7 +49,7 @@ public class SimpleDiscoveryTest {
      */
     @Test(groups = { UNIT })
     public void simpleDiscoveryValidConfiguration() throws ConfigurationException {
-        Dictionary<String, String> properties = new Hashtable<String, String>();
+        Dictionary<String, String> properties = new Hashtable<>();
         properties.put(SERVERURL_KEY, VALID_URL);
         m_discovery.updated(properties);
         URL url = m_discovery.discover();
@@ -62,7 +62,7 @@ public class SimpleDiscoveryTest {
      */
     @Test(groups = {UNIT}, expectedExceptions = ConfigurationException.class)
     public void simpleDiscoveryInvalidConfiguration() throws ConfigurationException {
-        Dictionary<String, String> properties = new Hashtable<String, String>();
+        Dictionary<String, String> properties = new Hashtable<>();
         properties.put(SERVERURL_KEY, INVALID_URL);
         m_discovery.updated(properties);
     }
@@ -74,7 +74,7 @@ public class SimpleDiscoveryTest {
     @Test(groups = {UNIT})
     public void simpleDiscoveryEmptyConfiguration() throws ConfigurationException {
         // set valid config
-        Dictionary<String, String> properties = new Hashtable<String, String>();
+        Dictionary<String, String> properties = new Hashtable<>();
         properties.put(SERVERURL_KEY, VALID_URL);
         m_discovery.updated(properties);
         // set empty config

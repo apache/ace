@@ -68,7 +68,7 @@ public class GatewayLogStoreTest {
     public void testLog() throws IOException {
         long[] ids = m_logStore.getLogIDs();
         assert ids.length == 1 : "New store should have only one id";
-        List<String> events = new ArrayList<String>();
+        List<String> events = new ArrayList<>();
         events.add(m_logStore.put(AuditEvent.FRAMEWORK_STARTED, new Properties() {{put("test", "test");}}).toRepresentation());
         events.add(m_logStore.put(AuditEvent.BUNDLE_INSTALLED, new Properties() {{put("test", "test");}}).toRepresentation());
         events.add(m_logStore.put(AuditEvent.DEPLOYMENTADMIN_COMPLETE, new Properties() {{put("test", "test");}}).toRepresentation());
@@ -76,12 +76,12 @@ public class GatewayLogStoreTest {
         assert ids.length == 1 : "Error free store should have only one id";
         long highest = m_logStore.getHighestID(ids[0]);
         assert  highest == 3 : "Store with 3 entries should have 3 as highest id but was: " + highest;
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (Event event : (List<Event>) m_logStore.get(ids[0])) {
             result.add(event.toRepresentation());
         }
         assert result.equals(events) : "Events " + events + " should equal full log " + result;
-        result = new ArrayList<String>();
+        result = new ArrayList<>();
         for (Event event : (List<Event>) m_logStore.get(ids[0], 1, highest)) {
             result.add(event.toRepresentation());
         }

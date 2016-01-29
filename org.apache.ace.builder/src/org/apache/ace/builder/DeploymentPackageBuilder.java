@@ -59,9 +59,9 @@ public class DeploymentPackageBuilder {
 
     private final String m_symbolicName;
     private final String m_version;
-    private final List<ArtifactData> m_bundles = new ArrayList<ArtifactData>();
-    private final List<ArtifactData> m_processors = new ArrayList<ArtifactData>();
-    private final List<ArtifactData> m_artifacts = new ArrayList<ArtifactData>();
+    private final List<ArtifactData> m_bundles = new ArrayList<>();
+    private final List<ArtifactData> m_processors = new ArrayList<>();
+    private final List<ArtifactData> m_artifacts = new ArrayList<>();
 
     private int m_id = 1;
 
@@ -142,7 +142,7 @@ public class DeploymentPackageBuilder {
      */
     public void generate(OutputStream output) throws Exception {
         validateArtifacts();
-        List<ArtifactData> artifacts = new ArrayList<ArtifactData>();
+        List<ArtifactData> artifacts = new ArrayList<>();
         artifacts.addAll(m_bundles);
         artifacts.addAll(m_processors);
         artifacts.addAll(m_artifacts);

@@ -52,16 +52,16 @@ public class AgentExtensionTest extends BaseAgentTest {
 
         assertNull(locateService(AgentControl.class));
 
-        ServiceRegistration idreg1 = registerIdentification("TEST1", 1);
+        ServiceRegistration<?> idreg1 = registerIdentification("TEST1", 1);
         assertNull(locateService(AgentControl.class));
-        ServiceRegistration direg1 = registerDiscovery(new URL("http://test1"), 1);
+        ServiceRegistration<?> direg1 = registerDiscovery(new URL("http://test1"), 1);
         assertNull(locateService(AgentControl.class));
-        ServiceRegistration coreg1 = registerConnectionHandler();
+        ServiceRegistration<?> coreg1 = registerConnectionHandler();
         assertNotNull(locateService(AgentControl.class));
 
         assertEquals("TEST1", locateService(AgentControl.class).getAgentId());
 
-        ServiceRegistration idreg2 = registerIdentification("TEST2", 2);
+        ServiceRegistration<?> idreg2 = registerIdentification("TEST2", 2);
 
         assertEquals("TEST2", locateService(AgentControl.class).getAgentId());
 
@@ -82,10 +82,10 @@ public class AgentExtensionTest extends BaseAgentTest {
         resetAgentBundleState();
     }
 
-    private ServiceRegistration registerIdentification(final String id, final int rank) {
+    private ServiceRegistration<IdentificationHandler> registerIdentification(final String id, final int rank) {
         Dictionary<String, Object> props = new Hashtable<>();
         props.put(Constants.SERVICE_RANKING, rank);
-        return m_bundleContext.registerService(IdentificationHandler.class.getName(), new IdentificationHandler() {
+        return m_bundleContext.registerService(IdentificationHandler.class, new IdentificationHandler() {
             @Override
             public String getAgentId() {
                 return id;
@@ -98,11 +98,11 @@ public class AgentExtensionTest extends BaseAgentTest {
         }, props);
     }
 
-    private ServiceRegistration registerDiscovery(final URL url, final int rank) {
+    private ServiceRegistration<DiscoveryHandler> registerDiscovery(final URL url, final int rank) {
         Dictionary<String, Object> props = new Hashtable<>();
         props.put(Constants.SERVICE_RANKING, rank);
         return m_bundleContext
-            .registerService(DiscoveryHandler.class.getName(), new DiscoveryHandler() {
+            .registerService(DiscoveryHandler.class, new DiscoveryHandler() {
 
                 @Override
                 public URL getServerUrl() {
@@ -111,9 +111,9 @@ public class AgentExtensionTest extends BaseAgentTest {
             }, props);
     }
 
-    private ServiceRegistration registerConnectionHandler() {
+    private ServiceRegistration<ConnectionHandler> registerConnectionHandler() {
         return m_bundleContext
-            .registerService(ConnectionHandler.class.getName(), new ConnectionHandler() {
+            .registerService(ConnectionHandler.class, new ConnectionHandler() {
 
                 @Override
                 public URLConnection getConnection(URL url) throws IOException {
@@ -122,12 +122,11 @@ public class AgentExtensionTest extends BaseAgentTest {
             }, null);
     }
 
-    @SuppressWarnings("unchecked")
     private <T> T locateService(Class<T> iface) {
-        ServiceReference reference = m_bundleContext.getServiceReference(iface.getName());
+        ServiceReference<T> reference = m_bundleContext.getServiceReference(iface);
         if (reference == null) {
             return null;
         }
-        return (T) m_bundleContext.getService(reference);
+        return m_bundleContext.getService(reference);
     }
 }

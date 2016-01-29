@@ -215,12 +215,12 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
 
     protected ArtifactObject createBasicArtifactObject(String name, String mimetype, String processorPID)
         throws InterruptedException {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(ArtifactObject.KEY_ARTIFACT_NAME, name);
         attr.put(ArtifactObject.KEY_MIMETYPE, mimetype);
         attr.put(ArtifactObject.KEY_URL, "http://" + name);
         attr.put(ArtifactObject.KEY_PROCESSOR_PID, processorPID);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
         return m_artifactRepository.create(attr, tags);
     }
@@ -234,7 +234,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
     }
 
     protected ArtifactObject createBasicBundleObject(String symbolicName, String version, String processorPID, String size) {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(BundleHelper.KEY_SYMBOLICNAME, symbolicName);
         attr.put(ArtifactObject.KEY_MIMETYPE, BundleHelper.MIMETYPE);
         attr.put(ArtifactObject.KEY_URL, "http://" + symbolicName + "-" + ((version == null) ? "null" : version));
@@ -249,30 +249,30 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
             attr.put(ArtifactObject.KEY_SIZE, size);
         }
 
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
         return m_artifactRepository.create(attr, tags);
     }
 
     protected DistributionObject createBasicDistributionObject(String name) {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(DistributionObject.KEY_NAME, name);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
         return m_distributionRepository.create(attr, tags);
     }
 
     protected FeatureObject createBasicFeatureObject(String name) {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(FeatureObject.KEY_NAME, name);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
         return m_featureRepository.create(attr, tags);
     }
 
     protected TargetObject createBasicTargetObject(String id) {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(TargetObject.KEY_ID, id);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
         return m_targetRepository.create(attr, tags);
     }
@@ -351,10 +351,10 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
     }
     
     protected <T> T runAndWaitForEvent(Callable<T> callable, final boolean debug, final List<Event> events, final String... topicList) throws Exception {
-        Dictionary<String, Object> topics = new Hashtable<String, Object>();
+        Dictionary<String, Object> topics = new Hashtable<>();
         topics.put(EventConstants.EVENT_TOPIC, topicList);
 
-        final CopyOnWriteArrayList<String> waitingForTopic = new CopyOnWriteArrayList<String>(Arrays.asList(topicList));
+        final CopyOnWriteArrayList<String> waitingForTopic = new CopyOnWriteArrayList<>(Arrays.asList(topicList));
         final CountDownLatch topicLatch = new CountDownLatch(topicList.length);
         final CountDownLatch startLatch = new CountDownLatch(1);
 

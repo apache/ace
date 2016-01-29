@@ -53,10 +53,10 @@ public class ResolverImpl implements Resolver
 
     // Holds candidate permutations based on permutating "uses" chains.
     // These permutations are given higher priority.
-    private final List<Candidates> m_usesPermutations = new ArrayList<Candidates>();
+    private final List<Candidates> m_usesPermutations = new ArrayList<>();
     // Holds candidate permutations based on permutating requirement candidates.
     // These permutations represent backtracking on previous decisions.
-    private final List<Candidates> m_importPermutations = new ArrayList<Candidates>();
+    private final List<Candidates> m_importPermutations = new ArrayList<>();
 
     public ResolverImpl(Logger logger)
     {
@@ -70,9 +70,9 @@ public class ResolverImpl implements Resolver
         Set<BundleRevision> ondemandFragments)
     {
         Map<BundleRevision, List<ResolverWire>> wireMap =
-            new HashMap<BundleRevision, List<ResolverWire>>();
+            new HashMap<>();
         Map<BundleRevision, Packages> revisionPkgMap =
-            new HashMap<BundleRevision, Packages>();
+            new HashMap<>();
 
         boolean retry;
         do
@@ -130,7 +130,7 @@ public class ResolverImpl implements Resolver
                 // fragments, since they will only be pulled in if their
                 // host is already present.
                 Set<BundleRevision> allRevisions =
-                    new HashSet<BundleRevision>(mandatoryRevisions);
+                    new HashSet<>(mandatoryRevisions);
                 for (BundleRevision br : optionalRevisions)
                 {
                     if (allCandidates.isPopulated(br))
@@ -148,7 +148,7 @@ public class ResolverImpl implements Resolver
                 // must ultimately be verified, so store its host requirement
                 // to use for package space calculation.
                 Map<BundleRevision, List<BundleRequirement>> hostReqs =
-                    new HashMap<BundleRevision, List<BundleRequirement>>();
+                    new HashMap<>();
                 for (BundleRevision br : allRevisions)
                 {
                     if (Util.isFragment(br))
@@ -289,8 +289,8 @@ public class ResolverImpl implements Resolver
             getDynamicImportCandidates(state, revision, pkgName);
         if (allCandidates != null)
         {
-            Map<BundleRevision, List<ResolverWire>> wireMap = new HashMap<BundleRevision, List<ResolverWire>>();
-            Map<BundleRevision, Packages> revisionPkgMap = new HashMap<BundleRevision, Packages>();
+            Map<BundleRevision, List<ResolverWire>> wireMap = new HashMap<>();
+            Map<BundleRevision, Packages> revisionPkgMap = new HashMap<>();
 
             boolean retry;
             do
@@ -407,7 +407,7 @@ public class ResolverImpl implements Resolver
             Collections.EMPTY_MAP,
             Collections.EMPTY_MAP);
         SortedSet<BundleCapability> caps = state.getCandidates(req, true);
-        List<BundleRevision> singletons = new ArrayList<BundleRevision>();
+        List<BundleRevision> singletons = new ArrayList<>();
         for (BundleCapability cap : caps)
         {
             if (cap.getRevision().getWiring() != null)
@@ -532,8 +532,8 @@ public class ResolverImpl implements Resolver
 
         // Create parallel arrays for requirement and proposed candidate
         // capability or actual capability if revision is resolved or not.
-        List<BundleRequirement> reqs = new ArrayList<BundleRequirement>();
-        List<BundleCapability> caps = new ArrayList<BundleCapability>();
+        List<BundleRequirement> reqs = new ArrayList<>();
+        List<BundleCapability> caps = new ArrayList<>();
         boolean isDynamicImporting = false;
         if (revision.getWiring() != null)
         {
@@ -659,7 +659,7 @@ public class ResolverImpl implements Resolver
                 if (!req.getNamespace().equals(BundleRevision.BUNDLE_NAMESPACE)
                     && !req.getNamespace().equals(BundleRevision.PACKAGE_NAMESPACE))
                 {
-                    List<BundleRequirement> blameReqs = new ArrayList<BundleRequirement>();
+                    List<BundleRequirement> blameReqs = new ArrayList<>();
                     blameReqs.add(req);
 
                     mergeUses(
@@ -680,7 +680,7 @@ public class ResolverImpl implements Resolver
                     // Ignore revisions that import from themselves.
                     if (!blame.m_cap.getRevision().equals(revision))
                     {
-                        List<BundleRequirement> blameReqs = new ArrayList<BundleRequirement>();
+                        List<BundleRequirement> blameReqs = new ArrayList<>();
                         blameReqs.add(blame.m_reqs.get(0));
 
                         mergeUses(
@@ -699,7 +699,7 @@ public class ResolverImpl implements Resolver
             {
                 for (Blame blame : entry.getValue())
                 {
-                    List<BundleRequirement> blameReqs = new ArrayList<BundleRequirement>();
+                    List<BundleRequirement> blameReqs = new ArrayList<>();
                     blameReqs.add(blame.m_reqs.get(0));
 
                     mergeUses(
@@ -723,7 +723,7 @@ public class ResolverImpl implements Resolver
         List<BundleCapability> cycleCaps = cycles.get(current);
         if (cycleCaps == null)
         {
-            cycleCaps = new ArrayList<BundleCapability>();
+            cycleCaps = new ArrayList<>();
             cycles.put(current, cycleCaps);
         }
         if (cycleCaps.contains(candCap))
@@ -831,7 +831,7 @@ public class ResolverImpl implements Resolver
             String pkgName = (String)
                 candCap.getAttributes().get(BundleRevision.PACKAGE_NAMESPACE);
 
-            List<BundleRequirement> blameReqs = new ArrayList<BundleRequirement>();
+            List<BundleRequirement> blameReqs = new ArrayList<>();
             blameReqs.add(currentReq);
 
             Packages currentPkgs = revisionPkgMap.get(current);
@@ -842,7 +842,7 @@ public class ResolverImpl implements Resolver
             List<Blame> blames = packages.get(pkgName);
             if (blames == null)
             {
-                blames = new ArrayList<Blame>();
+                blames = new ArrayList<>();
                 packages.put(pkgName, blames);
             }
             blames.add(new Blame(candCap, blameReqs));
@@ -887,7 +887,7 @@ public class ResolverImpl implements Resolver
                 Blame candExportedBlame = candSourcePkgs.m_exportedPkgs.get(usedPkgName);
                 if (candExportedBlame != null)
                 {
-                    candSourceBlames = new ArrayList<Blame>(1);
+                    candSourceBlames = new ArrayList<>(1);
                     candSourceBlames.add(candExportedBlame);
                 }
                 else
@@ -911,14 +911,14 @@ public class ResolverImpl implements Resolver
                 List<Blame> usedCaps = currentPkgs.m_usedPkgs.get(usedPkgName);
                 if (usedCaps == null)
                 {
-                    usedCaps = new ArrayList<Blame>();
+                    usedCaps = new ArrayList<>();
                     currentPkgs.m_usedPkgs.put(usedPkgName, usedCaps);
                 }
                 for (Blame blame : candSourceBlames)
                 {
                     if (blame.m_reqs != null)
                     {
-                        List<BundleRequirement> blameReqs2 = new ArrayList<BundleRequirement>(blameReqs);
+                        List<BundleRequirement> blameReqs2 = new ArrayList<>(blameReqs);
                         blameReqs2.add(blame.m_reqs.get(blame.m_reqs.size() - 1));
                         usedCaps.add(new Blame(blame.m_cap, blameReqs2));
                         mergeUses(current, currentPkgs, blame.m_cap, blameReqs2,
@@ -1298,7 +1298,7 @@ public class ResolverImpl implements Resolver
             ? revision.getWiring().getCapabilities(null)
             : revision.getDeclaredCapabilities(null);
         Map<String, BundleCapability> exports =
-            new HashMap<String, BundleCapability>(caps.size());
+            new HashMap<>(caps.size());
         for (BundleCapability cap : caps)
         {
             if (cap.getNamespace().equals(BundleRevision.PACKAGE_NAMESPACE))
@@ -1375,7 +1375,7 @@ public class ResolverImpl implements Resolver
     }
 
     private Map<BundleCapability, List<BundleCapability>> m_packageSourcesCache
-        = new HashMap<BundleCapability, List<BundleCapability>>();
+        = new HashMap<>();
 
     private List<BundleCapability> getPackageSources(
         BundleCapability cap, Map<BundleRevision, Packages> revisionPkgMap)
@@ -1394,7 +1394,7 @@ public class ResolverImpl implements Resolver
 
         if (!((BundleCapabilityImpl) cap).getUses().isEmpty())
         {
-            List<BundleCapability> caps = new ArrayList<BundleCapability>(1);
+            List<BundleCapability> caps = new ArrayList<>(1);
             caps.add(cap);
             return caps;
         }
@@ -1485,9 +1485,9 @@ public class ResolverImpl implements Resolver
         {
             wireMap.put(unwrappedRevision, (List<ResolverWire>) Collections.EMPTY_LIST);
 
-            List<ResolverWire> packageWires = new ArrayList<ResolverWire>();
-            List<ResolverWire> bundleWires = new ArrayList<ResolverWire>();
-            List<ResolverWire> capabilityWires = new ArrayList<ResolverWire>();
+            List<ResolverWire> packageWires = new ArrayList<>();
+            List<ResolverWire> bundleWires = new ArrayList<>();
+            List<ResolverWire> capabilityWires = new ArrayList<>();
 
             for (BundleRequirement req : revision.getDeclaredRequirements(null))
             {
@@ -1540,7 +1540,7 @@ public class ResolverImpl implements Resolver
                     List<ResolverWire> hostWires = wireMap.get(fragment);
                     if (hostWires == null)
                     {
-                        hostWires = new ArrayList<ResolverWire>();
+                        hostWires = new ArrayList<>();
                         wireMap.put(fragment, hostWires);
                     }
                     hostWires.add(
@@ -1564,7 +1564,7 @@ public class ResolverImpl implements Resolver
     {
         wireMap.put(revision, (List<ResolverWire>) Collections.EMPTY_LIST);
 
-        List<ResolverWire> packageWires = new ArrayList<ResolverWire>();
+        List<ResolverWire> packageWires = new ArrayList<>();
 
         BundleRequirement dynReq = null;
         BundleCapability dynCand = null;
@@ -1597,7 +1597,7 @@ public class ResolverImpl implements Resolver
                     allCandidates);
             }
 
-            Map<String, Object> attrs = new HashMap<String, Object>(1);
+            Map<String, Object> attrs = new HashMap<>(1);
             attrs.put(BundleRevision.PACKAGE_NAMESPACE, pkgName);
             packageWires.add(
                 new ResolverWireImpl(
@@ -1750,10 +1750,10 @@ public class ResolverImpl implements Resolver
     {
         @SuppressWarnings("unused")
         private final BundleRevision m_revision;
-        public final Map<String, Blame> m_exportedPkgs = new HashMap<String, Blame>();
-        public final Map<String, List<Blame>> m_importedPkgs = new HashMap<String, List<Blame>>();
-        public final Map<String, List<Blame>> m_requiredPkgs = new HashMap<String, List<Blame>>();
-        public final Map<String, List<Blame>> m_usedPkgs = new HashMap<String, List<Blame>>();
+        public final Map<String, Blame> m_exportedPkgs = new HashMap<>();
+        public final Map<String, List<Blame>> m_importedPkgs = new HashMap<>();
+        public final Map<String, List<Blame>> m_requiredPkgs = new HashMap<>();
+        public final Map<String, List<Blame>> m_usedPkgs = new HashMap<>();
 
         public Packages(BundleRevision revision)
         {

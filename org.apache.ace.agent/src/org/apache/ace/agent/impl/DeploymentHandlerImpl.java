@@ -119,7 +119,7 @@ public class DeploymentHandlerImpl extends UpdateHandlerBase implements Deployme
         }
 
         private Map<String, String> getPayload(Event event) {
-            Map<String, String> payload = new HashMap<String, String>();
+            Map<String, String> payload = new HashMap<>();
             for (String propertyName : event.getPropertyNames()) {
                 payload.put(propertyName, event.getProperty(propertyName).toString());
             }

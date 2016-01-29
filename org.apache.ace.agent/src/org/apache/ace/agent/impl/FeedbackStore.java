@@ -206,7 +206,7 @@ public class FeedbackStore {
     public List<Record> getRecords(long fromId, long toId) throws IOException {
         RandomAccessFile raf = null;
 
-        List<Record> result = new ArrayList<Record>();
+        List<Record> result = new ArrayList<>();
 
         try {
             // Take a NEW file instance as to ensure we do not

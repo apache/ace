@@ -62,10 +62,10 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         final String targetId = "myNewTarget2";
 
-        final Map<String, String> attr = new HashMap<String, String>();
+        final Map<String, String> attr = new HashMap<>();
         attr.put(TargetObject.KEY_ID, targetId);
 
-        final Map<String, String> tags = new HashMap<String, String>();
+        final Map<String, String> tags = new HashMap<>();
         final StatefulTargetObject sgo = runAndWaitForEvent(new Callable<StatefulTargetObject>() {
             public StatefulTargetObject call() throws Exception {
                 return m_statefulTargetRepository.preregister(attr, tags);
@@ -168,9 +168,9 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         setUpTestCase();
 
         // preregister target
-        final Map<String, String> attr = new HashMap<String, String>();
+        final Map<String, String> attr = new HashMap<>();
         attr.put(TargetObject.KEY_ID, "myNewTarget3");
-        final Map<String, String> tags = new HashMap<String, String>();
+        final Map<String, String> tags = new HashMap<>();
 
         final StatefulTargetObject sgo1 = runAndWaitForEvent(new Callable<StatefulTargetObject>() {
             public StatefulTargetObject call() throws Exception {
@@ -182,15 +182,15 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertTrue("We just preregistered a target, so it should be registered.", sgo1.isRegistered());
 
         // add auditlog data
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         events.add(new Event("myNewTarget3", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         // add an (old) set of target properties
-        Map<String, String> props2 = new HashMap<String, String>();
+        Map<String, String> props2 = new HashMap<>();
         props2.put("mykey", "myoldvalue");
         props2.put("myoldkey", "myoldvalue");
         events.add(new Event("myNewTarget3", 1, 2, 2, AuditEvent.TARGETPROPERTIES_SET, props2));
         // add a new set of target properties
-        Map<String, String> props3 = new HashMap<String, String>();
+        Map<String, String> props3 = new HashMap<>();
         props3.put("mykey", "myvalue");
         events.add(new Event("myNewTarget3", 1, 3, 3, AuditEvent.TARGETPROPERTIES_SET, props3));
         m_auditLogStore.put(events);
@@ -204,7 +204,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertTrue("Adding auditlog data for a target does not influence its isRegistered().", sgo1.isRegistered());
 
         // add auditlog data for other target
-        events = new ArrayList<Event>();
+        events = new ArrayList<>();
         events.add(new Event("myNewTarget4", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         m_auditLogStore.put(events);
         runAndWaitForEvent(new Callable<Object>() {
@@ -319,9 +319,9 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         setUpTestCase();
 
         // preregister gateway
-        final Map<String, String> attr = new HashMap<String, String>();
+        final Map<String, String> attr = new HashMap<>();
         attr.put(TargetObject.KEY_ID, "myNewGatewayA");
-        final Map<String, String> tags = new HashMap<String, String>();
+        final Map<String, String> tags = new HashMap<>();
 
         final StatefulTargetObject sgo1 = runAndWaitForEvent(new Callable<StatefulTargetObject>() {
             public StatefulTargetObject call() throws Exception {
@@ -333,7 +333,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertTrue("We just preregistered a gateway, so it should be registered.", sgo1.isRegistered());
 
         // add auditlog data
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         events.add(new Event("myNewGatewayA", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         m_auditLogStore.put(events);
         m_statefulTargetRepository.refresh();
@@ -347,7 +347,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
             assertTrue("We should be able to get sgo1's gatewayObject.", false);
         }
         // add auditlog data for other gateway
-        events = new ArrayList<Event>();
+        events = new ArrayList<>();
         events.add(new Event("myNewGatewayB", 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         m_auditLogStore.put(events);
         runAndWaitForEvent(new Callable<Object>() {
@@ -444,7 +444,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         final String targetId = String.format("target-%s", Long.toHexString(System.nanoTime()));
 
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
 
         events.add(new Event(targetId, 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
         // fill auditlog; no install data
@@ -463,8 +463,8 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertEquals("We expect our object's provisioning state to be Idle;", ProvisioningState.Idle, sgo.getProvisioningState());
 
         // fill auditlog with complete-data
-        events = new ArrayList<Event>();
-        Map<String, String> props = new HashMap<String, String>();
+        events = new ArrayList<>();
+        Map<String, String> props = new HashMap<>();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "123");
         events.add(new Event(targetId, 1, 2, 2, AuditEvent.DEPLOYMENTCONTROL_INSTALL, props));
@@ -482,8 +482,8 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertEquals("We expect our object's provisioning state to be InProgress;", ProvisioningState.InProgress, sgo.getProvisioningState());
 
         // fill auditlog with install data
-        events = new ArrayList<Event>();
-        props = new HashMap<String, String>();
+        events = new ArrayList<>();
+        props = new HashMap<>();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "123");
         props.put(AuditEvent.KEY_SUCCESS, "false");
@@ -507,8 +507,8 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertEquals("We expect our object's provisioning state to be Idle;", ProvisioningState.Idle, sgo.getProvisioningState());
 
         // add another install event.
-        events = new ArrayList<Event>();
-        props = new HashMap<String, String>();
+        events = new ArrayList<>();
+        props = new HashMap<>();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "124");
         events.add(new Event(targetId, 1, 4, 4, AuditEvent.DEPLOYMENTCONTROL_INSTALL, props));
@@ -526,8 +526,8 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         assertEquals("We expect our object's provisioning state to be InProgress;", ProvisioningState.InProgress, sgo.getProvisioningState());
 
         // fill auditlog with install data
-        events = new ArrayList<Event>();
-        props = new HashMap<String, String>();
+        events = new ArrayList<>();
+        props = new HashMap<>();
         props.put(AuditEvent.KEY_NAME, "mypackage");
         props.put(AuditEvent.KEY_VERSION, "124");
         props.put(AuditEvent.KEY_SUCCESS, "true");
@@ -556,9 +556,9 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         final String targetId = "myNewTarget1";
 
-        final Map<String, String> attr = new HashMap<String, String>();
+        final Map<String, String> attr = new HashMap<>();
         attr.put(TargetObject.KEY_ID, targetId);
-        final Map<String, String> tags = new HashMap<String, String>();
+        final Map<String, String> tags = new HashMap<>();
 
         try {
             m_statefulTargetRepository.create(attr, tags);
@@ -590,10 +590,10 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         final String targetId = "a_target";
 
         // register target with
-        final Map<String, String> attr = new HashMap<String, String>();
+        final Map<String, String> attr = new HashMap<>();
         attr.put(TargetObject.KEY_ID, targetId);
         attr.put(TargetObject.KEY_AUTO_APPROVE, String.valueOf(true));
-        final Map<String, String> tags = new HashMap<String, String>();
+        final Map<String, String> tags = new HashMap<>();
 
         final StatefulTargetObject sgo = runAndWaitForEvent(new Callable<StatefulTargetObject>() {
             public StatefulTargetObject call() throws Exception {
@@ -623,7 +623,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         final String targetID = ":)";
 
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
 
         // add a target with a weird name.
         events.add(new Event(targetID, 1, 1, 1, AuditEvent.FRAMEWORK_STARTED));
@@ -656,10 +656,10 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
         final String targetId = "myNewTarget3";
 
-        final Map<String, String> attr = new HashMap<String, String>();
+        final Map<String, String> attr = new HashMap<>();
         attr.put(TargetObject.KEY_ID, targetId);
 
-        final Map<String, String> tags = new HashMap<String, String>();
+        final Map<String, String> tags = new HashMap<>();
         final StatefulTargetObject sgo = runAndWaitForEvent(new Callable<StatefulTargetObject>() {
             public StatefulTargetObject call() throws Exception {
                 return m_statefulTargetRepository.preregister(attr, tags);
@@ -717,14 +717,14 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
     private DeploymentVersionObject createBasicDeploymentVersionObject(String targetID, String version,
         ArtifactObject... bundles) {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(DeploymentVersionObject.KEY_TARGETID, targetID);
         attr.put(DeploymentVersionObject.KEY_VERSION, version);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
-        List<DeploymentArtifact> artifacts = new ArrayList<DeploymentArtifact>();
+        List<DeploymentArtifact> artifacts = new ArrayList<>();
         for (ArtifactObject artifact : bundles) {
-            Map<String, String> directives = new HashMap<String, String>();
+            Map<String, String> directives = new HashMap<>();
             directives.put(BundleHelper.KEY_SYMBOLICNAME, artifact.getAttribute(BundleHelper.KEY_SYMBOLICNAME));
             directives.put(DeploymentArtifact.DIRECTIVE_KEY_BASEURL, artifact.getURL());
             if (artifact.getAttribute(BundleHelper.KEY_VERSION) != null) {
@@ -737,7 +737,7 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
 
     private Artifact2FeatureAssociation createDynamicBundle2FeatureAssociation(ArtifactObject artifact,
         FeatureObject feature) {
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
         properties.put(BundleHelper.KEY_ASSOCIATION_VERSIONSTATEMENT, "0.0.0");
         return m_artifact2featureRepository.create(artifact, properties, feature, null);
     }

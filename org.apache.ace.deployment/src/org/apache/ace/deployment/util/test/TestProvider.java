@@ -34,8 +34,8 @@ public class TestProvider implements DeploymentProvider {
     private List<String> m_versions;
 
     public TestProvider() throws Exception {
-        m_collection = new ArrayList<ArtifactData>();
-        m_versions = new ArrayList<String>();
+        m_collection = new ArrayList<>();
+        m_versions = new ArrayList<>();
     }
 
     public void addData(String fileName, String symbolicName, URL url, String version) {

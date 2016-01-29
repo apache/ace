@@ -161,9 +161,9 @@ public class ModelTest {
         }
 
         try {
-            Map<String, String> attr = new HashMap<String, String>();
+            Map<String, String> attr = new HashMap<>();
             attr.put(BundleHelper.KEY_NAME, "mynewartifact");
-            Map<String, String> tags = new HashMap<String, String>();
+            Map<String, String> tags = new HashMap<>();
             m_artifactRepository.create(attr, tags);
             assert false : "Creating a artifact without specifying all mandatory atttributes should be illegal.";
         }
@@ -248,18 +248,18 @@ public class ModelTest {
         assert g2distributions.size() == 0 : "Feature two should not have any associations to distributions; we found " + g2distributions.size() + ".";
         assert g3distributions.size() == 0 : "Feature three should not have any associations to distributions; we found " + g3distributions.size() + ".";
 
-        List<FeatureObject> b1expectedFeatures = new ArrayList<FeatureObject>();
+        List<FeatureObject> b1expectedFeatures = new ArrayList<>();
         b1expectedFeatures.add(g2);
         b1expectedFeatures.add(g3);
-        List<FeatureObject> b2expectedFeatures = new ArrayList<FeatureObject>();
+        List<FeatureObject> b2expectedFeatures = new ArrayList<>();
         b2expectedFeatures.add(g1);
         b2expectedFeatures.add(g3);
 
-        List<ArtifactObject> g1expectedArtifacts = new ArrayList<ArtifactObject>();
+        List<ArtifactObject> g1expectedArtifacts = new ArrayList<>();
         g1expectedArtifacts.add(b2);
-        List<ArtifactObject> g2expectedArtifacts = new ArrayList<ArtifactObject>();
+        List<ArtifactObject> g2expectedArtifacts = new ArrayList<>();
         g2expectedArtifacts.add(b1);
-        List<ArtifactObject> g3expectedArtifacts = new ArrayList<ArtifactObject>();
+        List<ArtifactObject> g3expectedArtifacts = new ArrayList<>();
         g3expectedArtifacts.add(b1);
         g3expectedArtifacts.add(b2);
 
@@ -296,12 +296,12 @@ public class ModelTest {
         FeatureObject f2 = createBasicFeatureObject("f2");
         FeatureObject f3 = createBasicFeatureObject("f3");
 
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         props.put(Association.LEFT_ENDPOINT, "(" + BundleHelper.KEY_SYMBOLICNAME + "=a1)");
         props.put(Association.LEFT_CARDINALITY, "1");
         props.put(Association.RIGHT_ENDPOINT, "(" + FeatureObject.KEY_NAME + "=f*)");
         props.put(Association.RIGHT_CARDINALITY, "2");
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
         try {
             m_artifact2FeatureRepository.create(props, tags);
@@ -331,10 +331,10 @@ public class ModelTest {
         FeatureObject g2 = createBasicFeatureObject("g2");
         FeatureObject g3 = createBasicFeatureObject("g3");
 
-        List<ArtifactObject> artifacts = new ArrayList<ArtifactObject>();
+        List<ArtifactObject> artifacts = new ArrayList<>();
         artifacts.add(b1);
         artifacts.add(b2);
-        List<FeatureObject> features = new ArrayList<FeatureObject>();
+        List<FeatureObject> features = new ArrayList<>();
         features.add(g1);
         features.add(g3);
 
@@ -467,13 +467,13 @@ public class ModelTest {
      */
     @Test(groups = { TestUtils.UNIT })
     public void testEquals() {
-        List<ArtifactObject> artifacts = new ArrayList<ArtifactObject>();
+        List<ArtifactObject> artifacts = new ArrayList<>();
         artifacts.add(createBasicArtifactObject("artifact1"));
         artifacts.add(createBasicArtifactObject("artifact2"));
         artifacts.get(1).addTag("thetag", "thevalue");
         artifacts.add(createBasicArtifactObject("artifact3"));
 
-        List<ArtifactObject> backupArtifacts = new ArrayList<ArtifactObject>();
+        List<ArtifactObject> backupArtifacts = new ArrayList<>();
         backupArtifacts.addAll(artifacts);
 
         for (ArtifactObject b : backupArtifacts) {
@@ -578,10 +578,10 @@ public class ModelTest {
     public void testModelFiltering() throws InvalidSyntaxException {
         initializeRepositoryAdmin();
         // Create an empty artifact repository.
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put("myattribute", "theattribute");
         attributes.put("name", "attname");
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
         assert m_featureRepository != null : "Something has gone wrong injecting the feature repository.";
         FeatureObject g1 = m_featureRepository.create(attributes, tags);
@@ -739,14 +739,14 @@ public class ModelTest {
     }
 
     private ArtifactObject createBasicArtifactObject(String symbolicName, String version, String size) {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(BundleHelper.KEY_SYMBOLICNAME, symbolicName);
         attr.put(ArtifactObject.KEY_MIMETYPE, BundleHelper.MIMETYPE);
         attr.put(ArtifactObject.KEY_URL, "http://" + symbolicName + "-v" + ((version == null) ? "null" : version));
         if (size != null) {
             attr.put(ArtifactObject.KEY_SIZE, size); // bytes
         }
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
         if (version != null) {
             attr.put(BundleHelper.KEY_VERSION, version);
         }
@@ -754,12 +754,12 @@ public class ModelTest {
     }
 
     private DeploymentVersionObject createBasicDeploymentVersionObject(String targetID, String version, String[] artifacts) {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(DeploymentVersionObject.KEY_TARGETID, targetID);
         attr.put(DeploymentVersionObject.KEY_VERSION, version);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
-        List<DeploymentArtifactImpl> deploymentArtifacts = new ArrayList<DeploymentArtifactImpl>();
+        List<DeploymentArtifactImpl> deploymentArtifacts = new ArrayList<>();
         for (String s : artifacts) {
             deploymentArtifacts.add(new DeploymentArtifactImpl(s, -1L));
         }
@@ -767,25 +767,25 @@ public class ModelTest {
     }
 
     private DistributionObject createBasicDistributionObject(String name) {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(DistributionObject.KEY_NAME, name);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
         return m_distributionRepository.create(attr, tags);
     }
 
     private FeatureObject createBasicFeatureObject(String name) {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(FeatureObject.KEY_NAME, name);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
         return m_featureRepository.create(attr, tags);
     }
 
     private TargetObject createBasicTargetObject(String id) {
-        Map<String, String> attr = new HashMap<String, String>();
+        Map<String, String> attr = new HashMap<>();
         attr.put(TargetObject.KEY_ID, id);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
 
         return m_targetRepository.create(attr, tags);
     }
@@ -828,7 +828,7 @@ public class ModelTest {
 
         m_repositoryAdmin = new RepositoryAdminImpl("testSessionID", repoConfig);
 
-        Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> repos = new HashMap<Class<? extends ObjectRepository>, ObjectRepositoryImpl>();
+        Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> repos = new HashMap<>();
         repos.put(ArtifactRepository.class, m_artifactRepository);
         repos.put(Artifact2FeatureAssociationRepository.class, m_artifact2FeatureRepository);
         repos.put(FeatureRepository.class, m_featureRepository);

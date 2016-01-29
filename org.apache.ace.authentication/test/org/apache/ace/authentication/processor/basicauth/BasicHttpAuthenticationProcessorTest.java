@@ -26,11 +26,11 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Properties;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.ace.authentication.processor.basicauth.BasicHttpAuthenticationProcessor;
 import org.apache.commons.codec.binary.Base64;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.useradmin.User;
@@ -181,7 +181,7 @@ public class BasicHttpAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyUsername() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(PROPERTY_KEY_USERNAME, "");
         props.put(PROPERTY_KEY_PASSWORD, "foo");
         
@@ -193,7 +193,7 @@ public class BasicHttpAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyUsername() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(PROPERTY_KEY_PASSWORD, "foo");
         
         new BasicHttpAuthenticationProcessor().updated(props);
@@ -204,7 +204,7 @@ public class BasicHttpAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyPassword() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(PROPERTY_KEY_USERNAME, "foo");
         
         new BasicHttpAuthenticationProcessor().updated(props);
@@ -215,7 +215,7 @@ public class BasicHttpAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyPassword() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(PROPERTY_KEY_USERNAME, "foo");
         props.put(PROPERTY_KEY_PASSWORD, "");
         
@@ -230,7 +230,7 @@ public class BasicHttpAuthenticationProcessorTest {
         final String keyUsername = "foo";
         final String keyPassword = "bar";
         
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(PROPERTY_KEY_USERNAME, keyUsername);
         props.put(PROPERTY_KEY_PASSWORD, keyPassword);
         

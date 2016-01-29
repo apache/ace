@@ -68,7 +68,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
     public static final String DP_MIMETYPE = "application/vnd.osgi.dp";
     public static final String TEXT_MIMETYPE = "text/plain";
 
-    private final ConcurrentMap<String, DeploymentProcessor> m_processors = new ConcurrentHashMap<String, DeploymentProcessor>();
+    private final ConcurrentMap<String, DeploymentProcessor> m_processors = new ConcurrentHashMap<>();
 
     // injected by Dependency Manager
     private volatile DependencyManager m_dm;

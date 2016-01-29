@@ -272,7 +272,7 @@ public class VerifyEnvironmentImpl implements VerifierService.VerifyEnvironment 
 
         m_config = config;
         m_reporter = (reporter == null) ? new DummyReporter() : reporter;
-        m_bundles = new ConcurrentHashMap<Long, VerifierBundleRevision>();
+        m_bundles = new ConcurrentHashMap<>();
         
         m_log = new Logger();
         m_log.setLogger(new FrameworkLogger(m_reporter));

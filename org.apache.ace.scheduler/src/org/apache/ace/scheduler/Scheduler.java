@@ -39,7 +39,7 @@ import org.osgi.service.log.LogService;
  * for it.
  */
 public class Scheduler implements ManagedService {
-    protected final Map<String, SchedulerTask> m_tasks = new HashMap<String, SchedulerTask>();
+    protected final Map<String, SchedulerTask> m_tasks = new HashMap<>();
     private volatile LogService m_log;
 
     /**

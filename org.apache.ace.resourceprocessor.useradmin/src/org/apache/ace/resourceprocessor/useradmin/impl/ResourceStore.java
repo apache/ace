@@ -50,7 +50,7 @@ abstract class ResourceStore
 
         File baseDir = m_context.getDataFile(TEMP_DIR);
 
-        m_resources = new HashMap<String, String>();
+        m_resources = new HashMap<>();
 
         // Fill our resources overview with the data that is available on disk.
         File[] deploymentPackageList = baseDir.listFiles();
@@ -168,7 +168,7 @@ abstract class ResourceStore
      */
     public List<String> getResources(String deploymentPackageName) {
         synchronized (m_resources) {
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
             for (Map.Entry<String, String> entry : m_resources.entrySet()) {
                 if (entry.getValue().equals(deploymentPackageName)) {
                     result.add(entry.getKey());

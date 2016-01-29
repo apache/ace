@@ -40,20 +40,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * Provides a small container for {@link AuthenticationProcessor} instances.
      */
     private static class AuthenticationProcessorHolder implements Comparable<AuthenticationProcessorHolder> {
-        private final ServiceReference m_serviceRef;
+        private final ServiceReference<AuthenticationProcessor> m_serviceRef;
         private final WeakReference<AuthenticationProcessor> m_processor;
 
-        public AuthenticationProcessorHolder(ServiceReference serviceRef, AuthenticationProcessor processor) {
+        public AuthenticationProcessorHolder(ServiceReference<AuthenticationProcessor> serviceRef, AuthenticationProcessor processor) {
             m_serviceRef = serviceRef;
-            m_processor = new WeakReference<AuthenticationProcessor>(processor);
+            m_processor = new WeakReference<>(processor);
         }
 
         /**
          * {@inheritDoc}
          */
         public int compareTo(AuthenticationProcessorHolder other) {
-            ServiceReference thatServiceRef = other.m_serviceRef;
-            ServiceReference thisServiceRef = m_serviceRef;
+            ServiceReference<AuthenticationProcessor> thatServiceRef = other.m_serviceRef;
+            ServiceReference<AuthenticationProcessor> thisServiceRef = m_serviceRef;
             // Sort in reverse order so that the highest rankings come first...
             return thatServiceRef.compareTo(thisServiceRef);
         }
@@ -101,7 +101,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * Creates a new {@link AuthenticationServiceImpl} instance.
      */
     public AuthenticationServiceImpl() {
-        m_processors = new ArrayList<AuthenticationServiceImpl.AuthenticationProcessorHolder>();
+        m_processors = new ArrayList<>();
     }
 
     /**
@@ -109,7 +109,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     AuthenticationServiceImpl(LogService log) {
         m_log = log;
-        m_processors = new ArrayList<AuthenticationServiceImpl.AuthenticationProcessorHolder>();
+        m_processors = new ArrayList<>();
     }
 
     /**
@@ -150,14 +150,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     final List<AuthenticationProcessor> getProcessors(Object... context) {
         final List<AuthenticationProcessorHolder> processors;
         synchronized (m_processors) {
-            processors = new ArrayList<AuthenticationProcessorHolder>(m_processors);
+            processors = new ArrayList<>(m_processors);
         }
         // Sort on service ranking...
         Collections.sort(processors);
 
         int size = processors.size();
         
-        List<AuthenticationProcessor> result = new ArrayList<AuthenticationProcessor>(size);
+        List<AuthenticationProcessor> result = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             AuthenticationProcessor authenticationProcessor = processors.get(i).getAuthenticationProcessor();
             // Can be null if it is already GC'd for some reason...
@@ -175,7 +175,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * @param serviceRef the service reference of the authentication processor to add;
      * @param processor the authentication processor to add.
      */
-    protected void addAuthenticationProcessor(ServiceReference serviceRef, AuthenticationProcessor processor) {
+    protected void addAuthenticationProcessor(ServiceReference<AuthenticationProcessor> serviceRef, AuthenticationProcessor processor) {
         synchronized (m_processors) {
             m_processors.add(new AuthenticationProcessorHolder(serviceRef, processor));
         }
@@ -187,7 +187,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * @param serviceRef the service reference of the authentication processor to remove;
      * @param processor the authentication processor to remove.
      */
-    protected void removeAuthenticationProcessor(ServiceReference serviceRef, AuthenticationProcessor processor) {
+    protected void removeAuthenticationProcessor(ServiceReference<AuthenticationProcessor> serviceRef, AuthenticationProcessor processor) {
         synchronized (m_processors) {
             m_processors.remove(new AuthenticationProcessorHolder(serviceRef, processor));
         }

@@ -312,7 +312,7 @@ public class Util
     public static List<BundleCapability> getCapabilityByNamespace(
         BundleRevision br, String namespace)
     {
-        final List<BundleCapability> matching = new ArrayList<BundleCapability>();
+        final List<BundleCapability> matching = new ArrayList<>();
         final List<BundleCapability> caps = (br.getWiring() != null)
             ? br.getWiring().getCapabilities(null)
             : br.getDeclaredCapabilities(null);
@@ -332,7 +332,7 @@ public class Util
     public static List<BundleRequirement> getDynamicRequirements(
         List<BundleRequirement> reqs)
     {
-        List<BundleRequirement> result = new ArrayList<BundleRequirement>();
+        List<BundleRequirement> result = new ArrayList<>();
         if (reqs != null)
         {
             for (BundleRequirement req : reqs)
@@ -515,7 +515,7 @@ public class Util
         // one for detecting cycles for this invocation.
         if (cycleMap == null)
         {
-            cycleMap = new HashMap<String, String>();
+            cycleMap = new HashMap<>();
         }
 
         // Put the current key in the cycle map.
@@ -637,7 +637,7 @@ public class Util
                         // Create array list if needed.
                         if (fragments.isEmpty())
                         {
-                            fragments = new ArrayList<BundleRevision>();
+                            fragments = new ArrayList<>();
                         }
                         fragments.add(w.getRequirerWiring().getRevision());
                     }

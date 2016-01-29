@@ -64,28 +64,28 @@ public class VerifierResolverState implements Resolver.ResolverState {
 	 * @param fwkExecEnvStr the framework execution environment, can be <code>null</code>.
 	 */
 	public VerifierResolverState(String fwkExecEnvStr) {
-		m_revisions = new HashSet<BundleRevision>();
-		m_fragments = new HashSet<BundleRevision>();
-		m_capSets = new HashMap<String, CapabilitySet>();
+		m_revisions = new HashSet<>();
+		m_fragments = new HashSet<>();
+		m_capSets = new HashMap<>();
 
 		m_fwkExecEnvStr = (fwkExecEnvStr != null) ? fwkExecEnvStr.trim() : null;
 		m_fwkExecEnvSet = parseExecutionEnvironments(fwkExecEnvStr);
 
-		List<String> indices = new ArrayList<String>();
+		List<String> indices = new ArrayList<>();
 		indices.add(BundleRevision.BUNDLE_NAMESPACE);
 		m_capSets.put(BundleRevision.BUNDLE_NAMESPACE, new CapabilitySet(indices, true));
 
-		indices = new ArrayList<String>();
+		indices = new ArrayList<>();
 		indices.add(BundleRevision.PACKAGE_NAMESPACE);
 		m_capSets.put(BundleRevision.PACKAGE_NAMESPACE, new CapabilitySet(indices, true));
 
-		indices = new ArrayList<String>();
+		indices = new ArrayList<>();
 		indices.add(BundleRevision.HOST_NAMESPACE);
 		m_capSets.put(BundleRevision.HOST_NAMESPACE, new CapabilitySet(indices, true));
 	}
 
 	synchronized Set<BundleRevision> getUnresolvedRevisions() {
-		Set<BundleRevision> unresolved = new HashSet<BundleRevision>();
+		Set<BundleRevision> unresolved = new HashSet<>();
 		for (BundleRevision revision : m_revisions) {
 			if (revision.getWiring() == null) {
 				unresolved.add(revision);
@@ -149,7 +149,7 @@ public class VerifierResolverState implements Resolver.ResolverState {
 	}
 
 	synchronized Set<BundleRevision> getFragments() {
-		return new HashSet<BundleRevision>(m_fragments);
+		return new HashSet<>(m_fragments);
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class VerifierResolverState implements Resolver.ResolverState {
      */
 	public synchronized SortedSet<BundleCapability> getCandidates(BundleRequirement req, boolean obeyMandatory) {
 //		BundleRevision reqRevision = req.getRevision();
-		SortedSet<BundleCapability> result = new TreeSet<BundleCapability>(new CandidateComparator());
+		SortedSet<BundleCapability> result = new TreeSet<>(new CandidateComparator());
 
 		CapabilitySet capSet = m_capSets.get(req.getNamespace());
 		if (capSet != null) {
@@ -329,7 +329,7 @@ public class VerifierResolverState implements Resolver.ResolverState {
 	 * @return the parsed set of execution environments
 	 **/
 	private static Set<String> parseExecutionEnvironments(String fwkExecEnvStr) {
-		Set<String> newSet = new HashSet<String>();
+		Set<String> newSet = new HashSet<>();
 		if (fwkExecEnvStr != null) {
 			StringTokenizer tokens = new StringTokenizer(fwkExecEnvStr, ",");
 			while (tokens.hasMoreTokens()) {

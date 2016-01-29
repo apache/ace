@@ -39,11 +39,11 @@ import org.osgi.service.log.LogService;
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
     private static final String MA_NAME = "ma";
     
-    private final Map<String, Component> m_instances = new HashMap<String, Component>();
+    private final Map<String, Component> m_instances = new HashMap<>();
     private DependencyManager m_manager;
 
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        Dictionary<Object, Object> properties = new Hashtable<Object, Object>();
+        Dictionary<Object, Object> properties = new Hashtable<>();
         properties.put(Constants.SERVICE_PID, DiscoveryConstants.DISCOVERY_PID);
         
         manager.add(createComponent()
@@ -71,7 +71,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         return "Discovery Service Factory";
     }
 
-    public void updated(String pid, Dictionary dict) throws ConfigurationException {
+    public void updated(String pid, Dictionary<String, ?> dict) throws ConfigurationException {
         String ma = (String) dict.get(MA_NAME);
         String id = (String) dict.get(DiscoveryConstants.DISCOVERY_URL_KEY);
         

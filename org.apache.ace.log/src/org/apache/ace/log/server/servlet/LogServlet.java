@@ -244,7 +244,7 @@ public class LogServlet extends HttpServlet {
 
     // Handle a call to the send 'command'
     protected boolean handleSend(ServletInputStream input) throws IOException {
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         boolean success = true;
 
         BufferedReader reader = null;

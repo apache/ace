@@ -108,7 +108,7 @@ public class Activator extends DependencyActivatorBase {
     }
 
     private Dictionary<String, Object> getInitParams(ServiceReference ref) {
-        Dictionary<String, Object> initParams = new Hashtable<String, Object>();
+        Dictionary<String, Object> initParams = new Hashtable<>();
         for (String key : ref.getPropertyKeys()) {
             if (key.startsWith(INIT_PREFIX)) {
                 initParams.put(key.substring(INIT_PREFIX.length()), ref.getProperty(key));

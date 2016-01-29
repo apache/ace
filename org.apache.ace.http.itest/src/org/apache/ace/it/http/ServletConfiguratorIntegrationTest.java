@@ -75,7 +75,7 @@ public class ServletConfiguratorIntegrationTest extends IntegrationTestBase {
 	protected void configureProvisionedServices() throws Exception {
         m_echoServlet = new EchoServlet();
 
-        Dictionary<String, String> dictionary = new Hashtable<String, String>();
+        Dictionary<String, String> dictionary = new Hashtable<>();
         dictionary.put(HttpConstants.ENDPOINT, "/echoServlet");
         m_echoServletService = m_dependencyManager.createComponent()
             .setImplementation(m_echoServlet)

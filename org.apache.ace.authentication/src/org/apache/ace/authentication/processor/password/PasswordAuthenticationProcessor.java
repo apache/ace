@@ -97,7 +97,7 @@ public class PasswordAuthenticationProcessor implements AuthenticationProcessor,
     /**
      * {@inheritDoc}
      */
-    public void updated(Dictionary dictionary) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> dictionary) throws ConfigurationException {
         if (dictionary != null) {
             String keyUsername = (String) dictionary.get(PROPERTY_KEY_USERNAME);
             if (keyUsername == null || "".equals(keyUsername.trim())) {

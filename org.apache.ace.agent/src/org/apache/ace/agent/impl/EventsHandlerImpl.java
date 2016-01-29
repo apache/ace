@@ -36,7 +36,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * {@link #removeListener(EventListener)}.
  */
 public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
-    private final CopyOnWriteArrayList<EventListener> m_listeners = new CopyOnWriteArrayList<EventListener>();
+    private final CopyOnWriteArrayList<EventListener> m_listeners = new CopyOnWriteArrayList<>();
     private final BundleContext m_bundleContext;
     //
     private volatile ServiceTracker<EventListener, EventListener> m_tracker;
@@ -55,7 +55,7 @@ public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
     @Override
     public void postEvent(final String topic, Map<String, String> payload) {
         // Make sure that the payload isn't changed while posting events...
-        final Map<String, String> eventPayload = new HashMap<String, String>(payload);
+        final Map<String, String> eventPayload = new HashMap<>(payload);
         for (final EventListener listener : m_listeners) {
             ScheduledExecutorService executor = getExecutorService();
             if (executor.isShutdown()) {
@@ -84,7 +84,7 @@ public class EventsHandlerImpl extends ComponentBase implements EventsHandler {
     @Override
     public void sendEvent(String topic, Map<String, String> payload) {
         // Make sure that the payload isn't changed while sending events...
-        final Map<String, String> eventPayload = new HashMap<String, String>(payload);
+        final Map<String, String> eventPayload = new HashMap<>(payload);
         for (EventListener listener : m_listeners) {
             try {
                 listener.handle(topic, eventPayload);

@@ -265,7 +265,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
     public MainActionToolbar(boolean showLogoutButton) {
         super(6, 1);
 
-        m_extensions = new ConcurrentHashMap<ServiceReference, UIExtensionFactory>();
+        m_extensions = new ConcurrentHashMap<>();
         m_showLogoutButton = showLogoutButton;
 
         setWidth("100%");
@@ -345,15 +345,15 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
     @SuppressWarnings("unchecked")
     protected final List<Component> getExtraComponents() {
         // create a shapshot of the current extensions...
-        Map<ServiceReference, UIExtensionFactory> extensions = new HashMap<ServiceReference, UIExtensionFactory>(m_extensions);
+        Map<ServiceReference, UIExtensionFactory> extensions = new HashMap<>(m_extensions);
 
         // Make sure we've got a predictable order of the components...
-        List<ServiceReference> refs = new ArrayList<ServiceReference>(extensions.keySet());
+        List<ServiceReference> refs = new ArrayList<>(extensions.keySet());
         Collections.sort(refs);
 
-        Map<String, Object> context = new HashMap<String, Object>();
+        Map<String, Object> context = new HashMap<>();
 
-        List<Component> result = new ArrayList<Component>();
+        List<Component> result = new ArrayList<>();
         for (ServiceReference ref : refs) {
             UIExtensionFactory factory = extensions.get(ref);
 

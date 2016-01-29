@@ -34,7 +34,7 @@ import org.osgi.service.cm.ManagedServiceFactory;
 
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
     private static final String PID = "org.apache.ace.http.redirector.factory";
-    private final ConcurrentHashMap<String, Component> m_servlets = new ConcurrentHashMap<String, Component>();
+    private final ConcurrentHashMap<String, Component> m_servlets = new ConcurrentHashMap<>();
     
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {

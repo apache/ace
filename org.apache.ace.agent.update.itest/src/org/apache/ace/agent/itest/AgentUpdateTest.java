@@ -254,7 +254,7 @@ public class AgentUpdateTest extends IntegrationTestBase {
             "obr.url", obrURL,
             "authentication.enabled", "false");
 
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         props.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, serverURL);
 
         AgentControl agentControl = getService(AgentControl.class);

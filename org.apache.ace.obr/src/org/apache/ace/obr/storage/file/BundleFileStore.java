@@ -246,7 +246,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
             return "" + (System.currentTimeMillis() / 600000);
         }
 
-        Stack<File> dirs = new Stack<File>();
+        Stack<File> dirs = new Stack<>();
         dirs.push(dir);
         while (!dirs.isEmpty()) {
             File pwd = dirs.pop();
@@ -334,7 +334,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
      * @return an array of parts
      */
     public static String[] split(String name) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         int startPos = 0;
         for (int i = 0; i < (name.length() - 1); i++) {
             if (name.charAt(i) == '.') {

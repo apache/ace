@@ -116,8 +116,8 @@ public class FeedbackStoreManager {
             throw new IllegalArgumentException("Need valid dir");
         }
 
-        m_currentStoreRef = new AtomicReference<FeedbackStore>();
-        m_storeFileIdx = new TreeMap<Long, SortedSet<Integer>>();
+        m_currentStoreRef = new AtomicReference<>();
+        m_storeFileIdx = new TreeMap<>();
 
         Pattern p = Pattern.compile(m_name + "-(\\d+).(\\d+)");
         File[] allFiles = m_baseDir.listFiles(m_fileFilter);
@@ -129,7 +129,7 @@ public class FeedbackStoreManager {
 
                 SortedSet<Integer> storeFileNos = m_storeFileIdx.get(storeId);
                 if (storeFileNos == null) {
-                    storeFileNos = new TreeSet<Integer>();
+                    storeFileNos = new TreeSet<>();
                     m_storeFileIdx.put(storeId, storeFileNos);
                 }
                 storeFileNos.add(fileNumber);
@@ -173,7 +173,7 @@ public class FeedbackStoreManager {
      * @return a ordered set of all storeIds, oldest first
      */
     public SortedSet<Long> getAllFeedbackStoreIDs() throws IOException {
-        return new TreeSet<Long>(m_storeFileIdx.keySet());
+        return new TreeSet<>(m_storeFileIdx.keySet());
     }
 
     /**
@@ -194,7 +194,7 @@ public class FeedbackStoreManager {
 
         FeedbackStore[] stores = getAllStores(storeID);
         try {
-            List<Record> records = new ArrayList<Record>();
+            List<Record> records = new ArrayList<>();
             for (FeedbackStore store : stores) {
                 try {
                     if (store.getFirstEventID() <= toEventID && store.getLastEventID() >= fromEventID) {
@@ -209,7 +209,7 @@ public class FeedbackStoreManager {
             // Sort the records by their event ID...
             Collections.sort(records);
             // Unmarshal the records into concrete log events...
-            List<Event> result = new ArrayList<Event>();
+            List<Event> result = new ArrayList<>();
             for (Record record : records) {
                 result.add(new Event(record.m_entry));
             }
@@ -346,7 +346,7 @@ public class FeedbackStoreManager {
      * @return a list of all feedbackstores for this storeId
      */
     private FeedbackStore[] getAllStores(long storeId) throws IOException {
-        List<FeedbackStore> stores = new ArrayList<FeedbackStore>();
+        List<FeedbackStore> stores = new ArrayList<>();
 
         SortedSet<Integer> storeFileNos = m_storeFileIdx.get(storeId);
 
@@ -542,7 +542,7 @@ public class FeedbackStoreManager {
         }
         while (true);
 
-        m_storeFileIdx.put(storeId, new TreeSet<Integer>(Arrays.asList(1)));
+        m_storeFileIdx.put(storeId, new TreeSet<>(Arrays.asList(1)));
 
         return new FeedbackStore(storeFile, storeId);
     }

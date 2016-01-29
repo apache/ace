@@ -68,7 +68,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
      * Small container that keeps the session-related services for us.
      */
     private static final class SessionData {
-        private final List<Component> m_services = new ArrayList<Component>();
+        private final List<Component> m_services = new ArrayList<>();
 
         final void addComponents(DependencyManager manager, Component... comps) {
             synchronized (m_services) {
@@ -103,7 +103,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
 
     private static final String PID = "org.apache.ace.client.repository";
 
-    private final Map<String, SessionData> m_sessions = new HashMap<String, SessionData>();
+    private final Map<String, SessionData> m_sessions = new HashMap<>();
     private final RepositoryConfigurationImpl m_repoConfiguration = new RepositoryConfigurationImpl();
 
     private volatile DependencyManager m_dependencyManager;

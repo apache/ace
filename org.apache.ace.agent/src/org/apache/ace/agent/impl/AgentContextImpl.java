@@ -74,9 +74,9 @@ public class AgentContextImpl implements AgentContext {
         m_workDir = workDir;
 
         m_semaphore = new Semaphore(1);
-        m_handlers = new HashMap<Class<?>, Object>();
-        m_components = new LinkedHashSet<Object>();
-        m_controllerRef = new AtomicReference<Object>();
+        m_handlers = new HashMap<>();
+        m_components = new LinkedHashSet<>();
+        m_controllerRef = new AtomicReference<>();
     }
 
     /**

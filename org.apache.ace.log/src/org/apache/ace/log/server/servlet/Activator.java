@@ -43,7 +43,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     /** A boolean denoting whether or not authentication is enabled. */
     private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
 
-    private final Map<String, Component> m_instances = new HashMap<String, Component>(); // String -> Service
+    private final Map<String, Component> m_instances = new HashMap<>(); // String -> Service
     private DependencyManager m_manager;
     private volatile LogService m_log;
 

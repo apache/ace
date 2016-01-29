@@ -26,9 +26,11 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Properties;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
-import org.apache.ace.authentication.processor.password.PasswordAuthenticationProcessor;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.mockito.Mockito;
 import org.osgi.service.cm.ConfigurationException;
@@ -190,7 +192,8 @@ public class PasswordAuthenticationProcessorTest {
         final String keyUsername = "foo";
         final String keyPassword = "bar";
         
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_KEY_USERNAME, keyUsername);
         props.put(PROPERTY_KEY_PASSWORD, keyPassword);
         props.put(PROPERTY_PASSWORD_HASHMETHOD, "sha1");
@@ -219,7 +222,8 @@ public class PasswordAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyPassword() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_KEY_USERNAME, "foo");
         props.put(PROPERTY_KEY_PASSWORD, "");
         props.put(PROPERTY_PASSWORD_HASHMETHOD, "none");
@@ -232,7 +236,8 @@ public class PasswordAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyUsername() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_KEY_USERNAME, "");
         props.put(PROPERTY_KEY_PASSWORD, "foo");
         props.put(PROPERTY_PASSWORD_HASHMETHOD, "none");
@@ -245,7 +250,8 @@ public class PasswordAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyPasswordHashType() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_KEY_USERNAME, "foo");
         props.put(PROPERTY_KEY_PASSWORD, "bar");
         props.put(PROPERTY_PASSWORD_HASHMETHOD, "");
@@ -258,7 +264,8 @@ public class PasswordAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyPassword() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_KEY_USERNAME, "foo");
         props.put(PROPERTY_PASSWORD_HASHMETHOD, "none");
 
@@ -270,7 +277,8 @@ public class PasswordAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyUsername() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_KEY_PASSWORD, "foo");
         props.put(PROPERTY_PASSWORD_HASHMETHOD, "none");
 
@@ -282,7 +290,8 @@ public class PasswordAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingPasswordHashType() throws ConfigurationException {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(PROPERTY_KEY_USERNAME, "foo");
         props.put(PROPERTY_KEY_PASSWORD, "foo");
 
