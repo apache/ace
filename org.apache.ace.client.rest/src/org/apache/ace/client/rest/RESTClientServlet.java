@@ -261,6 +261,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService, Ht
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     	HttpSession session = getSession(req);
         String[] pathElements = getPathElements(req);
+        
         if (pathElements == null || pathElements.length < 1 || !WORK_FOLDER.equals(pathElements[0])) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;

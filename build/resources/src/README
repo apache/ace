@@ -41,11 +41,8 @@ both:
 2)  Make sure that your JAVA_HOME environment variable is set to the newly
     installed JDK location, and that your PATH includes
     %JAVA_HOME%\bin (windows) or $JAVA_HOME/bin (unix).
-
-3)  Install Apache Ant 1.8 (or later), which can be downloaded from:
-    http://ant.apache.org/bindownload.cgi
     
-4)  Install the latest version of Eclipse with the following plugins:
+3)  Install the latest version of Eclipse with the following plugins:
     * Subclipse;
     * BndTools;
     * TestNG.
@@ -55,11 +52,12 @@ Building
 
 From the command line:
 
-1)  Go into the build directory and invoke Ant:
-    $ ant
+1)  Go into the source root directory and invoke the Gradle wrapper:
+    $ ./gradlew build
 
-2)  To generate a binary package, you can optionally invoke:
-    $ ant -f bin-build.xml package
+2)  To generate the various binaries, you can optionally invoke:
+    $ ./gradlew runbundles
+    The binaries can be found in the `run-*/generated/executables/`.
 
 Within Eclipse:
 

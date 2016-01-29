@@ -84,6 +84,10 @@ task stageSrc(type: Zip) {
 	destinationDir = file('staging')
     
     with([
+	    // LICENSE, NOTICE, README
+	    copySpec {
+	    	from 'resources/src'
+	    },
     	copySpec { 
     		from '..'
 	    	include('*/.project',
@@ -116,19 +120,17 @@ task stageDeps(type: Zip) {
 	    copySpec {
 	    	from 'resources/deps'
 	    },
-	    // cnf
 		copySpec {
 			from '..'
-			into 'cnf'
 			include('cnf/buildrepo/**', 
 					'cnf/localrepo/**', 
 					'cnf/releaserepo/**', 
 					'cnf/lib/**', 
 					'cnf/plugins/**',
 					'cnf/gradle/*.jar',
+					'gradle/**',
 					'gradlew',
-					'gradlew.bat',
-					'gradle/*')
+					'gradlew.bat')
 		}
 	] as CopySpec[]);
 	into "${archivesBaseName}-${version}-src"	 

@@ -26,13 +26,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.ace.client.rest.util.Client;
+import org.apache.ace.client.rest.util.WebResourceException;
+import org.apache.ace.client.rest.util.WebResource;
 import org.apache.ace.test.utils.FileUtils;
 
 import com.google.gson.Gson;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
  * Helper methods for talking to the ACE client through REST.
@@ -43,7 +42,7 @@ public class ClientRestUtils {
     public static void assertEntitiesExist(WebResource... entities) throws Exception {
         for (WebResource r : entities) {
             System.out.println(r.getURI().toString());
-            r.get(String.class);
+            r.getString();
         }
     }
 
@@ -51,11 +50,11 @@ public class ClientRestUtils {
      * Asserts that a collection of resources exist by trying to GET the list, validate the number of items and finally
      * GET each item.
      */
-    public static void assertResources(Gson gson, WebResource w2, String type, int number) {
-        String[] artifacts = gson.fromJson(w2.path(type).get(String.class), String[].class);
+    public static void assertResources(Gson gson, WebResource w2, String type, int number) throws IOException {
+        String[] artifacts = gson.fromJson(w2.path(type).getString(), String[].class);
         assertEquals("Wrong number of " + type + "s", number, artifacts.length);
         for (String id : artifacts) {
-            w2.path(type + "/" + id).get(String.class);
+            w2.path(type + "/" + id).getString();
         }
     }
 
@@ -109,7 +108,7 @@ public class ClientRestUtils {
     /** creates a new REST-client. */
     public static Client createClient() {
         Client client = Client.create();
-        client.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
+        client.getProperties().put(Client.PROPERTY_FOLLOW_REDIRECTS, false);
         return client;
     }
 
@@ -122,10 +121,10 @@ public class ClientRestUtils {
     public static WebResource createEntity(Client c, WebResource work, String type, String data) throws IOException {
         WebResource entity = work.path(type);
         try {
-            entity.post(String.class, data);
+            entity.post(data);
             throw new IOException("Could not create " + type + " with data " + data);
         }
-        catch (UniformInterfaceException e2) {
+        catch (WebResourceException e2) {
             return c.resource(e2.getResponse().getLocation());
         }
     }
@@ -178,17 +177,20 @@ public class ClientRestUtils {
     public static WebResource createWorkspace(String host, Client c) {
         WebResource r = c.resource(host.concat("/client/work/"));
         try {
-            r.post(String.class, "");
+            r.post();
             fail("We should have been redirected to a new workspace.");
-            return null; // to keep the compiler happy, it does not understand what fail() does
         }
-        catch (UniformInterfaceException e) {
+        catch (WebResourceException e) {
             assertEquals("Expected a valid redirect after creating a workspace", 302, e.getResponse().getStatus());
             return c.resource(e.getResponse().getLocation());
         }
+        catch (IOException e) {
+            fail("Unexpected exception: " + e.getMessage());
+        }
+        return null; // to keep the compiler happy, it does not understand what fail() does
     }
 
-    public static void deleteResources(Gson gson, WebResource workspace) {
+    public static void deleteResources(Gson gson, WebResource workspace) throws IOException {
         deleteResources(gson, workspace, "artifact");
         deleteResources(gson, workspace, "artifact2feature");
         deleteResources(gson, workspace, "feature");
@@ -198,8 +200,8 @@ public class ClientRestUtils {
         deleteResources(gson, workspace, "target");
     }
 
-    public static void deleteResources(Gson gson, WebResource workspace, String type) {
-        String[] artifacts = gson.fromJson(workspace.path(type).get(String.class), String[].class);
+    public static void deleteResources(Gson gson, WebResource workspace, String type) throws IOException {
+        String[] artifacts = gson.fromJson(workspace.path(type).getString(), String[].class);
         for (String id : artifacts) {
             workspace.path(type + "/" + id).delete();
         }
@@ -207,7 +209,6 @@ public class ClientRestUtils {
 
     public static void ensureCleanStore(String path) throws IOException {
         File store = new File(path);
-        System.out.println("store: " + store.getAbsolutePath());
         if (store.exists()) {
             if (!store.isDirectory()) {
                 throw new IllegalStateException("Configured store is not a directory: " + store.getAbsolutePath());

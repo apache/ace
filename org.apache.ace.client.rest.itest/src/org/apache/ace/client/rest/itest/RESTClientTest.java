@@ -41,9 +41,14 @@ import java.util.Date;
 import java.util.Enumeration;
 
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
+import org.apache.ace.client.rest.util.Client;
+import org.apache.ace.client.rest.util.WebResource;
+import org.apache.ace.client.rest.util.WebResourceException;
+import org.apache.ace.client.rest.util.WebResponse;
 import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.test.constants.TestConstants;
+import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -55,10 +60,6 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 import com.google.gson.Gson;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 
 public class RESTClientTest extends IntegrationTestBase {
     // From: ConfigurationHelper (somehow directly using them here fails)
@@ -111,22 +112,22 @@ public class RESTClientTest extends IntegrationTestBase {
     public void testCreateAndDestroyRESTSession() throws Exception {
         Client client = createClient();
         try {
-            WebResource r = client.resource(HOST.concat("/client/work"));
+            WebResource r = client.resource(HOST.concat("/client/work/"));
             try {
-                r.post(String.class, "");
+                r.post();
                 fail("We should have been redirected to a new workspace.");
             }
-            catch (UniformInterfaceException e) {
-                ClientResponse response = e.getResponse();
+            catch (WebResourceException e) {
+                WebResponse response = e.getResponse();
                 URI location = response.getLocation();
-                assertTrue(location.toString().startsWith(HOST.concat("/client/work/rest-")));
+                assertTrue(location.toString(), location.toString().startsWith(HOST.concat("/client/work/rest-")));
                 WebResource r2 = client.resource(location);
-                r2.get(String.class);
+                r2.getString();
                 r2.delete();
                 try {
-                    r2.get(String.class);
+                    r2.getString();
                 }
-                catch (UniformInterfaceException e2) {
+                catch (WebResourceException e2) {
                     assertEquals(404, e2.getResponse().getStatus());
                 }
             }
@@ -174,7 +175,7 @@ public class RESTClientTest extends IntegrationTestBase {
                 w2.delete();
             }
             WebResource t1versions = client.resource(HOST.concat("/deployment/bar.t1/versions"));
-            assertEquals("1.0.0\n", t1versions.get(String.class));
+            assertEquals("1.0.0\n", t1versions.getString());
         }
         catch (Exception e) {
             showBundles();
@@ -237,7 +238,7 @@ public class RESTClientTest extends IntegrationTestBase {
             w2.delete();
 
             WebResource t1versions = client.resource(HOST.concat("/deployment/foo.t1/versions"));
-            assertEquals("1.0.0\n", t1versions.get(String.class));
+            assertEquals("1.0.0\n", t1versions.getString());
         }
         catch (Exception e) {
             showBundles();
@@ -263,8 +264,7 @@ public class RESTClientTest extends IntegrationTestBase {
                     "      </Attribute>\n" +
                     "    </Object>\n" +
                     "  </Designate>\n" +
-                    "</MetaData>\n"
-                );
+                    "</MetaData>\n");
 
             WebResource w1 = createWorkspace(HOST, client);
             deleteResources(gson, w1);
@@ -295,7 +295,7 @@ public class RESTClientTest extends IntegrationTestBase {
             w2.delete();
 
             WebResource t1versions = client.resource(HOST.concat("/deployment/t4/versions"));
-            assertEquals("1.0.0\n", t1versions.get(String.class));
+            assertEquals("1.0.0\n", t1versions.getString());
         }
         catch (Exception e) {
             showBundles();
@@ -316,6 +316,10 @@ public class RESTClientTest extends IntegrationTestBase {
             ensureCleanStore(STOREPATH);
             configureServer();
             createServerUser();
+
+            // Wait until our RESTClientServlet is up and responding...
+            NetUtils.waitForURL(HOST, 200, 1000);
+
             m_hasBeenSetup = true;
         }
 
@@ -343,7 +347,7 @@ public class RESTClientTest extends IntegrationTestBase {
     private void assertEntitiesExist(WebResource... entities) throws Exception {
         for (WebResource r : entities) {
             System.out.println(r.getURI().toString());
-            r.get(String.class);
+            r.getString();
         }
     }
 
@@ -351,11 +355,11 @@ public class RESTClientTest extends IntegrationTestBase {
      * Asserts that a collection of resources exist by trying to GET the list, validate the number of items and finally
      * GET each item.
      */
-    private void assertResources(Gson gson, WebResource w2, String type, int number) {
-        String[] artifacts = gson.fromJson(w2.path(type).get(String.class), String[].class);
+    private void assertResources(Gson gson, WebResource w2, String type, int number) throws IOException {
+        String[] artifacts = gson.fromJson(w2.path(type).getString(), String[].class);
         assertEquals("Wrong number of " + type + "s", number, artifacts.length);
         for (String id : artifacts) {
-            w2.path(type + "/" + id).get(String.class);
+            w2.path(type + "/" + id).getString();
         }
     }
 

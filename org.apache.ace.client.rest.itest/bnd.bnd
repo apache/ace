@@ -4,8 +4,6 @@
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	junit.osgi,\
-	com.sun.jersey.client,\
-	com.sun.jersey.core,\
 	com.google.gson,\
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.dependencymanager,\
@@ -30,8 +28,6 @@
 -runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runbundles: \
 	osgi.cmpn,\
-	com.sun.jersey.client,\
-	com.sun.jersey.core,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.eventadmin,\
@@ -84,6 +80,7 @@
 
 Private-Package: \
 	org.apache.ace.client.rest.itest,\
+	org.apache.ace.client.rest.util,\
 	com.google.gson*
 Import-Package: \
 	*
