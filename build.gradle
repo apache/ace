@@ -32,13 +32,16 @@ subprojects {
   def bndProject = bndWorkspace.getProject(name)
   if (bndProject != null) {
     plugins.apply 'biz.aQute.bnd'
-    
+
     test {
       useTestNG()
     }
-    
+
     tasks.withType(Javadoc) {
-      options.addStringOption('Xdoclint:none', '-quiet')
+        def runningJVM = JavaVersion.current().toString()
+        if (runningJVM.matches("1\\.8.*")) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
     }
   }
 
