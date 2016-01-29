@@ -72,7 +72,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         return "Log Servlet Factory";
     }
 
-    public void updated(String pid, Dictionary dict) throws ConfigurationException {
+    public void updated(String pid, Dictionary<String, ?> dict) throws ConfigurationException {
         String name = (String) dict.get(KEY_LOG_NAME);
         if ((name == null) || "".equals(name)) {
             throw new ConfigurationException(KEY_LOG_NAME, "Log name has to be specified: " + name);

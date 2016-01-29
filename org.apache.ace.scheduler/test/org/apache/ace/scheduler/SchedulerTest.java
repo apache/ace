@@ -20,7 +20,8 @@ package org.apache.ace.scheduler;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
-import java.util.Properties;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.log.LogService;
@@ -44,7 +45,8 @@ public class SchedulerTest {
 
     @Test(groups = { UNIT })
     public synchronized void testUpdate() throws Exception {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put("local.mock.task1", 1000l);
         props.put("local.mock.task2", 2000l);
         props.put("local.mock.task3", 3000l);
@@ -60,7 +62,8 @@ public class SchedulerTest {
 
     @Test( groups = { UNIT } )
     public synchronized void testAdditionalProperties() throws Exception {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put("local.mock.task1", "invalidValue");
         m_scheduler.updated(props);
         m_scheduler.addRunnable("local.mock.task1", new Runnable() {
@@ -93,7 +96,8 @@ public class SchedulerTest {
 
     @Test(groups = { UNIT })
     public synchronized void testProcessTask() throws Exception {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put("local.mock.task1", 1000);
         m_scheduler.updated(props);
 
@@ -106,7 +110,8 @@ public class SchedulerTest {
 
     @Test(groups = { UNIT })
     public synchronized void testSchedulePrevailanceAndRemoval() throws Exception {
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put("local.mock.task1", 1000l);
         m_scheduler.updated(props);
 
@@ -127,7 +132,7 @@ public class SchedulerTest {
         assert ((SchedulerTask) m_scheduler.m_tasks.get("local.mock.task1")).getCurrentRecipe().equals(new Long(1000)) : "The schedule for mock task 1 should specify interval 1000, but it specifies " + ((SchedulerTask) m_scheduler.m_tasks.get("local.mock.task1")).getCurrentRecipe();
         assert ((SchedulerTask) m_scheduler.m_tasks.get("local.mock.task1")).isScheduled() : "Since we have now provided a runnable for the scheduler, the tasks should be scheduled.";
 
-        props = new Properties();
+        props = new Hashtable<>();
         m_scheduler.updated(props);
 
         assert ((SchedulerTask) m_scheduler.m_tasks.get("local.mock.task1")).getCurrentRecipe().equals(new Long(2000)) : "The schedule for mock task 1 should specify interval 2000, but it specifies " + ((SchedulerTask) m_scheduler.m_tasks.get("local.mock.task1")).getCurrentRecipe();

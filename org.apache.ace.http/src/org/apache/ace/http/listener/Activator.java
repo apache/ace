@@ -71,7 +71,7 @@ public class Activator extends DependencyActivatorBase {
                 .setAutoConfig(false)
                 .setCallbacks("addHttpService", "removeHttpService"))
             .add(createServiceDependency()
-                .setService(Servlet.class)
+                .setService(Servlet.class, "(" + HttpConstants.ENDPOINT + "=*)")
                 .setAutoConfig(false)
                 .setCallbacks("addServlet", "changeServlet", "removeServlet")));
     }
@@ -107,7 +107,7 @@ public class Activator extends DependencyActivatorBase {
         }
     }
 
-    private Dictionary<String, Object> getInitParams(ServiceReference ref) {
+    private Dictionary<String, Object> getInitParams(ServiceReference<?> ref) {
         Dictionary<String, Object> initParams = new Hashtable<>();
         for (String key : ref.getPropertyKeys()) {
             if (key.startsWith(INIT_PREFIX)) {
@@ -191,7 +191,7 @@ public class Activator extends DependencyActivatorBase {
      * @param ref
      *            reference to the Service
      */
-    public synchronized void removeHttpService(ServiceReference ref, HttpService httpService) {
+    public synchronized void removeHttpService(ServiceReference<HttpService> ref, HttpService httpService) {
         m_httpServices.remove(ref);
         // remove references from the unregistered HttpService
         unregisterEndpoints(httpService);
@@ -217,7 +217,7 @@ public class Activator extends DependencyActivatorBase {
      *            the HttpService that is being unregistered
      */
     private void unregisterEndpoints(HttpService httpService) {
-        for (ServiceReference reference : m_servlets.keySet()) {
+        for (ServiceReference<Servlet> reference : m_servlets.keySet()) {
             String endpoint = (String) reference.getProperty(HttpConstants.ENDPOINT);
             if (endpoint != null) {
                 try {

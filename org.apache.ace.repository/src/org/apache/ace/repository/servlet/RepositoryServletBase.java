@@ -68,7 +68,7 @@ public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet imple
         m_repoType = repoType;
     }
 
-    public void updated(Dictionary settings) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> settings) throws ConfigurationException {
         if (settings != null) {
             String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
             if ((useAuthString == null) ||

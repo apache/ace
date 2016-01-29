@@ -20,48 +20,52 @@ package org.apache.ace.log.listener;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.apache.ace.log.Log;
 
 /**
- * This cache is used whenever the real log service is not available. When
- * the real log becomes available, all cached log entries should be flushed
- * to the real log service and leaving the cache empty afterwards.
+ * This cache is used whenever the real log service is not available. When the real log becomes available, all cached
+ * log entries should be flushed to the real log service and leaving the cache empty afterwards.
  */
 public class LogCache implements Log {
 
-    private final List<LogEntry> m_logEntries = new ArrayList<>();
+    private final List<LogEntry> m_logEntries = new CopyOnWriteArrayList<>();
 
     /**
      * Log the entry in the cache for flushing to the real log service later on.
      */
-    public synchronized void log(int type, Dictionary properties) {
+    public void log(int type, Dictionary properties) {
         m_logEntries.add(new LogEntry(type, properties));
     }
 
     /**
-     * Flushes all cached log entries to the specified Log and leaves the cache empty
-     * after flushing. Will do nothing when a null is passed as parameter.
-     * @param log  The log service to flush the cached log entries to
+     * Flushes all cached log entries to the specified Log and leaves the cache empty after flushing. Will do nothing
+     * when a null is passed as parameter.
+     * 
+     * @param log
+     *            The log service to flush the cached log entries to
      */
-    public synchronized void flushTo(Log log) {
-        if (log != null) {
-            for (Iterator iterator = m_logEntries.iterator(); iterator.hasNext();) {
-                LogEntry entry = (LogEntry) iterator.next();
-                log.log(entry.getType(), entry.getProperties());
-            }
-            m_logEntries.clear();
-        }
-        else {
+    public void flushTo(Log log) {
+        if (log == null) {
             // do nothing, as you want to keep using the cache
+            return;
+        }
+
+        List<LogEntry> entries = new ArrayList<>(m_logEntries);
+        m_logEntries.removeAll(entries);
+
+        for (LogEntry entry : entries) {
+            log.log(entry.getType(), entry.getProperties());
         }
     }
 
     private class LogEntry {
         private int m_type;
-        private Dictionary m_properties;
-        public LogEntry(int type, Dictionary properties) {
+        private Dictionary<String, ?> m_properties;
+
+        public LogEntry(int type, Dictionary<String, ?> properties) {
             m_type = type;
             m_properties = properties;
         }
@@ -70,7 +74,7 @@ public class LogCache implements Log {
             return m_type;
         }
 
-        public Dictionary getProperties() {
+        public Dictionary<String, ?> getProperties() {
             return m_properties;
         }
     }

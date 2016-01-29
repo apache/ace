@@ -53,11 +53,11 @@ public class AutoTargetOperator implements ManagedService {
     private volatile UserAdmin m_userAdmin;
     private volatile BundleContext m_bundleContext;
     private volatile LogService m_log;
-    private volatile Dictionary m_settings;
+    private volatile Dictionary<String, ?> m_settings;
+    private volatile ServiceRegistration<Runnable> m_serviceReg;
 
     // used for processing the auditlog (tell the repository about that)
     private final AuditLogProcessTask m_task = new AuditLogProcessTask();
-    private Object m_serviceReg = null;
 
     public void start() {
         // get user
@@ -82,7 +82,7 @@ public class AutoTargetOperator implements ManagedService {
             // start refresh task
             Dictionary<String, Object> props = new Hashtable<>();
             props.put(SchedulerConstants.SCHEDULER_NAME_KEY, SCHEDULER_NAME);
-            m_serviceReg = m_bundleContext.registerService(Runnable.class.getName(), m_task, props);
+            m_serviceReg = m_bundleContext.registerService(Runnable.class, m_task, props);
         }
         catch (IOException ioe) {
             m_log.log(LogService.LOG_ERROR, "Unable to login at repository admin.", ioe);
@@ -92,7 +92,7 @@ public class AutoTargetOperator implements ManagedService {
     public void stop() {
         // service present, pull it
         if (m_serviceReg != null) {
-            ((ServiceRegistration) m_serviceReg).unregister();
+            ((ServiceRegistration<?>) m_serviceReg).unregister();
         }
 
         m_serviceReg = null;
@@ -196,7 +196,7 @@ public class AutoTargetOperator implements ManagedService {
         return changed;
     }
 
-    public void updated(Dictionary settings) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> settings) throws ConfigurationException {
         if (settings != null) {
             for (ConfigItem item : ConfigItem.values()) {
                 String value = (String) settings.get(item.toString());

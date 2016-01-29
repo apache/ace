@@ -75,7 +75,7 @@ public class ChangeNotifierImpl implements ChangeNotifier {
         return props;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void notifyChanged(String topic, Properties props, boolean internalOnly) {
         props = addSession(props);
         m_eventAdmin.sendEvent(new Event(m_privateTopicRoot + m_entityRoot + topic, (Dictionary) props));

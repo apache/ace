@@ -48,12 +48,13 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * <code>put()</code> and <code>remove()</code>. It 'looks' like a dictionary to allow filtering of it, using an ldap
  * filter.
  */
+@SuppressWarnings("rawtypes")
 public class RepositoryObjectImpl<T extends RepositoryObject> extends Dictionary<String, Object> implements RepositoryObject, EventHandler {
     private final Map<String, String> m_attributes = new HashMap<>();
     private final Map<String, String> m_tags = new HashMap<>();
     /** see ACE-463 */
     private final Set<String> m_mergedAttrTags = new HashSet<>();
-    private final Map<Class, List<Association>> m_associations = new HashMap<>();
+    private final Map<Class<?>, List<Association>> m_associations = new HashMap<>();
     private final ChangeNotifier m_notifier;
     private final String m_xmlNode;
     private static final Pattern VALID_KEY_PATTERN = Pattern.compile("[a-zA-Z]([a-zA-Z0-9_:.-])*");

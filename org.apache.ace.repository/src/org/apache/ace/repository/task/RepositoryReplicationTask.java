@@ -46,7 +46,7 @@ import org.osgi.service.log.LogService;
  * stuff out.
  */
 public class RepositoryReplicationTask implements Runnable {
-    private final ConcurrentMap<ServiceReference, RepositoryReplication> m_replicators = new ConcurrentHashMap<>();
+    private final ConcurrentMap<ServiceReference<RepositoryReplication>, RepositoryReplication> m_replicators = new ConcurrentHashMap<>();
 
     private volatile Discovery m_discovery;
     private volatile ConnectionFactory m_connectionFactory;
@@ -55,7 +55,7 @@ public class RepositoryReplicationTask implements Runnable {
     /**
      * Called by Felix DM when a {@link RepositoryReplication} service becomes available.
      */
-    public void add(ServiceReference ref, RepositoryReplication service) {
+    public void add(ServiceReference<RepositoryReplication> ref, RepositoryReplication service) {
         if (m_replicators.putIfAbsent(ref, service) != null) {
             m_log.log(LogService.LOG_WARNING, "Ignoring duplicate repository replication service for '" + ref.getProperty("name") + "'!");
         }
@@ -64,7 +64,7 @@ public class RepositoryReplicationTask implements Runnable {
     /**
      * Called by Felix DM when a {@link RepositoryReplication} service goes away.
      */
-    public void remove(ServiceReference ref, RepositoryReplication service) {
+    public void remove(ServiceReference<RepositoryReplication> ref, RepositoryReplication service) {
         if (!m_replicators.remove(ref, service)) {
             m_log.log(LogService.LOG_WARNING, "Repository replication service '" + ref.getProperty("name") + "' not removed?!");
         }
@@ -75,14 +75,14 @@ public class RepositoryReplicationTask implements Runnable {
      */
     public void run() {
         // Take a snapshot of the current available replicators...
-        Map<ServiceReference, RepositoryReplication> replicators = new HashMap<>(m_replicators);
+        Map<ServiceReference<RepositoryReplication>, RepositoryReplication> replicators = new HashMap<>(m_replicators);
 
         // The URL to the server to replicate...
         URL master = m_discovery.discover();
 
-        for (Entry<ServiceReference, RepositoryReplication> entry : replicators.entrySet()) {
+        for (Entry<ServiceReference<RepositoryReplication>, RepositoryReplication> entry : replicators.entrySet()) {
+            ServiceReference<RepositoryReplication> ref = entry.getKey();
             RepositoryReplication repository = entry.getValue();
-            ServiceReference ref = entry.getKey();
 
             try {
                 replicate(master, ref, repository);
@@ -152,7 +152,7 @@ public class RepositoryReplicationTask implements Runnable {
         }
     }
 
-    private void replicate(URL master, ServiceReference ref, RepositoryReplication repository) throws IOException {
+    private void replicate(URL master, ServiceReference<RepositoryReplication> ref, RepositoryReplication repository) throws IOException {
         String customer = (String) ref.getProperty("customer");
         String name = (String) ref.getProperty("name");
 

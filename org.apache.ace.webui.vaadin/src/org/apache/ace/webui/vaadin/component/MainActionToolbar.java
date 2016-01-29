@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.webui.UIExtensionFactory;
@@ -243,7 +244,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         }
     }
 
-    private final ConcurrentHashMap<ServiceReference, UIExtensionFactory> m_extensions;
+    private final ConcurrentMap<ServiceReference<UIExtensionFactory>, UIExtensionFactory> m_extensions;
     private final boolean m_showLogoutButton;
 
     private Button m_retrieveButton;
@@ -309,7 +310,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         m_revertButton.setEnabled(modified);
     }
 
-    protected final void add(ServiceReference ref, UIExtensionFactory factory) {
+    protected final void add(ServiceReference<UIExtensionFactory> ref, UIExtensionFactory factory) {
         m_extensions.put(ref, factory);
         setExtraComponents();
     }
@@ -342,19 +343,18 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
      */
     protected abstract void doAfterRevert() throws IOException;
 
-    @SuppressWarnings("unchecked")
     protected final List<Component> getExtraComponents() {
         // create a shapshot of the current extensions...
-        Map<ServiceReference, UIExtensionFactory> extensions = new HashMap<>(m_extensions);
+        Map<ServiceReference<UIExtensionFactory>, UIExtensionFactory> extensions = new HashMap<>(m_extensions);
 
         // Make sure we've got a predictable order of the components...
-        List<ServiceReference> refs = new ArrayList<>(extensions.keySet());
+        List<ServiceReference<UIExtensionFactory>> refs = new ArrayList<>(extensions.keySet());
         Collections.sort(refs);
 
         Map<String, Object> context = new HashMap<>();
 
         List<Component> result = new ArrayList<>();
-        for (ServiceReference ref : refs) {
+        for (ServiceReference<UIExtensionFactory> ref : refs) {
             UIExtensionFactory factory = extensions.get(ref);
 
             result.add(factory.create(context));
@@ -379,7 +379,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         );
     }
 
-    protected final void remove(ServiceReference ref, UIExtensionFactory factory) {
+    protected final void remove(ServiceReference<UIExtensionFactory> ref, UIExtensionFactory factory) {
         m_extensions.remove(ref);
         setExtraComponents();
     }

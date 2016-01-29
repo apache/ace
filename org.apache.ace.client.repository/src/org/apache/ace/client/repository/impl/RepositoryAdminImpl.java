@@ -93,7 +93,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
     /**
      * Maps from interface classes of the ObjectRepositories to their implementations.
      */
-    private Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> m_repositories;
+    private Map<Class<? extends ObjectRepository<?>>, ObjectRepositoryImpl<?, ?>> m_repositories;
 
     private final String m_sessionID;
     private final Properties m_sessionProps;
@@ -165,7 +165,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         }
     }
 
-    void initialize(Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> repositories) {
+    void initialize(Map<Class<? extends ObjectRepository<?>>, ObjectRepositoryImpl<?, ?>> repositories) {
         m_repositories = repositories;
     }
 
@@ -173,8 +173,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         return m_changeNotifierManager.getConfiguredNotifier(topic, m_sessionID);
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> publishRepositories() {
+    private Map<Class<? extends ObjectRepository<?>>, ObjectRepositoryImpl<?, ?>> publishRepositories() {
         // create the repository objects, if this is the first time this method is called. In case a repository
         // implementation needs some form of (runtime) configuration, adapt the RepositoryConfiguration object and pass
         // this object to the repository...
@@ -199,7 +198,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
             .add(m_dm.createServiceDependency().setService(LogService.class).setRequired(false))
             .add(m_dm.createServiceDependency().setService(ArtifactHelper.class).setRequired(false).setAutoConfig(false).setCallbacks(this, "addArtifactHelper", "removeArtifactHelper"));
 
-        Dictionary topic = new Hashtable();
+        Dictionary<String, Object> topic = new Hashtable<>();
         topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
         topic.put(EventConstants.EVENT_TOPIC, new String[] {});
 
@@ -227,7 +226,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         m_services.add(registerRepository(DeploymentVersionRepository.class, m_deploymentVersionRepositoryImpl, new String[] {}));
 
         // prepare the results.
-        Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> result = new HashMap<>();
+        Map<Class<? extends ObjectRepository<?>>, ObjectRepositoryImpl<?, ?>> result = new HashMap<>();
 
         result.put(ArtifactRepository.class, m_artifactRepositoryImpl);
         result.put(Artifact2FeatureAssociationRepository.class, m_artifact2FeatureAssociationRepositoryImpl);
@@ -252,13 +251,13 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private <T extends RepositoryObject> Component[] registerRepository(Class<? extends ObjectRepository<T>> iface, ObjectRepositoryImpl<?, T> implementation, String[] topics) {
         Component repositoryService = m_dm.createComponent()
             .setInterface(iface.getName(), m_sessionProps)
             .setImplementation(implementation)
             .add(m_dm.createServiceDependency().setService(LogService.class).setRequired(false));
-        Dictionary topic = new Hashtable();
+
+        Dictionary<String, Object> topic = new Hashtable<>();
         topic.put(EventConstants.EVENT_TOPIC, topics);
         topic.put(EventConstants.EVENT_FILTER, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")");
         Component handlerService = m_dm.createComponent()
@@ -475,7 +474,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
 
         // First, some sanity checks on the list of descriptors.
         for (RepositorySetDescriptor rsd : descriptors) {
-            for (Class c : rsd.m_objectRepositories) {
+            for (Class<?> c : rsd.m_objectRepositories) {
                 // Do we have an impl for each repository class?
                 if (!m_repositories.containsKey(c)) {
                     throw new IllegalArgumentException(rsd.toString() + " references repository class " + c.getName() + " for which no implementation is available.");
@@ -491,7 +490,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         for (int i = 0; i < result.length; i++) {
             RepositorySetDescriptor rsd = descriptors.get(i);
 
-            ObjectRepositoryImpl[] impls = new ObjectRepositoryImpl[rsd.m_objectRepositories.length];
+            ObjectRepositoryImpl<?, ?>[] impls = new ObjectRepositoryImpl[rsd.m_objectRepositories.length];
             String[] topics = new String[rsd.m_objectRepositories.length];
             for (int j = 0; j < impls.length; j++) {
                 impls[j] = m_repositories.get(rsd.m_objectRepositories[j]);
@@ -585,7 +584,7 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
      * @return The newly created repository set.
      * @throws IOException
      */
-    public RepositorySet loadRepositorySet(User user, RepositorySetDescriptor rsd, ObjectRepositoryImpl[] repos) throws IOException {
+    public RepositorySet loadRepositorySet(User user, RepositorySetDescriptor rsd, ObjectRepositoryImpl<?, ?>[] repos) throws IOException {
         Repository repo = new RemoteRepository(rsd.m_location, rsd.m_customer, rsd.m_name);
 
         // Expose the repository itself as component so its dependencies get managed...
@@ -630,12 +629,12 @@ public class RepositoryAdminImpl implements RepositoryAdmin {
         return (result == null) ? WorkingState.Unchanged : result;
     }
 
-    public void addArtifactHelper(ServiceReference ref, ArtifactHelper helper) {
+    public void addArtifactHelper(ServiceReference<ArtifactHelper> ref, ArtifactHelper helper) {
         String mimetype = (String) ref.getProperty(ArtifactHelper.KEY_MIMETYPE);
         m_artifactRepositoryImpl.addHelper(mimetype, helper);
     }
 
-    public synchronized void removeArtifactHelper(ServiceReference ref, ArtifactHelper helper) {
+    public synchronized void removeArtifactHelper(ServiceReference<ArtifactHelper> ref, ArtifactHelper helper) {
         String mimetype = (String) ref.getProperty(ArtifactHelper.KEY_MIMETYPE);
         m_artifactRepositoryImpl.removeHelper(mimetype, helper);
     }

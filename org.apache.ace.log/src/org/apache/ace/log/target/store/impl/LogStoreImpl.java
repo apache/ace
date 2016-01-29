@@ -257,7 +257,7 @@ public class LogStoreImpl implements LogStore {
     public synchronized Event put(int type, Dictionary dict) throws IOException {
         try {
             Map<String, String> props = new HashMap<>();
-            Enumeration keys = dict.keys();
+            Enumeration<?> keys = dict.keys();
             while (keys.hasMoreElements()) {
                 String key = (String) keys.nextElement();
                 props.put(key, (String) dict.get(key));

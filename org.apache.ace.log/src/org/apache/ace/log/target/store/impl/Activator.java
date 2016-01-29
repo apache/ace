@@ -88,7 +88,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         root.delete();
     }
 
-    public void updated(String pid, Dictionary dict) throws ConfigurationException {
+    public void updated(String pid, Dictionary<String, ?> dict) throws ConfigurationException {
         String ma = (String) dict.get(MA_NAME);
         String name = (String) dict.get(LOG_NAME);
         if ((name == null) || "".equals(name)) {

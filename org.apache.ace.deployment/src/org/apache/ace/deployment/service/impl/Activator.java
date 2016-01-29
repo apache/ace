@@ -102,7 +102,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     /**
      * @see org.osgi.service.cm.ManagedServiceFactory#updated(java.lang.String, java.util.Dictionary)
      */
-    public void updated(String pid, Dictionary dict) throws ConfigurationException {
+    public void updated(String pid, Dictionary<String, ?> dict) throws ConfigurationException {
         final String ma = (String) dict.get(MA_NAME);
         
         Component component = m_instances.get(pid);

@@ -18,11 +18,12 @@
  */
 package org.apache.ace.scheduler;
 
+import java.util.Collections;
 import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
@@ -30,45 +31,48 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 
 /**
- * The scheduler periodically runs tasks based on a scheduling recipe. Tasks can be added and
- * removed using the <code>addRunnable</code> and <code>removeRunnable</code> methods. Recipes are
- * supplied using configuration properties using the <code>updated</code> method, or are
- * passed in the task's properties.<br>
+ * The scheduler periodically runs tasks based on a scheduling recipe. Tasks can be added and removed using the
+ * <code>addRunnable</code> and <code>removeRunnable</code> methods. Recipes are supplied using configuration properties
+ * using the <code>updated</code> method, or are passed in the task's properties.<br>
  *
- * A task will be scheduled if both a <code>Runnable</code> and a <code>recipe</code> are available
- * for it.
+ * A task will be scheduled if both a <code>Runnable</code> and a <code>recipe</code> are available for it.
  */
 public class Scheduler implements ManagedService {
-    protected final Map<String, SchedulerTask> m_tasks = new HashMap<>();
+    protected final ConcurrentMap<String, SchedulerTask> m_tasks = new ConcurrentHashMap<>();
     private volatile LogService m_log;
 
     /**
      * Makes sure that all tasks are indeed stopped when the scheduler is stopped.
      */
     public void stop() {
-        for (Iterator i = m_tasks.keySet().iterator(); i.hasNext();) {
-            String name = (String) i.next();
-            SchedulerTask schedTask = (SchedulerTask) m_tasks.get(name);
+        for (SchedulerTask schedTask : m_tasks.values()) {
             schedTask.stop();
         }
+        m_tasks.clear();
     }
 
     /**
      * Adds a new runnable to this scheduler. The runnable will be created if necessary, registered, and processed.
-     * @param name A name for this task.
-     * @param task A runnable to run for this task.
-     * @param description A description of the task.
-     * @param recipe Optionally, a recipe for running this task.
-     * @param recipeOverride Indicates whether or not the <code>recipe</code> passed in prevails over
-     * any recipe provided by the <code>Scheduler</code>'s configuration.
-     * @throws ConfigurationException When <code>recipe</code> is not <code>null</code>, and cannot
-     * be decoded into a recipe.
+     * 
+     * @param name
+     *            A name for this task.
+     * @param task
+     *            A runnable to run for this task.
+     * @param description
+     *            A description of the task.
+     * @param recipe
+     *            Optionally, a recipe for running this task.
+     * @param recipeOverride
+     *            Indicates whether or not the <code>recipe</code> passed in prevails over any recipe provided by the
+     *            <code>Scheduler</code>'s configuration.
+     * @throws ConfigurationException
+     *             When <code>recipe</code> is not <code>null</code>, and cannot be decoded into a recipe.
      */
-    public synchronized void addRunnable(String name, Runnable task, String description, Object recipe, boolean recipeOverride) throws ConfigurationException {
-        SchedulerTask schedTask = (SchedulerTask) m_tasks.get(name);
+    public void addRunnable(String name, Runnable task, String description, Object recipe, boolean recipeOverride) throws ConfigurationException {
+        SchedulerTask schedTask = m_tasks.get(name);
         if (schedTask == null) {
             schedTask = new SchedulerTask(name);
-            m_tasks.put(name, schedTask);
+            m_tasks.putIfAbsent(name, schedTask);
         }
         schedTask.updateTask(task, description, recipe, recipeOverride);
         schedTask.process();
@@ -76,11 +80,12 @@ public class Scheduler implements ManagedService {
 
     /**
      * Removes a runnable from this scheduler.
-     * @param name The name of the runnable. If the name does not indicate a valid runnable,
-     * nothing is done.
+     * 
+     * @param name
+     *            The name of the runnable. If the name does not indicate a valid runnable, nothing is done.
      */
-    public synchronized void removeRunnable(String name) {
-        SchedulerTask schedTask = (SchedulerTask) m_tasks.get(name);
+    public void removeRunnable(String name) {
+        SchedulerTask schedTask = m_tasks.get(name);
         if (schedTask != null) {
             try {
                 schedTask.updateTask(null, null, null, false);
@@ -95,47 +100,47 @@ public class Scheduler implements ManagedService {
     }
 
     /**
-     * Updates the configuration of the scheduler. The scheduler expects the configuration
-     * to contain recipes for scheduling. The key of a property should be the name identifying
-     * a task and the value should be a string describing the scheduling recipe for this task.
+     * Updates the configuration of the scheduler. The scheduler expects the configuration to contain recipes for
+     * scheduling. The key of a property should be the name identifying a task and the value should be a string
+     * describing the scheduling recipe for this task.
      */
-    public void updated(Dictionary properties) throws ConfigurationException {
-        if (properties != null) {
-            // first remove all the old schedules.
-            for (Iterator i = m_tasks.keySet().iterator(); i.hasNext();) {
-                String name = (String) i.next();
-                SchedulerTask schedTask = (SchedulerTask) m_tasks.get(name);
-                schedTask.updateConfigurationRecipe(null);
+    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+        if (properties == null) {
+            return;
+        }
+
+        // first remove all the old schedules.
+        for (SchedulerTask schedTask : m_tasks.values()) {
+            schedTask.updateConfigurationRecipe(null);
+        }
+
+        // then apply the new ones
+        properties.remove(Constants.SERVICE_PID);
+
+        List<String> keys = Collections.list(properties.keys());
+        for (String name : keys) {
+            SchedulerTask schedTask = m_tasks.get(name);
+            if (schedTask == null) {
+                schedTask = new SchedulerTask(name);
+                m_tasks.putIfAbsent(name, schedTask);
             }
 
-            // then apply the new ones
-            properties.remove(Constants.SERVICE_PID);
-            Enumeration keys = properties.keys();
-            while (keys.hasMoreElements()) {
-                String name = (String) keys.nextElement();
-                SchedulerTask schedTask = (SchedulerTask) m_tasks.get(name);
-                if (schedTask == null) {
-                    schedTask = new SchedulerTask(name);
-                    m_tasks.put(name, schedTask);
-                }
-                try {
-                    schedTask.updateConfigurationRecipe(properties.get(name));
-                }
-                catch (ConfigurationException ce) {
-                    // This is most likely an illegal recipe, caused by an config property we don't understand.
-                    // So, no problem.
-                    m_log.log(LogService.LOG_INFO,
-                            name + "=" + properties.get(name) + " does not look like a valid schedule recipe.");
-                }
+            try {
+                schedTask.updateConfigurationRecipe(properties.get(name));
             }
+            catch (ConfigurationException ce) {
+                // This is most likely an illegal recipe, caused by an config property we don't understand.
+                // So, no problem.
+                m_log.log(LogService.LOG_INFO, name + "=" + properties.get(name) + " does not look like a valid schedule recipe.");
+            }
+        }
 
-            // and remove all tasks that now have no schedule or runnable
-            for (Iterator i = m_tasks.keySet().iterator(); i.hasNext();) {
-                String name = (String) i.next();
-                SchedulerTask schedTask = (SchedulerTask) m_tasks.get(name);
-                if (!schedTask.process()) {
-                    i.remove();
-                }
+        // and remove all tasks that now have no schedule or runnable
+        Iterator<String> i = m_tasks.keySet().iterator();
+        while (i.hasNext()) {
+            SchedulerTask schedTask = m_tasks.get(i.next());
+            if (!schedTask.process()) {
+                i.remove();
             }
         }
     }

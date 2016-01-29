@@ -828,7 +828,7 @@ public class ModelTest {
 
         m_repositoryAdmin = new RepositoryAdminImpl("testSessionID", repoConfig);
 
-        Map<Class<? extends ObjectRepository>, ObjectRepositoryImpl> repos = new HashMap<>();
+        Map<Class<? extends ObjectRepository<?>>, ObjectRepositoryImpl<?, ?>> repos = new HashMap<>();
         repos.put(ArtifactRepository.class, m_artifactRepository);
         repos.put(Artifact2FeatureAssociationRepository.class, m_artifact2FeatureRepository);
         repos.put(FeatureRepository.class, m_featureRepository);

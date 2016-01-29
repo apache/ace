@@ -119,7 +119,7 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
      *            the to-be-added repository set descriptor, cannot be <code>null</code>.
      */
     private void checkConsistency(RepositorySetDescriptor descriptor) {
-        List<Class<? extends ObjectRepository>> seenClasses = new ArrayList<>();
+        List<Class<? extends ObjectRepository<?>>> seenClasses = new ArrayList<>();
         List<String> seenNames = new ArrayList<>();
 
         // Presumption: initially we start out without any duplication...
@@ -132,7 +132,7 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
             throw new IllegalArgumentException("Duplicate repository name!");
         }
 
-        for (Class<? extends ObjectRepository> clazz : descriptor.m_objectRepositories) {
+        for (Class<? extends ObjectRepository<?>> clazz : descriptor.m_objectRepositories) {
             if (seenClasses.contains(clazz)) {
                 throw new IllegalArgumentException("Duplicate object repository!");
             }
@@ -148,9 +148,9 @@ public class RepositoryAdminLoginContextImpl implements RepositoryAdminLoginCont
         public final String m_customer;
         public final String m_name;
         public final boolean m_writeAccess;
-        public final Class<? extends ObjectRepository>[] m_objectRepositories;
+        public final Class<? extends ObjectRepository<?>>[] m_objectRepositories;
 
-        public RepositorySetDescriptor(URL location, String customer, String name, boolean writeAccess, Class<? extends ObjectRepository>... objectRepositories) {
+        public RepositorySetDescriptor(URL location, String customer, String name, boolean writeAccess, Class<? extends ObjectRepository<?>>... objectRepositories) {
             m_location = location;
             m_customer = customer;
             m_name = name;

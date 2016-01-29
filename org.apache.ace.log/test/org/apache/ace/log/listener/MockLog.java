@@ -19,29 +19,26 @@
 package org.apache.ace.log.listener;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.ace.log.Log;
 
 public class MockLog implements Log {
 
-    private List m_logEntries;
+    private List<LogEntry> m_logEntries;
 
-    @SuppressWarnings("unchecked")
     public MockLog() {
-        m_logEntries = Collections.synchronizedList(new ArrayList());
+        m_logEntries = new CopyOnWriteArrayList<>();
     }
 
-    @SuppressWarnings("unchecked")
     public void log(int type, Dictionary properties) {
         m_logEntries.add(new LogEntry(type, properties));
     }
 
-    @SuppressWarnings("unchecked")
-    public List getLogEntries() {
-        return new ArrayList(m_logEntries);
+    public List<LogEntry> getLogEntries() {
+        return new ArrayList<>(m_logEntries);
     }
 
     public void clear() {
@@ -50,9 +47,9 @@ public class MockLog implements Log {
 
     public class LogEntry {
         private int m_type;
-        private Dictionary m_properties;
+        private Dictionary<String, ?> m_properties;
 
-        public LogEntry(int type, Dictionary properties) {
+        public LogEntry(int type, Dictionary<String, ?> properties) {
             m_type = type;
             m_properties = properties;
         }
@@ -61,7 +58,7 @@ public class MockLog implements Log {
             return m_type;
         }
 
-        public Dictionary getProperties() {
+        public Dictionary<String, ?> getProperties() {
             return m_properties;
         }
     }

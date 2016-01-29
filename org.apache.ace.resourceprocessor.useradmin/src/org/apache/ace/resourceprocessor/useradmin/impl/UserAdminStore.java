@@ -82,7 +82,7 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
             return m_type;
         }
     }
-    
+
     private final Object m_installListLock = new Object();
     private final Object m_userAdminLock = new Object();
 
@@ -93,7 +93,6 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
     private List<ProcessRole> m_toInstall = new ArrayList<>();
     private List<ProcessRole> m_toRemove = new ArrayList<>();
     private boolean m_clear;
-
 
     UserAdminStore(BundleContext context) {
         super(context);
@@ -162,15 +161,15 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
         Document doc = getDocument(resource);
         getRoles(doc);
     }
-    
+
     private void checkTransactionInProgress() {
         if (m_installedUsers == null) {
             throw new IllegalStateException("No transaction in progress!");
         }
     }
 
-    private void clearDictionary(Dictionary dict) {
-        Enumeration i = dict.keys();
+    private void clearDictionary(Dictionary<?, ?> dict) {
+        Enumeration<?> i = dict.keys();
         while (i.hasMoreElements()) {
             dict.remove(i.nextElement());
         }
@@ -320,7 +319,7 @@ public class UserAdminStore extends ResourceStore implements UserAdminConfigurat
         m_clear = clearExistingUsers;
         begin();
         updateUserAdmin();
-        end();        
+        end();
     }
 
     /**

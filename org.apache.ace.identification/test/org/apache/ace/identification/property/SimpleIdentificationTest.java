@@ -20,7 +20,7 @@ package org.apache.ace.identification.property;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
-import java.util.Properties;
+import java.util.Hashtable;
 
 import org.apache.ace.identification.IdentificationConstants;
 import org.apache.ace.test.utils.TestUtils;
@@ -48,7 +48,7 @@ public class SimpleIdentificationTest {
     @Test(groups = { UNIT })
     public void testSimpleIdentification() throws Exception {
         m_identification.updated(
-            new Properties() {
+            new Hashtable<String, Object>() {
                 {put(IdentificationConstants.IDENTIFICATION_TARGETID_KEY, TEST_ID);}
             });
         assert TEST_ID.equals(m_identification.getID()) : "target ID does not match configured target ID";

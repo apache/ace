@@ -55,7 +55,7 @@ public class LogSyncConfigurator implements ManagedServiceFactory {
         }
     }
 
-    public synchronized void updated(String pid, Dictionary dict) throws ConfigurationException {
+    public synchronized void updated(String pid, Dictionary<String, ?> dict) throws ConfigurationException {
         String name = (String) dict.get(LOG_NAME);
         String ma = (String) dict.get(MA_NAME);
         if ((name == null) || "".equals(name)) {

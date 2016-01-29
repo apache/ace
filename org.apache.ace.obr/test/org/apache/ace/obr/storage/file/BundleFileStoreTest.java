@@ -27,7 +27,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Properties;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Random;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
@@ -65,7 +66,8 @@ public class BundleFileStoreTest {
         m_directory = FileUtils.createTempFile(null);
         m_directory.mkdir();
 
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(OBRFileStoreConstants.FILE_LOCATION_KEY, m_directory.getAbsolutePath());
         m_bundleStore.updated(props);
 
@@ -207,7 +209,8 @@ public class BundleFileStoreTest {
         File subDir = new File(m_directory.getAbsolutePath(), "changedDirectory");
         subDir.mkdir();
 
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(OBRFileStoreConstants.FILE_LOCATION_KEY, subDir.getAbsolutePath());
         try {
             m_bundleStore.updated(props);
@@ -233,7 +236,8 @@ public class BundleFileStoreTest {
         File file = new File(m_directory.getAbsolutePath(), "file");
         file.createNewFile();
 
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(OBRFileStoreConstants.FILE_LOCATION_KEY, file.getAbsolutePath());
         try {
             m_bundleStore.updated(props);
@@ -361,7 +365,8 @@ public class BundleFileStoreTest {
     public void updateConfigurationWithNull() throws Exception {
         boolean exceptionThrown = false;
 
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         try {
             m_bundleStore.updated(props);
         }
@@ -389,7 +394,8 @@ public class BundleFileStoreTest {
     @Test(groups = { UNIT })
     public void updateConfigurationWithSameDirectory() throws Exception {
 
-        Properties props = new Properties();
+        Dictionary<String, Object> props = new Hashtable<>();
+
         props.put(OBRFileStoreConstants.FILE_LOCATION_KEY, m_directory.getAbsolutePath());
         try {
             m_bundleStore.updated(props);

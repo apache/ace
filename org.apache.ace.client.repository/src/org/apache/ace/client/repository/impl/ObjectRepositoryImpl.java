@@ -199,7 +199,7 @@ abstract class ObjectRepositoryImpl<I extends RepositoryObjectImpl<T>, T extends
         writeLock.lock();
         try {
             for (RepositoryObject o : m_repo) {
-                ((RepositoryObjectImpl) o).setBusy(busy);
+                ((RepositoryObjectImpl<?>) o).setBusy(busy);
             }
             m_busy = busy;
         }

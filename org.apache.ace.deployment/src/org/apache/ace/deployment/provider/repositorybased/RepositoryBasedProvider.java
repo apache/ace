@@ -472,7 +472,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
 		}
     }
 
-    public void updated(Dictionary settings) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> settings) throws ConfigurationException {
         if (settings != null) {
             String url = getNotNull(settings, URL, "DeploymentRepository URL not configured.");
             String name = getNotNull(settings, NAME, "RepositoryName not configured.");
@@ -522,7 +522,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
     /**
      * Convenience method for getting settings from a configuration dictionary.
      */
-    private String getNotNull(Dictionary settings, String id, String errorMessage) throws ConfigurationException {
+    private String getNotNull(Dictionary<String, ?> settings, String id, String errorMessage) throws ConfigurationException {
         String result = (String) settings.get(id);
         if (result == null) {
             throw new ConfigurationException(id, errorMessage);

@@ -226,7 +226,7 @@ public class VerifyEnvironmentImpl implements VerifierService.VerifyEnvironment 
         }
         
         @SuppressWarnings("unused")
-        public void log(final ServiceReference ref, final int level, final String message, final Throwable t) {
+        public void log(final ServiceReference<?> ref, final int level, final String message, final Throwable t) {
             final long time = System.currentTimeMillis();
 
             m_reporter.reportLog(new LogEntry() {
@@ -246,7 +246,7 @@ public class VerifyEnvironmentImpl implements VerifierService.VerifyEnvironment 
                     return message;
                 }
 
-                public ServiceReference getServiceReference() {
+                public ServiceReference<?> getServiceReference() {
                     return ref;
                 }
 

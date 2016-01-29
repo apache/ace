@@ -31,7 +31,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -173,10 +172,9 @@ public class DeploymentServiceImpl implements DeploymentService {
      * @param versions
      * @return
      */
-    private Version getHighestVersion(List versions) {
+    private Version getHighestVersion(List<Version> versions) {
         Version highestVersion = null;
-        for (Iterator i = versions.iterator(); i.hasNext();) {
-            Version version = (Version) i.next();
+        for (Version version : versions) {
             if (highestVersion == null) {
                 highestVersion = version;
             }

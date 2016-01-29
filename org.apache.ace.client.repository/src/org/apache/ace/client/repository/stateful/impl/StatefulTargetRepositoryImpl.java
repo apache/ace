@@ -365,7 +365,7 @@ public class StatefulTargetRepositoryImpl implements StatefulTargetRepository, E
      *            A Properties event, already containing some extra properties. If RepositoryObject.EVENT_ENTITY is
      *            used, it will be overwritten.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void notifyChanged(StatefulTargetObject stoi, String topic, Properties additionalProperties) {
         additionalProperties.put(RepositoryObject.EVENT_ENTITY, stoi);
         additionalProperties.put(SessionFactory.SERVICE_SID, m_sessionID);

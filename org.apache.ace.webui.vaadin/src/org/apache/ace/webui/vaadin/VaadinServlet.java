@@ -108,7 +108,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     }
 
     @Override
-    public void updated(Dictionary dictionary) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> dictionary) throws ConfigurationException {
         boolean useAuth = DEFAULT_USE_AUTHENTICATION;
         String userName = DEFAULT_USER_NAME;
         String password = DEFAULT_PASSWORD;
@@ -195,7 +195,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         return msgs;
     }
 
-    private boolean getBoolean(Dictionary dictionary, String key) throws ConfigurationException {
+    private boolean getBoolean(Dictionary<String, ?> dictionary, String key) throws ConfigurationException {
         Object value = dictionary.get(key);
         if (value == null || !(value instanceof String)) {
             throw new ConfigurationException(key, "Missing property");
@@ -207,7 +207,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         return Boolean.parseBoolean(valueStr);
     }
 
-    private int getInteger(Dictionary dictionary, String key) throws ConfigurationException {
+    private int getInteger(Dictionary<String, ?> dictionary, String key) throws ConfigurationException {
         Integer value = getOptionalInteger(dictionary, key);
         if (value == null) {
             throw new ConfigurationException(key, "Missing property");
@@ -215,7 +215,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         return value.intValue();
     }
 
-    private Double getOptionalDouble(Dictionary dictionary, String key) throws ConfigurationException {
+    private Double getOptionalDouble(Dictionary<String, ?> dictionary, String key) throws ConfigurationException {
         Object value = dictionary.get(key);
         if (value == null) {
             return null;
@@ -236,7 +236,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         }
     }
 
-    private Integer getOptionalInteger(Dictionary dictionary, String key) throws ConfigurationException {
+    private Integer getOptionalInteger(Dictionary<String, ?> dictionary, String key) throws ConfigurationException {
         Object value = dictionary.get(key);
         if (value == null) {
             return null;
@@ -257,7 +257,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         }
     }
 
-    private String getOptionalString(Dictionary dictionary, String key) throws ConfigurationException {
+    private String getOptionalString(Dictionary<String, ?> dictionary, String key) throws ConfigurationException {
         Object value = dictionary.get(key);
         if (value != null && !(value instanceof String)) {
             throw new ConfigurationException(key, "Missing property");
@@ -265,7 +265,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         return (value == null) ? "" : ((String) value).trim();
     }
 
-    private URL getURL(Dictionary dictionary, String key) throws ConfigurationException {
+    private URL getURL(Dictionary<String, ?> dictionary, String key) throws ConfigurationException {
         Object value = dictionary.get(key);
         if (value == null || !(value instanceof String)) {
             throw new ConfigurationException(key, "Missing property");

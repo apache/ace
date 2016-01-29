@@ -28,14 +28,13 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
-import org.apache.ace.identification.Identification;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
+import org.apache.ace.identification.Identification;
 import org.apache.ace.log.target.store.LogStore;
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.range.SortedRangeSet;
@@ -149,10 +148,8 @@ public class LogSyncTask implements Runnable {
             long lowest = rangeIterator.next();
             long highest = delta.getHigh();
             if (lowest <= highest) {
-                List events = m_LogStore.get(logID, lowest, highestLocal > highest ? highest : highestLocal);
-                Iterator iter = events.iterator();
-                while (iter.hasNext()) {
-                    Event current = (Event) iter.next();
+                List<Event> events = m_LogStore.get(logID, lowest, highestLocal > highest ? highest : highestLocal);
+                for (Event current : events) {
                     while ((current.getID() > lowest) && rangeIterator.hasNext()) {
                         lowest = rangeIterator.next();
                     }

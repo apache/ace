@@ -595,7 +595,7 @@ public class RESTClientServlet extends HttpServlet implements ManagedService, Ht
     }
 
     @Override
-    public void updated(Dictionary properties) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
     	if (properties == null) {
     		// defaults
     		m_sessionTimeout = DEFAULT_SESSION_TIMEOUT;

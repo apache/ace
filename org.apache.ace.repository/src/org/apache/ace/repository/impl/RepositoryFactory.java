@@ -155,7 +155,7 @@ public class RepositoryFactory implements ManagedServiceFactory {
      *             If any of the above explanation fails <b>or</b>when there is an internal error creating the
      *             repository.
      */
-    public void updated(String pid, Dictionary dict) throws ConfigurationException {
+    public void updated(String pid, Dictionary<String, ?> dict) throws ConfigurationException {
         String customer = (String) dict.get(REPOSITORY_CUSTOMER);
         if ((customer == null) || "".equals(customer)) {
             throw new ConfigurationException(REPOSITORY_CUSTOMER, "Repository customer has to be specified.");

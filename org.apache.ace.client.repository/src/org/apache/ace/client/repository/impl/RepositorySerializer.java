@@ -39,7 +39,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * xstream's writer in a delegate object, so this will not require changes to the repositories and objects.
  */
 class RepositorySerializer implements Converter {
-    private final Map<String, ObjectRepositoryImpl> m_tagToRepo = new HashMap<>();
+    private final Map<String, ObjectRepositoryImpl<?, ?>> m_tagToRepo = new HashMap<>();
 
     private final RepositorySet m_set;
 
@@ -47,7 +47,7 @@ class RepositorySerializer implements Converter {
 
     RepositorySerializer(RepositorySet set) {
         m_set = set;
-        for (ObjectRepositoryImpl repo : m_set.getRepos()) {
+        for (ObjectRepositoryImpl<?, ?> repo : m_set.getRepos()) {
             m_tagToRepo.put(repo.getXmlNode(), repo);
         }
         m_stream = new XStream();
@@ -56,7 +56,7 @@ class RepositorySerializer implements Converter {
     }
 
     public void marshal(Object target, HierarchicalStreamWriter writer, MarshallingContext context) {
-        for (ObjectRepositoryImpl repo : m_set.getRepos()) {
+        for (ObjectRepositoryImpl<?, ?> repo : m_set.getRepos()) {
             repo.marshal(writer);
         }
     }
@@ -65,7 +65,7 @@ class RepositorySerializer implements Converter {
         while (reader.hasMoreChildren()) {
             reader.moveDown();
             String nodeName = reader.getNodeName();
-            ObjectRepositoryImpl o = m_tagToRepo.get(nodeName);
+            ObjectRepositoryImpl<?, ?> o = m_tagToRepo.get(nodeName);
             o.unmarshal(reader);
             reader.moveUp();
         }
@@ -77,7 +77,7 @@ class RepositorySerializer implements Converter {
     }
 
     public void toXML(OutputStream out) throws IOException {
-        for (ObjectRepositoryImpl repo : m_set.getRepos()) {
+        for (ObjectRepositoryImpl<?, ?> repo : m_set.getRepos()) {
             repo.setBusy(true);
         }
         try {
@@ -87,7 +87,7 @@ class RepositorySerializer implements Converter {
         }
         finally {
             // Ensure all busy flags are reset at all times...
-            for (ObjectRepositoryImpl repo : m_set.getRepos()) {
+            for (ObjectRepositoryImpl<?, ?> repo : m_set.getRepos()) {
                 repo.setBusy(false);
             }
         }
@@ -102,7 +102,7 @@ class RepositorySerializer implements Converter {
     public void fromXML(InputStream in) {
         // The repositories get cleared, since a user *could* add stuff before
         // checking out.
-        for (ObjectRepositoryImpl repo : m_set.getRepos()) {
+        for (ObjectRepositoryImpl<?, ?> repo : m_set.getRepos()) {
             repo.setBusy(true);
             repo.removeAll();
         }
@@ -122,7 +122,7 @@ class RepositorySerializer implements Converter {
         finally {
             Thread.currentThread().setContextClassLoader(cl);
             // Ensure all busy flags are reset at all times...
-            for (ObjectRepositoryImpl repo : m_set.getRepos()) {
+            for (ObjectRepositoryImpl<?, ?> repo : m_set.getRepos()) {
                 repo.setBusy(false);
             }
         }

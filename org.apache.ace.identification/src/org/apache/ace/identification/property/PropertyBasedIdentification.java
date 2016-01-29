@@ -58,7 +58,7 @@ public class PropertyBasedIdentification implements ManagedService, Identificati
         }
     }
 
-    public void updated(Dictionary dictionary) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> dictionary) throws ConfigurationException {
         if (dictionary != null) {
             String id = (String) dictionary.get(IdentificationConstants.IDENTIFICATION_TARGETID_KEY);
             if ((id == null) || (id.length() == 0)) {

@@ -182,7 +182,6 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
      * @param sessionID
      *            the session ID to use.
      */
-    @SuppressWarnings("unchecked")
     private void createSessionServices(SessionData sd, String sessionID, RepositoryConfiguration repoConfig) {
         RepositoryAdminImpl rai = new RepositoryAdminImpl(sessionID, repoConfig);
         Component repositoryAdminComponent = createComponent()
@@ -196,7 +195,7 @@ public class Activator extends DependencyActivatorBase implements SessionFactory
         String sessionFilter = "(" + SessionFactory.SERVICE_SID + "=" + sessionID + ")";
         String auditLogFilter = "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))";
 
-        Dictionary topic = new Hashtable();
+        Dictionary<String, Object> topic = new Hashtable<>();
         topic.put(SessionFactory.SERVICE_SID, sessionID);
         topic.put(EventConstants.EVENT_FILTER, sessionFilter);
         topic.put(EventConstants.EVENT_TOPIC, new String[] {

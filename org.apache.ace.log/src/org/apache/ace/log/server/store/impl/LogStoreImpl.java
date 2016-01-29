@@ -529,7 +529,7 @@ public class LogStoreImpl implements LogStore, ManagedService {
     @Override
     public Event put(String targetID, int type, Dictionary dict) throws IOException {
         Map<String, String> props = new HashMap<>();
-        Enumeration keys = dict.keys();
+        Enumeration<?> keys = dict.keys();
         while (keys.hasMoreElements()) {
             String key = (String) keys.nextElement();
             props.put(key, (String) dict.get(key));

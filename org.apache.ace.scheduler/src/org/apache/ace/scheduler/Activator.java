@@ -31,9 +31,8 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 
 /**
- * Activator for the scheduler service. This activator will monitor <code>Runnable</code>s coming available,
- * and if they are intended to be scheduled, gets the necessary information and passes that to
- * the scheduler.
+ * Activator for the scheduler service. This activator will monitor <code>Runnable</code>s coming available, and if they
+ * are intended to be scheduled, gets the necessary information and passes that to the scheduler.
  */
 public class Activator extends DependencyActivatorBase {
     private Scheduler m_scheduler;
@@ -59,10 +58,12 @@ public class Activator extends DependencyActivatorBase {
 
     /**
      * Handler for both adding and updating runnable service registrations.
-     * @throws ConfigurationException Is thrown when the <code>SCHEDULER_RECIPE</code> contained in <code>ref</code>'s
-     * service dictionary cannot be parsed by the scheduler.
+     * 
+     * @throws ConfigurationException
+     *             Is thrown when the <code>SCHEDULER_RECIPE</code> contained in <code>ref</code>'s service dictionary
+     *             cannot be parsed by the scheduler.
      */
-    public void addRunnable(ServiceReference ref, Runnable task) throws ConfigurationException {
+    public void addRunnable(ServiceReference<Runnable> ref, Runnable task) throws ConfigurationException {
         String name = (String) ref.getProperty(SchedulerConstants.SCHEDULER_NAME_KEY);
         if (name != null) {
             String description = (String) ref.getProperty(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY);
@@ -72,7 +73,7 @@ public class Activator extends DependencyActivatorBase {
         }
     }
 
-    public synchronized void removeRunnable(ServiceReference ref, Runnable task) {
+    public synchronized void removeRunnable(ServiceReference<Runnable> ref, Runnable task) {
         String name = (String) ref.getProperty(SchedulerConstants.SCHEDULER_NAME_KEY);
         if (name != null) {
             m_scheduler.removeRunnable(name);

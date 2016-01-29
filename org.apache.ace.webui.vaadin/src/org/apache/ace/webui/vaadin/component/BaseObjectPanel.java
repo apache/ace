@@ -129,10 +129,10 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * Provides a small container for {@link UIExtensionFactory} instances.
      */
     private static class UIExtensionFactoryHolder implements Comparable<UIExtensionFactoryHolder> {
-        private final ServiceReference m_serviceRef;
+        private final ServiceReference<UIExtensionFactory> m_serviceRef;
         private final WeakReference<UIExtensionFactory> m_extensionFactory;
 
-        public UIExtensionFactoryHolder(ServiceReference serviceRef, UIExtensionFactory extensionFactory) {
+        public UIExtensionFactoryHolder(ServiceReference<UIExtensionFactory> serviceRef, UIExtensionFactory extensionFactory) {
             m_serviceRef = serviceRef;
             m_extensionFactory = new WeakReference<>(extensionFactory);
         }
@@ -141,8 +141,8 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
          * {@inheritDoc}
          */
         public int compareTo(UIExtensionFactoryHolder other) {
-            ServiceReference thatServiceRef = other.m_serviceRef;
-            ServiceReference thisServiceRef = m_serviceRef;
+            ServiceReference<UIExtensionFactory> thatServiceRef = other.m_serviceRef;
+            ServiceReference<UIExtensionFactory> thisServiceRef = m_serviceRef;
             // Sort in reverse order so that the highest rankings come first...
             return thatServiceRef.compareTo(thisServiceRef);
         }
@@ -272,7 +272,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * @param factory
      *            the extension instance itself.
      */
-    public final void addExtension(ServiceReference ref, UIExtensionFactory factory) {
+    public final void addExtension(ServiceReference<UIExtensionFactory> ref, UIExtensionFactory factory) {
         synchronized (m_extensionFactories) {
             m_extensionFactories.add(new UIExtensionFactoryHolder(ref, factory));
         }
@@ -381,7 +381,7 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
      * @param factory
      *            the extension instance itself.
      */
-    public final void removeExtension(ServiceReference ref, UIExtensionFactory factory) {
+    public final void removeExtension(ServiceReference<UIExtensionFactory> ref, UIExtensionFactory factory) {
         synchronized (m_extensionFactories) {
             m_extensionFactories.remove(new UIExtensionFactoryHolder(ref, factory));
         }
@@ -928,14 +928,14 @@ abstract class BaseObjectPanel<REPO_OBJ extends RepositoryObject, REPO extends O
 
     protected final void refreshAllRowCaches(Direction direction) {
         if (direction.isGoLeft()) {
-            BaseObjectPanel ptr = this;
+            BaseObjectPanel<?, ?, ?, ?> ptr = this;
             while (ptr != null) {
                 ptr.refreshRowCache();
                 ptr = ptr.m_leftTable;
             }
         }
         if (direction.isGoRight()) {
-            BaseObjectPanel ptr = this;
+            BaseObjectPanel<?, ?, ?, ?> ptr = this;
             while (ptr != null) {
                 ptr.refreshRowCache();
                 ptr = ptr.m_rightTable;

@@ -79,7 +79,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
 
     private volatile boolean m_useAuth = false;
 
-    public void addProcessor(ServiceReference ref, DeploymentProcessor processor) {
+    public void addProcessor(ServiceReference<DeploymentProcessor> ref, DeploymentProcessor processor) {
         String key = (String) ref.getProperty(PROCESSOR);
         if (key != null) {
             m_processors.putIfAbsent(key, processor);
@@ -94,7 +94,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
         return "Ace Deployment Servlet Endpoint";
     }
 
-    public void removeProcessor(ServiceReference ref, DeploymentProcessor processor) {
+    public void removeProcessor(ServiceReference<DeploymentProcessor> ref, DeploymentProcessor processor) {
         String key = (String) ref.getProperty(PROCESSOR);
         // we do not log this here again, we already did so in 'addProcessor'
         if (key != null) {
@@ -103,7 +103,7 @@ public class DeploymentServlet extends HttpServlet implements ManagedService {
     }
 
     @Override
-    public void updated(Dictionary settings) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> settings) throws ConfigurationException {
         if (settings != null) {
             String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
             if (useAuthString == null

@@ -31,20 +31,20 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 
 /**
- * Servlet that will redirect from a source URL to a target URL. If you append ?show to the source URL,
- * it will instead show you the redirect (and you can still click on the target URL).
+ * Servlet that will redirect from a source URL to a target URL. If you append ?show to the source URL, it will instead
+ * show you the redirect (and you can still click on the target URL).
  */
 public class RedirectServlet extends HttpServlet {
-	private static final long serialVersionUID = -2218040475620089019L;
-	public static final String REDIRECT_URL_KEY = "org.apache.ace.webui.vaadin.redirect";
+    public static final String REDIRECT_URL_KEY = "org.apache.ace.webui.vaadin.redirect";
+
     private final Object LOCK = new Object();
-    
+
     private volatile ServiceRegistration<?> m_registration;
-    
+
     private String m_redirectURL;
     private String m_sourceURL;
-    
-    public RedirectServlet(Dictionary properties) throws ConfigurationException {
+
+    public RedirectServlet(Dictionary<String, ?> properties) throws ConfigurationException {
         setup(properties);
     }
 
@@ -64,13 +64,13 @@ public class RedirectServlet extends HttpServlet {
             resp.sendRedirect(url);
         }
     }
-    
+
     public void update(Dictionary<String, ?> properties) throws ConfigurationException {
         setup(properties);
         m_registration.setProperties(properties);
     }
 
-    private void setup(Dictionary properties) throws ConfigurationException {
+    private void setup(Dictionary<String, ?> properties) throws ConfigurationException {
         synchronized (LOCK) {
             m_redirectURL = (String) properties.get(REDIRECT_URL_KEY);
             m_sourceURL = (String) properties.get(HttpConstants.ENDPOINT);

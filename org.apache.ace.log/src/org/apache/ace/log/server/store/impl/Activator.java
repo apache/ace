@@ -81,7 +81,7 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         return "Log Store Factory";
     }
 
-    public synchronized void updated(String pid, Dictionary dict) throws ConfigurationException {
+    public synchronized void updated(String pid, Dictionary<String, ?> dict) throws ConfigurationException {
         String name = (String) dict.get(LOG_NAME);
         if ((name == null) || "".equals(name)) {
             throw new ConfigurationException(LOG_NAME, "Log name has to be specified.");

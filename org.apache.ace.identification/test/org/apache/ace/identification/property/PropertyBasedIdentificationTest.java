@@ -31,7 +31,6 @@ import org.osgi.service.log.LogService;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-@SuppressWarnings({ "unchecked" })
 public class PropertyBasedIdentificationTest {
     @Test(groups = { UNIT })
     public void getIdWithoutUpdate() {
@@ -42,7 +41,7 @@ public class PropertyBasedIdentificationTest {
     @Test(groups = { UNIT })
     public void getIdWithUpdate() throws ConfigurationException {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
-        Dictionary dict = new Hashtable();
+        Dictionary<String, Object> dict = new Hashtable<>();
         dict.put(IdentificationConstants.IDENTIFICATION_TARGETID_KEY, "myTargetId");
         basedIdentification.updated(dict);
         Assert.assertEquals(basedIdentification.getID(), "myTargetId");
@@ -53,9 +52,9 @@ public class PropertyBasedIdentificationTest {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
         injectServices(basedIdentification);
 
-        Dictionary dict = new Hashtable();
+        Dictionary<String, Object> dict = new Hashtable<>();
         dict.put(IdentificationConstants.IDENTIFICATION_TARGETID_KEY, "oldId");
-        Dictionary dict2 = new Hashtable();
+        Dictionary<String, Object> dict2 = new Hashtable<>();
         dict2.put(IdentificationConstants.IDENTIFICATION_TARGETID_KEY, "newId");
 
         basedIdentification.updated(dict);

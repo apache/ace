@@ -520,7 +520,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         ShortcutHelper.addCrossPlatformShortcut(context.getBrowser(), button, description, keycode, ModifierKey.SHIFT);
     }
 
-    private void addDependency(Component component, Class service) {
+    private void addDependency(Component component, Class<?> service) {
         component.add(m_manager.createServiceDependency()
             .setService(service)
             .setRequired(true)
@@ -540,7 +540,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
         m_manager.add(component);
     }
 
-    private void addSessionDependency(Component component, Class service) {
+    private void addSessionDependency(Component component, Class<?> service) {
         component.add(m_manager.createServiceDependency()
             .setService(service, "(" + SessionFactory.SERVICE_SID + "=" + m_sessionID + ")")
             .setRequired(true)

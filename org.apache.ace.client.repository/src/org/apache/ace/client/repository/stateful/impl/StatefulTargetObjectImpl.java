@@ -633,6 +633,7 @@ public class StatefulTargetObjectImpl implements StatefulTargetObject {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public <T extends Associatable, A extends Association> List<A> getAssociationsWith(Associatable other, Class<T> clazz, Class<A> associationType) {
         synchronized (m_lock) {
             ensureTargetPresent();
