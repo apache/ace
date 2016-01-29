@@ -19,7 +19,7 @@ Before you can start staging a release candidate, you must:
   * Make sure there are no dependencies on snapshots/unreleased versions;
   * Increment the version parameter in build/build.gradle, if not already 
     done, and commit;
-  * Under bndtools, release (only) the bundles that needs to be released
+  * Under Bndtools, release (only) the bundles that needs to be released
     (using "Release workspace bundles" menu);
   * Create a tagged version of the sources in preparation of the release
     candidate.
@@ -66,7 +66,7 @@ Use Java 7 as JDK
 
     $ cd apache-ace-<version>
     $ ./gradlew rat
-    $ ./gradlew build runbundles
+    $ ./gradlew build runbundles export
 
 Create the staging directory and artifacts (this will create `./build/staging/`
 directory containing the signed release archives):
