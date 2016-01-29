@@ -1,0 +1,62 @@
+# Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
+
+# install test bundle with additional Gogo commands needed later on in this script
+pwd = (cd) getAbsolutePath
+
+#start 'file:'$pwd'/../org.apache.ace.test/generated/org.apache.ace.test.jar'
+
+# create a workspace
+w = (cw)
+
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.configadmin/org.apache.felix.configadmin-1.8.8.jar' true
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.metatype/org.apache.felix.metatype-1.1.2.jar' true
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.dependencymanager/org.apache.felix.dependencymanager-4.1.1.jar' true
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.eventadmin/org.apache.felix.eventadmin-1.4.6.jar' true
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.log/org.apache.felix.log-1.0.1.jar' true
+
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.gogo.command/org.apache.felix.gogo.command-0.12.0.jar' true
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.gogo.runtime/org.apache.felix.gogo.runtime-0.12.0.jar' true
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.gogo.shell/org.apache.felix.gogo.shell-0.10.0.jar' true
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.dependencymanager.shell/org.apache.felix.dependencymanager.shell-4.0.2.jar' true
+
+
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.deployment.rp.autoconf/org.apache.felix.deployment.rp.autoconf-0.1.8.jar' true
+
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.http.jetty/org.apache.felix.http.jetty-3.1.6.jar' true
+$w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.http.servlet-api/org.apache.felix.http.servlet-api-1.1.2.jar' true
+$w ca 'file:'$pwd'/scripts/felixHttpConf.xml' true
+
+$w cf 'autoconf-deps'
+$w ca2f '(Bundle-SymbolicName=org.apache.felix.configadmin)' '(name=autoconf-deps)'
+$w ca2f '(Bundle-SymbolicName=org.apache.felix.metatype)' '(name=autoconf-deps)'
+$w ca2f '(Bundle-SymbolicName=org.apache.felix.dependencymanager)' '(name=autoconf-deps)'
+$w ca2f '(Bundle-SymbolicName=org.apache.felix.eventadmin)' '(name=autoconf-deps)'
+$w ca2f '(Bundle-SymbolicName=org.apache.felix.log)' '(name=autoconf-deps)'
+$w ca2f '(artifactName=felixHttpConf.xml)' '(name=autoconf-deps)'
+
+$w cf 'shell'
+$w ca2f '(Bundle-SymbolicName=org.apache.felix.gogo.command)' '(name=shell)'
+$w ca2f '(Bundle-SymbolicName=org.apache.felix.gogo.runtime)' '(name=shell)'
+$w ca2f '(Bundle-SymbolicName=org.apache.felix.gogo.shell)' '(name=shell)'
+$w ca2f '(Bundle-SymbolicName=org.apache.felix.dependencymanager.shell)' '(name=shell)'
+
+$w cf 'http'
+$w ca2f '(Bundle-SymbolicName=org.apache.felix.http.jetty)' '(name=http)'
+$w ca2f '(Bundle-SymbolicName=org.apache.felix.http.servlet-api)' '(name=http)'
+
+
+$w cd 'autoconf-test'
+
+
+$w cf2d '(name=autoconf-deps)' '(name=autoconf-test)'
+$w cf2d '(name=shell)' '(name=autoconf-test)'
+$w cf2d '(name=http)' '(name=autoconf-test)'
+	
+
+($w ct [id=target-1] [httpPort="8888"]) setautoapprove true
+$w cd2t '(name=autoconf-test)' '(id=target-1)'
+
+
+# commit and delete the workspace
+$w commit
+rw $w
