@@ -2,6 +2,6 @@
 
 Private-Package: org.apache.ace.repository.servlet
 Bundle-Activator: org.apache.ace.repository.servlet.Activator
-Bundle-Version: 2.0.0
+Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Repository Servlet
 Bundle-Description: Registers a repository and replication servlet
