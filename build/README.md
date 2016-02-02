@@ -101,7 +101,7 @@ Start a vote on the `dev@ace.apache.org` list, for example (be sure to replace
     https://dist.apache.org/repos/dist/dev/ace/apache-ace-<version>/
     
     You can use this UNIX script to download the release and verify the signatures:
-    http://svn.apache.org/repos/asf/ace/trunk/build/check_staged_release.sh
+    http://svn.apache.org/repos/asf/ace/trunk/build/check_staged_ace_release.sh
     
     Usage:
     sh check_staged_ace_release.sh <version> /tmp/ace-staging
