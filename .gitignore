@@ -1,0 +1,12 @@
+.metadata/
+cnf/cache/
+cnf/*/.obrcache/
+.gradle/
+.recommenders/
+*/generated/
+*/bin/
+*/build/
+*/bin_test/
+*/reports/
+*~
+*/.settings/
