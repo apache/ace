@@ -128,7 +128,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             importSingleUser(m_userRepository, userName, password);
             waitForUser(m_userAdmin, userName);
 
-            URL testURL = new URL(m_obrURL, "repository.xml");
+            URL testURL = new URL(m_obrURL, "index.xml");
 
             assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
 
@@ -158,11 +158,11 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
     }
 
     /**
-     * Test that we can retrieve the 'repository.xml' from the OBR.
+     * Test that we can retrieve the 'index.xml' from the OBR.
      */
     public void testAccessObrRepositoryWithCredentialsOk() throws Exception {
         try {
-            URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
+            URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/index.xml");
             URLConnection conn = m_connectionFactory.createConnection(url);
             assertNotNull(conn);
             Object content = conn.getContent();
@@ -175,11 +175,11 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
     }
 
     /**
-     * Test that we cannot retrieve the 'repository.xml' from the OBR without any credentials.
+     * Test that we cannot retrieve the 'index.xml' from the OBR without any credentials.
      */
     public void testAccessObrRepositoryWithoutCredentialsFail() throws Exception {
         try {
-            URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
+            URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/index.xml");
 
             // do NOT use connection factory as it will supply the credentials for us...
             URLConnection conn = url.openConnection();
@@ -204,7 +204,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
     }
 
     /**
-     * Test that we cannot retrieve the 'repository.xml' from the OBR with incorrect credentials.
+     * Test that we cannot retrieve the 'index.xml' from the OBR with incorrect credentials.
      */
     public void testAccessObrRepositoryWithWrongCredentialsFail() throws Exception {
         try {
@@ -216,7 +216,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
 
             configuration.update();
 
-            URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/repository.xml");
+            URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/index.xml");
 
             // do NOT use connection factory as it will supply the credentials for us...
             URLConnection conn = url.openConnection();

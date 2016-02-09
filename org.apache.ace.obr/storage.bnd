@@ -4,6 +4,6 @@ Private-Package: org.apache.ace.obr.storage.file,\
 	org.apache.ace.obr.metadata.util
 Bundle-Activator: org.apache.ace.obr.storage.file.Activator
 Export-Package: org.apache.ace.obr.storage
-Bundle-Version: 2.0.1
+Bundle-Version: 2.0.2
 Bundle-Name: Apache ACE OBR Storage
 Bundle-Description: Registers a file based BundleStore for the OBR

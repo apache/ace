@@ -82,7 +82,7 @@ public class BundleFileStoreTest {
         m_bundleSubstitute1 = createFileWithContent(m_directory.getAbsoluteFile(), "bundleSub1.jar", 1000);
         m_bundleSubstitute2 = createFileWithContent(m_directory.getAbsoluteFile(), "bundleSub2.jar", 2000);
         m_bundleSubstitute3 = createFileWithContent(m_directory.getAbsoluteFile(), "bundleSub3.jar", 3000);
-        m_bundleRepositoryFile = createFileWithContent(m_directory.getAbsoluteFile(), "repository.xml", 1000);
+        m_bundleRepositoryFile = createFileWithContent(m_directory.getAbsoluteFile(), "index.xml", 1000);
     }
 
     @AfterMethod(alwaysRun = true)
@@ -112,12 +112,12 @@ public class BundleFileStoreTest {
     }
 
     /**
-     * Test whether retrieving the repository.xml results in a call to the (mock) metadata generator, and the original
+     * Test whether retrieving the index.xml results in a call to the (mock) metadata generator, and the original
      * file should correspond with the retrieved file.
      */
     @Test(groups = { UNIT })
     public void getRepositoryFile() throws Exception {
-        InputStream newInputStream = m_bundleStore.get("repository.xml");
+        InputStream newInputStream = m_bundleStore.get("index.xml");
         assert m_metadata.generated() : "During getting the repository file, the metadata should be regenerated.";
 
         byte[] orgContentBuffer = new byte[1000];
@@ -128,7 +128,7 @@ public class BundleFileStoreTest {
         orgInputStream.read(newContentBuffer);
         orgInputStream.close();
 
-        assert Arrays.equals(orgContentBuffer, newContentBuffer) : "The original repository.xml content should equal the newly retrieved content.";
+        assert Arrays.equals(orgContentBuffer, newContentBuffer) : "The original index.xml content should equal the newly retrieved content.";
     }
 
     /**
@@ -137,12 +137,12 @@ public class BundleFileStoreTest {
      */
     @Test(groups = { UNIT })
     public void updateBundle() throws Exception {
-        m_bundleStore.get("repository.xml");
+        m_bundleStore.get("index.xml");
         assert m_metadata.numberOfCalls() == 1 : "The MetadataGenerator should be called once";
 
         m_bundleSubstitute1Larger = createFileWithContent(m_directory.getAbsoluteFile(), "bundleSub1.jar", 2000);
 
-        m_bundleStore.get("repository.xml");
+        m_bundleStore.get("index.xml");
         assert m_metadata.numberOfCalls() == 2 : "The MetadataGenerator should be called twice";
 
         // test specific tear down
@@ -156,19 +156,19 @@ public class BundleFileStoreTest {
      */
     @Test(groups = { UNIT })
     public void addBundle() throws Exception {
-        m_bundleStore.get("repository.xml");
+        m_bundleStore.get("index.xml");
         assert m_metadata.numberOfCalls() == 1 : "The MetadataGenerator should be called once";
 
         File bundleSubstituteX = createFileWithContent(m_directory.getAbsoluteFile(), "bundleSubX.jar", 2000);
 
-        m_bundleStore.get("repository.xml");
+        m_bundleStore.get("index.xml");
         assert m_metadata.numberOfCalls() == 2 : "The MetadataGenerator should be called twice";
 
         bundleSubstituteX.delete();
 
         File bundleSubstituteY = createFileWithContent(m_directory.getAbsoluteFile(), "bundleSubY.jar", 2000);
 
-        m_bundleStore.get("repository.xml");
+        m_bundleStore.get("index.xml");
         assert m_metadata.numberOfCalls() == 3 : "The MetadataGenerator should be called three times";
 
         // test specific tear down

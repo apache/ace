@@ -63,7 +63,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     private static final String DEFAULT_PASSWORD = "";
     private static final URL DEFAULT_ACE_HOST;
     private static final URL DEFAULT_OBR_URL;
-    private static final String DEFAULT_OBR_XML = "repository.xml";
+    private static final String DEFAULT_OBR_XML = "index.xml";
     private static final String DEFAULT_SERVLET_ENDPOINT = "/ace";
     private static final int DEFAULT_SESSION_TIMEOUT = 300; // in seconds.
     private static final double DEFAULT_CACHE_RATE = 1;

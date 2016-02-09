@@ -78,7 +78,7 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
     private boolean m_useAuth = false;
     private URL m_obrURL;
 
-    private final String m_repositoryXML = "repository.xml";
+    private final String m_repositoryXML = "index.xml";
 
     /**
      * Gets the actual text from a named item contained in the given node map.
@@ -214,7 +214,7 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
             return new URL(m_obrURL, m_repositoryXML);
         }
         catch (MalformedURLException e) {
-            m_log.log(LogService.LOG_ERROR, "Error retrieving repository.xml from " + m_obrURL);
+            m_log.log(LogService.LOG_ERROR, "Error retrieving index.xml from " + m_obrURL);
             throw e;
         }
     }
@@ -247,7 +247,7 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
         NodeList resources;
         try {
             URLConnection connection = openConnection(createOBRURL());
-            // We always want the newest repository.xml file.
+            // We always want the newest index.xml file.
             connection.setUseCaches(false);
 
             input = connection.getInputStream();

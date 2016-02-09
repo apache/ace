@@ -45,11 +45,11 @@ import org.osgi.service.log.LogService;
 
 /**
  * This BundleStore retrieves the files from the file system. Via the Configurator the relative path is set, and all
- * bundles and the repository.xml should be retrievable from that path (which will internally be converted to an
+ * bundles and the index.xml should be retrievable from that path (which will internally be converted to an
  * absolute path).
  */
 public class BundleFileStore implements BundleStore, ManagedService {
-    private static final String REPOSITORY_XML = "repository.xml";
+    private static final String REPOSITORY_XML = "index.xml";
     private static int BUFFER_SIZE = 8 * 1024;
 
     private final Object m_lock = new Object();

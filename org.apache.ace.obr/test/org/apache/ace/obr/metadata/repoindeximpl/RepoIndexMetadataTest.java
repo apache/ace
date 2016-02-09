@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.obr.metadata.bindeximpl;
+package org.apache.ace.obr.metadata.repoindeximpl;
 
 import static org.apache.ace.test.utils.TestUtils.UNIT;
 
@@ -28,10 +28,10 @@ import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
 import org.apache.ace.deployment.util.test.BundleStreamGenerator;
 import org.apache.ace.obr.metadata.MetadataGenerator;
-import org.apache.ace.obr.metadata.bindex.BIndexMetadataGenerator;
+import org.apache.ace.obr.metadata.repoindex.RepoIndexMetadataGenerator;
 import org.testng.annotations.Test;
 
-public class BindexMetadataTest {
+public class RepoIndexMetadataTest {
 
     private ArtifactData generateBundle(File file, String symbolicName, String version) throws Exception {
         // create a mock bundle, which is only used to generate the bundle on disk, and not used for anything else...
@@ -52,16 +52,16 @@ public class BindexMetadataTest {
         generateBundle(File.createTempFile("bundle", ".jar", dir), "bundle.symbolicname.1", "1.0.0");
         generateBundle(File.createTempFile("bundle", ".jar", dir), "bundle.symbolicname.2", "1.0.0");
         generateBundle(File.createTempFile("bundle", ".jar", dir), "bundle.symbolicname.3", "1.0.0");
-        MetadataGenerator meta = new BIndexMetadataGenerator();
+        MetadataGenerator meta = new RepoIndexMetadataGenerator();
         meta.generateMetadata(dir);
-        File index = new File(dir, "repository.xml");
+        File index = new File(dir, "index.xml");
         assert index.exists() : "No repository index was generated";
         assert index.length() > 0 : "Repository index can not be size 0";
         int count = 0;
         String line;
         BufferedReader in = new BufferedReader(new FileReader(index));
         while ((line = in.readLine()) != null) {
-            if (line.contains("<resource")) {
+            if (line.contains("<resource>")) {
                 count++;
             }
         }
@@ -79,18 +79,18 @@ public class BindexMetadataTest {
         dir.mkdir();
         File bundle = File.createTempFile("bundle", ".jar", dir);
         generateBundle(bundle, "bundle.symbolicname.1", "1.0.0");
-        MetadataGenerator meta = new BIndexMetadataGenerator();
+        MetadataGenerator meta = new RepoIndexMetadataGenerator();
         meta.generateMetadata(dir);
         bundle.delete();
         meta.generateMetadata(dir);
-        File index = new File(dir, "repository.xml");
+        File index = new File(dir, "index.xml");
         assert index.exists() : "No repository index was generated";
         assert index.length() > 0 : "Repository index can not be size 0";
         int count = 0;
         String line;
         BufferedReader in = new BufferedReader(new FileReader(index));
         while ((line = in.readLine()) != null) {
-            if (line.contains("<resource")) {
+            if (line.contains("<resource>")) {
                 count++;
             }
         }
@@ -109,16 +109,16 @@ public class BindexMetadataTest {
         generateBundle(File.createTempFile("bundle", ".jar", dir), "bundle.symbolicname.1", "1.0.0");
         generateBundle(File.createTempFile("bundle", ".jar", dir), "bundle.symbolicname.2", "1.0_0");
         generateBundle(File.createTempFile("bundle", ".jar", dir), "bundle.symbolicname.3", "1.0.0");
-        MetadataGenerator meta = new BIndexMetadataGenerator();
+        MetadataGenerator meta = new RepoIndexMetadataGenerator();
         meta.generateMetadata(dir);
-        File index = new File(dir, "repository.xml");
+        File index = new File(dir, "index.xml");
         assert index.exists() : "No repository index was generated";
         assert index.length() > 0 : "Repository index can not be size 0";
         int count = 0;
         String line;
         BufferedReader in = new BufferedReader(new FileReader(index));
         while ((line = in.readLine()) != null) {
-            if (line.contains("<resource")) {
+            if (line.contains("<resource>")) {
                 count++;
             }
         }
