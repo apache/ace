@@ -1,6 +1,15 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
-Bundle-Version: 1.0.1
+Bundle-Version: 1.1.0
 Bundle-Name: Apache ACE OBR Repository
 Bundle-Description: Provides an ACE Bnd Repository implementation
-Export-Package: org.apache.ace.bnd.repository
+Export-Package: \
+	org.apache.ace.bnd.repository,\
+	org.apache.commons.codec,\
+	org.apache.commons.codec.binary,\
+	org.osgi.service.cm,\
+	org.osgi.service.useradmin,\
+	org.apache.ace.connectionfactory,\
+	org.apache.ace.connectionfactory.impl
+
+-includeresource: META-INF/services=services

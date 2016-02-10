@@ -2,5 +2,8 @@
 
 -sub: *.bnd
 -buildpath: \
+	osgi.cmpn,\
 	biz.aQute.bnd,\
-	biz.aQute.repository
+	biz.aQute.repository,\
+	org.apache.ace.connectionfactory;version=latest
+

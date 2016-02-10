@@ -28,6 +28,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
+
 import aQute.bnd.deployer.repository.FixedIndexedRepo;
 
 /**
@@ -88,7 +90,19 @@ public class AceObrRepository extends FixedIndexedRepo {
         try {
 
             URL url = new URL(m_endpoint, "?filename=" + filename);
-            URLConnection connection = url.openConnection();
+            
+            URLConnection connection = null;
+            if (registry != null) {
+                ConnectionFactory connectionFactory = registry.getPlugin(ConnectionFactory.class);
+                if (connectionFactory != null) {
+                    connection = connectionFactory.createConnection(url);
+                }
+            }
+            
+            if (connection == null) {
+                connection = url.openConnection();
+            }
+            
             connection.setDoOutput(true);
             connection.setDoInput(true);
             connection.setUseCaches(false);

@@ -10,3 +10,7 @@ cnf/*/.obrcache/
 */reports/
 *~
 */.settings/
+*/bundle-cache
+*/store
+*/test-output
+rat-report.xml
