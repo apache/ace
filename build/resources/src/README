@@ -41,7 +41,7 @@ both:
 2)  Make sure that your JAVA_HOME environment variable is set to the newly
     installed JDK location, and that your PATH includes
     %JAVA_HOME%\bin (windows) or $JAVA_HOME/bin (unix).
-    
+
 3)  Install the latest version of Eclipse with the following plugins:
     * Subclipse;
     * BndTools;
@@ -49,8 +49,19 @@ both:
 
 Building
 --------
+The source distribution comes in two parts: the actual sources only, 
+and the dependencies that you need to build everything. Unzip both
+archives (replace `$VERSION` with the correct version, for example:
+2.1.0):
+
+    $ unzip apache-ace-$VERSION-deps.zip
+    $ unzip apache-ace-$VERSION-src.zip
+    $ cd apache-ace-$VERSION-src/
 
 From the command line:
+
+Note: make sure that your $JAVA_HOME environment property is correctly
+set and points to a recent Java 7 JDK!
 
 1)  Go into the source root directory and invoke the Gradle wrapper:
     $ ./gradlew build
