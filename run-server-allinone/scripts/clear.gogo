@@ -23,7 +23,7 @@ each ($w lf2d) {$w df2d $it}
 each ($w ld2t) {$w dd2t $it}
 
 # delete artifacts from OBR as well (assuming local OBR is used!)...
-r = (repo OBR 'http://localhost:8080/obr/repository.xml')
+r = (repo OBR 'http://localhost:8080/obr/index.xml')
 repo:rm $r
 
 # commit and delete the workspace

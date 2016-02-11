@@ -139,7 +139,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         configure("org.apache.ace.obr.storage.file", "OBRInstance", "singleOBRStore", OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
 
         // Wait for the endpoint to respond.
-        URL repoURL = new URL(baseURL + "repository.xml");
+        URL repoURL = new URL(baseURL + "index.xml");
         int response = ((HttpURLConnection) repoURL.openConnection()).getResponseCode();
         int tries = 0;
         while ((response != 200) && (tries++ < 50)) {
@@ -313,7 +313,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
 
         configServlet.update(propsServlet);
 
-        URL url = new URL("http://localhost:" + TestConstants.PORT + "/" + endpoint + "/repository.xml");
+        URL url = new URL("http://localhost:" + TestConstants.PORT + "/" + endpoint + "/index.xml");
         int response = ((HttpURLConnection) url.openConnection()).getResponseCode();
         int tries = 0;
         while ((response != 404) && (tries < 50)) {

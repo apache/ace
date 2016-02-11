@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.obr.metadata.bindex;
+package org.apache.ace.obr.metadata.repoindex;
 
 import org.apache.ace.obr.metadata.MetadataGenerator;
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -30,7 +30,7 @@ public class Activator extends DependencyActivatorBase {
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         manager.add(createComponent()
             .setInterface(MetadataGenerator.class.getName(), null)
-            .setImplementation(BIndexMetadataGenerator.class)
+            .setImplementation(RepoIndexMetadataGenerator.class)
             .add(createServiceDependency()
                 .setService(LogService.class)
                 .setRequired(false)));

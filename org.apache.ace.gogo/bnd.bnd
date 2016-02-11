@@ -4,8 +4,8 @@
 	${^-buildpath},\
 	osgi.core;version=6.0.0,\
 	biz.aQute.repository;version=2.1.0,\
-	biz.aQute.bnd;version=2.1.0,\
-	org.osgi.impl.bundle.repoindex.lib,\
+	biz.aQute.bnd;version=2.1.0;packages="org.osgi.service.indexer,org.osgi.service.indexer.impl,*",\
+	org.osgi.impl.bundle.repoindex.lib;packages="org.osgi.service.indexer,org.osgi.service.indexer.impl",\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.ace.bnd.repository;version=latest,\

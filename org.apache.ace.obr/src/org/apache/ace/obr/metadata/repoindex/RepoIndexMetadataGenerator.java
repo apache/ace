@@ -16,34 +16,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ace.obr.metadata.bindex;
+package org.apache.ace.obr.metadata.repoindex;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.ace.obr.metadata.MetadataGenerator;
-import org.osgi.impl.bundle.bindex.Index;
+import org.osgi.service.indexer.impl.RepoIndex;
 import org.osgi.service.log.LogService;
 
-public class BIndexMetadataGenerator implements MetadataGenerator {
+public class RepoIndexMetadataGenerator implements MetadataGenerator {
 
-    private static final String INDEX_FILENAME = "repository";
+    private static final String INDEX_FILENAME = "index";
     private static final String INDEX_EXTENSION = ".xml";
 
     private volatile LogService m_log; /* will be injected by dependencymanager */
 
     public void generateMetadata(File directory) throws IOException {
         if (directory.isDirectory()) {
-            File tempIndex;
-            File index = new File(directory, INDEX_FILENAME + INDEX_EXTENSION);
+            final File index = new File(directory, INDEX_FILENAME + INDEX_EXTENSION);
+            final File tempIndex = File.createTempFile("repo", INDEX_EXTENSION, directory);
+
             try {
-                tempIndex = File.createTempFile("repo", INDEX_EXTENSION, directory);
-                Index.m_log = m_log;
-                Index.main(new String[] { "-q", "-a", "-r", tempIndex.getAbsolutePath(), directory.getAbsolutePath() });
+                RepoIndex repoIndex = new RepoIndex(m_log);
+                try (FileOutputStream out = new FileOutputStream(tempIndex)) {
+                    final Set<File> files = new HashSet<>();
+                    Map<String, String> config = new HashMap<>();
+                    Files.walkFileTree(directory.toPath(), new SimpleFileVisitor<Path>(){
+                        
+                        @Override
+                        public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+                            File file = path.toFile();
+                            if (!file.equals(index) && !file.equals(tempIndex)) {
+                                files.add(file);
+                            }
+                            return super.visitFile(path, attrs);
+                        }
+                        
+                    });
+                    
+                    config.put(RepoIndex.ROOT_URL, directory.getAbsolutePath());
+                    config.put(RepoIndex.PRETTY, "true");
+                    repoIndex.index(files, out, config);
+                }
+                
                 renameFile(tempIndex, index);
             }
             catch (IOException e) {
@@ -107,29 +135,16 @@ public class BIndexMetadataGenerator implements MetadataGenerator {
     private boolean moveFile(File source, File dest) throws IOException {
         final int bufferSize = 1024 * 1024; // 1MB
 
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
-        FileChannel input = null;
-        FileChannel output = null;
-
-        try {
-            fis = new FileInputStream(source);
-            input = fis.getChannel();
-
-            fos = new FileOutputStream(dest);
-            output = fos.getChannel();
+        try (FileInputStream fis = new FileInputStream(source);
+                        FileOutputStream fos = new FileOutputStream(dest);
+                        FileChannel input = fis.getChannel();
+                        FileChannel output = fos.getChannel()) {
 
             long size = input.size();
             long pos = 0;
             while (pos < size) {
                 pos += output.transferFrom(input, pos, Math.min(size - pos, bufferSize));
             }
-        }
-        finally {
-            closeQuietly(fos);
-            closeQuietly(fis);
-            closeQuietly(output);
-            closeQuietly(input);
         }
 
         if (source.length() != dest.length()) {
@@ -144,21 +159,5 @@ public class BIndexMetadataGenerator implements MetadataGenerator {
         }
 
         return true;
-    }
-
-    /**
-     * Safely closes a given resource, ignoring any I/O exceptions that might occur by this.
-     * 
-     * @param resource the resource to close, can be <code>null</code>.
-     */
-    private void closeQuietly(Closeable resource) {
-        try {
-            if (resource != null) {
-                resource.close();
-            }
-        }
-        catch (IOException e) {
-            // Ignored...
-        }
     }
 }

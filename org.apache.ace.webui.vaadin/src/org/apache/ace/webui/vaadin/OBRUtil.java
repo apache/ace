@@ -19,35 +19,42 @@
 
 package org.apache.ace.webui.vaadin;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
+import org.apache.ace.bnd.registry.RegistryImpl;
+import org.apache.ace.bnd.repository.AceUrlConnector;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.webui.domain.OBREntry;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
+import org.osgi.framework.Version;
+import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
+import org.osgi.service.repository.ContentNamespace;
+
+import aQute.bnd.deployer.repository.FixedIndexedRepo;
+import aQute.bnd.osgi.resource.CapReqBuilder;
+import aQute.bnd.service.Registry;
 
 /**
  * Utility methods for handling OBRs.
  */
 public final class OBRUtil {
-    private static final String XPATH_QUERY = "/repository/resource[@uri]";
 
     /**
      * Returns all available OBR entries that can be added to the artifact repository.
@@ -115,26 +122,6 @@ public final class OBRUtil {
     }
 
     /**
-     * Gets the actual text from a named item contained in the given node map.
-     * 
-     * @param map
-     *            the node map to get the named item from;
-     * @param name
-     *            the name of the item to get.
-     * @return the text of the named item, can be <code>null</code> in case the named item does not exist, or has no
-     *         text.
-     */
-    private static String getNamedItemText(NamedNodeMap map, String name) {
-        Node namedItem = map.getNamedItem(name);
-        if (namedItem == null) {
-            return null;
-        }
-        else {
-            return namedItem.getTextContent();
-        }
-    }
-
-    /**
      * Builds a list of all OBR artifacts currently in use.
      * 
      * @param obrBaseUrl
@@ -153,7 +140,7 @@ public final class OBRUtil {
 
         for (ArtifactObject ao : artifactObjects) {
             String artifactURL = ao.getURL();
-            if ((artifactURL != null) && artifactURL.startsWith(baseURL)) {
+            if ((artifactURL != null) /*&& artifactURL.startsWith(baseURL)*/) {
                 // we now know this artifact comes from the OBR we are querying,
                 // so we are interested.
                 fromRepository.add(convertToOBREntry(ao, baseURL));
@@ -163,7 +150,7 @@ public final class OBRUtil {
     }
 
     /**
-     * Parses the 'repository.xml' from OBR.
+     * Get all resources from an OSGi R5 repository
      * 
      * @param obrBaseUrl
      *            the base URL to access the OBR, cannot be <code>null</code>.
@@ -171,55 +158,54 @@ public final class OBRUtil {
      * @throws XPathExpressionException
      *             in case OBR repository is invalid, or incorrect;
      * @throws IOException
-     *             in case of problems accessing the 'repository.xml' file.
+     *             in case of problems accessing the 'index.xml' file.
      */
-    private static List<OBREntry> parseOBRRepository(ConnectionFactory connectionFactory, URL obrBaseUrl, String repositoryName) throws XPathExpressionException, IOException {
-        InputStream input = null;
-        NodeList resources = null;
-        try {
-            URL url = new URL(obrBaseUrl, repositoryName);
-            URLConnection connection = connectionFactory.createConnection(url);
-            // We always want the newest repository.xml file.
-            connection.setUseCaches(false);
-
-            input = connection.getInputStream();
-
-            XPath xpath = XPathFactory.newInstance().newXPath();
-            // this XPath expressing will find all 'resource' elements which
-            // have an attribute 'uri'.
-            resources = (NodeList) xpath.evaluate(XPATH_QUERY, new InputSource(input), XPathConstants.NODESET);
+    private static List<OBREntry> parseOBRRepository(final ConnectionFactory connectionFactory, URL obrBaseUrl, String repositoryName) throws XPathExpressionException, IOException {
+        FixedIndexedRepo fixedIndexedRepo = new FixedIndexedRepo();
+        
+        AceUrlConnector aceUrlConnector = new AceUrlConnector(connectionFactory);
+        Registry registry = new RegistryImpl(aceUrlConnector);
+        fixedIndexedRepo.setRegistry(registry);
+        
+        Map<String, String> properties = new HashMap<>();
+        properties.put(FixedIndexedRepo.PROP_LOCATIONS, new URL(obrBaseUrl, repositoryName).toString());
+        fixedIndexedRepo.setProperties(properties);
+        
+        Requirement requirement = new CapReqBuilder("osgi.identity")
+            .addDirective("filter", "(&(osgi.identity=*)(version=*)(type=*))")
+            .buildSyntheticRequirement();
+        
+        Map<Requirement, Collection<Capability>> sourceResources = fixedIndexedRepo.findProviders(Collections.singleton(requirement));
+        if (sourceResources.isEmpty() || sourceResources.get(requirement).isEmpty()) {
+            return Collections.emptyList();
         }
-        finally {
-            if (input != null) {
-                try {
-                    input.close();
-                }
-                catch (IOException e) {
-                    // too bad, no worries.
-                }
-            }
-        }
-
         List<OBREntry> obrList = new ArrayList<>();
-        for (int nResource = 0; nResource < resources.getLength(); nResource++) {
-            Node resource = resources.item(nResource);
-            NamedNodeMap attr = resource.getAttributes();
-
-            String uri = getNamedItemText(attr, "uri");
-            String name = getNamedItemText(attr, "presentationname");
-            String symbolicname = getNamedItemText(attr, "symbolicname");
-            String version = getNamedItemText(attr, "version");
-
-            if (name == null || name.equals("")) {
-                if (symbolicname != null && !symbolicname.equals("")) {
-                    name = symbolicname;
-                }
-                else {
-                    name = new File(uri).getName();
-                }
+        Iterator<Capability> capabilities = sourceResources.get(requirement).iterator();
+        while (capabilities.hasNext()) {
+            Capability capability = capabilities.next();
+            
+            Resource resource = capability.getResource();
+            List<Capability> identities = resource.getCapabilities(IdentityNamespace.IDENTITY_NAMESPACE);
+            String bsn = null;
+            Version version = null;
+            if (identities != null && identities.size() == 1){
+                Capability id = identities.get(0);
+                bsn = (String) id.getAttributes().get(IdentityNamespace.IDENTITY_NAMESPACE);
+                version = (Version) id.getAttributes().get(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE);
             }
-
-            obrList.add(new OBREntry(name, symbolicname, version, uri));
+            
+            URI uri = null;
+            List<Capability> contentCapabilities = resource.getCapabilities(ContentNamespace.CONTENT_NAMESPACE);
+            if (contentCapabilities != null && contentCapabilities.size() == 1) {
+                Capability content = contentCapabilities.get(0);
+                uri = (URI) content.getAttributes().get(ContentNamespace.CAPABILITY_URL_ATTRIBUTE);
+            }
+            
+            if (bsn != null && uri != null) {
+                obrList.add(new OBREntry(bsn, bsn, version.toString(), uri.toString().substring(obrBaseUrl.toString().length())));
+            } else {
+                throw new IllegalStateException("No Identity or multiple identities");
+            }
         }
 
         return obrList;

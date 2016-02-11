@@ -10,13 +10,33 @@
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.felix.http.servlet-api,\
-	osgi.core;version=6.0.0
-Private-Package: org.apache.ace.webui.domain,\
+	osgi.core;version=6.0.0,\
+	biz.aQute.repository,\
+	biz.aQute.bnd,\
+	org.apache.ace.bnd.registry;version=latest,\
+	org.apache.ace.bnd.repository;version=latest
+Private-Package: \
+	org.apache.ace.webui.domain,\
 	org.apache.ace.webui.vaadin,\
-	org.apache.ace.webui.vaadin.component
+	org.apache.ace.webui.vaadin.component,\
+	org.apache.ace.bnd.registry,\
+	org.apache.ace.bnd.repository,\
+	org.kxml2.io,\
+	org.osgi.impl.bundle.bindex,\
+	org.osgi.impl.bundle.obr.resource,\
+	org.osgi.service.bindex*,\
+	org.osgi.service.indexer*,\
+	org.osgi.service.obr,\
+	org.osgi.service.repository*,\
+	org.xmlpull.v1
+	
 Export-Package: org.apache.ace.webui
 Include-Resource: resources/
 Bundle-Activator: org.apache.ace.webui.vaadin.Activator
-Bundle-Version: 1.0.2
+Bundle-Version: 1.0.3
 Bundle-Name: Apache ACE WebUI Vaadin
 Bundle-Description: Provides the base ACE WebUI based on Vaadin
+
+Conditional-Package: \
+	biz.aQute*,\
+	aQute.*,\

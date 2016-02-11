@@ -395,7 +395,6 @@ abstract class AddArtifactWindow extends Window {
      *             the exception
      */
     private void populateArtifactTable(Table dataSource, URL obrBaseUrl) throws Exception {
-        // retrieve the repository.xml as a stream
         List<OBREntry> obrList = OBRUtil.getAvailableOBREntries(getConnectionFactory(), getArtifactRepository(), obrBaseUrl, m_repositoryXML);
         if (obrList.isEmpty()) {
             logDebug("No new data in OBR.");
