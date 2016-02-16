@@ -440,10 +440,6 @@ public class RESTClientTest extends IntegrationTestBase {
             "customer", "apache",
             "master", "true");
 
-        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
-            "repositoryLocation", HOST.concat("/repository"),
-            "repositoryCustomer", "apache",
-            "repositoryName", "user");
     }
 
     /** Create a user so we can log in to the server. */

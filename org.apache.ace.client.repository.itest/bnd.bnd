@@ -9,7 +9,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.http.listener;version=latest,\
-	org.apache.ace.configurator.useradmin.task;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\

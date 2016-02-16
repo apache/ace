@@ -291,11 +291,7 @@ public class UserEditorTest extends IntegrationTestBase {
             "name", "users",
             "customer", "apache",
             "master", "true");
-        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
-            "repositoryName", "users",
-            "repositoryCustomer", "apache");
-        configure("org.apache.ace.scheduler",
-            "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
+        
     }
 
     @Override

@@ -78,8 +78,6 @@ public class Ace330Test extends IntegrationTestBase {
             "customer.name", TEST_CUSTOMER, "store.repository.name", "shop",
             "distribution.repository.name", "target", "deployment.repository.name", "deployment");
 
-        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "repositoryLocation", repoLocation, "repositoryCustomer", TEST_CUSTOMER, "repositoryName", "user");
-
         configure("org.apache.ace.deployment.provider.repositorybased", "url", repoLocation, "name", "deployment", "customer", TEST_CUSTOMER);
         configure("org.apache.ace.deployment.servlet", "org.apache.ace.server.servlet.endpoint", "/deployment", "authentication.enabled", "false");
         configure("org.apache.ace.deployment.servlet.agent", "org.apache.ace.server.servlet.endpoint", "/agent", "obr.url", obrLocation, "authentication.enabled", "false");
@@ -92,8 +90,6 @@ public class Ace330Test extends IntegrationTestBase {
 
         configure("org.apache.ace.repository.servlet.RepositoryReplicationServlet", "org.apache.ace.server.servlet.endpoint", "/replication", "authentication.enabled", "false");
         configure("org.apache.ace.repository.servlet.RepositoryServlet", "org.apache.ace.server.servlet.endpoint", "/repository", "authentication.enabled", "false");
-
-        configure("org.apache.ace.scheduler", "auditlog", "2000", "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "2000");
     }
 
     @Override
