@@ -66,11 +66,7 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\
-	org.apache.ace.useradmin.repository,\
-	org.apache.felix.dependencymanager.shell,\
-	org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell
+	org.apache.ace.useradmin.repository
 	
 Private-Package: org.apache.ace.it.authentication
 Bundle-Version: 1.0.0
@@ -78,3 +74,5 @@ Bundle-Name: Apache ACE Authentication itest
 Bundle-Category: itest
 Bundle-Description: Integration tests for Apache ACE Authentication
 -baseline:
+
+-dependson: org.apache.ace.useradmin

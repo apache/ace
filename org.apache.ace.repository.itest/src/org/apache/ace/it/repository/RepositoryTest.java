@@ -238,8 +238,60 @@ public class RepositoryTest extends IntegrationTestBase {
         byteArrayInputStream.reset();
 
         responseCode = put(m_host, "repository/commit", "apache", "test", "0", byteArrayInputStream);
+        assertResponseCode(HttpURLConnection.HTTP_NOT_ACCEPTABLE, responseCode);
+
+        removeRepository("testInstance");
+    }
+    
+    public void testCommitUnchangedContents() throws Exception {
+        addRepository("testInstance", "apache", "test", true);
+
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
+
+        int responseCode = put(m_host, "repository/commit", "apache", "test", "0", byteArrayInputStream);
+        assertResponseCode(HttpURLConnection.HTTP_OK, responseCode);
+        
+        byteArrayInputStream.reset();
+        responseCode = put(m_host, "repository/commit", "apache", "test", "1", byteArrayInputStream);
+        assertResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED, responseCode);
+
+        removeRepository("testInstance");
+    }
+    
+    public void testCommitExistingVersion() throws Exception {
+        addRepository("testInstance", "apache", "test", true);
+
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
+
+        int responseCode = put(m_host, "repository/commit", "apache", "test", "0", byteArrayInputStream);
+        assertResponseCode(HttpURLConnection.HTTP_OK, responseCode);
+        
+        byteArrayInputStream = new ByteArrayInputStream("testje".getBytes());
+        responseCode = put(m_host, "repository/commit", "apache", "test", "0", byteArrayInputStream);
         assertResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR, responseCode);
 
+        removeRepository("testInstance");
+    }
+    
+    public void testCommitIllegalVersion() throws Exception {
+        addRepository("testInstance", "apache", "test", true);
+
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
+
+        int responseCode = put(m_host, "repository/commit", "apache", "test", "-1", byteArrayInputStream);
+        assertResponseCode(HttpURLConnection.HTTP_BAD_REQUEST, responseCode);
+        
+        removeRepository("testInstance");
+    }
+    
+    public void testCommitToSlave() throws Exception {
+        addRepository("testInstance", "apache", "test", false);
+
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
+
+        int responseCode = put(m_host, "repository/commit", "apache", "test", "-1", byteArrayInputStream);
+        assertResponseCode(HttpURLConnection.HTTP_NOT_ACCEPTABLE, responseCode);
+        
         removeRepository("testInstance");
     }
 
