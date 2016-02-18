@@ -38,7 +38,7 @@ public class UserDTO implements Comparable<UserDTO> {
         m_username = (String) user.getProperties().get("username");
         m_previousUsername = m_username;
         m_password = (String) user.getCredentials().get("password");
-        m_groupname = group.getName();
+        m_groupname = group != null? group.getName(): null;
         m_previousGroupname = m_groupname;
     }
 

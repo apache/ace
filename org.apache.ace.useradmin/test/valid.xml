@@ -1,0 +1,23 @@
+<roles>
+  <group name="testgroup">
+    <properties>
+      <other>otherTestProperty</other>
+      <type>testGroupType</type>
+    </properties>
+  </group>
+  <group name="testgroup2">
+    <properties>
+      <type>otherGroupType</type>
+    </properties>
+    <memberof>testgroup</memberof>
+  </group>
+  <user name="testuser">
+    <properties>
+      <username>testuser</username>
+    </properties>
+    <credentials>
+      <password>test</password>
+    </credentials>
+    <memberof>testgroup2</memberof>
+  </user>
+</roles>

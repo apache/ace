@@ -4,7 +4,6 @@
 -runee: JavaSE-1.7
 -runbundles: org.apache.felix.dependencymanager,\
 	org.apache.felix.useradmin,\
-	org.apache.felix.useradmin.filestore,\
 	org.apache.felix.log,\
 	org.apache.felix.prefs,\
 	org.apache.felix.configadmin,\
@@ -20,7 +19,7 @@
 	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.ace.authentication.processor.basicauth;version=latest,\
 	org.apache.ace.authentication.processor.password;version=latest,\
-	org.apache.ace.configurator.useradmin.task;version=latest,\
+	org.apache.ace.useradmin.repository;version=latest,\
 	org.apache.ace.configurator.impl;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\

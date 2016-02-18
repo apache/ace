@@ -1,0 +1,19 @@
+# Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
+
+-buildpath: \
+	${^-buildpath},\
+	${testng},\
+	osgi.core;version=6.0.0,\
+	osgi.cmpn,\
+	xpp3,\
+	xstream,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.connectionfactory;version=latest,\
+	org.apache.ace.range.api;version=latest,\
+	org.apache.ace.repository.api;version=latest,\
+	org.apache.ace.repository.ext;version=latest,\
+	org.apache.ace.resourceprocessor.useradmin;version=latest,\
+	org.apache.ace.test;version=latest,\
+	org.apache.commons.io;version=2.0.1,\
+	org.apache.felix.useradmin
+-sub: *.bnd

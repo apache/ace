@@ -22,7 +22,8 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	org.apache.ace.feedback.common;version=latest
 -runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runvm: -ea
--runbundles: osgi.cmpn,\
+-runbundles: \
+	osgi.cmpn,\
 	org.apache.felix.log,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
@@ -31,7 +32,6 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.useradmin,\
-	org.apache.felix.useradmin.filestore,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.ace.authentication.processor.basicauth;version=latest,\
@@ -40,7 +40,6 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
 	org.apache.ace.client.repository.helper.configuration;version=latest,\
 	org.apache.ace.client.repository.impl;version=latest,\
-	org.apache.ace.configurator.useradmin.task;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
@@ -66,10 +65,14 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.log.api;version=latest,\
-	org.apache.ace.feedback.common;version=latest
+	org.apache.ace.feedback.common;version=latest,\
+	org.apache.ace.useradmin.repository
+	
 Private-Package: org.apache.ace.it.authentication
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Authentication itest
 Bundle-Category: itest
 Bundle-Description: Integration tests for Apache ACE Authentication
 -baseline:
+
+-dependson: org.apache.ace.useradmin

@@ -360,17 +360,17 @@ public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet imple
 
             try {
                 if (!doCommit(repo, version, data)) {
-                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not commit");
+                    response.sendError(HttpServletResponse.SC_NOT_MODIFIED, "Could not commit");
                 }
                 else {
                     response.sendError(HttpServletResponse.SC_OK);
                 }
             }
             catch (IllegalArgumentException e) {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid version");
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid version");
             }
             catch (IllegalStateException e) {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Cannot commit, not the master repository");
+                response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE, "Cannot commit, not the master repository");
             }
             finally {
                 m_context.ungetService(ref);

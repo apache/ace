@@ -60,6 +60,6 @@ Import-Package: !javax.security.auth,\
     !sun.reflect,\
     *
 Bundle-Activator: org.apache.ace.client.repository.impl.Activator
-Bundle-Version: 1.0.2
+Bundle-Version: 1.0.3
 Bundle-Name: Apache Ace Client Repository factory
 Bundle-Description: Registers the Apache ACE Client Repository SessionFactory

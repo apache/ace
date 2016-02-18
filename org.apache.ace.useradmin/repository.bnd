@@ -1,0 +1,71 @@
+# Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
+
+Bundle-Version: 1.0.0
+Private-Package: \
+	org.apache.ace.useradmin.repository,\
+	org.apache.ace.useradmin.repository.xstream,\
+	org.apache.ace.repository.ext,\
+	org.apache.ace.repository.ext.impl,\
+	javax.xml.namespace,\
+	org.xmlpull.mxp1,\
+	org.xmlpull.mxp1_serializer,\
+	org.xmlpull.v1,\
+	org.xmlpull.v1.builder,\
+	org.xmlpull.v1.builder.adapter,\
+	org.xmlpull.v1.builder.impl,\
+	org.xmlpull.v1.dom2_builder,\
+	org.xmlpull.v1.parser_pool,\
+	org.xmlpull.v1.sax2,\
+	org.xmlpull.v1.util,\
+	org.xmlpull.v1.wrapper,\
+	org.xmlpull.v1.wrapper.classic,\
+	org.apache.ace.client.repository.stateful.impl,\
+	org.apache.ace.repository.ext,\
+	org.apache.ace.repository.ext.impl,\
+	com.thoughtworks.xstream,\
+	com.thoughtworks.xstream.alias,\
+	com.thoughtworks.xstream.annotations,\
+	com.thoughtworks.xstream.converters,\
+	com.thoughtworks.xstream.converters.basic,\
+	com.thoughtworks.xstream.converters.collections,\
+	com.thoughtworks.xstream.converters.enums,\
+	com.thoughtworks.xstream.converters.extended,\
+	com.thoughtworks.xstream.converters.javabean,\
+	com.thoughtworks.xstream.converters.reflection,\
+	com.thoughtworks.xstream.core,\
+	com.thoughtworks.xstream.core.util,\
+	com.thoughtworks.xstream.io,\
+	com.thoughtworks.xstream.io.binary,\
+	com.thoughtworks.xstream.io.copy,\
+	com.thoughtworks.xstream.io.json,\
+	com.thoughtworks.xstream.io.path,\
+	com.thoughtworks.xstream.io.xml,\
+	com.thoughtworks.xstream.io.xml.xppdom,\
+	com.thoughtworks.xstream.mapper,\
+	com.thoughtworks.xstream.persistence
+	
+Import-Package: !javax.security.auth,\
+    !javax.swing.plaf,\
+    !javax.xml.parsers,\
+    !javax.xml.stream,\
+    !javax.xml.transform.sax,\
+    !net.sf.cglib.proxy,\
+    !nu.xom,\
+    !org.codehaus.jettison.mapped,\
+    !org.dom4j,\
+    !org.dom4j.io,\
+    !org.dom4j.tree,\
+    !org.jdom,\
+    !org.jdom.input,\
+    !org.joda.time,\
+    !org.joda.time.format,\
+    !org.w3c.dom,\
+    !org.xml.sax,\
+    !org.xml.sax.helpers,\
+    !sun.misc,\
+    !sun.reflect,\
+    *
+Bundle-Activator: org.apache.ace.useradmin.repository.Activator
+
+Bundle-Name: Apache ACE UserAdmin RoleRepositoryStore
+Bundle-Description: Felix UserAdmin RoleRepositoryStore implementation backed by an ACE Repository
