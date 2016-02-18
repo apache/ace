@@ -4,6 +4,7 @@
 	${^-buildpath},\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
+	org.apache.felix.http.api,\
 	com.vaadin;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\

@@ -7,6 +7,7 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	osgi.cmpn,\
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
+	org.apache.felix.http.api,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
@@ -15,7 +16,6 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
-	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.obr.storage;version=latest,\
 	org.apache.ace.log.api;version=latest,\
@@ -44,7 +44,6 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
-	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
 	org.apache.ace.log.listener;version=latest,\

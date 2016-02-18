@@ -28,7 +28,6 @@
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\
-	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.log.server.servlet;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\

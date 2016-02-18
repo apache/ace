@@ -5,10 +5,10 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	junit.osgi,\
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
+	org.apache.felix.http.api,\
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
@@ -35,7 +35,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.useradmin.filestore,\
 	org.apache.felix.log,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.scheduler.impl;version=latest,\

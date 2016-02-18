@@ -18,6 +18,8 @@
  */
 package org.apache.ace.it.deployment;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +37,6 @@ import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
 import org.apache.ace.deployment.util.test.BundleStreamGenerator;
 import org.apache.ace.discovery.DiscoveryConstants;
-import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.IdentificationConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.scheduler.constants.SchedulerConstants;
@@ -302,9 +303,12 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
 
     private void configureServer() throws IOException {
         // configure data bundle
-        configure("org.apache.ace.deployment.servlet", HttpConstants.ENDPOINT, "/deployment", "authentication.enabled", "false");
+        configure("org.apache.ace.deployment.servlet", 
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/deployment/*", 
+            "authentication.enabled", "false");
         // configure file based backend
-        configure("org.apache.ace.deployment.provider.filebased", "BaseDirectoryName", m_tempDir.getAbsolutePath());
+        configure("org.apache.ace.deployment.provider.filebased", 
+            "BaseDirectoryName", m_tempDir.getAbsolutePath());
     }
 
     private void configureTarget() throws IOException {

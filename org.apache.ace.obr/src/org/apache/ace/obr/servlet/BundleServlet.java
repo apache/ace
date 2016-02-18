@@ -18,13 +18,14 @@
  */
 package org.apache.ace.obr.servlet;
 
-import static javax.servlet.http.HttpServletResponse.SC_CREATED;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
+import static javax.servlet.http.HttpServletResponse.SC_CREATED;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
 
 import java.io.Closeable;
 import java.io.EOFException;
@@ -83,15 +84,18 @@ public class BundleServlet extends HttpServlet implements ManagedService {
             boolean useAuth = Boolean.parseBoolean(useAuthString);
             m_useAuth = useAuth;
             
-            m_servletEndpoint = (String) settings.get("org.apache.ace.server.servlet.endpoint");
+            m_servletEndpoint = (String) settings.get(HTTP_WHITEBOARD_SERVLET_PATTERN);
             if(m_servletEndpoint == null){
                 m_servletEndpoint = "/";
             }
             if(!m_servletEndpoint.startsWith("/")){
                 m_servletEndpoint = "/" + m_servletEndpoint;
             }
-            if(!m_servletEndpoint.endsWith("/")){
-                m_servletEndpoint = m_servletEndpoint + "/";
+            if(m_servletEndpoint.endsWith("/*")){
+                m_servletEndpoint = m_servletEndpoint.substring(0, m_servletEndpoint.length() -1);
+            }
+            if (!m_servletEndpoint.endsWith("/")) {
+                m_servletEndpoint =  m_servletEndpoint + "/";
             }
         }
         else {

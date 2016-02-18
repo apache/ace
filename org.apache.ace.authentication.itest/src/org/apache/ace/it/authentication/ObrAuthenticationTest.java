@@ -19,6 +19,8 @@
 
 package org.apache.ace.it.authentication;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,7 +34,6 @@ import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.connectionfactory.ConnectionFactory;
-import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.obr.storage.OBRFileStoreConstants;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.RepositoryConstants;
@@ -99,7 +100,8 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             RepositoryConstants.REPOSITORY_MASTER, "true");
         
         configure("org.apache.ace.repository.servlet.RepositoryServlet",
-            HttpConstants.ENDPOINT, "/repository", "authentication.enabled", "false");
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/repository/*", 
+            "authentication.enabled", "false");
 
         configure("org.apache.ace.useradmin.repository",
             "repositoryLocation", "http://localhost:" + TestConstants.PORT + "/repository",
@@ -111,7 +113,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
 
         configure("org.apache.ace.obr.servlet",
             "OBRInstance", "singleOBRServlet",
-            "org.apache.ace.server.servlet.endpoint", m_endpoint,
+            HTTP_WHITEBOARD_SERVLET_PATTERN, m_endpoint.concat("/*"),
             "authentication.enabled", "true");
 
         m_obrURL = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/");

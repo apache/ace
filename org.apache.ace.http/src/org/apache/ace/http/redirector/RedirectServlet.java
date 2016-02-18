@@ -18,6 +18,8 @@
  */
 package org.apache.ace.http.redirector;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
 import java.io.IOException;
 import java.util.Dictionary;
 
@@ -26,7 +28,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.ace.http.listener.constants.HttpConstants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 
@@ -35,6 +36,9 @@ import org.osgi.service.cm.ConfigurationException;
  * show you the redirect (and you can still click on the target URL).
  */
 public class RedirectServlet extends HttpServlet {
+    
+    private static final long serialVersionUID = 1L;
+
     public static final String REDIRECT_URL_KEY = "org.apache.ace.webui.vaadin.redirect";
 
     private final Object LOCK = new Object();
@@ -73,9 +77,9 @@ public class RedirectServlet extends HttpServlet {
     private void setup(Dictionary<String, ?> properties) throws ConfigurationException {
         synchronized (LOCK) {
             m_redirectURL = (String) properties.get(REDIRECT_URL_KEY);
-            m_sourceURL = (String) properties.get(HttpConstants.ENDPOINT);
+            m_sourceURL = (String) properties.get(HTTP_WHITEBOARD_SERVLET_PATTERN);
             if (m_sourceURL == null) {
-                throw new ConfigurationException(HttpConstants.ENDPOINT, "needs to be specified");
+                throw new ConfigurationException(HTTP_WHITEBOARD_SERVLET_PATTERN, "needs to be specified");
             }
             if (m_redirectURL == null) {
                 throw new ConfigurationException(REDIRECT_URL_KEY, "needs to be specified");
