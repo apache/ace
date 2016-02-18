@@ -163,7 +163,7 @@ public class RepositoryBasedRoleRepositoryStore implements RoleRepositoryStore, 
         if (role.getType() == Role.USER) {
             return new RepositoryUser((User)role, m_cachedRepository, m_version);
         } else if (role.getType() == Role.GROUP) {
-            return new RepositoryUser((Group)role, m_cachedRepository, m_version);
+            return new RepositoryGroup((Group)role, m_cachedRepository, m_version);
         }else {
             throw new IllegalStateException("");
         }
