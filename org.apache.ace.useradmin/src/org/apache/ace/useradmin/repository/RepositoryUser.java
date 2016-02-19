@@ -51,13 +51,11 @@ public class RepositoryUser implements User {
         return m_delegate.getType();
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public Dictionary getProperties() {
         return new RepoProperties(m_delegate.getProperties());
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public Dictionary getCredentials() {
         return new RepoProperties(m_delegate.getCredentials());

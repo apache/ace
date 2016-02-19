@@ -19,7 +19,6 @@ Private-Package: \
 	org.xmlpull.v1.util,\
 	org.xmlpull.v1.wrapper,\
 	org.xmlpull.v1.wrapper.classic,\
-	org.apache.ace.client.repository.stateful.impl,\
 	org.apache.ace.repository.ext,\
 	org.apache.ace.repository.ext.impl,\
 	com.thoughtworks.xstream,\

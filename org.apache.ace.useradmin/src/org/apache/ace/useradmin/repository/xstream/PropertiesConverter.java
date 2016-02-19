@@ -30,7 +30,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 public class PropertiesConverter implements Converter {
 
     @Override
-    public boolean canConvert(@SuppressWarnings("rawtypes") Class clazz) {
+    public boolean canConvert(Class clazz) {
         return Properties.class.isAssignableFrom(clazz);
     }
 

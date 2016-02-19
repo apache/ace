@@ -87,7 +87,6 @@ public class RepositoryBasedRoleRepositoryStore implements RoleRepositoryStore, 
         m_cachedRepository = new CachedRepositoryImpl(m_repository, backupRepo, CachedRepositoryImpl.UNCOMMITTED_VERSION);
     }
 
-    @SuppressWarnings("unchecked")
     private void refreshRoleMap() throws Exception {
         m_roleMap.clear();
         XStream instance = XStreamFactory.getInstance();
@@ -183,7 +182,6 @@ public class RepositoryBasedRoleRepositoryStore implements RoleRepositoryStore, 
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Role[] getRoles(String filterString) throws Exception {
         synchronized (m_roleMap) {

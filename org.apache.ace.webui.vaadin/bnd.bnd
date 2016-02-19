@@ -24,7 +24,7 @@ Private-Package: \
 	org.kxml2.io,\
 	org.osgi.impl.bundle.bindex,\
 	org.osgi.impl.bundle.obr.resource,\
-	org.osgi.service.bindex*,\
+	org.osgi.service.bindex*;-split-package:=merge-last,\
 	org.osgi.service.indexer*,\
 	org.osgi.service.obr,\
 	org.osgi.service.repository*,\
