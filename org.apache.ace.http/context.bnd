@@ -1,0 +1,3 @@
+Private-Package: org.apache.ace.http.context
+Bundle-Version: 1.0.0
+Bundle-Activator: org.apache.ace.http.context.Activator
