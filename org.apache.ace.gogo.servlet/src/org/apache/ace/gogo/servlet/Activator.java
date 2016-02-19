@@ -26,7 +26,6 @@ import java.util.Properties;
 
 import javax.servlet.Servlet;
 
-import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.service.command.CommandProcessor;
@@ -34,8 +33,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
-
-    private static final String SCRIPT_SERVLET_PID = "org.apache.ace.gogo.servlet";
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
@@ -46,10 +43,8 @@ public class Activator extends DependencyActivatorBase {
         manager.add(createComponent()
             .setInterface(Servlet.class.getName(), servletProps)
             .setImplementation(ScriptServlet.class)
-            .add(createConfigurationDependency().setPropagate(true).setPid(SCRIPT_SERVLET_PID))
             .add(createServiceDependency().setService(CommandProcessor.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false))
-            .add(createServiceDependency().setService(AuthenticationService.class).setRequired(true))
         );
     }
 

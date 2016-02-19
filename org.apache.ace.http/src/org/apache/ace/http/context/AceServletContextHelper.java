@@ -20,18 +20,49 @@ import org.osgi.service.useradmin.User;
 
 public class AceServletContextHelper extends ServletContextHelper implements ManagedService{
 
+    private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
     private static final String KEY_CONTEXT_PATH = "context.path";
     
     private static final String DEFAULT_CONTEXT_PATH = "/";
     
+    private volatile DependencyManager m_dependencyManager;
     private volatile Component m_component;
+    private volatile LogService m_log;
+    private volatile AuthenticationService m_authenticationService;
+    
+    private volatile boolean m_useAuth;
     
     public AceServletContextHelper(Bundle bundle) {
         super(bundle);
     }
     
+    @Override
+    public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return authenticate(request); 
+    }
+
+    /**
+     * Called by Dependency Manager upon initialization of this component.
+     * 
+     * @param comp the component to initialize, cannot be <code>null</code>.
+     */
+    protected void init() {
+        m_component.add(m_dependencyManager.createServiceDependency()
+            .setService(AuthenticationService.class)
+            .setRequired(m_useAuth)
+            );
+    }
+    
     public void updated(Dictionary<String, ?> settings) throws ConfigurationException {
         if (settings != null) {
+            String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
+            if ((useAuthString == null) ||
+                !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
+                throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
+            }
+            boolean useAuth = Boolean.parseBoolean(useAuthString);
+            m_useAuth = useAuth;
+            
             String contextPath = (String) settings.get(KEY_CONTEXT_PATH);
             if (contextPath == null) {
                 contextPath = DEFAULT_CONTEXT_PATH;
@@ -42,6 +73,7 @@ public class AceServletContextHelper extends ServletContextHelper implements Man
             updateContextPath(contextPath);
         }
         else {
+            m_useAuth = false;
             updateContextPath(DEFAULT_CONTEXT_PATH);
         }
     }
@@ -54,5 +86,29 @@ public class AceServletContextHelper extends ServletContextHelper implements Man
             m_component.setServiceProperties(serviceProperties);
         }
     }
+    
+
+    
+    /**
+     * Authenticates, if needed the user with the information from the given request.
+     * 
+     * @param request
+     *            The request to obtain the credentials from, cannot be <code>null</code>.
+     * @return <code>true</code> if the authentication was successful, <code>false</code> otherwise.
+     */
+    private boolean authenticate(HttpServletRequest request) {
+        if (m_useAuth) {
+            User user = m_authenticationService.authenticate(request);
+
+            if (user == null) {
+                m_log.log(LogService.LOG_INFO, "Authentication failure!");
+            }
+
+            return (user != null);
+        }
+
+        return true;
+    }
+
     
 }

@@ -18,13 +18,10 @@
  */
 package org.apache.ace.repository.servlet;
 
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -32,25 +29,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.ace.range.SortedRangeSet;
-import org.apache.felix.dm.Component;
-import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
-import org.osgi.service.useradmin.User;
 
 /**
  * Base class for the repository servlets. Both the repository and the repository replication servlets work in a similar
  * way, so the specifics were factored out of this base class and put in two subclasses.
  */
-public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet implements ManagedService {
-    /** A boolean denoting whether or not authentication is enabled. */
-    private static final String KEY_USE_AUTHENTICATION = "authentication.enabled";
+public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet {
+    
+    private static final long serialVersionUID = 1L;
+    
     private static final int COPY_BUFFER_SIZE = 1024;
     private static final String QUERY = "/query";
     protected static final String TEXT_MIMETYPE = "text/plain";
@@ -58,29 +50,11 @@ public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet imple
 
     private final Class<REPO_TYPE> m_repoType;
     // injected by Dependency Manager
-    private volatile DependencyManager m_dm;
-    private volatile AuthenticationService m_authService;
-    private volatile boolean m_useAuth = false;
     protected volatile BundleContext m_context;
     protected volatile LogService m_log;
 
     public RepositoryServletBase(Class<REPO_TYPE> repoType) {
         m_repoType = repoType;
-    }
-
-    public void updated(Dictionary<String, ?> settings) throws ConfigurationException {
-        if (settings != null) {
-            String useAuthString = (String) settings.get(KEY_USE_AUTHENTICATION);
-            if ((useAuthString == null) ||
-                !("true".equalsIgnoreCase(useAuthString) || "false".equalsIgnoreCase(useAuthString))) {
-                throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value!");
-            }
-            boolean useAuth = Boolean.parseBoolean(useAuthString);
-            m_useAuth = useAuth;
-        }
-        else {
-            m_useAuth = false;
-        }
     }
 
     /**
@@ -198,51 +172,6 @@ public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet imple
      *             If the range cannot be obtained
      */
     protected abstract SortedRangeSet getRange(REPO_TYPE repo) throws IOException;
-
-    /**
-     * Called by Dependency Manager upon initialization of this component.
-     * 
-     * @param comp
-     *            the component to initialize, cannot be <code>null</code>.
-     */
-    protected void init(Component comp) {
-        comp.add(m_dm.createServiceDependency()
-            .setService(AuthenticationService.class)
-            .setRequired(m_useAuth));
-    }
-
-    @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (!authenticate(req)) {
-            // Authentication failed; don't proceed with the original request...
-            resp.sendError(SC_UNAUTHORIZED);
-        }
-        else {
-            // Authentication successful, proceed with original request...
-            super.service(req, resp);
-        }
-    }
-
-    /**
-     * Authenticates, if needed the user with the information from the given request.
-     * 
-     * @param request
-     *            The request to obtain the credentials from, cannot be <code>null</code>.
-     * @return <code>true</code> if the authentication was successful, <code>false</code> otherwise.
-     */
-    private boolean authenticate(HttpServletRequest request) {
-        if (m_useAuth) {
-            User user = m_authService.authenticate(request);
-
-            if (user == null) {
-                m_log.log(LogService.LOG_INFO, "Authentication failure!");
-            }
-
-            return (user != null);
-        }
-
-        return true;
-    }
 
     /**
      * Copies data from an input stream to an output stream.

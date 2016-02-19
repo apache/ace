@@ -23,7 +23,7 @@ public class Activator extends DependencyActivatorBase {
             .setInterface(ServletContextHelper.class.getName(), props)
             .setImplementation(new AceServletContextHelper(context.getBundle()))
             .add(createConfigurationDependency().setPid(PID))
-            .add(createServiceDependency().setService(LogService.class).setRequired(true))
+            .add(createServiceDependency().setService(LogService.class).setRequired(false))
             );
     }
 
