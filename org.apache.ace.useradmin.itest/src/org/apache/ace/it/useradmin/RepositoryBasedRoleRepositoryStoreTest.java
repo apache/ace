@@ -18,13 +18,14 @@
  */
 package org.apache.ace.it.useradmin;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.Repository;
@@ -182,7 +183,8 @@ public class RepositoryBasedRoleRepositoryStoreTest extends IntegrationTestBase 
         m_host = new URL("http://localhost:" + TestConstants.PORT);
 
         configure("org.apache.ace.repository.servlet.RepositoryServlet",
-            HttpConstants.ENDPOINT, "/repository", "authentication.enabled", "false");
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/repository/*", 
+            "authentication.enabled", "false");
         
         configureFactory("org.apache.ace.server.repository.factory", 
             "customer", "apache",

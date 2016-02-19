@@ -34,7 +34,6 @@
 	org.apache.ace.verifier.impl;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
-	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.log.server.task;version=latest,\
 	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.range.api;version=latest,\
@@ -51,7 +50,8 @@
 	org.apache.ace.useradmin.ui;version=latest,\
 	org.apache.ace.webui.vaadin;version=latest,\
 	org.apache.ace.gogo;version=latest,\
-	org.apache.ace.feedback.common;version=latest
+	org.apache.ace.feedback.common;version=latest,\
+	org.apache.ace.http.context;version=latest
 -runrepos: Workspace,\
 	Release
 -runproperties: org.apache.felix.log.storeDebug=true,\

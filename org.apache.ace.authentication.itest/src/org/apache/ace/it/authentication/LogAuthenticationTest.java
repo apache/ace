@@ -18,6 +18,8 @@
  */
 package org.apache.ace.it.authentication;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -32,7 +34,6 @@ import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.DiscoveryConstants;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
-import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.IdentificationConstants;
 import org.apache.ace.log.Log;
 import org.apache.ace.log.server.store.LogStore;
@@ -123,7 +124,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
             RepositoryConstants.REPOSITORY_MASTER, "true");
 
         configure("org.apache.ace.repository.servlet.RepositoryServlet",
-            HttpConstants.ENDPOINT, "/repository", "authentication.enabled", "false");
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/repository/*", "authentication.enabled", "false");
 
         configure("org.apache.ace.useradmin.repository",
             "repositoryLocation", "http://localhost:" + TestConstants.PORT + "/repository",
@@ -145,7 +146,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
             "name", "auditlog");
         configureFactory("org.apache.ace.log.server.servlet.factory",
             "name", "auditlog",
-            HttpConstants.ENDPOINT, AUDITLOG_ENDPOINT,
+            HTTP_WHITEBOARD_SERVLET_PATTERN, AUDITLOG_ENDPOINT.concat("/*"),
             "authentication.enabled", "true");
         configureFactory("org.apache.ace.log.server.store.factory",
             "name", "auditlog");

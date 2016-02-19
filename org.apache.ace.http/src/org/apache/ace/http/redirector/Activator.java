@@ -38,16 +38,14 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
+        Properties properties = new Properties();
+        properties.put(Constants.SERVICE_PID, PID);
         manager.add(createComponent()
-            .setInterface(ManagedServiceFactory.class.getName(), new Properties() {{ put(Constants.SERVICE_PID, PID); }})
+            .setInterface(ManagedServiceFactory.class.getName(), properties)
             .setImplementation(this)
         );
     }
 
-    @Override
-    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
-    }
-    
     @Override
     public String getName() {
         return "Http Redirector";

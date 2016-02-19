@@ -2,7 +2,8 @@
 
 -runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runee: JavaSE-1.7
--runbundles: org.apache.felix.dependencymanager,\
+-runbundles: \
+	org.apache.felix.dependencymanager,\
 	org.apache.felix.useradmin,\
 	org.apache.felix.log,\
 	org.apache.felix.prefs,\
@@ -35,7 +36,7 @@
 	org.apache.ace.deployment.servlet;version=latest,\
 	org.apache.ace.deployment.streamgenerator;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
-	org.apache.ace.http.listener;version=latest,\
+	org.apache.ace.http.context;version=latest,\
 	org.apache.ace.http.redirector;version=latest,\
 	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.log.server.servlet;version=latest,\
