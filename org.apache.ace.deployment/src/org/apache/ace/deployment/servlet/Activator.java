@@ -38,7 +38,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
-    public static final String DEPLOYMENT_PID = "org.apache.ace.deployment.servlet";
     public static final String AGENT_PID = "org.apache.ace.deployment.servlet.agent";
 
     @Override
@@ -50,7 +49,6 @@ public class Activator extends DependencyActivatorBase {
         manager.add(createComponent()
             .setInterface(Servlet.class.getName(), deploymentServletProps)
             .setImplementation(DeploymentServlet.class)
-            .add(createConfigurationDependency().setPid(DEPLOYMENT_PID))
             .add(createServiceDependency().setService(StreamGenerator.class).setRequired(true))
             .add(createServiceDependency().setService(DeploymentProvider.class).setRequired(true))
             .add(createServiceDependency().setService(DeploymentProcessor.class).setRequired(false).setCallbacks("addProcessor", "removeProcessor"))
@@ -77,8 +75,4 @@ public class Activator extends DependencyActivatorBase {
         );
     }
 
-    @Override
-    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
-        // do nothing
-    }
 }

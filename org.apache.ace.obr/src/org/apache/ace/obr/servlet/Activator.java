@@ -33,7 +33,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
-    public static final String PID = "org.apache.ace.obr.servlet";
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
@@ -44,8 +43,6 @@ public class Activator extends DependencyActivatorBase {
         manager.add(createComponent()
             .setInterface(Servlet.class.getName(), servletProps)
             .setImplementation(BundleServlet.class)
-            .add(createConfigurationDependency()
-                .setPid(PID))
             .add(createServiceDependency()
                 .setService(BundleStore.class)
                 .setRequired(true))
@@ -54,8 +51,4 @@ public class Activator extends DependencyActivatorBase {
                 .setRequired(false)));
     }
 
-    @Override
-    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
-        // do nothing
-    }
 }

@@ -32,9 +32,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
-    public static final String REPOSITORY_PID = "org.apache.ace.repository.servlet.RepositoryServlet";
-    public static final String REPOSITORY_REPLICATION_PID = "org.apache.ace.repository.servlet.RepositoryReplicationServlet";
-
+    
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         Properties repositoryServletProps = new Properties();
@@ -43,8 +41,6 @@ public class Activator extends DependencyActivatorBase {
         manager.add(createComponent()
             .setInterface(Servlet.class.getName(), repositoryServletProps)
             .setImplementation(RepositoryServlet.class)
-            .add(createConfigurationDependency()
-                .setPid(REPOSITORY_PID))
             .add(createServiceDependency()
                 .setService(LogService.class)
                 .setRequired(false)));
@@ -55,8 +51,6 @@ public class Activator extends DependencyActivatorBase {
         manager.add(createComponent()
             .setInterface(Servlet.class.getName(), replicationServletProps)
             .setImplementation(RepositoryReplicationServlet.class)
-            .add(createConfigurationDependency()
-                .setPid(REPOSITORY_REPLICATION_PID))
             .add(createServiceDependency()
                 .setService(LogService.class)
                 .setRequired(false)));
