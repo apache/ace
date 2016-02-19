@@ -18,6 +18,8 @@
  */
 package org.apache.ace.it.log;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -26,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ace.discovery.DiscoveryConstants;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
-import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.identification.IdentificationConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.log.Log;
@@ -72,16 +73,20 @@ public class LogIntegrationTest extends IntegrationTestBase {
         configureFactory("org.apache.ace.target.log.factory",
                 "name", "auditlog");
         configureFactory("org.apache.ace.target.log.sync.factory",
-            "name", "auditlog", "authentication.enabled", "false");
+                "name", "auditlog", 
+                "authentication.enabled", "false");
 
         configure("org.apache.ace.deployment.servlet",
-                HttpConstants.ENDPOINT, DEPLOYMENT, "authentication.enabled", "false");
+                HTTP_WHITEBOARD_SERVLET_PATTERN, DEPLOYMENT.concat("/*"), 
+                "authentication.enabled", "false");
 
-        configure("org.apache.ace.log.server.store.filebased", "MaxEvents", "0");
+        configure("org.apache.ace.log.server.store.filebased", 
+                "MaxEvents", "0");
         
         configureFactory("org.apache.ace.log.server.servlet.factory",
                 "name", "auditlog",
-                HttpConstants.ENDPOINT, AUDITLOG, "authentication.enabled", "false");
+                HTTP_WHITEBOARD_SERVLET_PATTERN, AUDITLOG.concat("/*"), 
+                "authentication.enabled", "false");
         configureFactory("org.apache.ace.log.server.store.factory",
                 "name", "auditlog");
     }

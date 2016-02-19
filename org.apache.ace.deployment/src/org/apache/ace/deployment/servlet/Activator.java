@@ -18,6 +18,8 @@
  */
 package org.apache.ace.deployment.servlet;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN;
+
 import java.util.Properties;
 
 import javax.servlet.Filter;
@@ -30,6 +32,7 @@ import org.apache.ace.deployment.streamgenerator.StreamGenerator;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
@@ -56,7 +59,7 @@ public class Activator extends DependencyActivatorBase {
         );
         
         Properties props = new Properties();
-        props.put("pattern", "/*");
+        props.put(HTTP_WHITEBOARD_FILTER_PATTERN, "/*");
         manager.add(createComponent()
             .setInterface(Filter.class.getName(), null)
             .setImplementation(OverloadedFilter.class)

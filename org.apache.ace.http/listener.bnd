@@ -1,8 +1,0 @@
-# Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
-
-Private-Package: org.apache.ace.http.listener
-Bundle-Activator: org.apache.ace.http.listener.Activator
-Export-Package: org.apache.ace.http.listener.constants
-Bundle-Version: 1.0.1
-Bundle-Name: Apache ACE HTTP Listener
-Bundle-Description: Registers a component that provides a servlet service whiteboard

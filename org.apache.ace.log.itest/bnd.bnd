@@ -7,8 +7,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
+	org.apache.felix.http.api,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
@@ -35,7 +35,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.log.target.store.impl;version=latest,\
 	org.apache.ace.log.target;version=latest,\
-	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
 	org.apache.ace.log.listener;version=latest,\

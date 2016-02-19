@@ -248,11 +248,6 @@ public class AgentUpdateTest extends IntegrationTestBase {
     @Override
     protected void configureProvisionedServices() throws Exception {
         String serverURL = String.format("http://localhost:%d/", TestConstants.PORT);
-        String obrURL = serverURL.concat("obr/");
-        configure("org.apache.ace.deployment.servlet.agent",
-            "org.apache.ace.server.servlet.endpoint", "/agent",
-            "obr.url", obrURL,
-            "authentication.enabled", "false");
 
         Map<String, String> props = new HashMap<>();
         props.put(AgentConstants.CONFIG_DISCOVERY_SERVERURLS, serverURL);
