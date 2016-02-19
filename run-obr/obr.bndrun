@@ -24,6 +24,7 @@
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
+	org.apache.ace.http.context;version=latest,\
 	osgi.cmpn
 	
 -runrepos: Workspace,\
