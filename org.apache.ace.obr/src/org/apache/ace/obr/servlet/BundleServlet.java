@@ -25,7 +25,6 @@ import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
-import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
 
 import java.io.Closeable;
 import java.io.EOFException;
@@ -60,13 +59,13 @@ public class BundleServlet extends HttpServlet implements ManagedService {
     private static final int COPY_BUFFER_SIZE = 4096;
 
     public static final String TEXT_MIMETYPE = "text/plain";
+    public static final String SERVLET_ENDPOINT = "/obr/";
 
     private volatile DependencyManager m_dm; // injected by Dependency Manager
     private volatile LogService m_log; /* will be injected by dependencymanager */
     private volatile BundleStore m_store; /* will be injected by dependencymanager */
     private volatile AuthenticationService m_authService;
 
-    private volatile String m_servletEndpoint = "/";
     private volatile boolean m_useAuth = false;
 
     @Override
@@ -83,20 +82,6 @@ public class BundleServlet extends HttpServlet implements ManagedService {
             }
             boolean useAuth = Boolean.parseBoolean(useAuthString);
             m_useAuth = useAuth;
-            
-            m_servletEndpoint = (String) settings.get(HTTP_WHITEBOARD_SERVLET_PATTERN);
-            if(m_servletEndpoint == null){
-                m_servletEndpoint = "/";
-            }
-            if(!m_servletEndpoint.startsWith("/")){
-                m_servletEndpoint = "/" + m_servletEndpoint;
-            }
-            if(m_servletEndpoint.endsWith("/*")){
-                m_servletEndpoint = m_servletEndpoint.substring(0, m_servletEndpoint.length() -1);
-            }
-            if (!m_servletEndpoint.endsWith("/")) {
-                m_servletEndpoint =  m_servletEndpoint + "/";
-            }
         }
         else {
             m_useAuth = false;
@@ -334,7 +319,7 @@ public class BundleServlet extends HttpServlet implements ManagedService {
         if(!ignorePort){
             locationBuilder.append(":" + request.getServerPort());
         }
-        locationBuilder.append(m_servletEndpoint).append(relativePath);
+        locationBuilder.append(SERVLET_ENDPOINT).append(relativePath);
         response.setHeader("Location", locationBuilder.toString());
         response.setStatus(SC_CREATED);
     }

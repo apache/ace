@@ -18,6 +18,9 @@
  */
 package org.apache.ace.log.server.servlet;
 
+import static org.apache.ace.http.HttpConstants.ACE_WHITEBOARD_CONTEXT_SELECT_FILTER;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT;
+
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,6 +87,8 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             throw new ConfigurationException(KEY_USE_AUTHENTICATION, "Missing or invalid value: " + useAuthString);
         }
         boolean useAuth = Boolean.parseBoolean(useAuthString);
+        //TODO: Is this the best way ? 
+        ((Dictionary)dict).put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WHITEBOARD_CONTEXT_SELECT_FILTER);
 
         Component service = m_instances.get(pid);
         if (service == null) {

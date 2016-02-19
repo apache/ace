@@ -18,7 +18,10 @@
  */
 package org.apache.ace.deployment.servlet;
 
+import static org.apache.ace.http.HttpConstants.ACE_WHITEBOARD_CONTEXT_SELECT_FILTER;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT;
 import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
 
 import java.util.Properties;
 
@@ -40,25 +43,34 @@ public class Activator extends DependencyActivatorBase {
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
+        Properties deploymentServletProps = new Properties();
+        deploymentServletProps.put(HTTP_WHITEBOARD_SERVLET_PATTERN, "/deployment/*");
+        deploymentServletProps.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WHITEBOARD_CONTEXT_SELECT_FILTER);
+        
         manager.add(createComponent()
-            .setInterface(Servlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), deploymentServletProps)
             .setImplementation(DeploymentServlet.class)
-            .add(createConfigurationDependency().setPropagate(true).setPid(DEPLOYMENT_PID))
+            .add(createConfigurationDependency().setPid(DEPLOYMENT_PID))
             .add(createServiceDependency().setService(StreamGenerator.class).setRequired(true))
             .add(createServiceDependency().setService(DeploymentProvider.class).setRequired(true))
             .add(createServiceDependency().setService(DeploymentProcessor.class).setRequired(false).setCallbacks("addProcessor", "removeProcessor"))
             .add(createServiceDependency().setService(LogService.class).setRequired(false))
         );
+         
+        Properties agentServletProps = new Properties();
+        agentServletProps.put(HTTP_WHITEBOARD_SERVLET_PATTERN, "/agent/*");
+        agentServletProps.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WHITEBOARD_CONTEXT_SELECT_FILTER);
+        
         manager.add(createComponent()
-            .setInterface(Servlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), agentServletProps)
             .setImplementation(AgentDeploymentServlet.class)
-            .add(createConfigurationDependency().setPropagate(true).setPid(AGENT_PID))
+            .add(createConfigurationDependency().setPid(AGENT_PID))
             .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false))
         );
         
-        Properties props = new Properties();
-        props.put(HTTP_WHITEBOARD_FILTER_PATTERN, "/*");
+        Properties filterProps = new Properties();
+        filterProps.put(HTTP_WHITEBOARD_FILTER_PATTERN, "/*");
         manager.add(createComponent()
             .setInterface(Filter.class.getName(), null)
             .setImplementation(OverloadedFilter.class)
