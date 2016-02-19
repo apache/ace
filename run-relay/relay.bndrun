@@ -4,7 +4,6 @@
 -runee: JavaSE-1.7
 -runbundles: org.apache.felix.dependencymanager,\
 	org.apache.felix.useradmin,\
-	org.apache.felix.useradmin.filestore,\
 	org.apache.felix.log,\
 	org.apache.felix.prefs,\
 	org.apache.felix.configadmin,\
@@ -40,7 +39,8 @@
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlets;version=latest,\
 	org.apache.ace.repository.task;version=latest,\
-	org.apache.ace.scheduler.impl;version=latest
+	org.apache.ace.scheduler.impl;version=latest,\
+	org.apache.ace.useradmin.repository;version=latest
 -runrepos: Workspace,\
 	Release
 -runproperties: org.apache.felix.log.storeDebug=true,\

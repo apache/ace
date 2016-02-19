@@ -32,6 +32,7 @@ import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.connectionfactory.ConnectionFactory;
+import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.obr.storage.OBRFileStoreConstants;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.RepositoryConstants;
@@ -96,15 +97,17 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             RepositoryConstants.REPOSITORY_NAME, "users",
             RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
             RepositoryConstants.REPOSITORY_MASTER, "true");
+        
+        configure("org.apache.ace.repository.servlet.RepositoryServlet",
+            HttpConstants.ENDPOINT, "/repository", "authentication.enabled", "false");
 
+        configure("org.apache.ace.useradmin.repository",
+            "repositoryLocation", "http://localhost:" + TestConstants.PORT + "/repository",
+            "repositoryCustomer", "apache",
+            "repositoryName", "users");
+        
         configure("org.apache.ace.log.server.store.filebased", "MaxEvents", "0");
-
-        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
-            "repositoryName", "users",
-            "repositoryCustomer", "apache");
-
-        configure("org.apache.ace.scheduler",
-            "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
+        
 
         configure("org.apache.ace.obr.servlet",
             "OBRInstance", "singleOBRServlet",
@@ -127,9 +130,9 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             String password = "f";
             importSingleUser(m_userRepository, userName, password);
             waitForUser(m_userAdmin, userName);
-
-            URL testURL = new URL(m_obrURL, "index.xml");
-
+            
+            URL testURL = new URL(m_obrURL, "index.xml");            
+            
             assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
 
             m_authConfigPID = configureFactory("org.apache.ace.connectionfactory",
@@ -138,7 +141,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
                 "authentication.user.name", userName,
                 "authentication.user.password", password);
 
-            assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
+            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
         }
         catch (Exception e) {
             printLog(m_logReader);

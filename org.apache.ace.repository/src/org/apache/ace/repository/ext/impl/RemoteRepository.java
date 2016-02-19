@@ -117,7 +117,19 @@ public class RemoteRepository implements Repository {
         }
         try {
             // causes the stream the be flushed and the server response to be obtained...
-            return connection.getResponseCode() == HttpServletResponse.SC_OK;
+            switch (connection.getResponseCode()) {
+                case HttpServletResponse.SC_OK:
+                    return true;
+                case HttpServletResponse.SC_NOT_MODIFIED:
+                    return false;
+                case HttpServletResponse.SC_BAD_REQUEST: 
+                    throw new IllegalArgumentException(connection.getResponseMessage());
+                case HttpServletResponse.SC_NOT_ACCEPTABLE:
+                    throw new IllegalStateException(connection.getResponseMessage());
+                case HttpServletResponse.SC_INTERNAL_SERVER_ERROR:
+                default:
+                    throw new IOException(connection.getResponseMessage());
+            }
         }
         finally {
             closeQuietly(connection);

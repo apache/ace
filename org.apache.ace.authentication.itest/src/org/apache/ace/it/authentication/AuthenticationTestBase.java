@@ -66,8 +66,7 @@ public class AuthenticationTestBase extends IntegrationTestBase {
         ByteArrayInputStream bis = new ByteArrayInputStream((
             "<roles>" +
                 "<user name=\"" + userName + "\">" +
-                "<properties><username>" + userName + "</username></properties>" +
-                "<credentials><password type=\"String\">" + password + "</password></credentials>" +
+                "<credentials><password>" + password + "</password></credentials>" +
                 "</user>" +
             "</roles>").getBytes());
 
@@ -131,7 +130,7 @@ public class AuthenticationTestBase extends IntegrationTestBase {
      */
     protected final void waitForUser(UserAdmin userAdmin, String userName) throws Exception {
         int count = 0;
-        while ((userAdmin.getRole(userName) == null) && (count++ < 60)) {
+        while ((userAdmin.getRole(userName) == null) && (++count < 60)) {
             Thread.sleep(100);
         }
         Assert.assertTrue("Failed to obtain user from userAdmin!", count != 60);

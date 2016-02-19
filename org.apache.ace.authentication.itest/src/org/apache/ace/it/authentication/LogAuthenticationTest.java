@@ -122,12 +122,13 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
             RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
             RepositoryConstants.REPOSITORY_MASTER, "true");
 
-        configure("org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask",
-            "repositoryName", "users",
-            "repositoryCustomer", "apache");
+        configure("org.apache.ace.repository.servlet.RepositoryServlet",
+            HttpConstants.ENDPOINT, "/repository", "authentication.enabled", "false");
 
-        configure("org.apache.ace.scheduler",
-            "org.apache.ace.configurator.useradmin.task.UpdateUserAdminTask", "100");
+        configure("org.apache.ace.useradmin.repository",
+            "repositoryLocation", "http://localhost:" + TestConstants.PORT + "/repository",
+            "repositoryCustomer", "apache",
+            "repositoryName", "users");
 
         configure("org.apache.ace.log.server.store.filebased", "MaxEvents", "0");
 
