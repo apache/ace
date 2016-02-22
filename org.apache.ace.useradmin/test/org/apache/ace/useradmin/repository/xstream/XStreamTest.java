@@ -40,60 +40,56 @@ public class XStreamTest {
     @Test
     public void testRead() throws Exception {
         XStream xStream = XStreamFactory.getInstance();
-        
-        Reader reader = new FileReader(new File("test/valid.xml"));
-        ObjectInputStream objectInputStream = xStream.createObjectInputStream(reader);
-        GroupDTO testgroup = (GroupDTO) objectInputStream.readObject();
-        assertEquals(testgroup.name, "testgroup");
-        assertEquals(testgroup.properties.get("type"), "testGroupType");
-        assertEquals(testgroup.properties.get("other"), "otherTestProperty");
-        
-        GroupDTO testgroup2 = (GroupDTO) objectInputStream.readObject();
-        assertEquals(testgroup2.name, "testgroup2");
-        assertEquals(testgroup2.properties.get("type"), "otherGroupType");
-        assertEquals(testgroup2.memberOf, Arrays.asList("testgroup"));        
-        
-        UserDTO testuser = (UserDTO) objectInputStream.readObject();
-        assertEquals(testuser.name, "testuser");
-        assertEquals(testuser.properties.get("username"), "testuser");
-        assertEquals(testuser.credentials.get("password"), "test");
-        assertEquals(testuser.memberOf, Arrays.asList("testgroup2"));
-        
+
+        try (Reader reader = new FileReader(new File("test/valid.xml"));
+            ObjectInputStream objectInputStream = xStream.createObjectInputStream(reader)) {
+
+            GroupDTO testgroup = (GroupDTO) objectInputStream.readObject();
+            assertEquals(testgroup.name, "testgroup");
+            assertEquals(testgroup.properties.get("type"), "testGroupType");
+            assertEquals(testgroup.properties.get("other"), "otherTestProperty");
+
+            GroupDTO testgroup2 = (GroupDTO) objectInputStream.readObject();
+            assertEquals(testgroup2.name, "testgroup2");
+            assertEquals(testgroup2.properties.get("type"), "otherGroupType");
+            assertEquals(testgroup2.memberOf, Arrays.asList("testgroup"));
+
+            UserDTO testuser = (UserDTO) objectInputStream.readObject();
+            assertEquals(testuser.name, "testuser");
+            assertEquals(testuser.properties.get("username"), "testuser");
+            assertEquals(testuser.credentials.get("password"), "test");
+            assertEquals(testuser.memberOf, Arrays.asList("testgroup2"));
+        }
     }
-    
+
     @Test
     public void testWrite() throws Exception {
         XStream xStream = XStreamFactory.getInstance();
-        
         StringWriter sw = new StringWriter();
-        ObjectOutputStream objectOutputStream = xStream.createObjectOutputStream(sw, "roles");
-        
-        objectOutputStream.writeObject(
-            new GroupDTO("testgroup", properties("type", "testGroupType", "other", "otherTestProperty"), null, null));
-        objectOutputStream.writeObject(
-            new GroupDTO("testgroup2", properties("type", "otherGroupType"),  null, Arrays.asList("testgroup")));
-        objectOutputStream.writeObject(
-            new UserDTO("testuser", properties("username", "testuser"),  properties("password", "test"), Arrays.asList("testgroup2")));
 
-        objectOutputStream.flush();
-        objectOutputStream.close();
-        
+        try (ObjectOutputStream objectOutputStream = xStream.createObjectOutputStream(sw, "roles")) {
+
+            objectOutputStream.writeObject(
+                new GroupDTO("testgroup", properties("type", "testGroupType", "other", "otherTestProperty"), null, null));
+            objectOutputStream.writeObject(
+                new GroupDTO("testgroup2", properties("type", "otherGroupType"), null, Arrays.asList("testgroup")));
+            objectOutputStream.writeObject(
+                new UserDTO("testuser", properties("username", "testuser"), properties("password", "test"), Arrays.asList("testgroup2")));
+        }
+
         String outputString = sw.toString();
-        
-        byte[] encoded = Files.readAllBytes(Paths.get("test/valid.xml"));
-        String validXmlFileString = new String(encoded);
-        
+
+        String validXmlFileString = new String(Files.readAllBytes(Paths.get("test/valid.xml")));
+
         assertEquals(outputString, validXmlFileString);
     }
-    
-   
-    
+
     private static Properties properties(String... pairs) {
         Properties properties = new Properties();
-        for (int i = 0; i < pairs.length - 1; i += 2){
-            properties.put(pairs[i], pairs[i +1]);
+        for (int i = 0; i < pairs.length - 1; i += 2) {
+            properties.put(pairs[i], pairs[i + 1]);
         }
         return properties;
     }
-    
+
 }

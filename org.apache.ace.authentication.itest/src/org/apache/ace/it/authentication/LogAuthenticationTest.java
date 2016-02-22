@@ -122,11 +122,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
             RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
             RepositoryConstants.REPOSITORY_MASTER, "true");
 
-        configure("org.apache.ace.repository.servlet.RepositoryServlet",
-            HttpConstants.ENDPOINT, "/repository", "authentication.enabled", "false");
-
         configure("org.apache.ace.useradmin.repository",
-            "repositoryLocation", "http://localhost:" + TestConstants.PORT + "/repository",
             "repositoryCustomer", "apache",
             "repositoryName", "users");
 

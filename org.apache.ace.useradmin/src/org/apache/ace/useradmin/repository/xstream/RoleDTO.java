@@ -42,10 +42,9 @@ public abstract class RoleDTO {
         this.memberOf = memberOf;
     }
     
-    @SuppressWarnings("rawtypes")
-    static Properties toProperties(Dictionary dict) {
+    static Properties toProperties(Dictionary<Object, Object> dict) {
         Properties properties = new Properties();
-        Enumeration keys = dict.keys();
+        Enumeration<Object> keys = dict.keys();
         while (keys.hasMoreElements()) {
             Object key = (Object) keys.nextElement();
             properties.put(key, dict.get(key));

@@ -18,67 +18,32 @@
  */
 package org.apache.ace.useradmin.repository;
 
-import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.ace.repository.ext.CachedRepository;
 import org.osgi.service.useradmin.User;
 
 /**
  * Wrapper for {@link User} that prevents changes to the user when the store is out of sync with the main repository
  */
 public class RepositoryUser implements User {
-
-    private User m_delegate;
-    private CachedRepository m_cachedRepository;
-    private AtomicLong m_version;
-
-    public RepositoryUser(User user, CachedRepository cachedRepository, AtomicLong version) {
-        m_delegate = user;
-        m_cachedRepository = cachedRepository;
-        m_version = version;
-    }
-
-    @Override
-    public String getName() {
-        return m_delegate.getName();
-    }
-
-    @Override
-    public int getType() {
-        return m_delegate.getType();
-    }
-
-    @Override
-    public Dictionary getProperties() {
-        return new RepoProperties(m_delegate.getProperties());
-    }
-
-    @Override
-    public Dictionary getCredentials() {
-        return new RepoProperties(m_delegate.getCredentials());
-    }
-
-    @Override
-    public boolean hasCredential(String key, Object value) {
-        return m_delegate.hasCredential(key, value);
-    }
-
     @SuppressWarnings("rawtypes")
     private class RepoProperties extends Dictionary {
+        private Dictionary<Object, Object> m_delegate;
 
-        private Dictionary m_delegate;
-
-        public RepoProperties(Dictionary dictionary) {
-            this.m_delegate = dictionary;
-
+        public RepoProperties(Dictionary<Object, Object> dictionary) {
+            m_delegate = dictionary;
         }
 
         @Override
-        public int size() {
-            return m_delegate.size();
+        public Enumeration elements() {
+            return m_delegate.elements();
+        }
+
+        @Override
+        public Object get(Object key) {
+            return m_delegate.get(key);
         }
 
         @Override
@@ -92,17 +57,6 @@ public class RepositoryUser implements User {
         }
 
         @Override
-        public Enumeration elements() {
-            return m_delegate.elements();
-        }
-
-        @Override
-        public Object get(Object key) {
-            return m_delegate.get(key);
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
         public Object put(Object key, Object value) {
             checkRepoUpToDate();
             return m_delegate.put(key, value);
@@ -114,19 +68,76 @@ public class RepositoryUser implements User {
             return m_delegate.remove(key);
         }
 
-    }
-
-    protected void checkRepoUpToDate() {
-        try {
-            if (!m_cachedRepository.isCurrent()) {
-                throw new IllegalStateException("Repository out of date, refresh first");
-            }
-            if (m_version.get() != m_cachedRepository.getMostRecentVersion()) {
-                throw new IllegalStateException("User out of date, refresh first");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        @Override
+        public int size() {
+            return m_delegate.size();
         }
     }
+    private final RepoCurrentChecker m_repoCurrentChecker;
+    protected final User m_delegate;
 
+    protected final AtomicLong m_version;
+
+    public RepositoryUser(User user, AtomicLong version, RepoCurrentChecker repoCurrentChecker) {
+        m_delegate = user;
+        m_version = version;
+        m_repoCurrentChecker = repoCurrentChecker;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        RepositoryUser other = (RepositoryUser) obj;
+        if (!m_delegate.equals(other.m_delegate)) {
+            return false;
+        }
+        if (!m_version.equals(other.m_version)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public Dictionary getCredentials() {
+        return new RepoProperties(m_delegate.getCredentials());
+    }
+
+    @Override
+    public String getName() {
+        return m_delegate.getName();
+    }
+
+    @Override
+    public Dictionary getProperties() {
+        return new RepoProperties(m_delegate.getProperties());
+    }
+
+    @Override
+    public int getType() {
+        return m_delegate.getType();
+    }
+
+    @Override
+    public boolean hasCredential(String key, Object value) {
+        return m_delegate.hasCredential(key, value);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((m_delegate == null) ? 0 : m_delegate.hashCode());
+        result = prime * result + ((m_version == null) ? 0 : m_version.hashCode());
+        return result;
+    }
+
+    protected final void checkRepoUpToDate() {
+        m_repoCurrentChecker.checkRepoUpToDate(this, m_version);
+    }
 }

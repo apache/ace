@@ -20,48 +20,44 @@ package org.apache.ace.useradmin.repository;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.ace.repository.ext.CachedRepository;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 
 /**
  * Wrapper for {@link Group} that prevents changes to the group when the store is out of sync with the main repository
  */
-public class RepositoryGroup extends RepositoryUser implements Group{
+public class RepositoryGroup extends RepositoryUser implements Group {
 
-    private Group m_delegate;                           
-    
-    public RepositoryGroup(Group group, CachedRepository cachedRepository, AtomicLong version) {
-        super(group, cachedRepository, version);
-        m_delegate = group;
+    public RepositoryGroup(Group group, AtomicLong version, RepoCurrentChecker repoCurrentChecker) {
+        super(group, version, repoCurrentChecker);
     }
-    
+
     @Override
     public boolean addMember(Role role) {
         checkRepoUpToDate();
-        return m_delegate.addMember(role);
+        return ((Group) m_delegate).addMember(role);
     }
 
     @Override
     public boolean addRequiredMember(Role role) {
         checkRepoUpToDate();
-        return m_delegate.addMember(role);
+        return ((Group) m_delegate).addMember(role);
     }
 
     @Override
     public boolean removeMember(Role role) {
         checkRepoUpToDate();
-        return m_delegate.removeMember(role);
+        return ((Group) m_delegate).removeMember(role);
     }
 
     @Override
     public Role[] getMembers() {
-        return m_delegate.getMembers();
+        return ((Group) m_delegate).getMembers();
     }
 
     @Override
     public Role[] getRequiredMembers() {
-        return m_delegate.getRequiredMembers();
+        return ((Group) m_delegate).getRequiredMembers();
     }
 
 }

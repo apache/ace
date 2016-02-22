@@ -45,7 +45,20 @@ final class Utils {
 
     static void closeSilently(HttpURLConnection resource) {
         if (resource != null) {
-            resource.disconnect();
+            try {
+                flushStream(resource.getInputStream());
+            }
+            catch (IOException exception) {
+                // Ignore...
+            }
+            try {
+                InputStream es = resource.getErrorStream();
+                if (es != null) {
+                    flushStream(es);
+                }
+            } finally {
+                resource.disconnect();
+            }
         }
     }
 
@@ -79,20 +92,17 @@ final class Utils {
 
         URL url = new URL(host, endpoint + "?customer=" + customer + "&name=" + name + "&version=" + version);
 
-        InputStream input = null;
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        try {
-            responseCode = connection.getResponseCode();
-            input = connection.getInputStream();
-
+        HttpURLConnection connection = openConnection(url);
+        try (InputStream input = connection.getInputStream()) {
             copy(input, out);
             out.flush();
+
+            responseCode = connection.getResponseCode();
         }
         catch (IOException e) {
             responseCode = handleIOException(connection);
         }
         finally {
-            closeSilently(input);
             closeSilently(connection);
         }
 
@@ -103,13 +113,14 @@ final class Utils {
      * @see http://docs.oracle.com/javase/6/docs/technotes/guides/net/http-keepalive.html
      */
     static int handleIOException(HttpURLConnection conn) {
-        int respCode = -1;
+        int respCode = -2;
         try {
             respCode = conn.getResponseCode();
             flushStream(conn.getErrorStream());
         }
         catch (IOException ex) {
             // deal with the exception
+            ex.printStackTrace();
         }
         return respCode;
     }
@@ -117,36 +128,32 @@ final class Utils {
     static int put(URL host, String endpoint, String customer, String name, String version, InputStream in) throws IOException {
         URL url = new URL(host, endpoint + "?customer=" + customer + "&name=" + name + "&version=" + version);
 
-        int responseCode;
-        HttpURLConnection connection = null;
-        OutputStream out = null;
+        int rc;
+        HttpURLConnection connection = openConnection(url);
+        connection.setDoOutput(true);
+        // ACE-294: enable streaming mode causing only small amounts of memory to be
+        // used for this commit. Otherwise, the entire input stream is cached into
+        // memory prior to sending it to the server...
+        connection.setChunkedStreamingMode(8192);
+        connection.setRequestProperty("Content-Type", MIME_APPLICATION_OCTET_STREAM);
 
-        try {
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            // ACE-294: enable streaming mode causing only small amounts of memory to be
-            // used for this commit. Otherwise, the entire input stream is cached into
-            // memory prior to sending it to the server...
-            connection.setChunkedStreamingMode(8192);
-            connection.setRequestProperty("Content-Type", MIME_APPLICATION_OCTET_STREAM);
-            out = connection.getOutputStream();
-
+        try (OutputStream out = connection.getOutputStream()) {
             copy(in, out);
+
             out.flush();
 
-            responseCode = connection.getResponseCode();
+            rc = connection.getResponseCode();
             flushStream(connection.getInputStream());
         }
         catch (IOException e) {
-            responseCode = handleIOException(connection);
+            rc = handleIOException(connection);
         }
         finally {
             closeSilently(in);
-            closeSilently(out);
             closeSilently(connection);
         }
 
-        return responseCode;
+        return rc;
     }
 
     static int query(URL host, String endpoint, String customer, String name, OutputStream out) throws IOException {
@@ -156,22 +163,18 @@ final class Utils {
         URL url = new URL(host, endpoint + filter);
 
         int responseCode;
-        HttpURLConnection connection = null;
-        InputStream input = null;
+        HttpURLConnection connection = openConnection(url);
 
-        try {
-            connection = (HttpURLConnection) url.openConnection();
-            responseCode = connection.getResponseCode();
-            input = connection.getInputStream();
-
+        try (InputStream input = connection.getInputStream()) {
             copy(input, out);
             out.flush();
+
+            responseCode = connection.getResponseCode();
         }
         catch (IOException e) {
             responseCode = handleIOException(connection);
         }
         finally {
-            closeSilently(input);
             closeSilently(out);
             closeSilently(connection);
         }
@@ -182,12 +185,10 @@ final class Utils {
     static void waitForWebserver(URL host) throws IOException {
         int retries = 1, rc = -1;
         IOException ioe = null;
-        HttpURLConnection conn = null;
         while (retries++ < 10) {
+            HttpURLConnection connection = openConnection(host);
             try {
-                conn = (HttpURLConnection) host.openConnection();
-
-                rc = conn.getResponseCode();
+                rc = connection.getResponseCode();
                 if (rc >= 0) {
                     return;
                 }
@@ -203,17 +204,28 @@ final class Utils {
                 }
             }
             catch (IOException e) {
-                rc = handleIOException(conn);
+                rc = handleIOException(connection);
             }
             finally {
-                if (conn != null) {
-                    conn.disconnect();
+                if (connection != null) {
+                    connection.disconnect();
                 }
-                conn = null;
             }
         }
         if (ioe != null) {
             throw ioe;
         }
+    }
+
+    private static HttpURLConnection openConnection(URL url) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setInstanceFollowRedirects(false);
+        conn.setAllowUserInteraction(false);
+        conn.setDefaultUseCaches(false);
+        conn.setUseCaches(false);
+        conn.setConnectTimeout(1000);
+        conn.setReadTimeout(1000);
+
+        return conn;
     }
 }

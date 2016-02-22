@@ -132,7 +132,7 @@ public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet imple
             }
             else {
                 if ((name != null) && (customer != null)) {
-                    handleQuery("(&(customer=" + customer + ")(name=" + name + "))", response);
+                    handleQuery(getRepositoryFilter(customer, name), response);
                 }
                 else if (name != null) {
                     handleQuery("(name=" + name + ")", response);
@@ -288,7 +288,7 @@ public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet imple
     private void handleCheckout(String customer, String name, long version, HttpServletResponse response) throws IOException {
         List<ServiceReference<REPO_TYPE>> refs;
         try {
-            refs = getRepositories("(&(customer=" + customer + ")(name=" + name + "))");
+            refs = getRepositories(getRepositoryFilter(customer, name));
         }
         catch (InvalidSyntaxException e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid filter syntax: " + e.getMessage());
@@ -336,7 +336,7 @@ public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet imple
     private void handleCommit(String customer, String name, long version, InputStream data, HttpServletResponse response) throws IOException {
         List<ServiceReference<REPO_TYPE>> refs;
         try {
-            refs = getRepositories("(&(customer=" + customer + ")(name=" + name + "))");
+            refs = getRepositories(getRepositoryFilter(customer, name));
         }
         catch (InvalidSyntaxException e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid filter syntax: " + e.getMessage());
@@ -363,7 +363,7 @@ public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet imple
                     response.sendError(HttpServletResponse.SC_NOT_MODIFIED, "Could not commit");
                 }
                 else {
-                    response.sendError(HttpServletResponse.SC_OK);
+                    response.setStatus(HttpServletResponse.SC_OK);
                 }
             }
             catch (IllegalArgumentException e) {
@@ -379,6 +379,10 @@ public abstract class RepositoryServletBase<REPO_TYPE> extends HttpServlet imple
         catch (IOException e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "I/O exception: " + e.getMessage());
         }
+    }
+
+    private String getRepositoryFilter(String customer, String name) {
+        return "(&(customer=" + customer + ")(name=" + name + ")(master=*))";
     }
 
     /**

@@ -66,5 +66,5 @@ Import-Package: !javax.security.auth,\
     *
 Bundle-Activator: org.apache.ace.useradmin.repository.Activator
 
-Bundle-Name: Apache ACE UserAdmin RoleRepositoryStore
-Bundle-Description: Felix UserAdmin RoleRepositoryStore implementation backed by an ACE Repository
+Bundle-Name: Apache ACE UserAdmin RepositoryStore
+Bundle-Description: Felix UserAdmin RepositoryStore implementation backed by an ACE Repository
