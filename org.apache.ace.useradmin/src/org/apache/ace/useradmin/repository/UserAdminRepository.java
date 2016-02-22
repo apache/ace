@@ -215,96 +215,6 @@ public class UserAdminRepository implements RoleRepositoryStore, UserAdminListen
         }
     }
 
-    /**
-     * Add a wrapper around a Role that prevents changes to Users / Groups when the repository is out of sync
-     * 
-     * @param role
-     *            User or Group role to be wrapped
-     * @return a wrapped Role
-     */
-    protected Role wrapRole(Role role) {
-        if (role.getType() == Role.USER) {
-            return new RepositoryUser((User) role, m_version, this);
-        }
-        else if (role.getType() == Role.GROUP) {
-            return new RepositoryGroup((Group) role, m_version, this);
-        }
-        else {
-            throw new IllegalStateException("Invalid role type: " + role.getType());
-        }
-    }
-
-    /**
-     * Helper method that checks the presence of an object in an array. Returns <code>true</code> if <code>t</code> is
-     * in <code>ts</code>, <code>false</code> otherwise.
-     */
-    private <T> boolean contains(T t, T[] ts) {
-        for (T current : ts) {
-            if (current.equals(t)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean ensureRoleMapIsCurrent() throws Exception {
-        long actualVersion;
-        long localVersion;
-
-        boolean isCurrent;
-        m_rw.readLock().lock();
-        try {
-            actualVersion = getMostRecentVersion();
-            localVersion = m_version.longValue();
-
-            isCurrent = !m_roleMap.isEmpty() && localVersion == actualVersion;
-        }
-        finally {
-            m_rw.readLock().unlock();
-        }
-
-        if (!isCurrent) {
-            m_log.log(LogService.LOG_DEBUG, "Reading role map as we're no longer current (" + localVersion + " <=> " + actualVersion + " )...");
-
-            readRoleMap(actualVersion);
-        }
-
-        return isCurrent;
-    }
-
-    private long getMostRecentVersion() {
-        m_rw.readLock().lock();
-        try {
-            return m_repository.getRange().getHigh();
-        }
-        catch (IOException exception) {
-            m_log.log(LogService.LOG_WARNING, "Unable to query repository for most recent version!", exception);
-            return -1L;
-        }
-        finally {
-            m_rw.readLock().unlock();
-        }
-    }
-
-    private List<String> memberOf(List<Role> roles, Role role) {
-        List<String> memberOf = new ArrayList<>();
-        for (Role r : roles) {
-            if (r instanceof Group) {
-                Group group = (Group) r;
-                Role[] members = group.getMembers();
-                if (members != null) {
-                    for (Role member : members) {
-                        if (member.getType() == role.getType() && member.getName().equals(role.getName())) {
-                            memberOf.add(group.getName());
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return memberOf;
-    }
-
     final void readRoleMap(long version) throws Exception {
         XStream instance = XStreamFactory.getInstance();
 
@@ -417,5 +327,88 @@ public class UserAdminRepository implements RoleRepositoryStore, UserAdminListen
         catch (Exception e) {
             m_log.log(LogService.LOG_ERROR, "Failed to commit role changes to the main role repository", e);
         }
+    }
+
+    /**
+     * Add a wrapper around a Role that prevents changes to Users / Groups when the repository is out of sync
+     * 
+     * @param role
+     *            User or Group role to be wrapped
+     * @return a wrapped Role
+     */
+    protected Role wrapRole(Role role) {
+        if (role.getType() == Role.USER) {
+            return new RepositoryUser((User) role, m_version, this);
+        }
+        else if (role.getType() == Role.GROUP) {
+            return new RepositoryGroup((Group) role, m_version, this);
+        }
+        else {
+            throw new IllegalStateException("Invalid role type: " + role.getType());
+        }
+    }
+
+    private boolean contains(Role needle, Role[] haystack) {
+        for (Role role : haystack) {
+            if (role.getType() == needle.getType() && role.getName().equals(needle.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean ensureRoleMapIsCurrent() throws Exception {
+        long actualVersion;
+        long localVersion;
+
+        boolean isCurrent;
+        m_rw.readLock().lock();
+        try {
+            actualVersion = getMostRecentVersion();
+            localVersion = m_version.longValue();
+
+            isCurrent = !m_roleMap.isEmpty() && localVersion == actualVersion;
+        }
+        finally {
+            m_rw.readLock().unlock();
+        }
+
+        if (!isCurrent) {
+            m_log.log(LogService.LOG_DEBUG, "Reading role map as we're no longer current (" + localVersion + " <=> " + actualVersion + " )...");
+
+            readRoleMap(actualVersion);
+        }
+
+        return isCurrent;
+    }
+
+    private long getMostRecentVersion() {
+        m_rw.readLock().lock();
+        try {
+            return m_repository.getRange().getHigh();
+        }
+        catch (IOException exception) {
+            m_log.log(LogService.LOG_WARNING, "Unable to query repository for most recent version!", exception);
+            return -1L;
+        }
+        finally {
+            m_rw.readLock().unlock();
+        }
+    }
+
+    private List<String> memberOf(List<Role> roles, Role role) {
+        List<String> memberOf = new ArrayList<>();
+        for (Role r : roles) {
+            if (r instanceof Group) {
+                Group group = (Group) r;
+                Role[] members = group.getMembers();
+                if (members != null) {
+                    if (contains(role, members)) {
+                        memberOf.add(group.getName());
+                    }
+                }
+            }
+        }
+        return memberOf;
     }
 }
