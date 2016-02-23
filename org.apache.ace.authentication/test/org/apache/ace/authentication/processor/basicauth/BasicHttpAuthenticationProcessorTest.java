@@ -25,6 +25,11 @@ import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -42,7 +47,7 @@ import org.testng.annotations.Test;
  * Test cases for {@link BasicHttpAuthenticationProcessor}.
  */
 public class BasicHttpAuthenticationProcessorTest {
-    
+
     private UserAdmin m_userAdmin;
     private HttpServletRequest m_servletRequest;
 
@@ -58,7 +63,7 @@ public class BasicHttpAuthenticationProcessorTest {
     @Test(groups = { UNIT })
     public void testAuthenticateEmptyAuthenticationHeaderYieldsNull() {
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result == null : "Expected no result!";
+        assertNull(result, "Expected no result!");
     }
 
     /**
@@ -67,15 +72,15 @@ public class BasicHttpAuthenticationProcessorTest {
     @Test(groups = { UNIT })
     public void testAuthenticateInvalidAuthenticationHeaderYieldsNull() {
         when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn(createAuthHeaderValue("bob"));
-        
+
         User user = mock(User.class);
         when(user.getName()).thenReturn("bob");
         when(user.hasCredential(eq("password"), eq("secret"))).thenReturn(Boolean.TRUE);
 
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
-        
+
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result == null : "Expected no result!";
+        assertNull(result, "Expected no result!");
     }
 
     /**
@@ -84,7 +89,7 @@ public class BasicHttpAuthenticationProcessorTest {
     @Test(groups = { UNIT })
     public void testAuthenticateKnownUserWithInvalidPasswordYieldsNull() {
         when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn(createAuthHeaderValue("bob:secret"));
-        
+
         User user = mock(User.class);
         when(user.getName()).thenReturn("bob");
         when(user.hasCredential(eq("password"), eq("otherSecret"))).thenReturn(Boolean.TRUE);
@@ -92,7 +97,7 @@ public class BasicHttpAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
 
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result == null : "Expected no result!";
+        assertNull(result, "Expected no result!");
     }
 
     /**
@@ -101,7 +106,7 @@ public class BasicHttpAuthenticationProcessorTest {
     @Test(groups = { UNIT })
     public void testAuthenticateKnownUserYieldsValidResult() {
         when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn(createAuthHeaderValue("bob:secret"));
-        
+
         User user = mock(User.class);
         when(user.getName()).thenReturn("bob");
         when(user.hasCredential(eq("password"), eq("secret"))).thenReturn(Boolean.TRUE);
@@ -109,9 +114,9 @@ public class BasicHttpAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
 
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result != null : "Expected a valid user to be returned!";
-        
-        assert "bob".equals(user.getName()) : "Expected user bob to be returned!";
+        assertNotNull(result, "Expected a valid user to be returned!");
+
+        assertEquals(user.getName(), "bob", "Expected user bob to be returned!");
     }
 
     /**
@@ -120,9 +125,9 @@ public class BasicHttpAuthenticationProcessorTest {
     @Test(groups = { UNIT })
     public void testAuthenticateNonBase64AuthenticationHeaderYieldsNull() {
         when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn("foo");
-        
+
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result == null : "Expected no result!";
+        assertNull(result, "Expected no result!");
     }
 
     /**
@@ -139,9 +144,9 @@ public class BasicHttpAuthenticationProcessorTest {
     @Test(groups = { UNIT })
     public void testAuthenticateUnknownUserYieldsNull() {
         when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn(createAuthHeaderValue("alice:secret"));
-        
+
         User result = new BasicHttpAuthenticationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result == null : "Expected no result!";
+        assertNull(result, "Expected no result!");
     }
 
     /**
@@ -149,7 +154,7 @@ public class BasicHttpAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT })
     public void testCanHandleDoesAcceptServletRequest() {
-        assert new BasicHttpAuthenticationProcessor().canHandle(mock(HttpServletRequest.class));
+        assertTrue(new BasicHttpAuthenticationProcessor().canHandle(mock(HttpServletRequest.class)));
     }
 
     /**
@@ -167,61 +172,61 @@ public class BasicHttpAuthenticationProcessorTest {
     public void testCanHandleDoesNotAcceptNull() {
         new BasicHttpAuthenticationProcessor().canHandle((Object[]) null);
     }
-    
+
     /**
      * Tests that canHandle yields false for any object other than {@link HttpServletRequest}.
      */
     @Test(groups = { UNIT })
     public void testCanHandleDoesNotAcceptUnhandledContext() {
-        assert new BasicHttpAuthenticationProcessor().canHandle(new Object()) == false;
+        assertFalse(new BasicHttpAuthenticationProcessor().canHandle(new Object()));
     }
-    
+
     /**
-     * Tests that updated throws an exception for missing "key.username" property. 
+     * Tests that updated throws an exception for missing "key.username" property.
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyUsername() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
         props.put(PROPERTY_KEY_USERNAME, "");
         props.put(PROPERTY_KEY_PASSWORD, "foo");
-        
+
         new BasicHttpAuthenticationProcessor().updated(props);
     }
-    
+
     /**
-     * Tests that updated throws an exception for missing "key.username" property. 
+     * Tests that updated throws an exception for missing "key.username" property.
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyUsername() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
         props.put(PROPERTY_KEY_PASSWORD, "foo");
-        
+
         new BasicHttpAuthenticationProcessor().updated(props);
     }
-    
+
     /**
-     * Tests that updated throws an exception for missing "key.password" property. 
+     * Tests that updated throws an exception for missing "key.password" property.
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyPassword() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
         props.put(PROPERTY_KEY_USERNAME, "foo");
-        
+
         new BasicHttpAuthenticationProcessor().updated(props);
     }
-    
+
     /**
-     * Tests that updated throws an exception for missing "key.password" property. 
+     * Tests that updated throws an exception for missing "key.password" property.
      */
     @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyPassword() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
         props.put(PROPERTY_KEY_USERNAME, "foo");
         props.put(PROPERTY_KEY_PASSWORD, "");
-        
+
         new BasicHttpAuthenticationProcessor().updated(props);
     }
-    
+
     /**
      * Tests that updated does not throw an exception for a correct configuration.
      */
@@ -229,18 +234,18 @@ public class BasicHttpAuthenticationProcessorTest {
     public void testUpdatedDoesAcceptCorrectProperties() throws ConfigurationException {
         final String keyUsername = "foo";
         final String keyPassword = "bar";
-        
+
         Dictionary<String, Object> props = new Hashtable<>();
         props.put(PROPERTY_KEY_USERNAME, keyUsername);
         props.put(PROPERTY_KEY_PASSWORD, keyPassword);
-        
+
         BasicHttpAuthenticationProcessor processor = new BasicHttpAuthenticationProcessor();
 
         processor.updated(props);
-        
+
         // Test whether we can use the new properties...
         when(m_servletRequest.getHeader(AUTHORIZATION_HEADER)).thenReturn(createAuthHeaderValue("bob:secret"));
-        
+
         User user = mock(User.class);
         when(user.getName()).thenReturn("bob");
         when(user.hasCredential(eq(keyPassword), eq("secret"))).thenReturn(Boolean.TRUE);
@@ -248,11 +253,10 @@ public class BasicHttpAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq(keyUsername), eq("bob"))).thenReturn(user);
 
         User result = processor.authenticate(m_userAdmin, m_servletRequest);
-        assert result != null : "Expected a valid user to be returned!";
-        
-        assert "bob".equals(user.getName()) : "Expected user bob to be returned!";
-    }
+        assertNotNull(result, "Expected a valid user to be returned!");
 
+        assertEquals(user.getName(), "bob", "Expected user bob to be returned!");
+    }
 
     /**
      * @return the basic authentication header, never <code>null</code>.

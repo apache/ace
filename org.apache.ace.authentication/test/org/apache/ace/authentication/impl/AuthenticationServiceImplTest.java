@@ -25,6 +25,10 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.List;
@@ -33,7 +37,6 @@ import org.apache.ace.authentication.api.AuthenticationProcessor;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -44,7 +47,7 @@ import org.testng.annotations.Test;
  * Test cases for {@link AuthenticationServiceImpl}.
  */
 public class AuthenticationServiceImplTest {
-    
+
     private LogService m_log;
 
     @BeforeMethod(alwaysRun = true)
@@ -65,7 +68,7 @@ public class AuthenticationServiceImplTest {
      */
     @Test(groups = { UNIT })
     public void testAuthenticateFailsWithoutAuthProcessors() {
-        assert createAuthenticationService().authenticate("foo", "bar") == null;
+        assertNull(createAuthenticationService().authenticate("foo", "bar"));
     }
 
     /**
@@ -82,22 +85,23 @@ public class AuthenticationServiceImplTest {
     @Test(groups = { UNIT })
     public void testAuthenticateFailsWithSingleAuthProcessorAndWrongContext() {
         AuthenticationServiceImpl authService = createAuthenticationService();
-        
+
         AuthenticationProcessor authProc = mock(AuthenticationProcessor.class);
         when(authProc.canHandle(anyString())).thenReturn(Boolean.TRUE);
 
         registerAuthProcessor(authService, authProc);
 
-        assert authService.authenticate("foo", "bar") == null;
+        assertNull(authService.authenticate("foo", "bar"));
     }
 
     /**
-     * Tests that with multiple authentication processors, authentication will take place if it is given the correct context.
+     * Tests that with multiple authentication processors, authentication will take place if it is given the correct
+     * context.
      */
     @Test(groups = { UNIT })
     public void testAuthenticateSucceedsWithMultipleAuthProcessors() {
         Date now = new Date();
-        
+
         User user1 = mock(User.class);
         User user2 = mock(User.class);
 
@@ -108,7 +112,7 @@ public class AuthenticationServiceImplTest {
                 return (args.length == 1 && args[0] instanceof Date);
             }
         });
-        when(authProc1.authenticate(Mockito.<UserAdmin>any(), eq(now))).thenReturn(user1);
+        when(authProc1.authenticate(Mockito.<UserAdmin> any(), eq(now))).thenReturn(user1);
 
         AuthenticationProcessor authProc2 = mock(AuthenticationProcessor.class);
         when(authProc2.canHandle(anyString())).thenAnswer(new Answer<Boolean>() {
@@ -117,7 +121,7 @@ public class AuthenticationServiceImplTest {
                 return (args.length == 1 && args[0] instanceof String);
             }
         });
-        when(authProc2.authenticate(Mockito.<UserAdmin>any(), eq("foo"))).thenReturn(user2);
+        when(authProc2.authenticate(Mockito.<UserAdmin> any(), eq("foo"))).thenReturn(user2);
 
         AuthenticationServiceImpl authService = createAuthenticationService();
 
@@ -125,16 +129,17 @@ public class AuthenticationServiceImplTest {
         registerAuthProcessor(authService, authProc2);
 
         User result = authService.authenticate("foo");
-        assert result != null;
-        assert user2 == result;
-        
+        assertNotNull(result);
+        assertEquals(user2, result);
+
         result = authService.authenticate(now);
-        assert result != null;
-        assert user1 == result;
+        assertNotNull(result);
+        assertEquals(user1, result);
     }
 
     /**
-     * Tests that with a single authentication processors, authentication will take place if it is given the correct context.
+     * Tests that with a single authentication processors, authentication will take place if it is given the correct
+     * context.
      */
     @Test(groups = { UNIT })
     public void testAuthenticateSucceedsWithSingleAuthProcessorAndCorrectContext() {
@@ -144,11 +149,11 @@ public class AuthenticationServiceImplTest {
 
         AuthenticationProcessor authProc = mock(AuthenticationProcessor.class);
         when(authProc.canHandle(anyString())).thenReturn(Boolean.TRUE);
-        when(authProc.authenticate(Mockito.<UserAdmin>any(), eq("foo"))).thenReturn(user);
+        when(authProc.authenticate(Mockito.<UserAdmin> any(), eq("foo"))).thenReturn(user);
 
         registerAuthProcessor(authService, authProc);
 
-        assert authService.authenticate("foo") != null;
+        assertNotNull(authService.authenticate("foo"));
     }
 
     /**
@@ -157,7 +162,7 @@ public class AuthenticationServiceImplTest {
     @Test(groups = { UNIT })
     public void testGetProcessorsSelectsCorrectProcessorsBasedOnContext() {
         Date now = new Date();
-        
+
         User user1 = mock(User.class);
         User user2 = mock(User.class);
 
@@ -168,7 +173,7 @@ public class AuthenticationServiceImplTest {
                 return (args.length == 1 && args[0] instanceof Date);
             }
         });
-        when(authProc1.authenticate(Mockito.<UserAdmin>any(), eq(now))).thenReturn(user1);
+        when(authProc1.authenticate(Mockito.<UserAdmin> any(), eq(now))).thenReturn(user1);
 
         AuthenticationProcessor authProc2 = mock(AuthenticationProcessor.class);
         when(authProc2.canHandle(anyString())).thenAnswer(new Answer<Boolean>() {
@@ -177,7 +182,7 @@ public class AuthenticationServiceImplTest {
                 return (args.length == 1 && args[0] instanceof String);
             }
         });
-        when(authProc2.authenticate(Mockito.<UserAdmin>any(), eq("foo"))).thenReturn(user2);
+        when(authProc2.authenticate(Mockito.<UserAdmin> any(), eq("foo"))).thenReturn(user2);
 
         AuthenticationServiceImpl authService = createAuthenticationService();
 
@@ -185,16 +190,16 @@ public class AuthenticationServiceImplTest {
         registerAuthProcessor(authService, authProc2);
 
         List<AuthenticationProcessor> processors = authService.getProcessors("foo");
-        assert processors != null;
-        assert 1 == processors.size();
-        
+        assertNotNull(processors);
+        assertEquals(processors.size(), 1);
+
         processors = authService.getProcessors(now);
-        assert processors != null;
-        assert 1 == processors.size();
-        
+        assertNotNull(processors);
+        assertEquals(processors.size(), 1);
+
         processors = authService.getProcessors(new Object());
-        assert processors != null;
-        assert processors.isEmpty();
+        assertNotNull(processors);
+        assertTrue(processors.isEmpty());
     }
 
     /**
@@ -203,13 +208,8 @@ public class AuthenticationServiceImplTest {
     private AuthenticationServiceImpl createAuthenticationService() {
         return new AuthenticationServiceImpl(m_log);
     }
-    
-    /**
-     * @param authService
-     * @param authProcessor
-     */
+
     private void registerAuthProcessor(AuthenticationServiceImpl authService, AuthenticationProcessor authProcessor) {
-        ServiceReference<AuthenticationProcessor> sr = mock(ServiceReference.class);
-        authService.addAuthenticationProcessor(sr, authProcessor);
+        authService.addAuthenticationProcessor(authProcessor);
     }
 }

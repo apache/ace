@@ -18,16 +18,18 @@
  */
 package org.apache.ace.authentication.impl;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.ace.authentication.api.AuthenticationProcessor;
 import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.felix.dm.DependencyManager;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
+import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -35,73 +37,16 @@ import org.osgi.service.useradmin.UserAdmin;
  * Provides a basic implementation for {@link AuthenticationService} that returns the first matching user.
  */
 public class AuthenticationServiceImpl implements AuthenticationService {
-
-    /**
-     * Provides a small container for {@link AuthenticationProcessor} instances.
-     */
-    private static class AuthenticationProcessorHolder implements Comparable<AuthenticationProcessorHolder> {
-        private final ServiceReference<AuthenticationProcessor> m_serviceRef;
-        private final WeakReference<AuthenticationProcessor> m_processor;
-
-        public AuthenticationProcessorHolder(ServiceReference<AuthenticationProcessor> serviceRef, AuthenticationProcessor processor) {
-            m_serviceRef = serviceRef;
-            m_processor = new WeakReference<>(processor);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public int compareTo(AuthenticationProcessorHolder other) {
-            ServiceReference<AuthenticationProcessor> thatServiceRef = other.m_serviceRef;
-            ServiceReference<AuthenticationProcessor> thisServiceRef = m_serviceRef;
-            // Sort in reverse order so that the highest rankings come first...
-            return thatServiceRef.compareTo(thisServiceRef);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (!(obj instanceof AuthenticationProcessorHolder)) {
-                return false;
-            }
-            AuthenticationProcessorHolder other = (AuthenticationProcessorHolder) obj;
-            return m_serviceRef.equals(other.m_serviceRef);
-        }
-
-        /**
-         * @return the {@link AuthenticationProcessor}, can be <code>null</code> if it has been GC'd before this method call.
-         */
-        public AuthenticationProcessor getAuthenticationProcessor() {
-            return m_processor.get();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int hashCode() {
-            return m_serviceRef.hashCode() ^ m_processor.hashCode();
-        }
-    }
-
     private volatile UserAdmin m_userAdmin;
     private volatile LogService m_log;
 
-    private final List<AuthenticationProcessorHolder> m_processors;
+    private final CopyOnWriteArrayList<AuthenticationProcessor> m_processors;
 
     /**
      * Creates a new {@link AuthenticationServiceImpl} instance.
      */
     public AuthenticationServiceImpl() {
-        m_processors = new ArrayList<>();
+        m_processors = new CopyOnWriteArrayList<>();
     }
 
     /**
@@ -109,13 +54,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     AuthenticationServiceImpl(LogService log) {
         m_log = log;
-        m_processors = new ArrayList<>();
+        m_processors = new CopyOnWriteArrayList<>();
     }
 
     /**
      * Authenticates a user based on the given context information.
      * <p>
-     * This implementation returns the first {@link User}-object that is returned by a {@link AuthenticationProcessor} instance that can handle the given context.
+     * This implementation returns the first {@link User}-object that is returned by a {@link AuthenticationProcessor}
+     * instance that can handle the given context.
      * </p>
      */
     public User authenticate(Object... context) {
@@ -124,18 +70,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         User result = null;
-
-        m_log.log(LogService.LOG_DEBUG, "Authenticating user for: " + context);
-
-        final List<AuthenticationProcessor> processors = getProcessors(context);
-        
-        int size = processors.size();
-        for (int i = 0; i < size; i++) {
-            result = processors.get(i).authenticate(m_userAdmin, context);
+        for (AuthenticationProcessor processor : getProcessors(context)) {
+            result = processor.authenticate(m_userAdmin, context);
             if (result != null) {
-                m_log.log(LogService.LOG_DEBUG, "Authenticated user (" + context + ") as: " + result.getName());
                 break;
             }
+        }
+
+        if (result != null) {
+            m_log.log(LogService.LOG_DEBUG, String.format("Context (%s) authenticated as user %s", describeContext(context), result.getName()));
+        }
+        else {
+            m_log.log(LogService.LOG_WARNING, String.format("Context (%s) NOT authenticated: no matching user found!", describeContext(context)));
         }
 
         return result;
@@ -144,52 +90,67 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     /**
      * Returns all applicable {@link AuthenticationProcessor}s for the given context.
      * 
-     * @param context the context for which to return all applicable authentication processors, cannot be <code>null</code> or an empty array.
+     * @param context
+     *            the context for which to return all applicable authentication processors, cannot be <code>null</code>
+     *            or an empty array.
      * @return an array of applicable authentication processors, never <code>null</code>.
      */
     final List<AuthenticationProcessor> getProcessors(Object... context) {
-        final List<AuthenticationProcessorHolder> processors;
-        synchronized (m_processors) {
-            processors = new ArrayList<>(m_processors);
-        }
-        // Sort on service ranking...
-        Collections.sort(processors);
+        List<AuthenticationProcessor> processors = new ArrayList<>(m_processors);
 
-        int size = processors.size();
-        
-        List<AuthenticationProcessor> result = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            AuthenticationProcessor authenticationProcessor = processors.get(i).getAuthenticationProcessor();
-            // Can be null if it is already GC'd for some reason...
-            if ((authenticationProcessor != null) && authenticationProcessor.canHandle(context)) {
-                result.add(authenticationProcessor);
+        Iterator<AuthenticationProcessor> iter = processors.iterator();
+        while (iter.hasNext()) {
+            AuthenticationProcessor authenticationProcessor = iter.next();
+            if (!authenticationProcessor.canHandle(context)) {
+                iter.remove();
             }
         }
-
-        return result;
+        return processors;
     }
 
     /**
      * Called by {@link DependencyManager} upon adding a new {@link AuthenticationProcessor}.
      * 
-     * @param serviceRef the service reference of the authentication processor to add;
-     * @param processor the authentication processor to add.
+     * @param processor
+     *            the authentication processor to add.
      */
-    protected void addAuthenticationProcessor(ServiceReference<AuthenticationProcessor> serviceRef, AuthenticationProcessor processor) {
-        synchronized (m_processors) {
-            m_processors.add(new AuthenticationProcessorHolder(serviceRef, processor));
-        }
+    protected void addAuthenticationProcessor(AuthenticationProcessor processor) {
+        m_processors.addIfAbsent(processor);
     }
 
     /**
      * Called by {@link DependencyManager} upon removal of a {@link AuthenticationProcessor}.
      * 
-     * @param serviceRef the service reference of the authentication processor to remove;
-     * @param processor the authentication processor to remove.
+     * @param processor
+     *            the authentication processor to remove.
      */
-    protected void removeAuthenticationProcessor(ServiceReference<AuthenticationProcessor> serviceRef, AuthenticationProcessor processor) {
-        synchronized (m_processors) {
-            m_processors.remove(new AuthenticationProcessorHolder(serviceRef, processor));
+    protected void removeAuthenticationProcessor(AuthenticationProcessor processor) {
+        m_processors.remove(processor);
+    }
+
+    private String describeContext(Object... context) {
+        StringBuilder sb = new StringBuilder("[");
+        for (Object obj : context) {
+            if (sb.length() > 1) {
+                sb.append(", ");
+            }
+            if (obj instanceof Role) {
+                sb.append(((Role) obj).getType() == Role.USER ? "User(" : "Group(");
+                sb.append(((Role) obj).getName());
+                sb.append(")");
+            }
+            else if (obj instanceof HttpServletRequest) {
+                sb.append("HttpServletRequest(");
+                sb.append(((HttpServletRequest) obj).getPathInfo());
+                sb.append(")");
+            }
+            else if (obj instanceof byte[]) {
+                sb.append("byte[]{").append(((byte[]) obj).length).append(")");
+            }
+            else {
+                sb.append(obj);
+            }
         }
+        return sb.append("]").toString();
     }
 }

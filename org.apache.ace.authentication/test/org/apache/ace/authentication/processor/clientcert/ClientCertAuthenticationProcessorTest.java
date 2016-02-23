@@ -27,6 +27,11 @@ import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.security.KeyPair;
 import java.security.PublicKey;
@@ -133,7 +138,7 @@ public class ClientCertAuthenticationProcessorTest {
     @Test(groups = { UNIT })
     public void testAuthenticateNoCertificateChainYieldsNull() {
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result == null : "Did not expect a valid user to be returned!";
+        assertNull(result, "Did not expect a valid user to be returned!");
     }
 
     /**
@@ -144,7 +149,7 @@ public class ClientCertAuthenticationProcessorTest {
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(new X509Certificate[0]);
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result == null : "Did not expect a valid user to be returned!";
+        assertNull(result, "Did not expect a valid user to be returned!");
     }
 
     /**
@@ -164,7 +169,7 @@ public class ClientCertAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result == null : "Did not expect a valid user to be returned!";
+        assertNull(result, "Did not expect a valid user to be returned!");
     }
 
     /**
@@ -185,7 +190,7 @@ public class ClientCertAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result == null : "Did not expect a valid user to be returned!";
+        assertNull(result, "Did not expect a valid user to be returned!");
     }
 
     /**
@@ -203,9 +208,9 @@ public class ClientCertAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq("username"), eq("bob"))).thenReturn(user);
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result != null : "Expected a valid user to be returned!";
+        assertNotNull(result, "Expected a valid user to be returned!");
 
-        assert "bob".equals(user.getName()) : "Expected bob to be returned as user!";
+        assertEquals(user.getName(), "bob", "Expected bob to be returned as user!");
     }
 
     /**
@@ -235,9 +240,9 @@ public class ClientCertAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq(lookupKey), eq("DC=corp,DC=acme,OU=dev,CN=Bob"))).thenReturn(user);
 
         User result = processor.authenticate(m_userAdmin, m_servletRequest);
-        assert result != null : "Expected a valid user to be returned!";
+        assertNotNull(result, "Expected a valid user to be returned!");
 
-        assert "bob".equals(user.getName()) : "Expected bob to be returned as user!";
+        assertEquals(user.getName(), "bob", "Expected bob to be returned as user!");
     }
 
     /**
@@ -249,7 +254,7 @@ public class ClientCertAuthenticationProcessorTest {
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(createValidCertificateChain("bob"));
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result == null : "Did not expect a valid user to be returned!";
+        assertNull(result, "Did not expect a valid user to be returned!");
     }
 
     /**
@@ -268,7 +273,7 @@ public class ClientCertAuthenticationProcessorTest {
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(createValidCertificateChain("bob"));
 
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
-        assert result == null : "Did not expect a valid user to be returned!";
+        assertNull(result, "Did not expect a valid user to be returned!");
     }
 
     /**
@@ -278,7 +283,7 @@ public class ClientCertAuthenticationProcessorTest {
     public void testCanHandleDoesAcceptServletRequest() {
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(createValidCertificateChain("alice"));
 
-        assert createAuthorizationProcessor().canHandle(m_servletRequest);
+        assertTrue(createAuthorizationProcessor().canHandle(m_servletRequest));
     }
 
     /**
@@ -302,7 +307,7 @@ public class ClientCertAuthenticationProcessorTest {
      */
     @Test(groups = { UNIT })
     public void testCanHandleDoesNotAcceptUnhandledContext() {
-        assert createAuthorizationProcessor().canHandle(new Object()) == false;
+        assertFalse(createAuthorizationProcessor().canHandle(new Object()));
     }
 
     /**
@@ -334,9 +339,9 @@ public class ClientCertAuthenticationProcessorTest {
         when(m_userAdmin.getUser(eq(lookupKey), eq("alice"))).thenReturn(user);
 
         User result = processor.authenticate(m_userAdmin, m_servletRequest);
-        assert result != null : "Expected a valid user to be returned!";
+        assertNotNull(result, "Expected a valid user to be returned!");
 
-        assert "alice".equals(user.getName()) : "Expected alice to be returned as user!";
+        assertEquals(user.getName(), "alice", "Expected alice to be returned as user!");
     }
 
     /**
@@ -432,9 +437,12 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Creates a new certificate.
      * 
-     * @param name the (common) name of the certificate;
-     * @param notBefore the date after which the certificate is valid;
-     * @param notAfter the date until the certificate is valid.
+     * @param name
+     *            the (common) name of the certificate;
+     * @param notBefore
+     *            the date after which the certificate is valid;
+     * @param notAfter
+     *            the date until the certificate is valid.
      * @return a new {@link X509Certificate}, never <code>null</code>.
      */
     private X509Certificate createCertificate(String name, final Date notBefore, final Date notAfter) {
@@ -445,23 +453,24 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Creates a new (valid) chain with certificate(s) valid from yesterday until tomorrow.
      * 
-     * @param dns the distinguished names of the certificates in the returned chain.
+     * @param dns
+     *            the distinguished names of the certificates in the returned chain.
      * @return a new chain with {@link X509Certificate}s, never <code>null</code>.
      */
     private X509Certificate[] createValidCertificateChainWithDN(String... dns) {
         X509Certificate[] result = new X509Certificate[dns.length];
-        
+
         X500Principal signerDN = m_keystore.getCA_DN();
         KeyPair signerKeyPair = m_keystore.getCA_KeyPair();
 
         for (int i = 0; i < result.length; i++) {
             KeyPair certKeyPair = m_keystore.generateKeyPair();
-            
+
             String dn = dns[i];
             int idx = result.length - i - 1;
-            
+
             result[idx] = m_keystore.createCertificate(signerDN, signerKeyPair.getPrivate(), dn, yesterday(), tomorrow(), certKeyPair.getPublic());
-            
+
             signerDN = result[idx].getSubjectX500Principal();
             signerKeyPair = certKeyPair;
         }
@@ -471,7 +480,8 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Creates a new (valid) certificate valid from yesterday until tomorrow.
      * 
-     * @param name the (common) name of the certificate;
+     * @param name
+     *            the (common) name of the certificate;
      * @return a new {@link X509Certificate}, never <code>null</code>.
      */
     private X509Certificate[] createValidCertificateChain(String name) {
@@ -483,7 +493,8 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Creates a new (expired) certificate valid from two days ago until yesterday.
      * 
-     * @param name the (common) name of the certificate;
+     * @param name
+     *            the (common) name of the certificate;
      * @return a new {@link X509Certificate}, never <code>null</code>.
      */
     private X509Certificate[] createExpiredCertificateChain(String name) {
@@ -495,7 +506,8 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Creates a new (not yet valid) certificate valid from tomorrow until the day after tomorrow.
      * 
-     * @param name the (common) name of the certificate;
+     * @param name
+     *            the (common) name of the certificate;
      * @return a new {@link X509Certificate}, never <code>null</code>.
      */
     private X509Certificate[] createNotValidCertificateChain(String name) {
