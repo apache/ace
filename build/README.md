@@ -30,7 +30,7 @@ Before you can start staging a release candidate, you must:
 Click on the Bndtools "Release workspace bundles", and release the bundles that
 have been modified and need to be released.
 
-Do *not* release other *unmodified* bundles.
+Do *not* release bundles that are not modified or do not need a release.
 
 Once done, under the shell prompt, go to the `cnf/releaserepo/` directory, run
 `svn remove` to remove the previous (old) versions of the released bundles, and
