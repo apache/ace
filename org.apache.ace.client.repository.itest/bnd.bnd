@@ -34,10 +34,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.useradmin,\
 	org.apache.felix.useradmin.filestore,\
 	org.apache.felix.log,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.shell,\
-	org.apache.felix.dependencymanager.shell,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
