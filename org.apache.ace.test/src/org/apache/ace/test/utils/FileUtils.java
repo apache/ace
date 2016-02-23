@@ -50,6 +50,10 @@ public class FileUtils {
         return tempFile;
     }
 
+    public static File createEmptyPlainJar() throws IOException {
+        return createEmptyBundle(null, null);
+    }
+    
     public static File createEmptyBundle(String bsn, Version version, String... headers) throws IOException {
         return createEmptyBundle(null, bsn, version, headers);
     }
@@ -59,8 +63,12 @@ public class FileUtils {
         Attributes mainAttrs = m.getMainAttributes();
         mainAttrs.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         mainAttrs.putValue("Bundle-ManifestVersion", "2");
-        mainAttrs.putValue("Bundle-SymbolicName", bsn);
-        mainAttrs.putValue("Bundle-Version", version.toString());
+        if (bsn != null) {
+            mainAttrs.putValue("Bundle-SymbolicName", bsn);
+        }
+        if (version != null) {
+            mainAttrs.putValue("Bundle-Version", version.toString());
+        }
         for (int i = 0; i < headers.length; i += 2) {
             mainAttrs.putValue(headers[i], headers[i + 1]);
         }

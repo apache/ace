@@ -20,14 +20,10 @@
 package org.apache.ace.it.authentication;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.jar.Attributes;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
 
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.client.repository.helper.bundle.BundleHelper;
@@ -40,7 +36,7 @@ import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.FileUtils;
 import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
-import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.log.LogReaderService;
@@ -124,7 +120,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
 
             URL testURL = new URL(m_obrURL, "index.xml");
 
-            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 403));
+            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, HttpURLConnection.HTTP_FORBIDDEN));
 
             m_authConfigPID = configureFactory("org.apache.ace.connectionfactory",
                 "authentication.baseURL", m_obrURL.toExternalForm(),
@@ -132,7 +128,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
                 "authentication.user.name", userName,
                 "authentication.user.password", password);
 
-            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 200));
+            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, HttpURLConnection.HTTP_OK));
         }
         catch (Exception e) {
             printLog(m_logReader);
@@ -250,16 +246,8 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
     public void testImportArtifactWithCredentialsOk() throws Exception {
         try {
             // Use a valid JAR file, without a Bundle-SymbolicName header.
-            Manifest manifest = new Manifest();
-            Attributes attributes = manifest.getMainAttributes();
-            attributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1");
-            attributes.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
-            attributes.putValue(BundleHelper.KEY_SYMBOLICNAME, "org.apache.ace.test1");
-
-            File temp = File.createTempFile("org.apache.ace.test1", ".jar");
+            File temp = FileUtils.createEmptyBundle("org.apache.ace.test1", new Version(1, 0, 0));
             temp.deleteOnExit();
-            JarOutputStream jos = new JarOutputStream(new FileOutputStream(temp), manifest);
-            jos.close();
 
             m_artifactRepository.importArtifact(temp.toURI().toURL(), true /* upload */);
 
@@ -267,13 +255,9 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             assertTrue(m_artifactRepository.getResourceProcessors().isEmpty());
 
             // Create a JAR file which looks like a resource processor supplying bundle.
-            attributes.putValue(BundleHelper.KEY_RESOURCE_PROCESSOR_PID, "someProcessor");
-            attributes.putValue(BundleHelper.KEY_VERSION, "1.0.0.processor");
-
-            temp = File.createTempFile("org.apache.ace.test2", ".jar");
-            temp.deleteOnExit();
-            jos = new JarOutputStream(new FileOutputStream(temp), manifest);
-            jos.close();
+            temp = FileUtils.createEmptyBundle("org.apache.ace.test2", new Version(1, 0, 0), 
+                BundleHelper.KEY_RESOURCE_PROCESSOR_PID, "someProcessor",
+                BundleHelper.KEY_VERSION, "1.0.0.processor");
 
             m_artifactRepository.importArtifact(temp.toURI().toURL(), true);
 
@@ -298,17 +282,9 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             // Delete the credentials for the OBR-URL, thereby simulating wrong credentials for the OBR...
             configuration.delete();
 
-            // Use a valid JAR file, without a Bundle-SymbolicName header.
-            Manifest manifest = new Manifest();
-            Attributes attributes = manifest.getMainAttributes();
-            attributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1");
-            attributes.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
-            attributes.putValue(BundleHelper.KEY_SYMBOLICNAME, "org.apache.ace.test3");
-
-            File temp = File.createTempFile("org.apache.ace.test3", ".jar");
+            // Use a valid JAR file, with a Bundle-SymbolicName header.
+            File temp = FileUtils.createEmptyBundle("org.apache.ace.test3", new Version(1, 0, 0));
             temp.deleteOnExit();
-            JarOutputStream jos = new JarOutputStream(new FileOutputStream(temp), manifest);
-            jos.close();
 
             try {
                 m_artifactRepository.importArtifact(temp.toURI().toURL(), true /* upload */); // should fail!
