@@ -18,9 +18,14 @@
  */
 package org.apache.ace.gogo.servlet;
 
+import static org.apache.ace.http.HttpConstants.ACE_WHITEBOARD_CONTEXT_SELECT_FILTER;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
+import java.util.Properties;
+
 import javax.servlet.Servlet;
 
-import org.apache.ace.authentication.api.AuthenticationService;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.service.command.CommandProcessor;
@@ -29,17 +34,17 @@ import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
 
-    private static final String SCRIPT_SERVLET_PID = "org.apache.ace.gogo.servlet";
-
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
+        Properties servletProps = new Properties();
+        servletProps.put(HTTP_WHITEBOARD_SERVLET_PATTERN, "/gogo/*");
+        servletProps.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WHITEBOARD_CONTEXT_SELECT_FILTER);
+        
         manager.add(createComponent()
-            .setInterface(Servlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), servletProps)
             .setImplementation(ScriptServlet.class)
-            .add(createConfigurationDependency().setPropagate(true).setPid(SCRIPT_SERVLET_PID))
             .add(createServiceDependency().setService(CommandProcessor.class).setRequired(true))
             .add(createServiceDependency().setService(LogService.class).setRequired(false))
-            .add(createServiceDependency().setService(AuthenticationService.class).setRequired(true))
         );
     }
 

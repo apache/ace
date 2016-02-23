@@ -5,6 +5,7 @@
 	${testng},\
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
+	org.apache.felix.http.api,\
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.client.repository.api;version=latest,\
@@ -15,7 +16,8 @@
 	org.apache.felix.gogo.runtime,\
 	org.apache.ace.feedback.common;version=latest,\
 	org.apache.ace.client.workspace;version=latest,\
-	org.apache.ace.test;version=latest
+	org.apache.ace.test;version=latest,\
+	org.apache.ace.http.api;version=latest
 
 Private-Package: \
 	org.apache.ace.client.rest,\

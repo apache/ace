@@ -37,7 +37,8 @@
 	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.log.server.store.file;version=latest,\
-	org.apache.ace.feedback.common;version=latest
+	org.apache.ace.feedback.common;version=latest,\
+	org.apache.ace.http.context;version=latest
 -runrepos: Workspace,\
 	Release
 -runproperties: org.apache.felix.log.storeDebug=true,\
