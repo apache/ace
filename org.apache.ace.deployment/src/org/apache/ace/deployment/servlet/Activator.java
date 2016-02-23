@@ -18,6 +18,8 @@
  */
 package org.apache.ace.deployment.servlet;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN;
+
 import java.util.Properties;
 
 import javax.servlet.Filter;
@@ -56,7 +58,7 @@ public class Activator extends DependencyActivatorBase {
         );
         
         Properties props = new Properties();
-        props.put("pattern", "/*");
+        props.put(HTTP_WHITEBOARD_FILTER_PATTERN, "/*");
         manager.add(createComponent()
             .setInterface(Filter.class.getName(), null)
             .setImplementation(OverloadedFilter.class)

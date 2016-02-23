@@ -18,6 +18,8 @@
  */
 package org.apache.ace.it.useradmin;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,7 +29,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.Repository;
@@ -59,12 +60,13 @@ public class UserAdminRepositoryTest extends IntegrationTestBase {
             conn.setDoOutput(true);
             conn.setChunkedStreamingMode(8192);
             conn.setRequestProperty("Content-Type", "application/octet-stream");
-            
+
             try (OutputStream os = conn.getOutputStream()) {
                 os.write("<roles><user name=\"user1\"><properties><test>changed</test></properties></user></roles>".getBytes());
             }
             assertEquals(200, conn.getResponseCode());
-        } finally {
+        }
+        finally {
             conn.disconnect();
         }
 
@@ -160,7 +162,8 @@ public class UserAdminRepositoryTest extends IntegrationTestBase {
         m_host = new URL("http://localhost:" + TestConstants.PORT);
 
         configure("org.apache.ace.repository.servlet.RepositoryServlet",
-            HttpConstants.ENDPOINT, "/repository", "authentication.enabled", "false");
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/repository/*",
+            "authentication.enabled", "false");
 
         configureFactory("org.apache.ace.server.repository.factory",
             "customer", "apache",

@@ -7,9 +7,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	osgi.cmpn,\
 	org.mockito.mockito-all,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
+	org.apache.felix.http.api,\
 	org.apache.felix.dependencymanager
 -runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runvm: -ea
@@ -24,7 +24,6 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
-	org.apache.ace.http.listener;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\

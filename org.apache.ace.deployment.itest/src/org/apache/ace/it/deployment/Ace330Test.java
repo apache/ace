@@ -22,6 +22,7 @@ import static org.apache.ace.it.deployment.Constants.TEST_AUTH_SCHEME;
 import static org.apache.ace.it.deployment.Constants.TEST_CUSTOMER;
 import static org.apache.ace.it.deployment.Constants.TEST_HTTP_PORT;
 import static org.apache.ace.it.deployment.Constants.TEST_TARGETID;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
 
 import java.io.File;
 import java.net.URL;
@@ -65,7 +66,7 @@ public class Ace330Test extends IntegrationTestBase {
         String obrLocation = m_obrLocation.toExternalForm();
 
         // configureFactory("org.apache.ace.log.server.servlet.factory", "name", "auditlog",
-        // "org.apache.ace.server.servlet.endpoint", "/auditlog", "authentication.enabled", "false");
+        // HTTP_WHITEBOARD_SERVLET_PATTERN, "/auditlog/*", "authentication.enabled", "false");
         // configureFactory("org.apache.ace.log.server.store.factory", "name", "auditlog");
         // the various repositories...
         configureFactory("org.apache.ace.server.repository.factory", "name", "deployment", "customer", TEST_CUSTOMER, "master", "true");
@@ -74,22 +75,39 @@ public class Ace330Test extends IntegrationTestBase {
         configureFactory("org.apache.ace.server.repository.factory", "name", "user", "customer", TEST_CUSTOMER, "master", "true", "initial", TEST_AUTH_SCHEME);
 
         configure("org.apache.ace.client.repository", "showunregisteredtargets", "true", "deploymentversionlimit", "3", "obrlocation", obrLocation);
-        configure("org.apache.ace.client.rest", "org.apache.ace.server.servlet.endpoint", "/client", "repository.url", repoLocation, "authentication.enabled", "false",
-            "customer.name", TEST_CUSTOMER, "store.repository.name", "shop",
-            "distribution.repository.name", "target", "deployment.repository.name", "deployment");
+        configure("org.apache.ace.client.rest", 
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/client/*", 
+            "repository.url", repoLocation, 
+            "authentication.enabled", "false",
+            "customer.name", TEST_CUSTOMER, 
+            "store.repository.name", "shop",
+            "distribution.repository.name", "target", 
+            "deployment.repository.name", "deployment");
 
         configure("org.apache.ace.deployment.provider.repositorybased", "url", repoLocation, "name", "deployment", "customer", TEST_CUSTOMER);
-        configure("org.apache.ace.deployment.servlet", "org.apache.ace.server.servlet.endpoint", "/deployment", "authentication.enabled", "false");
-        configure("org.apache.ace.deployment.servlet.agent", "org.apache.ace.server.servlet.endpoint", "/agent", "obr.url", obrLocation, "authentication.enabled", "false");
+        configure("org.apache.ace.deployment.servlet", 
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/deployment/*", 
+            "authentication.enabled", "false");
+        configure("org.apache.ace.deployment.servlet.agent", 
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/agent/*", 
+            "obr.url", obrLocation, 
+            "authentication.enabled", "false");
 
         configure("org.apache.ace.discovery.property", "serverURL", m_host);
         configure("org.apache.ace.identification.property", "targetID", TEST_TARGETID);
 
-        configure("org.apache.ace.obr.servlet", "org.apache.ace.server.servlet.endpoint", "/obr", "authentication.enabled", "false");
+        configure("org.apache.ace.obr.servlet", 
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/obr/*", 
+            "authentication.enabled", "false");
+        
         configure("org.apache.ace.obr.storage.file", "fileLocation", m_obrStorePath);
 
-        configure("org.apache.ace.repository.servlet.RepositoryReplicationServlet", "org.apache.ace.server.servlet.endpoint", "/replication", "authentication.enabled", "false");
-        configure("org.apache.ace.repository.servlet.RepositoryServlet", "org.apache.ace.server.servlet.endpoint", "/repository", "authentication.enabled", "false");
+        configure("org.apache.ace.repository.servlet.RepositoryReplicationServlet", 
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/replication/*", 
+            "authentication.enabled", "false");
+        configure("org.apache.ace.repository.servlet.RepositoryServlet", 
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/repository/*", 
+            "authentication.enabled", "false");
     }
 
     @Override

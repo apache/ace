@@ -18,6 +18,8 @@
  */
 package org.apache.ace.it.repositoryadmin;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
@@ -53,7 +55,6 @@ import org.apache.ace.client.repository.repository.Feature2DistributionAssociati
 import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.client.repository.repository.TargetRepository;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
-import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.obr.storage.OBRFileStoreConstants;
@@ -135,7 +136,10 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         m_obrURL = new URL(baseURL);
 
         configure("org.apache.ace.client.repository", "obrlocation", m_obrURL.toExternalForm());
-        configure("org.apache.ace.obr.servlet", "OBRInstance", "singleOBRServlet", "org.apache.ace.server.servlet.endpoint", endpoint, "authentication.enabled", "false");
+        configure("org.apache.ace.obr.servlet", 
+            "OBRInstance", "singleOBRServlet", 
+            HTTP_WHITEBOARD_SERVLET_PATTERN, endpoint.concat("/*"), 
+            "authentication.enabled", "false");
         configure("org.apache.ace.obr.storage.file", "OBRInstance", "singleOBRStore", OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
 
         // Wait for the endpoint to respond.
@@ -306,7 +310,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         // sharing violation between this bundle and the servlet bundle. In stead, we make the servlet
         // use an invalid endpoint.
         Dictionary<String, Object> propsServlet = new Hashtable<>();
-        propsServlet.put(HttpConstants.ENDPOINT, endpoint + "invalid");
+        propsServlet.put(HTTP_WHITEBOARD_SERVLET_PATTERN, endpoint + "invalid");
         propsServlet.put("OBRInstance", "singleOBRServlet");
         propsServlet.put("authentication.enabled", "false");
         Configuration configServlet = m_configAdmin.getConfiguration("org.apache.ace.obr.servlet");
@@ -432,8 +436,9 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
 
     protected void startRepositoryService() throws IOException {
         // configure the (replication)repository servlets
-        configure("org.apache.ace.repository.servlet.RepositoryServlet", HttpConstants.ENDPOINT,
-            ENDPOINT_NAME, "authentication.enabled", "false");
+        configure("org.apache.ace.repository.servlet.RepositoryServlet", 
+            HTTP_WHITEBOARD_SERVLET_PATTERN, ENDPOINT_NAME.concat("/*"), 
+            "authentication.enabled", "false");
     }
 
     @Override

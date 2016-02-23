@@ -33,6 +33,7 @@ import static org.apache.ace.client.rest.itest.ClientRestUtils.createWorkspace;
 import static org.apache.ace.client.rest.itest.ClientRestUtils.deleteResources;
 import static org.apache.ace.client.rest.itest.ClientRestUtils.ensureCleanStore;
 import static org.apache.ace.test.utils.FileUtils.createEmptyBundle;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +46,6 @@ import org.apache.ace.client.rest.util.Client;
 import org.apache.ace.client.rest.util.WebResource;
 import org.apache.ace.client.rest.util.WebResourceException;
 import org.apache.ace.client.rest.util.WebResponse;
-import org.apache.ace.http.listener.constants.HttpConstants;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.NetUtils;
@@ -368,20 +368,20 @@ public class RESTClientTest extends IntegrationTestBase {
             "obrlocation", HOST.concat("/obr/"));
 
         configure("org.apache.ace.client.rest",
-            "org.apache.ace.server.servlet.endpoint", "/client",
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/client/*",
             "repository.url", HOST.concat("/repository"),
             "authentication.enabled", "false");
 
         configure("org.apache.ace.deployment.servlet",
-            "org.apache.ace.server.servlet.endpoint", "/deployment",
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/deployment/*",
             "authentication.enabled", "false");
 
         configure("org.apache.ace.repository.servlet.RepositoryServlet",
-            "org.apache.ace.server.servlet.endpoint", "/repository",
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/repository/*",
             "authentication.enabled", "false");
 
         configure("org.apache.ace.obr.servlet",
-            "org.apache.ace.server.servlet.endpoint", "/obr",
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/obr/*",
             "authentication.enabled", "false");
 
         configure("org.apache.ace.obr.storage.file",
@@ -409,7 +409,7 @@ public class RESTClientTest extends IntegrationTestBase {
 
         configureFactory("org.apache.ace.log.server.servlet.factory",
             "name", "auditlog",
-            HttpConstants.ENDPOINT, "/auditlog",
+            HTTP_WHITEBOARD_SERVLET_PATTERN, "/auditlog/*",
             "authentication.enabled", "false");
 
         configureFactory("org.apache.ace.log.server.store.factory",

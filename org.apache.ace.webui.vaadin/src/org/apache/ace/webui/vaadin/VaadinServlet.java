@@ -18,6 +18,8 @@
  */
 package org.apache.ace.webui.vaadin;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Dictionary;
@@ -40,7 +42,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     private static final long serialVersionUID = 1L;
 
     /** denotes what endpoint we're serving this servlet. */
-    private static final String KEY_SERVLET_ENDPOINT = "org.apache.ace.server.servlet.endpoint";
+    private static final String KEY_SERVLET_ENDPOINT = HTTP_WHITEBOARD_SERVLET_PATTERN;
     /** A boolean denoting whether or not authentication is enabled. */
     private static final String KEY_USE_AUTHENTICATION = "ui.authentication.enabled";
     /** Name of the user to log in as. */
@@ -64,7 +66,7 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     private static final URL DEFAULT_ACE_HOST;
     private static final URL DEFAULT_OBR_URL;
     private static final String DEFAULT_OBR_XML = "index.xml";
-    private static final String DEFAULT_SERVLET_ENDPOINT = "/ace";
+    private static final String DEFAULT_SERVLET_ENDPOINT = "/ace/*";
     private static final int DEFAULT_SESSION_TIMEOUT = 300; // in seconds.
     private static final double DEFAULT_CACHE_RATE = 1;
     private static final int DEFAULT_PAGE_LENGTH = 100;
