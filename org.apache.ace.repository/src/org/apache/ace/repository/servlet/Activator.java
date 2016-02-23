@@ -18,6 +18,12 @@
  */
 package org.apache.ace.repository.servlet;
 
+import static org.apache.ace.http.HttpConstants.ACE_WHITEBOARD_CONTEXT_SELECT_FILTER;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
+import java.util.Properties;
+
 import javax.servlet.Servlet;
 
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -26,27 +32,25 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
-    public static final String REPOSITORY_PID = "org.apache.ace.repository.servlet.RepositoryServlet";
-    public static final String REPOSITORY_REPLICATION_PID = "org.apache.ace.repository.servlet.RepositoryReplicationServlet";
-
+    
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
+        Properties repositoryServletProps = new Properties();
+        repositoryServletProps.put(HTTP_WHITEBOARD_SERVLET_PATTERN, "/repository/*");
+        repositoryServletProps.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WHITEBOARD_CONTEXT_SELECT_FILTER);
         manager.add(createComponent()
-            .setInterface(Servlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), repositoryServletProps)
             .setImplementation(RepositoryServlet.class)
-            .add(createConfigurationDependency()
-                .setPropagate(true)
-                .setPid(REPOSITORY_PID))
             .add(createServiceDependency()
                 .setService(LogService.class)
                 .setRequired(false)));
 
+        Properties replicationServletProps = new Properties();
+        replicationServletProps.put(HTTP_WHITEBOARD_SERVLET_PATTERN, "/replication/*");
+        replicationServletProps.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WHITEBOARD_CONTEXT_SELECT_FILTER);
         manager.add(createComponent()
-            .setInterface(Servlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), replicationServletProps)
             .setImplementation(RepositoryReplicationServlet.class)
-            .add(createConfigurationDependency()
-                .setPropagate(true)
-                .setPid(REPOSITORY_REPLICATION_PID))
             .add(createServiceDependency()
                 .setService(LogService.class)
                 .setRequired(false)));

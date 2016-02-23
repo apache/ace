@@ -19,8 +19,6 @@
 
 package org.apache.ace.it.authentication;
 
-import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -98,31 +96,21 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             RepositoryConstants.REPOSITORY_NAME, "users",
             RepositoryConstants.REPOSITORY_CUSTOMER, "apache",
             RepositoryConstants.REPOSITORY_MASTER, "true");
-        
-        configure("org.apache.ace.repository.servlet.RepositoryServlet",
-            HTTP_WHITEBOARD_SERVLET_PATTERN, "/repository/*", 
-            "authentication.enabled", "false");
 
         configure("org.apache.ace.useradmin.repository",
             "repositoryLocation", "http://localhost:" + TestConstants.PORT + "/repository",
             "repositoryCustomer", "apache",
             "repositoryName", "users");
-        
-        configure("org.apache.ace.log.server.store.filebased", "MaxEvents", "0");
-        
 
-        configure("org.apache.ace.obr.servlet",
-            "OBRInstance", "singleOBRServlet",
-            HTTP_WHITEBOARD_SERVLET_PATTERN, m_endpoint.concat("/*"),
-            "authentication.enabled", "true");
+        configure("org.apache.ace.log.server.store.filebased", "MaxEvents", "0");
 
         m_obrURL = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/");
 
         configure("org.apache.ace.client.repository", "obrlocation", m_obrURL.toExternalForm());
 
-        configure("org.apache.ace.obr.storage.file",
-            "OBRInstance", "singleOBRStore",
-            OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
+        configure("org.apache.ace.obr.storage.file", OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
+
+        configure("org.apache.ace.http.context", "authentication.enabled", "true");
     }
 
     @Override
@@ -132,10 +120,10 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             String password = "f";
             importSingleUser(m_userRepository, userName, password);
             waitForUser(m_userAdmin, userName);
-            
-            URL testURL = new URL(m_obrURL, "index.xml");            
-            
-            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
+
+            URL testURL = new URL(m_obrURL, "index.xml");
+
+            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 403, 15000));
 
             m_authConfigPID = configureFactory("org.apache.ace.connectionfactory",
                 "authentication.baseURL", m_obrURL.toExternalForm(),
@@ -228,7 +216,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             assertNotNull(conn);
 
             // we expect a 401 for this URL...
-            NetUtils.waitForURL(url, 401, 15000);
+            NetUtils.waitForURL(url, 401, 5000);
 
             try {
                 // ...causing all other methods on URLConnection to fail...

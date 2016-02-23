@@ -18,8 +18,6 @@
  */
 package org.apache.ace.it.authentication;
 
-import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -51,7 +49,6 @@ import org.osgi.service.useradmin.UserAdmin;
  * and we check if it is indeed replicated to the server.
  */
 public class LogAuthenticationTest extends AuthenticationTestBase {
-
     private static final String AUDITLOG_ENDPOINT = "/auditlog";
 
     private static final String HOST = "localhost";
@@ -90,7 +87,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
         try {
             String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
             URL testURL = new URL(baseURL.concat(AUDITLOG_ENDPOINT));
-            assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 401, 15000));
+            assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 403, 15000));
 
             String userName = "d";
             String password = "f";
@@ -141,11 +138,11 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
         configureFactory("org.apache.ace.target.log.sync.factory",
             "name", "auditlog");
         configureFactory("org.apache.ace.log.server.servlet.factory",
-            "name", "auditlog",
-            HTTP_WHITEBOARD_SERVLET_PATTERN, AUDITLOG_ENDPOINT.concat("/*"),
-            "authentication.enabled", "true");
+            "name", "auditlog", "endpoint", AUDITLOG_ENDPOINT);
         configureFactory("org.apache.ace.log.server.store.factory",
             "name", "auditlog");
+
+        configure("org.apache.ace.http.context", "authentication.enabled", "true");
     }
 
     @Override

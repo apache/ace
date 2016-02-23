@@ -67,7 +67,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
 	org.apache.ace.client.repository.helper.configuration;version=latest,\
 	org.apache.ace.client.repository.impl;version=latest,\
-	org.apache.ace.feedback.common;version=latest
+	org.apache.ace.feedback.common;version=latest,\
+	org.apache.ace.http.context;version=latest
+	
 -runproperties: \
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.apache.felix.log.storeDebug=true,\

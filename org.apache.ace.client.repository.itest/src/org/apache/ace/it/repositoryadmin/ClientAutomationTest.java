@@ -44,8 +44,6 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
      * to do with this operator.
      */
     public void testAutoTargetOperator() throws Exception {
-        startRepositoryService();
-        
         createTestUser();
 
         addRepository("storeInstance", "apache", "store", true);

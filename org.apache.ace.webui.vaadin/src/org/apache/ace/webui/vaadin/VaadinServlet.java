@@ -18,8 +18,6 @@
  */
 package org.apache.ace.webui.vaadin;
 
-import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Dictionary;
@@ -39,10 +37,10 @@ import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 
 public class VaadinServlet extends AbstractApplicationServlet implements ManagedService {
+    public static final String DEFAULT_SERVLET_ENDPOINT = "/ace";
+
     private static final long serialVersionUID = 1L;
 
-    /** denotes what endpoint we're serving this servlet. */
-    private static final String KEY_SERVLET_ENDPOINT = HTTP_WHITEBOARD_SERVLET_PATTERN;
     /** A boolean denoting whether or not authentication is enabled. */
     private static final String KEY_USE_AUTHENTICATION = "ui.authentication.enabled";
     /** Name of the user to log in as. */
@@ -66,7 +64,6 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     private static final URL DEFAULT_ACE_HOST;
     private static final URL DEFAULT_OBR_URL;
     private static final String DEFAULT_OBR_XML = "index.xml";
-    private static final String DEFAULT_SERVLET_ENDPOINT = "/ace/*";
     private static final int DEFAULT_SESSION_TIMEOUT = 300; // in seconds.
     private static final double DEFAULT_CACHE_RATE = 1;
     private static final int DEFAULT_PAGE_LENGTH = 100;
@@ -88,7 +85,6 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     private volatile URL m_aceHost;
     private volatile URL m_obrUrl;
     private volatile String m_repositoryXML;
-    private volatile String m_servletEndpoint;
     private volatile int m_sessionTimeout;
     private volatile double m_cacheRate;
     private volatile int m_pageLength;
@@ -103,7 +99,6 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         m_aceHost = DEFAULT_ACE_HOST;
         m_obrUrl = DEFAULT_OBR_URL;
         m_repositoryXML = DEFAULT_OBR_XML;
-        m_servletEndpoint = DEFAULT_SERVLET_ENDPOINT;
         m_sessionTimeout = DEFAULT_SESSION_TIMEOUT;
         m_cacheRate = DEFAULT_CACHE_RATE;
         m_pageLength = DEFAULT_PAGE_LENGTH;
@@ -117,7 +112,6 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         URL aceHost = DEFAULT_ACE_HOST;
         URL obrUrl = DEFAULT_OBR_URL;
         String repositoryXML = DEFAULT_OBR_XML;
-        String servletEndpoint = DEFAULT_SERVLET_ENDPOINT;
         int sessionTimeout = DEFAULT_SESSION_TIMEOUT;
         double cacheRate = DEFAULT_CACHE_RATE;
         int pageLength = DEFAULT_PAGE_LENGTH;
@@ -129,7 +123,6 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
             aceHost = getURL(dictionary, KEY_ACE_HOST);
             obrUrl = getURL(dictionary, KEY_OBR_URL);
             repositoryXML = getOptionalString(dictionary, KEY_OBR_XML);
-            servletEndpoint = getOptionalString(dictionary, KEY_SERVLET_ENDPOINT);
             sessionTimeout = getInteger(dictionary, KEY_SESSION_TIMEOUT);
             
             Double doubleValue = getOptionalDouble(dictionary, KEY_CACHE_RATE);
@@ -157,7 +150,6 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
         m_aceHost = aceHost;
         m_obrUrl = obrUrl;
         m_repositoryXML = repositoryXML;
-        m_servletEndpoint = servletEndpoint;
         m_sessionTimeout = sessionTimeout;
         m_cacheRate = cacheRate;
         m_pageLength = pageLength;
@@ -184,16 +176,16 @@ public class VaadinServlet extends AbstractApplicationServlet implements Managed
     protected SystemMessages getSystemMessages() {
         CustomizedSystemMessages msgs = new CustomizedSystemMessages();
         msgs.setAuthenticationErrorNotificationEnabled(false);
-        msgs.setAuthenticationErrorURL(m_servletEndpoint.concat("/?authenticationError"));
+        msgs.setAuthenticationErrorURL(DEFAULT_SERVLET_ENDPOINT.concat("/?authenticationError"));
         msgs.setCommunicationErrorNotificationEnabled(false);
-        msgs.setCommunicationErrorURL(m_servletEndpoint.concat("/?communicationError"));
+        msgs.setCommunicationErrorURL(DEFAULT_SERVLET_ENDPOINT.concat("/?communicationError"));
         msgs.setCookiesDisabledNotificationEnabled(false);
-        msgs.setCookiesDisabledURL(m_servletEndpoint.concat("/?cookiesDisabled"));
+        msgs.setCookiesDisabledURL(DEFAULT_SERVLET_ENDPOINT.concat("/?cookiesDisabled"));
         msgs.setInternalErrorNotificationEnabled(false);
-        msgs.setInternalErrorURL(m_servletEndpoint.concat("/?internalError"));
+        msgs.setInternalErrorURL(DEFAULT_SERVLET_ENDPOINT.concat("/?internalError"));
         msgs.setOutOfSyncNotificationEnabled(false);
         msgs.setSessionExpiredNotificationEnabled(false);
-        msgs.setSessionExpiredURL(m_servletEndpoint.concat("/?sessionTimedOut"));
+        msgs.setSessionExpiredURL(DEFAULT_SERVLET_ENDPOINT.concat("/?sessionTimedOut"));
         return msgs;
     }
 

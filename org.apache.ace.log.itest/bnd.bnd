@@ -48,7 +48,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\
 	org.apache.ace.log.api;version=latest,\
-	org.apache.ace.feedback.common;version=latest
+	org.apache.ace.feedback.common;version=latest,\
+	org.apache.ace.http.context;version=latest
+	
 Private-Package: org.apache.ace.it.log
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Log itest

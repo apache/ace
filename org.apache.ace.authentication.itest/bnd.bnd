@@ -65,7 +65,8 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\
-	org.apache.ace.useradmin.repository
+	org.apache.ace.useradmin.repository;version=latest,\
+	org.apache.ace.http.context;version=latest
 	
 Private-Package: org.apache.ace.it.authentication
 Bundle-Version: 1.0.0

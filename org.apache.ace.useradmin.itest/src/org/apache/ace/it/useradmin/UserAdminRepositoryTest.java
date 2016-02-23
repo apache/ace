@@ -18,8 +18,6 @@
  */
 package org.apache.ace.it.useradmin;
 
-import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -161,10 +159,6 @@ public class UserAdminRepositoryTest extends IntegrationTestBase {
     protected void configureProvisionedServices() throws Exception {
         m_host = new URL("http://localhost:" + TestConstants.PORT);
 
-        configure("org.apache.ace.repository.servlet.RepositoryServlet",
-            HTTP_WHITEBOARD_SERVLET_PATTERN, "/repository/*",
-            "authentication.enabled", "false");
-
         configureFactory("org.apache.ace.server.repository.factory",
             "customer", "apache",
             "name", "user",
@@ -175,6 +169,8 @@ public class UserAdminRepositoryTest extends IntegrationTestBase {
             "repositoryLocation", "http://localhost:" + TestConstants.PORT + "/repository",
             "repositoryCustomer", "apache",
             "repositoryName", "user");
+
+        configure("org.apache.ace.http.context", "authentication.enabled", "false");
 
         Utils.waitForWebserver(m_host);
     }

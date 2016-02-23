@@ -18,8 +18,6 @@
  */
 package org.apache.ace.it.log;
 
-import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -43,9 +41,7 @@ import org.osgi.service.http.HttpService;
  * replicated to the server.
  */
 public class LogIntegrationTest extends IntegrationTestBase {
-
 	private static final String AUDITLOG = "/auditlog";
-    private static final String DEPLOYMENT = "/deployment";
 
     public static final String HOST = "localhost";
     public static final String TARGET_ID = "target-id";
@@ -73,22 +69,17 @@ public class LogIntegrationTest extends IntegrationTestBase {
         configureFactory("org.apache.ace.target.log.factory",
                 "name", "auditlog");
         configureFactory("org.apache.ace.target.log.sync.factory",
-                "name", "auditlog", 
-                "authentication.enabled", "false");
-
-        configure("org.apache.ace.deployment.servlet",
-                HTTP_WHITEBOARD_SERVLET_PATTERN, DEPLOYMENT.concat("/*"), 
-                "authentication.enabled", "false");
+                "name", "auditlog");
 
         configure("org.apache.ace.log.server.store.filebased", 
                 "MaxEvents", "0");
         
         configureFactory("org.apache.ace.log.server.servlet.factory",
-                "name", "auditlog",
-                HTTP_WHITEBOARD_SERVLET_PATTERN, AUDITLOG.concat("/*"), 
-                "authentication.enabled", "false");
+                "name", "auditlog", "endpoint", AUDITLOG);
         configureFactory("org.apache.ace.log.server.store.factory",
                 "name", "auditlog");
+
+        configure("org.apache.ace.http.context", "authentication.enabled", "false");
     }
 
     protected Component[] getDependencies() {

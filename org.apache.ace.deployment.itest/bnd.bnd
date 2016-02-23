@@ -61,7 +61,9 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.test;version=latest,\
-	org.apache.ace.range.api;version=latest
+	org.apache.ace.range.api;version=latest,\
+	org.apache.ace.http.context;version=latest
+	
 Private-Package: \
 	org.apache.ace.it.deployment,\
 	org.apache.ace.deployment.util.test,\

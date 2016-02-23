@@ -18,5 +18,6 @@
 	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.range.api;version=latest,\
+	org.apache.ace.http.api;version=latest,\
 	org.easymock
 -sub: *.bnd

@@ -80,6 +80,8 @@ public class XStreamTest {
         String outputString = sw.toString();
 
         String validXmlFileString = new String(Files.readAllBytes(Paths.get("test/valid.xml")));
+        // Remove the comment...
+        validXmlFileString = validXmlFileString.replaceAll("<!--[^\r\n]+-->[\r\n]+", "");
 
         assertEquals(outputString, validXmlFileString);
     }

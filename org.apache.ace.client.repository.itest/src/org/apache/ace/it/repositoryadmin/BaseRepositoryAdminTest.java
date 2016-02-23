@@ -18,8 +18,6 @@
  */
 package org.apache.ace.it.repositoryadmin;
 
-import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
-
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
@@ -110,7 +108,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         }
     }
 
-    protected static final String ENDPOINT_NAME = "/AdminRepTest";
+    protected static final String ENDPOINT_NAME = "/repository";
     protected static final String HOST = "http://localhost:" + TestConstants.PORT;
 
     protected URL m_endpoint;
@@ -136,11 +134,8 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         m_obrURL = new URL(baseURL);
 
         configure("org.apache.ace.client.repository", "obrlocation", m_obrURL.toExternalForm());
-        configure("org.apache.ace.obr.servlet", 
-            "OBRInstance", "singleOBRServlet", 
-            HTTP_WHITEBOARD_SERVLET_PATTERN, endpoint.concat("/*"), 
-            "authentication.enabled", "false");
-        configure("org.apache.ace.obr.storage.file", "OBRInstance", "singleOBRStore", OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
+
+        configure("org.apache.ace.obr.storage.file", OBRFileStoreConstants.FILE_LOCATION_KEY, fileLocation);
 
         // Wait for the endpoint to respond.
         URL repoURL = new URL(baseURL + "index.xml");
@@ -192,8 +187,9 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
 
         configure("org.apache.ace.log.server.store.filebased", "MaxEvents", "0");
 
-        configureFactory("org.apache.ace.log.server.store.factory",
-            "name", "auditlog", "authentication.enabled", "false");
+        configureFactory("org.apache.ace.log.server.store.factory", "name", "auditlog");
+
+        configure("org.apache.ace.http.context", "authentication.enabled", "false");
     }
 
     protected final void cleanUp() throws InvalidSyntaxException, InterruptedException {
@@ -305,31 +301,6 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         return user;
     }
 
-    protected void deleteObr(String endpoint) throws IOException, InvalidSyntaxException, InterruptedException {
-        // This is a little ugly: we cannot just delete the configuration, since that will result in a
-        // sharing violation between this bundle and the servlet bundle. In stead, we make the servlet
-        // use an invalid endpoint.
-        Dictionary<String, Object> propsServlet = new Hashtable<>();
-        propsServlet.put(HTTP_WHITEBOARD_SERVLET_PATTERN, endpoint + "invalid");
-        propsServlet.put("OBRInstance", "singleOBRServlet");
-        propsServlet.put("authentication.enabled", "false");
-        Configuration configServlet = m_configAdmin.getConfiguration("org.apache.ace.obr.servlet");
-
-        configServlet.update(propsServlet);
-
-        URL url = new URL("http://localhost:" + TestConstants.PORT + "/" + endpoint + "/index.xml");
-        int response = ((HttpURLConnection) url.openConnection()).getResponseCode();
-        int tries = 0;
-        while ((response != 404) && (tries < 50)) {
-            Thread.sleep(100); // If we get interrupted, there will be a good reason for it.
-            response = ((HttpURLConnection) url.openConnection()).getResponseCode();
-            tries++;
-        }
-        if (tries == 50) {
-            throw new IOException("The OBR servlet does not want to go away. Last response code: " + response);
-        }
-    }
-
     protected Component[] getDependencies() {
         return new Component[] {
             createComponent()
@@ -353,7 +324,7 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
     protected <T> T runAndWaitForEvent(Callable<T> callable, final boolean debug, final String... topicList) throws Exception {
         return runAndWaitForEvent(callable, debug, null, topicList);
     }
-    
+
     protected <T> T runAndWaitForEvent(Callable<T> callable, final boolean debug, final List<Event> events, final String... topicList) throws Exception {
         Dictionary<String, Object> topics = new Hashtable<>();
         topics.put(EventConstants.EVENT_TOPIC, topicList);
@@ -382,12 +353,12 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
                 }
             });
         comp.add(new ComponentStateListener() {
-			@Override
-			public void changed(Component component, ComponentState state) {
-				if (state == ComponentState.TRACKING_OPTIONAL) {
-					startLatch.countDown();
-				}
-			}
+            @Override
+            public void changed(Component component, ComponentState state) {
+                if (state == ComponentState.TRACKING_OPTIONAL) {
+                    startLatch.countDown();
+                }
+            }
         });
 
         if (debug) {
@@ -432,13 +403,6 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
         finally {
             m_dependencyManager.remove(comp);
         }
-    }
-
-    protected void startRepositoryService() throws IOException {
-        // configure the (replication)repository servlets
-        configure("org.apache.ace.repository.servlet.RepositoryServlet", 
-            HTTP_WHITEBOARD_SERVLET_PATTERN, ENDPOINT_NAME.concat("/*"), 
-            "authentication.enabled", "false");
     }
 
     @Override
@@ -495,15 +459,15 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
             final Semaphore sem = new Semaphore(0);
 
             ServiceTracker<Repository, Repository> tracker = new ServiceTracker<Repository, Repository>(m_bundleContext, Repository.class, null) {
-                    @Override
-                    public void removedService(ServiceReference<Repository> reference, Repository service) {
-                        super.removedService(reference, service);
-                        // config.length times two because the service tracker also sees added events for each instance
-                        if (size() == 0) {
-                            sem.release();
-                        }
+                @Override
+                public void removedService(ServiceReference<Repository> reference, Repository service) {
+                    super.removedService(reference, service);
+                    // config.length times two because the service tracker also sees added events for each instance
+                    if (size() == 0) {
+                        sem.release();
                     }
-                };
+                }
+            };
             tracker.open();
 
             for (int i = 0; i < configs.length; i++) {

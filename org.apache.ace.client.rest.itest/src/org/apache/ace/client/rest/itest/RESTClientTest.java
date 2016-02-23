@@ -33,7 +33,6 @@ import static org.apache.ace.client.rest.itest.ClientRestUtils.createWorkspace;
 import static org.apache.ace.client.rest.itest.ClientRestUtils.deleteResources;
 import static org.apache.ace.client.rest.itest.ClientRestUtils.ensureCleanStore;
 import static org.apache.ace.test.utils.FileUtils.createEmptyBundle;
-import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
 
 import java.io.File;
 import java.io.IOException;
@@ -368,21 +367,7 @@ public class RESTClientTest extends IntegrationTestBase {
             "obrlocation", HOST.concat("/obr/"));
 
         configure("org.apache.ace.client.rest",
-            HTTP_WHITEBOARD_SERVLET_PATTERN, "/client/*",
-            "repository.url", HOST.concat("/repository"),
-            "authentication.enabled", "false");
-
-        configure("org.apache.ace.deployment.servlet",
-            HTTP_WHITEBOARD_SERVLET_PATTERN, "/deployment/*",
-            "authentication.enabled", "false");
-
-        configure("org.apache.ace.repository.servlet.RepositoryServlet",
-            HTTP_WHITEBOARD_SERVLET_PATTERN, "/repository/*",
-            "authentication.enabled", "false");
-
-        configure("org.apache.ace.obr.servlet",
-            HTTP_WHITEBOARD_SERVLET_PATTERN, "/obr/*",
-            "authentication.enabled", "false");
+            "repository.url", HOST.concat("/repository"));
 
         configure("org.apache.ace.obr.storage.file",
             "fileLocation", STOREPATH);
@@ -408,9 +393,7 @@ public class RESTClientTest extends IntegrationTestBase {
             "deployment.repository.name", "deployment");
 
         configureFactory("org.apache.ace.log.server.servlet.factory",
-            "name", "auditlog",
-            HTTP_WHITEBOARD_SERVLET_PATTERN, "/auditlog/*",
-            "authentication.enabled", "false");
+            "name", "auditlog", "endpoint", "/auditlog");
 
         configureFactory("org.apache.ace.log.server.store.factory",
             "name", "auditlog");
@@ -440,6 +423,7 @@ public class RESTClientTest extends IntegrationTestBase {
             "customer", "apache",
             "master", "true");
 
+        configure("org.apache.ace.http.context", "authentication.enabled", "false");
     }
 
     /** Create a user so we can log in to the server. */

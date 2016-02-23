@@ -39,7 +39,8 @@
 	org.apache.ace.repository.servlets;version=latest,\
 	org.apache.ace.repository.task;version=latest,\
 	org.apache.ace.scheduler.impl;version=latest,\
-	org.apache.ace.useradmin.repository;version=latest
+	org.apache.ace.useradmin.repository;version=latest,\
+	org.apache.ace.http.context;version=latest
 -runrepos: Workspace,\
 	Release
 -runproperties: org.apache.felix.log.storeDebug=true,\

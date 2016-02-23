@@ -18,6 +18,12 @@
  */
 package org.apache.ace.obr.servlet;
 
+import static org.apache.ace.http.HttpConstants.ACE_WHITEBOARD_CONTEXT_SELECT_FILTER;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
+import java.util.Properties;
+
 import javax.servlet.Servlet;
 
 import org.apache.ace.obr.storage.BundleStore;
@@ -27,26 +33,21 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
-    public static final String PID = "org.apache.ace.obr.servlet";
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
+        Properties servletProps = new Properties();
+        servletProps.put(HTTP_WHITEBOARD_SERVLET_PATTERN, BundleServlet.SERVLET_ENDPOINT.concat("*"));
+        servletProps.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WHITEBOARD_CONTEXT_SELECT_FILTER);
+
         manager.add(createComponent()
-            .setInterface(Servlet.class.getName(), null)
+            .setInterface(Servlet.class.getName(), servletProps)
             .setImplementation(BundleServlet.class)
-            .add(createConfigurationDependency()
-                .setPropagate(true)
-                .setPid(PID))
             .add(createServiceDependency()
                 .setService(BundleStore.class)
                 .setRequired(true))
             .add(createServiceDependency()
                 .setService(LogService.class)
                 .setRequired(false)));
-    }
-
-    @Override
-    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
-        // do nothing
     }
 }

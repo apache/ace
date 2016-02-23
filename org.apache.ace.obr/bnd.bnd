@@ -14,6 +14,7 @@
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.deployment.provider.base;version=latest,\
 	org.apache.ace.deployment.util.test;version=latest,\
+	org.apache.ace.http.api;version=latest,\
 	org.osgi.impl.bundle.repoindex.lib;packages="org.osgi.service.indexer,org.osgi.service.indexer.impl"
 	
 	

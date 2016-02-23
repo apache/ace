@@ -18,8 +18,6 @@
  */
 package org.apache.ace.it.deployment;
 
-import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -302,13 +300,11 @@ public class DeploymentIntegrationTest extends IntegrationTestBase implements Bu
     }
 
     private void configureServer() throws IOException {
-        // configure data bundle
-        configure("org.apache.ace.deployment.servlet", 
-            HTTP_WHITEBOARD_SERVLET_PATTERN, "/deployment/*", 
-            "authentication.enabled", "false");
         // configure file based backend
         configure("org.apache.ace.deployment.provider.filebased", 
             "BaseDirectoryName", m_tempDir.getAbsolutePath());
+
+        configure("org.apache.ace.http.context", "authentication.enabled", "false");
     }
 
     private void configureTarget() throws IOException {

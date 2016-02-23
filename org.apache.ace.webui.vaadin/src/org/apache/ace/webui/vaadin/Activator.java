@@ -18,6 +18,13 @@
  */
 package org.apache.ace.webui.vaadin;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_NAME;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_PATH;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PREFIX;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
+
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,7 +36,8 @@ import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.service.http.HttpService;
+import org.osgi.service.http.context.ServletContextHelper;
+import org.osgi.service.log.LogService;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -38,31 +46,39 @@ import com.vaadin.ui.VerticalLayout;
 public class Activator extends DependencyActivatorBase {
     private static final String PID = "org.apache.ace.webui.vaadin";
 
-    @Override
-    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
-    }
+    private static final String ACE_WEBUI_WHITEBOARD_CONTEXT_NAME = "org.apache.ace.webui";
+    private static final String ACE_WEBUI_WHITEBOARD_CONTEXT_SELECT_FILTER = "(" + HTTP_WHITEBOARD_CONTEXT_NAME + "=" + ACE_WEBUI_WHITEBOARD_CONTEXT_NAME + ")";
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
+        Properties contextProps = new Properties();
+        contextProps.put(HTTP_WHITEBOARD_CONTEXT_NAME, ACE_WEBUI_WHITEBOARD_CONTEXT_NAME);
+        contextProps.put(HTTP_WHITEBOARD_CONTEXT_PATH, "/");
         manager.add(createComponent()
-            .setImplementation(VaadinResourceHandler.class)
-            .add(createServiceDependency()
-                .setService(HttpService.class)
-                .setRequired(true)
-            )
-            );
-        
+            .setInterface(ServletContextHelper.class.getName(), contextProps)
+            .setImplementation(AceWebuiServletContextHelper.class)
+            .add(createConfigurationDependency().setPid(PID))
+            .add(createServiceDependency().setService(LogService.class).setRequired(false)));
+
+        Properties resourceRegistrationProps = new Properties();
+        resourceRegistrationProps.put(HTTP_WHITEBOARD_RESOURCE_PREFIX, "/VAADIN");
+        resourceRegistrationProps.put(HTTP_WHITEBOARD_RESOURCE_PATTERN, "/VAADIN/*");
+        resourceRegistrationProps.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WEBUI_WHITEBOARD_CONTEXT_SELECT_FILTER);
+        manager.add(createComponent()
+            .setInterface(Object.class.getName(), resourceRegistrationProps)
+            .setImplementation(new Object()));
+
         Properties props = new Properties();
         // ACE-472 - put Vaadin in production mode...
         props.put("init.productionMode", "true");
-        
+        props.put(HTTP_WHITEBOARD_SERVLET_PATTERN, VaadinServlet.DEFAULT_SERVLET_ENDPOINT.concat("/*"));
+        props.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WEBUI_WHITEBOARD_CONTEXT_SELECT_FILTER);
+
         // register the main application for the ACE UI client
         manager.add(createComponent()
             .setInterface(Servlet.class.getName(), props)
             .setImplementation(VaadinServlet.class)
-            .add(createConfigurationDependency()
-                .setPid(PID).setPropagate(true))
-            );
+            .add(createConfigurationDependency().setPid(PID)));
 
         props = new Properties();
         props.put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET);
@@ -87,7 +103,6 @@ public class Activator extends DependencyActivatorBase {
                     vl.addComponent(info);
                     return vl;
                 }
-            })
-            );
+            }));
     }
 }

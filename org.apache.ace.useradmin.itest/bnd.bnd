@@ -29,7 +29,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlets;version=latest,\
-	org.apache.ace.useradmin.repository
+	org.apache.ace.useradmin.repository,\
+	org.apache.ace.http.context;version=latest
 	
 Private-Package: org.apache.ace.it.useradmin
 Bundle-Version: 1.0.0

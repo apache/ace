@@ -21,7 +21,6 @@ package org.apache.ace.it.repository;
 import static org.apache.ace.it.repository.Utils.get;
 import static org.apache.ace.it.repository.Utils.put;
 import static org.apache.ace.it.repository.Utils.query;
-import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -298,12 +297,7 @@ public class RepositoryTest extends IntegrationTestBase {
     protected void configureProvisionedServices() throws IOException {
         m_host = new URL("http://localhost:" + TestConstants.PORT);
 
-        configure("org.apache.ace.repository.servlet.RepositoryReplicationServlet",
-            HTTP_WHITEBOARD_SERVLET_PATTERN, "/replication/*", 
-            "authentication.enabled", "false");
-        configure("org.apache.ace.repository.servlet.RepositoryServlet",
-            HTTP_WHITEBOARD_SERVLET_PATTERN, "/repository/*", 
-            "authentication.enabled", "false");
+        configure("org.apache.ace.http.context", "authentication.enabled", "false");
 
         Utils.waitForWebserver(m_host);
     }

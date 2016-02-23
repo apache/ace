@@ -303,8 +303,6 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
     private void setupRepository() throws IOException, InterruptedException, InvalidSyntaxException {
         User user = new MockUser();
 
-        startRepositoryService();
-
         addRepository("storeInstance", "apache", "store", true);
         addRepository("targetInstance", "apache", "target", true);
         addRepository("deploymentInstance", "apache", "deployment", true);
@@ -407,8 +405,6 @@ public class TemplateProcessorTest extends BaseRepositoryAdminTest {
         inFile = tryGetStringFromURL(findXmlUrlInDeploymentObject(dvo), 10, 100);
 
         assertEquals(xmlHeader + simpleTemplateProcessed + xmlFooter, inFile);
-
-        deleteObr("/obr");
     }
 
     /**

@@ -763,8 +763,6 @@ public class StatefulTargetRepositoryTest extends BaseRepositoryAdminTest {
         User user = new MockUser();
         String customer = "customer-" + Long.toHexString(System.currentTimeMillis());
 
-        startRepositoryService();
-
         addRepository("storeInstance", customer, "store", true);
         addRepository("targetInstance", customer, "target", true);
         addRepository("deploymentInstance", customer, "deployment", true);

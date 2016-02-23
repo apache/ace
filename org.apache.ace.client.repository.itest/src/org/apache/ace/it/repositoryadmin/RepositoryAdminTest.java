@@ -139,8 +139,6 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
     public void testAutoApprove() throws Exception {
         User user = new MockUser();
 
-        startRepositoryService();
-
         addRepository("storeInstance", "apache", "store", true);
         addRepository("targetInstance", "apache", "target", true);
         addRepository("deploymentInstance", "apache", "deployment", true);
@@ -165,9 +163,8 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
             }
         }, false, TargetObject.TOPIC_ADDED, TOPIC_ADDED);
 
-        final StatefulTargetObject sgo =
-            m_statefulTargetRepository.get(
-                m_bundleContext.createFilter("(" + TargetObject.KEY_ID + "=" + "testAutoApproveTarget)")).get(0);
+        final StatefulTargetObject sgo = m_statefulTargetRepository.get(
+            m_bundleContext.createFilter("(" + TargetObject.KEY_ID + "=" + "testAutoApproveTarget)")).get(0);
 
         // Set up some deployment information for the target.
         final FeatureObject g = runAndWaitForEvent(new Callable<FeatureObject>() {
@@ -294,8 +291,6 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
 
         assertTrue(m_artifactRepository.get().size() == 1);
         assertTrue(m_artifactRepository.getResourceProcessors().size() == 1);
-
-        deleteObr("/obr");
     }
 
     public void testImportArtifactInvalidURL() throws Exception {
@@ -323,8 +318,6 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
     public void testLoginLogoutAndLoginOnceAgainWhileCreatingAnAssociation() throws IOException, InterruptedException,
         InvalidSyntaxException {
         User user1 = new MockUser();
-
-        startRepositoryService();
 
         addRepository("storeInstance", "apache", "store", true);
         addRepository("targetInstance", "apache", "target", true);
@@ -354,8 +347,6 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
      */
     public void testReadOnlyRepositoryAccess() throws Exception {
         User user1 = new MockUser();
-
-        startRepositoryService();
 
         addRepository("storeInstance", "apache", "store", true);
         addRepository("targetInstance", "apache", "target", true);
@@ -452,8 +443,6 @@ public class RepositoryAdminTest extends BaseRepositoryAdminTest {
     public void testRepositoryAdmin() throws Exception {
         final User user1 = new MockUser();
         final User user2 = new MockUser();
-
-        startRepositoryService();
 
         addRepository("storeInstance", "apache", "store", true);
         addRepository("targetInstance", "apache", "target", true);
