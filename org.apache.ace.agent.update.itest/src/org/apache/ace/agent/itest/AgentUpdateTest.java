@@ -137,6 +137,10 @@ public class AgentUpdateTest extends IntegrationTestBase {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String path = req.getPathInfo();
+            if (path == null) {
+                path = "/";
+            }
+            
             if ("/repository.xml".equals(path)) {
                 PrintWriter w = resp.getWriter();
                 w.println("<?xml version='1.0' encoding='utf-8'?><repository>");
@@ -264,14 +268,14 @@ public class AgentUpdateTest extends IntegrationTestBase {
         m_servlet = new AgentUpdateOBRServlet(currentAgentVersion);
 
         String url = String.format("http://localhost:%d/obr", TestConstants.PORT);
-        NetUtils.waitForURL(url, 404, 10000);
+        NetUtils.waitForURL_NotFound(url);
 
         m_http.registerServlet("/obr", m_servlet, null, null);
         m_http.registerServlet("/auditlog", new DummyAuditLogServlet(), null, null);
         m_http.registerServlet("/deployment", new DeploymentServlet(), null, null);
         m_http.registerServlet("/agent", new DummyAgentVersionServlet(), null, null);
 
-        NetUtils.waitForURL(url, 200, 10000);
+        NetUtils.waitForURL(url);
     }
 
     @Override

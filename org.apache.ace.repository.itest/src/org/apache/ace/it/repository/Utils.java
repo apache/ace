@@ -20,12 +20,14 @@
 package org.apache.ace.it.repository;
 
 import java.io.Closeable;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import org.apache.ace.test.utils.NetUtils;
 
 final class Utils {
 
@@ -44,22 +46,7 @@ final class Utils {
     }
 
     static void closeSilently(HttpURLConnection resource) {
-        if (resource != null) {
-            try {
-                flushStream(resource.getInputStream());
-            }
-            catch (IOException exception) {
-                // Ignore...
-            }
-            try {
-                InputStream es = resource.getErrorStream();
-                if (es != null) {
-                    flushStream(es);
-                }
-            } finally {
-                resource.disconnect();
-            }
-        }
+        NetUtils.closeConnection(resource);
     }
 
     /* copy in to out */
@@ -99,30 +86,15 @@ final class Utils {
 
             responseCode = connection.getResponseCode();
         }
-        catch (IOException e) {
-            responseCode = handleIOException(connection);
+        catch (FileNotFoundException e) {
+            // Ignore...
+            responseCode = HttpURLConnection.HTTP_NOT_FOUND;
         }
         finally {
             closeSilently(connection);
         }
 
         return responseCode;
-    }
-
-    /**
-     * @see http://docs.oracle.com/javase/6/docs/technotes/guides/net/http-keepalive.html
-     */
-    static int handleIOException(HttpURLConnection conn) {
-        int respCode = -2;
-        try {
-            respCode = conn.getResponseCode();
-            flushStream(conn.getErrorStream());
-        }
-        catch (IOException ex) {
-            // deal with the exception
-            ex.printStackTrace();
-        }
-        return respCode;
     }
 
     static int put(URL host, String endpoint, String customer, String name, String version, InputStream in) throws IOException {
@@ -139,14 +111,13 @@ final class Utils {
 
         try (OutputStream out = connection.getOutputStream()) {
             copy(in, out);
-
             out.flush();
 
             rc = connection.getResponseCode();
             flushStream(connection.getInputStream());
         }
         catch (IOException e) {
-            rc = handleIOException(connection);
+            rc = connection.getResponseCode();
         }
         finally {
             closeSilently(in);
@@ -171,9 +142,6 @@ final class Utils {
 
             responseCode = connection.getResponseCode();
         }
-        catch (IOException e) {
-            responseCode = handleIOException(connection);
-        }
         finally {
             closeSilently(out);
             closeSilently(connection);
@@ -183,37 +151,8 @@ final class Utils {
     }
 
     static void waitForWebserver(URL host) throws IOException {
-        int retries = 1, rc = -1;
-        IOException ioe = null;
-        while (retries++ < 10) {
-            HttpURLConnection connection = openConnection(host);
-            try {
-                rc = connection.getResponseCode();
-                if (rc >= 0) {
-                    return;
-                }
-            }
-            catch (ConnectException e) {
-                ioe = e;
-                try {
-                    Thread.sleep(retries * 50);
-                }
-                catch (InterruptedException ie) {
-                    // We're asked to stop...
-                    return;
-                }
-            }
-            catch (IOException e) {
-                rc = handleIOException(connection);
-            }
-            finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
-            }
-        }
-        if (ioe != null) {
-            throw ioe;
+        if (!NetUtils.waitForURL(host, 404)) {
+            throw new IOException("URL " + host + " did not respond in time?!");
         }
     }
 
@@ -225,7 +164,6 @@ final class Utils {
         conn.setUseCaches(false);
         conn.setConnectTimeout(1000);
         conn.setReadTimeout(1000);
-
         return conn;
     }
 }

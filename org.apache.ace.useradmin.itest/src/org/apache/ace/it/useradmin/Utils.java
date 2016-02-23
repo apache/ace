@@ -27,6 +27,8 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.apache.ace.test.utils.NetUtils;
+
 final class Utils {
 
     private static final int COPY_BUFFER_SIZE = 4096;
@@ -44,9 +46,7 @@ final class Utils {
     }
 
     static void closeSilently(HttpURLConnection resource) {
-        if (resource != null) {
-            resource.disconnect();
-        }
+        NetUtils.closeConnection(resource);
     }
 
     /* copy in to out */

@@ -296,11 +296,11 @@ public abstract class BaseAgentControllerTest extends IntegrationTestBase {
         StubDeploymentServlet servlet = new StubDeploymentServlet(AGENT_ID, package1);
 
         String url = String.format("http://localhost:%d/", TestConstants.PORT);
-        NetUtils.waitForURL(url, 404, 10000);
+        NetUtils.waitForURL_NotFound(url);
 
         m_http.registerServlet("/", servlet, null, null);
 
-        NetUtils.waitForURL(url, 200, 10000);
+        NetUtils.waitForURL(url);
 
         // Tell our agent what controller to use, in this case, we simply disable the controller as we want to invoke
         // everything externally from the AgentControl service...

@@ -20,7 +20,6 @@ package org.apache.ace.it.repositoryadmin;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -59,6 +58,7 @@ import org.apache.ace.obr.storage.OBRFileStoreConstants;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.RepositoryConstants;
 import org.apache.ace.test.constants.TestConstants;
+import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.ComponentState;
 import org.apache.felix.dm.ComponentStateListener;
@@ -139,15 +139,8 @@ public abstract class BaseRepositoryAdminTest extends IntegrationTestBase {
 
         // Wait for the endpoint to respond.
         URL repoURL = new URL(baseURL + "index.xml");
-        int response = ((HttpURLConnection) repoURL.openConnection()).getResponseCode();
-        int tries = 0;
-        while ((response != 200) && (tries++ < 50)) {
-            response = ((HttpURLConnection) repoURL.openConnection()).getResponseCode();
-            Thread.sleep(100); // If we get interrupted, there will be a good reason for it.
-        }
-        if (tries == 50) {
-            throw new IOException("The OBR servlet does not seem to be responding well. Last response code: " + response);
-        }
+
+        assertTrue("The OBR servlet does not seem to be responding well!", NetUtils.waitForURL(repoURL));
     }
 
     /* Configure a new repository instance */

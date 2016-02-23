@@ -94,7 +94,7 @@ public class Ace330Test extends IntegrationTestBase {
     @Override
     protected void configureAdditionalServices() throws Exception {
         // Wait until one of important repositories is online...
-        NetUtils.waitForURL(String.format("%s/repository/query?customer=%s&name=deployment", m_host, TEST_CUSTOMER), 200, 100);
+        NetUtils.waitForURL(String.format("%s/repository/query?customer=%s&name=deployment", m_host, TEST_CUSTOMER));
     }
 
     protected Component[] getDependencies() {

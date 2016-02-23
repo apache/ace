@@ -114,7 +114,6 @@ public class AgentExtensionTest extends BaseAgentTest {
     private ServiceRegistration<ConnectionHandler> registerConnectionHandler() {
         return m_bundleContext
             .registerService(ConnectionHandler.class, new ConnectionHandler() {
-
                 @Override
                 public URLConnection getConnection(URL url) throws IOException {
                     return url.openConnection();

@@ -15,7 +15,7 @@ Import-Package: \
 	org.apache.felix.service.command;resolution:=optional,\
 	*
 
-Bundle-Version: 1.2.0
+Bundle-Version: 1.3.0
 Bundle-Name: Apache ACE Test
 Bundle-Description: Provides base classes and utils for integration tests
 Private-Package: org.apache.ace.it.gogo

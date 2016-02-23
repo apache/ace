@@ -18,9 +18,11 @@
  */
 package org.apache.ace.it.authentication;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +40,7 @@ import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.RepositoryConstants;
 import org.apache.ace.test.constants.TestConstants;
+import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
 import org.osgi.framework.Constants;
 import org.osgi.service.http.HttpService;
@@ -87,7 +90,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
         try {
             String baseURL = "http://" + HOST + ":" + TestConstants.PORT;
             URL testURL = new URL(baseURL.concat(AUDITLOG_ENDPOINT));
-            assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 403, 15000));
+            assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 403));
 
             String userName = "d";
             String password = "f";
@@ -101,7 +104,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
                 "authentication.user.name", userName,
                 "authentication.user.password", password);
 
-            assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
+            assertTrue("Failed to access auditlog in time!", waitForURL(m_connectionFactory, testURL, 200));
         }
         catch (Exception e) {
             printLog(m_logReader);
@@ -148,31 +151,20 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
     @Override
     protected List<String> getResponse(String request) throws IOException {
         List<String> result = new ArrayList<>();
-        InputStream in = null;
-        try {
-            in = m_connectionFactory.createConnection(new URL(request)).getInputStream();
-            byte[] response = new byte[in.available()];
-            in.read(response);
 
-            StringBuilder element = new StringBuilder();
-            for (byte b : response) {
-                switch (b) {
-                    case '\n':
-                        result.add(element.toString());
-                        element = new StringBuilder();
-                        break;
-                    default:
-                        element.append(b);
+        URLConnection conn = m_connectionFactory.createConnection(new URL(request));
+        try (InputStreamReader in = new InputStreamReader(conn.getInputStream()); BufferedReader reader = new BufferedReader(in)) {
+            String line;
+            do {
+                line = reader.readLine();
+                if (line != null) {
+                    result.add(line);
                 }
             }
+            while (line != null);
         }
         finally {
-            try {
-                in.close();
-            }
-            catch (Exception e) {
-                // no problem.
-            }
+            NetUtils.closeConnection(conn);
         }
         return result;
     }

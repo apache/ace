@@ -31,6 +31,7 @@ import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.test.constants.TestConstants;
+import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
@@ -65,7 +66,7 @@ public class UserAdminRepositoryTest extends IntegrationTestBase {
             assertEquals(200, conn.getResponseCode());
         }
         finally {
-            conn.disconnect();
+            NetUtils.closeConnection(conn);
         }
 
         try {

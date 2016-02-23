@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ace.it.IntegrationTestBase;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.test.constants.TestConstants;
+import org.apache.ace.test.utils.NetUtils;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
@@ -61,13 +62,22 @@ public class RepositoryTest extends IntegrationTestBase {
 
         URL url = new URL(m_host, "replication/query?customer=apache&name=test&filter=test");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        int responseCode = connection.getResponseCode();
-        assertResponseCode(HttpURLConnection.HTTP_BAD_REQUEST, responseCode);
+        try {
+            int responseCode = connection.getResponseCode();
+            assertResponseCode(HttpURLConnection.HTTP_BAD_REQUEST, responseCode);
+        } finally {
+            NetUtils.closeConnection(connection);
+        }
 
         url = new URL(m_host, "repository/query?customer=apache&name=test&filter=test");
+        
         connection = (HttpURLConnection) url.openConnection();
-        responseCode = connection.getResponseCode();
-        assertResponseCode(HttpURLConnection.HTTP_BAD_REQUEST, responseCode);
+        try {
+            int responseCode = connection.getResponseCode();
+            assertResponseCode(HttpURLConnection.HTTP_BAD_REQUEST, responseCode);
+        } finally {
+            NetUtils.closeConnection(connection);
+        }
 
         removeRepository("testInstance");
     }

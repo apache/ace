@@ -22,6 +22,7 @@ package org.apache.ace.it.authentication;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.jar.Attributes;
@@ -123,7 +124,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
 
             URL testURL = new URL(m_obrURL, "index.xml");
 
-            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 403, 15000));
+            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 403));
 
             m_authConfigPID = configureFactory("org.apache.ace.connectionfactory",
                 "authentication.baseURL", m_obrURL.toExternalForm(),
@@ -131,7 +132,7 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
                 "authentication.user.name", userName,
                 "authentication.user.password", password);
 
-            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 200, 15000));
+            assertTrue("Failed to access OBR in time!", waitForURL(m_connectionFactory, testURL, 200));
         }
         catch (Exception e) {
             printLog(m_logReader);
@@ -154,9 +155,10 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
      * Test that we can retrieve the 'index.xml' from the OBR.
      */
     public void testAccessObrRepositoryWithCredentialsOk() throws Exception {
+        URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/index.xml");
+        URLConnection conn = null;
         try {
-            URL url = new URL("http://localhost:" + TestConstants.PORT + m_endpoint + "/index.xml");
-            URLConnection conn = m_connectionFactory.createConnection(url);
+            conn = m_connectionFactory.createConnection(url);
             assertNotNull(conn);
             Object content = conn.getContent();
             assertNotNull(content);
@@ -164,6 +166,8 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
         catch (Exception e) {
             printLog(m_logReader);
             throw e;
+        } finally {
+            NetUtils.closeConnection(conn);
         }
     }
 
@@ -178,8 +182,8 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             URLConnection conn = url.openConnection();
             assertNotNull(conn);
 
-            // we expect a 401 for this URL...
-            NetUtils.waitForURL(url, 401, 15000);
+            // we expect a 403 for this URL...
+            assertTrue(NetUtils.waitForURL(url, HttpURLConnection.HTTP_FORBIDDEN));
 
             try {
                 // ...causing all other methods on URLConnection to fail...
@@ -188,6 +192,9 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             }
             catch (IOException exception) {
                 // Ok; ignored...
+            }
+            finally {
+                NetUtils.closeConnection(conn);
             }
         }
         catch (Exception e) {
@@ -215,8 +222,8 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             URLConnection conn = url.openConnection();
             assertNotNull(conn);
 
-            // we expect a 401 for this URL...
-            NetUtils.waitForURL(url, 401, 5000);
+            // we expect a 403 for this URL...
+            assertTrue(NetUtils.waitForURL(url, HttpURLConnection.HTTP_FORBIDDEN));
 
             try {
                 // ...causing all other methods on URLConnection to fail...
@@ -225,6 +232,9 @@ public class ObrAuthenticationTest extends AuthenticationTestBase {
             }
             catch (IOException exception) {
                 // Ok; ignored...
+            }
+            finally {
+                NetUtils.closeConnection(conn);
             }
         }
         catch (Exception e) {

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -37,6 +38,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.ace.test.constants.TestConstants;
+import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.ComponentDependencyDeclaration;
 import org.apache.felix.dm.ComponentState;
@@ -430,10 +432,8 @@ public class IntegrationTestBase extends TestCase {
      */
     protected List<String> getResponse(URL requestURL) throws IOException {
         List<String> result = new ArrayList<>();
-        InputStream in = null;
-        try {
-            in = requestURL.openConnection().getInputStream();
-
+        URLConnection conn = requestURL.openConnection();
+        try (InputStream in = conn.getInputStream()) {
             final StringBuilder element = new StringBuilder();
             int b;
             while ((b = in.read()) > 0) {
@@ -451,12 +451,7 @@ public class IntegrationTestBase extends TestCase {
             }
         }
         finally {
-            try {
-                in.close();
-            }
-            catch (Exception e) {
-                // no problem.
-            }
+            NetUtils.closeConnection(conn);
         }
         return result;
     }
@@ -570,7 +565,7 @@ public class IntegrationTestBase extends TestCase {
     protected int countServices(Class<?> type) throws IOException, InvalidSyntaxException {
         return countServices(String.format("(%s=%s)", Constants.OBJECTCLASS, type.getName()));
     }
-    
+
     /**
      * @param filter
      * @return the number of services that match the given filter, &gt;= 0.
@@ -626,8 +621,9 @@ public class IntegrationTestBase extends TestCase {
             if (!listener.waitForEmpty(SERVICE_TIMEOUT, SECONDS)) {
                 fail("Not all components were started. Still missing the following:\n" + listener.componentsString());
             }
-            
-            // XXX it appears we run into race conditions between the setup and configuration of our services, use a little delay to get things settled seems to help here...
+
+            // XXX it appears we run into race conditions between the setup and configuration of our services, use a
+            // little delay to get things settled seems to help here...
             TimeUnit.MILLISECONDS.sleep(500);
 
             configureAdditionalServices();

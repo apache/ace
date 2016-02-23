@@ -317,7 +317,7 @@ public class RESTClientTest extends IntegrationTestBase {
             createServerUser();
 
             // Wait until our RESTClientServlet is up and responding...
-            NetUtils.waitForURL(HOST, 200, 1000);
+            NetUtils.waitForURL(HOST);
 
             m_hasBeenSetup = true;
         }
