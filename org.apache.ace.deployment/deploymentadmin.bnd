@@ -1,7 +1,0 @@
-# Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
-
-Private-Package: org.apache.ace.deployment.deploymentadmin
-Bundle-Activator: org.apache.ace.deployment.deploymentadmin.Activator
-Bundle-Version: 1.0.1
-Bundle-Name: Apache ACE Deployment DeploymentAdmin
-Bundle-Description: Registers the DeplouymentAdmin service

@@ -44,11 +44,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
-	org.apache.ace.deployment.api;version=latest,\
-	org.apache.ace.deployment.deploymentadmin;version=latest,\
 	org.apache.ace.deployment.servlet;version=latest,\
-	org.apache.ace.deployment.task;version=latest,\
-	org.apache.ace.deployment.task.base;version=latest,\
 	org.apache.ace.deployment.streamgenerator;version=latest,\
 	org.apache.ace.deployment.provider.base;version=latest,\
 	org.apache.ace.range.api;version=latest,\
