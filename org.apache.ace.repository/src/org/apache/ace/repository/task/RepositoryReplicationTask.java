@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,22 +33,29 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.amdatu.scheduling.constants.Constants;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.RepositoryReplication;
+import org.apache.felix.dm.Component;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
 
 /**
  * Repository replication task. Uses discovery to find the server it talks to. Subsequently it checks which local
  * repositories are configured and tries to synchronize them with remote copies. Only pulls stuff in, it does not push
  * stuff out.
  */
-public class RepositoryReplicationTask implements Runnable {
+public class RepositoryReplicationTask implements Job, ManagedService {
     private final ConcurrentMap<ServiceReference<RepositoryReplication>, RepositoryReplication> m_replicators = new ConcurrentHashMap<>();
-
+    
+    private volatile Component m_component;
     private volatile Discovery m_discovery;
     private volatile ConnectionFactory m_connectionFactory;
     private volatile LogService m_log;
@@ -73,7 +81,8 @@ public class RepositoryReplicationTask implements Runnable {
     /**
      * Replicates all current known repositories.
      */
-    public void run() {
+    @Override
+    public void execute(JobExecutionContext conext) {
         // Take a snapshot of the current available replicators...
         Map<ServiceReference<RepositoryReplication>, RepositoryReplication> replicators = new HashMap<>(m_replicators);
 
@@ -184,5 +193,34 @@ public class RepositoryReplicationTask implements Runnable {
         finally {
             conn.disconnect();
         }
+    }
+    
+    @Override
+    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+        Long interval = null;
+        if (properties != null) {
+            Object value = properties.get("interval");
+            if (value != null) {
+                try {
+                    interval = Long.valueOf(value.toString());
+                }catch (NumberFormatException e) {
+                    throw new ConfigurationException("interval", "Interval must be a valid Long value", e);
+                }
+            } else {
+                throw new ConfigurationException("interval", "Interval is required");
+            }
+        }
+
+        Dictionary<Object,Object> serviceProps = m_component.getServiceProperties();
+        if (interval == null) {
+            serviceProps.remove(Constants.REPEAT_FOREVER);
+            serviceProps.remove(Constants.REPEAT_INTERVAL_PERIOD);
+            serviceProps.remove(Constants.REPEAT_INTERVAL_VALUE);
+        } else {
+            serviceProps.put(Constants.REPEAT_FOREVER, true);
+            serviceProps.put(Constants.REPEAT_INTERVAL_PERIOD, "milisecond");
+            serviceProps.put(Constants.REPEAT_INTERVAL_VALUE, interval);
+        }
+        m_component.setServiceProperties(serviceProps);
     }
 }
