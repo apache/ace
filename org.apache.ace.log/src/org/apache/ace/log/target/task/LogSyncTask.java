@@ -39,10 +39,12 @@ import org.apache.ace.log.target.store.LogStore;
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.range.SortedRangeSet;
 import org.osgi.service.log.LogService;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
 
 // TODO there are two versions of this class around, the other ohne being the server.LogSyncTask,
 // and both are fairly similar
-public class LogSyncTask implements Runnable {
+public class LogSyncTask implements Job {
 
     private static final String COMMAND_QUERY = "query";
     private static final String COMMAND_SEND = "send";
@@ -65,7 +67,8 @@ public class LogSyncTask implements Runnable {
     /**
      * Synchronize the log events available remote with the events available locally.
      */
-    public void run() {
+    @Override
+    public void execute(JobExecutionContext arg0) {
         URL host = m_discovery.discover();
 
         if (host == null) {

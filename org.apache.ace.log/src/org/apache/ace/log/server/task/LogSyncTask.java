@@ -46,8 +46,10 @@ import org.apache.ace.log.LogSync;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.SortedRangeSet;
 import org.osgi.service.log.LogService;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
 
-public class LogSyncTask implements Runnable, LogSync {
+public class LogSyncTask implements Job, LogSync {
 
     public static enum Mode {
         NONE, PUSH, PULL, PUSHPULL
@@ -115,8 +117,9 @@ public class LogSyncTask implements Runnable, LogSync {
     public boolean pushpullIDs() throws IOException {
     	return synchronizeLowestIDs(true, true);
     }
-
-    public void run() {
+    
+    @Override
+    public void execute(JobExecutionContext arg0) {
         try {
             switch (m_lowestIDMode) {
 	            case NONE:

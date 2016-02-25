@@ -53,6 +53,8 @@ import org.quartz.JobExecutionContext;
  * stuff out.
  */
 public class RepositoryReplicationTask implements Job, ManagedService {
+    private static final String KEY_SYNC_INTERVAL = "syncInterval";
+
     private final ConcurrentMap<ServiceReference<RepositoryReplication>, RepositoryReplication> m_replicators = new ConcurrentHashMap<>();
     
     private volatile Component m_component;
@@ -199,7 +201,7 @@ public class RepositoryReplicationTask implements Job, ManagedService {
     public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
         Long interval = null;
         if (properties != null) {
-            Object value = properties.get("interval");
+            Object value = properties.get(KEY_SYNC_INTERVAL);
             if (value != null) {
                 try {
                     interval = Long.valueOf(value.toString());
@@ -209,18 +211,15 @@ public class RepositoryReplicationTask implements Job, ManagedService {
             } else {
                 throw new ConfigurationException("interval", "Interval is required");
             }
+            
+            Dictionary<Object,Object> serviceProps = m_component.getServiceProperties();
+            
+            serviceProps.put(Constants.REPEAT_FOREVER, true);
+            serviceProps.put(Constants.REPEAT_INTERVAL_PERIOD, "millisecond");
+            serviceProps.put(Constants.REPEAT_INTERVAL_VALUE, interval);
+            
+            m_component.setServiceProperties(serviceProps);
         }
 
-        Dictionary<Object,Object> serviceProps = m_component.getServiceProperties();
-        if (interval == null) {
-            serviceProps.remove(Constants.REPEAT_FOREVER);
-            serviceProps.remove(Constants.REPEAT_INTERVAL_PERIOD);
-            serviceProps.remove(Constants.REPEAT_INTERVAL_VALUE);
-        } else {
-            serviceProps.put(Constants.REPEAT_FOREVER, true);
-            serviceProps.put(Constants.REPEAT_INTERVAL_PERIOD, "milisecond");
-            serviceProps.put(Constants.REPEAT_INTERVAL_VALUE, interval);
-        }
-        m_component.setServiceProperties(serviceProps);
     }
 }

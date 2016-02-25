@@ -18,6 +18,11 @@
  */
 package org.apache.ace.log.target;
 
+import static org.amdatu.scheduling.constants.Constants.DESCRIPTION;
+import static org.amdatu.scheduling.constants.Constants.REPEAT_FOREVER;
+import static org.amdatu.scheduling.constants.Constants.REPEAT_INTERVAL_PERIOD;
+import static org.amdatu.scheduling.constants.Constants.REPEAT_INTERVAL_VALUE;
+
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -28,17 +33,18 @@ import org.apache.ace.discovery.Discovery;
 import org.apache.ace.identification.Identification;
 import org.apache.ace.log.target.store.LogStore;
 import org.apache.ace.log.target.task.LogSyncTask;
-import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.log.LogService;
+import org.quartz.Job;
 
 public class LogSyncConfigurator implements ManagedServiceFactory {
     private static final String MA_NAME = "ma";
     private static final String LOG_NAME = "name";
+    private static final String LOG_SYNC_INTERVAL = "syncInterval";
 
     private DependencyManager m_manager;
     private final Map<String, Component> m_syncInstances = new HashMap<>();
@@ -60,6 +66,16 @@ public class LogSyncConfigurator implements ManagedServiceFactory {
         String ma = (String) dict.get(MA_NAME);
         if ((name == null) || "".equals(name)) {
             throw new ConfigurationException(LOG_NAME, "Log name has to be specified.");
+        }
+        
+        Long syncInterval = 2000L;
+        String interval = (String) dict.get(LOG_SYNC_INTERVAL);
+        if (interval != null) {
+            try {
+                syncInterval = Long.valueOf(interval);
+            } catch (NumberFormatException e) {
+                throw new ConfigurationException(LOG_SYNC_INTERVAL, "Log sync interval has to be a valid long value.");
+            }
         }
 
         Component service = (Component) m_syncInstances.get(pid);
@@ -89,12 +105,15 @@ public class LogSyncConfigurator implements ManagedServiceFactory {
                 description = "Task that synchronizes log store with id=" + name + " and ma=" + ma + " on the target and server";
                 properties.put(MA_NAME, ma);
             }
-
-            properties.put(SchedulerConstants.SCHEDULER_NAME_KEY, schedulerName);
-            properties.put(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY, description);
-            properties.put(SchedulerConstants.SCHEDULER_RECIPE, "2000");
+            
+            properties.put("taskName", schedulerName);
+            properties.put(DESCRIPTION, description);
+            properties.put(REPEAT_FOREVER, true);
+            properties.put(REPEAT_INTERVAL_PERIOD, "millisecond");
+            properties.put(REPEAT_INTERVAL_VALUE, syncInterval);
+            
             Component sync = m_manager.createComponent()
-                .setInterface(Runnable.class.getName(), properties)
+                .setInterface(Job.class.getName(),  properties)
                 .setImplementation(new LogSyncTask(name))
                 .add(m_manager.createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
                 .add(m_manager.createServiceDependency().setService(LogStore.class, filterString).setRequired(true))

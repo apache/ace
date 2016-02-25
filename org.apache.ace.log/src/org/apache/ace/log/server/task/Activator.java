@@ -18,6 +18,11 @@
  */
 package org.apache.ace.log.server.task;
 
+import static org.amdatu.scheduling.constants.Constants.DESCRIPTION;
+import static org.amdatu.scheduling.constants.Constants.REPEAT_FOREVER;
+import static org.amdatu.scheduling.constants.Constants.REPEAT_INTERVAL_PERIOD;
+import static org.amdatu.scheduling.constants.Constants.REPEAT_INTERVAL_VALUE;
+
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,12 +41,14 @@ import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.log.LogService;
+import org.quartz.Job;
 
 public class Activator extends DependencyActivatorBase implements ManagedServiceFactory {
     private static final String KEY_LOG_NAME = "name";
     private static final String KEY_MODE = "mode";
     private static final String KEY_MODE_LOWEST_IDS = "mode-lowest-ids";
     private static final String KEY_TARGETID = "tid";
+    private static final String KEY_SYNC_INTERVAL = "syncInterval";
     
     private final Map<String, Component> m_instances = new HashMap<>();
     private volatile DependencyManager m_manager;
@@ -70,6 +77,18 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         if ((name == null) || "".equals(name)) {
             throw new ConfigurationException(KEY_LOG_NAME, "Log name has to be specified.");
         }
+        Long syncInterval = 2000L;
+        String interval = (String) dict.get(KEY_SYNC_INTERVAL);
+        if (interval != null) {
+            try {
+                syncInterval = Long.valueOf(interval);
+            } catch (NumberFormatException e) {
+                throw new ConfigurationException(KEY_SYNC_INTERVAL, "Log sync interval has to be a valid long value.");
+            }
+        } else {
+            throw new ConfigurationException(KEY_SYNC_INTERVAL, "Log sync interval has to be specified.");
+        }
+        
         Mode dataTransferMode = Mode.PUSH;
         String modeValue = (String) dict.get(KEY_MODE);
         if ("pull".equals(modeValue)) {
@@ -98,12 +117,15 @@ public class Activator extends DependencyActivatorBase implements ManagedService
         
         Properties props = new Properties();
         props.put(KEY_LOG_NAME, name);
+        props.put(REPEAT_FOREVER, true);
+        props.put(REPEAT_INTERVAL_PERIOD, "millisecond");
+        props.put(REPEAT_INTERVAL_VALUE, syncInterval);
         props.put("taskName", LogSyncTask.class.getName());
-        props.put("description", "Syncs log (name=" + name + ", mode=" + dataTransferMode.toString() + (targetID == null ? "" : ", targetID=" + targetID) + ") with a server.");
+        props.put(DESCRIPTION, "Syncs log (name=" + name + ", mode=" + dataTransferMode.toString() + (targetID == null ? "" : ", targetID=" + targetID) + ") with a server.");
         String filter = "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=" + name + "))";
         LogSyncTask service = new LogSyncTask(name, name, dataTransferMode, lowestIDsMode, targetID);
         newComponent = m_manager.createComponent()
-    		.setInterface(new String[] { Runnable.class.getName(), LogSync.class.getName() }, props)
+    		.setInterface(new String[] { Job.class.getName(), LogSync.class.getName() }, props)
     		.setImplementation(service)
     		.add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
     		.add(createServiceDependency().setService(LogStore.class, filter).setRequired(true))
