@@ -2,11 +2,13 @@
 
 -runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runee: JavaSE-1.7
--runbundles: org.apache.felix.dependencymanager,\
+-runbundles: \
+	org.apache.felix.dependencymanager,\
 	org.apache.felix.useradmin,\
 	org.apache.felix.log,\
 	org.apache.felix.prefs,\
 	org.apache.felix.configadmin,\
+	org.apache.felix.metatype,\
 	org.apache.felix.eventadmin,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.felix.gogo.shell,\
@@ -14,10 +16,10 @@
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.dependencymanager.shell,\
-	osgi.cmpn;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.ace.authentication.processor.basicauth;version=latest,\
+	org.apache.ace.authentication.processor.clientcert;version=latest,\
 	org.apache.ace.authentication.processor.password;version=latest,\
 	org.apache.ace.useradmin.repository;version=latest,\
 	org.apache.ace.configurator.impl;version=latest,\
@@ -33,20 +35,21 @@
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlets;version=latest,\
-	org.apache.ace.resourceprocessor.useradmin;version=latest,\
 	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.log.server.store.file;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\
 	org.apache.ace.http.context;version=latest
--runrepos: Workspace,\
+
+-runrepos: \
+	Workspace,\
 	Release
--runproperties: org.apache.felix.log.storeDebug=true,\
+-runproperties: \
+	launch.keep=true,\
+	launch.storage.dir=bundle-cache,\
+	org.apache.felix.log.storeDebug=true,\
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.apache.ace.server=localhost:8080,\
 	org.apache.ace.obr=localhost:8082,\
 	org.osgi.service.http.port=8080,\
-	org.apache.felix.log.maxSize=1000,\
-	launch.keep=true,\
-	launch.storage.dir=bundle-cache
-	
+	org.apache.felix.log.maxSize=1000

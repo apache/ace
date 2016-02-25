@@ -2,13 +2,16 @@
 
 -runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runee: JavaSE-1.7
--runbundles: org.apache.felix.dependencymanager,\
+-runbundles: \
+	org.apache.felix.dependencymanager,\
 	org.apache.felix.dependencymanager.shell,\
 	org.apache.felix.log,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.felix.gogo.shell,\
 	org.apache.felix.gogo.command,\
 	org.apache.felix.configadmin,\
+	org.apache.felix.metatype,\
+	org.apache.felix.eventadmin,\
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.useradmin,\
@@ -18,21 +21,23 @@
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.ace.authentication.processor.basicauth;version=latest,\
+	org.apache.ace.authentication.processor.clientcert;version=latest,\
 	org.apache.ace.authentication.processor.password;version=latest,\
 	org.apache.ace.obr.servlet;version=latest,\
 	org.apache.ace.useradmin.repository;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
-	org.apache.ace.http.context;version=latest,\
-	osgi.cmpn
+	org.apache.ace.http.context;version=latest
 	
--runrepos: Workspace,\
+-runrepos: \
+	Workspace,\
 	Release
--runproperties: org.apache.felix.log.storeDebug=true,\
+-runproperties: \
+	launch.keep=true,\
+	launch.storage.dir=bundle-cache,\
+	org.apache.felix.log.storeDebug=true,\
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.osgi.service.http.port=8082,\
 	org.apache.felix.log.maxSize=1000,\
-	org.apache.ace.server=localhost:8080,\
-	launch.keep=true,\
-	launch.storage.dir=bundle-cache
+	org.apache.ace.server=localhost:8080

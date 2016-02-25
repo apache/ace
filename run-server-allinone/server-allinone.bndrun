@@ -8,6 +8,7 @@
 	org.apache.felix.log,\
 	org.apache.felix.prefs,\
 	org.apache.felix.configadmin,\
+	org.apache.felix.metatype,\
 	org.apache.felix.eventadmin,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.felix.gogo.shell,\
@@ -15,11 +16,11 @@
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.dependencymanager.shell,\
-	osgi.cmpn;version=latest,\
 	com.vaadin,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.ace.authentication.processor.basicauth;version=latest,\
+	org.apache.ace.authentication.processor.clientcert;version=latest,\
 	org.apache.ace.authentication.processor.password;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.client.repository.helper.base;version=latest,\
@@ -50,7 +51,6 @@
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlets;version=latest,\
-	org.apache.ace.resourceprocessor.useradmin;version=latest,\
 	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.tageditor;version=latest,\
 	org.apache.ace.target.mgmt.ui;version=latest,\
