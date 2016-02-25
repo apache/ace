@@ -29,6 +29,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
+import org.quartz.Job;
 
 public class Activator extends DependencyActivatorBase {
 
@@ -40,7 +41,7 @@ public class Activator extends DependencyActivatorBase {
         props.put(Constants.SERVICE_PID, PID);
 
         manager.add(createComponent()
-            .setInterface(ManagedService.class.getName(), props)
+            .setInterface(new String[] {ManagedService.class.getName(), Job.class.getName()}, props)
             .setImplementation(RepositoryReplicationTask.class)
             .add(createServiceDependency().setService(Discovery.class).setRequired(true))
             .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
