@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.DiscoveryConstants;
@@ -45,7 +46,6 @@ import org.apache.felix.dm.Component;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogReaderService;
 import org.osgi.service.useradmin.UserAdmin;
-import org.quartz.Job;
 
 /**
  * Integration tests for the audit log. Both a server and a target are setup on the same machine. The audit log is run
@@ -219,7 +219,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
 
             while (!found && ((System.currentTimeMillis() - startTime) < waitTime)) {
                 // synchronize again
-                m_auditLogSyncTask.execute(null);
+                m_auditLogSyncTask.execute();
 
                 // get and evaluate results (note that there is some concurrency that might interfere with this test)
                 List<Descriptor> ranges2 = m_serverStore.getDescriptors();

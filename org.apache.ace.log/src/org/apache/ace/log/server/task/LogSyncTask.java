@@ -37,6 +37,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.feedback.Descriptor;
@@ -46,8 +47,6 @@ import org.apache.ace.log.LogSync;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.SortedRangeSet;
 import org.osgi.service.log.LogService;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
 
 public class LogSyncTask implements Job, LogSync {
 
@@ -119,7 +118,7 @@ public class LogSyncTask implements Job, LogSync {
     }
     
     @Override
-    public void execute(JobExecutionContext arg0) {
+    public void execute() {
         try {
             switch (m_lowestIDMode) {
 	            case NONE:

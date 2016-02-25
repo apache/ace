@@ -8,7 +8,7 @@
 	org.apache.felix.http.api,\
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.dependencymanager,\
-	org.amdatu.scheduling.quartz,\
+	org.amdatu.scheduling.api,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.discovery.DiscoveryConstants;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
@@ -33,7 +34,6 @@ import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
 import org.osgi.service.http.HttpService;
-import org.quartz.Job;
 
 /**
  * Integration tests for the audit log. Both a server and a target are setup
@@ -104,7 +104,7 @@ public class LogIntegrationTest extends IntegrationTestBase {
         long startTime = System.currentTimeMillis();
         while ((!found) && (System.currentTimeMillis() - startTime < 5000)) {
             // synchronize again
-            m_auditLogSyncTask.execute(null);
+            m_auditLogSyncTask.execute();
 
             // get and evaluate results (note that there is some concurrency that might interfere with this test)
             List<Descriptor> ranges2 = m_serverStore.getDescriptors();

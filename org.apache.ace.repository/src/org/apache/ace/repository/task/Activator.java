@@ -20,6 +20,7 @@ package org.apache.ace.repository.task;
 
 import java.util.Properties;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.repository.RepositoryReplication;
@@ -29,7 +30,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
-import org.quartz.Job;
 
 public class Activator extends DependencyActivatorBase {
 

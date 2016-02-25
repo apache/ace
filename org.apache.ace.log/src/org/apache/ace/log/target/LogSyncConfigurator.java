@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.identification.Identification;
@@ -39,7 +40,6 @@ import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.log.LogService;
-import org.quartz.Job;
 
 public class LogSyncConfigurator implements ManagedServiceFactory {
     private static final String MA_NAME = "ma";

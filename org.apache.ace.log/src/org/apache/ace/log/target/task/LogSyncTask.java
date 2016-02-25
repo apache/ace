@@ -30,6 +30,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.feedback.Descriptor;
@@ -39,8 +40,6 @@ import org.apache.ace.log.target.store.LogStore;
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.range.SortedRangeSet;
 import org.osgi.service.log.LogService;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
 
 // TODO there are two versions of this class around, the other ohne being the server.LogSyncTask,
 // and both are fairly similar
@@ -68,7 +67,7 @@ public class LogSyncTask implements Job {
      * Synchronize the log events available remote with the events available locally.
      */
     @Override
-    public void execute(JobExecutionContext arg0) {
+    public void execute() {
         URL host = m_discovery.discover();
 
         if (host == null) {

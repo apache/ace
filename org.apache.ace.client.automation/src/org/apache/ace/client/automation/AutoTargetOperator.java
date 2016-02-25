@@ -24,6 +24,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.amdatu.scheduling.Job;
 import org.amdatu.scheduling.constants.Constants;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
@@ -38,9 +39,7 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+
 
 /**
  * Automatic target operator, when configured will automatically register, approve, auto-approve and commit targets to
@@ -119,7 +118,7 @@ public class AutoTargetOperator implements ManagedService {
         private final Object m_lock = new Object();
         
         @Override
-        public void execute(JobExecutionContext arg0) throws JobExecutionException {
+        public void execute() {
             // perform synchronous model actions
             synchronized (m_lock) {
                 m_statefulTargetRepos.refresh();

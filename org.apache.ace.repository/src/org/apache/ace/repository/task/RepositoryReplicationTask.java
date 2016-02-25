@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.amdatu.scheduling.Job;
 import org.amdatu.scheduling.constants.Constants;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
@@ -44,8 +45,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
 
 /**
  * Repository replication task. Uses discovery to find the server it talks to. Subsequently it checks which local
@@ -84,7 +83,7 @@ public class RepositoryReplicationTask implements Job, ManagedService {
      * Replicates all current known repositories.
      */
     @Override
-    public void execute(JobExecutionContext conext) {
+    public void execute() {
         // Take a snapshot of the current available replicators...
         Map<ServiceReference<RepositoryReplication>, RepositoryReplication> replicators = new HashMap<>(m_replicators);
 

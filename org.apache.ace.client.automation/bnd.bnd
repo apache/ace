@@ -7,7 +7,6 @@
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.amdatu.scheduling.api,\
-	org.amdatu.scheduling.quartz,\
 	org.apache.ace.client.repository.api;version=latest
 
 Private-Package: org.apache.ace.client.automation
