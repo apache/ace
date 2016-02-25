@@ -41,3 +41,8 @@ Bundle-Description: Provides the base ACE WebUI based on Vaadin
 Conditional-Package: \
 	biz.aQute*,\
 	aQute.*,\
+
+Import-Package: \
+	!org.osgi.service.component.annotations,\
+	!org.osgi.service.coordinator,\
+	*

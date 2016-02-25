@@ -69,8 +69,6 @@ public class Activator extends DependencyActivatorBase {
             .setImplementation(new Object()));
 
         Properties props = new Properties();
-        // ACE-472 - put Vaadin in production mode...
-        props.put("init.productionMode", "true");
         props.put(HTTP_WHITEBOARD_SERVLET_PATTERN, VaadinServlet.DEFAULT_SERVLET_ENDPOINT.concat("/*"));
         props.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WEBUI_WHITEBOARD_CONTEXT_SELECT_FILTER);
 
