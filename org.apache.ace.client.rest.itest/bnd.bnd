@@ -48,8 +48,6 @@
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.identification.property;version=latest,\
-	org.apache.ace.deployment.api;version=latest,\
-	org.apache.ace.deployment.deploymentadmin;version=latest,\
 	org.apache.ace.deployment.servlet;version=latest,\
 	org.apache.ace.deployment.streamgenerator;version=latest,\
 	org.apache.ace.deployment.provider.base;version=latest,\

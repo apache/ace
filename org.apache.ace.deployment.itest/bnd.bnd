@@ -21,8 +21,7 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.deployment.util.test;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\
-	org.apache.ace.deployment.provider.base;version=latest,\
-	org.apache.ace.deployment.task;version=latest
+	org.apache.ace.deployment.provider.base;version=latest
 -runfw: org.apache.felix.framework;version='[5.2.0,6)'
 -runvm: -ea
 -runbundles: osgi.cmpn,\
@@ -36,15 +35,11 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.felix.prefs,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
-	org.apache.ace.deployment.api;version=latest,\
-	org.apache.ace.deployment.deploymentadmin;version=latest,\
 	org.apache.ace.deployment.provider.api;version=latest,\
 	org.apache.ace.deployment.provider.base;version=latest,\
 	org.apache.ace.deployment.provider.repositorybased;version=latest,\
 	org.apache.ace.deployment.servlet;version=latest,\
 	org.apache.ace.deployment.streamgenerator;version=latest,\
-	org.apache.ace.deployment.task;version=latest,\
-	org.apache.ace.deployment.task.base;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.discovery.property;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\
