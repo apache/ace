@@ -1,7 +1,7 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
-Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 -buildpath: \
+	${^-buildpath},\
 	junit.osgi,\
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
@@ -20,8 +20,8 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	org.apache.ace.obr.storage;version=latest,\
 	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest
--runfw: org.apache.felix.framework;version='[5.2.0,6)'
--runvm: -ea
+
+-runfw: org.apache.felix.framework;version='[5,6)'
 -runbundles: \
 	osgi.cmpn,\
 	org.apache.felix.log,\
@@ -67,12 +67,16 @@ Test-Cases: ${classes;CONCRETE;NAMED;*Test}
 	org.apache.ace.feedback.common;version=latest,\
 	org.apache.ace.useradmin.repository;version=latest,\
 	org.apache.ace.http.context;version=latest
+-runvm: -ea
+-runee: JavaSE-1.7
+-runsystempackages: sun.reflect
+-runproperties: ${itestrunprops}
+-baseline:
+	
+Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	
 Private-Package: org.apache.ace.it.authentication
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Authentication itest
-Bundle-Category: itest
 Bundle-Description: Integration tests for Apache ACE Authentication
--baseline:
-
--dependson: org.apache.ace.useradmin
+Bundle-Category: itest

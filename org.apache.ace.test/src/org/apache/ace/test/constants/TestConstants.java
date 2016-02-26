@@ -28,5 +28,5 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface TestConstants {
     /** The port the webserver is running on for testing. */
-    public static final int PORT = 18080;
+    public static final int PORT = Integer.getInteger("org.osgi.service.http.port", 8080);
 }

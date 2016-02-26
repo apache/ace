@@ -18,8 +18,6 @@
  */
 package org.apache.ace.builder;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -35,7 +33,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class DeploymentPackageBuilderTest {
-    @Test(groups = { UNIT })
+    @Test()
     public void testEmptyDeploymentPackage() throws Exception {
         File tempFile = File.createTempFile("output-", ".jar");
         System.out.println("File: " + tempFile);
@@ -51,7 +49,7 @@ public class DeploymentPackageBuilderTest {
         Assert.assertTrue(m.getEntries().isEmpty());
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testProcessorAndResourceDeploymentPackage() throws Exception {
         File tempFile = File.createTempFile("output-", ".jar");
         FileOutputStream output = new FileOutputStream(tempFile);
@@ -86,7 +84,7 @@ public class DeploymentPackageBuilderTest {
             "Resource-Processor", pid);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { Exception.class })
+    @Test(expectedExceptions = { Exception.class })
     public void testResourceWithoutProcessorDeploymentPackage() throws Exception {
         File tempFile = File.createTempFile("output-", ".jar");
         FileOutputStream output = new FileOutputStream(tempFile);
@@ -102,7 +100,7 @@ public class DeploymentPackageBuilderTest {
             .generate(output);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testSingleBundleDeploymentPackage() throws Exception {
         File tempFile = File.createTempFile("output-", ".jar");
         FileOutputStream output = new FileOutputStream(tempFile);
@@ -127,7 +125,7 @@ public class DeploymentPackageBuilderTest {
             "Bundle-Version", bundleVersion);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testTwoBundleDeploymentPackage() throws Exception {
         File tempFile = File.createTempFile("output-", ".jar");
         FileOutputStream output = new FileOutputStream(tempFile);

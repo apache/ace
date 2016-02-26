@@ -1,6 +1,16 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
-Test-Cases: org.apache.ace.agent.itest.CustomAgentControllerTest,\
-	org.apache.ace.agent.itest.CustomStandaloneAgentControllerTest
+
+-buildpath: \
+	osgi.core;version=4.3,\
+	org.apache.ace.agent;version=latest,\
+	org.apache.ace.builder;version=latest,\
+	org.apache.ace.test;version=latest,\
+	org.apache.felix.dependencymanager,\
+	org.apache.felix.http.jetty;version='[2.2,3)',\
+	javax.servlet,\
+	junit.osgi
+
+-runfw: org.apache.felix.framework;version='[4,5)'
 -runbundles: \
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.builder;version=latest,\
@@ -9,6 +19,14 @@ Test-Cases: org.apache.ace.agent.itest.CustomAgentControllerTest,\
 	org.apache.felix.http.jetty;version='[2.2,3)',\
 	org.apache.felix.log,\
 	osgi.cmpn
+-runvm: -ea
+-runee: JavaSE-1.7
+-runsystempackages: sun.reflect
+-runproperties: ${itestrunprops}
+-baseline:
+
+Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
+
 Private-Package: \
 	org.apache.ace.range,\
 	org.apache.ace.agent,\
@@ -22,23 +40,7 @@ Private-Package: \
 	org.osgi.service.event,\
 	org.osgi.service.log,\
 	org.osgi.util.tracker
--runee: JavaSE-1.6
--runvm: -ea
--runfw: org.apache.felix.framework;version='[4,5)'
--buildpath: \
-	osgi.core;version=4.3,\
-	org.apache.ace.agent;version=latest,\
-	org.apache.ace.builder;version=latest,\
-	org.apache.ace.test;version=latest,\
-	org.apache.felix.dependencymanager,\
-	org.apache.felix.http.jetty;version='[2.2,3)',\
-	javax.servlet,\
-	junit.osgi
--runsystempackages: sun.reflect
--runproperties: \
-	org.apache.felix.eventadmin.Timeout=0,\
-	org.apache.felix.log.storeDebug=true,\
-	org.apache.felix.log.maxSize=1000
+
 Import-Package: \
 	!org.osgi.service.component.annotations,\
 	!org.apache.tools.ant.*,\
@@ -46,4 +48,4 @@ Import-Package: \
 	*
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Agent Custom Controller itest
--baseline:
+Bundle-Category: itest

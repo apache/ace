@@ -18,8 +18,6 @@
  */
 package org.apache.ace.log.server.store.impl;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,7 +64,7 @@ public class ServerLogStoreTester {
     }
 
     @SuppressWarnings("serial")
-    @Test(groups = { UNIT })
+    @Test()
     public void testLog() throws IOException {
         Map<String, String> props = new HashMap<>();
         props.put("test", "bar");
@@ -97,7 +95,7 @@ public class ServerLogStoreTester {
     }
 
     @SuppressWarnings("serial")
-    @Test(groups = { UNIT })
+    @Test()
     public void testLogOutOfOrder() throws IOException {
         Map<String, String> props = new HashMap<>();
         props.put("test", "bar");
@@ -121,7 +119,7 @@ public class ServerLogStoreTester {
     }
 
     @SuppressWarnings("serial")
-    @Test(groups = { UNIT })
+    @Test()
     public void testLogOutOfOrderOneByOne() throws IOException {
         Map<String, String> props = new HashMap<>();
         props.put("test", "bar");
@@ -148,9 +146,8 @@ public class ServerLogStoreTester {
         assert out.size() == 3 : "Stored events differ from the added: " + out.size();
     }
 
-    
     @SuppressWarnings("serial")
-    @Test(groups = { UNIT })
+    @Test()
     public void testLogLowestID() throws IOException {
         Map<String, String> props = new HashMap<>();
         props.put("test", "bar");
@@ -195,7 +192,7 @@ public class ServerLogStoreTester {
     }
 
     @SuppressWarnings("serial")
-    @Test(groups = { UNIT })
+    @Test()
     public void testLogIDGenerationWithLowestID() throws IOException {
         Dictionary<String, String> props = new Hashtable<>();
         props.put("test", "foo");
@@ -213,10 +210,10 @@ public class ServerLogStoreTester {
         assert range.equals("1-20") : "Incorrect range in descriptor: " + range;
         List<Event> stored = getStoredEvents();
         assert stored.size() == 20 : "Exactly 20 events should have been stored";
-        
+
         m_logStore.setLowestID("target", logID, 10);
         assert 10 == m_logStore.getLowestID("target", logID) : "Lowest ID should be 10, not: " + m_logStore.getLowestID("target", logID);
-        
+
         stored = getStoredEvents();
         assert stored.size() == 11 : "Exactly 11 events should have been stored, we found " + stored.size();
         descriptors = m_logStore.getDescriptors();
@@ -235,7 +232,7 @@ public class ServerLogStoreTester {
         for (long id = 1; id <= 20; id++) {
             System.out.println("Event: " + m_logStore.put("target", 1, props).toRepresentation());
         }
-        
+
         stored = getStoredEvents();
         assert stored.size() == 20 : "Exactly 20 events should have been stored, we found " + stored.size();
         descriptors = m_logStore.getDescriptors();
@@ -243,9 +240,9 @@ public class ServerLogStoreTester {
         range = descriptors.get(0).getRangeSet().toRepresentation();
         assert range.equals("21-40") : "Incorrect range in descriptor: " + range;
     }
-    
+
     private List<Event> getStoredEvents() throws IOException {
-		List<Event> stored = new ArrayList<>();
+        List<Event> stored = new ArrayList<>();
         for (Descriptor range : m_logStore.getDescriptors()) {
             System.out.println("TID: " + range.getTargetID());
             for (Descriptor range2 : m_logStore.getDescriptors(range.getTargetID())) {
@@ -253,11 +250,10 @@ public class ServerLogStoreTester {
                 System.out.println("  Range: " + range2.getRangeSet());
             }
         }
-		return stored;
-	}
-    
-    
-    @Test(groups = { UNIT })
+        return stored;
+    }
+
+    @Test()
     public void testCreateLogMessagesConcurrently() throws Exception {
         final Properties props = new Properties();
         props.put("test", "bar");
@@ -266,16 +262,18 @@ public class ServerLogStoreTester {
         assert ranges.isEmpty() : "New store should have no ranges.";
         ExecutorService exec = Executors.newFixedThreadPool(10);
         for (final String target : new String[] { "g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8", "g9", "g10" }) {
-        	exec.execute(new Runnable() { public void run() {
-        		for (long id = 0; id < 1000; id++) {
-        			try {
-						m_logStore.put(target, 1, props);
-					}
-        			catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-        		}
-        	};} );
+            exec.execute(new Runnable() {
+                public void run() {
+                    for (long id = 0; id < 1000; id++) {
+                        try {
+                            m_logStore.put(target, 1, props);
+                        }
+                        catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                };
+            });
         }
         exec.shutdown();
         exec.awaitTermination(10, TimeUnit.SECONDS);
@@ -283,9 +281,8 @@ public class ServerLogStoreTester {
         List<Event> stored = getStoredEvents();
         assert stored.size() == 10000 : "Incorrect number of events got stored: " + stored.size();
     }
-    
-    
-    @Test(groups = { TestUtils.UNIT })
+
+    @Test()
     public void testLogWithSpecialCharacters() throws IOException {
         String targetID = "myta\0rget";
         Event event = new Event(targetID, 1, 1, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED);
@@ -297,14 +294,14 @@ public class ServerLogStoreTester {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testMaximumNumberOfEvents() throws Exception {
         Dictionary settings = new Properties();
         settings.put(MAXIMUM_NUMBER_OF_EVENTS, "1");
         m_logStore.updated(settings);
-        
+
         List<Event> events = new ArrayList<>();
-        for (String target : new String[] { "target"}) {
+        for (String target : new String[] { "target" }) {
             for (long log : new long[] { 1 }) {
                 for (long id : new long[] { 1, 2 }) {
                     events.add(new Event(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new HashMap<String, String>()));
@@ -326,21 +323,21 @@ public class ServerLogStoreTester {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testMaximumNumberOfEventsMultipleLogs() throws Exception {
         Dictionary settings = new Properties();
         settings.put(MAXIMUM_NUMBER_OF_EVENTS, "1");
         m_logStore.updated(settings);
-        
+
         List<Event> events = new ArrayList<>();
-        for (String target : new String[] { "target"}) {
-            for (long log : new long[] { 1,2 }) {
+        for (String target : new String[] { "target" }) {
+            for (long log : new long[] { 1, 2 }) {
                 for (long id : new long[] { 1, 2 }) {
                     events.add(new Event(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new HashMap<String, String>()));
                 }
             }
         }
-        
+
         m_logStore.put(events);
         List<Descriptor> allDescriptors = m_logStore.getDescriptors();
         assert allDescriptors.size() == 2 : "Expected two descriptor, found: " + allDescriptors.size();
@@ -354,10 +351,10 @@ public class ServerLogStoreTester {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testClean() throws Exception {
         List<Event> events = new ArrayList<>();
-        for (String target : new String[] { "target"}) {
+        for (String target : new String[] { "target" }) {
             for (long log : new long[] { 1, 2 }) {
                 for (long id : new long[] { 1, 2, 3, 4 }) {
                     events.add(new Event(target, log, id, System.currentTimeMillis(), AuditEvent.FRAMEWORK_STARTED, new HashMap<String, String>()));
@@ -369,7 +366,7 @@ public class ServerLogStoreTester {
         Dictionary settings = new Properties();
         settings.put(MAXIMUM_NUMBER_OF_EVENTS, "1");
         m_logStore.updated(settings);
-        
+
         m_logStore.clean();
         List<Descriptor> allDescriptors = m_logStore.getDescriptors();
         assert allDescriptors.size() == 2 : "Expected two descriptor, found: " + allDescriptors.size();
@@ -381,12 +378,9 @@ public class ServerLogStoreTester {
             }
         }
     }
-    
-    
-    
-    
+
     @SuppressWarnings("serial")
-    @Test(groups = { UNIT })
+    @Test()
     public void testConcurrentLog() throws IOException, InterruptedException {
         ExecutorService es = Executors.newFixedThreadPool(8);
         final Map<String, String> props = new HashMap<>();
@@ -412,7 +406,7 @@ public class ServerLogStoreTester {
                                 // TODO Auto-generated catch block
                                 e.printStackTrace();
                             }
-                            
+
                         }
                     });
                 }
@@ -429,8 +423,7 @@ public class ServerLogStoreTester {
             out.add(event.toRepresentation());
         }
     }
-    
-    
+
     private void delete(File root) {
         if (root.isDirectory()) {
             for (File child : root.listFiles()) {

@@ -19,8 +19,6 @@
 
 package org.apache.ace.connectionfactory.impl;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -37,7 +35,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
+    @Test(expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryBasicTypeMissingPasswordFail() {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -51,7 +49,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
+    @Test(expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryClientCertTypeMissingKeystorePasswordFail() {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -67,7 +65,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
+    @Test(expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryClientCertTypeMissingKeystoreFileFail() {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -83,7 +81,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetCredentialsWithDictionaryClientCertTypeOk() {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -105,7 +103,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
+    @Test(expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryClientCertTypeMissingTruststorePasswordFail() {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -121,7 +119,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
+    @Test(expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryClientCertTypeMissingTruststoreFileFail() {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -137,7 +135,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
+    @Test(expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryBasicTypeMissingUserNameFail() {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -151,7 +149,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetCredentialsWithDictionaryBasicTypeOk() {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -166,7 +164,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testGetCredentialsWithDictionaryInvalidAuthTypeFail() {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -179,7 +177,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = MissingValueException.class)
+    @Test(expectedExceptions = MissingValueException.class)
     public void testGetCredentialsWithDictionaryMissingBaseUrlFail() {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -191,7 +189,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testGetCredentialsWithNullDictionaryFail() {
         UrlCredentialsFactory.getCredentials(null);
     }
@@ -199,7 +197,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary, java.lang.String)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testGetCredentialsWithNullPrefixFail() {
         UrlCredentialsFactory.getCredentials(new Hashtable<String, Object>(), null);
     }
@@ -207,7 +205,7 @@ public class UrlCredentialsFactoryTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentialsFactory#getCredentials(java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetCredentialsWithValidDictionaryOk() {
         Dictionary<String, Object> props = new Hashtable<>();
 

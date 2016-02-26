@@ -38,8 +38,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * Tests the behavior of the ArtifactObject class, most prominently, checking whether
- * delegation to the Helpers is done at the right moments.
+ * Tests the behavior of the ArtifactObject class, most prominently, checking whether delegation to the Helpers is done
+ * at the right moments.
  */
 public class ArtifactTest {
 
@@ -59,7 +59,7 @@ public class ArtifactTest {
         TestUtils.configureObject(m_artifactRepository, BundleContext.class, bc);
     }
 
-    @Test( groups = { TestUtils.UNIT } )
+    @Test()
     public void testAttributeChecking() {
         ArtifactHelper helper = new MockHelper("yourURL");
 
@@ -87,7 +87,7 @@ public class ArtifactTest {
         }
     }
 
-    @Test( groups = { TestUtils.UNIT } )
+    @Test()
     public void testResourceProcessorFiltering() throws InvalidSyntaxException {
         m_artifactRepository.addHelper("myMime", new MockHelper());
         m_artifactRepository.addHelper(BundleHelper.MIMETYPE, new BundleHelperImpl());
@@ -114,14 +114,14 @@ public class ArtifactTest {
         assert (list.size() == 0) : "Expected no artifact to match the requested filter!";
     }
 
-    @Test( groups = { TestUtils.UNIT } )
+    @Test()
     public void testArtifactSizeDeterminedByRepository() throws InvalidSyntaxException {
         m_artifactRepository.addHelper(BundleHelper.MIMETYPE, new BundleHelperImpl());
         ArtifactObject artifact = createArtifact(BundleHelper.MIMETYPE, "normalBundle", "normalBundle", null, "10");
 
         List<ArtifactObject> list = m_artifactRepository.get();
         assert (list.size() == 1) && list.contains(artifact) : "Expected a single artifact with the specified mimetype!";
-        
+
         assert list.get(0).getSize() == 10 : "Expected the size to be filled in!";
     }
 
@@ -145,8 +145,8 @@ public class ArtifactTest {
 }
 
 /**
- * Helper for testing the ArtifactObject. In the constructor, a <code>replaceURL</code> can
- * be passed in to test the attribute normalization.
+ * Helper for testing the ArtifactObject. In the constructor, a <code>replaceURL</code> can be passed in to test the
+ * attribute normalization.
  */
 class MockHelper implements ArtifactHelper {
     private final String m_replaceURL;
@@ -171,11 +171,11 @@ class MockHelper implements ArtifactHelper {
     }
 
     public String[] getDefiningKeys() {
-        return new String[]{ArtifactObject.KEY_URL};
+        return new String[] { ArtifactObject.KEY_URL };
     }
 
     public String[] getMandatoryAttributes() {
-        return new String[]{ArtifactObject.KEY_URL};
+        return new String[] { ArtifactObject.KEY_URL };
     }
 
     public boolean canUse(ArtifactObject object) {

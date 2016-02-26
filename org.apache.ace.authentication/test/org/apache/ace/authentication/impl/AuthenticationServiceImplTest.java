@@ -19,7 +19,6 @@
 
 package org.apache.ace.authentication.impl;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -58,7 +57,7 @@ public class AuthenticationServiceImplTest {
     /**
      * Tests that an exception is thrown if a null context is given.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testAuthenticateFailsWithNullContext() {
         new AuthenticationServiceImpl().authenticate((Object[]) null);
     }
@@ -66,7 +65,7 @@ public class AuthenticationServiceImplTest {
     /**
      * Tests that without any authentication processors, no authentication will take place.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateFailsWithoutAuthProcessors() {
         assertNull(createAuthenticationService().authenticate("foo", "bar"));
     }
@@ -74,7 +73,7 @@ public class AuthenticationServiceImplTest {
     /**
      * Tests that an exception is thrown if no context is given.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testAuthenticateFailsWithoutContext() {
         new AuthenticationServiceImpl().authenticate();
     }
@@ -82,7 +81,7 @@ public class AuthenticationServiceImplTest {
     /**
      * Tests that with a single authentication processors, no authentication will take place if it is the wrong context.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateFailsWithSingleAuthProcessorAndWrongContext() {
         AuthenticationServiceImpl authService = createAuthenticationService();
 
@@ -98,7 +97,7 @@ public class AuthenticationServiceImplTest {
      * Tests that with multiple authentication processors, authentication will take place if it is given the correct
      * context.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateSucceedsWithMultipleAuthProcessors() {
         Date now = new Date();
 
@@ -141,7 +140,7 @@ public class AuthenticationServiceImplTest {
      * Tests that with a single authentication processors, authentication will take place if it is given the correct
      * context.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateSucceedsWithSingleAuthProcessorAndCorrectContext() {
         AuthenticationServiceImpl authService = createAuthenticationService();
 
@@ -159,7 +158,7 @@ public class AuthenticationServiceImplTest {
     /**
      * Tests that with multiple authentication processors, the correct ones are returned based on the given context.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetProcessorsSelectsCorrectProcessorsBasedOnContext() {
         Date now = new Date();
 

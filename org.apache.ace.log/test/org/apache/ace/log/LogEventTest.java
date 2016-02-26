@@ -18,8 +18,6 @@
  */
 package org.apache.ace.log;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +26,7 @@ import org.apache.ace.feedback.Event;
 import org.testng.annotations.Test;
 
 public class LogEventTest {
-    @Test(groups = { UNIT })
+    @Test()
     public void serializeLogEvent() {
         Event e = new Event("gwid", 1, 2, 3, AuditEvent.FRAMEWORK_STARTED);
         assert e.toRepresentation().equals("gwid,1,2,3," + AuditEvent.FRAMEWORK_STARTED);
@@ -40,7 +38,7 @@ public class LogEventTest {
         assert e.toRepresentation().equals("gwid$kgwid$n$r$$,1,2,3," + AuditEvent.FRAMEWORK_STARTED);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void deserializeLogEvent() {
         Event e = new Event("gwid$kgwid$n$r$$,1,2,3," + AuditEvent.FRAMEWORK_STARTED + ",a,1,b,2,c,3");
         assert e.getTargetID().equals("gwid,gwid\n\r$") : "Target ID is not correctly parsed";
@@ -55,7 +53,7 @@ public class LogEventTest {
         assert p.get("c").equals("3") : "Property a should be 1";
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void deserializeIllegalLogEvent() {
         try {
             new Event("garbage in, garbage out!");

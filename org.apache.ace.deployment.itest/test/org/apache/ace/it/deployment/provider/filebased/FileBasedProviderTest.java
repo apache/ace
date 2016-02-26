@@ -18,8 +18,6 @@
  */
 package org.apache.ace.it.deployment.provider.filebased;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -37,9 +35,8 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 /**
- * This test class tests the FileBasedProvider class.
- * This class implements 2 backend interfaces,
- * and both are tested here.
+ * This test class tests the FileBasedProvider class. This class implements 2 backend interfaces, and both are tested
+ * here.
  */
 public class FileBasedProviderTest {
 
@@ -76,7 +73,11 @@ public class FileBasedProviderTest {
 
         m_backend = new FileBasedProvider();
         TestUtils.configureObject(m_backend, LogService.class);
-        m_backend.updated(new Hashtable<String, String>() {{put("BaseDirectoryName", m_tempDirectory.getAbsolutePath());}});
+        m_backend.updated(new Hashtable<String, String>() {
+            {
+                put("BaseDirectoryName", m_tempDirectory.getAbsolutePath());
+            }
+        });
     }
 
     /**
@@ -126,7 +127,7 @@ public class FileBasedProviderTest {
     /**
      * See if the getVersions() methods normal output works
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetVersion() {
         List<String> versions = m_backend.getVersions(TARGET);
         assert versions.size() == 1 : "Expected one version to be found, but found " + versions.size();
@@ -136,7 +137,7 @@ public class FileBasedProviderTest {
     /**
      * Test the getVersions method with an illegal version (not in org.osgi.framework.Version format)
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testIllegalVersion() {
         // an illegal version should be silently ignored
         List<String> versions = m_backend.getVersions(INVALIDVERSIONTARGET);
@@ -146,7 +147,7 @@ public class FileBasedProviderTest {
     /**
      * Test with multiple versions. It expects all versions in an ascending order.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testMultipleVersions() {
         List<String> versions = m_backend.getVersions(MULTIPLEVERSIONTARGET);
         assert versions.size() == 4 : "Expected three version to be found, but found " + versions.size();
@@ -160,7 +161,7 @@ public class FileBasedProviderTest {
     /**
      * Test the getBundleData for a single version, returning a single bundle
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testSingleBundleSingleVersionBundleData() {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(TARGET, VERSION1);
         assert bundleData.size() == 1 : "Expected one bundle to be found, but found " + bundleData.size();
@@ -170,7 +171,7 @@ public class FileBasedProviderTest {
     /**
      * Test the getBundleData for a single version, returning a multiple bundles
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testMultipleBundleSingleVersionBundleData() {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
@@ -181,12 +182,13 @@ public class FileBasedProviderTest {
     /**
      * Test the getBundleData with an illegal version (i.e. a version that doesn't exist)
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testInvalidVersionBundleData() {
         try {
             m_backend.getBundleData(INVALIDVERSIONTARGET, INVALIDVERSION);
             assert false : "Expected an error because version " + INVALIDVERSION + " doesn't exist for target" + INVALIDVERSIONTARGET;
-        } catch (IllegalArgumentException iae) {
+        }
+        catch (IllegalArgumentException iae) {
             // expected, because the version doesn't exist
         }
     }
@@ -194,12 +196,12 @@ public class FileBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, returning a single bundle that hasn't changed
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testSingleUnchangedBundleMultipleVersions() {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(TARGET, VERSION1, VERSION1);
         assert bundleData.size() == 1 : "Expect one bundle, got " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArtifactData data = it.next();
             assert data.getSize() > 200 : "Bundle has no sensible size?!";
             assert !data.hasChanged() : "The data should not have been changed.";
@@ -209,12 +211,12 @@ public class FileBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, returning multiple bundles that haven't changed
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testMultipleBundlesMultipleVersions() {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArtifactData data = it.next();
             assert !data.hasChanged() : "The data should not have been changed.";
         }
@@ -223,7 +225,7 @@ public class FileBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, where in the second version a bundle is removed
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testRemovedBundleMultipleVersions() {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION3);
         assert bundleData.size() == 0 : "Expected zero bundle to be found, but found " + bundleData.size();
@@ -232,12 +234,12 @@ public class FileBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, where in the second version a bundle is added
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAddedBundleMultipleVersions() {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION3, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArtifactData data = it.next();
             assert data.hasChanged() : "The data should have been changed.";
         }
@@ -246,18 +248,20 @@ public class FileBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, where in the second version one bundle has changed and another hasn't
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testSingleChangedBundleMultipleVersions() {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION4);
         assert bundleData.size() == 2 : "Expected one bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArtifactData data = it.next();
             if (data.equals(BUNDLE3_2)) {
                 assert !data.hasChanged() : "The data should not have been changed.";
-            } else if (data.equals(BUNDLE4_2)) {
+            }
+            else if (data.equals(BUNDLE4_2)) {
                 assert data.hasChanged() : "The data should have been changed.";
-            } else {
+            }
+            else {
                 assert false : "Unknown bundle found";
             }
         }
@@ -266,28 +270,28 @@ public class FileBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, where two bundles have changed
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testMultipleChangedBundlesMultipleVersions() {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION2);
         assert bundleData.size() == 2 : "Expected one bundle to be found, but found " + bundleData.size();
         Iterator<ArtifactData> it = bundleData.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArtifactData data = it.next();
             if (data.equals(BUNDLE4_1)) {
                 assert data.hasChanged() : "The data should have been changed.";
-            } else if (data.equals(BUNDLE5)) {
+            }
+            else if (data.equals(BUNDLE5)) {
                 assert data.hasChanged() : "The data should have been changed.";
-            } else {
+            }
+            else {
                 assert false : "Unknown bundle found";
             }
         }
     }
 
-
     @AfterTest(alwaysRun = true)
     public void tearDown() throws Exception {
         FileUtils.removeDirectoryWithContent(m_tempDirectory);
     }
-
 
 }

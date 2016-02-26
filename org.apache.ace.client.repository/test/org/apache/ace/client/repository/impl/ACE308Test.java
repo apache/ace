@@ -20,7 +20,6 @@ package org.apache.ace.client.repository.impl;
 
 import org.apache.ace.client.repository.stateful.impl.LogEventComparator;
 import org.apache.ace.feedback.Event;
-import org.apache.ace.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,7 +28,7 @@ import org.testng.annotations.Test;
  * For this specific case, it would fail. After the fix, it no longer fails.
  */
 public class ACE308Test {
-    @Test(groups = { TestUtils.UNIT })
+    @Test
     public void testLogEvents() {
         LogEventComparator c = new LogEventComparator();
         Event left = new Event("t", 1, 1, -1000000000000000000L, 0);

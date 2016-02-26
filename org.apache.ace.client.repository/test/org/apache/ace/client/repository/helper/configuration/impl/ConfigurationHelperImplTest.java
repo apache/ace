@@ -18,7 +18,6 @@
  */
 package org.apache.ace.client.repository.helper.configuration.impl;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -42,7 +41,7 @@ public class ConfigurationHelperImplTest {
 
     // ACE-259 Basic recognizer tests
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCanHandleCommentBeforeRoot() throws Exception {
         ConfigurationHelperImpl c = createConfigurationHelper();
         String mime = c.recognize(convertToArtifactResource("validWithComment.xml"));
@@ -51,7 +50,7 @@ public class ConfigurationHelperImplTest {
         verifyZeroInteractions(m_mockLogService);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testInvalidXmlContentNotRecognized() throws Exception {
         ConfigurationHelperImpl c = createConfigurationHelper();
         String mime = c.recognize(convertToArtifactResource("invalid.xml"));
@@ -61,7 +60,7 @@ public class ConfigurationHelperImplTest {
         verifyNoMoreInteractions(m_mockLogService);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testNamespace10Recognized() throws Exception {
         ConfigurationHelperImpl c = createConfigurationHelper();
         String mime = c.recognize(convertToArtifactResource("valid10.xml"));
@@ -70,7 +69,7 @@ public class ConfigurationHelperImplTest {
         verifyZeroInteractions(m_mockLogService);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testNamespace11Recognized() throws Exception {
         ConfigurationHelperImpl c = createConfigurationHelper();
         String mime = c.recognize(convertToArtifactResource("valid11.xml"));
@@ -79,7 +78,7 @@ public class ConfigurationHelperImplTest {
         verifyZeroInteractions(m_mockLogService);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testNamespace12Recognized() throws Exception {
         ConfigurationHelperImpl c = createConfigurationHelper();
         String mime = c.recognize(convertToArtifactResource("valid12.xml"));
@@ -88,7 +87,7 @@ public class ConfigurationHelperImplTest {
         verifyZeroInteractions(m_mockLogService);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testNamespace13NotRecognized() throws Exception {
         ConfigurationHelperImpl c = createConfigurationHelper();
         String mime = c.recognize(convertToArtifactResource("invalid13.xml"));
@@ -97,7 +96,7 @@ public class ConfigurationHelperImplTest {
         verifyZeroInteractions(m_mockLogService);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testNoXmlContentNotRecognized() throws Exception {
         ConfigurationHelperImpl c = createConfigurationHelper();
         String mime = c.recognize(convertToArtifactResource("invalid.txt"));

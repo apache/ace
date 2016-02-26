@@ -18,7 +18,6 @@
  */
 package org.apache.ace.configurator;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -49,7 +48,7 @@ public class ConfiguratorTest {
     private volatile CountDownLatch m_deleteLatch;
     private volatile CountDownLatch m_updateLatch;
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testAddConfiguration() throws Exception {
         String pid = "test-add";
 
@@ -61,7 +60,7 @@ public class ConfiguratorTest {
         assertEquals(createProperties(), configuration, "Configuration content is unexpected");
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testAddFactoryConfiguration() throws Exception {
         String pid = "test-add";
         String factoryPID = "testFactory";
@@ -76,7 +75,7 @@ public class ConfiguratorTest {
     }
 
     // update a configuration, only adding a key (this is allowed in all cases)
-    @Test(groups = { UNIT })
+    @Test()
     public void testChangeConfigurationUsingNewKey() throws Exception {
         String pid = "test-change";
 
@@ -97,7 +96,7 @@ public class ConfiguratorTest {
     }
 
     // update a configuration, changing an already existing key, not using reconfiguration
-    @Test(groups = { UNIT })
+    @Test()
     public void testChangeConfigurationUsingSameKeyNoReconfigure() throws Exception {
         String pid = "test-change";
 
@@ -120,7 +119,7 @@ public class ConfiguratorTest {
     }
 
     // update a configuration, changing an already existing key, using reconfiguration
-    @Test(groups = { UNIT })
+    @Test()
     public void testChangeConfigurationUsingSameKeyWithReconfigure() throws Exception {
         String pid = "test-change";
 
@@ -141,7 +140,7 @@ public class ConfiguratorTest {
         assertEquals(configurationValues, configuration);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testPropertySubstitution() throws Exception {
         String pid = "test-subst";
 
@@ -164,7 +163,7 @@ public class ConfiguratorTest {
         assertEquals(config.get("key3"), "${qux} ${quu.${bar}} ${baz.${bar}}", "Substitution failed!");
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testPropertySubstitutionFromContext() throws Exception {
         String pid = "test-subst";
 
@@ -178,7 +177,7 @@ public class ConfiguratorTest {
     }
 
     // remove a configuration
-    @Test(groups = { UNIT })
+    @Test()
     public void testRemoveConfiguration() throws Exception {
         String pid = "test-remove";
 
@@ -198,7 +197,7 @@ public class ConfiguratorTest {
     }
 
     // remove a configuration
-    @Test(groups = { UNIT })
+    @Test()
     public void testRemoveFactoryConfiguration() throws Exception {
         String pid = "test-remove";
         String factoryPID = "testFactory";

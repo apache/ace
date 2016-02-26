@@ -18,8 +18,6 @@
  */
 package org.apache.ace.deployment.provider.repositorybased;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.lang.reflect.Field;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +32,7 @@ import org.testng.annotations.Test;
 public class RepositoryBasedProviderConcurrencyTest {
 
     private final String TARGET = "target";
-     
+
     private RepositoryBasedProvider m_backend;
     private Semaphore m_semaphore;
     private Exception m_exception;
@@ -48,69 +46,75 @@ public class RepositoryBasedProviderConcurrencyTest {
         TestUtils.configureObject(m_backend, Repository.class, repository);
         TestUtils.configureObject(m_backend, LogService.class);
     }
-    
-    @Test(groups = { UNIT })
+
+    @Test()
     public void testNoConcurrentUsersAllowed() throws Exception {
         // -1 number of users makes sure nobody can use the repository
         setConfigurationForUsers(-1);
         try {
             m_backend.getVersions(TARGET);
             assert false : "Expected an overloaded exception";
-        } catch (OverloadedException oe) {
+        }
+        catch (OverloadedException oe) {
             assert true;
-        } catch (Throwable t) {
+        }
+        catch (Throwable t) {
             assert false : "Unknown exception";
         }
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testConcurrentUsersWithLimit() throws Exception {
         setConfigurationForUsers(1);
         new Thread() {
             public void run() {
                 try {
                     m_backend.getVersions(TARGET);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     m_exception = e;
                 }
             }
         }.start();
-        
+
         try {
             boolean acquire = m_semaphore.tryAcquire(1, 1, TimeUnit.SECONDS);
             assert acquire : "Could not acquire semaphore, no concurrent threads ?";
             m_backend.getVersions(TARGET);
             assert false : "Expected an overloaded exception";
-        } catch (OverloadedException oe) {
+        }
+        catch (OverloadedException oe) {
             assert true;
         }
-        
+
         assert m_exception == null : "No Exception expected";
     }
-    
-    @Test(groups = { UNIT })
+
+    @Test()
     public void testConcurrentUsersWithoutLimit() throws Exception {
-        // Because it's hard to test for unlimited users we'll just try 2 concurrent threads. 
+        // Because it's hard to test for unlimited users we'll just try 2 concurrent threads.
         setConfigurationForUsers(0);
         new Thread() {
             public void run() {
                 try {
                     m_backend.getVersions(TARGET);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     m_exception = e;
                 }
             }
         }.start();
-        
+
         m_semaphore.tryAcquire(1, 1, TimeUnit.SECONDS);
         m_backend.getVersions(TARGET);
         assert true;
-        
+
         assert m_exception == null : "No Exception expected";
     }
-    
+
     private void setConfigurationForUsers(int numberOfConcurrentUsers) throws Exception {
-        // setting a new configuration on the repository also creates a cache repository etc. This way only the max users is changed.
+        // setting a new configuration on the repository also creates a cache repository etc. This way only the max
+        // users is changed.
         Field field = m_backend.getClass().getDeclaredField("m_maximumNumberOfUsers");
         field.setAccessible(true);
         field.set(m_backend, new Integer(numberOfConcurrentUsers));

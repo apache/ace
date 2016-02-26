@@ -18,7 +18,6 @@
  */
 package org.apache.ace.repository.impl;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -45,7 +44,7 @@ public class RepositoryImplTest {
      * Tests that if we do change something in an {@link InputStream} while committing data, that the version is bumped
      * for a repository.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testCheckoutAndCommitWithChangeDoesChangeVersion() throws Exception {
         SortedRangeSet range;
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
@@ -71,7 +70,7 @@ public class RepositoryImplTest {
      * Tests that if we do not change anything in an {@link InputStream} while committing data, that the version is not
      * bumped for a repository.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testCheckoutAndCommitWithoutChangeDoesNotChangeVersion() throws Exception {
         SortedRangeSet range;
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
@@ -89,19 +88,19 @@ public class RepositoryImplTest {
         assertEquals(1, range.getHigh(), "Version 1 should still be the most recent one");
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
+    @Test(expectedExceptions = { IllegalArgumentException.class })
     public void testCheckoutNegativeVersionFail() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
         repo.checkout(-1);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
+    @Test(expectedExceptions = { IllegalArgumentException.class })
     public void testCheckoutVersionZeroOnEmptyRepositoryFail() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
         repo.checkout(0);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCommitAndCheckout() throws Exception {
         String readLine;
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
@@ -118,7 +117,7 @@ public class RepositoryImplTest {
         assertNull(repo.get(2), "Checking out a non-existing version should return null");
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IOException.class })
+    @Test(expectedExceptions = { IOException.class })
     public void testCommitExistingVersionFail() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
 
@@ -129,7 +128,7 @@ public class RepositoryImplTest {
         repo.commit(data, 0); // should fail, as we're at version 1!
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IOException.class })
+    @Test(expectedExceptions = { IOException.class })
     public void testCommitIncorrectVersionFail() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
         InputStream data = new ByteArrayInputStream("abc".getBytes());
@@ -141,7 +140,7 @@ public class RepositoryImplTest {
      * Tests that if we do change something in an {@link InputStream} while committing data, that the version is bumped
      * for a repository.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testCommitInitialVersionDoesChangeVersion() throws Exception {
         SortedRangeSet range;
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
@@ -156,7 +155,7 @@ public class RepositoryImplTest {
         assertEquals(1, range.getHigh());
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCommitMultipleVersionsOk() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
 
@@ -168,13 +167,13 @@ public class RepositoryImplTest {
         assertTrue(range.getHigh() == 3, "We should have 3 versions in the repository.");
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
+    @Test(expectedExceptions = { IllegalArgumentException.class })
     public void testCommitNegativeVersionFail() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
         repo.commit(new ByteArrayInputStream("abc".getBytes()), -1);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IOException.class })
+    @Test(expectedExceptions = { IOException.class })
     public void testCommitNonExistingVersionFail() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
 
@@ -185,7 +184,7 @@ public class RepositoryImplTest {
         repo.commit(data, 2); // should fail, as we're at version 1!
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCommitToLimitedRepository() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true, 2 /* limit */);
 
@@ -209,7 +208,7 @@ public class RepositoryImplTest {
         assertNotNull(repo.checkout(4));
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCustomFileExtensionOk() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), ".gz", true);
         File file = new File(m_baseDir, "data" + File.separator + "1.gz");
@@ -221,7 +220,7 @@ public class RepositoryImplTest {
         assertEquals(readLine, "abc", "File " + file.getAbsolutePath() + " should have contained 'abc'.");
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetAndPut() throws Exception {
         String readLine;
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
@@ -241,31 +240,31 @@ public class RepositoryImplTest {
         assertNull(repo.get(2), "'get'ting a non-existing version should return null");
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
+    @Test(expectedExceptions = { IllegalArgumentException.class })
     public void testGetNegativeVersionFail() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
         repo.get(-1);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
+    @Test(expectedExceptions = { IllegalArgumentException.class })
     public void testGetVersionZeroForEmptyRepositoryFail() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
         repo.get(0);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
+    @Test(expectedExceptions = { IllegalArgumentException.class })
     public void testPutNegativeVersionFail() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
         repo.put(new ByteArrayInputStream("abc".getBytes()), -1);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IllegalArgumentException.class })
+    @Test(expectedExceptions = { IllegalArgumentException.class })
     public void testPutVersionZeroFail() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
         repo.put(new ByteArrayInputStream("abc".getBytes()), 0);
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = { IllegalStateException.class })
+    @Test(expectedExceptions = { IllegalStateException.class })
     public void testUpdatedConfigurationOk() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(new File(m_baseDir, "data"), new File(m_baseDir, "tmp"), true);
         File file = new File(m_baseDir, "newLocation" + File.separator + "1");

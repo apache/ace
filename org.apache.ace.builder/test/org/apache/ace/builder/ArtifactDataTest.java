@@ -18,7 +18,6 @@
  */
 package org.apache.ace.builder;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.*;
 
@@ -45,7 +44,7 @@ public class ArtifactDataTest {
         m_fakeURL = tmpFile.toURI().toURL();
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCreateArtifactWithoutParametersOk() throws Exception {
         ArtifactData artifact = ArtifactData.createArtifact(m_fakeURL, m_filename, "rp");
 
@@ -57,7 +56,7 @@ public class ArtifactDataTest {
         assertFalse(artifact.isBundle());
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCreateBundleWithoutParametersOk() throws Exception {
         ArtifactData artifact = ArtifactData.createBundle(m_fakeURL, m_filename, "my.bundle.name", "1.0.0");
 
@@ -69,7 +68,7 @@ public class ArtifactDataTest {
         assertTrue(artifact.isBundle());
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCreateBundleWithParametersOk() throws Exception {
         ArtifactData artifact = ArtifactData.createBundle(m_fakeURL, m_filename, "my.bundle.name;singleton:=true, foo:=bar", "1.0.0");
 
@@ -81,7 +80,7 @@ public class ArtifactDataTest {
         assertTrue(artifact.isBundle());
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCreateResourceProcessorWithoutParametersOk() throws Exception {
         ArtifactData artifact = ArtifactData.createResourceProcessor(m_fakeURL, m_filename, "my.bundle.name", "1.0.0", "rp");
 
@@ -93,7 +92,7 @@ public class ArtifactDataTest {
         assertTrue(artifact.isBundle());
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCreateResourceProcessorWithParametersOk() throws Exception {
         ArtifactData artifact = ArtifactData.createResourceProcessor(m_fakeURL, m_filename, "my.bundle.name;singleton:=true, foo:=bar", "1.0.0", "rp;qux:=quu");
 

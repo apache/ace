@@ -18,8 +18,6 @@
  */
 package org.apache.ace.deployment.verifier.impl;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,7 +37,7 @@ import org.testng.annotations.Test;
 
 @SuppressWarnings({ "deprecation" })
 public class VerifierTest {
-    @Test(groups = { UNIT })
+    @Test()
     public void testResolve() throws BundleException {
         VerifierService verifier = new VerifierServiceImpl();
         VerifyEnvironment env = verifier.createEnvironment(new HashMap<String, String>() {
@@ -93,7 +91,7 @@ public class VerifierTest {
         AssertJUnit.assertTrue(" Unable to resolve resolvable state.", env.verifyResolve(bundles, null, null));
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testResolveFail() throws BundleException {
         VerifierService verifier = new VerifierServiceImpl();
         VerifyEnvironment env = verifier.createEnvironment(new HashMap<String, String>() {

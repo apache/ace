@@ -18,7 +18,6 @@
  */
 package org.apache.ace.identification.property;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.Field;
@@ -32,13 +31,13 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class PropertyBasedIdentificationTest {
-    @Test(groups = { UNIT })
+    @Test()
     public void getIdWithoutUpdate() {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
         Assert.assertNull(basedIdentification.getID());
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void getIdWithUpdate() throws ConfigurationException {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
         Dictionary<String, Object> dict = new Hashtable<>();
@@ -47,7 +46,7 @@ public class PropertyBasedIdentificationTest {
         Assert.assertEquals(basedIdentification.getID(), "myTargetId");
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void getIdOverwrite() throws ConfigurationException {
         PropertyBasedIdentification basedIdentification = new PropertyBasedIdentification();
         injectServices(basedIdentification);

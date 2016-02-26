@@ -1,6 +1,5 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
-Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 -buildpath: \
 	${^-buildpath},\
 	${testng},\
@@ -22,8 +21,8 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.deployment.util.test;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\
 	org.apache.ace.deployment.provider.base;version=latest
--runfw: org.apache.felix.framework;version='[5.2.0,6)'
--runvm: -ea
+
+-runfw: org.apache.felix.framework;version='[5,6)'
 -runbundles: osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
@@ -58,7 +57,14 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.http.context;version=latest
-	
+-runvm: -ea
+-runee: JavaSE-1.7
+-runsystempackages: sun.reflect
+-runproperties: ${itestrunprops}
+-baseline:
+
+Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
+
 Private-Package: \
 	org.apache.ace.it.deployment,\
 	org.apache.ace.deployment.util.test,\
@@ -70,5 +76,3 @@ Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Deployment itest
 Bundle-Description: Integration test bundle for Apache ACE Deployment
 Bundle-Category: itest
-
--baseline:

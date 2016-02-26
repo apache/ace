@@ -7,7 +7,6 @@
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.ace.client.repository.api;version=latest,\
-	org.apache.ace.test;version=latest,\
 	org.apache.felix.gogo.runtime,\
 	org.apache.ace.authentication.api;version=latest
 	

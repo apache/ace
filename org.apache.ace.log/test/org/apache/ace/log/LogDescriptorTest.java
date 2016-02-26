@@ -18,21 +18,19 @@
  */
 package org.apache.ace.log;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.range.SortedRangeSet;
 import org.testng.annotations.Test;
 
 public class LogDescriptorTest {
 
-    @Test(groups = { UNIT })
+    @Test()
     public void serializeDescriptor() {
         Descriptor descriptor = new Descriptor("gwid", 1, new SortedRangeSet("2-3"));
         assert descriptor.toRepresentation().equals("gwid,1,2-3") : "The representation of our descriptor is incorrect:" + descriptor.toRepresentation();
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void deserializeDescriptor() {
         Descriptor descriptor = new Descriptor("gwid,1,2-3");
         assert descriptor.getTargetID().equals("gwid") : "Target ID not correctly parsed.";
@@ -40,7 +38,7 @@ public class LogDescriptorTest {
         assert descriptor.getRangeSet().toRepresentation().equals("2-3") : "There should be nothing in the diff between the set in the descriptor and the check-set.";
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void deserializeMultiRangeDescriptor() {
         Descriptor descriptor = new Descriptor("gwid,1,1-4$k6$k8$k10-20");
         assert descriptor.getTargetID().equals("gwid") : "Target ID not correctly parsed.";
@@ -49,7 +47,7 @@ public class LogDescriptorTest {
         assert representation.equals("1-4,6,8,10-20") : "There should be nothing in the diff between the set in the descriptor and the check-set, but we parsed: " + representation;
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void deserializeMultiRangeDescriptorWithFunnyGWID() {
         String line = "gw$$id,1,1-4$k6$k8$k10-20";
         Descriptor descriptor = new Descriptor(line);
@@ -60,7 +58,7 @@ public class LogDescriptorTest {
         assert representation.equals("1-4,6,8,10-20") : "There should be nothing in the diff between the set in the descriptor and the check-set, but we parsed: " + representation;
     }
 
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void deserializeInvalidDescriptor() throws Exception {
         new Descriptor("invalidStringRepresentation");
     }

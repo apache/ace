@@ -25,7 +25,6 @@ import org.apache.ace.client.repository.impl.RepositoryAdminLoginContextImpl.Rep
 import org.apache.ace.client.repository.repository.ArtifactRepository;
 import org.apache.ace.client.repository.repository.FeatureRepository;
 import org.apache.ace.test.constants.TestConstants;
-import org.apache.ace.test.utils.TestUtils;
 import org.mockito.Mockito;
 import org.osgi.service.useradmin.User;
 import org.testng.annotations.BeforeMethod;
@@ -38,21 +37,21 @@ import org.testng.annotations.Test;
 public class RepositoryAdminLoginContextImplTest {
 
     private static final String CUSTOMER = "apache";
-    
+
     private static final String NAME_SHOP = "shop";
     private static final String NAME_DEPLOYMENT = "deployment";
-    
+
     private URL m_location;
-    
+
     @BeforeMethod
-	public void setUp() throws Exception {
+    public void setUp() throws Exception {
         m_location = new URL("http://localhost:" + TestConstants.PORT);
     }
-    
+
     /**
      * Test method for {@link RepositoryAdminLoginContextImpl#addDescriptor(RepositorySetDescriptor)}.
      */
-    @Test( groups = { TestUtils.UNIT }, expectedExceptions = { IllegalArgumentException.class } )
+    @Test(expectedExceptions = { IllegalArgumentException.class })
     public void testAddDuplicateObjectRepositoryFail() throws Exception {
         RepositoryAdminLoginContextImpl context = new RepositoryAdminLoginContextImpl(Mockito.mock(User.class), "12345");
 
@@ -63,7 +62,7 @@ public class RepositoryAdminLoginContextImplTest {
     /**
      * Test method for {@link RepositoryAdminLoginContextImpl#addDescriptor(RepositorySetDescriptor)}.
      */
-    @Test( groups = { TestUtils.UNIT } )
+    @Test()
     public void testAddDisjointObjectRepositoriesOk() throws Exception {
         RepositoryAdminLoginContextImpl context = new RepositoryAdminLoginContextImpl(Mockito.mock(User.class), "12345");
 
@@ -74,10 +73,10 @@ public class RepositoryAdminLoginContextImplTest {
     /**
      * Test method for {@link RepositoryAdminLoginContextImpl#addDescriptor(RepositorySetDescriptor)}.
      */
-    @Test( groups = { TestUtils.UNIT }, expectedExceptions = { IllegalArgumentException.class } )
+    @Test(expectedExceptions = { IllegalArgumentException.class })
     public void testDuplicateRepositoryNameFail() throws Exception {
         RepositoryAdminLoginContextImpl context = new RepositoryAdminLoginContextImpl(Mockito.mock(User.class), "12345");
-        
+
         context.addDescriptor(new RepositorySetDescriptor(m_location, CUSTOMER, NAME_SHOP, true, ArtifactRepository.class));
         context.addDescriptor(new RepositorySetDescriptor(m_location, CUSTOMER, NAME_SHOP, true, FeatureRepository.class));
     }

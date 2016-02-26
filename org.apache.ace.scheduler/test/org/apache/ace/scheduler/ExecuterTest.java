@@ -18,8 +18,6 @@
  */
 package org.apache.ace.scheduler;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -31,12 +29,12 @@ public class ExecuterTest {
 
     private Semaphore m_sem;
 
-    @BeforeMethod(groups = { UNIT })
+    @BeforeMethod()
     public void setup() {
     }
 
     /* start task, verify if it has run */
-    @Test(groups = { UNIT })
+    @Test()
     public void testExecute() throws Exception {
         m_sem = new Semaphore(1);
         Executer executer = new Executer(new Runnable() {
@@ -50,7 +48,7 @@ public class ExecuterTest {
     }
 
     /* start task, stop it, verify if it executed only once */
-    @Test(groups = { UNIT })
+    @Test()
     public void testStop() throws Exception {
         m_sem = new Semaphore(2);
         Executer executer = new Executer(new Runnable() {
@@ -69,11 +67,14 @@ public class ExecuterTest {
         assert m_sem.tryAcquire(1, TimeUnit.SECONDS);
     }
 
-    /* start task, which executes longer than the task interval specifies, causing multiple concurrent tasks to be started. */
-    @Test(groups = { UNIT })
+    /*
+     * start task, which executes longer than the task interval specifies, causing multiple concurrent tasks to be
+     * started.
+     */
+    @Test()
     public void testTooLongTask() throws Exception {
         final CountDownLatch latch = new CountDownLatch(5);
-        
+
         Executer executer = new Executer(new Runnable() {
             public void run() {
                 try {

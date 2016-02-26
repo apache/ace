@@ -18,7 +18,6 @@
  */
 package org.apache.ace.feedback;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.testng.Assert.*;
 
 import java.util.Dictionary;
@@ -35,7 +34,7 @@ public class EventTest {
     private static final String TARGET_ID = "target";
     private static final long STORE_ID = 1234;
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCreateEventFromStringOk() throws Exception {
         String input = "target,1234,1,2,3,key2,value2,key1,value1";
 
@@ -55,7 +54,7 @@ public class EventTest {
         assertEquals("value2", props.get("key2"));
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCreateEventWithDictionaryOk() throws Exception {
         Event event = new Event(TARGET_ID, STORE_ID, 1, 2, 3, createDict("key1", "value1", "key2", "value2"));
 
@@ -73,7 +72,7 @@ public class EventTest {
         assertEquals("value2", props.get("key2"));
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCreateEventWithoutPropertiesOk() throws Exception {
         Event event = new Event(TARGET_ID, STORE_ID, 1, 2, 3);
 
@@ -88,7 +87,7 @@ public class EventTest {
         assertTrue(props.isEmpty());
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCreateEventWithPropertiesOk() throws Exception {
         Event event = new Event(TARGET_ID, STORE_ID, 1, 2, 3, createMap("key1", "value1", "key2", "value2"));
 

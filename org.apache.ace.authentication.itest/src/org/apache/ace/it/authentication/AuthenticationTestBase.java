@@ -41,7 +41,7 @@ import junit.framework.Assert;
 /**
  * Provides a common base class for all authentication integration tests.
  */
-public class AuthenticationTestBase extends IntegrationTestBase {
+public abstract class AuthenticationTestBase extends IntegrationTestBase {
 
     protected static void printLog(LogReaderService logReader) {
         Enumeration<?> e = logReader.getLog();

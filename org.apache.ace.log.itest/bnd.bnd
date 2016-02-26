@@ -1,6 +1,5 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
-Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 -buildpath: \
 	${^-buildpath},\
 	junit.osgi,\
@@ -50,10 +49,16 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.log.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\
 	org.apache.ace.http.context;version=latest
+-runvm: -ea
+-runee: JavaSE-1.7
+-runsystempackages: sun.reflect
+-runproperties: ${itestrunprops}
+-baseline:
+
+Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	
 Private-Package: org.apache.ace.it.log
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Log itest
 Bundle-Description: Integration test bundle for Apache ACE Log
 Bundle-Category: itest
--baseline:

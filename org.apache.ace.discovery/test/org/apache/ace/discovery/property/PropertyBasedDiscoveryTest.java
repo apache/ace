@@ -15,8 +15,6 @@
  */
 package org.apache.ace.discovery.property;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -29,14 +27,14 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class PropertyBasedDiscoveryTest {
-    @Test(groups = { UNIT })
+    @Test
     public void discoverWithoutPropertyUpdate() {
         PropertyBasedDiscovery discovery = new PropertyBasedDiscovery();
         URL url = discovery.discover();
         Assert.assertNull(url);
     }
 
-    @Test(groups = { UNIT })
+    @Test
     public void discoverWithPropertyUpdate() throws ConfigurationException, URISyntaxException {
         PropertyBasedDiscovery discovery = new PropertyBasedDiscovery();
         Dictionary<String, Object> dict = new Hashtable<>();

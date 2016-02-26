@@ -18,8 +18,6 @@
  */
 package org.apache.ace.log.listener;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -51,7 +49,7 @@ public class LogTest {
     /**
      * Test whether logging to the cache and setting a new Log causes the log entries to be flushed to this new Log.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testLogCacheFlush() throws Exception {
         assert ((MockLog) m_mockLog).getLogEntries().size() == 0 : "MockLog is not empty on start of test";
 
@@ -73,7 +71,7 @@ public class LogTest {
      * Test whether after unsetting the Log, no new log entries are added, but that they are added to the cache instead
      * (test the latter by flushing the cache).
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testUnsettingLog() throws Exception {
         assert ((MockLog) m_mockLog).getLogEntries().size() == 0 : "MockLog is not empty on start of test";
         m_logProxy.setLog(m_mockLog);
@@ -98,11 +96,11 @@ public class LogTest {
     }
 
     /**
-     * Basic functionality of the ListenerImpl is covered, the rest of the situations will probably be covered by integration
-     * tests. Note: test the deployment event INSTALL only when a BundleContext is available
+     * Basic functionality of the ListenerImpl is covered, the rest of the situations will probably be covered by
+     * integration tests. Note: test the deployment event INSTALL only when a BundleContext is available
      */
     @SuppressWarnings("unchecked")
-    @Test(groups = { UNIT })
+    @Test()
     public void testEventConverting() throws Exception {
         ListenerImpl listeners = new ListenerImpl(null, m_logProxy);
         listeners.startInternal();

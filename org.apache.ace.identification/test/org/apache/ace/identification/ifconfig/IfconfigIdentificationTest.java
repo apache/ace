@@ -18,8 +18,6 @@
  */
 package org.apache.ace.identification.ifconfig;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.service.log.LogService;
 import org.testng.annotations.BeforeTest;
@@ -35,7 +33,7 @@ public class IfconfigIdentificationTest {
         TestUtils.configureObject(m_identification, LogService.class);
     }
 
-    @Test(groups = { UNIT })
+    @Test
     public void testMacAddressVerifying() throws Exception {
         assert m_identification.isValidMac("FF:FF:FF:FF:FF:FF");
         assert m_identification.isValidMac("01:23:45:67:89:01");

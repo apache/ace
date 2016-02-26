@@ -18,7 +18,6 @@
  */
 package org.apache.ace.client.repository.helper.bundle.impl;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.testng.Assert.*;
 
 import java.io.ByteArrayInputStream;
@@ -47,13 +46,13 @@ public class BundleHelperTest {
         m_helper = new BundleHelperImpl();
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testMimetype() {
         assertTrue(m_helper.canHandle("application/vnd.osgi.bundle"), "Should be able to handle bundle mimetype.");
         assertFalse(m_helper.canHandle("somecrazy/mimetype"), "Should not be able to handle crazy mimetype.");
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testManifestExtraction() {
         ArtifactResource artifact = new ArtifactResource() {
             @Override
@@ -86,7 +85,7 @@ public class BundleHelperTest {
         assertEquals(map.get(ArtifactObject.KEY_ARTIFACT_NAME), "My Cool Bundle-1.0.0");
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testLocalizedManifestExtraction() {
         ArtifactResource artifact = new ArtifactResource() {
             @Override
@@ -130,7 +129,7 @@ public class BundleHelperTest {
         assertEquals(map.get(ArtifactObject.KEY_ARTIFACT_NAME), "The Coolest Bundle-1.0.0");
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testLocalizedManifestExtractionWithDefaultBase() {
         // note that we do not set the Bundle-Localization header
         ArtifactResource artifact = new ArtifactResource() {
@@ -168,7 +167,7 @@ public class BundleHelperTest {
         assertEquals(map.get(ArtifactObject.KEY_ARTIFACT_NAME), "The Coolest Bundle-1.0.0");
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testLocalizedManifestExtractionWithLocale() {
         ArtifactResource artifact = new ArtifactResource() {
             @Override
@@ -207,7 +206,7 @@ public class BundleHelperTest {
         assertEquals(map.get(ArtifactObject.KEY_ARTIFACT_NAME), "De koelste Bundle-1.0.0");
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testLocalizedManifestExtractionWithLocaleOverrule() {
         ArtifactResource artifact = new ArtifactResource() {
             @Override

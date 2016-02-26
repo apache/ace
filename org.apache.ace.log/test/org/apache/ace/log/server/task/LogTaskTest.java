@@ -18,7 +18,6 @@
  */
 package org.apache.ace.log.server.task;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.testng.Assert.*;
 
 import java.io.IOException;
@@ -59,7 +58,7 @@ public class LogTaskTest {
     /**
      * This test tests both delta computation and push behavior.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testDeltaComputation() throws IOException {
         // TODO: Test the new LogDescriptor.
         List<Descriptor> src = new ArrayList<>();

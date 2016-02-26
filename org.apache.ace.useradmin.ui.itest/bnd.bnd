@@ -1,10 +1,20 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
-Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
-Private-Package: org.apache.ace.useradmin.ui.test
--runvm: -ea
--runfw: org.apache.felix.framework;version='[5.2.0,6)'
--runbundles: osgi.cmpn,\
+-buildpath: \
+	${^-buildpath},\
+	osgi.core;version=6.0.0,\
+	osgi.cmpn,\
+	junit.osgi,\
+	org.mockito.mockito-all,\
+	org.apache.felix.dependencymanager,\
+	org.apache.ace.test;version=latest,\
+	org.apache.ace.useradmin.ui;version=latest,\
+	org.apache.ace.repository.api;version=latest,\
+	org.apache.ace.range.api;version=latest
+
+-runfw: org.apache.felix.framework;version='[5,6)'
+-runbundles: \
+	osgi.cmpn,\
 	com.vaadin,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.dependencymanager,\
@@ -37,25 +47,17 @@ Private-Package: org.apache.ace.useradmin.ui.test
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest
--buildpath: \
-	osgi.core;version=6.0.0,\
-	osgi.cmpn,\
-	junit.osgi,\
-	org.mockito.mockito-all,\
-	org.apache.felix.dependencymanager,\
-	org.apache.ace.test;version=latest,\
-	org.apache.ace.useradmin.ui;version=latest,\
-	org.apache.ace.repository.api;version=latest,\
-	org.apache.ace.range.api;version=latest
+-runvm: -ea
+-runee: JavaSE-1.7
 -runsystempackages: sun.reflect
--runproperties: org.apache.felix.log.storeDebug=true,\
-	org.apache.felix.eventadmin.Timeout=0,\
-	org.apache.ace.server.port=8080,\
-	org.osgi.service.http.port=8080,\
-	org.apache.felix.log.maxSize=1000
--runee: JavaSE-1.6
+-runproperties: ${itestrunprops}
+-baseline:
+
+Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
+
+Private-Package: org.apache.ace.useradmin.ui.test
+
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE UserAdminUI itest
 Bundle-Description: Integration test bundle for Apache ACE UserAdminUI
 Bundle-Category: itest
--baseline:

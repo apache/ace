@@ -23,7 +23,6 @@ import static org.apache.ace.authentication.processor.clientcert.ClientCertAuthe
 import static org.apache.ace.authentication.processor.clientcert.ClientCertAuthenticationProcessor.PROPERTY_USERNAME_LOOKUPKEY;
 import static org.apache.ace.authentication.processor.clientcert.ClientCertAuthenticationProcessor.PROPERTY_USERNAME_MATCH_POLICY;
 import static org.apache.ace.authentication.processor.clientcert.ClientCertAuthenticationProcessor.PROPERTY_VERIFY_CERT_VALIDITY;
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -135,7 +134,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that a null certificate chain will yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateNoCertificateChainYieldsNull() {
         User result = createAuthorizationProcessor().authenticate(m_userAdmin, m_servletRequest);
         assertNull(result, "Did not expect a valid user to be returned!");
@@ -144,7 +143,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that an empty certificate chain will yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateEmptyCertificateChainYieldsNull() {
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(new X509Certificate[0]);
 
@@ -155,7 +154,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that authenticating a known user with an invalid (expired) certificate will yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateKnownUserWithExpiredCertificateYieldsNull() {
         X509Certificate[] certificateChain = createExpiredCertificateChain("bob");
         PublicKey publickey = certificateChain[0].getPublicKey();
@@ -175,7 +174,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that authenticating a known user with an invalid (not valid) certificate will yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateKnownUserWithNotValidCertificateYieldsNull() {
         X509Certificate[] certificateChain = createExpiredCertificateChain("bob");
         PublicKey publickey = certificateChain[0].getPublicKey();
@@ -196,7 +195,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that authenticating a known user with a valid certificate will not yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateKnownUserYieldsValidResult() {
         X509Certificate[] certChain = createValidCertificateChain("bob");
 
@@ -216,7 +215,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that authenticating a known user with a valid certificate chain will not yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateKnownUserWithValidCertificateChainYieldsValidResult() throws ConfigurationException {
         ClientCertAuthenticationProcessor processor = createAuthorizationProcessor();
 
@@ -248,7 +247,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that a missing cipher suite header will the authenticate method to yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateMissingCipherSuiteHeaderYieldsNull() {
         when(m_servletRequest.getAttribute(ATTRIBUTE_CIPHER_SUITE)).thenReturn(null);
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(createValidCertificateChain("bob"));
@@ -260,7 +259,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that a class cast exception is thrown for invalid context when calling authenticate.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ClassCastException.class)
+    @Test(expectedExceptions = ClassCastException.class)
     public void testAuthenticateThrowsClassCastForInvalidContext() {
         createAuthorizationProcessor().authenticate(m_userAdmin, new Object());
     }
@@ -268,7 +267,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that an unknown user will yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateUnknownUserYieldsNull() {
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(createValidCertificateChain("bob"));
 
@@ -279,7 +278,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that canHandle yields false for any object other than {@link HttpServletRequest}.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testCanHandleDoesAcceptServletRequest() {
         when(m_servletRequest.getAttribute(ATTRIBUTE_X509_CERTIFICATE)).thenReturn(createValidCertificateChain("alice"));
 
@@ -289,7 +288,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that canHandle throws an {@link IllegalArgumentException} for an empty context.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testCanHandleDoesNotAcceptEmptyArray() {
         createAuthorizationProcessor().canHandle(new Object[0]);
     }
@@ -297,7 +296,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that canHandle throws an {@link IllegalArgumentException} for a null context.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testCanHandleDoesNotAcceptNull() {
         createAuthorizationProcessor().canHandle((Object[]) null);
     }
@@ -305,7 +304,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that canHandle yields false for any object other than {@link HttpServletRequest}.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testCanHandleDoesNotAcceptUnhandledContext() {
         assertFalse(createAuthorizationProcessor().canHandle(new Object()));
     }
@@ -313,7 +312,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that updated does not throw an exception for a correct configuration.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testUpdatedDoesAcceptCorrectProperties() throws ConfigurationException {
         final String lookupKey = "anyKey";
         final String matchPolicy = "cn";
@@ -347,7 +346,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "username match policy" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyMatchPolicy() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -361,7 +360,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "username lookup key" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyLookupKey() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -375,7 +374,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "verify cert validity" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyVerifyCertValidity() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -389,7 +388,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "username match policy" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingMatchPolicy() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -402,7 +401,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "user name lookup key" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingUsernameLookupKey() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -415,7 +414,7 @@ public class ClientCertAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "verify cert validity" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingVerifyCertValidity() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 

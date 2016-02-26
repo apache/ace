@@ -18,8 +18,6 @@
  */
 package org.apache.ace.discovery.property;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.net.URL;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -45,9 +43,10 @@ public class SimpleDiscoveryTest {
 
     /**
      * Test if setting a valid configuration is handled correctly
+     * 
      * @throws Exception
      */
-    @Test(groups = { UNIT })
+    @Test
     public void simpleDiscoveryValidConfiguration() throws ConfigurationException {
         Dictionary<String, String> properties = new Hashtable<>();
         properties.put(SERVERURL_KEY, VALID_URL);
@@ -58,9 +57,10 @@ public class SimpleDiscoveryTest {
 
     /**
      * Test if setting an invalid configuration is handled correctly.
+     * 
      * @throws ConfigurationException
      */
-    @Test(groups = {UNIT}, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void simpleDiscoveryInvalidConfiguration() throws ConfigurationException {
         Dictionary<String, String> properties = new Hashtable<>();
         properties.put(SERVERURL_KEY, INVALID_URL);
@@ -69,9 +69,10 @@ public class SimpleDiscoveryTest {
 
     /**
      * Test if supplying an empty configuration results in the service's default being used.
+     * 
      * @throws ConfigurationException
      */
-    @Test(groups = {UNIT})
+    @Test
     public void simpleDiscoveryEmptyConfiguration() throws ConfigurationException {
         // set valid config
         Dictionary<String, String> properties = new Hashtable<>();

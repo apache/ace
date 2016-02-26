@@ -18,8 +18,6 @@
  */
 package org.apache.ace.obr.metadata.repoindeximpl;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -44,7 +42,7 @@ public class RepoIndexMetadataTest {
     /**
      * Generate metadata index, verify contents
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void generateMetaData() throws Exception {
         File dir = File.createTempFile("meta", "");
         dir.delete();
@@ -72,7 +70,7 @@ public class RepoIndexMetadataTest {
     /**
      * Generate a metadata index, remove a bundle, regenerate metadata, verify.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void updateMetaData() throws Exception {
         File dir = File.createTempFile("meta", "");
         dir.delete();
@@ -101,7 +99,7 @@ public class RepoIndexMetadataTest {
     /**
      * Generate metadata index with partially invalid contents, verify contents
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void generatePartiallyInvalidMetaData() throws Exception {
         File dir = File.createTempFile("meta", "");
         dir.delete();

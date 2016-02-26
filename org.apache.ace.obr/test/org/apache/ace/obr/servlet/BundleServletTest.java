@@ -18,8 +18,6 @@
  */
 package org.apache.ace.obr.servlet;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -204,7 +202,7 @@ public class BundleServletTest {
         }
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetValidResource() throws Exception {
         m_requestFile = m_testFile.getName();
         m_bundleServlet.doGet(m_request, m_response);
@@ -215,7 +213,7 @@ public class BundleServletTest {
         assert checkStream : "One stream stopped before the other one did.";
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetInValidResource() throws Exception {
         m_requestFile = "UnknownFile";
         m_bundleServlet.doGet(m_request, m_response);
@@ -223,7 +221,7 @@ public class BundleServletTest {
         assert m_status == HttpServletResponse.SC_NOT_FOUND : "We should have got response code " + HttpServletResponse.SC_NOT_FOUND + " and we got " + m_status;
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testPostResource() throws Exception {
         m_requestFile = "NewFile";
         m_bundleServlet.doPost(m_request, m_response);
@@ -233,7 +231,7 @@ public class BundleServletTest {
         assert m_status == HttpServletResponse.SC_CONFLICT;
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testRemoveResource() throws Exception {
         m_requestFile = "RemoveMe";
         m_bundleServlet.doDelete(m_request, m_response);
@@ -243,7 +241,7 @@ public class BundleServletTest {
         assert m_status == HttpServletResponse.SC_NOT_FOUND;
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testRemoveResourceInPath() throws Exception {
         m_requestFile = "path/to/file";
         m_bundleServlet.doDelete(m_request, m_response);

@@ -18,13 +18,11 @@
  */
 package org.apache.ace.deployment.provider.repositorybased;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class CacheTest {
-	@Test(groups = { UNIT })
+	@Test()
 	public void testFillCacheToLimitAndCheckIfEverythingFits() {
 		LRUMap<String, String> map = new LRUMap<>();
 		for (int i = 0; i < 1024; i++) {
@@ -37,7 +35,7 @@ public class CacheTest {
 		}
 	}
 
-	@Test(groups = { UNIT })
+	@Test()
 	public void testOverflowCacheAndValidateOldestElementDisappears() {
 		LRUMap<String, String> map = new LRUMap<>();
 		// add one too many

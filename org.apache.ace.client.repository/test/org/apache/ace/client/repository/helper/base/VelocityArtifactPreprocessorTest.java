@@ -18,8 +18,6 @@
  */
 package org.apache.ace.client.repository.helper.base;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -58,7 +56,7 @@ public class VelocityArtifactPreprocessorTest {
     /**
      * Test case for {@link VelocityArtifactPreprocessor#needsNewVersion(String, PropertyResolver, String, String)}
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testNeedsNewVersionChangedTemplateOk() throws Exception {
         final VelocityArtifactPreprocessor vap = createProcessor();
         
@@ -79,7 +77,7 @@ public class VelocityArtifactPreprocessorTest {
     /**
      * Test case for {@link VelocityArtifactPreprocessor#needsNewVersion(String, PropertyResolver, String, String)}
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testNeedsNewVersionEmptyTemplateOk() throws Exception {
         final VelocityArtifactPreprocessor vap = createProcessor();
         
@@ -95,7 +93,7 @@ public class VelocityArtifactPreprocessorTest {
     /**
      * Test case for {@link VelocityArtifactPreprocessor#needsNewVersion(String, PropertyResolver, String, String)}
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testNeedsNewVersionNonExistingTemplateOk() throws Exception {
         final VelocityArtifactPreprocessor vap = createProcessor();
         
@@ -109,7 +107,7 @@ public class VelocityArtifactPreprocessorTest {
     /**
      * Test case for {@link VelocityArtifactPreprocessor#needsNewVersion(String, PropertyResolver, String, String)}
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testNeedsNewVersionUnchangedTemplateOk() throws Exception {
         final VelocityArtifactPreprocessor vap = createProcessor();
         
@@ -128,7 +126,7 @@ public class VelocityArtifactPreprocessorTest {
     /**
      * Test case for {@link VelocityArtifactPreprocessor#preprocess(String, PropertyResolver, String, String, java.net.URL)}
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testPreprocessExistingNoTemplateOk() throws Exception {
         String url = createArtifact("Message: [context.msg]");
         
@@ -141,7 +139,7 @@ public class VelocityArtifactPreprocessorTest {
     /**
      * Test case for {@link VelocityArtifactPreprocessor#preprocess(String, PropertyResolver, String, String, java.net.URL)}
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testPreprocessExistingRealTemplateOk() throws Exception {
         String url = createArtifact("Message: [$context.msg]");
         
@@ -156,7 +154,7 @@ public class VelocityArtifactPreprocessorTest {
     /**
      * Test case for {@link VelocityArtifactPreprocessor#preprocess(String, PropertyResolver, String, String, java.net.URL)}
      */
-    @Test(groups = { UNIT }, expectedExceptions = { IOException.class })
+    @Test(expectedExceptions = { IOException.class })
     public void testPreprocessNonExistingTemplateOk() throws Exception {
         // Should be something that really doesn't exist somehow...
         String url = "file:///path/to/nowhere-" + System.currentTimeMillis();

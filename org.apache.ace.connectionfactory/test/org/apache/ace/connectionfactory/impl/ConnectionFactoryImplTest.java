@@ -19,15 +19,12 @@
 
 package org.apache.ace.connectionfactory.impl;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.apache.ace.test.constants.TestConstants;
 import org.testng.annotations.Test;
 
 /**
@@ -39,7 +36,7 @@ public class ConnectionFactoryImplTest {
     
     static {
         try {
-            TEST_URL = new URL("http://localhost:" + TestConstants.PORT + "/");
+            TEST_URL = new URL("http://localhost:8080/");
         }
         catch (MalformedURLException e) {
             throw new RuntimeException(e);
@@ -49,7 +46,7 @@ public class ConnectionFactoryImplTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#createConnection(java.net.URL)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testCreateConnectionNullUrlFail() throws Exception {
         new ConnectionFactoryImpl().createConnection(null);
     }
@@ -57,7 +54,7 @@ public class ConnectionFactoryImplTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#createConnection(java.net.URL, org.osgi.service.useradmin.User)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testCreateConnectionNullUserFail() throws Exception {
         new ConnectionFactoryImpl().createConnection(new URL("file:///tmp/foo"), null);
     }
@@ -65,7 +62,7 @@ public class ConnectionFactoryImplTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#createConnection(java.net.URL, org.osgi.service.useradmin.User)}.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testCreateConnectionOk() throws Exception {
         URLConnection conn = new ConnectionFactoryImpl().createConnection(new URL("file:///tmp/foo"));
         assert conn != null : "Expected valid connection to be created!";
@@ -74,7 +71,7 @@ public class ConnectionFactoryImplTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#deleted(java.lang.String)}.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testDeleted() throws Exception {
         ConnectionFactoryImpl connFactory = new ConnectionFactoryImpl();
 
@@ -94,7 +91,7 @@ public class ConnectionFactoryImplTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#getBasicAuthCredentials(UrlCredentials)}.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetBasicAuthCredentialsOk() throws Exception {
         ConnectionFactoryImpl connFactory = new ConnectionFactoryImpl();
 
@@ -114,7 +111,7 @@ public class ConnectionFactoryImplTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#updated(java.lang.String, java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testUpdatedInsertsCredentialsOk() throws Exception {
         ConnectionFactoryImpl connFactory = new ConnectionFactoryImpl();
         
@@ -132,7 +129,7 @@ public class ConnectionFactoryImplTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.ConnectionFactoryImpl#updated(java.lang.String, java.util.Dictionary)}.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testUpdatedUpdatesCredentialsOk() throws Exception {
         ConnectionFactoryImpl connFactory = new ConnectionFactoryImpl();
 

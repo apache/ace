@@ -1,7 +1,7 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
-Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 -buildpath: \
+	${^-buildpath},\
 	junit.osgi,\
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
@@ -21,9 +21,10 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest
--runfw: org.apache.felix.framework;version='[5.2.0,6)'
--runvm: -ea
--runbundles: osgi.cmpn,\
+
+-runfw: org.apache.felix.framework;version='[5,6)'
+-runbundles: \
+	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.configadmin,\
 	org.apache.felix.eventadmin,\
@@ -65,16 +66,16 @@ Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 	org.apache.ace.client.repository.impl;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\
 	org.apache.ace.http.context;version=latest
-	
--runproperties: \
-	org.apache.felix.eventadmin.Timeout=0,\
-	org.apache.felix.log.storeDebug=true,\
-    org.apache.felix.log.maxSize=-1,\
-    org.osgi.framework.bootdelegation="com.yourkit.*,com.sun.*,sun.*,apple.*,com.apple.*"
+-runvm: -ea
+-runee: JavaSE-1.7
+-runsystempackages: sun.reflect
+-runproperties: ${itestrunprops}
+-baseline:
+
+Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 
 Private-Package: org.apache.ace.it.repositoryadmin
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Client Repository itest
-Bundle-Category: itest
 Bundle-Description: Integration test bundle for the Apache ACE Client Repository
--baseline:
+Bundle-Category: itest

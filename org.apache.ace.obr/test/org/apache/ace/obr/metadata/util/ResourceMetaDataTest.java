@@ -18,8 +18,6 @@
  */
 package org.apache.ace.obr.metadata.util;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,23 +30,23 @@ import org.testng.annotations.Test;
 
 public class ResourceMetaDataTest {
 
-    @Test(groups = { UNIT })
+    @Test()
     public void checkArtifactMetadataGeneration() throws Exception {
         ResourceMetaData data = ResourceMetaData.getArtifactMetaData("foo.bar-1.0.3.xml");
         assert "foo.bar".equals(data.getSymbolicName()) : "Generated symbolic name should be 'foo.bar', was " + data.getSymbolicName();
         assert "1.0.3".equals(data.getVersion()) : "Generated version should be '1.0.3', was " + data.getVersion();
         assert "xml".equals(data.getExtension()) : "Extension should be 'xml', was " + data.getExtension();
     }
-    
-    @Test(groups = { UNIT })
+
+    @Test()
     public void checkConfigurationTemplateMetadataGeneration() throws Exception {
         ResourceMetaData data = ResourceMetaData.getArtifactMetaData("org.foo.configuration-1.0.0.xml-target-1-2.0.0.xml");
         assert "org.foo.configuration-1.0.0.xml-target-1".equals(data.getSymbolicName()) : "Generated symbolic name should be 'org.foo.configuration-1.0.0.xml-target-1', was " + data.getSymbolicName();
         assert "2.0.0".equals(data.getVersion()) : "Generated version should be '2.0.0', was " + data.getVersion();
         assert "xml".equals(data.getExtension()) : "Extension should be 'xml', was " + data.getExtension();
-    }    
+    }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void checkBundleMetadataGeneration() throws Exception {
         ResourceMetaData data = ResourceMetaData.getBundleMetaData(createBundle("foo.bar", "1.0.3"));
         assert "foo.bar".equals(data.getSymbolicName()) : "Generated symbolic name should be 'foo.bar', was " + data.getSymbolicName();

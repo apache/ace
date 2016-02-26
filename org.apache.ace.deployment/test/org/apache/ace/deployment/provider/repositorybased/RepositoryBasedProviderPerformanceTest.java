@@ -18,8 +18,6 @@
  */
 package org.apache.ace.deployment.provider.repositorybased;
 
-import static org.apache.ace.test.utils.TestUtils.*;
-
 import java.io.StringWriter;
 import java.util.Collection;
 
@@ -108,7 +106,7 @@ public class RepositoryBasedProviderPerformanceTest {
     /**
      * Test the getBundleData for a single version, returning a single bundle, for a huge XML.
      */
-    @Test(groups = { PERFORMANCE }, timeOut = 2000 /* millis */)
+    @Test(timeOut = 2000 /* millis */)
     public void testSingleBundleSingleVersionBundleDataFromHugeXml() throws Exception {
         // will parse the entire XML structure;
         // with XPath queries, it takes about 115 seconds of time;
@@ -120,7 +118,7 @@ public class RepositoryBasedProviderPerformanceTest {
     /**
      * Test the getBundleData for a single version, returning a single bundle, for a huge XML.
      */
-    @Test(groups = { PERFORMANCE }, timeOut = 3000 /* millis */)
+    @Test(timeOut = 3000 /* millis */)
     public void testSingleBundleMultipleVersionBundleDataFromHugeXml() throws Exception {
         // will parse the entire XML structure;
         // with XPath queries, it takes about 115 seconds of time;

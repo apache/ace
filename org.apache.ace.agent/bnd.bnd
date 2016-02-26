@@ -45,6 +45,5 @@ mavenGroupId: org.apache.ace
 	javax.servlet,\
 	org.apache.felix.http.jetty;version='[2.2,3)',\
 	org.apache.felix.deploymentadmin,\
-	org.apache.ace.test;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest

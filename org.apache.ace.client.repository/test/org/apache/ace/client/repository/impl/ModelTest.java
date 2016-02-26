@@ -90,7 +90,7 @@ public class ModelTest {
      * 
      * @throws InvalidSyntaxException
      */
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testArtifactObjectAndRepository() throws InvalidSyntaxException {
         // Create a very simple artifact.
         ArtifactObject a = createBasicArtifactObject("myartifact", "1.0.0", "1");
@@ -188,7 +188,7 @@ public class ModelTest {
     /**
      * Tests that we can create artifacts which contain a certain size (estimate). See ACE-384.
      */
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testArtifactObjectSize() {
         ArtifactObject artifactWithSize = createBasicArtifactObject("myartifact", "1.0.0", "10");
         assert artifactWithSize.getSize() == 10 : "The artifact did not have a valid size?!";
@@ -203,7 +203,7 @@ public class ModelTest {
     /**
      * Tests the behavior when associating stuff, and removing associations.
      */
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testAssociations() {
         initializeRepositoryAdmin();
         // Create two, rather boring, artifacts.
@@ -289,7 +289,7 @@ public class ModelTest {
         assert g3artifacts.containsAll(g3expectedArtifacts) && g3expectedArtifacts.containsAll(g3artifacts) : "g3 should be associated to exactly artifact 1.";
     }
 
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testAssociationsWithCardinality() {
         ArtifactObject a1 = createBasicArtifactObject("a1");
         FeatureObject f1 = createBasicFeatureObject("f1");
@@ -322,7 +322,7 @@ public class ModelTest {
         assert (f3.getArtifacts().size() == 1) && f3.getArtifacts().contains(a1) : "g1 should be associated to only b1.";
     }
 
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testAssociationsWithLists() {
         ArtifactObject b1 = createBasicArtifactObject("b1");
         ArtifactObject b2 = createBasicArtifactObject("b2");
@@ -366,7 +366,7 @@ public class ModelTest {
         assert !foundArtifacts.contains(b3) : "g1 should not be associated with b3";
     }
 
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testDeploymentRepository() {
         DeploymentVersionObject version11 = createBasicDeploymentVersionObject("target1", "1", new String[] { "artifact1", "artifact2" });
         DeploymentVersionObject version12 = createBasicDeploymentVersionObject("target1", "2", new String[] { "artifact3", "artifact4" });
@@ -392,7 +392,7 @@ public class ModelTest {
         assert m_deploymentVersionRepository.getMostRecentDeploymentVersion("target2") == version22 : "The most recent version for target2 should be version22";
     }
 
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testDeploymentRepositoryFilter() {
 
         String gwId = "\\ ( * ) target1)";
@@ -403,7 +403,7 @@ public class ModelTest {
         assert for1.get(0) == version1 : "The only version for" + gwId + "should be version1";
     }
 
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testDeploymentVersion() throws IOException {
         DeploymentVersionObject version = createBasicDeploymentVersionObject("target1", "1", new String[] { "artifact1", "artifact2" });
 
@@ -449,7 +449,7 @@ public class ModelTest {
      * targets and their associations. In essence, this test 'touches' all code which uses generic code which has been
      * tested by TestAssociations.
      */
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testDistribution2TargetAssociations() {
         initializeRepositoryAdmin();
         DistributionObject d1 = createBasicDistributionObject("distribution1");
@@ -465,7 +465,7 @@ public class ModelTest {
     /**
      * Tests the correctness of the equals() in RepositoryObject.
      */
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testEquals() {
         List<ArtifactObject> artifacts = new ArrayList<>();
         artifacts.add(createBasicArtifactObject("artifact1"));
@@ -488,7 +488,7 @@ public class ModelTest {
      * distributions and their associations. In essence, this test 'touches' all code which uses generic code which has
      * been tested by TestAssociations.
      */
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void TestFeature2DistributionAssociations() {
         initializeRepositoryAdmin();
         FeatureObject f1 = createBasicFeatureObject("feature1");
@@ -505,7 +505,7 @@ public class ModelTest {
         assert d1.getTargets().size() == 0 : "Distribution 1 should not be associated with any targets; it is associated with " + d1.getTargets().size() + ".";
     }
 
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testGetAssociationsWith() {
         initializeRepositoryAdmin();
         ArtifactObject a1 = createBasicArtifactObject("artifact1");
@@ -522,7 +522,7 @@ public class ModelTest {
         assert g1Associations.get(0) == a2f1 : "The feature's association should be the one we created.";
     }
 
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testLimitedNumberOfDeploymentVersions() throws IOException {
         RepositoryConfigurationImpl repoConfig = new RepositoryConfigurationImpl();
         repoConfig.setDeploymentVersionLimit(3); // only keep the 3 most recent deployment versions...
@@ -574,7 +574,7 @@ public class ModelTest {
         assertTrue(repo.contains(target2_v2));
     }
 
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testModelFiltering() throws InvalidSyntaxException {
         initializeRepositoryAdmin();
         // Create an empty artifact repository.
@@ -611,7 +611,7 @@ public class ModelTest {
         assert m_featureRepository.get(createLocalFilter("(difficult=" + RepositoryUtil.escapeFilterValue(")diffi)c*ul\\t") + ")")).size() == 1 : "The 'difficult' string should be correctly escaped, and thus return exactly one match.";
     }
 
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testRepositorySerialization() throws IOException {
         createBasicArtifactObject("myartifact", "1");
         createBasicArtifactObject("myartifact", "2");
@@ -627,7 +627,7 @@ public class ModelTest {
         assert m_artifactRepository.get().size() == 2 : "We expect to find 2 artifacts, but we find " + m_artifactRepository.get().size();
     }
 
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testSerialization() throws IOException {
         ArtifactObject b1 = createBasicArtifactObject("artifact1");
         ArtifactObject b2 = createBasicArtifactObject("artifact2");
@@ -658,7 +658,7 @@ public class ModelTest {
         assert b3.isAssociated(g2, FeatureObject.class) : "After serialization, b3 should still be associated with g2.";
     }
 
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testUnlimitedNumberOfDeploymentVersions() throws IOException {
         RepositoryConfiguration repoConfig = new RepositoryConfigurationImpl();
 
@@ -703,7 +703,7 @@ public class ModelTest {
         assertTrue(repo.contains(target2_v2));
     }
     
-    @Test(groups = { TestUtils.UNIT })
+    @Test()
     public void testConcurrentAccessToObjectRepository() throws Exception {
         initializeRepositoryAdmin();
         // adds 10 features

@@ -18,8 +18,6 @@
  */
 package org.apache.ace.log.server.servlet;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -63,7 +61,7 @@ public class LogServletTest {
     protected void tearDown() throws Exception {
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void queryLog() throws Exception {
         MockServletOutputStream output = new MockServletOutputStream();
         boolean result = m_logServlet.handleQuery(m_range.getTargetID(), String.valueOf(m_range.getStoreID()), null, output);
@@ -74,8 +72,8 @@ public class LogServletTest {
         assert result;
         assert (m_range.toRepresentation() + "\n").equals(output.m_text);
     }
-    
-    @Test(groups = { UNIT })
+
+    @Test()
     public void queryLogWithTargetFilter() throws Exception {
         MockServletOutputStream output = new MockServletOutputStream();
         boolean result = m_logServlet.handleQuery(m_range.getTargetID(), null, null, output);
@@ -86,17 +84,17 @@ public class LogServletTest {
         assert result;
         assert (m_range.toRepresentation() + "\n").equals(output.m_text);
     }
-    
-    @Test(groups = { UNIT })
+
+    @Test()
     public void receiveLowestID() throws Exception {
-    	// no lowest ID set
+        // no lowest ID set
         MockServletOutputStream output = new MockServletOutputStream();
         boolean result = m_logServlet.handleReceiveIDs(m_range.getTargetID(), String.valueOf(m_range.getStoreID()), null, output);
         assert result;
         String expected = "";
         String actual = output.m_text;
         assert expected.equals(actual) : "We expected '" + expected + "', but received '" + actual + "'";
-        
+
         // set lowest ID
         m_mockStore.setLowestID(m_range.getTargetID(), m_range.getStoreID(), 5);
         output = new MockServletOutputStream();
@@ -107,17 +105,17 @@ public class LogServletTest {
         assert expected.equals(actual) : "We expected '" + expected + "', but received '" + actual + "'";
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void sendLowestID() throws Exception {
         MockServletInputStream input = new MockServletInputStream();
         String expected = m_range.getTargetID() + "," + m_range.getStoreID() + ",9\n";
         input.setBytes(expected.getBytes());
         m_logServlet.handleSendIDs(input);
         long lowestID = m_mockStore.getLowestID(m_range.getTargetID(), m_range.getStoreID());
-		assert 9 == lowestID : "Expected lowest ID to be 9, but got: " + lowestID;
+        assert 9 == lowestID : "Expected lowest ID to be 9, but got: " + lowestID;
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void receiveLog() throws Exception {
         MockServletOutputStream output = new MockServletOutputStream();
         boolean result = m_logServlet.handleReceive(m_range.getTargetID(), String.valueOf(m_range.getStoreID()), "1", null, output);
@@ -127,14 +125,15 @@ public class LogServletTest {
         assert expected.equals(actual) : "We expected '" + expected + "', but received '" + actual + "'";
 
         output = new MockServletOutputStream();
-        result = m_logServlet.handleReceive(m_range.getTargetID(), String.valueOf(m_range.getStoreID()), null , null, output);
+        result = m_logServlet.handleReceive(m_range.getTargetID(), String.valueOf(m_range.getStoreID()), null, null, output);
         assert result;
         expected = m_event1.toRepresentation() + "\n" + m_event2.toRepresentation() + "\n";
         actual = output.m_text;
-        assert expected.equals(actual) : "We expected '" + expected + "', but received '" + actual + "'";;
+        assert expected.equals(actual) : "We expected '" + expected + "', but received '" + actual + "'";
+        ;
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void sendLog() throws Exception {
         MockServletInputStream input = new MockServletInputStream();
         String expected = m_event1.toRepresentation() + "\n" + m_event2.toRepresentation() + "\n";
@@ -150,43 +149,48 @@ public class LogServletTest {
     }
 
     private static class Tuple {
-    	private final String m_targetID;
-    	private final long m_logID;
-    	public Tuple(String targetID, long logID) {
-    		if (targetID == null) {
-    			throw new IllegalArgumentException("TargetID cannot be null");
-    		}
-			m_targetID = targetID;
-			m_logID = logID;
-		}
-		public String getTargetID() {
-			return m_targetID;
-		}
-		public long getLogID() {
-			return m_logID;
-		}
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + (int) (m_logID ^ (m_logID >>> 32));
-			result = prime * result + m_targetID.hashCode();
-			return result;
-		}
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			Tuple other = (Tuple) obj;
-			return (m_logID == other.getLogID() && m_targetID.equals(other.getTargetID()));
-		}
+        private final String m_targetID;
+        private final long m_logID;
+
+        public Tuple(String targetID, long logID) {
+            if (targetID == null) {
+                throw new IllegalArgumentException("TargetID cannot be null");
+            }
+            m_targetID = targetID;
+            m_logID = logID;
+        }
+
+        public String getTargetID() {
+            return m_targetID;
+        }
+
+        public long getLogID() {
+            return m_logID;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (int) (m_logID ^ (m_logID >>> 32));
+            result = prime * result + m_targetID.hashCode();
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            Tuple other = (Tuple) obj;
+            return (m_logID == other.getLogID() && m_targetID.equals(other.getTargetID()));
+        }
     }
 
     private class MockLogStore implements LogStore {
@@ -202,40 +206,48 @@ public class LogServletTest {
             }
             return events;
         }
+
         public List<Descriptor> getDescriptors(String targetID) {
-        	List<Descriptor> ranges = new ArrayList<>();
+            List<Descriptor> ranges = new ArrayList<>();
             ranges.add(m_range);
             return ranges;
         }
+
         public List<Descriptor> getDescriptors() {
             List<Descriptor> ranges = new ArrayList<>();
             ranges.add(m_range);
             return ranges;
         }
+
         public Descriptor getDescriptor(String targetID, long logID) throws IOException {
             return m_range;
         }
+
         public void put(List<Event> events) throws IOException {
             m_events = events;
         }
+
         public void clean() throws IOException {
             throw new UnsupportedOperationException("not implemented");
         }
+
         @Override
         public Event put(String targetID, int type, Dictionary props) throws IOException {
             throw new UnsupportedOperationException("not implemented");
         }
+
         private Map<Tuple, Long> m_lowestIDs = new HashMap<>();
-        
-		@Override
-		public void setLowestID(String targetID, long logID, long lowestID) throws IOException {
-			m_lowestIDs.put(new Tuple(targetID, logID), lowestID);
-		}
-		@Override
-		public long getLowestID(String targetID, long logID) throws IOException {
-			Long result  = m_lowestIDs.get(new Tuple(targetID, logID));
-			return result == null ? 0 : result.longValue();
-		}
+
+        @Override
+        public void setLowestID(String targetID, long logID, long lowestID) throws IOException {
+            m_lowestIDs.put(new Tuple(targetID, logID), lowestID);
+        }
+
+        @Override
+        public long getLowestID(String targetID, long logID) throws IOException {
+            Long result = m_lowestIDs.get(new Tuple(targetID, logID));
+            return result == null ? 0 : result.longValue();
+        }
     }
 
     private class MockServletOutputStream extends ServletOutputStream {
@@ -245,6 +257,7 @@ public class LogServletTest {
         public void print(String s) throws IOException {
             m_text = m_text.concat(s);
         }
+
         @Override
         public void write(int arg0) throws IOException {
         }

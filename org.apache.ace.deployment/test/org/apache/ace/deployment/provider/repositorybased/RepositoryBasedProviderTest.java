@@ -18,8 +18,6 @@
  */
 package org.apache.ace.deployment.provider.repositorybased;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.io.File;
 import java.io.StringWriter;
 import java.util.Collection;
@@ -56,9 +54,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * This test class tests the Repositorybased Provider class.
- * This class implements 2 backend interfaces,
- * and both are tested here.
+ * This test class tests the Repositorybased Provider class. This class implements 2 backend interfaces, and both are
+ * tested here.
  */
 public class RepositoryBasedProviderTest {
 
@@ -78,30 +75,28 @@ public class RepositoryBasedProviderTest {
     public static final String KEY_VENDOR = Constants.BUNDLE_VENDOR;
     public static final String KEY_RESOURCE_PROCESSOR_PID = "Deployment-ProvidesResourceProcessor";
     /**
-     * Key, intended to be used for artifacts which are bundles and will publish
-     * a resource processor (see OSGi compendium section 114.10).
+     * Key, intended to be used for artifacts which are bundles and will publish a resource processor (see OSGi
+     * compendium section 114.10).
      */
     public static final String DIRECTIVE_ISCUSTOMIZER = "DeploymentPackage-Customizer";
 
     /**
-     * Key, intended to be used for resources which require a resource processor
-     * (see OSGi compendium section 114.10).
+     * Key, intended to be used for resources which require a resource processor (see OSGi compendium section 114.10).
      */
     public static final String DIRECTIVE_KEY_PROCESSORID = "Resource-Processor";
 
     /**
-     * Key, intended to be used for artifacts which have a resourceID that's different
-     * from their generated name (based on URL).
+     * Key, intended to be used for artifacts which have a resourceID that's different from their generated name (based
+     * on URL).
      */
     public static final String DIRECTIVE_KEY_RESOURCE_ID = "Resource-ID";
 
     /**
-     * Key, intended to be used for matching processed (see ArtifactPreprocessor) to their
-     * 'original' one.
+     * Key, intended to be used for matching processed (see ArtifactPreprocessor) to their 'original' one.
      */
     public static final String DIRECTIVE_KEY_BASEURL = "Base-Url";
 
-	public static final String REPOSITORY_PATH = "ACE-RepositoryPath";
+    public static final String REPOSITORY_PATH = "ACE-RepositoryPath";
 
     private RepositoryBasedProvider m_backend;
 
@@ -265,8 +260,10 @@ public class RepositoryBasedProviderTest {
             KEY_VERSION, BUNDLE1.getVersion() },
             new String[] { RESOURCEPROCESSOR1.getUrl().toString(), DIRECTIVE_ISCUSTOMIZER, "true",
                 KEY_SYMBOLICNAME, RESOURCEPROCESSOR1.getSymbolicName(), KEY_VERSION,
-                RESOURCEPROCESSOR1.getVersion() }, new String[] { ARTIFACT1.getUrl().toString(),
-                DIRECTIVE_KEY_PROCESSORID, "my.processor.pid" }, new String[] {
+                RESOURCEPROCESSOR1.getVersion() },
+            new String[] { ARTIFACT1.getUrl().toString(),
+                DIRECTIVE_KEY_PROCESSORID, "my.processor.pid" },
+            new String[] {
                 ARTIFACT2.getUrl().toString(), DIRECTIVE_KEY_RESOURCE_ID, "Artifact2",
                 DIRECTIVE_KEY_PROCESSORID, "my.processor.pid" }));
 
@@ -298,12 +295,16 @@ public class RepositoryBasedProviderTest {
     /**
      * Helper method to create the description of a deploymentpacakge with given data.
      * 
-     * @param doc The document to add the version to.
-     * @param targetText The targetId in the deploymentversion.
-     * @param versionText The version in the deploymentversion.
-     * @param data An array of data for the deployment artifact. [0] is the url, and each following item is
-     *        first a directive key, and a directive value. For example,<br>
-     *        <code>new String[] { "http://mybundle", "somedirective", "somevalue" }</code>
+     * @param doc
+     *            The document to add the version to.
+     * @param targetText
+     *            The targetId in the deploymentversion.
+     * @param versionText
+     *            The version in the deploymentversion.
+     * @param data
+     *            An array of data for the deployment artifact. [0] is the url, and each following item is first a
+     *            directive key, and a directive value. For example,<br>
+     *            <code>new String[] { "http://mybundle", "somedirective", "somevalue" }</code>
      * @return
      */
     private Node generateDeploymentVersion(Document doc, String targetText, String versionText, String[]... data) {
@@ -352,12 +353,11 @@ public class RepositoryBasedProviderTest {
     }
 
     /**
-     * Without any checked in data, we should just get back no version,
-     * but the provider should not crash.
+     * Without any checked in data, we should just get back no version, but the provider should not crash.
      * 
      * @throws java.io.IOException
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testEmptyRepository() throws Exception {
         Repository mock = new MockDeploymentRepository("", null, null);
         TestUtils.configureObject(m_backend, Repository.class, mock);
@@ -370,7 +370,7 @@ public class RepositoryBasedProviderTest {
     /**
      * See if the getVersions() methods normal output works
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetVersion() throws Exception {
         List<String> versions = m_backend.getVersions(TARGET);
         assert versions.size() == 1 : "Expected one version to be found, but found " + versions.size();
@@ -380,7 +380,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getVersions method with an illegal version (not in org.osgi.framework.Version format)
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testIllegalVersion() throws Exception {
         // an illegal version should be silently ignored
         List<String> versions = m_backend.getVersions(INVALIDVERSIONTARGET);
@@ -390,7 +390,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test with multiple versions. It expects all versions in an ascending order.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testMultipleVersions() throws Exception {
         List<String> versions = m_backend.getVersions(MULTIPLEVERSIONTARGET);
         assert versions.size() == 4 : "Expected three version to be found, but found " + versions.size();
@@ -404,7 +404,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData for a single version, returning a single bundle
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testSingleBundleSingleVersionBundleData() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(TARGET, VERSION1);
         assert bundleData.size() == 1 : "Expected one bundle to be found, but found " + bundleData.size();
@@ -414,7 +414,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData for a single version, returning a multiple bundles
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testMultipleBundleSingleVersionBundleData() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
@@ -425,7 +425,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData with an illegal version (i.e. a version that doesn't exist)
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testInvalidVersionBundleData() throws Exception {
         try {
             m_backend.getBundleData(TARGET, INVALIDVERSION);
@@ -440,7 +440,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData with an illegal target (i.e. a target that doesn't exist)
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testInvalidTargetBundleData() throws Exception {
         try {
             m_backend.getBundleData(INVALIDVERSIONTARGET, VERSION1);
@@ -455,7 +455,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, returning a single bundle that hasn't changed
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testSingleUnchangedBundleMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(TARGET, VERSION1, VERSION1);
         assert bundleData.size() == 1 : "Expect one bundle, got " + bundleData.size();
@@ -470,7 +470,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, returning multiple bundles that haven't changed
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testMultipleBundlesMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
@@ -484,7 +484,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, where in the second version a bundle is removed
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testRemovedBundleMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION3);
         assert bundleData.size() == 1 : "Expected one bundle to be found, but found " + bundleData.size();
@@ -493,7 +493,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, where in the second version a bundle is added
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAddedBundleMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION3, VERSION1);
         assert bundleData.size() == 2 : "Expected two bundle to be found, but found " + bundleData.size();
@@ -512,7 +512,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, where in the second version one bundle has changed and another hasn't
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testSingleChangedBundleMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION4);
         assert bundleData.size() == 2 : "Expected two bundles to be found, but found " + bundleData.size();
@@ -534,7 +534,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData for a two versions, where two bundles have changed
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testMultipleChangedBundlesMultipleVersions() throws Exception {
         Collection<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1, VERSION2);
         assert bundleData.size() == 2 : "Expected two bundles to be found, but found " + bundleData.size();
@@ -556,7 +556,7 @@ public class RepositoryBasedProviderTest {
     /**
      * See if the getVersions() methods normal output works with literals ' and "
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetLiteralTargetVersion() throws Exception {
         List<String> versions = m_backend.getVersions("'");
         assert versions.size() == 1 : "Expected one version to be found, but found " + versions.size();
@@ -578,7 +578,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData for an empty version (no bundle URLS are included)
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testEmptyDeploymentVersion() throws Exception {
         // get the version number
         List<String> versions = m_backend.getVersions(EMPTYVERSIONTARGET);
@@ -600,7 +600,7 @@ public class RepositoryBasedProviderTest {
     /**
      * See if a version with a literal is parsed correct and ignored.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGetLiteralTargetIllegalVersion() throws Exception {
         List<String> versions = m_backend.getVersions("myTarget");
         assert versions.size() == 0 : "Expected no versions to be found, but found " + versions.size();
@@ -609,7 +609,7 @@ public class RepositoryBasedProviderTest {
     /**
      * Test the getBundleData with some resources.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testBundleDataWithResources() throws Exception {
         List<String> versions = m_backend.getVersions(RESOURCETARGET);
         assert versions.size() == 1 : "Expected two version to be found, but found " + versions.size();
@@ -640,7 +640,7 @@ public class RepositoryBasedProviderTest {
         }
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testArtifactDataManifestGeneration() {
         Attributes B1NoFixpack = BUNDLE1.getManifestAttributes(false);
         assert B1NoFixpack.size() == 2;

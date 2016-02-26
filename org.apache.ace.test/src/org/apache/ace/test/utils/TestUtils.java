@@ -29,17 +29,14 @@ import java.lang.reflect.Proxy;
  * Utility class that injects dependencies. Can be used to unit test service implementations.
  */
 public class TestUtils {
-    public static final String UNIT = "unit";
-    public static final String INTEGRATION = "integration";
-    public static final String SMOKE = "smoke";
-    public static final String PERFORMANCE = "performance";
-    public static final String UI = "ui";
-    public static final String BROKEN = "broken";
+
     /**
      * Configures an object to use a null object for the specified service interface.
      *
-     * @param object the object
-     * @param iface the service interface
+     * @param object
+     *            the object
+     * @param iface
+     *            the service interface
      */
     public static <T> void configureObject(Object object, Class<T> iface) {
         configureObject(object, iface, createNullObject(iface));
@@ -48,7 +45,8 @@ public class TestUtils {
     /**
      * Creates a null object for a service interface.
      *
-     * @param iface the service interface
+     * @param iface
+     *            the service interface
      * @return a null object
      */
     @SuppressWarnings("unchecked")
@@ -57,11 +55,13 @@ public class TestUtils {
     }
 
     /**
-     * Wraps the given handler in an adapter that will try to pass on received invocations to the hander if that has
-     * an applicable methods else it defaults to a NullObject.
+     * Wraps the given handler in an adapter that will try to pass on received invocations to the hander if that has an
+     * applicable methods else it defaults to a NullObject.
      *
-     * @param iface the service interface
-     * @param handler the handler to pass invocations to.
+     * @param iface
+     *            the service interface
+     * @param handler
+     *            the handler to pass invocations to.
      * @return an adapter that will try to pass on received invocations to the given handler
      */
     @SuppressWarnings("unchecked")
@@ -88,9 +88,12 @@ public class TestUtils {
     /**
      * Configures an object to use a specific implementation for the specified service interface.
      *
-     * @param object the object
-     * @param iface the service interface
-     * @param instance the implementation
+     * @param object
+     *            the object
+     * @param iface
+     *            the service interface
+     * @param instance
+     *            the implementation
      */
     public static void configureObject(Object object, @SuppressWarnings("rawtypes") Class iface, Object instance) {
         Class<?> serviceClazz = object.getClass();

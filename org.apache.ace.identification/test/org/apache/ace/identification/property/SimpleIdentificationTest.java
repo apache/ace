@@ -18,8 +18,6 @@
  */
 package org.apache.ace.identification.property;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.util.Hashtable;
 
 import org.apache.ace.identification.IdentificationConstants;
@@ -45,7 +43,7 @@ public class SimpleIdentificationTest {
      * @throws Exception
      */
     @SuppressWarnings("serial")
-    @Test(groups = { UNIT })
+    @Test
     public void testSimpleIdentification() throws Exception {
         m_identification.updated(
             new Hashtable<String, Object>() {

@@ -18,7 +18,6 @@
  */
 package org.apache.ace.client.repository.helper.user.impl;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -43,7 +42,7 @@ import org.testng.annotations.Test;
 public class UserHelperImplTest {
     private LogService m_mockLogService;
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testCanHandleCommentBeforeRoot() throws Exception {
         UserHelperImpl uh = createUserHelper();
         String mime = uh.recognize(convertToArtifactResource("validUserAdminWithComment.xml"));
@@ -52,7 +51,7 @@ public class UserHelperImplTest {
         verifyZeroInteractions(m_mockLogService);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testInvalidUserAdminXmlContent() throws Exception {
         UserHelperImpl uh = createUserHelper();
         String mime = uh.recognize(convertToArtifactResource("invalidUserAdmin.xml"));
@@ -61,7 +60,7 @@ public class UserHelperImplTest {
         verifyZeroInteractions(m_mockLogService);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testInvalidXmlContentNotRecognized() throws Exception {
         UserHelperImpl uh = createUserHelper();
         String mime = uh.recognize(convertToArtifactResource("invalid.xml"));
@@ -71,7 +70,7 @@ public class UserHelperImplTest {
         verifyNoMoreInteractions(m_mockLogService);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testNoUserAdminXmlContent() throws Exception {
         UserHelperImpl uh = createUserHelper();
         String mime = uh.recognize(convertToArtifactResource("valid10.xml"));
@@ -80,7 +79,7 @@ public class UserHelperImplTest {
         verifyZeroInteractions(m_mockLogService);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testNoXmlContentNotRecognized() throws Exception {
         UserHelperImpl uh = createUserHelper();
         String mime = uh.recognize(convertToArtifactResource("invalid.txt"));
@@ -90,7 +89,7 @@ public class UserHelperImplTest {
         verifyNoMoreInteractions(m_mockLogService);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void testValidUserAdminXmlContent() throws Exception {
         UserHelperImpl uh = createUserHelper();
         String mime = uh.recognize(convertToArtifactResource("validUserAdmin.xml"));

@@ -21,7 +21,6 @@ package org.apache.ace.authentication.processor.password;
 import static org.apache.ace.authentication.processor.password.PasswordAuthenticationProcessor.PROPERTY_KEY_PASSWORD;
 import static org.apache.ace.authentication.processor.password.PasswordAuthenticationProcessor.PROPERTY_KEY_USERNAME;
 import static org.apache.ace.authentication.processor.password.PasswordAuthenticationProcessor.PROPERTY_PASSWORD_HASHMETHOD;
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -60,7 +59,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that authenticating with a empty username will yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateEmptyUserNameYieldsNull() {
         User result = new PasswordAuthenticationProcessor().authenticate(m_userAdmin, "", "secret");
         assertNull(result, "Expected no valid user to be returned!");
@@ -69,7 +68,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that authenticating a known user with an invalid password will yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateKnownUserWithInvalidPasswordYieldsNull() {
         User user = mock(User.class);
         when(user.getName()).thenReturn("bob");
@@ -84,7 +83,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that authenticating a known user with a correct password will not yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateKnownUserYieldsValidResult() {
         User user = mock(User.class);
         when(user.getName()).thenReturn("bob");
@@ -101,7 +100,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that authenticating with a null password will yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateNullPasswordYieldsNull() {
         User result = new PasswordAuthenticationProcessor().authenticate(m_userAdmin, "bob", null);
         assertNull(result, "Expected no valid user to be returned!");
@@ -110,7 +109,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that authenticating with a null username will yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateNullUserNameYieldsNull() {
         User result = new PasswordAuthenticationProcessor().authenticate(m_userAdmin, null, "secret");
         assertNull(result, "Expected no valid user to be returned!");
@@ -119,7 +118,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that a class cast exception is thrown for invalid context when calling authenticate.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ClassCastException.class)
+    @Test(expectedExceptions = ClassCastException.class)
     public void testAuthenticateThrowsClassCastForInvalidContext() {
         new PasswordAuthenticationProcessor().authenticate(m_userAdmin, new Object(), "foo");
     }
@@ -127,7 +126,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that authenticating an unknown user will yield null.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testAuthenticateUnknownUserYieldsNull() {
         User result = new PasswordAuthenticationProcessor().authenticate(m_userAdmin, "alice", "secret");
         assertNull(result, "Expected no valid user to be returned!");
@@ -136,7 +135,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that canHandle yields true for string and byte array.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testCanHandleDoesAcceptStringAndByteArray() {
         assertTrue(new PasswordAuthenticationProcessor().canHandle("foo", "bar".getBytes()), "Expected the processor to handle a byte array!");
     }
@@ -144,7 +143,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that canHandle yields true for two strings.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testCanHandleDoesAcceptTwoStrings() {
         assertTrue(new PasswordAuthenticationProcessor().canHandle("foo", "bar"), "Expected the processor to handle a string!");
     }
@@ -152,7 +151,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that canHandle throws an {@link IllegalArgumentException} for an empty context.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testCanHandleDoesNotAcceptEmptyArray() {
         new PasswordAuthenticationProcessor().canHandle(new Object[0]);
     }
@@ -160,7 +159,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that canHandle throws an {@link IllegalArgumentException} for a null context.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testCanHandleDoesNotAcceptNull() {
         new PasswordAuthenticationProcessor().canHandle((Object[]) null);
     }
@@ -168,7 +167,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that canHandle yields false for too few arguments.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testCanHandleDoesNotAcceptSingleArgument() {
         assertFalse(new PasswordAuthenticationProcessor().canHandle(new Object()), "Expected the processor to NOT handle any object!");
     }
@@ -176,7 +175,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that canHandle yields false for a string and other object.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testCanHandleDoesNotAcceptStringAndOtherObject() {
         assertFalse(new PasswordAuthenticationProcessor().canHandle("foo", new Object()), "Expected the processor to NOT handle any object!");
     }
@@ -184,7 +183,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that canHandle yields false for any object other than {@link HttpServletRequest}.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testCanHandleDoesNotAcceptWrongTypes() {
         assertFalse(new PasswordAuthenticationProcessor().canHandle(new Object(), new Object()), "Expected the processor to NOT handle any object!");
     }
@@ -192,7 +191,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that updated does not throw an exception for a correct configuration.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testUpdatedDoesAcceptCorrectProperties() throws ConfigurationException {
         final String keyUsername = "foo";
         final String keyPassword = "bar";
@@ -225,7 +224,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "key.password" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyPassword() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -239,7 +238,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "key.username" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyKeyUsername() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -253,7 +252,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "password.hashtype" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptEmptyPasswordHashType() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -267,7 +266,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "key.password" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyPassword() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -280,7 +279,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "key.username" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingKeyUsername() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 
@@ -293,7 +292,7 @@ public class PasswordAuthenticationProcessorTest {
     /**
      * Tests that updated throws an exception for missing "password.hashtype" property.
      */
-    @Test(groups = { UNIT }, expectedExceptions = ConfigurationException.class)
+    @Test(expectedExceptions = ConfigurationException.class)
     public void testUpdatedDoesNotAcceptMissingPasswordHashType() throws ConfigurationException {
         Dictionary<String, Object> props = new Hashtable<>();
 

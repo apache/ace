@@ -18,7 +18,6 @@
  */
 package org.apache.ace.deployment.servlet;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
 import static org.apache.ace.test.utils.TestUtils.configureObject;
 import static org.apache.ace.test.utils.TestUtils.createMockObjectAdapter;
 import static org.easymock.EasyMock.createMock;
@@ -110,7 +109,7 @@ public class DeploymentServletTest {
         assertResponseCode(HttpServletResponse.SC_NOT_FOUND);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void getDowngradeFixPackageWithNonExistingToVersion() throws Exception {
         // try to request a version range with a non-existing from-version, should cause a complete (non-fix) package to
         // be returned...
@@ -160,7 +159,7 @@ public class DeploymentServletTest {
         assertResponseOutput(2, 98);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void getRangeDataForExistingTarget_firstOKlastOK() throws Exception {
         // valid range not starting at 0
         m_requestPathInfo = "/existing/versions/2.0.0";
@@ -270,7 +269,7 @@ public class DeploymentServletTest {
         assertResponseHeaderNotPresent("X-ACE-DPSize");
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void getUpgradeFixPackageWithExistingFromVersion() throws Exception {
         // try to request a version range with an existing from-version, should cause a fix package to be returned...
         m_requestPathInfo = "/existing/versions/2.0.0";
@@ -283,7 +282,7 @@ public class DeploymentServletTest {
         assertGeneratorFromVersion("2.0.0");
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void getUpgradeFixPackageWithNonExistingFromVersion() throws Exception {
         // try to request a version range with a non-existing from-version, should cause a complete (non-fix) package to
         // be returned...
@@ -297,7 +296,7 @@ public class DeploymentServletTest {
         assertGeneratorFromVersion(null);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void getUpgradeFixPackageWithNonExistingToVersion() throws Exception {
         // try to request a version range with a non-existing from-version, should cause a complete (non-fix) package to
         // be returned...
@@ -307,7 +306,7 @@ public class DeploymentServletTest {
         assertResponseCode(HttpServletResponse.SC_NOT_FOUND);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void getUpgradeWithExistingToVersion() throws Exception {
         // try to request a version range with a non-existing from-version, should cause a complete (non-fix) package to
         // be returned...
@@ -321,7 +320,7 @@ public class DeploymentServletTest {
         assertGeneratorFromVersion(null);
     }
 
-    @Test(groups = { UNIT })
+    @Test()
     public void getUpgradeWithNonExistingToVersion() throws Exception {
         // try to request a version range with a non-existing from-version, should cause a complete (non-fix) package to
         // be returned...

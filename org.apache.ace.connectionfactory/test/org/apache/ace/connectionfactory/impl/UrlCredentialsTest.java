@@ -18,8 +18,6 @@
  */
 package org.apache.ace.connectionfactory.impl;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.net.URL;
 
 import org.apache.ace.connectionfactory.impl.UrlCredentials.AuthType;
@@ -33,7 +31,7 @@ public class UrlCredentialsTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentials#UrlCredentials(java.net.URL)}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testUrlCredentialsNullURLFail() throws Exception {
         new UrlCredentials(null);
     }
@@ -41,7 +39,7 @@ public class UrlCredentialsTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentials#UrlCredentials(java.net.URL)}.
      */
-    @Test(groups = { UNIT })
+    @Test
     public void testUrlCredentialsURLOk() throws Exception {
         new UrlCredentials(new URL("http://localhost:8080/"));
     }
@@ -49,7 +47,7 @@ public class UrlCredentialsTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentials#UrlCredentials(org.apache.ace.connectionfactory.impl.UrlCredentials.AuthType, java.net.URL, java.lang.Object[])}.
      */
-    @Test(groups = { UNIT }, expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testUrlCredentialsNullTypeFail() throws Exception {
         new UrlCredentials(null, new URL("http://localhost:8080/"));
     }
@@ -57,7 +55,7 @@ public class UrlCredentialsTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentials#UrlCredentials(org.apache.ace.connectionfactory.impl.UrlCredentials.AuthType, java.net.URL, java.lang.Object[])}.
      */
-    @Test(groups = { UNIT })
+    @Test
     public void testUrlCredentialsTypeAndURLOk() throws Exception {
         new UrlCredentials(AuthType.NONE, new URL("http://localhost:8080/"));
     }
@@ -65,7 +63,7 @@ public class UrlCredentialsTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentials#matches(java.net.URL)}.
      */
-    @Test(groups = { UNIT })
+    @Test
     public void testMatchesNullURLOk() throws Exception {
         UrlCredentials creds = new UrlCredentials(AuthType.NONE, new URL("http://localhost:8080/"));
         assert creds.matches(null) == false : "Null URL should never match any credentials!";
@@ -74,7 +72,7 @@ public class UrlCredentialsTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentials#matches(java.net.URL)}.
      */
-    @Test(groups = { UNIT })
+    @Test
     public void testMatchesValidURLOk() throws Exception {
         UrlCredentials creds = new UrlCredentials(AuthType.NONE, new URL("http://localhost:8080/"));
         assert creds.matches(new URL("http://localhost:8080/obr")) : "Base URL should match given URL!";
@@ -85,7 +83,7 @@ public class UrlCredentialsTest {
     /**
      * Test method for {@link org.apache.ace.connectionfactory.impl.UrlCredentials#getCredentials()}.
      */
-    @Test(groups = { UNIT })
+    @Test
     public void testGetCredentialsOk() throws Exception {
         UrlCredentials creds = new UrlCredentials(AuthType.NONE, new URL("http://localhost:8080/"));
         assertArrayEquals(new Object[0], creds.getCredentials());

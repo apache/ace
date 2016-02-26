@@ -18,8 +18,6 @@
  */
 package org.apache.ace.client.rest;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.mockito.Mockito;
@@ -27,7 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class RESTClientTest {
-	@Test(groups = { UNIT })
+	@Test
 	public void testPathTransforms() {
 		String path = "one/two/last%20path";
 		RESTClientServlet s = new RESTClientServlet();

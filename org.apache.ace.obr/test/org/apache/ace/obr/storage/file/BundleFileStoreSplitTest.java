@@ -18,21 +18,19 @@
  */
 package org.apache.ace.obr.storage.file;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 public class BundleFileStoreSplitTest {
-    @Test(groups = { UNIT })
+    @Test
     public void testBasicSplit() throws Exception {
-        assertEquals(BundleFileStore.split("org.foo"), new String[] {"org", "foo"});
-        assertEquals(BundleFileStore.split("org.foo-1.0.0.SNAPSHOT"), new String[] {"org", "foo-1.0.0.SNAPSHOT"});
-        assertEquals(BundleFileStore.split("org.foo.bar.of.chocolate"), new String[] {"org", "foo", "bar", "of", "chocolate"});
-        assertEquals(BundleFileStore.split("org.foo.1"), new String[] {"org", "foo.1"});
-        assertEquals(BundleFileStore.split("org.foo-1.0.org.foo-1.0"), new String[] {"org", "foo-1.0.org.foo-1.0"});
-        assertEquals(BundleFileStore.split(""), new String[] {""});
-        assertEquals(BundleFileStore.split("."), new String[] {"."});
-        assertEquals(BundleFileStore.split("abc."), new String[] {"abc."});
+        assertEquals(BundleFileStore.split("org.foo"), new String[] { "org", "foo" });
+        assertEquals(BundleFileStore.split("org.foo-1.0.0.SNAPSHOT"), new String[] { "org", "foo-1.0.0.SNAPSHOT" });
+        assertEquals(BundleFileStore.split("org.foo.bar.of.chocolate"), new String[] { "org", "foo", "bar", "of", "chocolate" });
+        assertEquals(BundleFileStore.split("org.foo.1"), new String[] { "org", "foo.1" });
+        assertEquals(BundleFileStore.split("org.foo-1.0.org.foo-1.0"), new String[] { "org", "foo-1.0.org.foo-1.0" });
+        assertEquals(BundleFileStore.split(""), new String[] { "" });
+        assertEquals(BundleFileStore.split("."), new String[] { "." });
+        assertEquals(BundleFileStore.split("abc."), new String[] { "abc." });
     }
 }

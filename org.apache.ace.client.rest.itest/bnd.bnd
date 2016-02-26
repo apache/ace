@@ -1,6 +1,7 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
 -buildpath: \
+	${^-buildpath},\
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	junit.osgi,\
@@ -23,9 +24,8 @@
 	org.apache.ace.client.repository.helper.bundle;version=latest,\
 	org.apache.ace.client.repository.helper.configuration;version=latest,\
 	org.apache.ace.feedback.common;version=latest
--runee: JavaSE-1.7
--runvm: -ea
--runfw: org.apache.felix.framework;version='[5.2.0,6)'
+
+-runfw: org.apache.felix.framework;version='[5,6)'
 -runbundles: \
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
@@ -71,23 +71,20 @@
 	org.apache.ace.client.workspace;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\
 	org.apache.ace.http.context;version=latest
+-runvm: -ea
+-runee: JavaSE-1.7
+-runsystempackages: sun.reflect
+-runproperties: ${itestrunprops}
+-baseline:
 
--runproperties: \
-	org.apache.felix.log.storeDebug=true,\
-	org.apache.felix.eventadmin.Timeout=0,\
-	org.apache.felix.log.maxSize=1000
+Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
 
 Private-Package: \
 	org.apache.ace.client.rest.itest,\
 	org.apache.ace.client.rest.util,\
 	com.google.gson*
-Import-Package: \
-	*
+
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Client REST itest
 Bundle-Description: Integration test bundle for Apache ACE Client REST
 Bundle-Category: itest
-
-Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
-
--baseline:

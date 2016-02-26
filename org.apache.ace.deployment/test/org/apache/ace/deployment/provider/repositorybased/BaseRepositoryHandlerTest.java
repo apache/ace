@@ -18,8 +18,6 @@
  */
 package org.apache.ace.deployment.provider.repositorybased;
 
-import static org.apache.ace.test.utils.TestUtils.UNIT;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -84,7 +82,6 @@ public class BaseRepositoryHandlerTest {
 
     public static final String MIMETYPE = "application/vnd.osgi.bundle";
 
-    
     private InputStream m_inputStream;
     private SAXParser m_parser;
 
@@ -100,9 +97,10 @@ public class BaseRepositoryHandlerTest {
     /**
      * Tests that a deployment package with a single version can be parsed & found.
      * 
-     * @throws Exception not part of this test case.
+     * @throws Exception
+     *             not part of this test case.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGatherSingleVersionOk() throws Exception {
         DeploymentPackageVersionCollector handler = new DeploymentPackageVersionCollector(TARGET);
 
@@ -117,9 +115,10 @@ public class BaseRepositoryHandlerTest {
     /**
      * Tests that the single artifact of a deployment package with a single version can be parsed & found.
      * 
-     * @throws Exception not part of this test case.
+     * @throws Exception
+     *             not part of this test case.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGatherSingleArtifactOk() throws Exception {
         DeploymentArtifactCollector handler = new DeploymentArtifactCollector(TARGET, VERSION1);
 
@@ -139,9 +138,10 @@ public class BaseRepositoryHandlerTest {
     /**
      * Tests that a deployment package with multiple versions can be parsed & found.
      * 
-     * @throws Exception not part of this test case.
+     * @throws Exception
+     *             not part of this test case.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGatherMultipleVersionOk() throws Exception {
         DeploymentPackageVersionCollector handler = new DeploymentPackageVersionCollector(MULTIPLEVERSIONTARGET);
 
@@ -159,9 +159,10 @@ public class BaseRepositoryHandlerTest {
     /**
      * Tests that multiple artifacts of a deployment package with a single version can be parsed & found.
      * 
-     * @throws Exception not part of this test case.
+     * @throws Exception
+     *             not part of this test case.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGatherMultipleArtifactsOfMultipleVersionTargetOk() throws Exception {
         DeploymentArtifactCollector handler = new DeploymentArtifactCollector(MULTIPLEVERSIONTARGET, VERSION2);
 
@@ -187,9 +188,10 @@ public class BaseRepositoryHandlerTest {
     /**
      * Tests that single artifact of a deployment package with multiple versions can be parsed & found.
      * 
-     * @throws Exception not part of this test case.
+     * @throws Exception
+     *             not part of this test case.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGatherSingleArtifactsOfMultipleVersionTargetOk() throws Exception {
         DeploymentArtifactCollector handler = new DeploymentArtifactCollector(MULTIPLEVERSIONTARGET, VERSION3);
 
@@ -209,9 +211,10 @@ public class BaseRepositoryHandlerTest {
     /**
      * Tests that non existing artifacts of a deployment package with multiple versions can be parsed.
      * 
-     * @throws Exception not part of this test case.
+     * @throws Exception
+     *             not part of this test case.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGatherNonExistingArtifactsOfMultipleVersionTargetOk() throws Exception {
         DeploymentArtifactCollector handler = new DeploymentArtifactCollector(EMPTYVERSIONTARGET, VERSION2);
 
@@ -225,17 +228,18 @@ public class BaseRepositoryHandlerTest {
     /**
      * Tests that requesting the artifacts of a deployment package with an invalid version can be done.
      * 
-     * @throws Exception not part of this test case.
+     * @throws Exception
+     *             not part of this test case.
      */
-    @Test(groups = { UNIT })
+    @Test()
     public void testGatherArtifactsOfMultipleVersionTargetWithInvalidVersionOk() throws Exception {
         DeploymentArtifactCollector handler = new DeploymentArtifactCollector(EMPTYVERSIONTARGET, VERSION3);
-        
+
         m_parser.parse(m_inputStream, handler);
-        
+
         try {
             handler.getArtifacts();
-            
+
             assert false : "Expected no deployment artifacts to be found!";
         }
         catch (IllegalArgumentException e) {
@@ -318,12 +322,16 @@ public class BaseRepositoryHandlerTest {
     /**
      * Helper method to create the description of a deploymentpacakge with given data.
      * 
-     * @param doc The document to add the version to.
-     * @param targetText The targetId in the deploymentversion.
-     * @param versionText The version in the deploymentversion.
-     * @param data An array of data for the deployment artifact. [0] is the url, and each following item is
-     *        first a directive key, and a directive value. For example,<br>
-     *        <code>new String[] { "http://mybundle", "somedirective", "somevalue" }</code>
+     * @param doc
+     *            The document to add the version to.
+     * @param targetText
+     *            The targetId in the deploymentversion.
+     * @param versionText
+     *            The version in the deploymentversion.
+     * @param data
+     *            An array of data for the deployment artifact. [0] is the url, and each following item is first a
+     *            directive key, and a directive value. For example,<br>
+     *            <code>new String[] { "http://mybundle", "somedirective", "somevalue" }</code>
      * @return
      */
     private Node generateDeploymentVersion(Document doc, String targetText, String versionText, String[]... data) {

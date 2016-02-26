@@ -5,7 +5,6 @@
 	${testng},\
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
-	org.apache.ace.test;version=latest,\
 	org.apache.commons.codec;version=1.4
 
 Private-Package: org.apache.ace.connectionfactory.impl,\

@@ -3,18 +3,7 @@
 # NOTE: This test is stored in a seperate from the main agent itest project because 
 # it updates the agent bundle. This causes problems if other tests try to wire to
 # the the api package after the fact.
-Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
--runbundles: \
-	org.apache.ace.agent;version=latest,\
-	org.apache.ace.test;version=latest,\
-	org.apache.felix.dependencymanager,\
-	org.apache.felix.configadmin,\
-	org.apache.felix.http.jetty;version='[2.2,3)',\
-	osgi.cmpn
-Private-Package: org.apache.ace.agent.itest
--runee: JavaSE-1.6
--runvm: -ea
--runfw: org.apache.felix.framework;version='[5.2.0,6)'
+
 -buildpath: \
 	osgi.core;version=6.0.0,\
 	org.apache.ace.agent;version=latest,\
@@ -24,15 +13,30 @@ Private-Package: org.apache.ace.agent.itest
 	javax.servlet,\
 	junit.osgi,\
 	org.mockito.mockito-all
+
+-runfw: org.apache.felix.framework;version='[5,6)'
+-runbundles: \
+	org.apache.ace.agent;version=latest,\
+	org.apache.ace.test;version=latest,\
+	org.apache.felix.dependencymanager,\
+	org.apache.felix.configadmin,\
+	org.apache.felix.http.jetty;version='[2.2,3)',\
+	osgi.cmpn
+-runvm: -ea
+-runee: JavaSE-1.7
 -runsystempackages: sun.reflect
--runproperties: \
-	org.apache.felix.eventadmin.Timeout=0,\
-	org.apache.felix.log.storeDebug=true,\
-	org.apache.felix.log.maxSize=1000
-Import-Package: org.apache.ace.agent,\
+-runproperties: ${itestrunprops}
+-baseline:
+
+Test-Cases: ${classes;CONCRETE;EXTENDS;org.apache.ace.it.IntegrationTestBase}
+
+Private-Package: org.apache.ace.agent.itest
+
+Import-Package: \
+	org.apache.ace.agent,\
 	!org.osgi.service.component.annotations,\
 	*
 Bundle-Version: 1.0.0
 Bundle-Name: Apache ACE Agent itest
 Bundle-Description: Integration test bundle for the Apache ACE Agent
--baseline:
+Bundle-Category: itest
