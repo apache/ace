@@ -23,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -141,27 +140,19 @@ public class AgentUpdateTest extends IntegrationTestBase {
                 path = "/";
             }
             
-            if ("/repository.xml".equals(path)) {
-                PrintWriter w = resp.getWriter();
-                w.println("<?xml version='1.0' encoding='utf-8'?><repository>");
-                w.println(createResource("org.apache.ace.agent", m_currentVersion));
-                w.println(createResource("org.apache.ace.agent", m_nextVersion));
-                w.println("</repository>");
+            String currentAgentJAR = m_currentVersion + ".jar";
+            String nextAgentJAR = m_nextVersion + ".jar";
+
+            if (path.endsWith(currentAgentJAR)) {
+                write(getBundle(), m_currentVersion, resp.getOutputStream());
+            }
+            else if (path.endsWith(nextAgentJAR)) {
+                write(getBundle(), m_nextVersion, resp.getOutputStream());
             }
             else {
-                String currentAgentJAR = m_currentVersion + ".jar";
-                String nextAgentJAR = m_nextVersion + ".jar";
-
-                if (path.endsWith(currentAgentJAR)) {
-                    write(getBundle(), m_currentVersion, resp.getOutputStream());
-                }
-                else if (path.endsWith(nextAgentJAR)) {
-                    write(getBundle(), m_nextVersion, resp.getOutputStream());
-                }
-                else {
-                    throw new Error("Statement should never be reached.");
-                }
+                throw new Error("Statement should never be reached.");
             }
+        
         }
 
         protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -211,10 +202,6 @@ public class AgentUpdateTest extends IntegrationTestBase {
 
     private enum Phase {
         CORRUPT_STREAM, BUNDLE_DOES_NOT_RESOLVE, BUNDLE_DOES_NOT_START, BUNDLE_WORKS
-    }
-
-    private static String createResource(String bsn, String version) {
-        return "<resource id='" + bsn + "/" + version + "' symbolicname='" + bsn + "' version='" + version + "' uri='" + bsn + "-" + version + ".jar'></resource>";
     }
 
     private volatile HttpService m_http;

@@ -9,7 +9,11 @@
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.dependencymanager,\
 	com.vaadin,\
+	biz.aQute.repository,\
+	biz.aQute.bnd,\
 	org.apache.ace.authentication.api;version=latest,\
+	org.apache.ace.bnd.registry;version=latest,\
+	org.apache.ace.bnd.repository;version=latest,\
 	org.apache.ace.identification.api;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
