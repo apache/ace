@@ -18,37 +18,46 @@
  */
 package org.apache.ace.deployment.servlet;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
+import org.apache.ace.bnd.registry.RegistryImpl;
+import org.apache.ace.bnd.repository.AceUrlConnector;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.osgi.framework.Version;
+import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
+import org.osgi.service.repository.ContentNamespace;
+import org.osgi.service.repository.Repository;
+
+import aQute.bnd.deployer.repository.FixedIndexedRepo;
+import aQute.bnd.osgi.resource.CapReqBuilder;
+import aQute.bnd.service.Registry;
 
 public class AgentDeploymentServlet extends HttpServlet implements ManagedService {
     private static final long serialVersionUID = 1L;
@@ -57,8 +66,6 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
 
     /** URL to the OBR that is used for finding versions of the agent. */
     private static final String KEY_OBR_URL = "obr.url";
-
-    private static final String XPATH_QUERY = "/repository/resource[@uri]";
 
     public static final String VERSIONS = "versions";
     public static final String BUNDLE_MIMETYPE = "application/octet-stream";
@@ -72,40 +79,19 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
 
     private final String m_repositoryXML = "index.xml";
 
-    /**
-     * Gets the actual text from a named item contained in the given node map.
-     * 
-     * @param map
-     *            the node map to get the named item from;
-     * @param name
-     *            the name of the item to get.
-     * @return the text of the named item, can be <code>null</code> in case the named item does not exist, or has no
-     *         text.
-     */
-    private static String getNamedItemText(NamedNodeMap map, String name) {
-        Node namedItem = map.getNamedItem(name);
-        if (namedItem == null) {
-            return null;
-        }
-        else {
-            return namedItem.getTextContent();
-        }
-    }
-
     @Override
     public void updated(Dictionary<String, ?> settings) throws ConfigurationException {
         if (settings != null) {
             String obrURL = (String) settings.get(KEY_OBR_URL);
+            if (obrURL == null) {
+                throw new ConfigurationException(KEY_OBR_URL, "Missing value!");
+            }
             try {
                 URL url = new URL(obrURL);
                 m_obrURL = url;
             }
             catch (MalformedURLException e) {
                 throw new ConfigurationException(KEY_OBR_URL, "Invalid value, not a URL.", e);
-            }
-            if (obrURL == null) {
-                throw new ConfigurationException(KEY_OBR_URL, "Missing " +
-                    "value!");
             }
         }
         else {
@@ -138,88 +124,35 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
     protected URLConnection openConnection(URL url) throws IOException {
         return m_connectionFactory.createConnection(url);
     }    
-
-    private void closeSilently(Closeable resource) {
-        try {
-            if (resource != null) {
-                resource.close();
+    
+    private InputStream getAgentFromOBR(URL obrBaseUrl, String agentID, Version version) throws IOException {
+        Repository repository = createRepository();
+        
+        Requirement requirement = new CapReqBuilder("osgi.identity")
+            .addDirective("filter", String.format("(&(osgi.identity=%s)(version=%s)(type=*))", agentID, version))
+            .buildSyntheticRequirement();
+        
+        Map<Requirement, Collection<Capability>> sourceResources = repository.findProviders(Collections.singleton(requirement));
+        if (sourceResources.isEmpty() || sourceResources.get(requirement).isEmpty()) {
+            return null;
+        }
+        
+        Iterator<Capability> capabilities = sourceResources.get(requirement).iterator();
+        while (capabilities.hasNext()) {
+            Capability capability = capabilities.next();
+            Resource resource = capability.getResource();
+            
+            List<Capability> contentCapabilities = resource.getCapabilities(ContentNamespace.CONTENT_NAMESPACE);
+            if (contentCapabilities != null && contentCapabilities.size() == 1) {
+                Capability content = contentCapabilities.get(0);
+                URI uri = (URI) content.getAttributes().get(ContentNamespace.CAPABILITY_URL_ATTRIBUTE);
+                if (uri != null) {
+                    return m_connectionFactory.createConnection(uri.toURL()).getInputStream();
+                }
             }
         }
-        catch (IOException e) {
-            m_log.log(LogService.LOG_WARNING, "Exception trying to close stream after request. ", e);
-            throw new RuntimeException(e);
-        }
-    }
-
-    private URL createOBRURL() throws MalformedURLException {
-        try {
-            return new URL(m_obrURL, m_repositoryXML);
-        }
-        catch (MalformedURLException e) {
-            m_log.log(LogService.LOG_ERROR, "Error retrieving index.xml from " + m_obrURL);
-            throw e;
-        }
-    }
-
-    private InputStream getAgentFromOBR(URL obrBaseUrl, String agentID, Version version) throws XPathExpressionException, IOException {
-        InputStream input = null;
-        NodeList resources = getOBRNodeList(input);
-        for (int nResource = 0; nResource < resources.getLength(); nResource++) {
-            Node resource = resources.item(nResource);
-            NamedNodeMap attr = resource.getAttributes();
-
-            String uri = getNamedItemText(attr, "uri");
-            if (uri == null || uri.equals("")) {
-                m_log.log(LogService.LOG_ERROR, "Skipping resource without uri from repository " + obrBaseUrl);
-                continue;
-            }
-
-            String symbolicname = getNamedItemText(attr, "symbolicname");
-            Version bundleVersion = new Version(getNamedItemText(attr, "version"));
-            if (agentID.equals(symbolicname) && version.equals(bundleVersion)) {
-                URL url = new URL(obrBaseUrl, getNamedItemText(attr, "uri"));
-                URLConnection connection = openConnection(url);
-                return connection.getInputStream();
-            }
-        }
+        
         return null;
-    }
-
-    private NodeList getOBRNodeList(InputStream input) throws XPathExpressionException, IOException {
-        NodeList resources;
-        try {
-            URLConnection connection = openConnection(createOBRURL());
-            // We always want the newest index.xml file.
-            connection.setUseCaches(false);
-
-            input = connection.getInputStream();
-
-            try {
-                XPath xpath = XPathFactory.newInstance().newXPath();
-                // this XPath expressing will find all 'resource' elements which
-                // have an attribute 'uri'.
-                resources = (NodeList) xpath.evaluate(XPATH_QUERY, new InputSource(input), XPathConstants.NODESET);
-            }
-            catch (XPathExpressionException e) {
-                m_log.log(LogService.LOG_ERROR, "Error evaluating XPath expression.", e);
-                throw e;
-            }
-        }
-        catch (IOException e) {
-            m_log.log(LogService.LOG_ERROR, "Error reading repository metadata.", e);
-            throw e;
-        }
-        finally {
-            if (input != null) {
-                try {
-                    input.close();
-                }
-                catch (IOException e) {
-                    // too bad, no worries.
-                }
-            }
-        }
-        return resources;
     }
 
     private List<Version> getVersions(String agentID) throws AceRestException {
@@ -236,56 +169,87 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
     }
 
     private List<Version> getVersionsFromOBR(URL obrBaseUrl, String agentID) throws XPathExpressionException, IOException {
-        InputStream input = null;
-        NodeList resources = getOBRNodeList(input);
-        List<Version> obrList = new ArrayList<>();
-        for (int nResource = 0; nResource < resources.getLength(); nResource++) {
-            Node resource = resources.item(nResource);
-            NamedNodeMap attr = resource.getAttributes();
-
-            String uri = getNamedItemText(attr, "uri");
-            if (uri == null || uri.equals("")) {
-                m_log.log(LogService.LOG_ERROR, "Skipping resource without uri from repository " + obrBaseUrl);
-                continue;
+        Repository repository = createRepository();
+        
+        Requirement requirement = new CapReqBuilder("osgi.identity")
+            .addDirective("filter", String.format("(&(osgi.identity=%s)(version=*)(type=*))", agentID))
+            .buildSyntheticRequirement();
+        
+        Map<Requirement, Collection<Capability>> sourceResources = repository.findProviders(Collections.singleton(requirement));
+        if (sourceResources.isEmpty() || sourceResources.get(requirement).isEmpty()) {
+            return Collections.emptyList();
+        }
+        
+        Iterator<Capability> capabilities = sourceResources.get(requirement).iterator();
+        List<Version> versions = new ArrayList<>();
+        
+        while (capabilities.hasNext()) {
+            Capability capability = capabilities.next();
+            
+            Resource resource = capability.getResource();
+            List<Capability> identities = resource.getCapabilities(IdentityNamespace.IDENTITY_NAMESPACE);
+            Version version = null;
+            if (identities != null && identities.size() == 1){
+                Capability id = identities.get(0);
+                version = (Version) id.getAttributes().get(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE);
             }
-
-            String symbolicname = getNamedItemText(attr, "symbolicname");
-            if (agentID.equals(symbolicname)) {
-                Version version = new Version(getNamedItemText(attr, "version"));
-                obrList.add(version);
+            
+            URI uri = null;
+            List<Capability> contentCapabilities = resource.getCapabilities(ContentNamespace.CONTENT_NAMESPACE);
+            if (contentCapabilities != null && contentCapabilities.size() == 1) {
+                Capability content = contentCapabilities.get(0);
+                uri = (URI) content.getAttributes().get(ContentNamespace.CAPABILITY_URL_ATTRIBUTE);
+            }
+            
+            if (version != null && uri != null) {
+                versions.add(version);
             }
         }
-        Collections.sort(obrList);
-        return obrList;
+
+        return versions;
     }
 
-    private void handlePackageDelivery(String agentID, Version version, HttpServletRequest request, HttpServletResponse response) throws AceRestException {
-        InputStream is = null;
-        OutputStream os = null;
-
+    private Repository createRepository() throws MalformedURLException {
+        FixedIndexedRepo fixedIndexedRepo = new FixedIndexedRepo();
+        
+        AceUrlConnector aceUrlConnector = new AceUrlConnector(m_connectionFactory);
+        Registry registry = new RegistryImpl(aceUrlConnector);
+        fixedIndexedRepo.setRegistry(registry);
+        
+        Map<String, String> properties = new HashMap<>();
+        properties.put(FixedIndexedRepo.PROP_LOCATIONS, createOBRURL().toString());
+        fixedIndexedRepo.setProperties(properties);
+        return fixedIndexedRepo;
+    }
+    
+    private URL createOBRURL() throws MalformedURLException {
         try {
+            return new URL(m_obrURL, m_repositoryXML);
+        }
+        catch (MalformedURLException e) {
+            m_log.log(LogService.LOG_ERROR, "Error retrieving index.xml from " + m_obrURL);
+            throw e;
+        }
+    }
+    
+    private void handlePackageDelivery(String agentID, Version version, HttpServletRequest request, HttpServletResponse response) throws AceRestException {
+        try (InputStream is = getAgentFromOBR(m_obrURL, agentID, version)){            
+            if (is == null) {
+                throw (AceRestException) new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Agent not found in OBR.");
+            }
+
             // Wrap response to add support for range requests
             response = new ContentRangeResponseWrapper(request, response);
-
-            try {
-                is = getAgentFromOBR(m_obrURL, agentID, version);
-                if (is == null) {
-                    throw (AceRestException) new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Agent not found in OBR.");
-                }
-            }
-            catch (XPathExpressionException e) {
-                throw (AceRestException) new AceRestException(HttpServletResponse.SC_NOT_FOUND, "Agent not found: error parsing OBR").initCause(e);
-            }
-
             response.setContentType(BUNDLE_MIMETYPE);
 
-            os = response.getOutputStream();
-            byte[] buffer = new byte[BUFFER_SIZE];
-            int bytes;
-            while ((bytes = is.read(buffer)) != -1) {
-                os.write(buffer, 0, bytes);
+            try (OutputStream os = response.getOutputStream()) {
+                byte[] buffer = new byte[BUFFER_SIZE];
+                int bytes;
+                while ((bytes = is.read(buffer)) != -1) {
+                    os.write(buffer, 0, bytes);
+                }
+                os.flush();
             }
-            os.flush();
         }
         catch (IllegalArgumentException e) {
             throw (AceRestException) new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid").initCause(e);
@@ -293,18 +257,11 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
         catch (IOException e) {
             throw (AceRestException) new AceRestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not deliver package").initCause(e);
         }
-        finally {
-            closeSilently(is);
-            closeSilently(os);
-        }
     }
 
     private void handleVersionsRequest(List<Version> versions, HttpServletResponse response) throws AceRestException {
-        ServletOutputStream output = null;
-
         response.setContentType(TEXT_MIMETYPE);
-        try {
-            output = response.getOutputStream();
+        try (ServletOutputStream output = response.getOutputStream()){
             for (Version version : versions) {
                 output.print(version.toString());
                 output.print("\n");
@@ -312,9 +269,6 @@ public class AgentDeploymentServlet extends HttpServlet implements ManagedServic
         }
         catch (IOException e) {
             throw new AceRestException(HttpServletResponse.SC_BAD_REQUEST, "Request URI is invalid");
-        }
-        finally {
-            closeSilently(output);
         }
     }
 

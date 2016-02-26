@@ -1,8 +1,24 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
-Private-Package: org.apache.ace.deployment.servlet
+Private-Package: \
+	org.apache.ace.deployment.servlet,\
+	org.apache.ace.bnd.registry,\
+	org.apache.ace.bnd.repository,\
+	org.kxml2.io,\
+	org.osgi.impl.bundle.bindex,\
+	org.osgi.impl.bundle.obr.resource,\
+	org.osgi.service.bindex*;-split-package:=merge-last,\
+	org.osgi.service.indexer*,\
+	org.osgi.service.obr,\
+	org.osgi.service.repository*,\
+	org.xmlpull.v1
+	
 Bundle-Activator: org.apache.ace.deployment.servlet.Activator
 Export-Package: org.apache.ace.deployment.processor
 Bundle-Version: 1.0.3
 Bundle-Name: Apache ACE Deployment Servlet
 Bundle-Description: Registers the Deployment Servlet
+
+Conditional-Package: \
+	biz.aQute*,\
+	aQute.*,\
