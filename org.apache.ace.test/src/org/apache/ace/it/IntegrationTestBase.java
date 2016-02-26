@@ -37,7 +37,6 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.ComponentDependencyDeclaration;
