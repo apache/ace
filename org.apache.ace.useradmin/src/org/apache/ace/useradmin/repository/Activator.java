@@ -23,12 +23,16 @@ import static org.apache.ace.repository.RepositoryConstants.REPOSITORY_NAME;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.ext.impl.RemoteRepository;
+import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.useradmin.RoleRepositoryStore;
@@ -45,6 +49,8 @@ public class Activator extends DependencyActivatorBase implements ManagedService
     public static final String KEY_REPOSITORY_NAME = "repositoryName";
     public static final String KEY_REPOSITORY_LOCATION = "repositoryLocation";
 
+    private final List<Component> m_components = new ArrayList<>();
+
     private volatile DependencyManager m_manager;
 
     @Override
@@ -56,6 +62,12 @@ public class Activator extends DependencyActivatorBase implements ManagedService
 
     @Override
     public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+        removeOldComponents();
+
+        if (properties == null) {
+            return;
+        }
+
         String customer = (String) properties.get(KEY_REPOSITORY_CUSTOMER);
         if ((customer == null) || "".equals(customer.trim())) {
             throw new ConfigurationException(KEY_REPOSITORY_CUSTOMER, "Repository customer has to be specified.");
@@ -81,11 +93,12 @@ public class Activator extends DependencyActivatorBase implements ManagedService
 
         String repoFilter = String.format("(&(customer=%s)(name=%s)(|(master=true)(remote=true)))", customer, name);
 
-        m_manager.add(m_manager.createComponent()
+        Component repoComp = null;
+        Component storeComp = m_manager.createComponent()
             .setInterface(new String[] { RoleRepositoryStore.class.getName(), UserAdminListener.class.getName() }, null)
             .setImplementation(UserAdminRepository.class)
             .add(m_manager.createServiceDependency().setService(Repository.class, repoFilter).setRequired(true))
-            .add(m_manager.createServiceDependency().setService(LogService.class).setRequired(false)));
+            .add(m_manager.createServiceDependency().setService(LogService.class).setRequired(false));
 
         if (repositoryUrl != null) {
             // Remote version...
@@ -94,12 +107,32 @@ public class Activator extends DependencyActivatorBase implements ManagedService
             repoProps.put(REPOSITORY_NAME, name);
             repoProps.put("remote", "true");
 
-            m_manager.add(m_manager.createComponent()
+            repoComp = m_manager.createComponent()
                 .setInterface(Repository.class.getName(), repoProps)
                 .setImplementation(new RemoteRepository(repositoryUrl, customer, name))
                 .add(m_manager.createServiceDependency()
                     .setService(ConnectionFactory.class)
-                    .setRequired(true)));
+                    .setRequired(true));
+        }
+
+        synchronized (m_components) {
+            m_components.add(storeComp);
+            m_manager.add(storeComp);
+
+            if (repoComp != null) {
+                m_components.add(repoComp);
+                m_manager.add(repoComp);
+            }
+        }
+    }
+
+    private void removeOldComponents() {
+        synchronized (m_components) {
+            Iterator<Component> iter = m_components.iterator();
+            while (iter.hasNext()) {
+                m_manager.remove(iter.next());
+                iter.remove();
+            }
         }
     }
 }

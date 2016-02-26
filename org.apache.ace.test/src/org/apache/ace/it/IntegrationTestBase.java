@@ -615,7 +615,7 @@ public class IntegrationTestBase extends TestCase {
 
             // XXX it appears we run into race conditions between the setup and configuration of our services, use a
             // little delay to get things settled seems to help here...
-            TimeUnit.MILLISECONDS.sleep(300);
+            TimeUnit.MILLISECONDS.sleep(Integer.getInteger("org.apache.ace.it.testDelay", 500));
 
             configureAdditionalServices();
         }
