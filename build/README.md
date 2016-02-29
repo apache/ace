@@ -63,7 +63,7 @@ The next step is to build/test the software and create the `release/staging/`
 directory (where the source/jars will be packaged, again, replace `<version>`
 by the actual release number, like "2.0.0"):
 
-Use Java 7 as JDK
+Use Java 8 as JDK
 
     $ cd apache-ace-<version>
     $ ./gradlew rat

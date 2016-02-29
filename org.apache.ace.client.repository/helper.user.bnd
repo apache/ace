@@ -3,6 +3,6 @@
 Private-Package: org.apache.ace.client.repository.helper.user.impl
 Bundle-Activator: org.apache.ace.client.repository.helper.user.impl.Activator
 Export-Package: org.apache.ace.client.repository.helper.user
-Bundle-Version: 1.0.2
+Bundle-Version: 1.0.3
 Bundle-Name: Apache ACE Client Repository User Helper
 Bundle-Description: Registers the Apache ACE Client Helper services for user configuration

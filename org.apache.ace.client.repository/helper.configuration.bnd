@@ -4,6 +4,6 @@ Private-Package: org.apache.ace.client.repository.helper.configuration.impl
 Bundle-Activator: org.apache.ace.client.repository.helper.configuration.impl.Activator
 Export-Package: org.apache.ace.client.repository.helper.configuration
 Deployment-ProvidesResourceProcessor: org.osgi.deployment.rp.autoconf
-Bundle-Version: 1.0.2
+Bundle-Version: 1.0.3
 Bundle-Name: Apache ACE Client Repository Configuration Helper
 Bundle-Description: Registers the Apache ACE Client Helper services for metatype configuration

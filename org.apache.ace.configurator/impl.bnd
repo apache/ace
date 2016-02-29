@@ -2,6 +2,6 @@
 
 Bundle-Activator: org.apache.ace.configurator.Activator
 Private-Package: org.apache.ace.configurator
-Bundle-Version: 1.0.2
+Bundle-Version: 1.0.3
 Bundle-Name: Apache ACE Configurator
 Bundle-Description: Provides configuration component that feeds properties files to ConfigAdmin.

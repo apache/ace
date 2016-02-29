@@ -1,6 +1,6 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
 Export-Package: org.apache.ace.deployment.util.test
-Bundle-Version: 1.1.1
+Bundle-Version: 1.1.2
 Bundle-Name: Apache ACE Deployment Test util
 Bundle-Description: Provide Deployment test utility packages

@@ -6,6 +6,6 @@
 	org.apache.ace.test;version=latest
 
 Export-Package: org.apache.ace.range
-Bundle-Version: 1.1.1
+Bundle-Version: 1.1.2
 Bundle-Name: Apache ACE Range API
 Bundle-Description: Provides the Apache ACE Range API packages

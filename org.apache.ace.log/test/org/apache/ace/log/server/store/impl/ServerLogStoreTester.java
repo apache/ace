@@ -63,7 +63,6 @@ public class ServerLogStoreTester {
         delete(m_dir);
     }
 
-    @SuppressWarnings("serial")
     @Test()
     public void testLog() throws IOException {
         Map<String, String> props = new HashMap<>();
@@ -94,7 +93,6 @@ public class ServerLogStoreTester {
         assert in.equals(out) : "Stored events differ from the added.";
     }
 
-    @SuppressWarnings("serial")
     @Test()
     public void testLogOutOfOrder() throws IOException {
         Map<String, String> props = new HashMap<>();
@@ -118,7 +116,6 @@ public class ServerLogStoreTester {
         assert out.size() == 3 : "Stored events differ from the added.";
     }
 
-    @SuppressWarnings("serial")
     @Test()
     public void testLogOutOfOrderOneByOne() throws IOException {
         Map<String, String> props = new HashMap<>();
@@ -146,7 +143,6 @@ public class ServerLogStoreTester {
         assert out.size() == 3 : "Stored events differ from the added: " + out.size();
     }
 
-    @SuppressWarnings("serial")
     @Test()
     public void testLogLowestID() throws IOException {
         Map<String, String> props = new HashMap<>();
@@ -191,7 +187,6 @@ public class ServerLogStoreTester {
         assert stored.size() == 0 : "No events should have been stored";
     }
 
-    @SuppressWarnings("serial")
     @Test()
     public void testLogIDGenerationWithLowestID() throws IOException {
         Dictionary<String, String> props = new Hashtable<>();
@@ -379,7 +374,6 @@ public class ServerLogStoreTester {
         }
     }
 
-    @SuppressWarnings("serial")
     @Test()
     public void testConcurrentLog() throws IOException, InterruptedException {
         ExecutorService es = Executors.newFixedThreadPool(8);

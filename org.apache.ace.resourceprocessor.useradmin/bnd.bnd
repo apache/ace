@@ -9,6 +9,9 @@ Private-Package: org.apache.ace.resourceprocessor.useradmin.impl
 Bundle-Activator: org.apache.ace.resourceprocessor.useradmin.impl.Activator
 Export-Package: org.apache.ace.resourceprocessor.useradmin
 Deployment-ProvidesResourceProcessor: org.apache.ace.resourceprocessor.useradmin
-Bundle-Version: 2.0.1
+Bundle-Version: 2.0.2
 Bundle-Name: Apache ACE ResourceProcessor UserAdmin
 Bundle-Description: Registers a ResourceProcessor service that handle useradmin resources
+
+javac.source: 1.6
+javac.target: 1.6
