@@ -14,7 +14,6 @@
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.ext;version=latest,\
-	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.client.repository.api;version=latest,\
 	org.apache.ace.test;version=latest,\

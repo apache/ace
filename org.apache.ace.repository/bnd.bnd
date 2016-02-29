@@ -8,10 +8,10 @@
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.http.api,\
 	org.apache.felix.http.servlet-api,\
+	org.amdatu.scheduling.api,\
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.test;version=latest,\
 	org.apache.ace.authentication.api;version=latest,\
-	org.apache.ace.scheduler.api;version=latest,\
 	org.apache.ace.discovery.api;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.http.api;version=latest

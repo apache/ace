@@ -16,6 +16,8 @@
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.dependencymanager.shell,\
+	org.amdatu.scheduling.api,\
+	org.amdatu.scheduling.quartz,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.ace.authentication.processor.basicauth;version=latest,\
@@ -39,7 +41,6 @@
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlets;version=latest,\
 	org.apache.ace.repository.task;version=latest,\
-	org.apache.ace.scheduler.impl;version=latest,\
 	org.apache.ace.useradmin.repository;version=latest,\
 	org.apache.ace.http.context;version=latest
 
@@ -52,7 +53,7 @@
 	org.apache.felix.log.storeDebug=true,\
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.apache.ace.server=localhost:8080,\
-	org.apache.ace.obr=localhost:8080,\
+	org.apache.ace.obr=localhost:8082,\
 	org.apache.ace.relay=localhost:8282,\
 	org.osgi.service.http.port=8282,\
 	org.apache.felix.log.maxSize=1000

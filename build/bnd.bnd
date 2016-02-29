@@ -35,7 +35,6 @@
 	org.apache.ace.repository,\
 	org.apache.ace.repository.itest,\
 	org.apache.ace.resourceprocessor.useradmin,\
-	org.apache.ace.scheduler,\
 	org.apache.ace.tageditor,\
 	org.apache.ace.target.mgmt.ui,\
 	org.apache.ace.test,\

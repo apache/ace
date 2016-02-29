@@ -1,6 +1,0 @@
-# Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
-
-Export-Package: org.apache.ace.scheduler.constants
-Bundle-Version: 1.0.2
-Bundle-Name: Apache ACE Scheduler API
-Bundle-Description: Provides the Apache ACE Scheduler API packages

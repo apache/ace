@@ -37,6 +37,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.feedback.Descriptor;
@@ -47,7 +48,7 @@ import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.range.SortedRangeSet;
 import org.osgi.service.log.LogService;
 
-public class LogSyncTask implements Runnable, LogSync {
+public class LogSyncTask implements Job, LogSync {
 
     public static enum Mode {
         NONE, PUSH, PULL, PUSHPULL
@@ -115,8 +116,9 @@ public class LogSyncTask implements Runnable, LogSync {
     public boolean pushpullIDs() throws IOException {
     	return synchronizeLowestIDs(true, true);
     }
-
-    public void run() {
+    
+    @Override
+    public void execute() {
         try {
             switch (m_lowestIDMode) {
 	            case NONE:

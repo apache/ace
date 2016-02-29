@@ -25,11 +25,11 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.feedback.AuditEvent;
 import org.apache.ace.feedback.Event;
-import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.util.tracker.ServiceTracker;
@@ -95,18 +95,18 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
         int initRepoSize = m_statefulTargetRepository.get().size();
 
         // Get the processauditlog task and run it
-        ServiceTracker<Runnable, Runnable> tracker = new ServiceTracker<>(
+        ServiceTracker<Job, Job> tracker = new ServiceTracker<>(
             m_bundleContext, m_bundleContext.createFilter("(&(" + Constants.OBJECTCLASS + "="
-                + Runnable.class.getName() + ")(" + SchedulerConstants.SCHEDULER_NAME_KEY + "="
+                + Job.class.getName() + ")(name="
                 + "org.apache.ace.client.processauditlog" + "))"), null);
         tracker.open();
 
-        final Runnable processAuditlog = tracker.waitForService(2000);
+        final Job processAuditlog = tracker.waitForService(2000);
         if (processAuditlog != null) {
             // commit should be called
             runAndWaitForEvent(new Callable<Object>() {
                 public Object call() throws Exception {
-                    processAuditlog.run();
+                    processAuditlog.execute();
                     return null;
                 }
             }, false, RepositoryAdmin.TOPIC_REFRESH);
@@ -127,7 +127,7 @@ public class ClientAutomationTest extends BaseRepositoryAdminTest {
             m_auditLogStore.put(events);
 
             // do auto target action
-            processAuditlog.run();
+            processAuditlog.execute();
             assertEquals("After refresh, we expect an additional target based on auditlogdata;", initRepoSize + 2, m_statefulTargetRepository.get().size());
 
             sgoList = m_statefulTargetRepository.get(m_bundleContext.createFilter("(id=second*)"));

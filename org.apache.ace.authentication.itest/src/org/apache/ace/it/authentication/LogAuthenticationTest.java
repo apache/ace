@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.client.repository.SessionFactory;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.DiscoveryConstants;
@@ -42,7 +43,6 @@ import org.apache.ace.repository.RepositoryConstants;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.ace.test.utils.NetUtils;
 import org.apache.felix.dm.Component;
-import org.osgi.framework.Constants;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogReaderService;
 import org.osgi.service.useradmin.UserAdmin;
@@ -61,7 +61,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
 
     private volatile Log m_auditLog;
     private volatile LogStore m_serverStore;
-    private volatile Runnable m_auditLogSyncTask;
+    private volatile Job m_auditLogSyncTask;
     private volatile Repository m_userRepository;
     private volatile UserAdmin m_userAdmin;
     private volatile ConnectionFactory m_connectionFactory;
@@ -79,9 +79,9 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
                     .setRequired(true))
                 .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
                 .add(createServiceDependency().setService(HttpService.class).setRequired(true))
-                .add(createServiceDependency().setService(Log.class, "(&(" + Constants.OBJECTCLASS + "=" + Log.class.getName() + ")(name=auditlog))").setRequired(true))
-                .add(createServiceDependency().setService(LogStore.class, "(&(" + Constants.OBJECTCLASS + "=" + LogStore.class.getName() + ")(name=auditlog))").setRequired(true))
-                .add(createServiceDependency().setService(Runnable.class, "(&(" + Constants.OBJECTCLASS + "=" + Runnable.class.getName() + ")(taskName=auditlog))").setRequired(true))
+                .add(createServiceDependency().setService(Log.class, "(name=auditlog)").setRequired(true))
+                .add(createServiceDependency().setService(LogStore.class, "(name=auditlog)").setRequired(true))
+                .add(createServiceDependency().setService(Job.class, "(taskName=auditlog)").setRequired(true))
         };
     }
 
@@ -139,7 +139,8 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
         configureFactory("org.apache.ace.target.log.factory",
             "name", "auditlog");
         configureFactory("org.apache.ace.target.log.sync.factory",
-            "name", "auditlog");
+            "name", "auditlog",
+            "syncInterval", "1000");
         configureFactory("org.apache.ace.log.server.servlet.factory",
             "name", "auditlog", "endpoint", AUDITLOG_ENDPOINT);
         configureFactory("org.apache.ace.log.server.store.factory",
@@ -218,7 +219,7 @@ public class LogAuthenticationTest extends AuthenticationTestBase {
 
             while (!found && ((System.currentTimeMillis() - startTime) < waitTime)) {
                 // synchronize again
-                m_auditLogSyncTask.run();
+                m_auditLogSyncTask.execute();
 
                 // get and evaluate results (note that there is some concurrency that might interfere with this test)
                 List<Descriptor> ranges2 = m_serverStore.getDescriptors();

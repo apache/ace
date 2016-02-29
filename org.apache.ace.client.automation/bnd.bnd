@@ -6,7 +6,7 @@
 	osgi.core;version=6.0.0,\
 	osgi.cmpn,\
 	org.apache.felix.dependencymanager,\
-	org.apache.ace.scheduler.api;version=latest,\
+	org.amdatu.scheduling.api,\
 	org.apache.ace.client.repository.api;version=latest
 
 Private-Package: org.apache.ace.client.automation

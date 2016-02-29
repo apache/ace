@@ -30,6 +30,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.feedback.Descriptor;
@@ -42,7 +43,7 @@ import org.osgi.service.log.LogService;
 
 // TODO there are two versions of this class around, the other ohne being the server.LogSyncTask,
 // and both are fairly similar
-public class LogSyncTask implements Runnable {
+public class LogSyncTask implements Job {
 
     private static final String COMMAND_QUERY = "query";
     private static final String COMMAND_SEND = "send";
@@ -65,7 +66,8 @@ public class LogSyncTask implements Runnable {
     /**
      * Synchronize the log events available remote with the events available locally.
      */
-    public void run() {
+    @Override
+    public void execute() {
         URL host = m_discovery.discover();
 
         if (host == null) {

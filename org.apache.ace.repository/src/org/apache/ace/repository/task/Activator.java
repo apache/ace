@@ -20,25 +20,28 @@ package org.apache.ace.repository.task;
 
 import java.util.Properties;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.repository.RepositoryReplication;
-import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
 
+    private static final String PID = "org.apache.ace.repository.replication";
+    
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         Properties props = new Properties();
-        props.put(SchedulerConstants.SCHEDULER_NAME_KEY, RepositoryReplicationTask.class.getName());
-        props.put(SchedulerConstants.SCHEDULER_DESCRIPTION_KEY, "Synchronizes repositories.");
+        props.put(Constants.SERVICE_PID, PID);
 
         manager.add(createComponent()
-            .setInterface(Runnable.class.getName(), props)
+            .setInterface(new String[] {ManagedService.class.getName(), Job.class.getName()}, props)
             .setImplementation(RepositoryReplicationTask.class)
             .add(createServiceDependency().setService(Discovery.class).setRequired(true))
             .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true))
@@ -47,7 +50,4 @@ public class Activator extends DependencyActivatorBase {
             );
     }
 
-    @Override
-    public void destroy(BundleContext context, DependencyManager manager) throws Exception {
-    }
 }

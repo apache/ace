@@ -24,12 +24,13 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.amdatu.scheduling.Job;
+import org.amdatu.scheduling.constants.Constants;
 import org.apache.ace.client.repository.RepositoryAdmin;
 import org.apache.ace.client.repository.RepositoryAdminLoginContext;
 import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
-import org.apache.ace.scheduler.constants.SchedulerConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceRegistration;
@@ -38,6 +39,7 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
+
 
 /**
  * Automatic target operator, when configured will automatically register, approve, auto-approve and commit targets to
@@ -54,7 +56,7 @@ public class AutoTargetOperator implements ManagedService {
     private volatile BundleContext m_bundleContext;
     private volatile LogService m_log;
     private volatile Dictionary<String, ?> m_settings;
-    private volatile ServiceRegistration<Runnable> m_serviceReg;
+    private volatile ServiceRegistration<Job> m_serviceReg;
 
     // used for processing the auditlog (tell the repository about that)
     private final AuditLogProcessTask m_task = new AuditLogProcessTask();
@@ -81,8 +83,8 @@ public class AutoTargetOperator implements ManagedService {
 
             // start refresh task
             Dictionary<String, Object> props = new Hashtable<>();
-            props.put(SchedulerConstants.SCHEDULER_NAME_KEY, SCHEDULER_NAME);
-            m_serviceReg = m_bundleContext.registerService(Runnable.class, m_task, props);
+            props.put("name", SCHEDULER_NAME);
+            m_serviceReg = m_bundleContext.registerService(Job.class, m_task, props);
         }
         catch (IOException ioe) {
             m_log.log(LogService.LOG_ERROR, "Unable to login at repository admin.", ioe);
@@ -111,11 +113,12 @@ public class AutoTargetOperator implements ManagedService {
      * Runnable that will synchronize audit log data with the server and tell the repository about the changes if
      * applicable.
      */
-    private final class AuditLogProcessTask implements Runnable {
+    private final class AuditLogProcessTask implements Job {
 
         private final Object m_lock = new Object();
-
-        public void process() {
+        
+        @Override
+        public void execute() {
             // perform synchronous model actions
             synchronized (m_lock) {
                 m_statefulTargetRepos.refresh();
@@ -143,10 +146,6 @@ public class AutoTargetOperator implements ManagedService {
                     m_log.log(LogService.LOG_WARNING, "Commit of model failed", ioe);
                 }
             }
-        }
-
-        public void run() {
-            process();
         }
     }
 
@@ -206,6 +205,30 @@ public class AutoTargetOperator implements ManagedService {
             }
             // store configuration
             m_settings = settings;
+            
+            Long interval = null;
+            
+            Object value = settings.get("interval");
+            if (value != null) {
+                try {
+                    interval = Long.valueOf(value.toString());
+                }catch (NumberFormatException e) {
+                    throw new ConfigurationException("interval", "Interval must be a valid Long value", e);
+                }
+            
+                Dictionary<String, Object> serviceProps = new Hashtable<>();
+                serviceProps.put("name", SCHEDULER_NAME);
+                if (interval == null) {
+                    serviceProps.remove(Constants.REPEAT_FOREVER);
+                    serviceProps.remove(Constants.REPEAT_INTERVAL_PERIOD);
+                    serviceProps.remove(Constants.REPEAT_INTERVAL_VALUE);
+                } else {
+                    serviceProps.put(Constants.REPEAT_FOREVER, true);
+                    serviceProps.put(Constants.REPEAT_INTERVAL_PERIOD, "milisecond");
+                    serviceProps.put(Constants.REPEAT_INTERVAL_VALUE, interval);
+                }
+                m_serviceReg.setProperties(serviceProps);
+            }
         }
     }
 

@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,12 +33,17 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.amdatu.scheduling.Job;
+import org.amdatu.scheduling.constants.Constants;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.discovery.Discovery;
 import org.apache.ace.range.RangeIterator;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.RepositoryReplication;
+import org.apache.felix.dm.Component;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 
 /**
@@ -45,9 +51,12 @@ import org.osgi.service.log.LogService;
  * repositories are configured and tries to synchronize them with remote copies. Only pulls stuff in, it does not push
  * stuff out.
  */
-public class RepositoryReplicationTask implements Runnable {
-    private final ConcurrentMap<ServiceReference<RepositoryReplication>, RepositoryReplication> m_replicators = new ConcurrentHashMap<>();
+public class RepositoryReplicationTask implements Job, ManagedService {
+    private static final String KEY_SYNC_INTERVAL = "syncInterval";
 
+    private final ConcurrentMap<ServiceReference<RepositoryReplication>, RepositoryReplication> m_replicators = new ConcurrentHashMap<>();
+    
+    private volatile Component m_component;
     private volatile Discovery m_discovery;
     private volatile ConnectionFactory m_connectionFactory;
     private volatile LogService m_log;
@@ -73,7 +82,8 @@ public class RepositoryReplicationTask implements Runnable {
     /**
      * Replicates all current known repositories.
      */
-    public void run() {
+    @Override
+    public void execute() {
         // Take a snapshot of the current available replicators...
         Map<ServiceReference<RepositoryReplication>, RepositoryReplication> replicators = new HashMap<>(m_replicators);
 
@@ -184,5 +194,31 @@ public class RepositoryReplicationTask implements Runnable {
         finally {
             conn.disconnect();
         }
+    }
+    
+    @Override
+    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+        Long interval = null;
+        if (properties != null) {
+            Object value = properties.get(KEY_SYNC_INTERVAL);
+            if (value != null) {
+                try {
+                    interval = Long.valueOf(value.toString());
+                }catch (NumberFormatException e) {
+                    throw new ConfigurationException("interval", "Interval must be a valid Long value", e);
+                }
+            } else {
+                throw new ConfigurationException("interval", "Interval is required");
+            }
+            
+            Dictionary<Object,Object> serviceProps = m_component.getServiceProperties();
+            
+            serviceProps.put(Constants.REPEAT_FOREVER, true);
+            serviceProps.put(Constants.REPEAT_INTERVAL_PERIOD, "millisecond");
+            serviceProps.put(Constants.REPEAT_INTERVAL_VALUE, interval);
+            
+            m_component.setServiceProperties(serviceProps);
+        }
+
     }
 }

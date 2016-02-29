@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.amdatu.scheduling.Job;
 import org.apache.ace.discovery.DiscoveryConstants;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
@@ -32,7 +33,6 @@ import org.apache.ace.log.Log;
 import org.apache.ace.log.server.store.LogStore;
 import org.apache.ace.test.constants.TestConstants;
 import org.apache.felix.dm.Component;
-import org.osgi.framework.Constants;
 import org.osgi.service.http.HttpService;
 
 /**
@@ -49,7 +49,7 @@ public class LogIntegrationTest extends IntegrationTestBase {
     private volatile Log m_auditLog;
     private volatile LogStore m_serverStore;
 
-    private volatile Runnable m_auditLogSyncTask;
+    private volatile Job m_auditLogSyncTask;
     
     public void testLog() throws Exception {
     	// XXX there appears to be a dependency between both these test-methods!!!
@@ -87,9 +87,9 @@ public class LogIntegrationTest extends IntegrationTestBase {
             createComponent()
                 .setImplementation(this)
                 .add(createServiceDependency().setService(HttpService.class).setRequired(true))
-                .add(createServiceDependency().setService(Log.class, "(&("+ Constants.OBJECTCLASS+"="+Log.class.getName()+")(name=auditlog))").setRequired(true))
-                .add(createServiceDependency().setService(LogStore.class, "(&("+Constants.OBJECTCLASS+"="+LogStore.class.getName()+")(name=auditlog))").setRequired(true))
-                .add(createServiceDependency().setService(Runnable.class, "(&("+Constants.OBJECTCLASS+"="+Runnable.class.getName()+")(taskName=auditlog))").setRequired(true))
+                .add(createServiceDependency().setService(Log.class, "(name=auditlog)").setRequired(true))
+                .add(createServiceDependency().setService(LogStore.class, "(name=auditlog)").setRequired(true))
+                .add(createServiceDependency().setService(Job.class, "(taskName=auditlog)").setRequired(true))
         };
     }
 
@@ -104,7 +104,7 @@ public class LogIntegrationTest extends IntegrationTestBase {
         long startTime = System.currentTimeMillis();
         while ((!found) && (System.currentTimeMillis() - startTime < 5000)) {
             // synchronize again
-            m_auditLogSyncTask.run();
+            m_auditLogSyncTask.execute();
 
             // get and evaluate results (note that there is some concurrency that might interfere with this test)
             List<Descriptor> ranges2 = m_serverStore.getDescriptors();

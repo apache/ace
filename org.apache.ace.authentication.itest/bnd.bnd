@@ -8,6 +8,7 @@
 	org.apache.ace.test;version=latest,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.http.api,\
+	org.amdatu.scheduling.api,\
 	org.apache.ace.connectionfactory;version=latest,\
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
@@ -32,6 +33,8 @@
 	org.apache.felix.http.servlet-api,\
 	org.apache.felix.http.jetty,\
 	org.apache.felix.useradmin,\
+	org.amdatu.scheduling.api,\
+	org.amdatu.scheduling.quartz,\
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.ace.authentication.processor.basicauth;version=latest,\
