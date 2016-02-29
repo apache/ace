@@ -4,5 +4,5 @@
 Bundle-Name: Apache ACE Development Target
 Bundle-Description: Bnd run project for a standard ACE Target when used in a development environment, such as Eclipse. This projects does not generate any artifacts.
 
-javac.source: 1.6
-javac.target: 1.6
+javac.source: 1.7
+javac.target: 1.7

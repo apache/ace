@@ -4,5 +4,5 @@
 Bundle-Name: Apache ACE Run Target
 Bundle-Description: Bnd run project for a standard ACE Target. This projects does not generate any artifacts.
 
-javac.source: 1.6
-javac.target: 1.6
+javac.source: 1.7
+javac.target: 1.7

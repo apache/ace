@@ -48,5 +48,5 @@ mavenGroupId: org.apache.ace
 	org.apache.ace.range.api;version=latest,\
 	org.apache.ace.feedback.common;version=latest
 
-javac.source: 1.6
-javac.target: 1.6
+javac.source: 1.7
+javac.target: 1.7
