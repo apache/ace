@@ -22,3 +22,8 @@ Bundle-Description: Registers the Deployment Servlet
 Conditional-Package: \
 	biz.aQute*,\
 	aQute.*,\
+	
+Import-Package: \
+	!org.osgi.service.component.annotations,\
+	!org.osgi.service.coordinator,\
+	*
