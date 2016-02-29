@@ -37,7 +37,6 @@
 	org.apache.ace.repository.api;version=latest,\
 	org.apache.ace.repository.impl;version=latest,\
 	org.apache.ace.repository.servlets;version=latest,\
-	org.apache.ace.resourceprocessor.useradmin;version=latest,\
 	org.apache.ace.log.server.store.api;version=latest,\
 	org.apache.ace.log.server.store.file;version=latest,\
 	org.apache.ace.feedback.common;version=latest,\

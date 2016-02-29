@@ -13,7 +13,7 @@
 	org.apache.felix.deploymentadmin.stopunaffectedbundle=false,\
 	agent.logging.level=DEBUG,\
 	agent.identification.agentid=target-1,\
-	agent.discovery.serverurls=http://localhost:8282,\
+	agent.discovery.serverurls=http://localhost:8080,\
 	agent.controller.syncinterval=10,\
 	agent.controller.streaming=true,\
 	agent.controller.syncdelay=5
