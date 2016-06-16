@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Agent context delegate interface that is responsible for opening connection.
@@ -51,7 +51,7 @@ public interface ConnectionHandler {
 
     /**
      * Return a connection for the specified url.
-     * 
+     *
      * @param url The URL
      * @return The connection
      * @throws IOException If opening the connection fails

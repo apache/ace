@@ -24,7 +24,7 @@ import java.util.jar.Attributes;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.osgi.framework.Constants;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Implementation of <code>ArtifactData</code>. It overrides equals to make comparisons between versions easier.

@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Denotes a 'physical' artifact that is located by an URL, and provide means to access the contents of this artifact.
@@ -43,14 +43,14 @@ public interface ArtifactResource {
      * this may fail due to, for example, missing authentication credentials. Use {@link #openStream()} instead to
      * access the contents of the resource.
      * </p>
-     * 
+     *
      * @return the URL to the 'physical' location of the artifact, never <code>null</code>.
      */
     URL getURL();
 
     /**
      * Returns the size, in bytes, of this artifact.
-     * 
+     *
      * @return a size, in bytes, >= 0L. If the size of this artifact is unknown, <tt>-1L</tt> should be returned.
      * @throws IOException
      *             in case of I/O errors determining the size of the artifact.
@@ -59,7 +59,7 @@ public interface ArtifactResource {
 
     /**
      * Provides access to the contents of the artifact.
-     * 
+     *
      * @return an input stream, never <code>null</code>.
      * @throws IOException
      *             in case of I/O errors opening the artifact.

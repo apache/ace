@@ -20,7 +20,7 @@ package org.apache.ace.webui;
 
 import org.apache.ace.client.repository.RepositoryObject;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
 public interface NamedObject {

@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Providers interface for (extension) components.
@@ -32,7 +32,7 @@ public interface AgentContextAware {
      * Use this method to register event listeners and/or perform other forms of initialization related tasks that need
      * to be done prior to {@link #start(AgentContext)} being called.
      * </p>
-     * 
+     *
      * @param agentContext
      *            the agent context that is initializing, never <code>null</code>.
      * @throws Exception
@@ -42,7 +42,7 @@ public interface AgentContextAware {
 
     /**
      * Called when the agent context is started.
-     * 
+     *
      * @param agentContext
      *            the agent context that is started, never <code>null</code>.
      * @throws Exception
@@ -52,7 +52,7 @@ public interface AgentContextAware {
 
     /**
      * Called when the agent context is stopped.
-     * 
+     *
      * @throws Exception
      *             if the component fails to stop, which is logged and ignored by the agent.
      */

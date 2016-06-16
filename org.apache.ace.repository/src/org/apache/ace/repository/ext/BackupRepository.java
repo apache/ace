@@ -21,7 +21,7 @@ package org.apache.ace.repository.ext;
 import java.io.IOException;
 import java.io.InputStream;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides an interface for backing up objects. <code>write</code> and <code>read</code>
@@ -68,7 +68,7 @@ public interface BackupRepository
 
     /**
      * Deletes the whole repository.
-     * 
+     *
      * @throws IOException when the repository could not be deleted.
      */
     public void delete() throws IOException;

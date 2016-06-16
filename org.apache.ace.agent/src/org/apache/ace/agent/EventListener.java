@@ -20,7 +20,7 @@ package org.apache.ace.agent;
 
 import java.util.Map;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Listener interface for consumers that wish to be notified of agent events. This includes events deployment events as

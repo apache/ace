@@ -20,7 +20,7 @@ package org.apache.ace.client.repository;
 
 import java.net.URL;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * RepositoryAdminLoginContext represents a context for logins to the repository admin. It is used to specify

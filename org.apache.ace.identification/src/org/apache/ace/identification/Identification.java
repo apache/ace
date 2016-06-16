@@ -18,7 +18,7 @@
  */
 package org.apache.ace.identification;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The Identification service can be used to identify the system it is running on. This

@@ -21,7 +21,7 @@ package org.apache.ace.agent;
 import org.apache.ace.agent.impl.DeploymentHandlerImpl;
 import org.osgi.service.deploymentadmin.DeploymentException;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Generic exception that is thrown when an installation of an update failed.

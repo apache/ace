@@ -34,7 +34,7 @@ import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.range.SortedRangeSet;
 import org.apache.ace.repository.Repository;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * This class works as a local interface for a remote repository by handling the network communication.

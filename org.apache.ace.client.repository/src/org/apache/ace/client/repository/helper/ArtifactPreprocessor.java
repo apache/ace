@@ -21,7 +21,7 @@ package org.apache.ace.client.repository.helper;
 import java.io.IOException;
 import java.net.URL;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * An ArtifactPreprocessor processes an artifact before it is deployed.
@@ -44,7 +44,7 @@ public interface ArtifactPreprocessor {
     /**
      * Indicates whether the template should be processed again, given the properties, and the version to which it
      * should be compared.
-     * 
+     *
      * @param url A string representing a URL to the original artifact.
      * @param props A PropertyResolver which can be used to fill in 'holes' in the template.
      * @param targetID The targetID of the target for which this artifact is being processed.

@@ -25,6 +25,15 @@ if (bndWorkspace == null) {
   throw new GradleException("Unable to load workspace ${rootDir}/${bnd_cnf}")
 }
 
+/* Disable JavaDoc linting. */
+if (JavaVersion.current().isJava8Compatible()) {
+  allprojects {
+    tasks.withType(Javadoc) {
+      options.addStringOption('Xdoclint:none', '-quiet')
+    }
+  }
+}
+
 ext.cnf = rootProject.project(bnd_cnf)
 
 /* Configure the subprojects */
@@ -36,15 +45,5 @@ subprojects {
     test {
       useTestNG()
     }
-
-    tasks.withType(Javadoc) {
-        def runningJVM = JavaVersion.current().toString()
-        if (runningJVM.matches("1\\.8.*")) {
-            options.addStringOption('Xdoclint:none', '-quiet')
-        }
-    }
   }
-
-
 }
-

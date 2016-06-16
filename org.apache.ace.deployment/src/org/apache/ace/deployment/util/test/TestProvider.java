@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.ace.deployment.provider.ArtifactData;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 @ConsumerType
 public class TestProvider implements DeploymentProvider {

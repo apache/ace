@@ -28,7 +28,7 @@ import java.io.OutputStream;
 
 import org.apache.ace.repository.ext.BackupRepository;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * A file-based implementation of the Backup Repository, using two files to store the current and backup version.

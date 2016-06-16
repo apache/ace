@@ -23,7 +23,7 @@ import java.util.jar.Attributes;
 
 import org.apache.ace.deployment.provider.ArtifactData;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 @ConsumerType
 public class TestData implements ArtifactData {

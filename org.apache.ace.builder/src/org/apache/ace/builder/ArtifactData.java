@@ -20,7 +20,7 @@ package org.apache.ace.builder;
 
 import java.net.URL;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 @ConsumerType
 public class ArtifactData {
@@ -59,7 +59,7 @@ public class ArtifactData {
     /**
      * Some headers in OSGi allow for optional parameters, that are appended after the main value and always start with
      * a semicolon.
-     * 
+     *
      * @param name
      *            the name to remove the (optional) parameters from, cannot be <code>null</code>.
      * @return the cleaned name, never <code>null</code>.

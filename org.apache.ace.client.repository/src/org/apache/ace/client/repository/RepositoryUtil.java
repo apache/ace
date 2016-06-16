@@ -18,7 +18,7 @@
  */
 package org.apache.ace.client.repository;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
 public class RepositoryUtil

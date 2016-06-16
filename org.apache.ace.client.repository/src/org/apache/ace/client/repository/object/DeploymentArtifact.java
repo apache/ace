@@ -18,7 +18,7 @@
  */
 package org.apache.ace.client.repository.object;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Interface to a deployment artifact, which is used to gather information about
@@ -57,7 +57,7 @@ public interface DeploymentArtifact {
      * @return the URL for this deployment artifact.
      */
     public String getUrl();
-    
+
     /**
      * @return the (estimated) size of this deployment artifact, in bytes.
      */

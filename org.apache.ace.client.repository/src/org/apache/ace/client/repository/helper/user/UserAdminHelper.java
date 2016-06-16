@@ -20,7 +20,7 @@ package org.apache.ace.client.repository.helper.user;
 
 import org.apache.ace.client.repository.helper.ArtifactHelper;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Definitions for the UserAdminHelper artifact helper.

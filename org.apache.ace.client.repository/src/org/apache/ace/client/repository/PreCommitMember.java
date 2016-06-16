@@ -20,7 +20,7 @@ package org.apache.ace.client.repository;
 
 import java.io.IOException;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * An interface that can be implemented by anybody that wants to be invoked as part of the

@@ -23,7 +23,7 @@ import org.apache.ace.client.repository.object.TargetObject;
 import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Interface to a Distribution2TargetAssociationRepository. The functionality is defined by the generic AssociationRepository.

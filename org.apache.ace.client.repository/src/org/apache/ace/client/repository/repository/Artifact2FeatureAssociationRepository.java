@@ -23,7 +23,7 @@ import org.apache.ace.client.repository.object.Artifact2FeatureAssociation;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.FeatureObject;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Interface to a Artifact2FeatureAssociationRepository. The functionality is defined by the generic AssociationRepository.

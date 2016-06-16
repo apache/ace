@@ -21,7 +21,7 @@ package org.apache.ace.resourceprocessor.useradmin;
 import java.io.IOException;
 import java.io.InputStream;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The UserAdminConfigurator can be used to install, remove or explicitly set the users that should be present in the

@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.apache.ace.feedback.Event;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Server log store interface for the targets. Implementations of this service interface provide a persisted storage for

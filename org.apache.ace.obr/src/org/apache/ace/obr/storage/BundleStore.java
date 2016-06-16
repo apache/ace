@@ -3,7 +3,7 @@ package org.apache.ace.obr.storage;
 import java.io.IOException;
 import java.io.InputStream;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -49,7 +49,7 @@ public interface BundleStore {
      * @throws java.io.IOException If there was a problem reading or writing the data of the resource.
      */
     public String put(InputStream data, String fileName, boolean replace) throws IOException;
-    
+
     /**
      * Removes the specified resource from the store.
      *

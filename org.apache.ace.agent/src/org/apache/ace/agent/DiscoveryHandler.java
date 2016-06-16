@@ -20,7 +20,7 @@ package org.apache.ace.agent;
 
 import java.net.URL;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Agent context delegate interface that is responsible for discovering servers. If the handler supports dynamic

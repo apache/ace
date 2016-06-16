@@ -28,7 +28,7 @@ import org.apache.ace.client.repository.object.Distribution2TargetAssociation;
 import org.apache.ace.client.repository.object.DistributionObject;
 import org.apache.ace.feedback.Event;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Represents the information that a <code>TargetObject</code>

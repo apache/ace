@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 
 /**

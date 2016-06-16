@@ -20,7 +20,7 @@ package org.apache.ace.log;
 
 import java.io.IOException;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Log synchronizing interface. It is intended to give direct access to the synchronizing

@@ -20,7 +20,7 @@ package org.apache.ace.client.repository.object;
 
 import org.apache.ace.client.repository.Association;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Interface to a Artifact2FeatureAssociation. Most functionality is defined by the generic Association.

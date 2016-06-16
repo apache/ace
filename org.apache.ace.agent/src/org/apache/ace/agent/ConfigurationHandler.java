@@ -21,7 +21,7 @@ package org.apache.ace.agent;
 import java.util.Map;
 import java.util.Set;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Agent context delegate interface that is responsible for managing persisted configuration. External launchers may

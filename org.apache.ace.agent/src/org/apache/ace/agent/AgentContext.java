@@ -20,7 +20,7 @@ package org.apache.ace.agent;
 
 import java.io.File;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Internal interface that provides access to handlers, supporting services and static configuration.

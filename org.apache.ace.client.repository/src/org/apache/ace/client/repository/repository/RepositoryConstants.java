@@ -21,7 +21,7 @@ package org.apache.ace.client.repository.repository;
 
 import java.net.URL;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Constants used for the repository.

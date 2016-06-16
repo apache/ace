@@ -45,6 +45,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
  * Test utility that manages a Jetty webserver with a {@link DefaultServlet} that support HTTP range downloads and a
  * simple HTTP protocol dump filter. It can be extended with custom test servlets.
  */
+@SuppressWarnings("restriction")
 public class TestWebServer {
 
     static class HttpDumpFilter implements Filter {

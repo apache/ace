@@ -27,7 +27,7 @@ javac.debug:  on
 # Bnd Options
 -sources:       true
 -sourcepath:    ${project}/src
--buildpath:		biz.aQute.bnd.annotation
+-buildpath:     osgi.annotation;version='[6.0, 6.1)'
 
 # Default Bundle headers
 Bundle-DocURL: http://ace.apache.org/
@@ -45,7 +45,7 @@ itestrunprops: \
 	org.osgi.service.http.port=28080,\
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.apache.felix.log.storeDebug=true,\
-	org.apache.felix.log.maxSize=1000  
+	org.apache.felix.log.maxSize=1000
 
 # Enable semantic versioning for all bundles
 -baseline: *

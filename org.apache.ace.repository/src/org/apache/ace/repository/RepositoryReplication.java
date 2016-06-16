@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 import org.apache.ace.range.SortedRangeSet;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The interface for replication of the data in a repository.

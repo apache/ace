@@ -23,7 +23,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Map;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * A basic repository object, intended to be stored in a ObjectRepository of its given type.

@@ -20,7 +20,7 @@ package org.apache.ace.client.repository;
 
 import java.util.List;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The Associatable interface is to be implemented by any object that wants to be used in an Association.

@@ -21,7 +21,7 @@ package org.apache.ace.range;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Iterates over a <code>SortedRangeSet</code>. Does not exactly implement

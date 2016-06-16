@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 import org.apache.ace.range.SortedRangeSet;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Providing full access to a repository, which includes read and write access.

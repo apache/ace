@@ -20,7 +20,7 @@ package org.apache.ace.client.repository.helper;
 
 import java.util.Map;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Service interface for services that can recognize the type of an artifact, given a URL
@@ -32,7 +32,7 @@ public interface ArtifactRecognizer
     /**
      * Tries to determine the type of the artifact. If this recognizer cannot determine the type, it
      * should return <code>null</code>.
-     * 
+     *
      * @param artifact the artifact to recognize, cannot be <code>null</code>.
      * @return The mimetype of the artifact, or <code>null</code> if the artifact is not recognized.
      */
@@ -40,7 +40,7 @@ public interface ArtifactRecognizer
 
     /**
      * Gets the relevant metadata for this artifact.
-     * 
+     *
      * @param artifact the artifact to extract the metadata for, cannot be <code>null</code>.
      * @return A map of strings, representing the relevant metadata specific for this artifact. The
      *         keys are best defined in the corresponding <code>ArtifactHelper</code> interface for this type of artifact.
@@ -54,7 +54,7 @@ public interface ArtifactRecognizer
     /**
      * Indicates whether this recognizer can handle (i.e., extract metadata) from an artifact of
      * a given mime type.
-     * 
+     *
      * @param mimetype The mimetype of an artifact.
      * @return <code>true</code> when this type should be able to be handled by this recognizer;
      *         <code>false</code> otherwise.
@@ -63,9 +63,9 @@ public interface ArtifactRecognizer
 
     /**
      * Returns a preferred extension for the file name if a new one is created.
-     * 
+     *
      * @param artifact the artifact to get the extension for, cannot be <code>null</code>.
-     * 
+     *
      * @return The extension that is preferred or an empty string if there is none.
      */
     public String getExtension(ArtifactResource artifact);

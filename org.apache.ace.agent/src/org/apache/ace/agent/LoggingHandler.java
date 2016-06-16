@@ -22,7 +22,7 @@ import java.util.Formatter;
 
 import org.osgi.service.log.LogService;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Agent context delegate interface that is responsible for logging.

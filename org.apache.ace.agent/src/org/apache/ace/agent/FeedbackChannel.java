@@ -21,7 +21,7 @@ package org.apache.ace.agent;
 import java.io.IOException;
 import java.util.Map;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Represents a channel on which feedback information can be reported back to the server. An agent can configure

@@ -18,7 +18,7 @@
  */
 package org.apache.ace.range;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Class that captures a simple, modifiable range.

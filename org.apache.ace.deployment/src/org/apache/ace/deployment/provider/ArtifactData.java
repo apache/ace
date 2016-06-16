@@ -21,7 +21,7 @@ package org.apache.ace.deployment.provider;
 import java.net.URL;
 import java.util.jar.Attributes;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The ArtifactData as returned by the <code>DeploymentProvider</code> class in this package. It contains several pieces

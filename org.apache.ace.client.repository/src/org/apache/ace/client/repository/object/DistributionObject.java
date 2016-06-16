@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.apache.ace.client.repository.RepositoryObject;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Interface to a DistributionObject. The basic functionality is defined by RepositoryObject, but extended for

@@ -21,7 +21,7 @@ package org.apache.ace.obr.metadata;
 import java.io.File;
 import java.io.IOException;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
 public interface MetadataGenerator

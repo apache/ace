@@ -18,7 +18,7 @@
  */
 package org.apache.ace.test.constants;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Constants for global test parameters. Use these throughout the test

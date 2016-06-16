@@ -21,7 +21,7 @@ package org.apache.ace.client.repository.repository;
 import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.object.FeatureObject;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Interface to a FeatureRepository. The functionality is defined by the generic AssociationRepository.

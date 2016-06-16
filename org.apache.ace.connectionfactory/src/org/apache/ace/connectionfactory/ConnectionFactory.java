@@ -24,10 +24,10 @@ import java.net.URLConnection;
 
 import org.osgi.service.useradmin.User;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
- * Provides a service to create {@link URLConnection}s. The connection factory will be responsible 
+ * Provides a service to create {@link URLConnection}s. The connection factory will be responsible
  * for supplying the necessary credentials to ensure the authentication of the connection succeeds.
  */
 @ProviderType
@@ -35,7 +35,7 @@ public interface ConnectionFactory {
 
     /**
      * Creates a new connection using the given URL, using the (optional) credentials.
-     * 
+     *
      * @param url the URL to connect to, cannot be <code>null</code>.
      * @return a {@link URLConnection} instance, never <code>null</code>.
      * @throws IllegalArgumentException in case the given URL was <code>null</code>;
@@ -45,7 +45,7 @@ public interface ConnectionFactory {
 
     /**
      * Creates a new connection using the given URL, using the (optional) credentials.
-     * 
+     *
      * @param url the URL to connect to, cannot be <code>null</code>;
      * @param user the user to fetch the credentials from, cannot be <code>null</code>.
      * @return a {@link URLConnection} instance, never <code>null</code>.

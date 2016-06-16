@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.apache.ace.client.repository.RepositoryObject;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Interface to an ArtifactObject. The basic functionality is defined by RepositoryObject, but extended for
@@ -63,7 +63,7 @@ public interface ArtifactObject extends RepositoryObject {
      * Holds a human-readable description for this artifact.
      */
     public static final String KEY_ARTIFACT_DESCRIPTION = "artifactDescription";
-    /** 
+    /**
      * Key to be used in the <code>ArtifactObject</code>'s attributes.
      * Holds the (estimated) size, in bytes, for this artifact.
      */
@@ -108,7 +108,7 @@ public interface ArtifactObject extends RepositoryObject {
      */
     public String getURL();
     /**
-     * Returns a ResourceId, if that has been customized. 
+     * Returns a ResourceId, if that has been customized.
      */
     public String getResourceId();
     /**

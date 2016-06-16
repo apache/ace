@@ -20,7 +20,7 @@ package org.apache.ace.agent;
 
 import java.util.concurrent.Future;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * A {@link DownloadHandle} provides control over an asynchronous download and access to the resulting file when the it

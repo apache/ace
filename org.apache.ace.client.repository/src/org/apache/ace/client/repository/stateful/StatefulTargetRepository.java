@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.apache.ace.client.repository.ObjectRepository;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Represents a repository of <ode>StatefulTargetObject</code>'s.

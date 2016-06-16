@@ -26,7 +26,7 @@ import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.apache.ace.client.repository.object.TargetObject;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Interface to a ArtifactRepository. The functionality is defined by the generic AssociationRepository.
@@ -67,7 +67,7 @@ public interface ArtifactRepository extends ObjectRepository<ArtifactObject> {
 
     /**
      * Tries to import an artifact into storage, while extracting necessary metadata.
-     * 
+     *
      * @param artifact
      *            a URL pointing to the 'physical' artifact.
      * @param upload
@@ -85,7 +85,7 @@ public interface ArtifactRepository extends ObjectRepository<ArtifactObject> {
 
     /**
      * Checks whether an artifact is 'usable', that is, there is a resource processor available for it, if necessary.
-     * 
+     *
      * @param artifact
      *            A URL pointing to an artifact.
      * @return <code>true</code> if the artifact is recognized, and a processor for it is available. <code>false</code>
@@ -95,7 +95,7 @@ public interface ArtifactRepository extends ObjectRepository<ArtifactObject> {
 
     /**
      * Tries to import an artifact into storage, while extracting necessary metadata.
-     * 
+     *
      * @param artifact
      *            a URL pointing to the 'physical' artifact.
      * @param mimetype
@@ -114,7 +114,7 @@ public interface ArtifactRepository extends ObjectRepository<ArtifactObject> {
     /**
      * Tries to locate a preprocessor for the passed artifact, an processes it. If no processing needs to be done, the
      * original artifact's URL will be returned.
-     * 
+     *
      * @param artifact
      *            An artifact
      * @param props
@@ -132,7 +132,7 @@ public interface ArtifactRepository extends ObjectRepository<ArtifactObject> {
     /**
      * Indicates whether the template should be processed again, given the properties, and the version to which it
      * should be compared.
-     * 
+     *
      * @param url
      *            A string representing a URL to the original artifact.
      * @param props

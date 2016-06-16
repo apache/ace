@@ -23,7 +23,7 @@ import org.apache.ace.client.repository.object.Feature2DistributionAssociation;
 import org.apache.ace.client.repository.object.FeatureObject;
 import org.apache.ace.client.repository.object.DistributionObject;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Interface to a Feature2DistributionAssociationRepository. The functionality is defined by the generic AssociationRepository.

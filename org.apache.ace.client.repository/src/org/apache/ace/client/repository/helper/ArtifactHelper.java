@@ -22,7 +22,7 @@ import java.util.Comparator;
 import java.util.Map;
 import org.apache.ace.client.repository.object.ArtifactObject;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Interface to an artifact helper. For each type of artifact, there should be a helper

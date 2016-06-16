@@ -20,7 +20,7 @@ package org.apache.ace.discovery;
 
 import java.net.URL;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Service interface that can be used to locate the server.

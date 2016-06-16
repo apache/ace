@@ -20,7 +20,7 @@ package org.apache.ace.agent;
 
 import java.net.URL;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Service interface for downloading content from a particular {@link URL}.

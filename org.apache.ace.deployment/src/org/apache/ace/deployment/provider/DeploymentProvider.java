@@ -21,7 +21,7 @@ package org.apache.ace.deployment.provider;
 import java.io.IOException;
 import java.util.List;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * An interface that provides the meta information for the bundles

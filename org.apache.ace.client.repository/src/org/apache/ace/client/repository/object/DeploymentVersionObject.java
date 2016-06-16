@@ -20,7 +20,7 @@ package org.apache.ace.client.repository.object;
 
 import org.apache.ace.client.repository.RepositoryObject;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The interface to a DeploymentVersion. The basic functionality is defined

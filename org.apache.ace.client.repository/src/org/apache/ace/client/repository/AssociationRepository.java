@@ -21,7 +21,7 @@ package org.apache.ace.client.repository;
 import java.util.List;
 import java.util.Map;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Represents a basic repository of associations. The associations are to be of type

@@ -47,7 +47,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"restriction","deprecation"})
 public class DeploymentHandlerImpl extends UpdateHandlerBase implements DeploymentHandler {
 
     /**

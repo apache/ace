@@ -20,7 +20,7 @@ package org.apache.ace.webui;
 
 import java.util.Map;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 import com.vaadin.ui.Component;
 

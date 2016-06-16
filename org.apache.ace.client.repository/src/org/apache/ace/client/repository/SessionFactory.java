@@ -20,7 +20,7 @@ package org.apache.ace.client.repository;
 
 import java.util.Map;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Factory service for creating and destroying sessions. Sessions are identified by some kind

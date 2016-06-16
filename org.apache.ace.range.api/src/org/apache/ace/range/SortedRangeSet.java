@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Collection that stores a sorted set of ranges and is able to represent them

@@ -24,7 +24,7 @@ import java.util.SortedSet;
 
 import org.osgi.framework.Version;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Generic interface for installing updates.

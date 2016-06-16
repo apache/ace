@@ -25,7 +25,7 @@ import org.apache.ace.client.repository.ObjectRepository;
 import org.apache.ace.client.repository.object.DeploymentArtifact;
 import org.apache.ace.client.repository.object.DeploymentVersionObject;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 
 /**

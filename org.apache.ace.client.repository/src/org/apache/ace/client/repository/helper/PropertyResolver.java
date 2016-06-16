@@ -18,7 +18,7 @@
  */
 package org.apache.ace.client.repository.helper;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Interface for resolving properties about the template's

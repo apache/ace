@@ -21,7 +21,7 @@ package org.apache.ace.agent;
 import java.io.IOException;
 import java.io.InputStream;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Represents the result of a download task.

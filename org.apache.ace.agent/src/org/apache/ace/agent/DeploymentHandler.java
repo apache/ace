@@ -18,7 +18,7 @@
  */
 package org.apache.ace.agent;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Agent context delegate interface that provides the deployment functions.

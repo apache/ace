@@ -30,11 +30,11 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Builder for deployment packages. Can handle bundles, resource processors and artifacts. Uses the builder pattern:
- * 
+ *
  * <pre>
  * OutputStream out = new FileOutputStream(&quot;first.dp&quot;);
  * DeploymentPackageBuilder.createDeploymentPackage(&quot;mydp&quot;, &quot;1.0&quot;)
@@ -45,7 +45,7 @@ import aQute.bnd.annotation.ConsumerType;
  *     .addArtifact(new URL(&quot;http://artifacts/data/v3.jar&quot;), &quot;rp.pid&quot;)
  *     .generate(out);
  * </pre>
- * 
+ *
  * For bundles and resource processors, you can simply point to a valid URL and it will be queried for all required
  * metadata. For artifacts, you need to specify both the URL and the PID of the resource processor. The builder will use
  * the order you specify for bundles, resource processors and artifacts, but you don't have to specify all bundles and
@@ -72,7 +72,7 @@ public class DeploymentPackageBuilder {
 
     /**
      * Creates a new deployment package.
-     * 
+     *
      * @param name
      *            the name of the deployment package
      * @param version
@@ -85,7 +85,7 @@ public class DeploymentPackageBuilder {
 
     /**
      * Adds an artifact to the deployment package.
-     * 
+     *
      * @param url
      *            a url that refers to the artifact
      * @param processorPID
@@ -107,7 +107,7 @@ public class DeploymentPackageBuilder {
 
     /**
      * Adds a bundle to the deployment package.
-     * 
+     *
      * @param url
      *            a url that refers to the bundle
      * @return a builder to further add data to the deployment package
@@ -120,7 +120,7 @@ public class DeploymentPackageBuilder {
 
     /**
      * Adds a resource processor to the deployment package. A resource processor is a special type of bundle.
-     * 
+     *
      * @param url
      *            a url that refers to the resource processor
      * @return a builder to further add data to the deployment package
@@ -134,7 +134,7 @@ public class DeploymentPackageBuilder {
     /**
      * Generates a deployment package and streams it to the output stream you provide. Before it starts generating, it
      * will first validate that you have actually specified a resource processor for each type of artifact you provided.
-     * 
+     *
      * @param output
      *            the output stream to write to
      * @throws Exception

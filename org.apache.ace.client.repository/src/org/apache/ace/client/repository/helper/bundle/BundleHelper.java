@@ -22,7 +22,7 @@ import org.apache.ace.client.repository.helper.ArtifactHelper;
 import org.apache.ace.client.repository.object.ArtifactObject;
 import org.osgi.framework.Constants;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Definitions for a BundleHelper, which are used to treat an artifact as a bundle.

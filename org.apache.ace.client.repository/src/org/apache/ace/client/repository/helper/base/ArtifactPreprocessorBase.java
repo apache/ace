@@ -30,7 +30,7 @@ import java.net.URLConnection;
 import org.apache.ace.client.repository.helper.ArtifactPreprocessor;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * This class can be used as a base class for artifact preprocessors. It comes with its own upload() method, which will

@@ -18,7 +18,7 @@
  */
 package org.apache.ace.deployment.provider;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Exception that indicates that the deployment provider is overloaded.

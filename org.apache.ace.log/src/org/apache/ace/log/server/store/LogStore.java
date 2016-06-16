@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.ace.feedback.Descriptor;
 import org.apache.ace.feedback.Event;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Log store interface. Implementation of this service interface provide a persisted storage for Event logs.

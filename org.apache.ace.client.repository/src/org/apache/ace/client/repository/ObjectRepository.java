@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import org.osgi.framework.Filter;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * A basic object repository, storing implementers of RepositoryObject.

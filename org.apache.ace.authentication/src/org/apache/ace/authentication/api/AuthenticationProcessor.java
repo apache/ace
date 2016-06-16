@@ -21,7 +21,7 @@ package org.apache.ace.authentication.api;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Provides a pluggable authentication processor, responsible for the actual authentication of a
@@ -45,7 +45,7 @@ public interface AuthenticationProcessor {
      * and password might check whether the given context information consists of two
      * strings.
      * </p>
-     * 
+     *
      * @param context the context information to check, should never be <code>null</code> or an
      *        empty array.
      * @return <code>true</code> if this authentication processor can handle the given context
@@ -57,7 +57,7 @@ public interface AuthenticationProcessor {
 
     /**
      * Authenticates a user based on the given context information.
-     * 
+     *
      * @param userAdmin the user admin service, to use for verifying/retrieving user information,
      *        cannot be <code>null</code>;
      * @param context the context information to authenticate the user with, should never be

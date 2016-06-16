@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.apache.ace.repository.Repository;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a cached repository representation, allowing the storing of local changes, without
@@ -87,10 +87,10 @@ public interface CachedRepository extends Repository {
      * @throws java.io.IOException Thrown when an error occurs communicating with the server.
      */
     public boolean isCurrent() throws IOException;
-    
+
     /**
      * Deletes the local repository.
-     * 
+     *
      * @throws IOException when the local repository could not be deleted
      */
     public void deleteLocal() throws IOException;

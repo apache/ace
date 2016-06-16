@@ -20,7 +20,7 @@ package org.apache.ace.authentication.api;
 
 import org.osgi.service.useradmin.User;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a generic and pluggable authentication service.

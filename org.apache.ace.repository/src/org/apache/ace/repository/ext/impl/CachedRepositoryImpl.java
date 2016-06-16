@@ -27,7 +27,7 @@ import org.apache.ace.repository.Repository;
 import org.apache.ace.repository.ext.BackupRepository;
 import org.apache.ace.repository.ext.CachedRepository;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Provides a CachedRepository, which uses either a <code>Repository</code> and a <code>BackupRepository</code>
@@ -46,7 +46,7 @@ public class CachedRepositoryImpl implements CachedRepository {
 
     /**
      * Creates a cached repository using.
-     * 
+     *
      * @param remote A repository which holds committed versions.
      * @param backup A backup repository for local changes.
      * @param mostRecentVersion The version from which <code>backup</code> was checked out or committed.
@@ -91,7 +91,7 @@ public class CachedRepositoryImpl implements CachedRepository {
         }
         boolean result = commit(m_mostRecentVersion);
         if (result) {
-            // ACE-421: only bump in case of successful commit! 
+            // ACE-421: only bump in case of successful commit!
             m_mostRecentVersion++;
         }
         return result;
@@ -111,7 +111,7 @@ public class CachedRepositoryImpl implements CachedRepository {
     }
 
     public InputStream getLocal(boolean fail) throws IllegalArgumentException, IOException {
-        // ACE-240: only fail in case there is no local version available; when mostRecentVersion 
+        // ACE-240: only fail in case there is no local version available; when mostRecentVersion
         // equals to 0, it means that nothing has been committed locally...
         if (m_mostRecentVersion <= 0 && fail) {
     		throw new IOException("No local version available of " + m_local + ", remote " + m_remote);
@@ -134,7 +134,7 @@ public class CachedRepositoryImpl implements CachedRepository {
     public boolean isCurrent() throws IOException {
         return highestRemoteVersion() == m_mostRecentVersion;
     }
-    
+
     public void deleteLocal() throws IOException {
     	m_local.delete();
     }
