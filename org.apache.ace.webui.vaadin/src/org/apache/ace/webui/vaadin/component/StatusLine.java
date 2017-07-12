@@ -36,7 +36,6 @@ import com.vaadin.ui.Label;
 /**
  * Denotes a status line in which a short summary of the latest actions in the UI are displayed.
  */
-@SuppressWarnings("unchecked")
 public class StatusLine extends Label implements EventHandler {
 
     /**
@@ -52,22 +51,25 @@ public class StatusLine extends Label implements EventHandler {
         RepositoryObject entity = (RepositoryObject) event.getProperty(RepositoryObject.EVENT_ENTITY);
 
         String type = getType(topic);
+        if (type == null) {
+            // Nothing to do...
+            return;
+        }
+
         String action = getAction(topic);
         String name = getName(entity);
 
-        if (type != null) {
-            if (name != null) {
-                setStatus("%s '%s' %s...", type, name, action);
-            }
-            else if (action != null) {
-                setStatus("%s %s...", type, action);
-            }
+        if (name != null && action != null) {
+            setStatus("%s '%s' %s...", type, name, action);
+        }
+        else if (action != null) {
+            setStatus("%s %s...", type, action);
         }
     }
 
     /**
      * Sets the status to the given message.
-     * 
+     *
      * @param msg
      *            the message;
      * @param args
@@ -82,14 +84,22 @@ public class StatusLine extends Label implements EventHandler {
      * @return
      */
     private String getAction(String topic) {
-        if (topic.endsWith("/" + RepositoryObject.TOPIC_REMOVED_SUFFIX)) {
+        if (topic.endsWith("/REMOVED")) {
             return "removed";
         }
-        else if (topic.endsWith("/" + RepositoryObject.TOPIC_ADDED_SUFFIX)) {
+        else if (topic.endsWith("/ADDED")) {
             return "added";
         }
-        else if (topic.endsWith("/" + RepositoryObject.TOPIC_CHANGED_SUFFIX)) {
+        else if (topic.endsWith("/CHANGED")) {
             return "changed";
+        }
+        else if (topic.endsWith("/STATUS_CHANGED")) {
+            // for stateful target objects only...
+            return "status updated";
+        }
+        else if (topic.endsWith("/AUDITEVENTS_CHANGED")) {
+            // for stateful target objects only...
+            return "audit log updated";
         }
         return null;
     }

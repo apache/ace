@@ -18,6 +18,9 @@
  */
 package org.apache.ace.webui.vaadin.component;
 
+import static org.osgi.service.log.LogService.LOG_ERROR;
+import static org.osgi.service.log.LogService.LOG_WARNING;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,7 +90,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
 
         /**
          * Does the actual logout of the user.
-         * 
+         *
          * @throws IOException
          *             in case of I/O problems during the logout.
          */
@@ -140,7 +143,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
 
         /**
          * Does the actual retrieval of the latest version.
-         * 
+         *
          * @throws IOException
          *             in case of I/O problems during the retrieve.
          */
@@ -193,7 +196,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
 
         /**
          * Does the actual revert of changes.
-         * 
+         *
          * @throws IOException
          *             in case of problems during I/O exception.
          */
@@ -234,7 +237,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
 
         /**
          * Does the actual commit of changes.
-         * 
+         *
          * @throws IOException
          *             in case of I/O problems during the commit.
          */
@@ -256,10 +259,10 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
 
     /**
      * Creates a new {@link MainActionToolbar} instance.
-     * 
+     *
      * @param user
      * @param manager
-     * 
+     *
      * @param showLogoutButton
      *            <code>true</code> if a logout button should be shown, <code>false</code> if it should not.
      */
@@ -317,28 +320,28 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
 
     /**
      * Called after a commit/store has taken place, allows additional UI-updates to be performed.
-     * 
+     *
      * @throws IOException
      */
     protected abstract void doAfterCommit() throws IOException;
 
     /**
      * Called after a logout has taken place, allows additional UI-updates to be performed.
-     * 
+     *
      * @throws IOException
      */
     protected abstract void doAfterLogout() throws IOException;
 
     /**
      * Called after a retrieve has taken place, allows additional UI-updates to be performed.
-     * 
+     *
      * @throws IOException
      */
     protected abstract void doAfterRetrieve() throws IOException;
 
     /**
      * Called after a revert has taken place, allows additional UI-updates to be performed.
-     * 
+     *
      * @throws IOException
      */
     protected abstract void doAfterRevert() throws IOException;
@@ -375,8 +378,7 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         component.add(dm.createServiceDependency()
             .setService(UIExtensionFactory.class, "(" + UIExtensionFactory.EXTENSION_POINT_KEY + "=" + UIExtensionFactory.EXTENSION_POINT_VALUE_MENU + ")")
             .setCallbacks("add", "remove")
-            .setRequired(false)
-        );
+            .setRequired(false));
     }
 
     protected final void remove(ServiceReference<UIExtensionFactory> ref, UIExtensionFactory factory) {
@@ -393,12 +395,20 @@ public abstract class MainActionToolbar extends GridLayout implements EventHandl
         else {
             sb.append("<br/>unknown error!");
         }
+        log(LOG_ERROR, message, e);
         getWindow().showNotification(title, sb.toString(), Notification.TYPE_ERROR_MESSAGE);
     }
 
     protected void showWarning(String title, String message) {
+        log(LOG_WARNING, message);
         getWindow().showNotification(title, String.format("<br/>%s", message), Notification.TYPE_WARNING_MESSAGE);
     }
+
+    protected final void log(int level, String msg, Object... args) {
+        log(level, msg, null, args);
+    }
+
+    protected abstract void log(int level, String msg, Exception e, Object... args);
 
     private void addCrossPlatformShortcut(Button button, int key, String description) {
         // ACE-427 - NPE when using getMainWindow() if no authentication is used...

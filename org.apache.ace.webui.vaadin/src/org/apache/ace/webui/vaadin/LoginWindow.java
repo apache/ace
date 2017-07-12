@@ -18,6 +18,9 @@
  */
 package org.apache.ace.webui.vaadin;
 
+import static org.osgi.service.log.LogService.LOG_INFO;
+import static org.osgi.service.log.LogService.LOG_WARNING;
+
 import java.util.Map;
 
 import org.osgi.service.log.LogService;
@@ -40,7 +43,7 @@ import com.vaadin.ui.themes.Reindeer;
  */
 public class LoginWindow extends Window {
     /**
-     *  
+     *
      */
     public static interface LoginFunction {
         boolean login(String name, String password);
@@ -53,7 +56,7 @@ public class LoginWindow extends Window {
 
     /**
      * Creates a new {@link LoginWindow} instance.
-     * 
+     *
      * @param log
      *            the log service to use;
      * @param loginFunction
@@ -109,12 +112,12 @@ public class LoginWindow extends Window {
                     String password = (String) passwordField.getValue();
 
                     if (m_loginFunction.login(username, password)) {
-                        m_log.log(LogService.LOG_INFO, "Apache Ace WebUI succesfull login by user: " + username);
+                        m_log.log(LOG_INFO, "Apache Ace WebUI succesfull login by user: " + username);
 
                         closeWindow();
                     }
                     else {
-                        m_log.log(LogService.LOG_WARNING, "Apache Ace WebUI invalid username or password entered.");
+                        m_log.log(LOG_WARNING, "Apache Ace WebUI invalid username or password entered.");
 
                         m_additionalInfo.setValue("Invalid username or password!");
 
@@ -145,7 +148,7 @@ public class LoginWindow extends Window {
 
     /**
      * Shows this login window on screen.
-     * 
+     *
      * @param parent
      *            the parent window, cannot be <code>null</code>.
      */

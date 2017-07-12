@@ -106,7 +106,6 @@ import com.vaadin.ui.Window.Notification;
 /**
  * Main application entry point.
  */
-@SuppressWarnings("serial")
 public class VaadinClient extends com.vaadin.Application implements AssociationManager, LoginFunction {
 
     // basic session ID generator
@@ -116,7 +115,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     /**
      * Remove the given directory and all it's files and subdirectories
-     * 
+     *
      * @param directory
      *            the name of the directory to remove
      */
@@ -202,9 +201,9 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     /**
      * Creates a new {@link VaadinClient} instance.
-     * 
+     *
      * @param m_manager2
-     * 
+     *
      * @param aceHost
      *            the hostname where the management service can be reached;
      * @param obrUrl
@@ -470,7 +469,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     /**
      * Create a new distribution in the distribution repository
-     * 
+     *
      * @param name
      *            the name of the new distribution;
      * @param description
@@ -486,7 +485,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     /**
      * Create a new feature in the feature repository.
-     * 
+     *
      * @param name
      *            the name of the new feature;
      * @param description
@@ -502,7 +501,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     /**
      * Create a new target in the stateful target repository.
-     * 
+     *
      * @param name
      *            the name of the new target;
      */
@@ -573,9 +572,9 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     /**
      * Create a button to show a pop window for adding new features.
-     * 
+     *
      * @param user
-     * 
+     *
      * @param main
      *            Main Window
      * @return Button
@@ -594,9 +593,9 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
     /**
      * Create a button to show a popup window for adding a new distribution. On success this calls the
      * createDistribution() method.
-     * 
+     *
      * @param user
-     * 
+     *
      * @return the add-distribution button instance.
      */
     private Button createAddDistributionButton() {
@@ -624,9 +623,9 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     /***
      * Create a button to show popup window for adding a new feature. On success this calls the createFeature() method.
-     * 
+     *
      * @param user
-     * 
+     *
      * @return the add-feature button instance.
      */
     private Button createAddFeatureButton() {
@@ -653,9 +652,9 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     /**
      * Create a button to show a popup window for adding a new target. On success this calls the createTarget() method
-     * 
+     *
      * @param user
-     * 
+     *
      * @return the add-target button instance.
      */
     private Button createAddTargetButton() {
@@ -977,6 +976,11 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
                 return m_admin;
             }
 
+            @Override
+            protected void log(int level, String msg, Exception e, Object... args) {
+                m_log.log(level, String.format(msg, args), e);
+            }
+
             private void updateTableData() {
                 m_artifactsPanel.populate();
                 m_featuresPanel.populate();
@@ -990,7 +994,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
 
     /**
      * Authenticates the given user by creating all dependent services.
-     * 
+     *
      * @param user
      * @throws IOException
      *             in case of I/O problems.
@@ -1010,8 +1014,9 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
             // @formatter:on
 
             m_admin.login(context);
-            initGrid();
             m_admin.checkout();
+
+            initGrid();
 
             return true;
         }
