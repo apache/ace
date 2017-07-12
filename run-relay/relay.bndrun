@@ -21,6 +21,7 @@
 	org.apache.ace.authentication.api;version=latest,\
 	org.apache.ace.authentication.impl;version=latest,\
 	org.apache.ace.authentication.processor.basicauth;version=latest,\
+	org.apache.ace.authentication.processor.clientcert;version=latest,\
 	org.apache.ace.authentication.processor.password;version=latest,\
 	org.apache.ace.configurator.impl;version=latest,\
 	org.apache.ace.connectionfactory;version=latest,\
