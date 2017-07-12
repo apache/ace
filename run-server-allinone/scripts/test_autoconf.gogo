@@ -1,12 +1,15 @@
 # Licensed to the Apache Software Foundation (ASF) under the terms of ASLv2 (http://www.apache.org/licenses/LICENSE-2.0).
 
+obrHost = getproperty "org.apache.ace.obr"
+aceObr = "http://$obrHost/obr/"
+
 # install test bundle with additional Gogo commands needed later on in this script
 pwd = (cd) getAbsolutePath
 
 #start 'file:'$pwd'/../org.apache.ace.test/generated/org.apache.ace.test.jar'
 
 # create a workspace
-w = (cw)
+w = (cw [obrlocation=$aceObr])
 
 $w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.configadmin/org.apache.felix.configadmin-1.8.8.jar' true
 $w ca 'file:'$pwd'/../cnf/localrepo/org.apache.felix.metatype/org.apache.felix.metatype-1.1.2.jar' true
@@ -51,7 +54,7 @@ $w cd 'autoconf-test'
 $w cf2d '(name=autoconf-deps)' '(name=autoconf-test)'
 $w cf2d '(name=shell)' '(name=autoconf-test)'
 $w cf2d '(name=http)' '(name=autoconf-test)'
-	
+
 
 ($w ct [id=target-1] [httpPort="8888"]) setautoapprove true
 $w cd2t '(name=autoconf-test)' '(id=target-1)'

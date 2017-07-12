@@ -4,12 +4,15 @@
 # Creates an additional 100 bundles and 10 configuration files
 #
 
+obrHost = getproperty "org.apache.ace.obr"
+aceObr = "http://$obrHost/obr/"
+
 # install test bundle with additional Gogo commands needed later on in this script
 pwd = (cd) getAbsolutePath
 start 'file:'$pwd'/../org.apache.ace.test/generated/org.apache.ace.test.jar'
 
 # create a workspace
-w = (cw)
+w = (cw [obrlocation=$aceObr])
 
 # create 100 bundle artifacts and link them to the 10 features...
 a = 0
