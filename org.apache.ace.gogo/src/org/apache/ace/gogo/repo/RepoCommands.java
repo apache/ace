@@ -31,6 +31,10 @@ import static org.apache.ace.gogo.repo.RepositoryUtil.uploadResource;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.ace.bnd.registry.RegistryImpl;
+import org.apache.ace.bnd.repository.AceObrRepository;
+import org.apache.ace.bnd.repository.AceUrlConnector;
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.felix.service.command.Descriptor;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -42,9 +46,17 @@ public class RepoCommands {
     public final static String SCOPE = "repo";
     public final static String[] FUNCTIONS = new String[] { "repo", "index", "ls", "cp", "rm", "cd", "d" };
 
+    private volatile ConnectionFactory m_connectionFactory;
+
     @Descriptor("Defines a repository")
-    public static CommandRepo repo(@Descriptor("the type e { R5, OBR }") String type, @Descriptor("url of the repository index") String location) throws Exception {
-        return new CommandRepo(createRepository(type, location));
+    public CommandRepo repo(@Descriptor("the type e { R5, OBR }") String type, @Descriptor("url of the repository index") String location) throws Exception {
+        AceObrRepository repo = createRepository(type, location);
+
+        // ACE-624 allow support for different auth mechanisms...
+        RegistryImpl registry = new RegistryImpl(m_connectionFactory, new AceUrlConnector(m_connectionFactory));
+        repo.setRegistry(registry);
+
+        return new CommandRepo(repo);
     }
 
     @Descriptor("Indexes a directory")

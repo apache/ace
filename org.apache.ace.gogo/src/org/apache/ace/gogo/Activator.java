@@ -20,6 +20,7 @@ package org.apache.ace.gogo;
 
 import java.util.Properties;
 
+import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.gogo.collection.CollectionCommands;
 import org.apache.ace.gogo.execute.ExecuteCommands;
 import org.apache.ace.gogo.execute.ScriptExecutor;
@@ -45,7 +46,8 @@ public class Activator extends DependencyActivatorBase {
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         manager.add(createComponent()
             .setInterface(Object.class.getName(), createProps(RepoCommands.SCOPE, RepoCommands.FUNCTIONS))
-            .setImplementation(RepoCommands.class));
+            .setImplementation(RepoCommands.class)
+            .add(createServiceDependency().setService(ConnectionFactory.class).setRequired(true)));
 
         manager.add(createComponent()
             .setInterface(Object.class.getName(), createProps(MathCommands.SCOPE, MathCommands.FUNCTIONS))
@@ -75,9 +77,8 @@ public class Activator extends DependencyActivatorBase {
 
         manager.add(createComponent()
             .setInterface(Object.class.getName(), createProps(CollectionCommands.SCOPE, CollectionCommands.FUNCTIONS))
-            .setImplementation(CollectionCommands.class)
-        );
-        
+            .setImplementation(CollectionCommands.class));
+
         String script = System.getProperty("ace.gogo.script");
         if (script != null) {
             long delay = Long.getLong("ace.gogo.script.delay", 300L);
