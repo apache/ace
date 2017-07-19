@@ -30,18 +30,24 @@ import org.apache.ace.obr.storage.BundleStore;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 
 public class Activator extends DependencyActivatorBase {
+	private static final String PID = "org.apache.ace.obr.servlet";
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         Properties servletProps = new Properties();
         servletProps.put(HTTP_WHITEBOARD_SERVLET_PATTERN, BundleServlet.SERVLET_ENDPOINT.concat("*"));
         servletProps.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WHITEBOARD_CONTEXT_SELECT_FILTER);
+        servletProps.put(Constants.SERVICE_PID, PID);
+
+        String[] ifaces = { Servlet.class.getName(), ManagedService.class.getName() };
 
         manager.add(createComponent()
-            .setInterface(Servlet.class.getName(), servletProps)
+            .setInterface(ifaces, servletProps)
             .setImplementation(BundleServlet.class)
             .add(createServiceDependency()
                 .setService(BundleStore.class)

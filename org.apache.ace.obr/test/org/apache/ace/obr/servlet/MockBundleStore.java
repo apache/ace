@@ -33,6 +33,14 @@ public class MockBundleStore implements BundleStore {
         m_outFile = outFile;
     }
 
+    @Override
+    public boolean exists(String filePath) throws IOException {
+        if (filePath.equals("UnknownFile")) {
+            return false;
+        }
+        return true;
+    }
+
     public InputStream get(String fileName) throws IOException {
         if (fileName.equals("UnknownFile")) {
             return null;

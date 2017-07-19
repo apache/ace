@@ -45,8 +45,8 @@ import org.osgi.service.log.LogService;
 
 /**
  * This BundleStore retrieves the files from the file system. Via the Configurator the relative path is set, and all
- * bundles and the index.xml should be retrievable from that path (which will internally be converted to an
- * absolute path).
+ * bundles and the index.xml should be retrievable from that path (which will internally be converted to an absolute
+ * path).
  */
 public class BundleFileStore implements BundleStore, ManagedService {
     private static final String REPOSITORY_XML = "index.xml";
@@ -62,7 +62,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
     /**
      * Checks if the the directory was modified since we last checked. If so, the meta-data generator is called.
-     * 
+     *
      * @throws IOException
      *             If there is a problem synchronizing the meta-data.
      */
@@ -77,6 +77,13 @@ public class BundleFileStore implements BundleStore, ManagedService {
         }
     }
 
+    @Override
+    public boolean exists(String fileName) throws IOException {
+        File f = createFile(fileName);
+        return f.exists();
+    }
+
+    @Override
     public InputStream get(String fileName) throws IOException {
         if (REPOSITORY_XML.equals(fileName)) {
             synchronizeMetadata();
@@ -93,6 +100,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
         return result;
     }
 
+    @Override
     public String put(InputStream data, String fileName, boolean replace) throws IOException {
         if (fileName == null) {
             fileName = "";
@@ -167,6 +175,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
         }
     }
 
+    @Override
     public boolean remove(String fileName) throws IOException {
         File dir;
         synchronized (m_lock) {
@@ -189,6 +198,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
         return false;
     }
 
+    @Override
     public void updated(Dictionary<String, ?> dict) throws ConfigurationException {
         if (dict != null) {
             String path = (String) dict.get(OBRFileStoreConstants.FILE_LOCATION_KEY);
@@ -230,7 +240,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
     /**
      * Computes a magic checksum used to determine whether there where changes in the directory without actually looking
      * into the files or using observation.
-     * 
+     *
      * @param dir
      *            The directory
      * @return The checksum
@@ -268,7 +278,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
     /**
      * Downloads a given input stream to a temporary file.
-     * 
+     *
      * @param source
      *            the input stream to download;
      * @throws IOException
@@ -295,7 +305,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
     /**
      * Encapsulated the store layout strategy by creating the resource file based on the provided meta-data.
-     * 
+     *
      * @param metaData
      *            the meta-data for the resource
      * @return the resource file
@@ -328,7 +338,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
     /**
      * Splits a name into parts, breaking at all dots as long as what's behind the dot resembles a Java package name
      * (ie. it starts with a lowercase character).
-     * 
+     *
      * @param name
      *            the name to split
      * @return an array of parts
@@ -363,7 +373,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
     /**
      * Moves a given source file to a destination location, effectively resulting in a rename.
-     * 
+     *
      * @param source
      *            the source file to move;
      * @param dest
@@ -416,7 +426,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
     /**
      * Safely closes a given resource, ignoring any I/O exceptions that might occur by this.
-     * 
+     *
      * @param resource
      *            the resource to close, can be <code>null</code>.
      */
@@ -433,7 +443,7 @@ public class BundleFileStore implements BundleStore, ManagedService {
 
     /**
      * Creates a {@link File} object with the given file name in the current working directory.
-     * 
+     *
      * @param fileName
      *            the name of the file.
      * @return a {@link File} object, never <code>null</code>.

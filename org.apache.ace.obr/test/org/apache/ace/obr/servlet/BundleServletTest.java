@@ -214,6 +214,22 @@ public class BundleServletTest {
     }
 
     @Test()
+    public void testExistsInvalidResource() throws Exception {
+        m_requestFile = "UnknownFile";
+        m_bundleServlet.doHead(m_request, m_response);
+
+        assert m_status == HttpServletResponse.SC_NOT_FOUND : "We should have got response code " + HttpServletResponse.SC_NOT_FOUND + " and we got " + m_status;
+    }
+
+    @Test()
+    public void testExistsValidResource() throws Exception {
+        m_requestFile = "KnownFile";
+        m_bundleServlet.doHead(m_request, m_response);
+
+        assert m_status == HttpServletResponse.SC_OK : "We should have got response code " + HttpServletResponse.SC_NOT_FOUND + " and we got " + m_status;
+    }
+
+    @Test()
     public void testGetInValidResource() throws Exception {
         m_requestFile = "UnknownFile";
         m_bundleServlet.doGet(m_request, m_response);

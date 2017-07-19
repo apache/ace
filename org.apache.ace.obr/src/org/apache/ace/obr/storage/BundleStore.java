@@ -28,34 +28,54 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface BundleStore {
 
     /**
-     * Returns an <code>InputStream</code> to the data of the specified resource.
+     * Returns whether or not a specified resource exists.
      *
-     * @param filePath Relative path of the the resource.
-     * @return <code>InputStream</code> to the requested resource or <code>null</code> if no such resource is available.
-     * @throws java.io.IOException If there was a problem returning the requested resource.
+     * @param filePath
+     *            the relative path of the resource
+     * @return <code>true</code> if the resource exists, <code>false</code> otherwise.
+     * @throws IOException
+     *             in case there was a problem testing the existance of the requested resource.
      */
-    public InputStream get(String filePath) throws IOException;
+    boolean exists(String filePath) throws IOException;
 
     /**
-     * Stores the specified resource in the store. If the resource already existed, it
-     * will only be accepted if you either try to store exactly the same resource (byte-by-byte)
-     * or tell it to forcefully replace the resource. The latter should only be done with
-     * extreme care.
+     * Returns an <code>InputStream</code> to the data of the specified resource.
      *
-     * @param fileName name of the resource, ignored if the resource is an OSGi bundle
-     * @param data the actual data of the resource
-     * @param replace <code>true</code> to replace any existing resource with the same name
-     * @return the filePath if the resource was successfully stored, <code>null</code> if the resource already existed and was different
-     * @throws java.io.IOException If there was a problem reading or writing the data of the resource.
+     * @param filePath
+     *            Relative path of the resource.
+     * @return <code>InputStream</code> to the requested resource or <code>null</code> if no such resource is available.
+     * @throws java.io.IOException
+     *             If there was a problem returning the requested resource.
      */
-    public String put(InputStream data, String fileName, boolean replace) throws IOException;
+    InputStream get(String filePath) throws IOException;
+
+    /**
+     * Stores the specified resource in the store. If the resource already existed, it will only be accepted if you
+     * either try to store exactly the same resource (byte-by-byte) or tell it to forcefully replace the resource. The
+     * latter should only be done with extreme care.
+     *
+     * @param fileName
+     *            name of the resource, ignored if the resource is an OSGi bundle
+     * @param data
+     *            the actual data of the resource
+     * @param replace
+     *            <code>true</code> to replace any existing resource with the same name
+     * @return the filePath if the resource was successfully stored, <code>null</code> if the resource already existed
+     *         and was different
+     * @throws java.io.IOException
+     *             If there was a problem reading or writing the data of the resource.
+     */
+    String put(InputStream data, String fileName, boolean replace) throws IOException;
 
     /**
      * Removes the specified resource from the store.
      *
-     * @param filePath Relative path of the the resource.
-     * @return <code>true</code> if the resource was successfully removed, <code>false</code> if the resource was not present to begin with
-     * @throws java.io.IOException If there was a problem removing the data of the resource from the store.
+     * @param filePath
+     *            Relative path of the the resource.
+     * @return <code>true</code> if the resource was successfully removed, <code>false</code> if the resource was not
+     *         present to begin with
+     * @throws java.io.IOException
+     *             If there was a problem removing the data of the resource from the store.
      */
-    public boolean remove(String filePath) throws IOException;
+    boolean remove(String filePath) throws IOException;
 }
