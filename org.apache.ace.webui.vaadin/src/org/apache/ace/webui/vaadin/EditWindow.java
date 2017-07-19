@@ -29,6 +29,7 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
@@ -64,7 +65,7 @@ public abstract class EditWindow extends Window {
 
     /**
      * Shows this dialog on screen.
-     * 
+     *
      * @param window the parent window to show this dialog on, cannot be <code>null</code>.
      */
     public void show(Window parent) {
@@ -80,7 +81,7 @@ public abstract class EditWindow extends Window {
 
     /**
      * Called when the {@link #onOk(String, String)} method failed with an exception.
-     * 
+     *
      * @param e the exception to handle, never <code>null</code>.
      */
     protected abstract void handleError(Exception e);
@@ -89,7 +90,7 @@ public abstract class EditWindow extends Window {
      * @param object
      * @param factories
      */
-    protected void initDialog(final NamedObject object, List<UIExtensionFactory> factories) {
+    protected void initDialog(NamedObject object, List<UIExtensionFactory> factories) {
         VerticalLayout fields = new VerticalLayout();
         fields.setSpacing(true);
         fields.addComponent(m_name);
@@ -101,12 +102,15 @@ public abstract class EditWindow extends Window {
         tabs.setVisible(!factories.isEmpty());
 
         Map<String, Object> context = new HashMap<>();
-        context.put("object", object);
+        context.put("object", object.getObject());
         populateContext(context);
 
         for (UIExtensionFactory factory : factories) {
             try {
-                tabs.addTab(factory.create(context));
+                Component tabComp = factory.create(context);
+                if (tabComp != null) {
+                    tabs.addTab(tabComp);
+                }
             }
             catch (Throwable ex) {
                 // We ignore extension factories that throw exceptions
@@ -152,17 +156,17 @@ public abstract class EditWindow extends Window {
         // The components added to the window are actually added to the window's
         // layout; you can use either. Alignments are set using the layout
         layout.setComponentAlignment(buttonBar, Alignment.BOTTOM_RIGHT);
-        
+
         m_name.focus();
     }
-    
+
     protected Map<String, Object> populateContext(Map<String, Object> context) {
         return context;
     }
 
     /**
      * Called when the user acknowledges this window by pressing Ok.
-     * 
+     *
      * @param name the value of the name field;
      * @param description the value of the description field.
      * @throws Exception in case the creation failed.

@@ -60,7 +60,6 @@ import org.apache.ace.client.repository.stateful.StatefulTargetRepository;
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
-import org.apache.ace.webui.domain.NamedStatefulTargetObject;
 import org.apache.ace.webui.domain.NamedTargetObject;
 import org.apache.ace.webui.vaadin.LoginWindow.LoginFunction;
 import org.apache.ace.webui.vaadin.UploadHelper.ArtifactDropHandler;
@@ -906,10 +905,7 @@ public class VaadinClient extends com.vaadin.Application implements AssociationM
                     @Override
                     protected Map<String, Object> populateContext(Map<String, Object> context) {
                         if (object instanceof NamedTargetObject) {
-                            context.put("statefulTarget", m_statefulTargetRepository.get(object.getDefinition()));
-                        }
-                        else if (object instanceof NamedStatefulTargetObject) {
-                            context.put("statefulTarget", object.getObject());
+                            context.put("object", m_statefulTargetRepository.get(object.getDefinition()));
                         }
                         return context;
                     }

@@ -20,6 +20,7 @@ Private-Package: \
 	org.apache.ace.webui.domain,\
 	org.apache.ace.webui.vaadin,\
 	org.apache.ace.webui.vaadin.component,\
+	org.apache.ace.webui.vaadin.extension,\
 	org.apache.ace.bnd.registry,\
 	org.apache.ace.bnd.repository,\
 	org.kxml2.io,\
@@ -30,7 +31,7 @@ Private-Package: \
 	org.osgi.service.obr,\
 	org.osgi.service.repository*,\
 	org.xmlpull.v1
-	
+
 Export-Package: org.apache.ace.webui
 Include-Resource: resources/
 Bundle-Activator: org.apache.ace.webui.vaadin.Activator

@@ -18,6 +18,13 @@
  */
 package org.apache.ace.webui.vaadin;
 
+import static org.apache.ace.webui.UIExtensionFactory.EXTENSION_POINT_KEY;
+import static org.apache.ace.webui.UIExtensionFactory.EXTENSION_POINT_VALUE_ARTIFACT;
+import static org.apache.ace.webui.UIExtensionFactory.EXTENSION_POINT_VALUE_DISTRIBUTION;
+import static org.apache.ace.webui.UIExtensionFactory.EXTENSION_POINT_VALUE_FEATURE;
+import static org.apache.ace.webui.UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET;
+import static org.apache.ace.webui.vaadin.VaadinServlet.DEFAULT_SERVLET_ENDPOINT;
+import static org.osgi.framework.Constants.SERVICE_RANKING;
 import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_NAME;
 import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_PATH;
 import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT;
@@ -25,23 +32,24 @@ import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHIT
 import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PREFIX;
 import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN;
 
-import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.Servlet;
 
-import org.apache.ace.client.repository.stateful.StatefulTargetObject;
 import org.apache.ace.webui.UIExtensionFactory;
+import org.apache.ace.webui.vaadin.extension.ArtifactInfoExtensionFactory;
+import org.apache.ace.webui.vaadin.extension.ArtifactToFeatureAssocExtensionFactory;
+import org.apache.ace.webui.vaadin.extension.DistributionToFeatureAssocExtensionFactory;
+import org.apache.ace.webui.vaadin.extension.DistributionToTargetAssocExtensionFactory;
+import org.apache.ace.webui.vaadin.extension.FeatureToArtifactAssocExtensionFactory;
+import org.apache.ace.webui.vaadin.extension.FeatureToDistributionAssocExtensionFactory;
+import org.apache.ace.webui.vaadin.extension.TargetInfoExtensionFactory;
+import org.apache.ace.webui.vaadin.extension.TargetToDistributionAssocExtensionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.service.http.context.ServletContextHelper;
 import org.osgi.service.log.LogService;
-
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 public class Activator extends DependencyActivatorBase {
     private static final String PID = "org.apache.ace.webui.vaadin";
@@ -54,6 +62,7 @@ public class Activator extends DependencyActivatorBase {
         Properties contextProps = new Properties();
         contextProps.put(HTTP_WHITEBOARD_CONTEXT_NAME, ACE_WEBUI_WHITEBOARD_CONTEXT_NAME);
         contextProps.put(HTTP_WHITEBOARD_CONTEXT_PATH, "/");
+
         manager.add(createComponent()
             .setInterface(ServletContextHelper.class.getName(), contextProps)
             .setImplementation(AceWebuiServletContextHelper.class)
@@ -64,12 +73,13 @@ public class Activator extends DependencyActivatorBase {
         resourceRegistrationProps.put(HTTP_WHITEBOARD_RESOURCE_PREFIX, "/VAADIN");
         resourceRegistrationProps.put(HTTP_WHITEBOARD_RESOURCE_PATTERN, "/VAADIN/*");
         resourceRegistrationProps.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WEBUI_WHITEBOARD_CONTEXT_SELECT_FILTER);
+
         manager.add(createComponent()
             .setInterface(Object.class.getName(), resourceRegistrationProps)
             .setImplementation(new Object()));
 
         Properties props = new Properties();
-        props.put(HTTP_WHITEBOARD_SERVLET_PATTERN, VaadinServlet.DEFAULT_SERVLET_ENDPOINT.concat("/*"));
+        props.put(HTTP_WHITEBOARD_SERVLET_PATTERN, DEFAULT_SERVLET_ENDPOINT.concat("/*"));
         props.put(HTTP_WHITEBOARD_CONTEXT_SELECT, ACE_WEBUI_WHITEBOARD_CONTEXT_SELECT_FILTER);
 
         // register the main application for the ACE UI client
@@ -78,29 +88,87 @@ public class Activator extends DependencyActivatorBase {
             .setImplementation(VaadinServlet.class)
             .add(createConfigurationDependency().setPid(PID)));
 
+        addArtifactExtensions(manager);
+        addFeatureExtensions(manager);
+        addDistributionExtensions(manager);
+        addTargetExtensions(manager);
+    }
+
+    private void addArtifactExtensions(DependencyManager manager) {
+        Properties props = new Properties();
+        props.put(EXTENSION_POINT_KEY, EXTENSION_POINT_VALUE_ARTIFACT);
+        props.put(SERVICE_RANKING, Integer.valueOf(110));
+
+        manager.add(createComponent()
+            .setInterface(UIExtensionFactory.class.getName(), props)
+            .setImplementation(ArtifactInfoExtensionFactory.class));
+
         props = new Properties();
-        props.put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_TARGET);
-        props.put(Constants.SERVICE_RANKING, Integer.valueOf(100));
+        props.put(EXTENSION_POINT_KEY, EXTENSION_POINT_VALUE_ARTIFACT);
+        props.put(SERVICE_RANKING, Integer.valueOf(100));
+
+        manager.add(createComponent()
+            .setInterface(UIExtensionFactory.class.getName(), props)
+            .setImplementation(ArtifactToFeatureAssocExtensionFactory.class));
+    }
+
+    private void addFeatureExtensions(DependencyManager manager) {
+        Properties props = new Properties();
+        props.put(EXTENSION_POINT_KEY, EXTENSION_POINT_VALUE_FEATURE);
+        props.put(SERVICE_RANKING, Integer.valueOf(110));
 
         // shows off components that are contributed by extensions
         manager.add(createComponent()
             .setInterface(UIExtensionFactory.class.getName(), props)
-            .setImplementation(new UIExtensionFactory() {
-                public Component create(Map<String, Object> context) {
-                    VerticalLayout vl = new VerticalLayout();
-                    vl.setCaption("Info");
-                    final StatefulTargetObject target = (StatefulTargetObject) context.get("statefulTarget");
-                    Label info = new Label("Target ID          : " + target.getID() + "\n" +
-                        "Installed version  : " + (target.getLastInstallVersion() == null ? "(none)" : target.getLastInstallVersion()) + "\n" +
-                        "Available version  : " + target.getCurrentVersion() + "\n" +
-                        "Approval state     : " + target.getApprovalState() + "\n" +
-                        "Store state        : " + target.getStoreState() + "\n" +
-                        "Provisioning state : " + target.getProvisioningState() + "\n" +
-                        "Registration state : " + target.getRegistrationState());
-                    info.setContentMode(Label.CONTENT_PREFORMATTED);
-                    vl.addComponent(info);
-                    return vl;
-                }
-            }));
+            .setImplementation(FeatureToArtifactAssocExtensionFactory.class));
+
+        props = new Properties();
+        props.put(EXTENSION_POINT_KEY, EXTENSION_POINT_VALUE_FEATURE);
+        props.put(SERVICE_RANKING, Integer.valueOf(100));
+
+        // shows off components that are contributed by extensions
+        manager.add(createComponent()
+            .setInterface(UIExtensionFactory.class.getName(), props)
+            .setImplementation(FeatureToDistributionAssocExtensionFactory.class));
+    }
+
+    private void addDistributionExtensions(DependencyManager manager) {
+        Properties props = new Properties();
+        props.put(EXTENSION_POINT_KEY, EXTENSION_POINT_VALUE_DISTRIBUTION);
+        props.put(SERVICE_RANKING, Integer.valueOf(110));
+
+        // shows off components that are contributed by extensions
+        manager.add(createComponent()
+            .setInterface(UIExtensionFactory.class.getName(), props)
+            .setImplementation(DistributionToFeatureAssocExtensionFactory.class));
+
+        props = new Properties();
+        props.put(EXTENSION_POINT_KEY, EXTENSION_POINT_VALUE_DISTRIBUTION);
+        props.put(SERVICE_RANKING, Integer.valueOf(100));
+
+        // shows off components that are contributed by extensions
+        manager.add(createComponent()
+            .setInterface(UIExtensionFactory.class.getName(), props)
+            .setImplementation(DistributionToTargetAssocExtensionFactory.class));
+    }
+
+    private void addTargetExtensions(DependencyManager manager) {
+        Properties props = new Properties();
+        props.put(EXTENSION_POINT_KEY, EXTENSION_POINT_VALUE_TARGET);
+        props.put(SERVICE_RANKING, Integer.valueOf(110));
+
+        // shows off components that are contributed by extensions
+        manager.add(createComponent()
+            .setInterface(UIExtensionFactory.class.getName(), props)
+            .setImplementation(TargetInfoExtensionFactory.class));
+
+        props = new Properties();
+        props.put(EXTENSION_POINT_KEY, EXTENSION_POINT_VALUE_TARGET);
+        props.put(SERVICE_RANKING, Integer.valueOf(100));
+
+        // shows off components that are contributed by extensions
+        manager.add(createComponent()
+            .setInterface(UIExtensionFactory.class.getName(), props)
+            .setImplementation(TargetToDistributionAssocExtensionFactory.class));
     }
 }

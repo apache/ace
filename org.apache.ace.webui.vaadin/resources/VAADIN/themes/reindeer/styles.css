@@ -51,13 +51,13 @@
 	padding: .2em 1em;
 	color: inherit;
 	font: inherit;
-	line-height: normal;		
+	line-height: normal;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
-	user-select: none;	
+	user-select: none;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	-ms-box-sizing: border-box;
@@ -173,7 +173,7 @@
 /*
  * Checkbox styles
  * -------------------------------------- */
- 
+
  .v-checkbox {
  	display: block;
  }
@@ -299,7 +299,7 @@ div.v-app-loading {
 	position: relative;
 }
 /**
- * Try to handle printing somehow. Reasonable printing support 
+ * Try to handle printing somehow. Reasonable printing support
  * needs application specific planning and CSS tuning.
  */
 @media print {
@@ -421,7 +421,7 @@ div.v-app-loading {
 .v-label h5,
 .v-label h6 {
 	line-height: normal;
-} 
+}
 /* Loading indicator states
  * Note: client side expects that loading indicator has a height. It depends on
  * this css property to ensure browsers have applied all required styles.
@@ -498,27 +498,27 @@ div.v-app-loading {
 	overflow: auto;
 }
 .v-ios.v-webkit & .v-scrollable {
-    -webkit-overflow-scrolling: touch; 
-} 
-/* Disable native scrolling on iOS 5 due to #8792 */ 
+    -webkit-overflow-scrolling: touch;
+}
+/* Disable native scrolling on iOS 5 due to #8792 */
 .v-ios5.v-webkit & .v-scrollable {
-    -webkit-overflow-scrolling: none; 
-}    
+    -webkit-overflow-scrolling: none;
+}
 
 .v-csslayout {
 	overflow: hidden;
 }
 .v-csslayout-margin-top {
-	padding-top: 12px;	
+	padding-top: 12px;
 }
 .v-csslayout-margin-bottom {
-	padding-bottom: 12px;	
+	padding-bottom: 12px;
 }
 .v-csslayout-margin-left {
-	padding-left: 12px;	
+	padding-left: 12px;
 }
 .v-csslayout-margin-right {
-	padding-right: 12px;	
+	padding-right: 12px;
 }
 
 .v-customcomponent {
@@ -554,7 +554,7 @@ div.v-app-loading {
 	margin: 0;
 }
 .v-datefield-calendarpanel:focus {
-	outline:none;	
+	outline:none;
 }
 .v-datefield-calendarpanel-header td {
 	text-align: center;
@@ -815,17 +815,17 @@ div.v-app-loading {
 .v-formlayout-captioncell .v-caption {
 	overflow: visible;
 }
-.v-formlayout-spacing > tbody > .v-formlayout-row > .v-formlayout-captioncell, 
+.v-formlayout-spacing > tbody > .v-formlayout-row > .v-formlayout-captioncell,
 .v-formlayout-spacing > tbody > .v-formlayout-row > .v-formlayout-contentcell,
 .v-formlayout-spacing > tbody > .v-formlayout-row > .v-formlayout-errorcell {
 	padding-top: 6px;
 }
-.v-formlayout-spacing > tbody > .v-formlayout-firstrow > .v-formlayout-captioncell, 
+.v-formlayout-spacing > tbody > .v-formlayout-firstrow > .v-formlayout-captioncell,
 .v-formlayout-spacing > tbody > .v-formlayout-firstrow > .v-formlayout-contentcell,
 .v-formlayout-spacing > tbody > .v-formlayout-firstrow > .v-formlayout-errorcell {
 	padding-top: 0;
 }
-.v-formlayout-margin-top > tbody > .v-formlayout-firstrow > .v-formlayout-captioncell, 
+.v-formlayout-margin-top > tbody > .v-formlayout-firstrow > .v-formlayout-captioncell,
 .v-formlayout-margin-top > tbody > .v-formlayout-firstrow > .v-formlayout-contentcell,
 .v-formlayout-margin-top > tbody > .v-formlayout-firstrow > .v-formlayout-errorcell {
 	padding-top: 12px;
@@ -835,12 +835,12 @@ div.v-app-loading {
 .v-formlayout-margin-bottom > tbody > .v-formlayout-lastrow > .v-formlayout-errorcell {
 	padding-bottom: 12px;
 }
-.v-ie6 .v-formlayout-spacing .v-formlayout-row .v-formlayout-captioncell, 
+.v-ie6 .v-formlayout-spacing .v-formlayout-row .v-formlayout-captioncell,
 .v-ie6 .v-formlayout-spacing .v-formlayout-row .v-formlayout-contentcell,
 .v-ie6 .v-formlayout-spacing .v-formlayout-row .v-formlayout-errorcell {
 	padding-top: expression(/v-formlayout-spacing/.test(this.parentNode.parentNode.parentNode.className) ? "6px" : "0px");
 }
-.v-ie6 .v-formlayout-margin-top .v-formlayout-row .v-formlayout-captioncell, 
+.v-ie6 .v-formlayout-margin-top .v-formlayout-row .v-formlayout-captioncell,
 .v-ie6 .v-formlayout-margin-top .v-formlayout-row .v-formlayout-contentcell,
 .v-ie6 .v-formlayout-margin-top .v-formlayout-row .v-formlayout-errorcell {
 	padding-top: expression((/v-formlayout-firstrow/.test(this.parentNode.className) && /v-formlayout-margin-top/.test(this.parentNode.parentNode.parentNode.className)) ? "12px" : (/v-formlayout-spacing/.test(this.parentNode.parentNode.parentNode.className) ? "6px" : "0px"));
@@ -852,7 +852,7 @@ div.v-app-loading {
 }
 .v-formlayout-margin-left > tbody > .v-formlayout-row > .v-formlayout-captioncell {
 	padding-left: 12px;
-} 
+}
 .v-formlayout-margin-right > tbody > .v-formlayout-row > .v-formlayout-contentcell {
 	padding-right: 12px;
 }
@@ -874,7 +874,7 @@ div.v-app-loading {
 }
 .v-gridlayout-margin-left {
 	padding-left: 12px;
-} 
+}
 .v-gridlayout-margin-right {
 	padding-right: 12px;
 }
@@ -898,7 +898,7 @@ div.v-app-loading {
 }
 
 .v-link {
-	white-space: nowrap;	
+	white-space: nowrap;
 }
 .v-link a {
 	vertical-align: middle;
@@ -949,7 +949,7 @@ div.v-app-loading {
 	background: #333;
 	color: #fff;
 }
-.v-menubar-submenu .v-menubar-menuitem { 
+.v-menubar-submenu .v-menubar-menuitem {
 	cursor: default;
 	display: block;
 	position: relative;
@@ -1006,7 +1006,7 @@ div.v-app-loading {
 .v-menubar-popup:focus,
 .v-menubar-popup .popupContent:focus,
 .v-menubar-popup .popupContent .v-menubar-submenu:focus{
-	outline: none;	
+	outline: none;
 }
 /* Checkboxes for checkable/checked menu items */
 /* Checked/unchecked requires combined style selected-(un)checked for IE6 */
@@ -1016,7 +1016,7 @@ div.v-app-loading {
 .v-menubar-submenu-check-column .v-menubar-menuitem-caption {
 	padding-left: 18px;
 }
-.v-menubar-submenu .v-menubar-menuitem-checked .v-menubar-menuitem-caption { 
+.v-menubar-submenu .v-menubar-menuitem-checked .v-menubar-menuitem-caption {
 	background: transparent url(../base/menubar/img/check.gif) no-repeat left;
 }
 
@@ -1027,7 +1027,7 @@ div.v-app-loading {
 	overflow: hidden;
 	padding: 1em;
 	max-width:85%;
-	
+
 }
 .v-Notification h1,
 .v-Notification p,
@@ -1204,7 +1204,7 @@ div.v-progressindicator-indeterminate-disabled {
 .v-select-optiongroup .v-icon {
 	vertical-align: middle;
 	white-space: nowrap;
-	margin: 0 2px;	
+	margin: 0 2px;
 }
 .v-ie .v-select-optiongroup .v-select-option {
 	zoom: 1;
@@ -1344,7 +1344,7 @@ div.v-progressindicator-indeterminate-disabled {
 */
 
 /*  Required field styles (disabled by default)
-   
+
 .v-filterselect-error .v-filterselect-input,
 .v-select-required .v-select-option,
 .v-select-required .v-select-select,
@@ -1438,7 +1438,7 @@ div.v-progressindicator-indeterminate-disabled {
 	filter: progid:DXImageTransform.Microsoft.Blur(pixelRadius=2) alpha(opacity=20);
 	margin-top: -2px;
 	margin-left: -2px;
-}  
+}
 
 .v-slider {
 	margin: 5px 0;
@@ -1450,7 +1450,7 @@ div.v-progressindicator-indeterminate-disabled {
 	background: #eee;
 	border-left: 1px solid #ddd;
 	border-right: 1px solid #eee;
-	
+
 }
 .v-slider-handle {
 	background: #aaa;
@@ -1565,12 +1565,12 @@ div.v-progressindicator-indeterminate-disabled {
 }
 
 /* Table theme building instructions
- * 
- * Vaadin scroll table is very complex widget with dozens of features. These 
+ *
+ * Vaadin scroll table is very complex widget with dozens of features. These
  * features set some limitations for theme builder. To keep things working, it
  * is safest to try to just override values used in default theme and comfort to
  * these instructions.
- * 
+ *
  * Borders in table header and in table body need to be same width
  * - specify vertical borders on .v-table-header-wrap and .v-table-body
  *
@@ -1581,7 +1581,7 @@ div.v-progressindicator-indeterminate-disabled {
  *  - background is allowed for both elements
  *
  * Table headers:
- *  - table cells in header contain .v-table-resizer and 
+ *  - table cells in header contain .v-table-resizer and
  *	  .v-table-caption-container div elements, which are both floated to right
  *  - to align header caption to body content resizer width + .v-table-caption-container
  *    padding right should be equal to content cells padding-right and border-right.
@@ -1644,8 +1644,8 @@ div.v-progressindicator-indeterminate-disabled {
 .v-table-footer-cell {
 	cursor: pointer;
 }
-.v-table-footer-container {	
-	float:right;	
+.v-table-footer-container {
+	float:right;
 	padding-right:6px;
 	overflow:hidden;
 	white-space:nowrap;
@@ -1654,14 +1654,14 @@ div.v-progressindicator-indeterminate-disabled {
 	display: block;
 	height: 1.2em;
 	float: right;
-	background: #aaa;	
+	background: #aaa;
 	cursor: e-resize;	/* Opera does not support col-resize, so use e-resize instead */
-	cursor: col-resize;	
+	cursor: col-resize;
 	width: 1px;
 	overflow: hidden;
 }
 .v-table.v-disabled .v-table-resizer {
-	cursor: default;	
+	cursor: default;
 }
 .v-table-caption-container {
 	overflow: hidden;
@@ -1685,7 +1685,7 @@ div.v-progressindicator-indeterminate-disabled {
 	width: 16px;
 	height: 1.2em;
 	float: right;
-}		
+}
 .v-table-header-cell-asc .v-table-sort-indicator {
 	background: transparent url(../base/common/img/sprites.png) no-repeat right 6px;
 }
@@ -1813,7 +1813,7 @@ div.v-progressindicator-indeterminate-disabled {
 }
 /* row in column selector */
 .v-on {
-	
+
 }
 .v-off {
 	color: #ddd;
@@ -2029,18 +2029,18 @@ textarea.v-textarea-readonly:focus {
 .v-textarea-error,
 .v-textfield-error,
 .v-richtextarea-error iframe.gwt-RichTextArea {
-	background: #FFE0E0;	
+	background: #FFE0E0;
 }
 */
 /* Disabled by default
 .v-textarea-required,
 .v-textfield-required,
 .v-richtextarea-required iframe.gwt-RichTextArea {
-	background: #FFE0E0;	
+	background: #FFE0E0;
 }
 */
 /* Safari focus glow fix */
-.v-sa input:focus, 
+.v-sa input:focus,
 .v-sa textarea:focus {
 	outline-width: medium;
 }
@@ -2093,7 +2093,7 @@ textarea.v-textarea-readonly:focus {
 }
 .v-richtextarea .gwt-RichTextToolbar .gwt-ToggleButton img,
 .v-richtextarea .gwt-RichTextToolbar .gwt-PushButton img {
-	
+
 }
 .v-richtextarea .gwt-RichTextToolbar .gwt-ListBox {
 	width: 24.5%;
@@ -2144,8 +2144,8 @@ div.v-tree-node-leaf {
 .v-tree-node-children {
 	padding-left: 1em;
 }
-/* ie6compatnode is hidden from non ie6 browsers, for ie6 
- * uses weird hack to sink all events properly 
+/* ie6compatnode is hidden from non ie6 browsers, for ie6
+ * uses weird hack to sink all events properly
  */
 .v-tree-node-ie6compatnode {
 	display: none;
@@ -2291,16 +2291,16 @@ div.v-tree-node-leaf {
 }
 
 .v-ie6 .v-treetable-node-closed {
-	background-image: url(../base/treetable/img/arrow-right.gif); 
-} 
+	background-image: url(../base/treetable/img/arrow-right.gif);
+}
 
 .v-treetable-node-open {
     background: url(../base/treetable/img/arrow-down.png) right top no-repeat;
 }
 
 .v-ie6 .v-treetable-node-open {
-	background-image: url(../base/treetable/img/arrow-down.gif); 
-} 
+	background-image: url(../base/treetable/img/arrow-down.gif);
+}
 
 .v-treetable .v-checkbox {
 	display: inline-block;
@@ -2388,7 +2388,7 @@ div table.v-treetable-animation-clone tr.v-table-row-odd td.v-table-cell-content
 	width: 100%;
 	text-align: left;
 }
-  
+
 
 .v-window {
 	background: #fff;
@@ -2400,7 +2400,7 @@ div table.v-treetable-animation-clone tr.v-table-row-odd td.v-table-cell-content
 
 .v-window-outerheader,
 .v-window-draggingCurtain {
- 	cursor: move;	
+ 	cursor: move;
 }
 
 .v-window-header {
@@ -2481,9 +2481,9 @@ div.v-window-header {
 	filter: alpha(opacity=50);
 }
 /* IE6 workaround for position:fixed; */
-.v-ie6 .v-window-modalitycurtain { 
+.v-ie6 .v-window-modalitycurtain {
 	position: absolute;
-	top: expression(document.documentElement.scrollTop + "px"); 
+	top: expression(document.documentElement.scrollTop + "px");
 }
 /* min-width for IE6 */
 .v-ie6 .v-window {
@@ -2563,12 +2563,12 @@ div.v-window-header {
 /* Automatically compiled css file from subdirectories. */
 
 /*------------
- * General vertical and horizontal sprites 
+ * General vertical and horizontal sprites
  * -----------*/
 
 
 /*------------
- * Buttons 
+ * Buttons
  * -----------*/
 
 .v-accordion {
@@ -2700,20 +2700,20 @@ div.v-window-header {
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: left -0px;
 	}
-	
+
 .black .v-button:focus .v-button-wrap {
   background-image: url(button/img/black-button-sprites.png);
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: right -26px;
 	}
-	
+
 .black .v-button:active,
 .black .v-button.v-pressed {
   background-image: url(button/img/black-button-sprites.png);
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: left -52px;
 	}
-	
+
 .black .v-button:active .v-button-wrap,
 .black .v-button.v-pressed .v-button-wrap {
   background-image: url(button/img/black-button-sprites.png);
@@ -2727,14 +2727,14 @@ div.v-window-header {
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: left -104px;
 	}
-	
+
 .black .v-button-wrap,
 .black .v-disabled.v-button .v-button-wrap {
   background-image: url(button/img/black-button-sprites.png);
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: right -130px;
 	}
-	
+
 .black .v-button-caption {
 	color: #c9ccce;
 	text-shadow: #121314 0 -1px 0;
@@ -2745,13 +2745,13 @@ div.v-window-header {
   -background-image: url(button/img/button-sprites-ie6.png);
   background-position: left -156px;
 	}
-	
+
 .v-button-primary:focus .v-button-wrap {
   background-image: url(button/img/button-sprites.png);
   -background-image: url(button/img/button-sprites-ie6.png);
   background-position: right -182px;
 	}
-	
+
 .v-button-primary:active,
 .v-button-primary.v-pressed {
   background-image: url(button/img/button-sprites.png);
@@ -2772,14 +2772,14 @@ div.v-window-header {
   -background-image: url(button/img/button-sprites-ie6.png);
   background-position: left -260px;
 	}
-	
+
 .v-button-primary .v-button-wrap,
 .v-disabled.v-button-primary .v-button-wrap {
   background-image: url(button/img/button-sprites.png);
   -background-image: url(button/img/button-sprites-ie6.png);
   background-position: right -286px;
 	}
-	
+
 
 
 
@@ -2791,21 +2791,21 @@ div.v-window-header {
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: left -156px;
 	}
-	
+
 .black .v-button-primary:focus .v-button-wrap {
   background-image: url(button/img/black-button-sprites.png);
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: right -182px;
 	color: #eaf4fb;
 	}
-	
+
 .black .v-button-primary:active,
 .black .v-button-primary.v-pressed {
   background-image: url(button/img/black-button-sprites.png);
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: left -208px;
 	}
-	
+
 .black .v-button-primary:active .v-button-wrap,
 .black .v-button-primary.v-pressed .v-button-wrap {
   background-image: url(button/img/black-button-sprites.png);
@@ -2819,7 +2819,7 @@ div.v-window-header {
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: left -260px;
 	}
-	
+
 .black .v-button-primary .v-button-wrap,
 .black .v-disabled.v-button-primary .v-button-wrap {
   background-image: url(button/img/black-button-sprites.png);
@@ -2832,13 +2832,13 @@ div.v-window-header {
   -background-image: url(button/img/button-sprites-ie6.png);
   background-position: left -312px;
 	}
-	
+
 .v-button-small:focus .v-button-wrap {
   background-image: url(button/img/button-sprites.png);
   -background-image: url(button/img/button-sprites-ie6.png);
   background-position: right -332px;
 	}
-	
+
 .v-button-small:active,
 .v-button-small.v-pressed {
   background-image: url(button/img/button-sprites.png);
@@ -2860,7 +2860,7 @@ div.v-window-header {
   background-position: left -392px;
 	height: 20px;
 	}
-	
+
 .v-button-small .v-button-wrap,
 .v-disabled.v-button-small .v-button-wrap {
   background-image: url(button/img/button-sprites.png);
@@ -2873,7 +2873,7 @@ div.v-window-header {
 .v-button-small .v-button-caption {
 	font-weight: normal;
 	}
-	
+
 
 
 
@@ -2884,20 +2884,20 @@ div.v-window-header {
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: left -312px;
 	}
-	
+
 .black .v-button-small:focus .v-button-wrap {
   background-image: url(button/img/black-button-sprites.png);
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: right -332px;
 	}
-	
+
 .black .v-button-small:active,
 .black .v-button-small.v-pressed {
   background-image: url(button/img/black-button-sprites.png);
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: left -352px;
 	}
-	
+
 .black .v-button-small:active .v-button-wrap,
 .black .v-button-small.v-pressed .v-button-wrap {
   background-image: url(button/img/black-button-sprites.png);
@@ -2911,7 +2911,7 @@ div.v-window-header {
   -background-image: url(button/img/black-button-sprites-ie6.png);
   background-position: left -392px;
 	}
-	
+
 .black .v-button-small .v-button-wrap,
 .black .v-disabled.v-button-small .v-button-wrap {
   background-image: url(button/img/black-button-sprites.png);
@@ -2940,7 +2940,7 @@ div.v-window-header {
 .v-button.v-button-link.v-disabled .v-button-wrap {
 	cursor: default;
 	}
-	
+
 .v-button-link .v-button-caption,
 .v-nativebutton-link .v-nativebutton-caption {
 	line-height: inherit;
@@ -2949,7 +2949,7 @@ div.v-window-header {
 	font-size: 12px;
 	text-shadow: none;
 	}
-	
+
 .v-button-link:focus .v-button-caption,
 .v-nativebutton-link:focus .v-nativebutton-caption {
 	outline: 1px dotted #1b699f;
@@ -3168,7 +3168,7 @@ div.v-window-header {
 }
 
 input.v-textfield-readonly:focus{
-	background-color: transparent;	
+	background-color: transparent;
 }
 .v-datefield-calendarpanel {
 	border-collapse: collapse;
@@ -3618,12 +3618,12 @@ div.v-table-full-height-fields .v-datefield-popupcalendar input.v-datefield-text
 	text-align: right;
 	white-space: nowrap;
 }
-.v-formlayout-spacing > tbody > .v-formlayout-row > .v-formlayout-captioncell, 
+.v-formlayout-spacing > tbody > .v-formlayout-row > .v-formlayout-captioncell,
 .v-formlayout-spacing > tbody > .v-formlayout-row > .v-formlayout-contentcell,
 .v-formlayout-spacing > tbody > .v-formlayout-row > .v-formlayout-errorcell {
 	padding-top: 8px;
 }
-.v-formlayout-margin-top > tbody > .v-formlayout-firstrow > .v-formlayout-captioncell, 
+.v-formlayout-margin-top > tbody > .v-formlayout-firstrow > .v-formlayout-captioncell,
 .v-formlayout-margin-top > tbody > .v-formlayout-firstrow > .v-formlayout-contentcell,
 .v-formlayout-margin-top > tbody > .v-formlayout-firstrow > .v-formlayout-errorcell {
 	padding-top: 15px;
@@ -3633,12 +3633,12 @@ div.v-table-full-height-fields .v-datefield-popupcalendar input.v-datefield-text
 .v-formlayout-margin-bottom > tbody > .v-formlayout-lastrow > .v-formlayout-errorcell {
 	padding-bottom: 15px;
 }
-.v-ie6 .v-formlayout-spacing .v-formlayout-row .v-formlayout-captioncell, 
+.v-ie6 .v-formlayout-spacing .v-formlayout-row .v-formlayout-captioncell,
 .v-ie6 .v-formlayout-spacing .v-formlayout-row .v-formlayout-contentcell,
 .v-ie6 .v-formlayout-spacing .v-formlayout-row .v-formlayout-errorcell {
 	padding-top: expression(/v-formlayout-spacing/.test(this.parentNode.parentNode.parentNode.className) ? "8px" : "0px");
 }
-.v-ie6 .v-formlayout-margin-top .v-formlayout-row .v-formlayout-captioncell, 
+.v-ie6 .v-formlayout-margin-top .v-formlayout-row .v-formlayout-captioncell,
 .v-ie6 .v-formlayout-margin-top .v-formlayout-row .v-formlayout-contentcell,
 .v-ie6 .v-formlayout-margin-top .v-formlayout-row .v-formlayout-errorcell {
 	padding-top: expression((/v-formlayout-firstrow/.test(this.parentNode.className) && /v-formlayout-margin-top/.test(this.parentNode.parentNode.parentNode.className)) ? "15px" : (/v-formlayout-spacing/.test(this.parentNode.parentNode.parentNode.className) ? "8px" : "0px"));
@@ -3650,7 +3650,7 @@ div.v-table-full-height-fields .v-datefield-popupcalendar input.v-datefield-text
 }
 .v-formlayout-margin-left > tbody > .v-formlayout-row > .v-formlayout-captioncell {
 	padding-left: 18px;
-} 
+}
 .v-formlayout-margin-right > tbody > .v-formlayout-row > .v-formlayout-contentcell {
 	padding-right: 18px;
 }
@@ -3851,7 +3851,7 @@ div.v-table-full-height-fields .v-datefield-popupcalendar input.v-datefield-text
 }
 .v-gridlayout-margin-left {
 	padding-left: 24px;
-} 
+}
 .v-gridlayout-margin-right {
 	padding-right: 24px;
 }
@@ -3946,7 +3946,7 @@ div.v-table-full-height-fields .v-datefield-popupcalendar input.v-datefield-text
 	padding: 1px 26px 1px 10px;
 	line-height: 16px;
 }
-.v-menubar-submenu .v-menubar-menuitem-caption .v-icon { 
+.v-menubar-submenu .v-menubar-menuitem-caption .v-icon {
 	vertical-align: middle;
 }
 .v-menubar .v-menubar-menuitem-selected,
@@ -3980,13 +3980,13 @@ div.v-table-full-height-fields .v-datefield-popupcalendar input.v-datefield-text
 .v-menubar-submenu-check-column .v-menubar-menuitem-caption {
 	padding-left: 18px;
 }
-.v-menubar-submenu .v-menubar-menuitem-checked .v-menubar-menuitem-caption { 
+.v-menubar-submenu .v-menubar-menuitem-checked .v-menubar-menuitem-caption {
 	background: transparent url(menubar/img/checked.png) no-repeat left;
 }
 .v-menubar-submenu .v-menubar-menuitem-unchecked .v-menubar-menuitem-caption {
 	background: transparent url(menubar/img/unchecked.png) no-repeat left;
 }
-.v-menubar-submenu .v-menubar-menuitem-selected-checked .v-menubar-menuitem-caption { 
+.v-menubar-submenu .v-menubar-menuitem-selected-checked .v-menubar-menuitem-caption {
 	background: transparent url(menubar/img/checked-selected.png) no-repeat left;
 }
 .v-menubar-submenu .v-menubar-menuitem-selected-unchecked .v-menubar-menuitem-caption {
@@ -4007,7 +4007,7 @@ div.v-table-full-height-fields .v-datefield-popupcalendar input.v-datefield-text
 	/* Fix for #6793 */
 	font-weight: bold;
 }
-	
+
 .v-Notification p {
 	line-height: 1.3;
 }
@@ -4543,7 +4543,7 @@ div.v-table-full-height-fields .v-datefield-popupcalendar input.v-datefield-text
 	border-left: 1px solid #adb0b1;
 	border-right: none;
 	border-top: 1px solid #adb0b1;
-	border-bottom: 1px solid #adb0b1;	
+	border-bottom: 1px solid #adb0b1;
 }
 .v-slider-vertical .v-slider-handle {
 	width: 10px;
@@ -4657,17 +4657,17 @@ div.v-table-full-height-fields .v-datefield-popupcalendar input.v-datefield-text
 .v-ie6 .v-table-header-wrap,
 .v-ie6 .v-table-footer-wrap,
 .v-ie6 .v-table-column-selector {
-	/* The header will overflow the Table due to a bug in IE6 after changes in #3003. To fix this (#7314) 
-	 * we need to apply position:relative to the wrappers and selector to make them appear on top of the 
+	/* The header will overflow the Table due to a bug in IE6 after changes in #3003. To fix this (#7314)
+	 * we need to apply position:relative to the wrappers and selector to make them appear on top of the
 	 * header. We also need to apply it to the table root div to get rid of a really weird IE6 rendering bug
-	 * caused by all this relativeness (see attachment in #7314).  
+	 * caused by all this relativeness (see attachment in #7314).
 	 */
 	position: relative;
 }
 
 .v-ie6 .v-table.v-disabled,
 .v-ie7 .v-table.v-disabled {
-	/* Fixes ie issue #7324 where disabled shim does not cover table body */ 
+	/* Fixes ie issue #7324 where disabled shim does not cover table body */
 	position: relative;
 }
 
@@ -5723,7 +5723,7 @@ textarea.v-textarea-readonly,
 	padding-bottom: 0px;
 }
 .v-tree-node-focused span{
-	border: 1px dotted black;	
+	border: 1px dotted black;
 }
 .v-ie6 .v-tree-node-ie6compatnode.v-tree-node-focused{
 	padding-left: 0px;
@@ -6049,4 +6049,7 @@ textarea.v-textarea-readonly,
   background-position: right -412px;
 	height: 20px;
 	padding: 1px 4px 0px 0px;
+}
+.v-table-cell-content-pre .v-label {
+	white-space: pre;
 }
