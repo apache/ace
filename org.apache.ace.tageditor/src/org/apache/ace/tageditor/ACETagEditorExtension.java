@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.apache.ace.client.repository.RepositoryObject;
 import org.apache.ace.client.repository.stateful.StatefulTargetObject;
-import org.apache.ace.webui.NamedObject;
 import org.apache.ace.webui.UIExtensionFactory;
 
 import com.vaadin.event.Action;
@@ -73,7 +72,7 @@ public class ACETagEditorExtension implements UIExtensionFactory {
 
     /**
      * Creates a tag editor component for the given repository object.
-     * 
+     *
      * @param object
      *            the repository object to create the tag editor for, cannot be <code>null</code>.
      * @return a tag editor component, never <code>null</code>.
@@ -133,14 +132,6 @@ public class ACETagEditorExtension implements UIExtensionFactory {
     }
 
     private RepositoryObject getRepositoryObjectFromContext(Map<String, Object> context) {
-        Object contextObject = context.get("statefulTarget");
-        if (contextObject == null) {
-            contextObject = context.get("object");
-            if (contextObject == null) {
-                throw new IllegalStateException("No context object found");
-            }
-        }
-
-        return (contextObject instanceof NamedObject ? ((NamedObject) contextObject).getObject() : (RepositoryObject) contextObject);
+        return (RepositoryObject) context.get("object");
     }
 }

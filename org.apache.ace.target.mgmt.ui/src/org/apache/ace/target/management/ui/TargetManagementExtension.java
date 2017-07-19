@@ -67,11 +67,11 @@ public class TargetManagementExtension implements UIExtensionFactory {
         approveButton.setEnabled(getApproveButtonEnabledState(target));
 
         result.addComponent(approveButton);
-        
+
         // Add a spacer that fill the remainder of the available space...
         result.addComponent(new Label(" "));
         result.setRowExpandRatio(3, 1.0f);
-        
+
         // Add all listeners...
         registerCB.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -97,17 +97,12 @@ public class TargetManagementExtension implements UIExtensionFactory {
 
         return result;
     }
-    
+
     private boolean getApproveButtonEnabledState(StatefulTargetObject target) {
         return ApprovalState.Unapproved.equals(target.getApprovalState()) && target.needsApprove();
     }
 
     private StatefulTargetObject getRepositoryObjectFromContext(Map<String, Object> context) {
-        Object contextObject = context.get("statefulTarget");
-        if (contextObject == null) {
-            throw new IllegalStateException("No context object found");
-        }
-
-        return (StatefulTargetObject) contextObject;
+        return (StatefulTargetObject) context.get("object");
     }
 }

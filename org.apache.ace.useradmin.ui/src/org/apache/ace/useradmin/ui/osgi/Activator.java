@@ -18,6 +18,10 @@
  */
 package org.apache.ace.useradmin.ui.osgi;
 
+import static org.apache.ace.webui.UIExtensionFactory.EXTENSION_POINT_KEY;
+import static org.apache.ace.webui.UIExtensionFactory.EXTENSION_POINT_VALUE_MENU;
+import static org.osgi.framework.Constants.SERVICE_RANKING;
+
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,7 +33,6 @@ import org.apache.ace.webui.UIExtensionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.service.log.LogService;
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -43,61 +46,53 @@ public class Activator extends DependencyActivatorBase {
             .setImplementation(UserEditorImpl.class)
             .add(createServiceDependency()
                 .setService(UserAdmin.class)
-                .setRequired(true)
-            )
-        );
+                .setRequired(true)));
 
         Properties properties = new Properties();
-        properties.put(UIExtensionFactory.EXTENSION_POINT_KEY, UIExtensionFactory.EXTENSION_POINT_VALUE_MENU);
-        properties.put(Constants.SERVICE_RANKING, 102);
+        properties.put(EXTENSION_POINT_KEY, EXTENSION_POINT_VALUE_MENU);
+        properties.put(SERVICE_RANKING, 102);
 
         manager.add(createComponent()
             .setInterface(UIExtensionFactory.class.getName(), properties)
             .setImplementation(new UIExtensionFactory() {
-                    @Override
-                    public Component create(Map<String, Object> context) {
-                        EditUserInfoButton b = new EditUserInfoButton();
-                        manager.add(createComponent()
-                            .setImplementation(b)
-                            .setComposition("getComposition")
-                            .add(createServiceDependency()
-                                .setService(UserEditor.class)
-                                .setRequired(true))
-                            .add(createServiceDependency()
-                                .setService(LogService.class)
-                                .setRequired(false)
-                            )
-                        );
-                        return b;
-                    }
+                @Override
+                public Component create(Map<String, Object> context) {
+                    EditUserInfoButton b = new EditUserInfoButton();
+                    manager.add(createComponent()
+                        .setImplementation(b)
+                        .setComposition("getComposition")
+                        .add(createServiceDependency()
+                            .setService(UserEditor.class)
+                            .setRequired(true))
+                        .add(createServiceDependency()
+                            .setService(LogService.class)
+                            .setRequired(false)));
+                    return b;
                 }
-            )
-        );
+            }));
 
-        properties.put(Constants.SERVICE_RANKING, 101);
+        properties = new Properties();
+        properties.put(EXTENSION_POINT_KEY, EXTENSION_POINT_VALUE_MENU);
+        properties.put(SERVICE_RANKING, 101);
 
         manager.add(createComponent()
             .setInterface(UIExtensionFactory.class.getName(), properties)
             .setImplementation(new UIExtensionFactory() {
-                    @Override
-                    public Component create(Map<String, Object> context) {
-                        UserAdminButton b = new UserAdminButton();
-                        manager.add(createComponent()
-                            .setImplementation(b)
-                            .setComposition("getComposition")
-                            .add(createServiceDependency()
-                                .setService(UserEditor.class)
-                                .setRequired(true))
-                            .add(createServiceDependency()
-                                .setService(LogService.class)
-                                .setRequired(false)
-                            )
-                        );
-                        return b;
-                    }
+                @Override
+                public Component create(Map<String, Object> context) {
+                    UserAdminButton b = new UserAdminButton();
+                    manager.add(createComponent()
+                        .setImplementation(b)
+                        .setComposition("getComposition")
+                        .add(createServiceDependency()
+                            .setService(UserEditor.class)
+                            .setRequired(true))
+                        .add(createServiceDependency()
+                            .setService(LogService.class)
+                            .setRequired(false)));
+                    return b;
                 }
-            )
-        );
+            }));
     }
 
     @Override

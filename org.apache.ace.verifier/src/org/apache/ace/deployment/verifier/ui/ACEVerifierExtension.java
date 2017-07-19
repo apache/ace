@@ -210,7 +210,7 @@ public class ACEVerifierExtension implements UIExtensionFactory {
 
     /**
      * Quietly closes a given {@link Closeable}.
-     * 
+     *
      * @param closeable
      *            the closeable to close, can be <code>null</code>.
      */
@@ -227,7 +227,7 @@ public class ACEVerifierExtension implements UIExtensionFactory {
 
     /**
      * Factory method to create a suitable {@link VerifyEnvironment} instance.
-     * 
+     *
      * @param manifest
      *            the manifest to use;
      * @param verifyResult
@@ -267,17 +267,17 @@ public class ACEVerifierExtension implements UIExtensionFactory {
 
     /**
      * Returns a "static"/hardcoded manifest.
-     * 
+     *
      * @return a manifest, never <code>null</code>.
      */
     private String defineStaticManifest() {
         // @formatter:off
-        return Constants.BUNDLE_MANIFESTVERSION + ": 2\n" + 
-               Constants.BUNDLE_SYMBOLICNAME + ": org.apache.felix.framework\n" + 
-               Constants.EXPORT_PACKAGE + ": " + VerifierService.SYSTEM_PACKAGES + "," + VerifierService.JRE_1_6_PACKAGES + "," + 
+        return Constants.BUNDLE_MANIFESTVERSION + ": 2\n" +
+               Constants.BUNDLE_SYMBOLICNAME + ": org.apache.felix.framework\n" +
+               Constants.EXPORT_PACKAGE + ": " + VerifierService.SYSTEM_PACKAGES + "," + VerifierService.JRE_1_6_PACKAGES + "," +
                "org.osgi.service.cm; version=1.2," +
-               "org.osgi.service.metatype; version=1.1.1," + 
-               "org.osgi.service.cm; version=1.3.0," + 
+               "org.osgi.service.metatype; version=1.1.1," +
+               "org.osgi.service.cm; version=1.3.0," +
                "org.osgi.service.deploymentadmin.spi; version=1.0.1," +
                "org.osgi.service.deploymentadmin; version=1.1.0\n";
         // @formatter:on
@@ -288,7 +288,7 @@ public class ACEVerifierExtension implements UIExtensionFactory {
      * <p>
      * In case the given repository object does not provide a manifest, this method will return a hard-coded manifest.
      * </p>
-     * 
+     *
      * @param object
      *            the repository object to get the manifest for, cannot be <code>null</code>.
      * @return a manifest, never <code>null</code>.
@@ -303,7 +303,7 @@ public class ACEVerifierExtension implements UIExtensionFactory {
 
     /**
      * Converts a given {@link Attributes} into a map.
-     * 
+     *
      * @param attributes
      *            the attributes to convert, cannot be <code>null</code>.
      * @return a manifest map, never <code>null</code>.
@@ -332,22 +332,13 @@ public class ACEVerifierExtension implements UIExtensionFactory {
         return manMap;
     }
 
-    /**
-     * @param context
-     * @return
-     */
     private StatefulTargetObject getRepositoryObjectFromContext(Map<String, Object> context) {
-        Object contextObject = context.get("statefulTarget");
-        if (contextObject == null) {
-            throw new IllegalStateException("No context object found");
-        }
-
-        return (StatefulTargetObject) contextObject;
+        return (StatefulTargetObject) context.get("object");
     }
 
     /**
      * Processes all artifacts.
-     * 
+     *
      * @param artifacts
      *            the artifacts to process.
      * @param env
@@ -369,7 +360,7 @@ public class ACEVerifierExtension implements UIExtensionFactory {
 
     /**
      * Processes a single bundle.
-     * 
+     *
      * @param bundle
      *            the bundle to process;
      * @param env

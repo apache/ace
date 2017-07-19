@@ -138,7 +138,7 @@ public class LogViewerExtension implements UIExtensionFactory {
 
     /**
      * Returns a string representation of the given event's type.
-     * 
+     *
      * @param event
      *            the event to get the type for, cannot be <code>null</code>.
      * @return a string representation of the event's type, never <code>null</code>.
@@ -171,7 +171,7 @@ public class LogViewerExtension implements UIExtensionFactory {
 
     /**
      * Creates a {@link TextArea} with a dump of the given event's properties.
-     * 
+     *
      * @param event
      *            the event to create a textarea for, cannot be <code>null</code>.
      * @return a {@link TextArea} instance, never <code>null</code>.
@@ -194,7 +194,7 @@ public class LogViewerExtension implements UIExtensionFactory {
 
     /**
      * Dumps the given dictionary to a string by placing all key,value-pairs on a separate line.
-     * 
+     *
      * @param props
      *            the dictionary to dump, may be <code>null</code>.
      * @return a string dump of all properties in the given dictionary, never <code>null</code>.
@@ -216,7 +216,7 @@ public class LogViewerExtension implements UIExtensionFactory {
 
     /**
      * Fills the table with all log entries for the given repository object.
-     * 
+     *
      * @param object
      *            the repository object to get the log for, cannot be <code>null</code>;
      * @param table
@@ -237,11 +237,7 @@ public class LogViewerExtension implements UIExtensionFactory {
     }
 
     private StatefulTargetObject getRepositoryObjectFromContext(Map<String, Object> context) {
-        Object contextObject = context.get("statefulTarget");
-        if (contextObject == null) {
-            throw new IllegalStateException("No context object found");
-        }
-        return (StatefulTargetObject) contextObject;
+        return (StatefulTargetObject) context.get("object");
     }
 
     private TextField makeTextField(final String colType) {
