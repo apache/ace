@@ -18,13 +18,16 @@
  */
 package org.apache.ace.it.deployment.provider.filebased;
 
+import static org.testng.Assert.*;
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.ace.deployment.provider.ArtifactData;
+import org.apache.ace.deployment.provider.ArtifactDataHelper;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
 import org.apache.ace.deployment.util.test.BundleStreamGenerator;
 import org.apache.ace.test.utils.FileUtils;
@@ -61,7 +64,6 @@ public class FileBasedProviderTest {
     private ArtifactData BUNDLE3_2;
     private ArtifactData BUNDLE4_2;
 
-    @SuppressWarnings("serial")
     @BeforeTest(alwaysRun = true)
     protected void setUp() throws Exception {
 
@@ -73,6 +75,13 @@ public class FileBasedProviderTest {
 
         m_backend = new FileBasedProvider();
         TestUtils.configureObject(m_backend, LogService.class);
+        TestUtils.configureObject(m_backend, ArtifactDataHelper.class, new ArtifactDataHelper() {
+            @Override
+            public List<ArtifactData> process(List<ArtifactData> artifacts, String targetId, String versionFrom, String versionTo) {
+                return artifacts;
+            }
+        });
+
         m_backend.updated(new Hashtable<String, String>() {
             {
                 put("BaseDirectoryName", m_tempDirectory.getAbsolutePath());
@@ -156,6 +165,26 @@ public class FileBasedProviderTest {
         assert versions.get(1).equals(VERSION2) : "Expected version " + VERSION2 + " but found " + versions.get(1);
         assert versions.get(2).equals(VERSION3) : "Expected version " + VERSION3 + " but found " + versions.get(2);
         assert versions.get(3).equals(VERSION4) : "Expected version " + VERSION4 + " but found " + versions.get(3);
+    }
+
+    /**
+     * Tests that a {@link ArtifactDataHelper} instance can be used to mangle the returned artifact data.
+     */
+    @Test()
+    public void testArtifactDataHelperIsUsed() {
+        TestUtils.configureObject(m_backend, ArtifactDataHelper.class, new ArtifactDataHelper() {
+            @Override
+            public List<ArtifactData> process(List<ArtifactData> artifacts, String targetId, String versionFrom, String versionTo) {
+                Collections.sort(artifacts, (a, b) -> b.getSymbolicName().compareTo(a.getSymbolicName()));
+                return artifacts;
+            }
+        });
+
+        // XXX
+        List<ArtifactData> bundleData = m_backend.getBundleData(MULTIPLEVERSIONTARGET, VERSION1);
+        assertEquals(2, bundleData.size(), "Expected two bundle to be found, but found " + bundleData.size());
+        assertEquals(BUNDLE4, bundleData.get(0), "Expected to find bundle " + BUNDLE4.getSymbolicName());
+        assertEquals(BUNDLE3, bundleData.get(1), "Expected to find bundle " + BUNDLE3.getSymbolicName());
     }
 
     /**

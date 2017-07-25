@@ -18,6 +18,7 @@
  */
 package org.apache.ace.it.deployment.provider.filebased;
 
+import org.apache.ace.deployment.provider.ArtifactDataHelper;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
@@ -33,11 +34,14 @@ public class Activator extends DependencyActivatorBase {
             .setInterface(DeploymentProvider.class.getName(), null)
             .setImplementation(FileBasedProvider.class)
             .add(createConfigurationDependency()
-                .setPid(PID)
-             )
-             .add(createServiceDependency()
-                 .setService(LogService.class)
-                 .setRequired(false)));
+                .setPid(PID))
+            .add(createServiceDependency()
+                .setService(ArtifactDataHelper.class)
+                .setDefaultImplementation(NoOpArtifactDataHelper.class)
+                .setRequired(false))
+            .add(createServiceDependency()
+                .setService(LogService.class)
+                .setRequired(false)));
     }
 
     @Override

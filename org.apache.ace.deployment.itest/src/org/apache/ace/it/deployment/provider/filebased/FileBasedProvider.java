@@ -40,6 +40,7 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
 import org.apache.ace.deployment.provider.ArtifactData;
+import org.apache.ace.deployment.provider.ArtifactDataHelper;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.provider.OverloadedException;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
@@ -66,14 +67,17 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
     private static final int OSGI_R4_MANIFEST_VERSION = 2;
     private volatile File m_baseDirectory;
     private volatile File m_defaultDirectory;
+
+    private volatile ArtifactDataHelper m_artifactDataHelper;
     private volatile LogService m_log;
+
     private final Semaphore m_disk = new Semaphore(1, true);
-    
+
     private final AtomicInteger m_usageCounter = new AtomicInteger();
     /** Maximum number of concurrent users. Value 0 is used for unlimited users. */
     private int m_maximumNumberOfUsers = 0;
     /** The default backoff time for each new user over the limit */
-    private static final int BACKOFF_TIME_PER_USER = 5; 
+    private static final int BACKOFF_TIME_PER_USER = 5;
 
     /**
      * Get the bundle data from the bundles in the &lt;data dir&gt;/&lt;target&gt;/&lt;version&gt; directory It reads the manifest from all the
@@ -85,7 +89,8 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
             if (m_maximumNumberOfUsers != 0  && m_maximumNumberOfUsers < concurrentUsers) {
                 throw new OverloadedException("Too many users, maximum allowed = " + m_maximumNumberOfUsers + ", current = " + concurrentUsers,  (concurrentUsers - m_maximumNumberOfUsers) * BACKOFF_TIME_PER_USER);
             }
-            return internalGetBundleData(targetId, version);
+
+            return m_artifactDataHelper.process(internalGetBundleData(targetId, version), targetId, null, version);
         } finally {
             m_usageCounter.getAndDecrement();
         }
@@ -147,7 +152,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
             }
             List<ArtifactData> dataVersionFrom = internalGetBundleData(targetId, versionFrom);
             List<ArtifactData> dataVersionTo = internalGetBundleData(targetId, versionTo);
-    
+
             Iterator<ArtifactData> it = dataVersionTo.iterator();
             while (it.hasNext()) {
                 ArtifactDataImpl bundleDataVersionTo = (ArtifactDataImpl) it.next();
@@ -155,7 +160,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
                 ArtifactData bundleDataVersionFrom = getBundleData(bundleDataVersionTo.getSymbolicName(), dataVersionFrom);
                 bundleDataVersionTo.setChanged(!bundleDataVersionTo.equals(bundleDataVersionFrom));
             }
-            return dataVersionTo;
+            return m_artifactDataHelper.process(dataVersionTo, targetId, versionFrom, versionTo);
         } finally {
             m_usageCounter.getAndDecrement();
         }
@@ -198,7 +203,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
                 // try the default
                 getVersions(targetId, versionList, m_defaultDirectory);
             }
-    
+
             // now sort the list of versions and convert all values to strings.
             Collections.sort(versionList);
             List<String> stringVersionList = new ArrayList<>();
@@ -341,7 +346,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
 
         return bundleData;
     }
-    
+
     /**
      *
      * @param targetId ID that requested versions
@@ -381,7 +386,7 @@ public class FileBasedProvider implements DeploymentProvider, ManagedService {
             if (maximumNumberOfUsers != null) {
                 m_maximumNumberOfUsers = Integer.parseInt(maximumNumberOfUsers);
             }
-            
+
             String baseDirectoryName = getNotNull(settings, DIRECTORY_NAME, "The base directory cannot be null");
             File baseDirectory = new File(baseDirectoryName);
             if (!baseDirectory.exists() || !baseDirectory.isDirectory()) {

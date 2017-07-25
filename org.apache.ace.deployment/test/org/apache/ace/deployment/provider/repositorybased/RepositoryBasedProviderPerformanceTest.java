@@ -30,6 +30,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.ace.deployment.provider.ArtifactData;
+import org.apache.ace.deployment.provider.ArtifactDataHelper;
 import org.apache.ace.repository.Repository;
 import org.apache.ace.test.utils.TestUtils;
 import org.osgi.framework.Constants;
@@ -101,8 +102,9 @@ public class RepositoryBasedProviderPerformanceTest {
         m_backend = new RepositoryBasedProvider();
         TestUtils.configureObject(m_backend, Repository.class, mock);
         TestUtils.configureObject(m_backend, LogService.class);
+        TestUtils.configureObject(m_backend, ArtifactDataHelper.class, new NoOpArtifactDataHelper());
     }
-    
+
     /**
      * Test the getBundleData for a single version, returning a single bundle, for a huge XML.
      */
@@ -181,7 +183,7 @@ public class RepositoryBasedProviderPerformanceTest {
 
     /**
      * Helper method to create the description of a deploymentpacakge with given data.
-     * 
+     *
      * @param doc The document to add the version to.
      * @param targetText The targetId in the deploymentversion.
      * @param versionText The version in the deploymentversion.

@@ -39,6 +39,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.ace.deployment.provider.ArtifactData;
+import org.apache.ace.deployment.provider.ArtifactDataHelper;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
 import org.apache.ace.deployment.util.test.BundleStreamGenerator;
 import org.apache.ace.repository.Repository;
@@ -144,6 +145,7 @@ public class RepositoryBasedProviderTest {
         m_backend = new RepositoryBasedProvider();
         TestUtils.configureObject(m_backend, Repository.class, mock);
         TestUtils.configureObject(m_backend, LogService.class);
+        TestUtils.configureObject(m_backend, ArtifactDataHelper.class, new NoOpArtifactDataHelper());
     }
 
     /**
@@ -294,7 +296,7 @@ public class RepositoryBasedProviderTest {
 
     /**
      * Helper method to create the description of a deploymentpacakge with given data.
-     * 
+     *
      * @param doc
      *            The document to add the version to.
      * @param targetText
@@ -354,7 +356,7 @@ public class RepositoryBasedProviderTest {
 
     /**
      * Without any checked in data, we should just get back no version, but the provider should not crash.
-     * 
+     *
      * @throws java.io.IOException
      */
     @Test()

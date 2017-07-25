@@ -39,6 +39,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.ace.connectionfactory.ConnectionFactory;
 import org.apache.ace.deployment.provider.ArtifactData;
+import org.apache.ace.deployment.provider.ArtifactDataHelper;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.ace.deployment.provider.OverloadedException;
 import org.apache.ace.deployment.provider.impl.ArtifactDataImpl;
@@ -65,7 +66,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
     private static final String URL = "url";
     private static final String NAME = "name";
     private static final String CUSTOMER = "customer";
-    
+
     /**
      * Key, intended to be used for artifacts which are bundles and will publish
      * a resource processor (see OSGi compendium section 114.10).
@@ -99,12 +100,13 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
     public static final String KEY_RESOURCE_PROCESSOR_PID = "Deployment-ProvidesResourceProcessor";
 
     public static final String MIMETYPE = "application/vnd.osgi.bundle";
-    
+
     /**
      * Key, intended for configurations that specifies the maximum number of concurrent users for this repository provider.
      */
     private static final String MAXIMUM_NUMBER_OF_USERS = "MaximumNumberOfUsers";
 
+    private volatile ArtifactDataHelper m_artifactDataHelper;
     private volatile LogService m_log;
 
     /** This variable is volatile since it can be changed by the Updated() method. */
@@ -116,7 +118,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
      */
     private volatile Repository m_directRepository;
     private volatile DependencyManager m_manager;
-    
+
     private final SAXParserFactory m_saxParserFactory;
     private final Map<String,List<String>> m_cachedVersionLists;
 
@@ -124,7 +126,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
     /** Maximum number of concurrent users. Values <= 0 are used for unlimited users. */
     private int m_maximumNumberOfUsers = 0;
     /** The default backoff time for each new user over the limit */
-    private static final int BACKOFF_TIME_PER_USER = 5; 
+    private static final int BACKOFF_TIME_PER_USER = 5;
 
     public RepositoryBasedProvider() {
         m_saxParserFactory = SAXParserFactory.newInstance();
@@ -158,7 +160,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
 
             List<XmlDeploymentArtifact>[] pairs = null;
             try {
-                // ACE-240: do NOT allow local/remote repositories to be empty. If we're 
+                // ACE-240: do NOT allow local/remote repositories to be empty. If we're
                 // asking for real artifacts, it means we must have a repository...
                 input = getRepositoryStream(true /* fail */);
                 if (versionFrom == null) {
@@ -204,7 +206,12 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
                 dataVersionTo = getAllArtifactData(pairs[0]);
             }
 
-            return dataVersionTo != null ? dataVersionTo : new ArrayList<ArtifactData>();
+            if (dataVersionTo == null) {
+                return new ArrayList<>();
+            }
+
+            // ACE-627: allow a custom ordering to be specified for the artifacts to appear in our DP...
+            return m_artifactDataHelper.process(dataVersionTo, targetId, versionFrom, versionTo);
         }
         finally {
             m_usageCounter.getAndDecrement();
@@ -233,8 +240,8 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
             InputStream input = null;
 
             try {
-                // ACE-240: allow local/remote repositories to be empty; as the target 
-                // might be new & unregistered, it can have no repository yet... 
+                // ACE-240: allow local/remote repositories to be empty; as the target
+                // might be new & unregistered, it can have no repository yet...
                 input = getRepositoryStream(false /* fail */);
                 List<Version> versionList;
                 if (input == null) {
@@ -296,7 +303,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         // get the bundledata for each URL
         for (XmlDeploymentArtifact pair : deploymentArtifacts) {
             long artifactSize = pair.getSize();
-            
+
             Map<String, String> directives = pair.getDirective();
             if (directives.get(DIRECTIVE_KEY_PROCESSORID) == null) {
                 // this is a bundle.
@@ -317,8 +324,8 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
                 String filename = directives.get(DIRECTIVE_KEY_RESOURCE_ID);
                 result.add(new ArtifactDataImpl(pair.getUrl(), directives, filename, artifactSize, true /* hasChanged */));
             }
-
         }
+
         return result;
     }
 
@@ -383,10 +390,10 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
      */
     private List<Version> getAvailableVersions(InputStream input, String targetId) throws IllegalArgumentException {
         DeploymentPackageVersionCollector collector = new DeploymentPackageVersionCollector(targetId);
-        
+
         try {
             m_saxParserFactory.newSAXParser().parse(input, collector);
-            
+
             return collector.getVersions();
         }
         catch (Exception e) {
@@ -408,7 +415,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
      */
     private List<XmlDeploymentArtifact>[] getDeploymentArtifactPairs(InputStream input, String targetId, String[] versions) throws IllegalArgumentException {
         final DeploymentArtifactCollector collector = new DeploymentArtifactCollector(targetId, versions);
-        
+
         try {
             m_saxParserFactory.newSAXParser().parse(input, collector);
 
@@ -460,7 +467,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
         	return new GZIPInputStream(result);
         }
     }
-    
+
     private boolean isCacheUpToDate() {
         CachedRepository cachedRepository = m_cachedRepository;
         try {
@@ -478,7 +485,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
             String name = getNotNull(settings, NAME, "RepositoryName not configured.");
             String customer = getNotNull(settings, CUSTOMER, "RepositoryCustomer not configured.");
             String maximumNumberOfUsers = (String) settings.get(MAXIMUM_NUMBER_OF_USERS);
-            
+
             if (maximumNumberOfUsers != null) {
                 try {
                     m_maximumNumberOfUsers = Integer.parseInt(maximumNumberOfUsers);
@@ -487,7 +494,7 @@ public class RepositoryBasedProvider implements DeploymentProvider, ManagedServi
                     throw new ConfigurationException(MAXIMUM_NUMBER_OF_USERS, maximumNumberOfUsers + " is not a valid value for the maximum number of concurrent users.");
                 }
             }
-            
+
             // create the remote repository and set it.
             try {
                 BackupRepository backup = new FilebasedBackupRepository(File.createTempFile("currentrepository", null), File.createTempFile("backuprepository", null));

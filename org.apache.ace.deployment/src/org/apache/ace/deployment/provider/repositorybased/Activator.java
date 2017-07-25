@@ -18,6 +18,7 @@
  */
 package org.apache.ace.deployment.provider.repositorybased;
 
+import org.apache.ace.deployment.provider.ArtifactDataHelper;
 import org.apache.ace.deployment.provider.DeploymentProvider;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
@@ -33,15 +34,13 @@ public class Activator extends DependencyActivatorBase {
             .setInterface(DeploymentProvider.class.getName(), null)
             .setImplementation(RepositoryBasedProvider.class)
             .add(createConfigurationDependency()
-                .setPid(PID)
-             )
-             .add(createServiceDependency()
-                 .setService(LogService.class)
-                 .setRequired(false)));
-    }
-
-    @Override
-    public void destroy(BundleContext arg0, DependencyManager arg1) throws Exception {
-        // TODO Auto-generated method stub
+                .setPid(PID))
+            .add(createServiceDependency()
+                .setService(ArtifactDataHelper.class)
+                .setDefaultImplementation(NoOpArtifactDataHelper.class)
+                .setRequired(false))
+            .add(createServiceDependency()
+                .setService(LogService.class)
+                .setRequired(false)));
     }
 }
