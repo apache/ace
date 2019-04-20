@@ -264,6 +264,6 @@ public class LogViewerExtension implements UIExtensionFactory {
     }
 
     private String normalize(String input) {
-        return input.toLowerCase().replaceAll("_", " ");
+        return input.toLowerCase().replace("_", " ");
     }
 }
