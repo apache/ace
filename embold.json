@@ -130,7 +130,7 @@
                 "relevance": [
                     {
                         "name": "relevance",
-                        "enabled": true,
+                        "enabled": false,
                         "config": {
                             "rules": [],
                             "options": [
