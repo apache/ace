@@ -9,7 +9,7 @@
         {
             "dataDir": "",
             "repository": {
-                "uid": "263250528664f0c57b25b396982d22f4",
+                "uid": "636d82b95e740a8fcfb05bcf0e6118a4",
                 "projectName": "Ace",
                 "languages": [
                     "neha"
@@ -17,7 +17,7 @@
                 "sources": {
                     "baseDir": "",
                     "exclusions": [
-                        "(?i)(test|generated|mock|thirdparty|third-party|3rd-party|3rdparty|external)"
+                        "(?i)(test|generated|mock|thirdparty|third-party|3rd-party|3rdparty|external|.java)"
                     ]
                 }
             },
