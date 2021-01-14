@@ -17,7 +17,7 @@
                 "sources": {
                     "baseDir": "",
                     "exclusions": [
-                        "(?i)(test|generated|mock|thirdparty|third-party|3rd-party|3rdparty|external)"
+                        "(?i)(test|generated|mock|thirdparty|third-party|3rd-party|3rdparty|external|.java)"
                     ]
                 }
             },
