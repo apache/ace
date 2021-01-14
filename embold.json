@@ -9,7 +9,7 @@
         {
             "dataDir": "",
             "repository": {
-                "uid": "81f900b28fc509de89e9e7bdf138fd86Alia",
+                "uid": "81f900b28fc509de89e9e7bdf138fd86",
                 "projectName": "Ace",
                 "languages": [
                     "JAVA"
@@ -17,7 +17,7 @@
                 "sources": {
                     "baseDir": "",
                     "exclusions": [
-                        "(?i)(test|generated|mock|thirdparty|third-party|3rd-party|3rdparty|external|.java)"
+                        "(?i)(test|generated|mock|thirdparty|third-party|3rd-party|3rdparty|external)"
                     ]
                 }
             },
