@@ -12,7 +12,7 @@
                 "uid": "81f900b28fc509de89e9e7bdf138fd86",
                 "projectName": "Ace",
                 "languages": [
-                    "neha"
+                    "JAVA"
                 ],
                 "sources": {
                     "baseDir": "",
@@ -75,7 +75,7 @@
                 "unittest": [
                     {
                         "name": "junit",
-                        "enabled": true,
+                        "enabled": false,
                         "config": {
                             "rules": [],
                             "options": [
@@ -92,7 +92,7 @@
                 "coverage": [
                     {
                         "name": "clover",
-                        "enabled": true,
+                        "enabled": false,
                         "config": {
                             "rules": [],
                             "options": [
@@ -107,7 +107,7 @@
                     },
                     {
                         "name": "jacoco",
-                        "enabled": true,
+                        "enabled": false,
                         "config": {
                             "rules": [],
                             "options": [
